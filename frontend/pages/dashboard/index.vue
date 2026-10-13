@@ -1251,12 +1251,20 @@ const getTrendBadgeColor = (trend: string) => {
   }
 };
 
-// Sync state and action simulation
+// Sync state and action
 const isSyncing = ref(false);
 const handleSync = async () => {
   isSyncing.value = true;
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  isSyncing.value = false;
+  try {
+    await Promise.allSettled([
+      riskProfileStore.fetchRisks(),
+      annualPlanStore.fetchPlans(),
+      auditExecutionStore.fetchAuditExecutions(),
+      atrStore.fetchAtrList()
+    ]);
+  } finally {
+    isSyncing.value = false;
+  }
 };
 
 // Stats for Header
@@ -1328,12 +1336,12 @@ const calculateTrend = (
   }
 };
 
-// Mock last month for trends
+// Comparison base for trends (neutral 0 when no historical snapshot exists)
 const auditMainStatsLastMonth = {
-  plannedAudit: 25,
-  openFinding: 12,
-  executionStatus: 0.7,
-  atrCompliance: 0.8,
+  plannedAudit: 0,
+  openFinding: 0,
+  executionStatus: 0,
+  atrCompliance: 0,
 };
 
 // Computed properties for each metric's trend

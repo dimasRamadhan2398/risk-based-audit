@@ -12,40 +12,25 @@ import type {
 export const useAuditDataStore = defineStore("audit-data", {
   state: (): AuditDataState => ({
     auditMainStats: {
-      plannedAudit: 50,
-      openFinding: 15,
-      executionStatus: 0.8,
-      atrCompliance: 0.9,
+      plannedAudit: 0,
+      openFinding: 0,
+      executionStatus: 0,
+      atrCompliance: 0,
     },
     auditMainStatsLastMonth: {
-      plannedAudit: 45,
-      openFinding: 18,
-      executionStatus: 0.75,
-      atrCompliance: 0.85,
+      plannedAudit: 0,
+      openFinding: 0,
+      executionStatus: 0,
+      atrCompliance: 0,
     },
     auditCoverage: {
-      plannedAudits: 30,
-      completedAudits: 15,
-      remainingAudits: 15,
+      plannedAudits: 0,
+      completedAudits: 0,
+      remainingAudits: 0,
     },
-    auditCategories: [
-      { id: 1, name: "Operational", inherentRisk: 16, residualRisk: 8 },
-      { id: 2, name: "Finance", inherentRisk: 12, residualRisk: 6 },
-      { id: 3, name: "IT", inherentRisk: 8, residualRisk: 4 },
-      { id: 4, name: "Legal", inherentRisk: 10, residualRisk: 7 },
-      { id: 5, name: "HR", inherentRisk: 14, residualRisk: 3 },
-    ],
-    auditExecutionStatus: [
-      { id: 1, name: "Financial Operations", percentage: 1 },
-      { id: 2, name: "IT Security Compliance", percentage: 0.5 },
-      { id: 3, name: "HR Policies", percentage: 0 },
-    ],
-    atrReports: [
-      { id: "AUD-2023-009", name: "Staff Training on GDPR", owner: "HR Dept",  date: "2023-12-10", status: "Pending" },
-      { id: "AUD-2023-002", name: "Revise Procurement Policy", owner: "Sarah M.",  date: "2023-11-10", status: "In Progress" },
-      { id: "AUD-2023-001", name: "Update Firewall Ruleset", owner: "John Doe",  date: "2023-11-10", status: "Completed"},
-    ],
-
+    auditCategories: [],
+    auditExecutionStatus: [],
+    atrReports: [],
   }),
 
   getters: {

@@ -3,7 +3,7 @@ import type { TableColumn } from '@nuxt/ui'
 import { defineStore } from 'pinia'
 import { ref, reactive, computed, watch } from 'vue'
 import { AnnualAuditPlanStatus, AuditDepartment, AuditCategory, type AnnualAuditPlan, type AnnualPlanForm } from '~/types/audit'
-import { getAuditServiceBaseUrl, getRiskServiceBaseUrl } from '~/composables/useApiUrl'
+import { getAuditServiceBaseUrl, getRiskServiceBaseUrl, getAuthServiceBaseUrl } from '~/composables/useApiUrl'
 import type { TablePagination } from '~/types/common'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
@@ -428,6 +428,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
       // An empty response really means "no plans" - no mock fallback.
       plans.value = normalizePlans(items)
+      await fetchSupervisors()
     } catch (error: unknown) {
       // Keep whatever was loaded before (empty on first load); never show mock rows.
       console.warn('Failed to fetch annual audit plans:', error)
@@ -627,11 +628,25 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     form.file = [file]
   }
 
-  const supervisors = ref([
-    { id: 'S01', name: 'Budi Santoso (Mgr)', workload: 5 },
-    { id: 'S02', name: 'Siti Aminah (Snr)', workload: 8 },
-    { id: 'S03', name: 'John Doe (Mgr)', workload: 2 }
-  ])
+  const supervisors = ref<Array<{ id: string; name: string; workload?: number }>>([])
+
+  const fetchSupervisors = async () => {
+    try {
+      const response: any = await $fetch(`${getAuthServiceBaseUrl()}/users/assignable`, { method: 'GET' })
+      const users = (response && response.data && Array.isArray(response.data.users))
+        ? response.data.users
+        : (response && Array.isArray(response.users) ? response.users : [])
+      if (users.length > 0) {
+        supervisors.value = users.map((u: any) => ({
+          id: u.id,
+          name: u.name || u.full_name || u.username,
+          workload: 0
+        }))
+      }
+    } catch {
+      // Keep empty if assignable endpoint not available
+    }
+  }
 
   const TEAM_CAPACITY_PER_YEAR = 10 * 220 * 0.7
 

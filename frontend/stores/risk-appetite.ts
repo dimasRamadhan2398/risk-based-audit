@@ -62,56 +62,21 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
 
 
 
-  const mockStatements: RiskAppetite[] = [
-    {
-      id: 'RA-001',
-      statement: 'Toleransi terhadap pelanggaran kepatuhan hukum, regulasi eksternal, dan etika bisnis (Fraud / Korupsi)',
-      threshold_limit: 0,
-      status: 'APPROVED',
-      created_at: '2026-01-05T08:00:00Z',
-      updated_at: '2026-01-05T08:00:00Z'
-    },
-    {
-      id: 'RA-002',
-      statement: 'Toleransi deviasi anggaran biaya operasional tahunan departemen',
-      threshold_limit: 5,
-      status: 'APPROVED',
-      created_at: '2026-01-05T08:00:00Z',
-      updated_at: '2026-01-05T08:00:00Z'
-    },
-    {
-      id: 'RA-003',
-      statement: 'Maksimal rasio piutang tak tertagih (Bad Debt Ratio) terhadap total pendapatan',
-      threshold_limit: 3,
-      status: 'APPROVED',
-      created_at: '2026-01-05T08:00:00Z',
-      updated_at: '2026-01-05T08:00:00Z'
-    },
-    {
-      id: 'RA-004',
-      statement: 'Toleransi downtime sistem IT utama/Core System dalam sebulan',
-      threshold_limit: 2,
-      status: 'APPROVED',
-      created_at: '2026-01-05T08:00:00Z',
-      updated_at: '2026-01-05T08:00:00Z'
-    }
-  ]
-
   const fetchStatements = async () => {
     loading.value = true
     errorMsg.value = ''
     try {
       const baseUrl = getRiskServiceBaseUrl()
       const response: any = await $fetch(`${baseUrl}/risk-appetite`, { method: 'GET' })
-      if (Array.isArray(response) && response.length > 0) {
+      if (Array.isArray(response)) {
         statements.value = response
       } else {
-        statements.value = [...mockStatements]
+        statements.value = []
       }
     } catch (error: any) {
-      console.error('Failed to fetch risk appetite statements, falling back to mock:', error)
+      console.error('Failed to fetch risk appetite statements:', error)
       errorMsg.value = extractErrorMessage(error, 'Failed to load risk appetite statements.')
-      statements.value = [...mockStatements]
+      statements.value = []
     } finally {
       loading.value = false
     }

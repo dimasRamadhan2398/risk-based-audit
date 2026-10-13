@@ -39,7 +39,7 @@
           </div>
           <div>
             <div class="text-md text-gray-500 dark:text-gray-400">Total Rangkuman Individual</div>
-            <div class="text-2xl font-bold text-gray-800 dark:text-white">{{ store.summaryList.length }}</div>
+            <div class="text-2xl font-bold text-gray-800 dark:text-white">{{ syncedSummaries.length }}</div>
           </div>
         </div>
       </UCard>
@@ -52,7 +52,7 @@
           <div>
             <div class="text-md text-gray-500 dark:text-gray-400">Disetujui (Approved)</div>
             <div class="text-2xl font-bold text-gray-800 dark:text-white">
-              {{ store.summaryList.filter(s => s.status === 'Approved').length }}
+              {{ syncedSummaries.filter(s => s.status === 'Approved').length }}
             </div>
           </div>
         </div>
@@ -66,7 +66,7 @@
           <div>
             <div class="text-md text-gray-500 dark:text-gray-400">Draft</div>
             <div class="text-2xl font-bold text-gray-800 dark:text-white">
-              {{ store.summaryList.filter(s => s.status === 'Draft').length }}
+              {{ syncedSummaries.filter(s => s.status === 'Draft').length }}
             </div>
           </div>
         </div>
@@ -320,7 +320,7 @@ const searchQuery = ref('')
 const selectedAssignmentLetter = ref('')
 
 const totalHandling = computed(() => {
-  return store.summaryList.reduce((total, summary) => {
+  return syncedSummaries.value.reduce((total, summary) => {
     return total + (summary.followUpTable || []).reduce((count, row) => count + Number(row.jumlah || 0), 0)
   }, 0)
 })
@@ -328,24 +328,19 @@ const totalHandling = computed(() => {
 const assignmentLetterOptions = computed(() => {
   const lettersFromStore = assignmentLetterStore.assignmentLetterList
     .map((st: any) => st.letterNumber)
-    .filter((num: string) => num && num.startsWith('ST-') && num.includes('2026'))
+    .filter(Boolean)
   const lettersFromReports = auditReportStore.reportList
     .map((r: any) => r.assignmentLetterId)
-    .filter((num: string) => num && num.startsWith('ST-') && num.includes('2026'))
+    .filter(Boolean)
   const lettersFromSummaries = store.summaryList
     .map((s: any) => s.assignmentLetterId)
-    .filter((num: string) => num && num.startsWith('ST-') && num.includes('2026'))
+    .filter(Boolean)
 
   const combined = Array.from(new Set([
-    'ST-001/SKAI/2026',
     ...lettersFromStore, 
     ...lettersFromReports, 
-    ...lettersFromSummaries,
-    'ST-002/SKAI/2026', 
-    'ST-003/SKAI/2026', 
-    'ST-004/SKAI/2026', 
-    'ST-005/SKAI/2026'
-  ]))
+    ...lettersFromSummaries
+  ])).sort()
   return ['All Assignment Letters', ...combined]
 })
 
@@ -437,9 +432,7 @@ const syncedSummaries = computed(() => {
           if (override.executiveNote !== undefined) itemNote = override.executiveNote
         }
 
-        const fallbackSt = lha.assignmentLetterId && lha.assignmentLetterId.startsWith('ST-')
-          ? lha.assignmentLetterId
-          : 'ST-001/SKAI/2026'
+        const fallbackSt = lha.assignmentLetterId || ''
 
         docMap.set(lhaNum, {
           id: `ES-${lha.id}`,
@@ -453,7 +446,7 @@ const syncedSummaries = computed(() => {
           executiveNote: itemNote,
           narrative: lha.executiveSummary || `Executive Summary untuk ${lha.reportTitle} (${lhaNum}).`,
           jumlahLaporan: 1,
-          risikoTinggi: (lha.findings || []).filter(f => ['Very Significant', 'Significant'].includes(f.category)).length || 1,
+          risikoTinggi: (lha.findings || []).filter(f => ['Very Significant', 'Significant'].includes(f.category)).length || 0,
           risikoSedang: (lha.findings || []).filter(f => f.category === 'Quite Significant').length || 0,
           risikoRendah: (lha.findings || []).filter(f => f.category === 'Not Significant').length || 0,
           jumlahRekomendasi: lha.findingsCount || (lha.findings?.length || 0),
@@ -477,24 +470,8 @@ const syncedSummaries = computed(() => {
     }
   })
 
-  // Ensure every item has a valid ST-XXX/SKAI/2026 assignmentLetterId
   const result: (ExecutiveSummary & { assignmentLetterId?: string })[] = []
   docMap.forEach(s => {
-    if (!s.assignmentLetterId || !s.assignmentLetterId.startsWith('ST-')) {
-      if (s.nomorDokumen.includes('021')) {
-        s.assignmentLetterId = 'ST-001/SKAI/2026'
-      } else if (s.nomorDokumen.includes('022')) {
-        s.assignmentLetterId = 'ST-002/SKAI/2026'
-      } else if (s.nomorDokumen.includes('023')) {
-        s.assignmentLetterId = 'ST-003/SKAI/2026'
-      } else if (s.nomorDokumen.includes('024')) {
-        s.assignmentLetterId = 'ST-004/SKAI/2026'
-      } else if (s.nomorDokumen.includes('025')) {
-        s.assignmentLetterId = 'ST-005/SKAI/2026'
-      } else {
-        s.assignmentLetterId = 'ST-001/SKAI/2026'
-      }
-    }
     if (!store.deletedDocNumbers.includes(s.nomorDokumen)) {
       result.push(s)
     }

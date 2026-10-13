@@ -121,6 +121,38 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
   })
 
   describe('Executive Summary Store Functions', () => {
+    const testItems = [
+      {
+        id: 'ES-LHA-021-2026',
+        assignmentLetterId: 'ST-001/SKAI/2026',
+        quarter: 1,
+        periodeBulan: 'Januari - Maret',
+        tahun: 2026,
+        nomorDokumen: 'LHA-021/SKAI/2026',
+        dokumenPath: 'Executive_Summary_021_LHA_2026.pdf',
+        status: 'Draft',
+        executiveNote: '',
+        narrative: 'Executive Summary Individual untuk Laporan Hasil Audit Operasional Keuangan (LHA-021/SKAI/2026).',
+        jumlahLaporan: 1,
+        risikoTinggi: 3,
+        risikoSedang: 2,
+        risikoRendah: 0,
+        jumlahRekomendasi: 5,
+        followUpTable: [],
+        topFindings: [],
+        matriksKompilasi: []
+      }
+    ]
+
+    beforeEach(() => {
+      global.$fetch = (async (url: string, opts?: any) => {
+        if (!opts?.method || opts.method === 'GET') {
+          return { data: { items: [...testItems] } }
+        }
+        return { success: true }
+      }) as any
+    })
+
     it('handles saveExecutiveNote and updateStatus fallback and state sync', async () => {
       const store = useExecutiveSummaryStore()
       await store.fetchSummaries()

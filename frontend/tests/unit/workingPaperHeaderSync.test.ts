@@ -9,6 +9,40 @@ describe('Working Paper Header - Assignment Letter Team Synchronization', () => 
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
+    const letterStore = useAssignmentLetterStore()
+    letterStore.assignmentLetterList = [
+      {
+        id: 'mock-1',
+        letterNumber: 'ST-001/SKAI/2026',
+        auditPurpose: 'Annual Audit',
+        membersList: [
+          { name: 'Zeta Ramadhani', role: 'Chairperson' },
+          { name: 'Budi Santoso', role: 'Supervisor' },
+          { name: 'Rina Wulandari', role: 'Member' },
+          { name: 'Andi Firmansyah', role: 'Member' },
+          { name: 'Dewi Kusumawati', role: 'Person in Charge' }
+        ]
+      },
+      {
+        id: 'mock-2',
+        letterNumber: 'ST-002/SKAI/2026',
+        auditPurpose: 'IT Security Audit',
+        membersList: [
+          { name: 'Andi Firmansyah', role: 'Chairperson' },
+          { name: 'Budi Santoso', role: 'Supervisor' },
+          { name: 'Dedi Prasetyo', role: 'Member' }
+        ]
+      },
+      {
+        id: 'mock-3',
+        letterNumber: 'ST-003/SKAI/2026',
+        auditPurpose: 'Operational Audit',
+        membersList: [
+          { name: 'Rina Wulandari', role: 'Chairperson' },
+          { name: 'Budi Santoso', role: 'Supervisor' }
+        ]
+      }
+    ] as any
   })
 
   it('automatically synchronizes Team Members and Audit Purpose when selecting ST-001/SKAI/2026', () => {
@@ -97,6 +131,40 @@ describe('Working Paper Header - Audit Purpose from Assignment Letter', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
+    const letterStore = useAssignmentLetterStore()
+    letterStore.assignmentLetterList = [
+      {
+        id: 'mock-1',
+        letterNumber: 'ST-001/SKAI/2026',
+        auditPurpose: 'Annual Audit',
+        membersList: [
+          { name: 'Zeta Ramadhani', role: 'Chairperson' },
+          { name: 'Budi Santoso', role: 'Supervisor' },
+          { name: 'Rina Wulandari', role: 'Member' },
+          { name: 'Andi Firmansyah', role: 'Member' },
+          { name: 'Dewi Kusumawati', role: 'Person in Charge' }
+        ]
+      },
+      {
+        id: 'mock-2',
+        letterNumber: 'ST-002/SKAI/2026',
+        auditPurpose: 'IT Security Audit',
+        membersList: [
+          { name: 'Andi Firmansyah', role: 'Chairperson' },
+          { name: 'Budi Santoso', role: 'Supervisor' },
+          { name: 'Dedi Prasetyo', role: 'Member' }
+        ]
+      },
+      {
+        id: 'mock-3',
+        letterNumber: 'ST-003/SKAI/2026',
+        auditPurpose: 'Operational Audit',
+        membersList: [
+          { name: 'Rina Wulandari', role: 'Chairperson' },
+          { name: 'Budi Santoso', role: 'Supervisor' }
+        ]
+      }
+    ] as any
   })
 
   it('falls back to purposeList when the letter has no auditPurpose', () => {

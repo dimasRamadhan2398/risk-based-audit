@@ -733,10 +733,6 @@
             <button v-if="!isLocked" type="button" @click="addMatrixRow" class="text-primary-500 font-bold ml-1 hover:underline">
               Tambah baris manual
             </button>
-            atau
-            <button v-if="!isLocked" type="button" @click="simulateExcelImport" class="text-warning-600 font-bold ml-1 hover:underline">
-              Impor data simulasi Excel
-            </button>
           </div>
         </section>
       </form>
@@ -1040,71 +1036,7 @@ const downloadExcelTemplate = () => {
   document.body.removeChild(link)
 }
 
-// Excel Import Simulation
-const simulateExcelImport = () => {
-  // Populate the matrix table with standard mockup entries
-  store.form.matriksKompilasi = [
-    {
-      nomor: '001/SPI/2026',
-      division: 'OP',
-      unitKerja: 'Division Operation Personnel',
-      prosesBisnis: 'O&M',
-      judulTemuan: 'Keterlambatan Kalibrasi Alat Berat',
-      nilaiRisiko: 'Tinggi',
-      rekomendasi: 'Segera lakukan kalibrasi ulang alat berat pendukung produksi',
-      dueDate: '2026-03-15',
-      picUnit: 'Manager O&M',
-      progres: 40,
-      status: 'Overdue',
-      buktiTL: 'BA Kalibrasi 1.pdf'
-    },
-    {
-      nomor: '002/SPI/2026',
-      division: 'KK/KSD',
-      unitKerja: 'Division KSD',
-      prosesBisnis: 'K3',
-      judulTemuan: 'Ketidakpatuhan Prosedur K3 Tambang',
-      nilaiRisiko: 'Tinggi',
-      rekomendasi: 'Sediakan APD tambahan dan lakukan training harian kepada petugas lapangan',
-      dueDate: '2026-04-10',
-      picUnit: 'Manager K3',
-      progres: 80,
-      status: 'In Progress',
-      buktiTL: ''
-    },
-    {
-      nomor: '003/SPI/2026',
-      division: 'IT',
-      unitKerja: 'Core Technology Center',
-      prosesBisnis: 'Security',
-      judulTemuan: 'Pencadangan Backup Server Utama Tertunda',
-      nilaiRisiko: 'Sedang',
-      rekomendasi: 'Siapkan backup offsite otomatis harian',
-      dueDate: '2026-02-28',
-      picUnit: 'Manager Security IT',
-      progres: 100,
-      status: 'Closed',
-      buktiTL: 'Log Pencadangan Offsite.pdf'
-    },
-    {
-      nomor: '004/SPI/2026',
-      division: 'FIN',
-      unitKerja: 'Corporate Treasury',
-      prosesBisnis: 'Procurement',
-      judulTemuan: 'Dokumen Pajak Mitra Tidak Lengkap',
-      nilaiRisiko: 'Rendah',
-      rekomendasi: 'Lengkapi arsip dokumen NPWP vendor baru',
-      dueDate: '2026-05-20',
-      picUnit: 'Supervisor Pajak',
-      progres: 100,
-      status: 'Closed',
-      buktiTL: 'Berkas Pajak Mitra Q1.pdf'
-    }
-  ]
-  
-  // Auto-sync stats to Section II
-  syncStatsFromMatrix()
-}
+
 
 // Charting Visuals data providers
 const statusBadgeColorMap = {
@@ -1180,10 +1112,7 @@ const barChartData = computed(() => {
     data = counts.slice(9, 12)
   }
 
-  // Fallback to dummy data if matrix is empty
-  if (store.form.matriksKompilasi.length === 0) {
-    data = [2, 5, 3]
-  }
+
 
   return {
     labels,
@@ -1199,17 +1128,17 @@ const barChartData = computed(() => {
 // Line Chart (Aging Recommendation progress by Month)
 const lineChartData = computed(() => {
   let labels = ['Januari', 'Februari', 'Maret']
-  let data = [65, 80, 95] // Fallback
+  let data = [0, 0, 0]
 
   if (store.form.quarter === 2) {
     labels = ['April', 'Mei', 'Juni']
-    data = [70, 75, 88]
+    data = [0, 0, 0]
   } else if (store.form.quarter === 3) {
     labels = ['Juli', 'Agustus', 'September']
-    data = [60, 68, 72]
+    data = [0, 0, 0]
   } else if (store.form.quarter === 4) {
     labels = ['Oktober', 'November', 'Desember']
-    data = [80, 85, 92]
+    data = [0, 0, 0]
   }
 
   // Calculate actual average progress from matrix if items exist

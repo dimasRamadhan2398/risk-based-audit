@@ -28,6 +28,29 @@ describe('Audit Result Report - Signatures Workflow', () => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
     vi.mocked($fetch).mockResolvedValue({ success: true, data: {} })
+    const alStore = useAssignmentLetterStore()
+    alStore.assignmentLetterList = [
+      {
+        id: 'mock-1',
+        letterNumber: 'ST-001/SKAI/2026',
+        membersList: [
+          { name: 'Zeta Ramadhani', role: 'Chairperson' },
+          { name: 'Budi Santoso', role: 'Supervisor' },
+          { name: 'Rina Wulandari', role: 'Member' },
+          { name: 'Andi Firmansyah', role: 'Member' },
+          { name: 'Dewi Kusumawati', role: 'Person in Charge' }
+        ]
+      },
+      {
+        id: 'mock-2',
+        letterNumber: 'ST-002/SKAI/2026',
+        membersList: [
+          { name: 'Andi Firmansyah', role: 'Chairperson' },
+          { name: 'Budi Santoso', role: 'Supervisor' },
+          { name: 'Dedi Prasetyo', role: 'Member' }
+        ]
+      }
+    ] as any
   })
 
   it('pulls Team Members from the selected Assignment Letter correctly', () => {

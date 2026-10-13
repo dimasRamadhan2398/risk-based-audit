@@ -309,24 +309,19 @@ const selectedAssignmentLetter = ref('')
 const assignmentLetterOptions = computed(() => {
   const lettersFromStore = assignmentLetterStore.assignmentLetterList
     .map((st: any) => st.letterNumber)
-    .filter((num: string) => num && num.startsWith('ST-') && num.includes('2026'))
+    .filter(Boolean)
   const lettersFromReports = auditReportStore.reportList
     .map((r: any) => r.assignmentLetterId)
-    .filter((num: string) => num && num.startsWith('ST-') && num.includes('2026'))
+    .filter(Boolean)
   const lettersFromSummaries = store.summaryList
     .map((s: any) => s.assignmentLetterId)
-    .filter((num: string) => num && num.startsWith('ST-') && num.includes('2026'))
+    .filter(Boolean)
 
   const combined = Array.from(new Set([
-    'ST-001/SKAI/2026',
     ...lettersFromStore, 
     ...lettersFromReports, 
-    ...lettersFromSummaries,
-    'ST-002/SKAI/2026', 
-    'ST-003/SKAI/2026', 
-    'ST-004/SKAI/2026', 
-    'ST-005/SKAI/2026'
-  ]))
+    ...lettersFromSummaries
+  ])).sort()
   return ['All Assignment Letters', ...combined]
 })
 
