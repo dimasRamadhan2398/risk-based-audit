@@ -5,8 +5,7 @@
  * Risk breakdown: five levels, the same as the working paper risks.
  *   high | moderate-high | moderate | low-moderate | low
  * Persisted as risikoHigh / risikoModerateHigh / risikoModerate / risikoLowModerate / risikoLow.
- * Records saved before the five-level breakdown only have risikoTinggi / risikoSedang / risikoRendah;
- * they are read as High / Moderate / Low (see resolveRiskFields).
+ * The risk data is calculated by the system; the legacy three-level fields are no longer sent.
  */
 
 export const RISK_LEVELS = ['high', 'moderateHigh', 'moderate', 'lowModerate', 'low'] as const
@@ -18,12 +17,6 @@ export type RiskBreakdown = Record<RiskLevel, number>
 export type RiskField = 'risikoHigh' | 'risikoModerateHigh' | 'risikoModerate' | 'risikoLowModerate' | 'risikoLow'
 
 export type RiskFields = Record<RiskField, number>
-
-export interface LegacyRiskFields {
-  risikoTinggi: number
-  risikoSedang: number
-  risikoRendah: number
-}
 
 export const RISK_FIELD: Record<RiskLevel, RiskField> = {
   high: 'risikoHigh',
@@ -122,36 +115,6 @@ export const riskFieldsToBreakdown = (fields: Partial<Record<RiskField, unknown>
   lowModerate: toCount(fields.risikoLowModerate),
   low: toCount(fields.risikoLow)
 })
-
-/**
- * The five risk fields of a stored executive summary.
- * When all five are 0/missing (record saved before the five-level breakdown), falls back to the
- * legacy fields: Tinggi -> High, Sedang -> Moderate, Rendah -> Low.
- */
-export const resolveRiskFields = (item: Partial<Record<RiskField | keyof LegacyRiskFields, unknown>>): RiskFields => {
-  const breakdown = riskFieldsToBreakdown(item)
-  if (riskBreakdownTotal(breakdown) > 0) return riskBreakdownToFields(breakdown)
-  return riskBreakdownToFields({
-    ...emptyRiskBreakdown(),
-    high: toCount(item.risikoTinggi),
-    moderate: toCount(item.risikoSedang),
-    low: toCount(item.risikoRendah)
-  })
-}
-
-/**
- * Legacy three-level fields derived from the five levels, sent on save so the old columns stay consistent:
- * Tinggi = High + Moderate to High, Sedang = Moderate, Rendah = Low to Moderate + Low.
- * (Inverse of the load fallback for records that only use High / Moderate / Low.)
- */
-export const legacyRiskFields = (fields: Partial<Record<RiskField, unknown>>): LegacyRiskFields => {
-  const b = riskFieldsToBreakdown(fields)
-  return {
-    risikoTinggi: b.high + b.moderateHigh,
-    risikoSedang: b.moderate,
-    risikoRendah: b.lowModerate + b.low
-  }
-}
 
 /** Quarter (1-4) of a 'YYYY-MM-DD...' date, or null when the month cannot be read. */
 export const quarterOfDate = (value: unknown): number | null => {

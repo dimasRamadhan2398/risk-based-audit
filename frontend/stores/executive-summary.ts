@@ -4,7 +4,6 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 import { useAuditResultReportStore } from './audit-result-report'
-import { legacyRiskFields, resolveRiskFields } from '~/utils/executiveSummaryCompilation'
 
 export interface FollowUpRow {
   status: 'Closed' | 'In Progress' | 'Overdue'
@@ -57,12 +56,6 @@ export interface ExecutiveSummary {
   risikoModerate: number
   risikoLowModerate: number
   risikoLow: number
-  /** @deprecated Legacy three-level breakdown. Read only as a fallback (see resolveRiskFields); derived from the five levels on save. */
-  risikoTinggi?: number
-  /** @deprecated See risikoTinggi. */
-  risikoSedang?: number
-  /** @deprecated See risikoTinggi. */
-  risikoRendah?: number
   jumlahRekomendasi: number
 
   // Section III (JSON string stored in DB, array in store)
@@ -259,8 +252,12 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       quarter: Number(item.quarter),
       tahun: Number(item.tahun),
       jumlahLaporan: Number(item.jumlahLaporan),
-      // Five levels; old records (all five 0/missing) fall back to Tinggi/Sedang/Rendah -> High/Moderate/Low
-      ...resolveRiskFields(item),
+      // Five levels. Legacy-only rows are copied into these columns by the backend on startup.
+      risikoHigh: Number(item.risikoHigh) || 0,
+      risikoModerateHigh: Number(item.risikoModerateHigh) || 0,
+      risikoModerate: Number(item.risikoModerate) || 0,
+      risikoLowModerate: Number(item.risikoLowModerate) || 0,
+      risikoLow: Number(item.risikoLow) || 0,
       jumlahRekomendasi: Number(item.jumlahRekomendasi),
       followUpTable: item.followUpTable ? (typeof item.followUpTable === 'string' ? JSON.parse(item.followUpTable) : item.followUpTable) : [],
       topFindings: item.topFindings ? (typeof item.topFindings === 'string' ? JSON.parse(item.topFindings) : item.topFindings) : [],
@@ -281,8 +278,6 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       risikoModerate: Number(data.risikoModerate) || 0,
       risikoLowModerate: Number(data.risikoLowModerate) || 0,
       risikoLow: Number(data.risikoLow) || 0,
-      // Legacy columns kept consistent with the five levels (Tinggi = High + Moderate to High, ...)
-      ...legacyRiskFields(data),
       jumlahRekomendasi: Number(data.jumlahRekomendasi),
       followUpTable: typeof data.followUpTable === 'string' ? data.followUpTable : JSON.stringify(data.followUpTable || []),
       topFindings: typeof data.topFindings === 'string' ? data.topFindings : JSON.stringify(data.topFindings || []),

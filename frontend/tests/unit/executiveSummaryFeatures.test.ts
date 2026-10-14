@@ -332,7 +332,6 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       expect(compilationContent).toContain('riskBucketFields')
       expect(compilationContent).toContain('riskBucketBreakdown(risk)')
       expect(compilationContent).toContain('riskBuckets.high')
-      expect(compilationContent).not.toMatch(/risikoTinggi|risikoSedang|risikoRendah/)
       expect(compilationContent).not.toContain('noMatchingLha')
       expect(compilationContent).not.toContain('selectCompilationReports')
       expect(compilationContent).toContain('store.form.topFindings')

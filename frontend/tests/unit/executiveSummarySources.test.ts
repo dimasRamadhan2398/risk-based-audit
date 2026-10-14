@@ -1,10 +1,8 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { summarizeAtrFollowUp, useExecutiveSummarySources } from '~/composables/useExecutiveSummarySources'
 import {
-  legacyRiskFields,
   mapWorkingPaperRiskLevel,
   quarterOfDate,
-  resolveRiskFields,
   riskBreakdownTotal,
   riskFieldsToBreakdown,
   selectCompilationReports
@@ -41,39 +39,13 @@ describe('mapWorkingPaperRiskLevel', () => {
   })
 })
 
-describe('resolveRiskFields (legacy fallback)', () => {
-  it('uses the five new fields when any of them is set', () => {
-    const fields = resolveRiskFields({
-      risikoHigh: 1, risikoModerateHigh: 2, risikoModerate: 0, risikoLowModerate: 3, risikoLow: 0,
-      risikoTinggi: 9, risikoSedang: 9, risikoRendah: 9
-    })
-    expect(fields).toEqual({ risikoHigh: 1, risikoModerateHigh: 2, risikoModerate: 0, risikoLowModerate: 3, risikoLow: 0 })
-  })
-
-  it('falls back to Tinggi -> High, Sedang -> Moderate, Rendah -> Low when all five are 0 or missing', () => {
-    expect(resolveRiskFields({ risikoTinggi: 3, risikoSedang: 2, risikoRendah: 1 }))
-      .toEqual({ risikoHigh: 3, risikoModerateHigh: 0, risikoModerate: 2, risikoLowModerate: 0, risikoLow: 1 })
-    expect(resolveRiskFields({
-      risikoHigh: 0, risikoModerateHigh: 0, risikoModerate: 0, risikoLowModerate: 0, risikoLow: 0,
-      risikoTinggi: '4', risikoSedang: null, risikoRendah: undefined
-    })).toEqual({ risikoHigh: 4, risikoModerateHigh: 0, risikoModerate: 0, risikoLowModerate: 0, risikoLow: 0 })
-  })
-
-  it('returns zeros for an empty record and ignores invalid numbers', () => {
-    expect(resolveRiskFields({})).toEqual({ risikoHigh: 0, risikoModerateHigh: 0, risikoModerate: 0, risikoLowModerate: 0, risikoLow: 0 })
-    expect(resolveRiskFields({ risikoHigh: 'x', risikoLow: -2 })).toEqual({ risikoHigh: 0, risikoModerateHigh: 0, risikoModerate: 0, risikoLowModerate: 0, risikoLow: 0 })
-  })
-
+describe('risk breakdown totals', () => {
   it('total is the sum of the five levels', () => {
     expect(riskBreakdownTotal(riskFieldsToBreakdown({ risikoHigh: 1, risikoModerateHigh: 2, risikoModerate: 3, risikoLowModerate: 4, risikoLow: 5 }))).toBe(15)
   })
 
-  it('derives the legacy fields on save so a reload falls back consistently', () => {
-    expect(legacyRiskFields({ risikoHigh: 1, risikoModerateHigh: 2, risikoModerate: 3, risikoLowModerate: 4, risikoLow: 5 }))
-      .toEqual({ risikoTinggi: 3, risikoSedang: 3, risikoRendah: 9 })
-    // Round trip of a legacy record: load fallback, then save
-    const loaded = resolveRiskFields({ risikoTinggi: 3, risikoSedang: 2, risikoRendah: 1 })
-    expect(legacyRiskFields(loaded)).toEqual({ risikoTinggi: 3, risikoSedang: 2, risikoRendah: 1 })
+  it('ignores invalid and negative counts', () => {
+    expect(riskFieldsToBreakdown({ risikoHigh: 'x', risikoLow: -2 })).toEqual({ high: 0, moderateHigh: 0, moderate: 0, lowModerate: 0, low: 0 })
   })
 })
 
