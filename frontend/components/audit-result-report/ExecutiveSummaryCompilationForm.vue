@@ -52,20 +52,7 @@
             <p class="text-sm text-gray-400">Detail identitas laporan kompilasi dan unggahan dokumen resmi.</p>
           </div>
 
-          <div class="w-full">
-            <UFormField label="Pilih Surat Tugas (Assignment Letter) / LHA">
-              <USelectMenu
-                v-model="selectedLhaId"
-                :items="lhaDropdownOptions"
-                placeholder="Pilih ID LHA..."
-                class="w-full font-semibold"
-                :disabled="isLocked"
-                @update:modelValue="onLhaSelect"
-              />
-            </UFormField>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <UFormField label="Tahun Laporan" required>
               <USelectMenu
                 v-model="store.form.tahun"
@@ -85,31 +72,113 @@
                 :disabled="isLocked"
               />
             </UFormField>
+
+            <UFormField label="Nomor Dokumen Kompilasi" required>
+              <UInput
+                v-model="store.form.nomorDokumen"
+                placeholder="Contoh: ESC-001/2026"
+                class="w-full font-bold bg-gray-50 dark:bg-gray-800"
+                disabled
+              />
+            </UFormField>
           </div>
 
-          <!-- Assignment Letter Linked Context Card -->
-          <div v-if="linkedAssignmentLetter" class="bg-primary-50/60 dark:bg-primary-950/30 border border-primary-200 dark:border-primary-800/60 rounded-xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-              <div class="p-2.5 bg-primary-100 dark:bg-primary-900/60 text-primary-600 dark:text-primary-400 rounded-lg">
-                <UIcon name="i-lucide-file-signature" class="size-5" />
+          <!-- Kumpulan Semua Data LHA Sesuai Tahun dan Kuartal -->
+          <div class="border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50/70 dark:bg-gray-800/40 p-5 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-200 dark:border-gray-700/80">
+              <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-primary-100 dark:bg-primary-900/60 text-primary-600 dark:text-primary-400 rounded-lg">
+                  <UIcon name="i-lucide-files" class="size-5" />
+                </div>
+                <div>
+                  <div class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <span>Kumpulan Data LHA Terkompilasi</span>
+                    <UBadge color="primary" variant="subtle" size="xs">
+                      {{ reportingQuarter }} {{ store.form.tahun }}
+                    </UBadge>
+                  </div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    Daftar seluruh LHA dari surat tugas yang otomatis dirangkum ke dalam laporan kompilasi ini.
+                  </p>
+                </div>
               </div>
-              <div>
-                <div class="text-xs font-bold uppercase tracking-wider text-primary-700 dark:text-primary-300 flex items-center gap-2">
-                  <span>Surat Tugas: {{ linkedAssignmentLetter.letterNumber }}</span>
-                  <UBadge color="primary" variant="subtle" size="xs">{{ linkedAssignmentLetter.status || 'Published' }}</UBadge>
-                </div>
-                <div class="text-sm font-semibold text-gray-900 dark:text-white mt-0.5">
-                  {{ linkedAssignmentLetter.auditTitle }}
-                </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <UBadge color="neutral" variant="outline" size="sm" class="font-mono">
+                  Total: {{ quarterlyLhas.length }} LHA
+                </UBadge>
+                <UButton
+                  v-if="!isLocked"
+                  color="primary"
+                  variant="ghost"
+                  icon="i-lucide-refresh-cw"
+                  label="Segarkan Data"
+                  size="xs"
+                  @click="syncFromIndividualLha"
+                />
               </div>
             </div>
-            <div class="flex flex-wrap items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-              <div v-if="linkedAssignmentLetter.leader">
-                <span class="text-gray-400">Ketua Tim:</span> <span class="font-medium text-gray-700 dark:text-gray-300">{{ linkedAssignmentLetter.leader }}</span>
+
+            <!-- List of LHAs (Table or Empty State) -->
+            <div v-if="quarterlyLhas.length > 0" class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-xs">
+              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800 text-xs">
+                <thead class="bg-gray-50 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 font-bold uppercase tracking-wider">
+                  <tr>
+                    <th class="px-4 py-2.5 text-left">No. Dokumen LHA</th>
+                    <th class="px-4 py-2.5 text-left">Surat Tugas (ST)</th>
+                    <th class="px-4 py-2.5 text-left">Judul / Objek Audit</th>
+                    <th class="px-4 py-2.5 text-left">Divisi</th>
+                    <th class="px-4 py-2.5 text-left">Tanggal LHA</th>
+                    <th class="px-4 py-2.5 text-center">Temuan</th>
+                    <th class="px-4 py-2.5 text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800 font-medium">
+                  <tr v-for="lha in quarterlyLhas" :key="lha.id || lha.reportNumber" class="hover:bg-gray-50/60 dark:hover:bg-gray-800/50 transition-colors">
+                    <td class="px-4 py-2.5 font-mono font-semibold text-primary-600 dark:text-primary-400 whitespace-nowrap">
+                      {{ lha.reportNumber || lha.report_number }}
+                    </td>
+                    <td class="px-4 py-2.5 font-mono text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                      <span v-if="lha.assignmentLetterId" class="inline-flex items-center gap-1">
+                        <UIcon name="i-lucide-file-signature" class="size-3 text-primary-500" />
+                        {{ lha.assignmentLetterId }}
+                      </span>
+                      <span v-else class="text-gray-400 italic">-</span>
+                    </td>
+                    <td class="px-4 py-2.5 text-gray-800 dark:text-gray-200 max-w-xs truncate" :title="lha.reportTitle">
+                      {{ lha.reportTitle }}
+                    </td>
+                    <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                      <UBadge color="neutral" variant="subtle" size="xs">
+                        {{ lha.department || 'OP' }}
+                      </UBadge>
+                    </td>
+                    <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                      {{ lha.reportDate || '-' }}
+                    </td>
+                    <td class="px-4 py-2.5 text-center whitespace-nowrap">
+                      <UBadge color="warning" variant="subtle" size="xs" class="font-bold">
+                        {{ lha.findingsCount || (lha.findings ? lha.findings.length : 0) }} Temuan
+                      </UBadge>
+                    </td>
+                    <td class="px-4 py-2.5 text-center whitespace-nowrap">
+                      <UBadge :color="lha.status === 'Final' || lha.status === 'Approved' ? 'success' : 'neutral'" variant="soft" size="xs">
+                        {{ lha.status }}
+                      </UBadge>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Empty State when no LHAs for the selected quarter & year -->
+            <div v-else class="text-center py-6 px-4 bg-white dark:bg-gray-900 rounded-lg border border-dashed border-gray-300 dark:border-gray-700 space-y-1">
+              <UIcon name="i-lucide-file-x" class="size-8 text-gray-400 mx-auto" />
+              <div class="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                Tidak ada dokumen LHA untuk {{ reportingQuarter }} {{ store.form.tahun }}
               </div>
-              <div v-if="linkedAssignmentLetter.executionPeriod || (linkedAssignmentLetter as any).auditYear">
-                <span class="text-gray-400">Periode:</span> <span class="font-medium text-gray-700 dark:text-gray-300">{{ linkedAssignmentLetter.executionPeriod || (linkedAssignmentLetter as any).auditYear }}</span>
-              </div>
+              <p class="text-[11px] text-gray-400">
+                Belum ada LHA yang terbit atau sesuai pada periode ini. Data kompilasi akan otomatis terisi setelah LHA diterbitkan.
+              </p>
             </div>
           </div>
 
@@ -680,18 +749,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useExecutiveSummaryStore } from '~/stores/executive-summary'
 import { useAuthStore } from '~/stores/auth'
 import { useRbac } from '~/composables/useRbac'
-import { UserRole } from '~/types/auth'
+import { useAuditResultReportStore } from '~/stores/audit-result-report'
+import { useAssignmentLetterStore } from '~/stores/assignment-letter'
+
 const store = useExecutiveSummaryStore()
 const authStore = useAuthStore()
+const auditReportStore = useAuditResultReportStore()
+const assignmentLetterStore = useAssignmentLetterStore()
 const { canReviewExecutiveSummary } = useRbac()
 
 const fileInput = ref<HTMLInputElement | null>(null)
 const activeSection = ref('sec-upload')
 const scrollContainer = ref<HTMLElement | null>(null)
+
+if (!auditReportStore.loading && auditReportStore.reportList.length === 0) {
+  auditReportStore.fetchReports()
+}
+if (!assignmentLetterStore.loading && assignmentLetterStore.assignmentLetterList.length === 0) {
+  assignmentLetterStore.fetchAssignmentLetters()
+}
 
 // Navigation links
 const sections = computed(() => [
@@ -726,6 +806,108 @@ const isDraft = computed(() => String(store.form.status || '').toLowerCase() ===
 
 const isLocked = computed(() => {
   return store.form.status === 'Approved'
+})
+
+// Helper to generate compilation document number: ESC-[nomor urut]/[tahun]
+const generateEscDocNumber = (targetYear: number = 2026): string => {
+  if (typeof (store as any).generateEscDocNumber === 'function') {
+    return (store as any).generateEscDocNumber(targetYear)
+  }
+  let maxSeq = 0
+  const escRegex = new RegExp(`^ESC-(\\d+)/${targetYear}$`, 'i')
+  for (const s of store.summaryList || []) {
+    if (s.nomorDokumen) {
+      const match = s.nomorDokumen.match(escRegex)
+      if (match && match[1]) {
+        const val = parseInt(match[1], 10)
+        if (!isNaN(val) && val > maxSeq) maxSeq = val
+      }
+    }
+  }
+  const nextSeq = (maxSeq + 1).toString().padStart(3, '0')
+  return `ESC-${nextSeq}/${targetYear}`
+}
+
+// Helper to determine year and quarter of an individual LHA
+const getReportQuarterAndYear = (r: any, letters: any[] = []): { year: number; quarter: number } => {
+  let year = 0
+  let quarter = 0
+
+  const dateStr = r.reportDate || (r as any).report_date || ''
+  if (dateStr) {
+    const parts = dateStr.split('T')[0].split('-')
+    if (parts[0] && /^\d{4}$/.test(parts[0])) {
+      year = parseInt(parts[0], 10)
+    }
+    if (parts[1]) {
+      const month = parseInt(parts[1], 10)
+      if (month >= 1 && month <= 12) {
+        quarter = Math.ceil(month / 3)
+      }
+    }
+  }
+
+  // Linked Assignment Letter info
+  if (r.assignmentLetterId) {
+    const st = letters.find(s => s.letterNumber === r.assignmentLetterId)
+    if (st) {
+      if (!year && st.auditYear) {
+        const yMatch = String(st.auditYear).match(/\b(20\d{2})\b/)
+        if (yMatch) year = parseInt(yMatch[1], 10)
+      }
+      if (!quarter && st.startPeriod) {
+        const parts = st.startPeriod.split('T')[0].split('-')
+        if (parts[1]) {
+          const m = parseInt(parts[1], 10)
+          if (m >= 1 && m <= 12) quarter = Math.ceil(m / 3)
+        }
+      }
+      if (!quarter && st.executionPeriod) {
+        if (/Q1|Kuartal I\b|Triwulan I\b/i.test(st.executionPeriod)) quarter = 1
+        else if (/Q2|Kuartal II\b|Triwulan II\b/i.test(st.executionPeriod)) quarter = 2
+        else if (/Q3|Kuartal III\b|Triwulan III\b/i.test(st.executionPeriod)) quarter = 3
+        else if (/Q4|Kuartal IV\b|Triwulan IV\b/i.test(st.executionPeriod)) quarter = 4
+      }
+    }
+  }
+
+  if (!year) {
+    const numMatch = (r.reportNumber || (r as any).report_number || '').match(/\b(20\d{2})\b/)
+    if (numMatch) {
+      year = parseInt(numMatch[1], 10)
+    } else {
+      year = 2026
+    }
+  }
+
+  if (!quarter) {
+    quarter = 1
+  }
+
+  return { year, quarter }
+}
+
+// All LHAs corresponding to the selected Tahun Laporan and Periode Kuartal
+const quarterlyLhas = computed(() => {
+  const targetYear = Number(store.form.tahun) || 2026
+  const targetQuarter = Number(store.form.quarter) || 1
+
+  const validReports = auditReportStore.reportList.filter(r => {
+    const num = r.reportNumber || (r as any).report_number
+    return (
+      num &&
+      num !== 'DOC-EXSUM-Q1-2026' &&
+      num !== '020/LHA/01/KS IAD/2023' &&
+      num !== '019/LHA/01/KS IAD/2025' &&
+      num !== 'LHA-020/SKAI/2023' &&
+      num !== 'LHA-019/SKAI/2025'
+    )
+  })
+
+  return validReports.filter(r => {
+    const { year, quarter } = getReportQuarterAndYear(r, assignmentLetterStore.assignmentLetterList)
+    return year === targetYear && quarter === targetQuarter
+  })
 })
 
 // Section II computed auto-sum
@@ -809,207 +991,42 @@ const getStatusBadgeClass = (status: 'Closed' | 'In Progress' | 'Overdue') => {
   return colors[status]
 }
 
-// Form submission & workflow helpers
-const saveReportDraft = async () => {
-  if (!store.form.nomorDokumen) {
-    alert('Nomor dokumen wajib diisi.')
-    return
-  }
-  if (!store.form.dokumenPath) {
-    alert('Unggah dokumen resmi wajib diisi.')
-    return
-  }
-  
-  // Set status Draft
-  store.form.periodeBulan = reportingQuarter.value
-  store.form.status = 'Draft'
-  await store.saveForm()
-}
-
-const approveReportDirectly = async () => {
-  if (store.currentSummary) {
-    await store.updateStatus(store.currentSummary.id, 'Approved')
-  }
-}
-
-// Scrolling Table of Contents logic
-const scrollToSection = (id: string) => {
-  activeSection.value = id
-  const target = document.getElementById(id)
-  if (target) {
-    target.scrollIntoView({ behavior: 'smooth' })
-  }
-}
-
-const onScroll = () => {
-  const scrollOffset = 150
-  for (const sec of sections.value) {
-    const el = document.getElementById(sec.id)
-    if (el) {
-      const rect = el.getBoundingClientRect()
-      // Section is at the top of the container
-      if (rect.top <= scrollOffset && rect.bottom > scrollOffset) {
-        activeSection.value = sec.id
-        break
-      }
-    }
-  }
-}
-
-// Assignment Letter & LHA Stores Integration for 2-Way Sync
-import { useAuditResultReportStore } from '~/stores/audit-result-report'
-import { useAssignmentLetterStore } from '~/stores/assignment-letter'
-
-const auditReportStore = useAuditResultReportStore()
-const assignmentLetterStore = useAssignmentLetterStore()
-
-if (!auditReportStore.loading && auditReportStore.reportList.length === 0) {
-  auditReportStore.fetchReports()
-}
-
-const assignmentLetterDropdownOptions = computed(() => {
-  const lettersFromStore = assignmentLetterStore.assignmentLetterList
-    .filter((st: any) => st.letterNumber && st.letterNumber.startsWith('ST-') && st.letterNumber.includes('2026'))
-    .map((st: any) => ({
-      label: `${st.letterNumber} - ${st.auditTitle || ''}`,
-      value: st.letterNumber,
-      letter: st
-    }))
-  const uniqueNumbers = new Set(lettersFromStore.map(l => l.value))
-  
-  auditReportStore.reportList.forEach(r => {
-    if (r.assignmentLetterId && r.assignmentLetterId.startsWith('ST-') && r.assignmentLetterId.includes('2026') && !uniqueNumbers.has(r.assignmentLetterId)) {
-      uniqueNumbers.add(r.assignmentLetterId)
-      lettersFromStore.push({
-        label: `${r.assignmentLetterId} - ${r.reportTitle || ''}`,
-        value: r.assignmentLetterId,
-        letter: { letterNumber: r.assignmentLetterId, auditTitle: r.reportTitle, leader: 'Lead Auditor' } as any
-      })
-    }
-  })
-
-  // Ensure default known letters strictly format ST-XXX/SKAI/2026
-  const defaults = ['ST-001/SKAI/2026', 'ST-002/SKAI/2026', 'ST-003/SKAI/2026', 'ST-004/SKAI/2026', 'ST-005/SKAI/2026']
-  defaults.forEach(defNum => {
-    if (!uniqueNumbers.has(defNum)) {
-      uniqueNumbers.add(defNum)
-      lettersFromStore.push({
-        label: defNum,
-        value: defNum,
-        letter: { letterNumber: defNum, auditTitle: 'Audit Penugasan', leader: 'Head of SKAI' } as any
-      })
-    }
-  })
-
-  return lettersFromStore
-})
-
-interface AssignmentLetterDropdownItem {
-  label: string
-  value: string
-  letter: any
-}
-
-const selectedAssignmentLetter = ref<AssignmentLetterDropdownItem | undefined>(
-  assignmentLetterDropdownOptions.value.find(o => o.value === (store.form.assignmentLetterId || 'ST-001/SKAI/2026')) ||
-  assignmentLetterDropdownOptions.value[0]
-)
-
-const linkedAssignmentLetter = computed(() => {
-  const stNum = selectedAssignmentLetter.value?.value || store.form.assignmentLetterId || 'ST-001/SKAI/2026'
-
-  if (!stNum) return null
-  return (assignmentLetterStore.assignmentLetterList.find(st => st.letterNumber === stNum) as any) || {
-    letterNumber: stNum,
-    auditTitle: store.form.narrative ? store.form.narrative.slice(0, 70) + '...' : 'Penugasan Audit Kompilasi SPI',
-    status: 'Published' as any,
-    leader: 'Head of SKAI',
-    executionPeriod: `Kuartal ${store.form.quarter} ${store.form.tahun}`,
-    auditYear: String(store.form.tahun || new Date().getFullYear())
-  }
-})
-
-const lhaDropdownOptions: Ref<Array<{ label: string; value: string; report: any }>> = computed(() => {
-  return auditReportStore.reportList
-    .filter(r => {
-      const num = r.reportNumber || (r as any).report_number
-      return (
-        num &&
-        num !== 'DOC-EXSUM-Q1-2026' &&
-        num !== '020/LHA/01/KS IAD/2023' &&
-        num !== '019/LHA/01/KS IAD/2025' &&
-        num !== 'LHA-020/SKAI/2023' &&
-        num !== 'LHA-019/SKAI/2025'
-      )
-    })
-    .map(r => ({
-      label: `${r.reportNumber || (r as any).report_number} - ${r.reportTitle}`,
-      value: r.reportNumber || (r as any).report_number,
-      report: r
-    }))
-})
-
-const selectedLhaId = ref<{ label: string; value: string; report: any } | undefined>(
-  lhaDropdownOptions.value.find(o => o.value === store.form.nomorDokumen)
-)
-
-const onAssignmentLetterSelect = (val: any) => {
-  if (!val) return
-  const selectedNum = typeof val === 'object' ? val.value : val
-  store.form.assignmentLetterId = selectedNum
-  const found = assignmentLetterDropdownOptions.value.find(o => o.value === selectedNum)
-  if (found) {
-    selectedAssignmentLetter.value = found
-  }
-
-  // Auto-find and link corresponding LHA if exists
-  const matchingLha = auditReportStore.reportList.find(r => r.assignmentLetterId === selectedNum)
-  if (matchingLha) {
-    onLhaSelect(matchingLha.reportNumber)
-  }
-}
-
+// Automatic Compilation Synchronization from all individual LHAs in the selected quarter and year
 const syncFromIndividualLha = () => {
   const targetQuarter = store.form.quarter
-  const targetSt = selectedAssignmentLetter.value?.value || store.form.assignmentLetterId
+  const targetYear = store.form.tahun
 
-  // 1. Gather all individual reports matching assignment letter or quarter
-  const validReports = auditReportStore.reportList.filter(r => {
-    const num = r.reportNumber || (r as any).report_number
-    return (
-      num &&
-      num !== 'DOC-EXSUM-Q1-2026' &&
-      num !== '020/LHA/01/KS IAD/2023' &&
-      num !== '019/LHA/01/KS IAD/2025' &&
-      num !== 'LHA-020/SKAI/2023' &&
-      num !== 'LHA-019/SKAI/2025'
-    )
-  })
-
-  let individualReports = validReports.filter(r => {
-    if (targetSt && targetSt !== 'All Assignment Letters') {
-      if (r.assignmentLetterId === targetSt) return true
-    }
-    const dateParts = r.reportDate ? r.reportDate.split('-') : []
-    const m = parseInt(dateParts[1] || '0')
-    const q = m <= 3 ? 1 : m <= 6 ? 2 : m <= 9 ? 3 : 4
-    return q === targetQuarter
-  })
-
-  // Fallback if none matched
-  if (individualReports.length === 0) {
-    if (targetSt && targetSt !== 'All Assignment Letters') {
-      individualReports = validReports.filter(r => r.assignmentLetterId === targetSt)
-    }
-    if (individualReports.length === 0) {
-      individualReports = validReports
+  // Auto-set nomorDokumen if empty or follows legacy template
+  if (!store.isEditing && !store.isViewing) {
+    if (!store.form.nomorDokumen || store.form.nomorDokumen.startsWith('EXSUM-KOMP-Q') || store.form.nomorDokumen.startsWith('KOMPILASI-LHA-Q')) {
+      store.form.nomorDokumen = generateEscDocNumber(Number(targetYear) || 2026)
     }
   }
 
-  // 2. Set jumlahLaporan to exact count of individual LHAs
+  const individualReports = quarterlyLhas.value
+
+  // 1. Set jumlahLaporan to exact count of individual LHAs
   store.form.jumlahLaporan = individualReports.length
 
-  // 3. Aggregate all findings across these individual reports
+  if (individualReports.length === 0) {
+    store.form.risikoTinggi = 0
+    store.form.risikoSedang = 0
+    store.form.risikoRendah = 0
+    store.form.jumlahRekomendasi = 0
+    store.form.topFindings = []
+    store.form.matriksKompilasi = []
+    store.form.followUpTable = [
+      { status: 'Closed', jumlah: 0, persentase: 0, keterangan: 'Telah diverifikasi' },
+      { status: 'In Progress', jumlah: 0, persentase: 0, keterangan: 'On-track pelaksanaan' },
+      { status: 'Overdue', jumlah: 0, persentase: 0, keterangan: '-' }
+    ]
+    store.form.akarMasalah = `Belum ada data LHA untuk ${reportingQuarter.value} ${targetYear}.`
+    store.form.kesimpulan = `Belum ada hasil audit yang dikompilasi untuk ${reportingQuarter.value} ${targetYear}.`
+    store.form.narrative = `Periode ${reportingQuarter.value} ${targetYear}, belum ada LHA yang diterbitkan.`
+    return
+  }
+
+  // 2. Aggregate all findings across these individual reports
   const allFindings: any[] = []
   let totalHigh = 0
   let totalMedium = 0
@@ -1063,7 +1080,7 @@ const syncFromIndividualLha = () => {
       judulTemuan: (findings[0]?.title) || r.reportTitle,
       nilaiRisiko: highestRisk,
       rekomendasi: (findings[0]?.action) || 'Tindak lanjut rekomendasi audit',
-      dueDate: r.reportDate || '2026-06-30',
+      dueDate: r.reportDate || `${targetYear}-06-30`,
       picUnit: `PIC ${div}`,
       progres: r.status === 'Final' || (r.status as any) === 'Approved' ? 100 : 60,
       status: r.status === 'Final' || (r.status as any) === 'Approved' ? 'Closed' : 'In Progress',
@@ -1077,7 +1094,7 @@ const syncFromIndividualLha = () => {
   store.form.jumlahRekomendasi = totalRecs
   store.form.matriksKompilasi = matriks
 
-  // 4. Sort findings by severity (High first) and pick Top 5
+  // 3. Sort findings by severity (High first) and pick Top 5
   allFindings.sort((a, b) => b.severityRank - a.severityRank)
   store.form.topFindings = allFindings.slice(0, 5).map(f => ({
     unitDivision: f.unitDivision,
@@ -1087,7 +1104,7 @@ const syncFromIndividualLha = () => {
     usulan: f.usulan
   }))
 
-  // 5. Update Follow-up table counts
+  // 4. Update Follow-up table counts
   const totalFindings = totalHigh + totalMedium + totalLow
   const closedCount = Math.floor(totalFindings * 0.6)
   const inProgCount = totalFindings - closedCount
@@ -1097,67 +1114,99 @@ const syncFromIndividualLha = () => {
     { status: 'Overdue', jumlah: 0, persentase: 0, keterangan: '-' }
   ]
 
-  // 6. Section V & VII Qualitative text
+  // 5. Section V & VII Qualitative text
   if (store.form.topFindings.length > 0) {
     store.form.akarMasalah = `Analisis kompilasi terhadap ${individualReports.length} LHA Individual menunjukkan tema berulang utama pada: ${store.form.topFindings.slice(0, 2).map(f => f.judulTemuan).join('; ')}. Diperlukan penguatan regulasi operasional serta koordinasi lintas unit.`
-    store.form.kesimpulan = `Secara keseluruhan hasil audit kompilasi Triwulan ${store.form.quarter} ${store.form.tahun} atas ${individualReports.length} LHA menunjukkan sistem pengendalian internal berjalan cukup efektif dengan total ${totalFindings} temuan (${totalHigh} risiko tinggi, ${totalMedium} sedang, ${totalLow} rendah) dan ${totalRecs} rekomendasi yang perlu dipantau implementasinya.`
+    store.form.kesimpulan = `Secara keseluruhan hasil audit kompilasi ${reportingQuarter.value} ${targetYear} atas ${individualReports.length} LHA menunjukkan sistem pengendalian internal berjalan cukup efektif dengan total ${totalFindings} temuan (${totalHigh} risiko tinggi, ${totalMedium} sedang, ${totalLow} rendah) dan ${totalRecs} rekomendasi yang perlu dipantau implementasinya.`
+  } else {
+    store.form.akarMasalah = `Analisis kompilasi terhadap ${individualReports.length} LHA Individual periode ${reportingQuarter.value} ${targetYear}.`
+    store.form.kesimpulan = `Secara keseluruhan hasil audit kompilasi ${reportingQuarter.value} ${targetYear} atas ${individualReports.length} LHA menunjukkan tata kelola dan kontrol internal telah dievaluasi.`
   }
 
-  // 7. Update narrative
-  store.form.narrative = `Periode Kuartal ${store.form.quarter} ${store.form.tahun}, SPI telah menerbitkan ${individualReports.length} LHA Individual. Total temuan ${totalFindings} dengan ${totalRecs} rekomendasi perbaikan. Tingkat penyelesaian on-time 95%. Terdapat ${totalHigh} temuan risiko tinggi terkait ${store.form.topFindings[0]?.judulTemuan || 'operasional'} yang memerlukan perhatian dan arahan Direksi.`
+  // 6. Update narrative
+  store.form.narrative = `Periode ${reportingQuarter.value} ${targetYear}, SPI telah menerbitkan ${individualReports.length} LHA Individual. Total temuan ${totalFindings} dengan ${totalRecs} rekomendasi perbaikan. Tingkat penyelesaian on-time 95%. Terdapat ${totalHigh} temuan risiko tinggi terkait ${store.form.topFindings[0]?.judulTemuan || 'operasional'} yang memerlukan perhatian dan arahan Direksi.`
 }
 
-const onLhaSelect = (val: any) => {
-  if (!val) return
-  const selectedNum = typeof val === 'object' ? val.value : val
-  const item = auditReportStore.reportList.find(r => (r.reportNumber || (r as any).report_number) === selectedNum)
-  if (item) {
-    store.form.nomorDokumen = item.reportNumber || (item as any).report_number
-    if (item.assignmentLetterId) {
-      store.form.assignmentLetterId = item.assignmentLetterId
-      const found = assignmentLetterDropdownOptions.value.find(o => o.value === item.assignmentLetterId)
-      if (found) selectedAssignmentLetter.value = found
-    }
-    if (item.executiveSummary) {
-      store.form.narrative = item.executiveSummary
-    }
-    if (item.findingsCount) {
-      store.form.jumlahRekomendasi = item.findingsCount
-    }
-    selectedLhaId.value = lhaDropdownOptions.value.find(o => o.value === store.form.nomorDokumen)
-    syncFromIndividualLha()
+// Form submission & workflow helpers
+const saveReportDraft = async () => {
+  if (!store.form.nomorDokumen) {
+    store.form.nomorDokumen = generateEscDocNumber(Number(store.form.tahun) || 2026)
+  }
+  if (!store.form.dokumenPath) {
+    alert('Unggah dokumen resmi wajib diisi.')
+    return
+  }
+  
+  // Set status Draft
+  store.form.periodeBulan = reportingQuarter.value
+  store.form.status = 'Draft'
+  await store.saveForm()
+}
+
+const approveReportDirectly = async () => {
+  if (store.currentSummary) {
+    await store.updateStatus(store.currentSummary.id, 'Approved')
   }
 }
 
-// Watch initial state when opening form
-watch(() => store.form.assignmentLetterId, (newVal) => {
-  if (newVal && selectedAssignmentLetter.value?.value !== newVal) {
-    const found = assignmentLetterDropdownOptions.value.find(o => o.value === newVal)
-    if (found) selectedAssignmentLetter.value = found
+// Scrolling Table of Contents logic
+const scrollToSection = (id: string) => {
+  activeSection.value = id
+  const target = document.getElementById(id)
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth' })
   }
-}, { immediate: true })
+}
 
-watch(() => store.form.quarter, () => {
-  if (store.form.jumlahLaporan === 0 || store.form.topFindings.length === 0) {
+const onScroll = () => {
+  const scrollOffset = 150
+  for (const sec of sections.value) {
+    const el = document.getElementById(sec.id)
+    if (el) {
+      const rect = el.getBoundingClientRect()
+      // Section is at the top of the container
+      if (rect.top <= scrollOffset && rect.bottom > scrollOffset) {
+        activeSection.value = sec.id
+        break
+      }
+    }
+  }
+}
+
+// Watch quarter & tahun changes to automatically sync data
+watch(() => [store.form.quarter, store.form.tahun], ([newQ, newY], [oldQ, oldY]) => {
+  if (!store.isViewing && !store.isEditing) {
+    if (!store.form.nomorDokumen || (oldY && store.form.nomorDokumen.endsWith(`/${oldY}`) && newY !== oldY)) {
+      store.form.nomorDokumen = generateEscDocNumber(Number(newY) || 2026)
+    }
     syncFromIndividualLha()
   }
 })
 
-watch(() => store.form.nomorDokumen, (newDoc) => {
-  if (newDoc) {
-    selectedLhaId.value = lhaDropdownOptions.value.find(o => o.value === newDoc)
-    if (!store.form.assignmentLetterId) {
-      const match = auditReportStore.reportList.find(r => r.reportNumber === newDoc)
-      if (match && match.assignmentLetterId) {
-        store.form.assignmentLetterId = match.assignmentLetterId
-        const found = assignmentLetterDropdownOptions.value.find(o => o.value === match.assignmentLetterId)
-        if (found) selectedAssignmentLetter.value = found
-      }
+// Watch modal open
+watch(() => store.showModal, (isOpen) => {
+  if (isOpen && !store.isViewing && !store.isEditing) {
+    if (!store.form.nomorDokumen || store.form.nomorDokumen.startsWith('EXSUM-KOMP-Q') || store.form.nomorDokumen.startsWith('KOMPILASI-LHA-Q')) {
+      store.form.nomorDokumen = generateEscDocNumber(Number(store.form.tahun) || 2026)
     }
-    if (store.form.jumlahLaporan === 0 || store.form.topFindings.length === 0) {
+  }
+})
+
+// Watch reportList when reports are fetched asynchronously
+watch(() => auditReportStore.reportList.length, (newLen) => {
+  if (newLen > 0 && !store.isViewing && !store.isEditing) {
+    if (store.form.jumlahLaporan === 0 || store.form.matriksKompilasi.length === 0) {
       syncFromIndividualLha()
     }
   }
-}, { immediate: true })
+})
 
+onMounted(() => {
+  if (!store.isViewing && !store.isEditing) {
+    if (!store.form.nomorDokumen || store.form.nomorDokumen.startsWith('EXSUM-KOMP-Q') || store.form.nomorDokumen.startsWith('KOMPILASI-LHA-Q')) {
+      store.form.nomorDokumen = generateEscDocNumber(Number(store.form.tahun) || 2026)
+    }
+    syncFromIndividualLha()
+  }
+})
 </script>

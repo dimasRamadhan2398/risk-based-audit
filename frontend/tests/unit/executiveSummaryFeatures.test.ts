@@ -229,38 +229,70 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
   })
 
   describe('Assignment Letter (Surat Tugas) Integration', () => {
-    it('ensures IndividualForm and CompilationForm integrate Assignment Letter selection and context banner', () => {
+    it('ensures IndividualForm integrates LHA selection with Audit Result Report (LHA) context while CompilationForm compiles quarterly LHAs', () => {
       const individualContent = read('components/audit-result-report/ExecutiveSummaryIndividualForm.vue')
       const compilationContent = read('components/audit-result-report/ExecutiveSummaryCompilationForm.vue')
 
       // Individual form checks
-      expect(individualContent).toContain('Pilih Surat Tugas (Assignment Letter)')
-      expect(individualContent).toContain('assignmentLetterDropdownOptions')
-      expect(individualContent).toContain('onAssignmentLetterSelect')
-      expect(individualContent).toContain('linkedAssignmentLetter')
-      expect(individualContent).toContain('useAssignmentLetterStore')
+      expect(individualContent).toContain('Pilih Laporan Hasil Audit (LHA)')
+      expect(individualContent).toContain('lhaDropdownOptions')
+      expect(individualContent).toContain('onLhaSelect')
+      expect(individualContent).toContain('linkedLhaReport')
+      expect(individualContent).toContain('useAuditResultReportStore')
 
-      // Compilation form checks
-      expect(compilationContent).toContain('Pilih Surat Tugas (Assignment Letter)')
-      expect(compilationContent).toContain('assignmentLetterDropdownOptions')
-      expect(compilationContent).toContain('onAssignmentLetterSelect')
-      expect(compilationContent).toContain('linkedAssignmentLetter')
-      expect(compilationContent).toContain('useAssignmentLetterStore')
+      // Compilation form checks: removes single assignment letter selection and replaces with quarterly LHAs collection
+      expect(compilationContent).not.toContain('Pilih Surat Tugas (Assignment Letter) / LHA')
+      expect(compilationContent).not.toContain('linkedAssignmentLetter')
+      expect(compilationContent).toContain('quarterlyLhas')
+      expect(compilationContent).toContain('Kumpulan Data LHA Terkompilasi')
     })
 
-    it('ensures Executive Summary pages have Assignment Letter filter and badges', () => {
+    it('ensures Executive Summary Individual uses Nomor LHA filter and Compilation uses Nomor Dokumen Kompilasi filter', () => {
       const individualPage = read('pages/executive-summary/index.vue')
       const compilationPage = read('pages/executive-summary-compilation/index.vue')
 
-      // Individual page
-      expect(individualPage).toContain('selectedAssignmentLetter')
-      expect(individualPage).toContain('assignmentLetterOptions')
-      expect(individualPage).toContain('item.assignmentLetterId')
+      // Individual page uses Nomor LHA filter
+      expect(individualPage).toContain('selectedLhaNumber')
+      expect(individualPage).toContain('lhaNumberOptions')
+      expect(individualPage).toContain('Filter berdasarkan Nomor LHA...')
+      expect(individualPage).toContain('item.nomorDokumen')
 
-      // Compilation page
-      expect(compilationPage).toContain('selectedAssignmentLetter')
-      expect(compilationPage).toContain('assignmentLetterOptions')
-      expect(compilationPage).toContain('item.assignmentLetterId')
+      // Compilation page uses Nomor Dokumen Kompilasi filter
+      expect(compilationPage).toContain('selectedCompilationDoc')
+      expect(compilationPage).toContain('compilationDocOptions')
+      expect(compilationPage).toContain('Filter berdasarkan Nomor Dokumen Kompilasi...')
+      expect(compilationPage).toContain('item.nomorDokumen')
+    })
+
+    it('verifies compilation document options include ESC documents', () => {
+      const store = useExecutiveSummaryStore()
+      store.summaryList = [
+        {
+          id: 'comp-1',
+          nomorDokumen: 'ESC-001/2026',
+          quarter: 1,
+          periodeBulan: 'Kuartal I',
+          tahun: 2026,
+          dokumenPath: 'comp1.pdf',
+          status: 'Approved',
+          narrative: 'Narrative',
+          jumlahLaporan: 3,
+          risikoTinggi: 1,
+          risikoSedang: 1,
+          risikoRendah: 1,
+          jumlahRekomendasi: 3,
+          followUpTable: [],
+          topFindings: [],
+          matriksKompilasi: [],
+          akarMasalah: '',
+          kesimpulan: '',
+          signatureTempat: 'Jakarta',
+          signatureTanggal: '2026-03-31',
+          signatureNamaKepala: '',
+          signatureNIK: ''
+        }
+      ]
+      expect(store.summaryList.some(s => s.nomorDokumen.startsWith('ESC-'))).toBe(true)
     })
   })
 
@@ -314,7 +346,62 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       auth.user = { id: 'p3', username: 'exec', email: 'exec@test.com', fullName: 'Executive Director', roles: ['EXECUTIVE'] }
       expect(useRbac().canReviewExecutiveSummary.value).toBe(true)
     })
+
+    it('ensures Nomor Dokumen Kompilasi is disabled and auto-generated with ESC-[nomor urut]/[tahun] format', () => {
+      const compilationContent = read('components/audit-result-report/ExecutiveSummaryCompilationForm.vue')
+
+      // Verify template has disabled attribute on Nomor Dokumen Kompilasi input
+      expect(compilationContent).toContain('label="Nomor Dokumen Kompilasi"')
+      expect(compilationContent).toContain('placeholder="Contoh: ESC-001/2026"')
+      expect(compilationContent).toMatch(/<UFormField label="Nomor Dokumen Kompilasi"[\s\S]*?<UInput[\s\S]*?disabled/)
+
+      // Verify compilation script has ESC document generation logic
+      expect(compilationContent).toContain('generateEscDocNumber')
+      expect(compilationContent).toMatch(/ESC-\$\{.*\}\/\$\{.*targetYear.*\}/)
+
+      // Verify store generateEscDocNumber function
+      const store = useExecutiveSummaryStore()
+      expect(typeof store.generateEscDocNumber).toBe('function')
+
+      // Initial sequential number
+      const doc1 = store.generateEscDocNumber(2026)
+      expect(doc1).toMatch(/^ESC-\d{3}\/2026$/)
+
+      // When an existing ESC document is in summaryList, next document increments sequence
+      store.summaryList.push({
+        id: 'esc-test-1',
+        nomorDokumen: 'ESC-001/2026',
+        quarter: 1,
+        periodeBulan: 'Kuartal I',
+        tahun: 2026,
+        dokumenPath: 'doc.pdf',
+        status: 'Draft',
+        narrative: '',
+        jumlahLaporan: 1,
+        risikoTinggi: 0,
+        risikoSedang: 0,
+        risikoRendah: 0,
+        jumlahRekomendasi: 0,
+        followUpTable: [],
+        topFindings: [],
+        matriksKompilasi: [],
+        akarMasalah: '',
+        kesimpulan: '',
+        signatureTempat: 'Jakarta',
+        signatureTanggal: '2026-03-31',
+        signatureNamaKepala: '',
+        signatureNIK: ''
+      })
+
+      const doc2 = store.generateEscDocNumber(2026)
+      expect(doc2).toBe('ESC-002/2026')
+
+      // openNewCompilationForm assigns the auto-generated ESC number
+      store.openNewCompilationForm(1)
+      expect(store.form.nomorDokumen).toBe('ESC-002/2026')
+    })
   })
 })
+
 
 

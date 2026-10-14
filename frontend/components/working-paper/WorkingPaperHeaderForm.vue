@@ -117,7 +117,13 @@
             class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10" 
             :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm text-gray-700 mt-2' }"
         >
-            <USelectMenu v-model="store.headerForm.location" :items="store.options.location" placeholder="Choose Location" class="w-full" />
+            <USelectMenu 
+                v-model="store.headerForm.location" 
+                :items="store.options.location" 
+                :loading="locationStore.loading"
+                placeholder="Choose Location" 
+                class="w-full" 
+            />
         </UFormField>
 
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
@@ -176,7 +182,25 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, watch } from 'vue'
 import { useWorkingPaperStore, headerSchema } from '~/stores/working-paper'
+import { useLocationStore } from '~/stores/location'
 
 const store = useWorkingPaperStore()
+const locationStore = useLocationStore()
+
+onMounted(() => {
+  if (locationStore.locations.length === 0) {
+    locationStore.fetchLocations().catch(() => {})
+  }
+})
+
+watch(
+  () => store.showModalF01,
+  (open) => {
+    if (open && locationStore.locations.length === 0) {
+      locationStore.fetchLocations().catch(() => {})
+    }
+  }
+)
 </script>

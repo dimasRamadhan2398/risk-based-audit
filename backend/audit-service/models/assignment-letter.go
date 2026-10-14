@@ -17,7 +17,7 @@ type LetterMember struct {
 
 type AssignmentLetter struct {
 	ID                 uuid.UUID           `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	LetterNumber       string              `gorm:"type:varchar(100);uniqueIndex;not null" json:"letterNumber"`
+	LetterNumber       string              `gorm:"type:varchar(100);uniqueIndex:idx_assignment_letters_letter_number,where:deleted_at IS NULL;not null" json:"letterNumber"`
 	Status             string              `gorm:"type:varchar(50);default:'Draft'" json:"status"`
 	AuditTitle         string              `gorm:"type:varchar(255)" json:"auditTitle"`
 	Leader             string              `gorm:"type:varchar(200)" json:"leader"`
@@ -161,40 +161,54 @@ func FindAssignmentLetter(tx *gorm.DB, ref string) (*AssignmentLetter, bool) {
 	return nil, false
 }
 
-func (a *AssignmentLetter) BeforeCreate(tx *gorm.DB) error {
-	if strings.TrimSpace(a.LetterNumber) == "" {
-		year := strings.TrimSpace(a.AuditYear)
-		if len(year) > 4 {
-			year = year[:4]
-		}
-		if year == "" {
-			year = fmt.Sprintf("%d", time.Now().Year())
-		}
-		team := strings.TrimSpace(a.AuditTeam)
-		if team == "" {
-			team = "SKAI"
-		}
+// NextLetterNumber generates the next sequence letter number for the given team and year among active letters.
+func NextLetterNumber(tx *gorm.DB, team, year string) string {
+	year = strings.TrimSpace(year)
+	if len(year) > 4 {
+		year = year[:4]
+	}
+	if year == "" {
+		year = fmt.Sprintf("%d", time.Now().Year())
+	}
+	team = strings.TrimSpace(team)
+	if team == "" {
+		team = "SKAI"
+	}
 
-		var letters []AssignmentLetter
-		tx.Model(&AssignmentLetter{}).Unscoped().Select("letter_number").Find(&letters)
+	var letters []AssignmentLetter
+	tx.Model(&AssignmentLetter{}).Select("letter_number").Find(&letters)
 
-		maxSeq := 0
-		prefix := "ST-"
-		for _, l := range letters {
-			numStr := strings.ToUpper(strings.TrimSpace(l.LetterNumber))
-			if strings.HasPrefix(numStr, prefix) {
-				parts := strings.Split(numStr, "/")
-				if len(parts) > 0 {
-					var seq int
-					numPart := strings.TrimPrefix(parts[0], prefix)
-					if _, err := fmt.Sscanf(numPart, "%d", &seq); err == nil && seq > maxSeq {
-						maxSeq = seq
-					}
+	maxSeq := 0
+	prefix := "ST-"
+	for _, l := range letters {
+		numStr := strings.ToUpper(strings.TrimSpace(l.LetterNumber))
+		if strings.HasPrefix(numStr, prefix) {
+			parts := strings.Split(numStr, "/")
+			if len(parts) > 0 {
+				var seq int
+				numPart := strings.TrimPrefix(parts[0], prefix)
+				if _, err := fmt.Sscanf(numPart, "%d", &seq); err == nil && seq > maxSeq {
+					maxSeq = seq
 				}
 			}
 		}
-		a.LetterNumber = fmt.Sprintf("ST-%03d/%s/%s", maxSeq+1, strings.ToUpper(team), year)
 	}
+	return fmt.Sprintf("ST-%03d/%s/%s", maxSeq+1, strings.ToUpper(team), year)
+}
+
+func (a *AssignmentLetter) BeforeCreate(tx *gorm.DB) error {
+	a.LetterNumber = strings.TrimSpace(a.LetterNumber)
+	if a.LetterNumber == "" {
+		a.LetterNumber = NextLetterNumber(tx, a.AuditTeam, a.AuditYear)
+		return nil
+	}
+
+	// If a letter number was provided, ensure it doesn't collide with an existing active letter
+	var count int64
+	if err := tx.Model(&AssignmentLetter{}).Where("letter_number = ?", a.LetterNumber).Count(&count).Error; err == nil && count > 0 {
+		a.LetterNumber = NextLetterNumber(tx, a.AuditTeam, a.AuditYear)
+	}
+
 	return nil
 }
 

@@ -40,7 +40,14 @@
                 class="grid grid-cols-1 md:grid-cols-4 items-start gap-2 md:gap-4" 
                 :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm text-gray-700 dark:text-gray-300 md:mt-2' }"
               >
-                <USelectMenu v-model="store.riskForm.risk" :items="store.options.risk" :placeholder="t('workingPaper.riskForm.riskPlaceholder')" class="w-full" />
+                <USelectMenu 
+                  v-model="store.riskForm.risk" 
+                  :items="store.options.risk" 
+                  :loading="riskProfileStore.loading"
+                  :placeholder="t('workingPaper.riskForm.riskPlaceholder')" 
+                  class="w-full"
+                  @update:model-value="store.onRiskSelect"
+                />
               </UFormField>
 
               <UFormField 
@@ -97,9 +104,29 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, watch } from 'vue'
 import { useI18n } from '~/composables/useI18n'
 import { useWorkingPaperStore, riskSchema } from '~/stores/working-paper'
+import { useRiskProfileStore } from '~/stores/risk-profile'
 
 const { t } = useI18n()
 const store = useWorkingPaperStore()
+const riskProfileStore = useRiskProfileStore()
+
+onMounted(() => {
+  if (riskProfileStore.rawRisks.length === 0) {
+    riskProfileStore.fetchRisks().catch(() => {})
+    riskProfileStore.fetchBranches().catch(() => {})
+  }
+})
+
+watch(
+  () => store.showModalF02,
+  (open) => {
+    if (open && riskProfileStore.rawRisks.length === 0) {
+      riskProfileStore.fetchRisks().catch(() => {})
+      riskProfileStore.fetchBranches().catch(() => {})
+    }
+  }
+)
 </script>

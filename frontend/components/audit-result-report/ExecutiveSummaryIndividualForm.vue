@@ -53,7 +53,7 @@
           </div>
 
           <div class="w-full">
-            <UFormField label="Pilih Surat Tugas (Assignment Letter) / LHA">
+            <UFormField label="Pilih Laporan Hasil Audit (LHA)">
               <USelectMenu
                 v-model="selectedLhaId"
                 :items="lhaDropdownOptions"
@@ -65,28 +65,36 @@
             </UFormField>
           </div>
 
-          <!-- Assignment Letter Linked Context Card -->
-          <div v-if="linkedAssignmentLetter" class="bg-primary-50/60 dark:bg-primary-950/30 border border-primary-200 dark:border-primary-800/60 rounded-xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <!-- Audit Result Report (LHA) Linked Context Card -->
+          <div v-if="linkedLhaReport" class="bg-primary-50/60 dark:bg-primary-950/30 border border-primary-200 dark:border-primary-800/60 rounded-xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div class="flex items-center gap-3">
               <div class="p-2.5 bg-primary-100 dark:bg-primary-900/60 text-primary-600 dark:text-primary-400 rounded-lg">
-                <UIcon name="i-lucide-file-signature" class="size-5" />
+                <UIcon name="i-lucide-file-text" class="size-5" />
               </div>
               <div>
                 <div class="text-xs font-bold uppercase tracking-wider text-primary-700 dark:text-primary-300 flex items-center gap-2">
-                  <span>Surat Tugas: {{ linkedAssignmentLetter.letterNumber }}</span>
-                  <UBadge color="primary" variant="subtle" size="xs">{{ linkedAssignmentLetter.status || 'Published' }}</UBadge>
+                  <span>No. LHA: {{ linkedLhaReport.reportNumber || (linkedLhaReport as any).report_number }}</span>
+                  <UBadge :color="linkedLhaReport.status === 'Final' || (linkedLhaReport.status as any) === 'Approved' ? 'success' : 'warning'" variant="subtle" size="xs">
+                    {{ linkedLhaReport.status || 'Draft' }}
+                  </UBadge>
+                  <UBadge v-if="linkedLhaReport.assignmentLetterId" color="neutral" variant="outline" size="xs" class="font-mono">
+                    ST: {{ linkedLhaReport.assignmentLetterId }}
+                  </UBadge>
                 </div>
                 <div class="text-sm font-semibold text-gray-900 dark:text-white mt-0.5">
-                  {{ linkedAssignmentLetter.auditTitle }}
+                  {{ linkedLhaReport.reportTitle }}
                 </div>
               </div>
             </div>
             <div class="flex flex-wrap items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-              <div v-if="linkedAssignmentLetter.leader">
-                <span class="text-gray-400">Ketua Tim:</span> <span class="font-medium text-gray-700 dark:text-gray-300">{{ linkedAssignmentLetter.leader }}</span>
+              <div v-if="linkedLhaReport.department">
+                <span class="text-gray-400">Divisi:</span> <span class="font-medium text-gray-700 dark:text-gray-300">{{ linkedLhaReport.department }}</span>
               </div>
-              <div v-if="linkedAssignmentLetter.executionPeriod || (linkedAssignmentLetter as any).auditYear">
-                <span class="text-gray-400">Periode:</span> <span class="font-medium text-gray-700 dark:text-gray-300">{{ linkedAssignmentLetter.executionPeriod || (linkedAssignmentLetter as any).auditYear }}</span>
+              <div v-if="linkedLhaReport.reportDate">
+                <span class="text-gray-400">Tanggal:</span> <span class="font-medium text-gray-700 dark:text-gray-300">{{ linkedLhaReport.reportDate }}</span>
+              </div>
+              <div>
+                <span class="text-gray-400">Temuan:</span> <span class="font-bold text-primary-600 dark:text-primary-400">{{ linkedLhaReport.findingsCount || (linkedLhaReport.findings?.length || 0) }}</span>
               </div>
             </div>
           </div>
@@ -740,6 +748,37 @@ const linkedAssignmentLetter = computed(() => {
     executionPeriod: `${store.form.periodeBulan} ${store.form.tahun}`,
     auditYear: String(store.form.tahun || new Date().getFullYear())
   }
+})
+
+const linkedLhaReport = computed(() => {
+  const targetDoc = typeof selectedLhaId.value === 'object'
+    ? (selectedLhaId.value as any)?.value
+    : (selectedLhaId.value || store.form.nomorDokumen)
+
+  if (!targetDoc) return null
+
+  const found = auditReportStore.reportList.find(r => 
+    (r.reportNumber || (r as any).report_number) === targetDoc
+  )
+  if (found) return found
+
+  if (selectedLhaId.value && typeof selectedLhaId.value === 'object' && (selectedLhaId.value as any).report) {
+    return (selectedLhaId.value as any).report
+  }
+
+  if (store.form.nomorDokumen) {
+    return {
+      reportNumber: store.form.nomorDokumen,
+      reportTitle: store.form.narrative ? store.form.narrative.slice(0, 70) + '...' : 'Laporan Hasil Audit',
+      assignmentLetterId: store.form.assignmentLetterId || '',
+      status: store.form.status === 'Approved' ? 'Final' : 'Draft',
+      department: 'Operasional',
+      reportDate: store.form.signatureTanggal || `${store.form.tahun}-03-31`,
+      findingsCount: store.form.jumlahRekomendasi || store.form.topFindings.length || 0
+    }
+  }
+
+  return null
 })
 
 const lhaDropdownOptions: Ref<Array<{ label: string; value: string; report: any }>> = computed(() => {

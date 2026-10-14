@@ -237,7 +237,7 @@ func (r *AuditResultReport) BeforeCreate(tx *gorm.DB) error {
 		var reports []AuditResultReport
 		tx.Model(&AuditResultReport{}).Unscoped().Select("report_number").Find(&reports)
 
-		maxSeq := 20
+		maxSeq := 0
 		for _, rep := range reports {
 			numStr := strings.TrimSpace(rep.ReportNumber)
 			if strings.HasPrefix(strings.ToUpper(numStr), "LHA-") {

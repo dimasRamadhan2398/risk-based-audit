@@ -94,13 +94,13 @@
         <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto flex-1">
           <div class="w-full md:w-80">
             <USelectMenu
-              v-model="selectedAssignmentLetter"
-              :items="assignmentLetterOptions"
-              placeholder="Filter berdasarkan Surat Tugas..."
+              v-model="selectedLhaNumber"
+              :items="lhaNumberOptions"
+              placeholder="Filter berdasarkan Nomor LHA..."
               class="w-full"
             >
               <template #leading>
-                <UIcon name="i-heroicons-document-text" class="size-4 text-primary-500" />
+                <UIcon name="i-lucide-file-text" class="size-4 text-primary-500" />
               </template>
             </USelectMenu>
           </div>
@@ -317,7 +317,7 @@ const store = useExecutiveSummaryStore()
 const auditReportStore = useAuditResultReportStore()
 const assignmentLetterStore = useAssignmentLetterStore()
 const searchQuery = ref('')
-const selectedAssignmentLetter = ref('')
+const selectedLhaNumber = ref('')
 
 const totalHandling = computed(() => {
   return syncedSummaries.value.reduce((total, summary) => {
@@ -325,23 +325,34 @@ const totalHandling = computed(() => {
   }, 0)
 })
 
-const assignmentLetterOptions = computed(() => {
-  const lettersFromStore = assignmentLetterStore.assignmentLetterList
-    .map((st: any) => st.letterNumber)
+const lhaNumberOptions = computed(() => {
+  const isExcluded = (num: string) =>
+    num === 'DOC-EXSUM-Q1-2026' ||
+    num === '020/LHA/01/KS IAD/2023' ||
+    num === '019/LHA/01/KS IAD/2025' ||
+    num === 'LHA-020/SKAI/2023' ||
+    num === 'LHA-019/SKAI/2025' ||
+    num.startsWith('ESC-')
+
+  const numsFromReports = auditReportStore.reportList
+    .map((r: any) => r.reportNumber || r.report_number)
     .filter(Boolean)
-  const lettersFromReports = auditReportStore.reportList
-    .map((r: any) => r.assignmentLetterId)
+  const numsFromSummaries = store.summaryList
+    .map((s: any) => s.nomorDokumen)
     .filter(Boolean)
-  const lettersFromSummaries = store.summaryList
-    .map((s: any) => s.assignmentLetterId)
+  const numsFromSynced = syncedSummaries.value
+    .map((s: any) => s.nomorDokumen)
     .filter(Boolean)
 
   const combined = Array.from(new Set([
-    ...lettersFromStore, 
-    ...lettersFromReports, 
-    ...lettersFromSummaries
-  ])).sort()
-  return ['All Assignment Letters', ...combined]
+    ...numsFromReports, 
+    ...numsFromSummaries, 
+    ...numsFromSynced
+  ]))
+    .filter(num => !isExcluded(num))
+    .sort()
+
+  return ['Semua Nomor LHA', ...combined]
 })
 
 // Load stores on mount
@@ -483,8 +494,8 @@ const syncedSummaries = computed(() => {
 const filteredSummaries = computed(() => {
   let list = syncedSummaries.value
 
-  if (selectedAssignmentLetter.value && selectedAssignmentLetter.value !== 'All Assignment Letters') {
-    list = list.filter(s => s.assignmentLetterId === selectedAssignmentLetter.value)
+  if (selectedLhaNumber.value && selectedLhaNumber.value !== 'Semua Nomor LHA' && selectedLhaNumber.value !== 'All LHA Numbers') {
+    list = list.filter(s => s.nomorDokumen === selectedLhaNumber.value)
   }
 
   if (searchQuery.value) {

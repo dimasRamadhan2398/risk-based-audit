@@ -25,7 +25,7 @@
           icon="i-lucide-plus"
           :label="t('executiveSummary.createNew')"
           class="font-bold w-full sm:w-auto justify-center"
-          @click="store.openNewForm(activeQuarter)"
+          @click="store.openNewCompilationForm(activeQuarter)"
         />
       </div>
     </div>
@@ -112,13 +112,13 @@
         <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto flex-1">
           <div class="w-full md:w-80">
             <USelectMenu
-              v-model="selectedAssignmentLetter"
-              :items="assignmentLetterOptions"
-              placeholder="Filter berdasarkan Surat Tugas..."
+              v-model="selectedCompilationDoc"
+              :items="compilationDocOptions"
+              placeholder="Filter berdasarkan Nomor Dokumen Kompilasi..."
               class="w-full"
             >
               <template #leading>
-                <UIcon name="i-heroicons-document-text" class="size-4 text-primary-500" />
+                <UIcon name="i-lucide-file-text" class="size-4 text-primary-500" />
               </template>
             </USelectMenu>
           </div>
@@ -252,7 +252,7 @@
           color="primary"
           icon="i-lucide-plus"
           :label="t('executiveSummary.empty.button')"
-          @click="store.openNewForm(activeQuarter)"
+          @click="store.openNewCompilationForm(activeQuarter)"
         />
       </div>
     </UCard>
@@ -304,25 +304,35 @@ const auditReportStore = useAuditResultReportStore()
 
 const activeQuarter = ref(1)
 const searchQuery = ref('')
-const selectedAssignmentLetter = ref('')
+const selectedCompilationDoc = ref('')
 
-const assignmentLetterOptions = computed(() => {
-  const lettersFromStore = assignmentLetterStore.assignmentLetterList
-    .map((st: any) => st.letterNumber)
+const compilationDocOptions = computed(() => {
+  const overrides = loadPersistedExecutiveSummaryOverrides()
+  const isExcluded = (num: string) =>
+    num === 'DOC-EXSUM-Q1-2026' ||
+    num === '020/LHA/01/KS IAD/2023' ||
+    num === '019/LHA/01/KS IAD/2025' ||
+    num === 'LHA-020/SKAI/2023' ||
+    num === 'LHA-019/SKAI/2025'
+
+  const docsFromStore = store.summaryList
+    .map(s => s.nomorDokumen)
     .filter(Boolean)
-  const lettersFromReports = auditReportStore.reportList
-    .map((r: any) => r.assignmentLetterId)
-    .filter(Boolean)
-  const lettersFromSummaries = store.summaryList
-    .map((s: any) => s.assignmentLetterId)
-    .filter(Boolean)
+  const docsFromOverrides = Object.values(overrides)
+    .map(o => o.nomorDokumen)
+    .filter((d): d is string => Boolean(d))
+  const overrideKeys = Object.keys(overrides)
+    .filter(k => k.startsWith('ESC-') || k.startsWith('EXSUM-KOMP-'))
 
   const combined = Array.from(new Set([
-    ...lettersFromStore, 
-    ...lettersFromReports, 
-    ...lettersFromSummaries
-  ])).sort()
-  return ['All Assignment Letters', ...combined]
+    ...docsFromStore, 
+    ...docsFromOverrides, 
+    ...overrideKeys
+  ]))
+    .filter(doc => !isExcluded(doc) && (doc.startsWith('ESC-') || doc.startsWith('EXSUM-KOMP-') || doc.startsWith('KOMPILASI-') || !doc.startsWith('LHA-')))
+    .sort()
+
+  return ['Semua Dokumen Kompilasi', ...combined]
 })
 
 const totalHandling = computed(() => {
@@ -396,9 +406,10 @@ const filteredSummaries = computed(() => {
 
   return summaries.filter(s => {
     const qMatches = s.quarter === activeQuarter.value
-    const stMatches = !selectedAssignmentLetter.value ||
-      selectedAssignmentLetter.value === 'All Assignment Letters' ||
-      s.assignmentLetterId === selectedAssignmentLetter.value
+    const docMatches = !selectedCompilationDoc.value ||
+      selectedCompilationDoc.value === 'Semua Dokumen Kompilasi' ||
+      selectedCompilationDoc.value === 'All Compilation Documents' ||
+      s.nomorDokumen === selectedCompilationDoc.value
 
     const searchLower = searchQuery.value.toLowerCase()
     const matchesSearch = !searchQuery.value ||
@@ -407,7 +418,7 @@ const filteredSummaries = computed(() => {
       `kuartal ${s.quarter}`.includes(searchLower) ||
       String(s.tahun).includes(searchLower)
     
-    return qMatches && stMatches && matchesSearch
+    return qMatches && docMatches && matchesSearch
   })
 })
 </script>

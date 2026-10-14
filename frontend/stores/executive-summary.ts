@@ -278,7 +278,52 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     return payload
   }
 
-  const openNewForm = (quarterNum: number = 1, assignmentLetterId: string = '') => {
+  const generateEscDocNumber = (year: number = 2026): string => {
+    let maxSeq = 0
+    const escRegex = new RegExp(`^ESC-(\\d+)/${year}$`, 'i')
+
+    for (const s of summaryList.value) {
+      if (s.nomorDokumen) {
+        const match = s.nomorDokumen.match(escRegex)
+        if (match && match[1]) {
+          const val = parseInt(match[1], 10)
+          if (!isNaN(val) && val > maxSeq) {
+            maxSeq = val
+          }
+        }
+      }
+    }
+
+    try {
+      const overrides = loadPersistedExecutiveSummaryOverrides()
+      for (const key of Object.keys(overrides)) {
+        const matchKey = key.match(escRegex)
+        if (matchKey && matchKey[1]) {
+          const val = parseInt(matchKey[1], 10)
+          if (!isNaN(val) && val > maxSeq) {
+            maxSeq = val
+          }
+        }
+        const item = overrides[key]
+        if (item && item.nomorDokumen) {
+          const matchDoc = item.nomorDokumen.match(escRegex)
+          if (matchDoc && matchDoc[1]) {
+            const val = parseInt(matchDoc[1], 10)
+            if (!isNaN(val) && val > maxSeq) {
+              maxSeq = val
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // ignore localstorage errors
+    }
+
+    const nextSeq = (maxSeq + 1).toString().padStart(3, '0')
+    return `ESC-${nextSeq}/${year}`
+  }
+
+  const openNewForm = (quarterNum: number = 1, assignmentLetterId: string = '', isCompilation: boolean = false) => {
     isEditing.value = false
     isViewing.value = false
     currentSummary.value = null
@@ -289,12 +334,15 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     if (quarterNum === 3) defaultMonth = 'Juli'
     if (quarterNum === 4) defaultMonth = 'Oktober'
 
+    const targetYear = 2026
+    const autoDocNumber = isCompilation ? generateEscDocNumber(targetYear) : ''
+
     Object.assign(form, {
       assignmentLetterId: assignmentLetterId || 'ST-001/SKAI/2026',
       quarter: quarterNum || 1,
       periodeBulan: defaultMonth,
-      tahun: 2026,
-      nomorDokumen: '',
+      tahun: targetYear,
+      nomorDokumen: autoDocNumber,
       dokumenPath: '',
       status: 'Draft',
       executiveNote: '',
@@ -319,6 +367,12 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       signatureNIK: ''
     })
     showModal.value = true
+  }
+
+  const openNewCompilationForm = (quarterNum: number = 1, targetYear: number = 2026) => {
+    openNewForm(quarterNum, '', true)
+    form.tahun = targetYear
+    form.nomorDokumen = generateEscDocNumber(targetYear)
   }
 
   const openEditForm = (summary: ExecutiveSummary) => {
@@ -347,6 +401,9 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     loading.value = true
     errorMsg.value = ''
     try {
+      if (!form.nomorDokumen) {
+        form.nomorDokumen = generateEscDocNumber(form.tahun || 2026)
+      }
       const baseUrl = getAuditServiceBaseUrl()
       const payload = serializeSummaryForBackend(form)
 
@@ -662,6 +719,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     errorMsg,
     form,
     openNewForm,
+    openNewCompilationForm,
     openEditForm,
     openView,
     saveForm,
@@ -669,6 +727,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     deleteSummary,
     updateStatus,
     fetchSummaries,
-    defaultNarrativeTemplate
+    defaultNarrativeTemplate,
+    generateEscDocNumber
   }
 })

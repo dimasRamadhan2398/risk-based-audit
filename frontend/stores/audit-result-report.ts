@@ -183,7 +183,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       }
     }
 
-    let maxSeq = 20
+    let maxSeq = 0
     const lhaRegex = /(?:LHA-|^)(\d+)/i
     for (const r of reportList.value) {
       const num = r.reportNumber || (r as any).report_number

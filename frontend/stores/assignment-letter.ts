@@ -101,7 +101,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
 
       try {
         const baseUrl = this.getAuditServiceBaseUrl()
-        const response: any = await $fetch(`${baseUrl}/assignment-letters`, {
+        const response: any = await $fetch(`${baseUrl}/assignment-letters?page_size=100`, {
           method: 'GET'
         })
         let items: AssignmentLetter[] = []

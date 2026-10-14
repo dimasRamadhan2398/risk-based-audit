@@ -169,6 +169,12 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	// Ensure assignment_letters letter_number unique index is a partial index on active records only
+	db.Exec(`
+		DROP INDEX IF EXISTS idx_assignment_letters_letter_number;
+		CREATE UNIQUE INDEX IF NOT EXISTS idx_assignment_letters_letter_number ON assignment_letters (letter_number) WHERE deleted_at IS NULL;
+	`)
+
 	if err := runATRDataMigrations(db); err != nil {
 		logger.Fatal("Failed to run action taken report data migrations", logger.LogField("error", err))
 		return err

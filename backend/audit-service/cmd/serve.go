@@ -109,6 +109,12 @@ func runServe(cmd *cobra.Command, args []string) error {
 		ALTER TABLE audit_result_reports ADD COLUMN IF NOT EXISTS signatures text;
 	`)
 
+	// Ensure assignment_letters letter_number unique index is a partial index on active records only
+	db.Exec(`
+		DROP INDEX IF EXISTS idx_assignment_letters_letter_number;
+		CREATE UNIQUE INDEX IF NOT EXISTS idx_assignment_letters_letter_number ON assignment_letters (letter_number) WHERE deleted_at IS NULL;
+	`)
+
 	// Action taken reports: new LHA-bound layout, legacy columns dropped, ATRs
 	// of approved LHAs created. Idempotent; tenant stacks start with "serve"
 	// only, so this cannot be left to "migrate up" (see migrateATR).

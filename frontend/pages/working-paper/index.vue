@@ -149,6 +149,8 @@ import WorkingPaperSampleTable from '~/components/working-paper/WorkingPaperSamp
 import { useWorkingPaperStore } from '~/stores/working-paper'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
+import { useLocationStore } from '~/stores/location'
+import { useRiskProfileStore } from '~/stores/risk-profile'
 
 const { t } = useI18n()
 
@@ -214,6 +216,15 @@ onMounted(() => {
   store.fetchAllData()
   const assignmentLetterStore = useAssignmentLetterStore()
   assignmentLetterStore.fetchAssignmentLetters().catch(() => {})
+  const locationStore = useLocationStore()
+  if (locationStore.locations.length === 0) {
+    locationStore.fetchLocations().catch(() => {})
+  }
+  const riskProfileStore = useRiskProfileStore()
+  if (riskProfileStore.rawRisks.length === 0) {
+    riskProfileStore.fetchRisks().catch(() => {})
+    riskProfileStore.fetchBranches().catch(() => {})
+  }
   const { id, action } = route.query
   
   if (action === 'create') {

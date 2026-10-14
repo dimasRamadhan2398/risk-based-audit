@@ -28,7 +28,7 @@ func SyncExecutionStatusToActivity(ctx context.Context, db *gorm.DB, exec *model
 	// 2. Fall back to matching by activity title / ref / name if ActivityID link is absent
 	if activity.ID == (models.AuditActivity{}).ID {
 		err := db.WithContext(ctx).
-			Where("LOWER(title) = LOWER(?) OR LOWER(code) = LOWER(?)", strings.TrimSpace(exec.Name), strings.TrimSpace(exec.Ref)).
+			Where("LOWER(title) = LOWER(?) OR LOWER(project_code) = LOWER(?)", strings.TrimSpace(exec.Name), strings.TrimSpace(exec.Ref)).
 			First(&activity).Error
 		if err != nil {
 			if err == gorm.ErrRecordNotFound {
