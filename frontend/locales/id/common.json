@@ -167,6 +167,7 @@
     }
   },
   "dashboard": {
+    "title": "Beranda",
     "planningExecution": {
       "title": "Perencanaan & Pelaksanaan Audit",
       "coverageTitle": "Cakupan Perencanaan Audit",
@@ -1456,7 +1457,7 @@
       "departmentsEmpty": "Belum ada departemen di Master Data",
       "title": "Annual Audit Plan",
       "defaultActivityName": "Audit Operasional {entity}",
-      "sectionActivity": "1. Detail Aktivitas",
+      "sectionActivity": "2. Aktivitas",
       "status": "Status",
       "statusPlaceholder": "Pilih Status",
       "activityCode": "Kode Aktivitas",
@@ -1468,7 +1469,7 @@
       "involvedDepartments": "Departemen Terkait",
       "calculatedRiskLevel": "Tingkat Risiko Terhitung",
       "addActivity": "Tambah Aktivitas",
-      "sectionTimeline": "2. Jadwal",
+      "sectionTimeline": "3. Jadwal",
       "year": "Tahun",
       "selectMonths": "Pilih Bulan",
       "quarterDistribution": "Distribusi Triwulan:",
@@ -1495,7 +1496,35 @@
       "dropLabel": "Letakkan lampiran Anda di sini",
       "uploadDescription": "Anda dapat mengunggah beberapa berkas (maks. 2MB per berkas)",
       "savePlan": "Simpan Rencana",
-      "updatePlan": "Perbarui Rencana"
+      "updatePlan": "Perbarui Rencana",
+      "sectionPlanHeader": "1. Header rencana",
+      "activityType": "Jenis Kegiatan Audit",
+      "activityTypePlaceholder": "Pilih jenis kegiatan audit",
+      "planTitle": "Judul Kegiatan Audit",
+      "planTitlePlaceholder": "Contoh: Rencana Kegiatan Audit Tahunan 2026",
+      "assignmentCode": "Kode Penugasan",
+      "assignmentCodePlaceholder": "Contoh: ASR-2026-001",
+      "objectName": "Objek Penugasan Audit",
+      "auditType": "Jenis Audit",
+      "department": "Departemen",
+      "justification": "Justifikasi Pemilihan Objek",
+      "auditObjective": "Tujuan Audit",
+      "auditFocus": "Fokus Audit",
+      "scheduleText": "Jadwal Penugasan",
+      "scheduleTextPlaceholder": "Contoh: Q1 2026, 2 minggu",
+      "teamCount": "Jumlah Tim (Orang)",
+      "teamLead": "Ketua Tim",
+      "riskSnapshotHelp": "Nama dan level risiko diambil dari Audit Universe dan diperbarui otomatis.",
+      "mandaysSumHint": "Jumlah Total Mandays semua aktivitas",
+      "validation": {
+        "objectRequired": "Objek Penugasan Audit pada sub-aktivitas {number} wajib diisi.",
+        "categoryRequired": "Jenis Audit pada sub-aktivitas {number} wajib dipilih.",
+        "departmentRequired": "Departemen pada sub-aktivitas {number} wajib dipilih.",
+        "universeRequired": "Pilih entitas Audit Universe untuk sub-aktivitas {number}.",
+        "auditorCountRange": "Jumlah Tim pada sub-aktivitas {number} harus antara 1 sampai 10.",
+        "mandaysMin": "Total mandays pada sub-aktivitas {number} minimal 1.",
+        "leadRequired": "Ketua Tim pada sub-aktivitas {number} wajib diisi."
+      }
     },
     "detail": {
       "activityStatus": "Status Aktivitas",
@@ -1632,7 +1661,8 @@
       "reviewAndApproval": "Harap lengkapi nama dan jabatan Pembuat serta Penyetuju.",
       "periodOrder": "Tanggal akhir periode harus sama dengan atau setelah tanggal mulai.",
       "scheduleOutsidePeriod": "Aktivitas {num}: estimasi jadwal harus berada dalam periode rencana.",
-      "negativeNumber": "Aktivitas {num}: durasi, jumlah auditor, dan budget tidak boleh negatif."
+      "negativeNumber": "Aktivitas {num}: durasi, jumlah auditor, dan budget tidak boleh negatif.",
+      "annualDepartmentMissing": "Kegiatan tahunan yang ditautkan belum memiliki departemen atau tahun. Periksa Rencana Audit Tahunan."
     },
     "stepper": {
       "step1": "Info Dasar",
@@ -1725,7 +1755,14 @@
       "maxFileSizeDesc": "Anda dapat mengupload beberapa file (maks. 2MB per file)",
       "cancel": "Batal",
       "create": "Buat",
-      "update": "Update"
+      "update": "Update",
+      "annualActivity": "Kegiatan audit tahunan (Rencana Audit Tahunan)",
+      "selectAnnualActivity": "-- Pilih kegiatan audit tahunan --",
+      "annualActivityHint": "Kategori, risiko, departemen, tahun, jumlah tim, dan mandays disalin dari kegiatan tahunan.",
+      "noAnnualActivities": "Belum ada kegiatan audit tahunan. Buat Rencana Audit Tahunan terlebih dahulu.",
+      "annualActivityRequired": "Pilih kegiatan audit tahunan untuk setiap aktivitas yang direncanakan.",
+      "copiedFromAnnual": "Disalin dari rencana tahunan",
+      "derivedFromAnnual": "Diambil dari kegiatan tahunan yang ditautkan"
     },
     "view": {
       "title": "Detail Rencana Aktivitas Audit",
@@ -2145,9 +2182,25 @@
     "totalFindingsHint": "Jumlah otomatis dari breakdown tingkat risiko",
     "findingsUnit": "Temuan",
     "riskBreakdown": "Breakdown Temuan Berdasarkan Risiko",
-    "riskHigh": "Risiko Tinggi (High)",
-    "riskMedium": "Risiko Sedang (Medium)",
-    "riskLow": "Risiko Rendah (Low)",
+    "riskLevels": {
+      "high": "Tinggi (High)",
+      "moderateHigh": "Sedang ke Tinggi (Moderate to High)",
+      "moderate": "Sedang (Moderate)",
+      "lowModerate": "Rendah ke Sedang (Low to Moderate)",
+      "low": "Rendah (Low)"
+    },
+    "riskLevelsShort": {
+      "high": "H",
+      "moderateHigh": "M-H",
+      "moderate": "M",
+      "lowModerate": "L-M",
+      "low": "L"
+    },
+    "riskBuckets": {
+      "high": "Tinggi",
+      "medium": "Sedang",
+      "low": "Rendah"
+    },
     "syncFromIndividual": "Sinkronkan dari LHA Individual",
     "sources": {
       "loading": "Memuat data sumber (LHA, test control, working paper, ATR)...",
@@ -3027,6 +3080,7 @@
   },
   "navigation": {
     "dashboard": "Dashboard",
+    "company": "Perusahaan",
     "auditCharter": "Audit Charter",
     "riskProfileUniverse": "Risk Profile & Audit Universe",
     "corporateRiskProfile": "Corporate Risk Profile",

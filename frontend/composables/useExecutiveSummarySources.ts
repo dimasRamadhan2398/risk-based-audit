@@ -1,16 +1,13 @@
 import { ref } from 'vue'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
-import { ATR_MAX_PAGE_SIZE, computeAtrStats, parseAtrPagination } from '~/utils/actionTakenReport'
+import { ATR_MAX_PAGE_SIZE, computeAtrOverdue, normalizeAtrStatus, parseAtrPagination } from '~/utils/actionTakenReport'
+import { emptyRiskBreakdown, mapWorkingPaperRiskLevel, type RiskBreakdown } from '~/utils/executiveSummaryCompilation'
 import { extractErrorMessage } from '~/utils/error'
 
 /** Safety cap for paging through one LHA's ATRs (ATR_MAX_PAGE_SIZE rows per page). */
 const ATR_MAX_PAGES = 50
 
-export interface CompilationRiskBreakdown {
-  high: number
-  medium: number
-  low: number
-}
+export type CompilationRiskBreakdown = RiskBreakdown
 
 export interface CompilationFollowUp {
   closed: number
@@ -19,49 +16,75 @@ export interface CompilationFollowUp {
 }
 
 export interface CompilationSources {
-  /** Test controls (fieldwork) with a non-empty recommendation, across the assignment letters in scope. */
+  /** Recommendations of the LHAs in scope (data.total of /fieldwork/test-controls/recommendations/summary). */
   recommendationCount: number
-  /** Working paper risks grouped into the three executive-summary levels. */
+  /** Working paper risks grouped into the five risk levels. */
   riskBreakdown: CompilationRiskBreakdown
   /** Action taken reports of the LHAs in scope, grouped into the three follow-up statuses. */
   followUp: CompilationFollowUp
 }
 
-/**
- * Working paper risk level -> executive summary level.
- * Working paper uses five levels (low, low-moderate, moderate, moderate-high, high);
- * the executive summary has three (Tinggi / Sedang / Rendah).
- * Returns null for unknown values so they are not counted.
- */
-export const mapWorkingPaperRiskLevel = (raw: unknown): keyof CompilationRiskBreakdown | null => {
-  const key = String(raw ?? '').trim().toLowerCase().replace(/[\s_]+/g, '-')
-  if (key === 'high' || key === 'moderate-high') return 'high'
-  if (key === 'moderate') return 'medium'
-  if (key === 'low' || key === 'low-moderate') return 'low'
-  return null
+type RawRow = Record<string, unknown>
+
+/** Only the fields used here. */
+interface AtrRow {
+  status?: unknown
+  due_date?: unknown
 }
 
-export const countTestControlRecommendations = (rows: Array<{ recommendation?: unknown }>): number =>
-  rows.filter(row => String(row.recommendation ?? '').trim() !== '').length
+interface ListPagePayload {
+  items?: unknown
+  pagination?: Partial<Record<'page' | 'page_size' | 'total' | 'total_pages', unknown>>
+}
 
-const extractItems = (res: any): any[] => {
-  if (res?.items && Array.isArray(res.items)) return res.items
-  if (res?.data?.items && Array.isArray(res.data.items)) return res.data.items
-  if (Array.isArray(res?.data)) return res.data
-  if (Array.isArray(res)) return res
+interface RecommendationSummaryPayload {
+  total?: unknown
+  items?: { auditResultReportId?: string, assignmentLetterId?: string, count?: number }[]
+}
+
+/**
+ * ATR rows -> follow-up status counts.
+ * Closed = COMPLETED; CANCELLED is excluded; every other status is open.
+ * Overdue = open and due_date (date part) before today in Asia/Jakarta. The server's is_overdue flag is not used.
+ * In Progress = open and not overdue.
+ */
+export const summarizeAtrFollowUp = (rows: AtrRow[], now: Date = new Date()): CompilationFollowUp => {
+  const followUp: CompilationFollowUp = { closed: 0, inProgress: 0, overdue: 0 }
+  for (const row of rows) {
+    const status = normalizeAtrStatus(row.status)
+    if (status === 'CANCELLED') continue
+    if (status === 'COMPLETED') {
+      followUp.closed++
+    } else if (computeAtrOverdue(row.due_date, status, now).isOverdue) {
+      followUp.overdue++
+    } else {
+      followUp.inProgress++
+    }
+  }
+  return followUp
+}
+
+/** Rows from a list response, accepting `{ items }`, `{ data: { items } }`, `{ data: [] }` or a bare array. */
+const extractItems = (res: unknown): RawRow[] => {
+  if (Array.isArray(res)) return res as RawRow[]
+  const body = res as { items?: unknown, data?: unknown } | null | undefined
+  if (Array.isArray(body?.items)) return body.items as RawRow[]
+  if (Array.isArray(body?.data)) return body.data as RawRow[]
+  const payload = body?.data as { items?: unknown } | null | undefined
+  if (Array.isArray(payload?.items)) return payload.items as RawRow[]
   return []
 }
 
-const fetchAllAtrForLha = async (baseUrl: string, lhaId: string): Promise<Record<string, unknown>[]> => {
-  const collected: Record<string, unknown>[] = []
+const fetchAllAtrForLha = async (baseUrl: string, lhaId: string): Promise<AtrRow[]> => {
+  const collected: AtrRow[] = []
   let page = 1
   let totalPages = 1
   do {
-    const response = await $fetch<any>(`${baseUrl}/action-taken-reports`, {
+    const response = await $fetch<{ data?: ListPagePayload }>(`${baseUrl}/action-taken-reports`, {
       method: 'GET',
       params: { audit_result_report_id: lhaId, page, page_size: ATR_MAX_PAGE_SIZE }
     })
-    const rows = Array.isArray(response?.data?.items) ? response.data.items : []
+    const rows = Array.isArray(response?.data?.items) ? (response.data.items as AtrRow[]) : []
     collected.push(...rows)
     totalPages = parseAtrPagination(response?.data?.pagination, { page, pageSize: ATR_MAX_PAGE_SIZE }).total_pages
     page++
@@ -69,10 +92,19 @@ const fetchAllAtrForLha = async (baseUrl: string, lhaId: string): Promise<Record
   return collected
 }
 
+const fetchRecommendationTotal = async (baseUrl: string, lhaIds: string[]): Promise<number> => {
+  if (lhaIds.length === 0) return 0
+  const response = await $fetch<{ data?: RecommendationSummaryPayload }>(
+    `${baseUrl}/fieldwork/test-controls/recommendations/summary`,
+    { method: 'GET', params: { audit_result_report_ids: lhaIds.join(',') } }
+  )
+  const total = Number(response?.data?.total)
+  return Number.isFinite(total) && total > 0 ? total : 0
+}
+
 /**
- * Read-only data sources for the executive summary compilation statistics.
- * Uses the existing audit-service endpoints:
- * - /fieldwork/test-controls?assignmentLetterId=  (recommendations)
+ * Read-only data sources for the executive summary compilation statistics (audit-service):
+ * - /fieldwork/test-controls/recommendations/summary?audit_result_report_ids= (recommendations, one call)
  * - /working-papers/risks                         (risk breakdown, matched by workingPaperId = assignment letter)
  * - /action-taken-reports?audit_result_report_id= (follow-up status)
  */
@@ -93,37 +125,25 @@ export const useExecutiveSummarySources = () => {
       const letters = [...new Set(input.assignmentLetterIds.filter(Boolean))]
       const lhaIds = [...new Set(input.lhaIds.filter(Boolean))]
 
-      const [controlResponses, riskResponse, atrRows] = await Promise.all([
-        Promise.all(letters.map(letter =>
-          $fetch<any>(`${baseUrl}/fieldwork/test-controls`, { method: 'GET', params: { assignmentLetterId: letter } })
-        )),
+      const [recommendationCount, riskResponse, atrRowsPerLha] = await Promise.all([
+        fetchRecommendationTotal(baseUrl, lhaIds),
         letters.length > 0
-          ? $fetch<any>(`${baseUrl}/working-papers/risks`, { method: 'GET' })
+          ? $fetch<unknown>(`${baseUrl}/working-papers/risks`, { method: 'GET' })
           : Promise.resolve(null),
         Promise.all(lhaIds.map(lhaId => fetchAllAtrForLha(baseUrl, lhaId)))
       ])
 
       if (id !== requestId) return null
 
-      const recommendationCount = controlResponses.reduce(
-        (sum, res) => sum + countTestControlRecommendations(extractItems(res)),
-        0
-      )
-
-      const riskBreakdown: CompilationRiskBreakdown = { high: 0, medium: 0, low: 0 }
+      const riskBreakdown = emptyRiskBreakdown()
       const letterSet = new Set(letters)
       for (const risk of extractItems(riskResponse)) {
-        if (!letterSet.has(risk?.workingPaperId || risk?.assignmentLetterId)) continue
+        if (!letterSet.has(String(risk.workingPaperId || risk.assignmentLetterId || ''))) continue
         const level = mapWorkingPaperRiskLevel(risk.riskLevel)
         if (level) riskBreakdown[level]++
       }
 
-      const stats = computeAtrStats(atrRows as { status?: unknown, is_overdue?: boolean }[])
-      const followUp: CompilationFollowUp = {
-        closed: stats.counts.completed,
-        overdue: stats.counts.overdue,
-        inProgress: stats.counts.open - stats.counts.overdue
-      }
+      const followUp = summarizeAtrFollowUp(atrRowsPerLha.flat())
 
       return { recommendationCount, riskBreakdown, followUp }
     } catch (err) {
@@ -136,5 +156,12 @@ export const useExecutiveSummarySources = () => {
     }
   }
 
-  return { loading, error, fetchCompilationSources }
+  /** Drops any in-flight request (its result is ignored) and clears loading/error. */
+  const cancel = () => {
+    requestId++
+    loading.value = false
+    error.value = ''
+  }
+
+  return { loading, error, fetchCompilationSources, cancel }
 }

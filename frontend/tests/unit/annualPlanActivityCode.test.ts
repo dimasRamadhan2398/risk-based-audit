@@ -16,15 +16,23 @@ vi.mock('~/components/shared/ToastNotification.vue', () => ({
 
 const FORM_SFC = resolve(__dirname, '../../components/annual-audit/AnnualAuditForm.vue')
 
+const validRow = (over: Record<string, unknown> = {}) => ({
+  name: 'Audit IT',
+  category: 'Assurance',
+  departmentId: 'dept-it',
+  department: 'IT',
+  auditUniverseId: 'au-it',
+  riskName: 'Risk A',
+  auditorCount: 2,
+  totalMandays: 10,
+  supervisorName: 'Budi Santoso, CIA',
+  ...over
+})
+
 function fillValidNewPlan(store: ReturnType<typeof useAnnualPlanStore>) {
-  store.form.activities = [
-    { name: 'Audit Keuangan', category: 'Assurance', department: 'Finance', riskName: 'Risk Finance' }
-  ]
+  store.form.activities = [validRow({ name: 'Audit Keuangan', departmentId: 'dept-fin', department: 'Finance', riskName: 'Risk Finance', auditUniverseId: 'au-fin' })]
   store.form.year = '2026'
   store.form.selectedMonths = [0]
-  store.form.auditorCount = 2
-  store.form.daysPerAuditor = 5
-  store.form.supervisorId = 'Budi Santoso, CIA'
 }
 
 describe('Annual plan activity code (PKAT-<Tahun>-<No.Urut>)', () => {
@@ -79,11 +87,8 @@ describe('Annual plan activity code (PKAT-<Tahun>-<No.Urut>)', () => {
       code: 'PKAT-2026-ASR-003-SPE',
       status: 'Draft',
       year: '2026',
-      activities: [{ name: 'Audit IT', category: 'Assurance', department: 'IT', riskName: 'Risk A' }],
+      activities: [{ ...validRow(), id: 'row-uuid-1' }],
       selectedMonths: [0],
-      auditorCount: 2,
-      daysPerAuditor: 5,
-      supervisorId: 'S01',
       isActive: true
     })
 
@@ -91,12 +96,14 @@ describe('Annual plan activity code (PKAT-<Tahun>-<No.Urut>)', () => {
 
     store.form.activities[0].category = 'Consulting'
     store.form.year = '2027'
-    store.form.supervisorId = 'Budi Santoso, CIA'
+    store.form.activities[0].supervisorName = 'Budi Santoso, CIA'
     await store.handleSubmit()
 
     const putCall = fetchMock.mock.calls.find(([, opts]) => opts?.method === 'PUT')
     expect(putCall).toBeDefined()
     expect(putCall[1].body.code).toBe('PKAT-2026-ASR-003-SPE')
+    // The row keeps its server id, so the backend updates it instead of adding a new one.
+    expect(putCall[1].body.activities[0].id).toBe('row-uuid-1')
   })
 
   it('the code field is read-only and has a pending placeholder key', () => {

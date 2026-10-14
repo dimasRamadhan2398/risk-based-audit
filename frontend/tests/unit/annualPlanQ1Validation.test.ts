@@ -36,16 +36,24 @@ const FORM_SFC = resolve(__dirname, '../../components/annual-audit/AnnualAuditFo
 // Month indexes are 0-based: 0 = Jan ... 11 = Dec.
 const [JAN, FEB, MAR, APR, MAY, , JUL, , , OCT] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
+const validRow = (over: Record<string, unknown> = {}) => ({
+  name: 'Audit IT',
+  category: 'Assurance',
+  departmentId: 'dept-it',
+  department: 'IT',
+  auditUniverseId: 'au-it',
+  riskName: 'Risk A',
+  auditorCount: 2,
+  totalMandays: 10,
+  supervisorName: 'Budi Santoso, CIA',
+  ...over
+})
+
 let store: ReturnType<typeof useAnnualPlanStore>
 
 /** Fill every non-timeline field so validateForm() only has timeline rules left to fail. */
 function fillValidForm(months: number[], year = '2026') {
-  store.form.activities = [
-    { name: 'Audit IT', category: 'Assurance', department: 'IT', riskName: 'Risk A' }
-  ]
-  store.form.supervisorId = 'S01'
-  store.form.auditorCount = 2
-  store.form.daysPerAuditor = 5
+  store.form.activities = [validRow()]
   store.form.year = year
   store.form.selectedMonths = [...months]
 }
@@ -114,8 +122,7 @@ describe('Annual plan form after removing the Q1 workload rule', () => {
 
   it('the utilization overload (red) still disables Save', () => {
     store.form.selectedMonths = [JAN, FEB, MAR, APR]
-    store.form.auditorCount = 1000
-    store.form.daysPerAuditor = 1000
+    store.form.activities[0].totalMandays = 100000
     expect(store.utilizationData.color).toBe('red')
     expect(isSaveDisabled()).toBe(true)
   })
@@ -141,8 +148,7 @@ describe('Q1 workload rule stays removed', () => {
   })
 
   it('a Q1-heavy selection does not disable Save (SFC expression evaluated against the store)', () => {
-    store.form.auditorCount = 2
-    store.form.daysPerAuditor = 5 // utilization green
+    store.form.activities[0].totalMandays = 10 // utilization green
     store.form.selectedMonths = [JAN, FEB, MAR, APR]
     expect(store.utilizationData.color).toBe('green')
     expect(isSaveDisabled()).toBe(false)
@@ -161,11 +167,8 @@ describe('Q1 workload rule stays removed', () => {
       code: 'PKAT-2026-ASR-001',
       status: 'Draft',
       year: '2026',
-      activities: [{ name: 'Audit IT', category: 'Assurance', department: 'IT', riskName: 'Risk A' }],
+      activities: [{ ...validRow(), id: 'row-1' }],
       selectedMonths: [0, 1, 2, 3],
-      auditorCount: 2,
-      daysPerAuditor: 5,
-      supervisorId: 'S01',
       isActive: true
     })
 

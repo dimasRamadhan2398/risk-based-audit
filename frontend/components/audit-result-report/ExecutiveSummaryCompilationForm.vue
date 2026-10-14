@@ -98,7 +98,7 @@
                     </UBadge>
                   </div>
                   <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                    Daftar seluruh LHA dari surat tugas yang otomatis dirangkum ke dalam laporan kompilasi ini.
+                    Daftar seluruh LHA pada tahun dan kuartal yang dipilih, yang otomatis dirangkum ke dalam laporan kompilasi ini.
                   </p>
                 </div>
               </div>
@@ -329,32 +329,17 @@
               <h4 class="text-md font-extrabold uppercase tracking-wider text-gray-400">{{ t('executiveSummaryCompilation.riskBreakdown') }}</h4>
               <span class="text-xs text-gray-400">{{ t('executiveSummaryCompilation.sources.hintRisk') }}</span>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <UFormField :label="t('executiveSummaryCompilation.riskHigh')">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <UFormField
+                v-for="bucket in riskBucketFields"
+                :key="bucket.key"
+                :label="t(bucket.label)"
+              >
                 <UInput
                   type="number"
-                  :model-value="store.form.risikoTinggi"
-                  class="w-full border-l-4 border-error-500 font-bold"
-                  disabled
-                  readonly
-                />
-              </UFormField>
-
-              <UFormField :label="t('executiveSummaryCompilation.riskMedium')">
-                <UInput
-                  type="number"
-                  :model-value="store.form.risikoSedang"
-                  class="w-full border-l-4 border-warning-500 font-bold"
-                  disabled
-                  readonly
-                />
-              </UFormField>
-
-              <UFormField :label="t('executiveSummaryCompilation.riskLow')">
-                <UInput
-                  type="number"
-                  :model-value="store.form.risikoRendah"
-                  class="w-full border-l-4 border-success-500 font-bold"
+                  :model-value="riskBuckets[bucket.key]"
+                  class="w-full border-l-4 font-bold"
+                  :class="bucket.borderClass"
                   disabled
                   readonly
                 />
@@ -776,6 +761,14 @@ import { useI18n } from '~/composables/useI18n'
 import { useExecutiveSummarySources, type CompilationSources } from '~/composables/useExecutiveSummarySources'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
+import {
+  emptyRiskBreakdown,
+  riskBreakdownToFields,
+  riskBucketBreakdown,
+  riskBucketTotal,
+  riskFieldsToBreakdown,
+  type RiskBucket
+} from '~/utils/executiveSummaryCompilation'
 const store = useExecutiveSummaryStore()
 const authStore = useAuthStore()
 const auditReportStore = useAuditResultReportStore()
@@ -790,13 +783,22 @@ const scrollContainer = ref<HTMLElement | null>(null)
 // Last successful read of the statistics sources (null until the first sync)
 const lastSources = ref<CompilationSources | null>(null)
 
+// Display buckets of the risk breakdown (High / Medium / Low), read-only.
+// The five audit-universe levels are mapped to buckets in utils (RISK_BUCKET_BY_LEVEL).
+const riskBucketFields: { key: RiskBucket, label: string, borderClass: string }[] = [
+  { key: 'high', label: 'executiveSummaryCompilation.riskBuckets.high', borderClass: 'border-error-500' },
+  { key: 'medium', label: 'executiveSummaryCompilation.riskBuckets.medium', borderClass: 'border-warning-500' },
+  { key: 'low', label: 'executiveSummaryCompilation.riskBuckets.low', borderClass: 'border-success-500' }
+]
+const riskBuckets = computed(() => riskBucketBreakdown(riskFieldsToBreakdown(store.form)))
+
 // Empty-source hints shown under the statistics section after a sync
 const sourceEmptyNotes = computed<string[]>(() => {
   const sources = lastSources.value
   if (!sources) return []
   const notes: string[] = []
   if (sources.recommendationCount === 0) notes.push(t('executiveSummaryCompilation.sources.emptyRecommendation'))
-  if (sources.riskBreakdown.high + sources.riskBreakdown.medium + sources.riskBreakdown.low === 0) {
+  if (riskBucketTotal(riskBucketBreakdown(sources.riskBreakdown)) === 0) {
     notes.push(t('executiveSummaryCompilation.sources.emptyRisk'))
   }
   if (sources.followUp.closed + sources.followUp.inProgress + sources.followUp.overdue === 0) {
@@ -944,10 +946,8 @@ const quarterlyLhas = computed(() => {
   })
 })
 
-// Section II computed auto-sum
-const totalTemuanSummary = computed(() => {
-  return (store.form.risikoTinggi || 0) + (store.form.risikoSedang || 0) + (store.form.risikoRendah || 0)
-})
+// Section II computed auto-sum of the three risk buckets
+const totalTemuanSummary = computed(() => riskBucketTotal(riskBuckets.value))
 
 // Section III computed auto-sums
 const totalFollowUpCount = computed(() => {
@@ -1036,9 +1036,7 @@ const syncFromIndividualLha = async () => {
 
   if (individualReports.length === 0) {
     lastSources.value = null
-    store.form.risikoTinggi = 0
-    store.form.risikoSedang = 0
-    store.form.risikoRendah = 0
+    Object.assign(store.form, riskBreakdownToFields(emptyRiskBreakdown()))
     store.form.jumlahRekomendasi = 0
     store.form.topFindings = []
     store.form.matriksKompilasi = []
@@ -1060,13 +1058,10 @@ const syncFromIndividualLha = async () => {
   })
   if (!sources) return
   lastSources.value = sources
-  const totalHigh = sources.riskBreakdown.high
-  const totalMedium = sources.riskBreakdown.medium
-  const totalLow = sources.riskBreakdown.low
+  const risk = sources.riskBreakdown
+  const buckets = riskBucketBreakdown(risk)
   const totalRecs = sources.recommendationCount
-  store.form.risikoTinggi = totalHigh
-  store.form.risikoSedang = totalMedium
-  store.form.risikoRendah = totalLow
+  Object.assign(store.form, riskBreakdownToFields(risk))
   store.form.jumlahRekomendasi = totalRecs
 
   // 3. Aggregate LHA findings for the Top 5 list and the compilation matrix
@@ -1140,19 +1135,19 @@ const syncFromIndividualLha = async () => {
     { status: 'In Progress', jumlah: inProgCount, persentase: percentOfTl(inProgCount), keterangan: 'On-track pelaksanaan' },
     { status: 'Overdue', jumlah: overdueCount, persentase: percentOfTl(overdueCount), keterangan: '-' }
   ]
-  const totalFindings = totalHigh + totalMedium + totalLow
+  const totalFindings = riskBucketTotal(buckets)
 
   // 6. Section V & VII Qualitative text
   if (store.form.topFindings.length > 0) {
     store.form.akarMasalah = `Analisis kompilasi terhadap ${individualReports.length} LHA Individual menunjukkan tema berulang utama pada: ${store.form.topFindings.slice(0, 2).map(f => f.judulTemuan).join('; ')}. Diperlukan penguatan regulasi operasional serta koordinasi lintas unit.`
-    store.form.kesimpulan = `Secara keseluruhan hasil audit kompilasi ${reportingQuarter.value} ${targetYear} atas ${individualReports.length} LHA menunjukkan sistem pengendalian internal berjalan cukup efektif dengan total ${totalFindings} temuan (${totalHigh} risiko tinggi, ${totalMedium} sedang, ${totalLow} rendah) dan ${totalRecs} rekomendasi yang perlu dipantau implementasinya.`
+    store.form.kesimpulan = `Secara keseluruhan hasil audit kompilasi ${reportingQuarter.value} ${targetYear} atas ${individualReports.length} LHA menunjukkan sistem pengendalian internal berjalan cukup efektif dengan total ${totalFindings} temuan (${buckets.high} risiko tinggi, ${buckets.medium} sedang, ${buckets.low} rendah) dan ${totalRecs} rekomendasi yang perlu dipantau implementasinya.`
   } else {
     store.form.akarMasalah = `Analisis kompilasi terhadap ${individualReports.length} LHA Individual periode ${reportingQuarter.value} ${targetYear}.`
     store.form.kesimpulan = `Secara keseluruhan hasil audit kompilasi ${reportingQuarter.value} ${targetYear} atas ${individualReports.length} LHA menunjukkan tata kelola dan kontrol internal telah dievaluasi.`
   }
 
   // 7. Update narrative
-  store.form.narrative = `Periode ${reportingQuarter.value} ${targetYear}, SPI telah menerbitkan ${individualReports.length} LHA Individual. Total temuan ${totalFindings} dengan ${totalRecs} rekomendasi perbaikan. Tingkat penyelesaian on-time 95%. Terdapat ${totalHigh} temuan risiko tinggi terkait ${store.form.topFindings[0]?.judulTemuan || 'operasional'} yang memerlukan perhatian dan arahan Direksi.`
+  store.form.narrative = `Periode ${reportingQuarter.value} ${targetYear}, SPI telah menerbitkan ${individualReports.length} LHA Individual. Total temuan ${totalFindings} dengan ${totalRecs} rekomendasi perbaikan. Tingkat penyelesaian on-time 95%. Terdapat ${buckets.high} temuan risiko tinggi terkait ${store.form.topFindings[0]?.judulTemuan || 'operasional'} yang memerlukan perhatian dan arahan Direksi.`
 }
 
 // Form submission & workflow helpers

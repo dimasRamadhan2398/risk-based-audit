@@ -134,9 +134,11 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
         executiveNote: '',
         narrative: 'Executive Summary Individual untuk Laporan Hasil Audit Operasional Keuangan (LHA-021/SKAI/2026).',
         jumlahLaporan: 1,
-        risikoTinggi: 3,
-        risikoSedang: 2,
-        risikoRendah: 0,
+        risikoHigh: 3,
+        risikoModerateHigh: 0,
+        risikoModerate: 2,
+        risikoLowModerate: 0,
+        risikoLow: 0,
         jumlahRekomendasi: 5,
         followUpTable: [],
         topFindings: [],
@@ -277,9 +279,11 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
           status: 'Approved',
           narrative: 'Narrative',
           jumlahLaporan: 3,
-          risikoTinggi: 1,
-          risikoSedang: 1,
-          risikoRendah: 1,
+          risikoHigh: 1,
+          risikoModerateHigh: 0,
+          risikoModerate: 1,
+          risikoLowModerate: 0,
+          risikoLow: 1,
           jumlahRekomendasi: 3,
           followUpTable: [],
           topFindings: [],
@@ -325,9 +329,12 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
 
       // Synchronized stats
       expect(compilationContent).toContain('store.form.jumlahLaporan')
-      expect(compilationContent).toContain('store.form.risikoTinggi')
-      expect(compilationContent).toContain('store.form.risikoSedang')
-      expect(compilationContent).toContain('store.form.risikoRendah')
+      expect(compilationContent).toContain('riskBucketFields')
+      expect(compilationContent).toContain('riskBucketBreakdown(risk)')
+      expect(compilationContent).toContain('riskBuckets.high')
+      expect(compilationContent).not.toMatch(/risikoTinggi|risikoSedang|risikoRendah/)
+      expect(compilationContent).not.toContain('noMatchingLha')
+      expect(compilationContent).not.toContain('selectCompilationReports')
       expect(compilationContent).toContain('store.form.topFindings')
     })
 
@@ -378,9 +385,11 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
         status: 'Draft',
         narrative: '',
         jumlahLaporan: 1,
-        risikoTinggi: 0,
-        risikoSedang: 0,
-        risikoRendah: 0,
+        risikoHigh: 0,
+        risikoModerateHigh: 0,
+        risikoModerate: 0,
+        risikoLowModerate: 0,
+        risikoLow: 0,
         jumlahRekomendasi: 0,
         followUpTable: [],
         topFindings: [],

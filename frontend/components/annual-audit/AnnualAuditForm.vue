@@ -30,23 +30,48 @@
           <div class="p-4 sm:p-6 overflow-y-auto space-y-4">
             <div class="space-y-4">
               <h4 class="text-sm uppercase tracking-wide text-primary-500 font-bold border-b border-[var(--border-main)] pb-2">
-                {{ t('annualAudit.form.sectionActivity') }}
+                {{ t('annualAudit.form.sectionPlanHeader') }}
               </h4>
-              <div
-                v-if="store.validationErrors.activityDetail"
-                class="flex items-start gap-2 rounded-lg border border-error-200 bg-error-50 p-3 text-sm text-error-600"
-              >
-                <UIcon
-                  name="i-lucide-circle-alert"
-                  class="mt-0.5 shrink-0"
-                />
 
-                <span>
-                  {{ store.validationErrors.activityDetail }}
-                </span>
-              </div>
+              <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <UFormField
+                  :label="t('annualAudit.form.year')"
+                  size="lg"
+                  required
+                >
+                  <USelectMenu
+                    v-model="store.form.year"
+                    :items="store.yearOptions"
+                    class="w-full"
+                  />
+                </UFormField>
 
-              <div class="grid grid-cols-1 gap-6 md:grid-cols-2 mb-4">
+                <UFormField
+                  :label="t('annualAudit.form.activityType')"
+                  size="lg"
+                >
+                  <USelectMenu
+                    v-model="(store.form.activityType as AnnualActivityType | undefined)"
+                    :items="activityTypeOptions"
+                    :placeholder="t('annualAudit.form.activityTypePlaceholder')"
+                    class="w-full"
+                  />
+                </UFormField>
+
+                <UFormField
+                  :label="t('annualAudit.form.planTitle')"
+                  size="lg"
+                  class="md:col-span-2"
+                >
+                  <UInput
+                    v-model="store.form.title"
+                    type="text"
+                    :placeholder="t('annualAudit.form.planTitlePlaceholder')"
+                    maxlength="150"
+                    class="w-full"
+                  />
+                </UFormField>
+
                 <UFormField
                   :label="t('annualAudit.form.status')"
                   size="lg"
@@ -74,11 +99,30 @@
                   />
                 </UFormField>
               </div>
+            </div>
 
-              <div class="space-y-4 mt-6">
+            <div class="space-y-4">
+              <h4 class="text-sm uppercase tracking-wide text-primary-500 font-bold border-b border-[var(--border-main)] pb-2">
+                {{ t('annualAudit.form.sectionActivity') }}
+              </h4>
+              <div
+                v-if="store.validationErrors.activityDetail"
+                class="flex items-start gap-2 rounded-lg border border-error-200 bg-error-50 p-3 text-sm text-error-600"
+              >
+                <UIcon
+                  name="i-lucide-circle-alert"
+                  class="mt-0.5 shrink-0"
+                />
+
+                <span>
+                  {{ store.validationErrors.activityDetail }}
+                </span>
+              </div>
+
+              <div class="space-y-4">
                 <UCard
                   v-for="(activity, index) in store.form.activities"
-                  :key="index"
+                  :key="activity.id || index"
                   class="relative"
                 >
                   <div class="flex justify-between items-center mb-4 border-b border-gray-200  pb-2">
@@ -95,9 +139,22 @@
                     />
                   </div>
 
-                  <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+                  <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <UFormField
-                      :label="t('annualAudit.form.activityName')"
+                      :label="t('annualAudit.form.assignmentCode')"
+                      size="lg"
+                    >
+                      <UInput
+                        v-model="activity.activityCode"
+                        type="text"
+                        :placeholder="t('annualAudit.form.assignmentCodePlaceholder')"
+                        maxlength="50"
+                        class="w-full"
+                      />
+                    </UFormField>
+
+                    <UFormField
+                      :label="t('annualAudit.form.objectName')"
                       size="lg"
                     >
                       <UInput
@@ -116,7 +173,7 @@
                     </UFormField>
 
                     <UFormField
-                      :label="t('annualAudit.form.category')"
+                      :label="t('annualAudit.form.auditType')"
                       size="lg"
                     >
                       <USelectMenu
@@ -127,32 +184,31 @@
                     </UFormField>
 
                     <UFormField
-                      :label="t('annualAudit.form.involvedDepartments')"
+                      :label="t('annualAudit.form.department')"
                       size="lg"
                     >
                       <USelectMenu
-                        v-model="activity.involvedDepartments"
-                        :items="departmentItemsFor(activity)"
+                        v-model="activity.departmentId"
+                        :items="store.departments"
+                        value-key="id"
+                        label-key="name"
                         :loading="store.departmentOptionsLoading"
-                        multiple
                         :placeholder="t('annualAudit.form.departmentsPlaceholder')"
                         class="w-full"
-                        @update:model-value="() => { if (activity.involvedDepartments && activity.involvedDepartments.length > 0) activity.department = activity.involvedDepartments[0]; }"
                       >
                         <template #empty>
                           {{ store.departmentOptionsLoading ? t('common.loading') : t('annualAudit.form.departmentsEmpty') }}
                         </template>
                       </USelectMenu>
                     </UFormField>
-                  </div>
 
-                  <div class="grid grid-cols-1 gap-6 md:grid-cols-2 mt-4">
                     <UFormField
                       :label="t('annualAudit.form.auditableEntityLabel')"
                       size="lg"
+                      class="md:col-span-2"
                     >
                       <USelectMenu
-                        :model-value="auditableUniverseOptions.find(u => u.name === activity.riskName || u.label === activity.riskName) || (activity.riskName ? { label: activity.riskName, name: activity.riskName, riskLevel: activity.riskLevel || 'Custom' } as AuditableEntityOption : undefined)"
+                        :model-value="auditableEntityValue(activity)"
                         :items="auditableUniverseOptions"
                         label-key="label"
                         :placeholder="t('annualAudit.form.auditableEntityPlaceholder')"
@@ -192,8 +248,12 @@
                     <UFormField
                       :label="t('annualAudit.form.calculatedRiskLevel')"
                       size="lg"
+                      :help="t('annualAudit.form.riskSnapshotHelp')"
                     >
-                      <div class="mt-2 flex items-center gap-2">
+                      <div class="mt-2 flex flex-wrap items-center gap-2">
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-200">
+                          {{ activity.riskName || '-' }}
+                        </span>
                         <span
                           v-if="activity.riskLevel"
                           class="inline-flex items-center px-2 py-1 rounded-md text-sm font-semibold"
@@ -202,18 +262,102 @@
                           {{ activity.riskLevel }}
                         </span>
                         <UBadge
-                          v-if="auditableUniverseOptions.find(u => u.name === activity.riskName)?.auditPriority"
+                          v-if="auditableUniverseOptions.find(u => u.id === activity.auditUniverseId)?.auditPriority"
                           color="error"
                           size="md"
                           variant="subtle"
                         >
                           {{ t('annualAudit.form.auditPriorityBadge') }}
                         </UBadge>
-                        <span
-                          v-if="!activity.riskLevel"
-                          class="text-gray-400 text-sm"
-                        >-</span>
                       </div>
+                    </UFormField>
+
+                    <UFormField
+                      :label="t('annualAudit.form.justification')"
+                      size="lg"
+                      class="md:col-span-2"
+                    >
+                      <UTextarea
+                        v-model="activity.justification"
+                        :rows="2"
+                        autoresize
+                        class="w-full"
+                      />
+                    </UFormField>
+
+                    <UFormField
+                      :label="t('annualAudit.form.auditObjective')"
+                      size="lg"
+                    >
+                      <UTextarea
+                        v-model="activity.auditObjective"
+                        :rows="2"
+                        autoresize
+                        class="w-full"
+                      />
+                    </UFormField>
+
+                    <UFormField
+                      :label="t('annualAudit.form.auditFocus')"
+                      size="lg"
+                    >
+                      <UTextarea
+                        v-model="activity.auditFocus"
+                        :rows="2"
+                        autoresize
+                        class="w-full"
+                      />
+                    </UFormField>
+
+                    <UFormField
+                      :label="t('annualAudit.form.scheduleText')"
+                      size="lg"
+                    >
+                      <UInput
+                        v-model="activity.timelineText"
+                        type="text"
+                        :placeholder="t('annualAudit.form.scheduleTextPlaceholder')"
+                        maxlength="150"
+                        class="w-full"
+                      />
+                    </UFormField>
+
+                    <UFormField
+                      :label="t('annualAudit.form.teamCount')"
+                      size="lg"
+                    >
+                      <UInput
+                        v-model.number="activity.auditorCount"
+                        type="number"
+                        min="1"
+                        max="10"
+                        class="w-full"
+                      />
+                    </UFormField>
+
+                    <UFormField
+                      :label="t('annualAudit.form.totalMandays')"
+                      size="lg"
+                    >
+                      <UInput
+                        v-model.number="activity.totalMandays"
+                        type="number"
+                        min="1"
+                        class="w-full"
+                      />
+                    </UFormField>
+
+                    <UFormField
+                      :label="t('annualAudit.form.teamLead')"
+                      size="lg"
+                      class="md:col-span-2"
+                    >
+                      <UInput
+                        v-model="activity.supervisorName"
+                        type="text"
+                        :placeholder="t('annualAudit.form.supervisorPlaceholder')"
+                        class="w-full"
+                      />
                     </UFormField>
                   </div>
                 </UCard>
@@ -227,6 +371,58 @@
                   variant="soft"
                   @click="store.addActivity"
                 />
+              </div>
+
+              <div
+                v-if="store.validationErrors.auditor"
+                class="flex items-start gap-2 rounded-lg border border-error-200 bg-error-50 p-3 text-sm text-error-600"
+              >
+                <UIcon
+                  name="i-lucide-circle-alert"
+                  class="mt-0.5 shrink-0"
+                />
+
+                <span>
+                  {{ store.validationErrors.auditor }}
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 rounded-lg border border-primary-200">
+                <UBadge
+                  variant="outline"
+                  color="primary"
+                  class="p-3 rounded-lg text-center flex flex-col justify-center bg-transparent border border-primary-500/50 dark:border-primary-400/50"
+                >
+                  <span class="text-md text-gray-500 dark:text-gray-400 uppercase">{{ t('annualAudit.form.totalMandays') }}</span>
+                  <span class="text-2xl font-bold text-primary-600 dark:text-primary-400">{{ store.totalMandays }}</span>
+                  <span class="text-md text-gray-400 dark:text-gray-500">{{ t('annualAudit.form.mandaysSumHint') }}</span>
+                </UBadge>
+
+                <UFormField>
+                  <div class="flex justify-between items-center mb-1">
+                    <label class="label mb-0">{{ t('annualAudit.form.teamCapacity') }}</label>
+                    <span
+                      class="text-md font-bold"
+                      :class="store.utilizationData.color === 'red' ? 'text-error-600' : 'text-success-600'"
+                    >
+                      {{ store.utilizationData.msg }}
+                    </span>
+                  </div>
+                  <div class="w-full rounded-full h-2.5 ">
+                    <div
+                      class="h-2.5 rounded-full transition-all duration-500"
+                      :class="{
+                        'bg-success-500': store.utilizationData.color === 'green',
+                        'bg-warning-400': store.utilizationData.color === 'yellow',
+                        'bg-error-600': store.utilizationData.color === 'red'
+                      }"
+                      :style="{ width: `${Math.min(store.utilizationData.percent, 100)}%` }"
+                    />
+                  </div>
+                  <p class="text-md text-gray-400 mt-1">
+                    {{ t('annualAudit.form.totalLoad', { percent: store.utilizationData.percent.toFixed(1) }) }}
+                  </p>
+                </UFormField>
               </div>
             </div>
 
@@ -248,16 +444,6 @@
                 </span>
               </div>
 
-              <UFormField
-                :label="t('annualAudit.form.year')"
-                size="lg"
-              >
-                <USelectMenu
-                  v-model="store.form.year"
-                  :items="store.yearOptions"
-                  class="w-full"
-                />
-              </UFormField>
               <UFormField
                 :label="t('annualAudit.form.selectMonths')"
                 size="lg"
@@ -296,117 +482,6 @@
                   {{ store.computedQuarters.length ? store.computedQuarters.join(', ') : '-' }}
                 </div>
               </UFormField>
-            </div>
-
-            <div class="space-y-4">
-              <h4 class="text-sm uppercase tracking-wide text-primary-500 font-bold border-b pb-2">
-                {{ t('annualAudit.form.sectionAuditor') }}
-              </h4>
-              <div
-                v-if="store.validationErrors.auditor"
-                class="flex items-start gap-2 rounded-lg border border-error-200 bg-error-50 p-3 text-sm text-error-600"
-              >
-                <UIcon
-                  name="i-lucide-circle-alert"
-                  class="mt-0.5 shrink-0"
-                />
-
-                <span>
-                  {{ store.validationErrors.auditor }}
-                </span>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 rounded-lg border border-primary-200 ">
-                <UFormField
-                  :label="t('annualAudit.form.auditorCount')"
-                  size="lg"
-                  required
-                >
-                  <UInput
-                    v-model.number="store.form.auditorCount"
-                    type="number"
-                    min="1"
-                    max="10"
-                    required
-                    class="w-full"
-                  />
-                  <p class="text-md text-gray-500 mt-1">
-                    {{ t('annualAudit.form.auditorAdvice') }}
-                  </p>
-                </UFormField>
-
-                <UFormField
-                  :label="t('annualAudit.form.durationDays')"
-                  size="lg"
-                  required
-                >
-                  <UInput
-                    v-model.number="store.form.daysPerAuditor"
-                    type="number"
-                    min="1"
-                    required
-                  />
-                </UFormField>
-
-                <UBadge
-                  variant="outline"
-                  color="primary"
-                  class="p-3 rounded-lg text-center flex flex-col justify-center bg-transparent border border-primary-500/50 dark:border-primary-400/50"
-                >
-                  <span class="text-md text-gray-500 dark:text-gray-400 uppercase">{{ t('annualAudit.form.totalMandays') }}</span>
-                  <span class="text-2xl font-bold text-primary-600 dark:text-primary-400">{{ store.totalMandays }}</span>
-                  <span class="text-md text-gray-400 dark:text-gray-500">{{ t('annualAudit.form.mandaysFormula', { auditors: store.form.auditorCount, days: store.form.daysPerAuditor }) }}</span>
-                </UBadge>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <UFormField
-                  :label="t('annualAudit.form.supervisor')"
-                  size="lg"
-                  required
-                >
-                  <UInput
-                    v-model="store.form.supervisorId"
-                    type="text"
-                    :placeholder="t('annualAudit.form.supervisorPlaceholder')"
-                    class="w-full"
-                    required
-                  />
-
-                  <p
-                    v-if="Number(store.selectedSupervisor?.workload || 0) > 6"
-                    class="text-md text-error-500 mt-1 font-bold"
-                  >
-                    {{ t('annualAudit.form.supervisorOverloadWarning') }}
-                  </p>
-                </UFormField>
-
-                <UFormField>
-                  <div class="flex justify-between items-center mb-1">
-                    <label class="label mb-0">{{ t('annualAudit.form.teamCapacity') }}</label>
-                    <span
-                      class="text-md font-bold"
-                      :class="store.utilizationData.color === 'red' ? 'text-error-600' : 'text-success-600'"
-                    >
-                      {{ store.utilizationData.msg }}
-                    </span>
-                  </div>
-                  <div class="w-full rounded-full h-2.5 ">
-                    <div
-                      class="h-2.5 rounded-full transition-all duration-500"
-                      :class="{
-                        'bg-success-500': store.utilizationData.color === 'green',
-                        'bg-warning-400': store.utilizationData.color === 'yellow',
-                        'bg-error-600': store.utilizationData.color === 'red'
-                      }"
-                      :style="{ width: `${Math.min(store.utilizationData.percent, 100)}%` }"
-                    />
-                  </div>
-                  <p class="text-md text-gray-400 mt-1">
-                    {{ t('annualAudit.form.totalLoad', { percent: store.utilizationData.percent.toFixed(1) }) }}
-                  </p>
-                </UFormField>
-              </div>
             </div>
 
             <div class="space-y-4">
@@ -512,7 +587,7 @@ import { useAnnualPlanStore } from '~/stores/annual-audit'
 import { useRiskProfileStore } from '~/stores/risk-profile'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
 import { useAuthStore } from '~/stores/auth'
-import { AnnualAuditPlanStatus, AuditCategory, AuditDepartment } from '~/types/audit'
+import { ANNUAL_ACTIVITY_TYPE_OPTIONS, AnnualAuditPlanStatus, AuditCategory, AuditDepartment, type AnnualActivityType, type AuditActivities } from '~/types/audit'
 import { getRiskLevelColorClass, getRiskLevelDotClass } from '~/utils/riskLevelBadge'
 import { buildAuditableEntityOptions, type AuditableEntityOption } from '~/utils/auditableEntityOptions'
 
@@ -551,6 +626,7 @@ const activityCodePreview = computed(() => {
 
 const statusOptions = Object.values(AnnualAuditPlanStatus) as AnnualAuditPlanStatus[]
 const categoryOptions = Object.values(AuditCategory) as AuditCategory[]
+const activityTypeOptions = [...ANNUAL_ACTIVITY_TYPE_OPTIONS]
 
 riskStore.fetchRisks()
 
@@ -584,15 +660,24 @@ const auditableUniverseOptions = computed<AuditableEntityOption[]>(() =>
   buildAuditableEntityOptions(auditUniverseStore.yearlyUniverse, auditUniverseStore.corporateUniverse)
 )
 
-// Department names from master-service. A value already on the activity that is not in that list
-// (e.g. "IT" saved before the list came from master data) is kept selectable while editing.
-const departmentItemsFor = (activity: { department?: string, involvedDepartments?: unknown[] }) => {
-  const current = [activity.department, ...(activity.involvedDepartments || [])]
-  const legacy = current.filter((v): v is string => typeof v === 'string' && v !== '' && !store.departmentOptions.includes(v))
-  return [...new Set([...legacy, ...store.departmentOptions])]
+// The picker shows the row's own entity even when it is not in the loaded universe lists.
+const auditableEntityValue = (activity: AuditActivities): AuditableEntityOption | undefined => {
+  const match = auditableUniverseOptions.value.find(u => u.id && u.id === activity.auditUniverseId)
+  if (match) return match
+  if (!activity.auditUniverseId || !activity.riskName) return undefined
+  return {
+    id: activity.auditUniverseId,
+    name: activity.riskName,
+    label: activity.riskName,
+    value: activity.riskName,
+    riskLevel: activity.riskLevel || 'Not Scored',
+    riskIndex: 0,
+    auditPriority: false,
+    source: 'corporate'
+  }
 }
 
-const handleSelectAuditableEntity = (activity: { name?: string, riskName?: string, riskLevel?: string, auditUniverseId?: string, department?: string, involvedDepartments?: string[] }, val: unknown) => {
+const handleSelectAuditableEntity = (activity: AuditActivities, val: unknown) => {
   if (val) {
     const selectedName = typeof val === 'object' && val !== null ? ((val as { name?: string, label?: string }).name || (val as { name?: string, label?: string }).label || '') : String(val)
     const match = auditableUniverseOptions.value.find(u => u.name === selectedName || u.label === selectedName) || (typeof val === 'object' && val !== null ? val as AuditableEntityOption : null)
@@ -616,13 +701,11 @@ const handleSelectAuditableEntity = (activity: { name?: string, riskName?: strin
     } else if (nameLower.includes('hr') || nameLower.includes('human') || nameLower.includes('sumber daya') || nameLower.includes('resource') || nameLower.includes('talent') || nameLower.includes('personalia')) {
       detectedDept = AuditDepartment.HR
     }
-    // Only use a department the API actually returned; the guess is kept only when its name matches one.
-    const matchedDept = store.departmentOptions.find(name => name.toLowerCase() === detectedDept.toLowerCase())
+    // Only use a department the master data actually returned; the guess is kept only when its name matches one.
+    const matchedDept = store.departments.find(d => d.name.toLowerCase() === detectedDept.toLowerCase())
     if (matchedDept) {
-      activity.department = matchedDept
-      if (!activity.involvedDepartments || activity.involvedDepartments.length === 0) {
-        activity.involvedDepartments = [matchedDept]
-      }
+      activity.departmentId = matchedDept.id
+      activity.department = matchedDept.name
     }
   } else {
     activity.auditUniverseId = ''

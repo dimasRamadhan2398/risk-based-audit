@@ -186,6 +186,8 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	normalizeExecutiveSummaryRiskCounts(db)
+
 	logger.Info("Database migration completed successfully!")
 	return nil
 }
@@ -206,6 +208,22 @@ func normalizeAnnualPlanStatuses(db *gorm.DB) error {
 			logger.LogField("statuses", unknown))
 	}
 	return nil
+}
+
+// normalizeExecutiveSummaryRiskCounts copies the legacy executive summary risk
+// counts into the five-level columns where those are all 0
+// (models.NormalizeExecutiveSummaryRiskCounts). Idempotent; serve runs it on
+// startup as well. A failure is logged, not fatal: the rows keep their legacy
+// counts and the next start retries.
+func normalizeExecutiveSummaryRiskCounts(db *gorm.DB) {
+	n, err := models.NormalizeExecutiveSummaryRiskCounts(db)
+	if err != nil {
+		logger.Error("Executive summary risk count normalization failed", logger.LogField("error", err))
+		return
+	}
+	if n > 0 {
+		logger.Info("Executive summary risk counts copied to the five levels", logger.LogField("rows", n))
+	}
 }
 
 // runATRDataMigrations runs the data steps of the LHA-bound ATR model after

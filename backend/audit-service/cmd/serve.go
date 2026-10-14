@@ -116,6 +116,10 @@ func runServe(cmd *cobra.Command, args []string) error {
 		logger.Error("Failed to create plan code index", logger.LogField("error", err))
 	}
 
+	// Executive summaries saved with the legacy three risk counts get the five
+	// levels (Tinggi -> High, Sedang -> Moderate, Rendah -> Low). Idempotent.
+	normalizeExecutiveSummaryRiskCounts(db)
+
 	// Legacy annual plan statuses (e.g. "Done", "DRAFT") become the canonical
 	// vocabulary before any request is served. Idempotent.
 	if err := normalizeAnnualPlanStatuses(db); err != nil {

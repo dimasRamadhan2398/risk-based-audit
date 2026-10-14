@@ -1457,7 +1457,7 @@
       "departmentsEmpty": "No departments found in Master Data",
       "title": "Annual Audit Plan",
       "defaultActivityName": "Operational audit of {entity}",
-      "sectionActivity": "1. Activity detail",
+      "sectionActivity": "2. Activities",
       "status": "Status",
       "statusPlaceholder": "Select status",
       "activityCode": "Activity code",
@@ -1469,7 +1469,7 @@
       "involvedDepartments": "Involved departments",
       "calculatedRiskLevel": "Calculated risk level",
       "addActivity": "Add activity",
-      "sectionTimeline": "2. Timeline",
+      "sectionTimeline": "3. Timeline",
       "year": "Year",
       "selectMonths": "Select months",
       "quarterDistribution": "Quarter distribution:",
@@ -1496,7 +1496,35 @@
       "dropLabel": "Drop your attachments here",
       "uploadDescription": "You can upload multiple files (max. 2MB each)",
       "savePlan": "Save plan",
-      "updatePlan": "Update plan"
+      "updatePlan": "Update plan",
+      "sectionPlanHeader": "1. Plan header",
+      "activityType": "Audit activity type",
+      "activityTypePlaceholder": "Select audit activity type",
+      "planTitle": "Audit activity title",
+      "planTitlePlaceholder": "e.g. Annual Audit Plan 2026",
+      "assignmentCode": "Assignment code",
+      "assignmentCodePlaceholder": "e.g. ASR-2026-001",
+      "objectName": "Audit object",
+      "auditType": "Audit type",
+      "department": "Department",
+      "justification": "Justification for selecting the object",
+      "auditObjective": "Audit objective",
+      "auditFocus": "Audit focus",
+      "scheduleText": "Assignment schedule",
+      "scheduleTextPlaceholder": "e.g. Q1 2026, 2 weeks",
+      "teamCount": "Team size (persons)",
+      "teamLead": "Team lead",
+      "riskSnapshotHelp": "Risk name and level come from the Audit Universe and update automatically.",
+      "mandaysSumHint": "Sum of the Total Mandays of all activities",
+      "validation": {
+        "objectRequired": "Audit object on sub-activity {number} is required.",
+        "categoryRequired": "Audit type on sub-activity {number} is required.",
+        "departmentRequired": "Department on sub-activity {number} is required.",
+        "universeRequired": "Pick the Audit Universe entity for sub-activity {number}.",
+        "auditorCountRange": "Team size on sub-activity {number} must be between 1 and 10.",
+        "mandaysMin": "Total mandays on sub-activity {number} must be at least 1.",
+        "leadRequired": "Team lead on sub-activity {number} is required."
+      }
     },
     "detail": {
       "activityStatus": "Activity status",
@@ -1633,7 +1661,8 @@
       "reviewAndApproval": "Please fill in the Creator and Approver names and positions.",
       "periodOrder": "The plan period end date must be on or after the start date.",
       "scheduleOutsidePeriod": "Activity {num}: the estimated schedule must fall within the plan period.",
-      "negativeNumber": "Activity {num}: duration, number of auditors and budget cannot be negative."
+      "negativeNumber": "Activity {num}: duration, number of auditors and budget cannot be negative.",
+      "annualDepartmentMissing": "The linked annual activity has no department or plan year. Check the Annual Audit Plan."
     },
     "stepper": {
       "step1": "Basic Info",
@@ -1726,7 +1755,14 @@
       "maxFileSizeDesc": "You can upload multiple files (max. 2MB each)",
       "cancel": "Cancel",
       "create": "Create",
-      "update": "Update"
+      "update": "Update",
+      "annualActivity": "Annual audit activity (Annual Audit Plan)",
+      "selectAnnualActivity": "-- Select annual audit activity --",
+      "annualActivityHint": "Category, risk, department, year, team size and mandays are copied from the annual activity.",
+      "noAnnualActivities": "No annual audit activities yet. Create the Annual Audit Plan first.",
+      "annualActivityRequired": "Pick the annual audit activity for each planned activity.",
+      "copiedFromAnnual": "Copied from the annual plan",
+      "derivedFromAnnual": "Taken from the linked annual activities"
     },
     "view": {
       "title": "Audit Activity Plan Details",
@@ -2146,9 +2182,25 @@
     "totalFindingsHint": "Automatically summed from the risk level breakdown",
     "findingsUnit": "Findings",
     "riskBreakdown": "Findings Breakdown by Risk",
-    "riskHigh": "High Risk",
-    "riskMedium": "Medium Risk",
-    "riskLow": "Low Risk",
+    "riskLevels": {
+      "high": "High",
+      "moderateHigh": "Moderate to High",
+      "moderate": "Moderate",
+      "lowModerate": "Low to Moderate",
+      "low": "Low"
+    },
+    "riskLevelsShort": {
+      "high": "H",
+      "moderateHigh": "M-H",
+      "moderate": "M",
+      "lowModerate": "L-M",
+      "low": "L"
+    },
+    "riskBuckets": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
     "syncFromIndividual": "Sync from Individual LHA",
     "sources": {
       "loading": "Loading source data (LHA, test controls, working papers, ATR)...",

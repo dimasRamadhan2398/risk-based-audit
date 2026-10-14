@@ -14,6 +14,7 @@ import (
 	ctrlAssignmentLetter "audit-service/controllers/assignment_letter"
 	"audit-service/controllers/crud"
 	ctrlExecutiveSummary "audit-service/controllers/executive_summary"
+	ctrlFieldwork "audit-service/controllers/fieldwork"
 	ctrlFindings "audit-service/controllers/findings"
 	ctrlStrategicPlan "audit-service/controllers/strategic_plan"
 	ctrlWorkingPaper "audit-service/controllers/working_paper"
@@ -255,6 +256,8 @@ func (h *RouteHandler) RegisterRoutes() {
 	fieldworkTestControls := apiV1.Group("/fieldwork/test-controls")
 	{
 		fieldworkTestControls.GET("", crud.List(h.db, "FieldworkTestControl", func() interface{} { return &[]models.FieldworkTestControl{} }))
+		// Recommendation count per LHA (Executive Summary compilation), one query set for all ids
+		fieldworkTestControls.GET("/recommendations/summary", ctrlFieldwork.RecommendationSummaryHandler(h.db))
 		fieldworkTestControls.GET("/:id", crud.GetByID(h.db, "FieldworkTestControl", func() interface{} { return &models.FieldworkTestControl{} }))
 		fieldworkTestControls.POST("", crud.CreateWithHooks(h.db, "FieldworkTestControl", func() interface{} { return &models.FieldworkTestControl{} }, nil, ctrlAuditExecution.SyncAfterCreate(ctrlAuditExecution.LetterKeysOf)))
 		fieldworkTestControls.PUT("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.FieldworkTestControl{} }, ctrlAuditExecution.LetterKeysOf, crud.Update(h.db, "FieldworkTestControl", func() interface{} { return &models.FieldworkTestControl{} })))
@@ -474,7 +477,8 @@ func (h *RouteHandler) RegisterRoutes() {
 		executiveSummaries.GET("", crud.List(h.db, "ExecutiveSummary", func() interface{} { return &[]models.ExecutiveSummary{} }))
 		executiveSummaries.GET("/:id", crud.GetByID(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
 		executiveSummaries.POST("", crud.Create(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
-		executiveSummaries.PUT("/:id", crud.Update(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
+		// Keeps the five-level and legacy risk counts in step (create: models.ExecutiveSummary.BeforeCreate)
+		executiveSummaries.PUT("/:id", crud.UpdateWithHook(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }, ctrlExecutiveSummary.SyncRiskColumnsBeforeUpdate))
 		executiveSummaries.DELETE("/:id", crud.Delete(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
 	}
 

@@ -227,10 +227,11 @@ describe('Dynamic Fiscal Year & Multi-Module Synchronization', () => {
       expect(content).not.toContain("['2026', '2027', '2028', '2029', '2030']")
     })
 
-    it('Audit Activity Plan form uses dynamic fiscal years for yearOptions', () => {
+    it('Audit Activity Plan form takes its year from the linked annual plan, not a year list', () => {
       const content = fs.readFileSync(path.join(rootDir, 'components/audit-activity-plan/ActivityPlanForm.vue'), 'utf8')
-      expect(content).toContain('getFiscalYearStrings()')
+      expect(content).not.toContain('getFiscalYearStrings()')
       expect(content).not.toContain('currentYear + 5')
+      expect(content).toContain('derivedFromAnnual')
     })
 
     it('Assignment Letter uses dynamic fiscal years in store options and form select', () => {

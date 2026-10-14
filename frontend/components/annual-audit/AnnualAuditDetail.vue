@@ -145,18 +145,14 @@
                 <div class="space-y-4">
                   <div class="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100 dark:border-gray-800/60">
                     <span class="font-bold text-gray-600 dark:text-gray-400 w-full sm:w-48 text-sm shrink-0 mb-1 sm:mb-0">{{ t('annualAudit.detail.supervisor') }}</span>
-                    <span class="font-semibold text-gray-800 dark:text-gray-200">{{ store.selectedPlan?.supervisorName || store.getSupervisorName(store.selectedPlan?.supervisorId) }}</span>
+                    <span class="font-semibold text-gray-800 dark:text-gray-200">{{ teamLeadNames || '-' }}</span>
                   </div>
                   <div class="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100 dark:border-gray-800/60">
                     <span class="font-bold text-gray-600 dark:text-gray-400 w-full sm:w-48 text-sm shrink-0 mb-1 sm:mb-0">{{ t('annualAudit.detail.timeAllocation') }}</span>
                     <div class="flex flex-wrap items-center gap-2">
                       <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-md text-sm font-medium">
                         <UIcon name="i-heroicons-user-group" class="w-4 h-4 text-primary-500" />
-                        {{ t('annualAudit.detail.auditorsCount', { count: store.selectedPlan.auditorCount }) }}
-                      </span>
-                      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-md text-sm font-medium">
-                        <UIcon name="i-heroicons-clock" class="w-4 h-4 text-amber-500" />
-                        {{ t('annualAudit.detail.daysDuration', { count: store.selectedPlan.daysPerAuditor }) }}
+                        {{ t('annualAudit.detail.auditorsCount', { count: teamSize }) }}
                       </span>
                     </div>
                   </div>
@@ -164,7 +160,7 @@
                     <span class="font-bold text-gray-600 dark:text-gray-400 w-full sm:w-48 text-sm shrink-0 mb-1 sm:mb-0">{{ t('annualAudit.detail.totalMandays') }}</span>
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 font-bold rounded-md text-sm border border-primary-200 dark:border-primary-800">
                       <UIcon name="i-heroicons-bolt" class="w-4 h-4 text-primary-500" />
-                      {{ t('annualAudit.detail.mandaysValue', { count: (store.selectedPlan.auditorCount || 0) * (store.selectedPlan.daysPerAuditor || 0) }) }}
+                      {{ t('annualAudit.detail.mandaysValue', { count: teamMandays }) }}
                     </span>
                   </div>
                   <div class="flex flex-col sm:flex-row sm:items-center py-2">
@@ -329,6 +325,11 @@ import { AnnualAuditPlanStatus } from '~/types/audit'
 const store = useAnnualPlanStore()
 const authStore = useAuthStore()
 const { t } = useI18n()
+
+// Team figures are the sum of the activity rows: the plan has no team-level totals.
+const teamSize = computed(() => (store.selectedPlan?.activities || []).reduce((sum: number, a: { auditorCount?: number }) => sum + (Number(a.auditorCount) || 0), 0))
+const teamMandays = computed(() => (store.selectedPlan?.activities || []).reduce((sum: number, a: { totalMandays?: number }) => sum + (Number(a.totalMandays) || 0), 0))
+const teamLeadNames = computed(() => [...new Set((store.selectedPlan?.activities || []).map((a: { supervisorName?: string }) => a.supervisorName).filter(Boolean))].join(', '))
 
 const isCreatingRevision = ref(false)
 const revisionNote = ref('')

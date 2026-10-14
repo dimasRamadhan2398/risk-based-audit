@@ -83,12 +83,19 @@ func TestLoadCompilationStats(t *testing.T) {
 	risk := func(letter, level string) {
 		mustCreate(t, db, &models.WorkingPaperRisk{ID: uuid.New(), WorkingPaperID: letter, RiskLevel: level})
 	}
-	risk("ST-001/A/2026", "High")
+	risk("ST-001/A/2026", "high")
 	risk("ST-001/A/2026", "CRITICAL")
+	risk("ST-001/A/2026", "moderate-high")
+	risk("ST-001/A/2026", "Moderate to High")
+	risk("ST-002/A/2026", "moderate")
 	risk("ST-002/A/2026", "Medium")
+	risk("ST-002/A/2026", "SEDANG")
+	risk("ST-002/A/2026", "low-moderate")
 	risk("ST-002/A/2026", "low")
+	risk("ST-002/A/2026", "Rendah")
 	risk("ST-002/A/2026", "")
-	risk("ST-001/A/2025", "High")
+	risk("ST-002/A/2026", "extreme")
+	risk("ST-001/A/2025", "high")
 
 	// ATRs of the 2026 LHAs
 	atr := func(report *models.AuditResultReport, status string, due *time.Time) *models.ActionTakenReport {
@@ -128,7 +135,7 @@ func TestLoadCompilationStats(t *testing.T) {
 	if s.JumlahRekomendasi != 2 {
 		t.Errorf("jumlahRekomendasi = %d, want 2", s.JumlahRekomendasi)
 	}
-	if s.RisikoTinggi != 2 || s.RisikoSedang != 1 || s.RisikoRendah != 1 || s.RisikoLainnya != 1 {
+	if s.RisikoHigh != 2 || s.RisikoModerateHigh != 2 || s.RisikoModerate != 3 || s.RisikoLowModerate != 1 || s.RisikoLow != 2 || s.RisikoLainnya != 2 {
 		t.Errorf("risk breakdown = %+v", s)
 	}
 	// Closed: 2 COMPLETED on lha1 + 1 COMPLETED on lha1 (the "completed" one and the last one) -> 3
@@ -154,7 +161,7 @@ func TestLoadCompilationStatsEmptyYear(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if s.JumlahLaporan != 0 || s.JumlahRekomendasi != 0 || s.RisikoTinggi+s.RisikoSedang+s.RisikoRendah+s.RisikoLainnya != 0 || s.FollowUpCancelled != 0 {
+	if s.JumlahLaporan != 0 || s.JumlahRekomendasi != 0 || s.RisikoHigh+s.RisikoModerateHigh+s.RisikoModerate+s.RisikoLowModerate+s.RisikoLow+s.RisikoLainnya != 0 || s.FollowUpCancelled != 0 {
 		t.Fatalf("stats %+v", s)
 	}
 	if len(s.FollowUpTable) != 3 || s.FollowUpTable[0].Status != FollowUpClosed || s.FollowUpTable[1].Status != FollowUpInProgress || s.FollowUpTable[2].Status != FollowUpOverdue {
@@ -164,10 +171,12 @@ func TestLoadCompilationStatsEmptyYear(t *testing.T) {
 
 func TestRiskBucket(t *testing.T) {
 	cases := map[string]string{
-		"High": "Tinggi", " very high ": "Tinggi", "CRITICAL": "Tinggi", "Tinggi": "Tinggi",
-		"Medium": "Sedang", "moderate": "Sedang", "Sedang": "Sedang",
-		"Low": "Rendah", "rendah": "Rendah", "VERY_LOW": "",
-		"": "", "unknown": "",
+		"high": RiskHigh, "High": RiskHigh, "HIGH": RiskHigh, " very high ": RiskHigh, "CRITICAL": RiskHigh, "Tinggi": RiskHigh,
+		"moderate-high": RiskModerateHigh, "MODERATE_HIGH": RiskModerateHigh, "Moderate to High": RiskModerateHigh, "moderate  to  high": RiskModerateHigh,
+		"moderate": RiskModerate, "MEDIUM": RiskModerate, "Moderate": RiskModerate, "sedang": RiskModerate,
+		"low-moderate": RiskLowModerate, "LOW_MODERATE": RiskLowModerate, "Low to Moderate": RiskLowModerate,
+		"low": RiskLow, "LOW": RiskLow, "rendah": RiskLow, "RENDAH": RiskLow,
+		"VERY_LOW": "", "high-moderate": "", "": "", "unknown": "",
 	}
 	for in, want := range cases {
 		got, _ := RiskBucket(in)
@@ -192,7 +201,12 @@ func TestCompilationStatsHandlerJSON(t *testing.T) {
 		t.Fatalf("status %d: %s", w.Code, w.Body.String())
 	}
 	body := w.Body.String()
-	for _, key := range []string{`"year":2026`, `"jumlahLaporan":0`, `"jumlahRekomendasi":0`, `"risikoTinggi":0`, `"risikoSedang":0`, `"risikoRendah":0`, `"risikoLainnya":0`, `"followUpTable":[`, `"followUpCancelled":0`} {
+	for _, old := range []string{`"risikoTinggi"`, `"risikoSedang"`, `"risikoRendah"`} {
+		if strings.Contains(body, old) {
+			t.Errorf("response still carries %s: %s", old, body)
+		}
+	}
+	for _, key := range []string{`"year":2026`, `"jumlahLaporan":0`, `"jumlahRekomendasi":0`, `"risikoHigh":0`, `"risikoModerateHigh":0`, `"risikoModerate":0`, `"risikoLowModerate":0`, `"risikoLow":0`, `"risikoLainnya":0`, `"followUpTable":[`, `"followUpCancelled":0`} {
 		if !strings.Contains(body, key) {
 			t.Errorf("response missing %s: %s", key, body)
 		}

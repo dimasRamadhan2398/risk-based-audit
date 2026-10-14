@@ -29,15 +29,19 @@ type FollowUpRow struct {
 
 // CompilationStats is the data payload of GET /executive-summary/compilation-stats
 type CompilationStats struct {
-	Year              int           `json:"year"`
-	JumlahLaporan     int64         `json:"jumlahLaporan"`
-	JumlahRekomendasi int64         `json:"jumlahRekomendasi"`
-	RisikoTinggi      int64         `json:"risikoTinggi"`
-	RisikoSedang      int64         `json:"risikoSedang"`
-	RisikoRendah      int64         `json:"risikoRendah"`
-	RisikoLainnya     int64         `json:"risikoLainnya"`
-	FollowUpTable     []FollowUpRow `json:"followUpTable"`
-	FollowUpCancelled int64         `json:"followUpCancelled"`
+	Year              int   `json:"year"`
+	JumlahLaporan     int64 `json:"jumlahLaporan"`
+	JumlahRekomendasi int64 `json:"jumlahRekomendasi"`
+	// Breakdown by the five working paper risk levels (see RiskBucket);
+	// RisikoLainnya counts empty or unrecognised levels
+	RisikoHigh         int64         `json:"risikoHigh"`
+	RisikoModerateHigh int64         `json:"risikoModerateHigh"`
+	RisikoModerate     int64         `json:"risikoModerate"`
+	RisikoLowModerate  int64         `json:"risikoLowModerate"`
+	RisikoLow          int64         `json:"risikoLow"`
+	RisikoLainnya      int64         `json:"risikoLainnya"`
+	FollowUpTable      []FollowUpRow `json:"followUpTable"`
+	FollowUpCancelled  int64         `json:"followUpCancelled"`
 }
 
 // letterKeysForYear returns the assignment letter keys (letter numbers) of the
@@ -52,18 +56,34 @@ func letterKeysForYear(db *gorm.DB, year int) ([]string, error) {
 	return keys, err
 }
 
-// RiskBucket maps a working paper risk level onto the three frontend buckets.
-// ok is false for an empty or unrecognised level.
+// Risk levels of the compilation, as the frontend stores them in
+// working_paper_risks.risk_level
+const (
+	RiskHigh         = "high"
+	RiskModerateHigh = "moderate-high"
+	RiskModerate     = "moderate"
+	RiskLowModerate  = "low-moderate"
+	RiskLow          = "low"
+)
+
+// RiskBucket maps a working paper risk level onto one of the five levels,
+// case-insensitively; "_", "-" and repeated spaces are equivalent. Legacy
+// three-level values map to high / moderate / low. ok is false for an empty or
+// unrecognised level.
 func RiskBucket(raw string) (bucket string, ok bool) {
 	s := strings.ToUpper(strings.TrimSpace(raw))
 	s = strings.Join(strings.Fields(strings.NewReplacer("_", " ", "-", " ").Replace(s)), " ")
 	switch s {
 	case "HIGH", "CRITICAL", "VERY HIGH", "TINGGI", "SANGAT TINGGI":
-		return "Tinggi", true
+		return RiskHigh, true
+	case "MODERATE HIGH", "MODERATE TO HIGH", "MEDIUM HIGH", "MEDIUM TO HIGH":
+		return RiskModerateHigh, true
 	case "MEDIUM", "MODERATE", "SEDANG":
-		return "Sedang", true
+		return RiskModerate, true
+	case "LOW MODERATE", "LOW TO MODERATE", "LOW MEDIUM", "LOW TO MEDIUM":
+		return RiskLowModerate, true
 	case "LOW", "RENDAH", "SANGAT RENDAH":
-		return "Rendah", true
+		return RiskLow, true
 	}
 	return "", false
 }
@@ -111,12 +131,16 @@ func LoadCompilationStats(db *gorm.DB, year int, now time.Time) (CompilationStat
 	}
 	for _, r := range risks {
 		switch bucket, _ := RiskBucket(r.RiskLevel); bucket {
-		case "Tinggi":
-			stats.RisikoTinggi++
-		case "Sedang":
-			stats.RisikoSedang++
-		case "Rendah":
-			stats.RisikoRendah++
+		case RiskHigh:
+			stats.RisikoHigh++
+		case RiskModerateHigh:
+			stats.RisikoModerateHigh++
+		case RiskModerate:
+			stats.RisikoModerate++
+		case RiskLowModerate:
+			stats.RisikoLowModerate++
+		case RiskLow:
+			stats.RisikoLow++
 		default:
 			stats.RisikoLainnya++
 		}

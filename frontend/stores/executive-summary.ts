@@ -4,6 +4,7 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 import { useAuditResultReportStore } from './audit-result-report'
+import { legacyRiskFields, resolveRiskFields } from '~/utils/executiveSummaryCompilation'
 
 export interface FollowUpRow {
   status: 'Closed' | 'In Progress' | 'Overdue'
@@ -49,11 +50,19 @@ export interface ExecutiveSummary {
   // Section I
   narrative: string
 
-  // Section II
+  // Section II: five-level risk breakdown (Total Temuan = sum of the five)
   jumlahLaporan: number
-  risikoTinggi: number
-  risikoSedang: number
-  risikoRendah: number
+  risikoHigh: number
+  risikoModerateHigh: number
+  risikoModerate: number
+  risikoLowModerate: number
+  risikoLow: number
+  /** @deprecated Legacy three-level breakdown. Read only as a fallback (see resolveRiskFields); derived from the five levels on save. */
+  risikoTinggi?: number
+  /** @deprecated See risikoTinggi. */
+  risikoSedang?: number
+  /** @deprecated See risikoTinggi. */
+  risikoRendah?: number
   jumlahRekomendasi: number
 
   // Section III (JSON string stored in DB, array in store)
@@ -113,9 +122,11 @@ export const savePersistedExecutiveSummaryOverride = (keys: (string | undefined)
     if (data.executiveNote !== undefined) safeData.executiveNote = data.executiveNote
     if (data.narrative) safeData.narrative = data.narrative
     if (data.jumlahRekomendasi !== undefined) safeData.jumlahRekomendasi = data.jumlahRekomendasi
-    if (data.risikoTinggi !== undefined) safeData.risikoTinggi = data.risikoTinggi
-    if (data.risikoSedang !== undefined) safeData.risikoSedang = data.risikoSedang
-    if (data.risikoRendah !== undefined) safeData.risikoRendah = data.risikoRendah
+    if (data.risikoHigh !== undefined) safeData.risikoHigh = data.risikoHigh
+    if (data.risikoModerateHigh !== undefined) safeData.risikoModerateHigh = data.risikoModerateHigh
+    if (data.risikoModerate !== undefined) safeData.risikoModerate = data.risikoModerate
+    if (data.risikoLowModerate !== undefined) safeData.risikoLowModerate = data.risikoLowModerate
+    if (data.risikoLow !== undefined) safeData.risikoLow = data.risikoLow
     if (data.topFindings) safeData.topFindings = data.topFindings
     if (data.matriksKompilasi) safeData.matriksKompilasi = data.matriksKompilasi
     if (data.akarMasalah) safeData.akarMasalah = data.akarMasalah
@@ -166,9 +177,11 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     executiveNote: '',
     narrative: '',
     jumlahLaporan: 0,
-    risikoTinggi: 0,
-    risikoSedang: 0,
-    risikoRendah: 0,
+    risikoHigh: 0,
+    risikoModerateHigh: 0,
+    risikoModerate: 0,
+    risikoLowModerate: 0,
+    risikoLow: 0,
     jumlahRekomendasi: 0,
     followUpTable: [
       { status: 'Closed', jumlah: 0, persentase: 0, keterangan: '' },
@@ -246,9 +259,8 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       quarter: Number(item.quarter),
       tahun: Number(item.tahun),
       jumlahLaporan: Number(item.jumlahLaporan),
-      risikoTinggi: Number(item.risikoTinggi),
-      risikoSedang: Number(item.risikoSedang),
-      risikoRendah: Number(item.risikoRendah),
+      // Five levels; old records (all five 0/missing) fall back to Tinggi/Sedang/Rendah -> High/Moderate/Low
+      ...resolveRiskFields(item),
       jumlahRekomendasi: Number(item.jumlahRekomendasi),
       followUpTable: item.followUpTable ? (typeof item.followUpTable === 'string' ? JSON.parse(item.followUpTable) : item.followUpTable) : [],
       topFindings: item.topFindings ? (typeof item.topFindings === 'string' ? JSON.parse(item.topFindings) : item.topFindings) : [],
@@ -264,9 +276,13 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       quarter: Number(data.quarter),
       tahun: Number(data.tahun),
       jumlahLaporan: Number(data.jumlahLaporan),
-      risikoTinggi: Number(data.risikoTinggi),
-      risikoSedang: Number(data.risikoSedang),
-      risikoRendah: Number(data.risikoRendah),
+      risikoHigh: Number(data.risikoHigh) || 0,
+      risikoModerateHigh: Number(data.risikoModerateHigh) || 0,
+      risikoModerate: Number(data.risikoModerate) || 0,
+      risikoLowModerate: Number(data.risikoLowModerate) || 0,
+      risikoLow: Number(data.risikoLow) || 0,
+      // Legacy columns kept consistent with the five levels (Tinggi = High + Moderate to High, ...)
+      ...legacyRiskFields(data),
       jumlahRekomendasi: Number(data.jumlahRekomendasi),
       followUpTable: typeof data.followUpTable === 'string' ? data.followUpTable : JSON.stringify(data.followUpTable || []),
       topFindings: typeof data.topFindings === 'string' ? data.topFindings : JSON.stringify(data.topFindings || []),
@@ -348,9 +364,11 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       executiveNote: '',
       narrative: defaultNarrativeTemplate(defaultMonth, 2026),
       jumlahLaporan: 0,
-      risikoTinggi: 0,
-      risikoSedang: 0,
-      risikoRendah: 0,
+      risikoHigh: 0,
+      risikoModerateHigh: 0,
+      risikoModerate: 0,
+      risikoLowModerate: 0,
+      risikoLow: 0,
       jumlahRekomendasi: 0,
       followUpTable: [
         { status: 'Closed', jumlah: 0, persentase: 0, keterangan: '' },

@@ -2,14 +2,15 @@
 import type { TableColumn } from '@nuxt/ui'
 import { defineStore } from 'pinia'
 import { ref, reactive, computed, watch } from 'vue'
-import { AnnualAuditPlanStatus, AuditCategory, type AnnualAuditPlan, type AnnualPlanForm } from '~/types/audit'
-import { getAuditServiceBaseUrl, getAuthServiceBaseUrl } from '~/composables/useApiUrl'
+import { AnnualAuditPlanStatus, AuditCategory, type AnnualAuditAttachment, type AnnualAuditPlan, type AnnualPlanForm, type AuditActivities } from '~/types/audit'
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 import { useI18n } from '~/composables/useI18n'
 import type { TablePagination } from '~/types/common'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
 import { getFiscalYearStrings } from '~/composables/useFiscalYear'
 import { useDepartmentApi } from '~/composables/useDepartmentApi'
+import { buildAnnualPlanPayload, sumActivityMandays, toCount } from '~/utils/annualPlanPayload'
 
 export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const showModal = ref(false)
@@ -106,6 +107,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const yearOptions = getFiscalYearStrings()
   // Department names from master-service (no fixed list). Empty on failure: no mock fallback.
   const departmentOptions = ref<string[]>([])
+  // Master-data departments with their ids: the activity row stores departmentId.
+  const departments = ref<Array<{ id: string, name: string }>>([])
   const departmentOptionsLoading = ref(false)
   // Filter options: value stays the canonical API string, label comes from i18n.
   const statusOptions = computed(() => Object.values(AnnualAuditPlanStatus).map((value): { value: string, label: string } => ({
@@ -117,11 +120,37 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     departmentOptionsLoading.value = true
     try {
       const list = await useDepartmentApi().getAllDepartments()
-      departmentOptions.value = list.map(d => d.department_name).filter(Boolean)
+      departments.value = list
+        .filter(d => d.id && d.department_name)
+        .map(d => ({ id: d.id, name: d.department_name }))
+      departmentOptions.value = departments.value.map(d => d.name)
     } finally {
       departmentOptionsLoading.value = false
     }
   }
+
+  // riskName, riskLevel and department are server snapshots: they are read as they come
+  // and never rewritten here, so a refreshed value from Kafka shows as is.
+  const normalizeActivity = (a: any): AuditActivities => ({
+    ...a,
+    id: a.id,
+    itemNumber: String(a.itemNumber ?? a.item_number ?? ''),
+    activityCode: a.activityCode || a.activity_code || '',
+    name: a.name || a.title || '',
+    category: a.category || AuditCategory.ASSURANCE,
+    departmentId: a.departmentId || a.department_id || '',
+    department: a.department || '',
+    auditUniverseId: a.auditUniverseId || a.audit_universe_id || '',
+    riskName: a.riskName || a.risk_name || '',
+    riskLevel: a.riskLevel || a.risk_level || '',
+    justification: a.justification || '',
+    auditObjective: a.auditObjective || a.audit_objective || '',
+    auditFocus: a.auditFocus || a.audit_focus || '',
+    timelineText: a.timelineText || a.timeline_text || '',
+    auditorCount: toCount(a.auditorCount ?? a.auditor_count, 0),
+    totalMandays: toCount(a.totalMandays ?? a.total_mandays, 0),
+    supervisorName: a.supervisorName || a.supervisor_name || ''
+  })
 
   const normalizePlans = (rawPlans: any[]): AnnualAuditPlan[] => {
     if (!Array.isArray(rawPlans)) return []
@@ -129,19 +158,9 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       ...p,
       code: p.code || p.plan_code || '',
       title: p.title || p.plan_title || '',
+      activityType: p.activityType || p.activity_type || '',
       activities: Array.isArray(p.activities)
-        ? p.activities.map((a: any) => ({
-          ...a,
-          name: a.name || a.title || '',
-          category: a.category || AuditCategory.ASSURANCE,
-          department: a.department || (a.involved_departments && a.involved_departments[0]?.name) || '',
-          involvedDepartments: a.involvedDepartments || a.involved_departments || [],
-          auditUniverseId: a.auditUniverseId || a.audit_universe_id || '',
-          timelineText: a.timeline_text || a.timelineText || '',
-          auditorCount: a.auditor_count || a.auditorCount || 1,
-          totalMandays: a.total_mandays || a.totalMandays || 0,
-          supervisorName: a.supervisor_name || a.supervisorName || ''
-        }))
+        ? p.activities.map(normalizeActivity)
         : [],
       selectedMonths: Array.isArray(p.selectedMonths) ? p.selectedMonths : (Array.isArray(p.selected_months) ? p.selected_months : []),
       quarters: Array.isArray(p.quarters) ? p.quarters : []
@@ -196,12 +215,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     handleEdit(plan)
   }
 
-  const getSupervisorName = (id: string) => {
-    if (!id) return '-'
-    const supervisor = supervisors.value.find(s => s.id === id)
-    return supervisor ? supervisor.name : id
-  }
-
   const getStatusLabel = (status?: string) => {
     const key = statusLabelKeys[status as AnnualAuditPlanStatus]
     return key ? t(key) : (status || '-')
@@ -251,19 +264,35 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const isNotesLongText = (text: string) => text && text.length > 100
   const isDetailLongText = (text: string) => text && text.length > 100
 
+  // One empty Formulir Rencana Kegiatan Audit row. Jumlah Tim defaults to 1.
+  const createEmptyActivity = (): AuditActivities => ({
+    activityCode: '',
+    name: '',
+    category: AuditCategory.ASSURANCE,
+    departmentId: '',
+    department: '',
+    auditUniverseId: '',
+    riskName: '',
+    riskLevel: '',
+    justification: '',
+    auditObjective: '',
+    auditFocus: '',
+    timelineText: '',
+    auditorCount: 1,
+    totalMandays: 0,
+    supervisorName: ''
+  })
+
   // Form State
   const form = reactive<AnnualPlanForm>({
     code: '',
+    title: '',
+    activityType: '',
     version: 'v1.0',
     revisionHistory: [],
-    activities: [
-      { name: '', category: AuditCategory.ASSURANCE, department: '' }
-    ],
+    activities: [createEmptyActivity()],
     status: AnnualAuditPlanStatus.DRAFT,
     selectedMonths: [],
-    auditorCount: 2,
-    daysPerAuditor: 5,
-    supervisorId: '',
     attachmentCategory: '',
     attachmentUploadedBy: '',
     attachmentUploadDate: '',
@@ -277,18 +306,11 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   })
 
   // --- COMPUTED LOGIC (Real-time Validation) ---
-  const totalMandays = computed(() => form.auditorCount * form.daysPerAuditor)
-  const selectedSupervisor = computed(() => supervisors.value.find(s => s.id === form.supervisorId || (Boolean(form.supervisorId) && s.name.toLowerCase().includes(String(form.supervisorId).toLowerCase()))))
+  // Team mandays are the sum of the activity rows; there is no plan-level total.
+  const totalMandays = computed(() => sumActivityMandays(form.activities))
   const utilizationData = computed(() => checkUtilization(totalMandays.value))
   const computedQuarters = computed(() => calculateQuarters(form.selectedMonths))
   const scheduleWarning = computed(() => checkScheduleGaps(form.selectedMonths))
-
-  const supervisorOptions = computed(() => {
-    return supervisors.value.map(s => ({
-      id: s.id,
-      label: `${s.name} (Workload: ${s.workload})`
-    }))
-  })
 
   const toggleMonth = (idx: number) => {
     if (form.selectedMonths.includes(idx)) {
@@ -299,11 +321,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   }
 
   const addActivity = () => {
-    form.activities.push({
-      name: '',
-      category: AuditCategory.ASSURANCE,
-      department: ''
-    })
+    form.activities.push(createEmptyActivity())
   }
 
   const removeActivity = (index: number) => {
@@ -321,16 +339,13 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
     Object.assign(form, {
       code: '',
+      title: '',
+      activityType: '',
       version: 'v1.0',
       revisionHistory: [],
-      activities: [
-        { name: '', category: AuditCategory.ASSURANCE, department: '' }
-      ],
+      activities: [createEmptyActivity()],
       status: AnnualAuditPlanStatus.DRAFT,
       selectedMonths: [],
-      auditorCount: 2,
-      daysPerAuditor: 5,
-      supervisorId: '',
       notes: '',
       staffApprovalNote: '',
       managerApprovalNote: '',
@@ -345,7 +360,9 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     showModal.value = true
   }
 
-  const closeModal = () => showModal.value = false
+  const closeModal = () => {
+    showModal.value = false
+  }
 
   watch(
     () => filteredPlans.value.length,
@@ -414,7 +431,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
       // An empty response really means "no plans" - no mock fallback.
       plans.value = normalizePlans(items)
-      await fetchSupervisors()
     } catch (error: unknown) {
       // Keep whatever was loaded before (empty on first load); never show mock rows.
       console.warn('Failed to fetch annual audit plans:', error)
@@ -456,28 +472,37 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     }
 
     form.activities.forEach((activity, index) => {
+      const number = index + 1
+
       if (!activity.name?.trim()) {
-        activityErrors.push(
-          `Activity Name pada Sub-Aktivitas ${index + 1} wajib diisi.`
-        )
+        activityErrors.push(t('annualAudit.form.validation.objectRequired', { number }))
       }
 
       if (!activity.category) {
-        activityErrors.push(
-          `Category pada Sub-Aktivitas ${index + 1} wajib dipilih.`
-        )
+        activityErrors.push(t('annualAudit.form.validation.categoryRequired', { number }))
       }
 
-      if (!activity.department) {
-        activityErrors.push(
-          `Department pada Sub-Aktivitas ${index + 1} wajib dipilih.`
-        )
+      if (!activity.departmentId) {
+        activityErrors.push(t('annualAudit.form.validation.departmentRequired', { number }))
       }
 
-      if (!activity.riskName?.trim()) {
-        activityErrors.push(
-          `Auditable Entity pada Sub-Aktivitas ${index + 1} wajib dipilih.`
-        )
+      if (!activity.auditUniverseId) {
+        activityErrors.push(t('annualAudit.form.validation.universeRequired', { number }))
+      }
+
+      // Team and mandays are per row now: each row must carry its own team.
+      const auditors = Number(activity.auditorCount)
+      if (!Number.isInteger(auditors) || auditors < 1 || auditors > 10) {
+        auditorErrors.push(t('annualAudit.form.validation.auditorCountRange', { number }))
+      }
+
+      const mandays = Number(activity.totalMandays)
+      if (!Number.isFinite(mandays) || mandays < 1) {
+        auditorErrors.push(t('annualAudit.form.validation.mandaysMin', { number }))
+      }
+
+      if (!activity.supervisorName?.trim()) {
+        auditorErrors.push(t('annualAudit.form.validation.leadRequired', { number }))
       }
     })
 
@@ -488,26 +513,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
     if (form.selectedMonths.length === 0) {
       timelineErrors.push('Minimal 1 bulan pelaksanaan wajib dipilih.')
-    }
-
-    // 3. Auditor
-    if (
-      !Number.isInteger(form.auditorCount)
-      || form.auditorCount < 1
-      || form.auditorCount > 10
-    ) {
-      auditorErrors.push('Number of Auditors harus antara 1 sampai 10.')
-    }
-
-    if (
-      !Number.isFinite(form.daysPerAuditor)
-      || form.daysPerAuditor < 1
-    ) {
-      auditorErrors.push('Duration harus minimal 1 hari.')
-    }
-
-    if (!form.supervisorId || (typeof form.supervisorId === 'string' && !form.supervisorId.trim())) {
-      auditorErrors.push('Supervisor wajib diisi.')
     }
 
     validationErrors.activityDetail = activityErrors.join(' ')
@@ -552,12 +557,12 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     form.code = plan.code
     form.version = plan.version || 'v1.0'
     form.revisionHistory = plan.revisionHistory ? [...plan.revisionHistory] : []
+    // Rows keep their id (PUT matches on it) and the server snapshots as they came back.
     form.activities = plan.activities.map((act: any) => ({ ...act }))
     form.status = plan.status
     form.selectedMonths = [...plan.selectedMonths]
-    form.auditorCount = plan.auditorCount
-    form.daysPerAuditor = plan.daysPerAuditor
-    form.supervisorId = plan.supervisorName || getSupervisorName(plan.supervisorId) || plan.supervisorId || ''
+    form.title = plan.title || ''
+    form.activityType = plan.activityType || ''
     form.notes = plan.notes || ''
     form.file = []
     form.attachmentCategory = plan.attachmentCategory || ''
@@ -609,26 +614,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     form.file = [file]
   }
 
-  const supervisors = ref<Array<{ id: string; name: string; workload?: number }>>([])
-
-  const fetchSupervisors = async () => {
-    try {
-      const response: any = await $fetch(`${getAuthServiceBaseUrl()}/users/assignable`, { method: 'GET' })
-      const users = (response && response.data && Array.isArray(response.data.users))
-        ? response.data.users
-        : (response && Array.isArray(response.users) ? response.users : [])
-      if (users.length > 0) {
-        supervisors.value = users.map((u: any) => ({
-          id: u.id,
-          name: u.name || u.full_name || u.username,
-          workload: 0
-        }))
-      }
-    } catch {
-      // Keep empty if assignable endpoint not available
-    }
-  }
-
   const TEAM_CAPACITY_PER_YEAR = 10 * 220 * 0.7
 
   const calculateQuarters = (months: number[]) => {
@@ -643,7 +628,10 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   }
 
   const checkUtilization = (additionalMandays: number) => {
-    const currentUsed = plans.value.reduce((sum, p) => sum + (p.totalMandays || 0), 0)
+    // The plan being edited is replaced by the form, so its stored rows are not counted twice.
+    const currentUsed = plans.value
+      .filter(p => !(isEditing.value && p.id === editingId.value))
+      .reduce((sum, p) => sum + sumActivityMandays(p.activities), 0)
     const totalAfterAdd = currentUsed + additionalMandays
     const utilization = (totalAfterAdd / TEAM_CAPACITY_PER_YEAR) * 100
 
@@ -663,40 +651,22 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     return null
   }
 
+  // New files only; the server stores them under the plan.
+  const toNewAttachments = (files: File[] | null | undefined): AnnualAuditAttachment[] =>
+    (files || []).map(f => ({
+      name: f.name,
+      size: Math.round(f.size / 1024) + ' KB',
+      url: '#'
+    }))
+
   const addPlan = async (form: AnnualPlanForm) => {
     const quarters = calculateQuarters(form.selectedMonths)
-    const totalMandays = form.auditorCount * form.daysPerAuditor
-    const supervisor = supervisors.value.find(s => s.id === form.supervisorId || s.name === form.supervisorId)
-    const supervisorId = supervisor?.id || form.supervisorId
-    const supervisorName = supervisor?.name || form.supervisorId || 'Unknown'
 
     // No code is sent: the server generates PKAT-<Tahun>-<No.Urut> in the create transaction.
-    const payload = {
-      version: 'v1.0',
-      revisionHistory: [],
-      activities: form.activities,
-      status: form.status,
-      selectedMonths: form.selectedMonths.sort((a, b) => a - b),
-      quarters: quarters,
-      auditorCount: form.auditorCount,
-      daysPerAuditor: form.daysPerAuditor,
-      totalMandays: totalMandays,
-      supervisorId: supervisorId,
-      supervisorName: supervisorName,
-      notes: form.notes,
-      year: parseInt(form.year) || 2026,
-      attachmentCategory: form.attachmentCategory,
-      attachments: form.file && form.file.length > 0
-        ? form.file.map((f: any) => ({
-          name: f.name,
-          size: Math.round(f.size / 1024) + ' KB',
-          url: '#'
-        }))
-        : [],
-      attachmentUploadedBy: form.attachmentUploadedBy,
-      attachmentUploadDate: form.attachmentUploadDate,
-      isActive: form.isActive
-    }
+    const payload = buildAnnualPlanPayload(form, {
+      quarters,
+      attachments: toNewAttachments(form.file)
+    })
 
     const baseUrl = getAuditServiceBaseUrl()
     try {
@@ -720,27 +690,13 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const updatePlan = async (id: string, updatedData: AnnualPlanForm) => {
     const baseUrl = getAuditServiceBaseUrl()
     const quarters = calculateQuarters(updatedData.selectedMonths)
-    const totalMandays = updatedData.auditorCount * updatedData.daysPerAuditor
-    const supervisor = supervisors.value.find(s => s.id === updatedData.supervisorId || s.name === updatedData.supervisorId)
-    const supervisorId = supervisor?.id || updatedData.supervisorId
-    const supervisorName = supervisor?.name || updatedData.supervisorId || 'Unknown'
-
-    const fileList = updatedData.file && updatedData.file.length > 0
-      ? updatedData.file.map((f: any) => ({
-        name: f.name,
-        size: Math.round(f.size / 1024) + ' KB',
-        url: '#'
-      }))
-      : []
 
     const payload = {
-      ...updatedData,
-      quarters: quarters,
-      totalMandays: totalMandays,
-      supervisorId: supervisorId,
-      supervisorName: supervisorName,
-      year: parseInt(updatedData.year) || 2026,
-      attachments: (updatedData.attachments || []).concat(fileList)
+      code: updatedData.code,
+      ...buildAnnualPlanPayload(updatedData, {
+        quarters,
+        attachments: (updatedData.attachments || []).concat(toNewAttachments(updatedData.file))
+      })
     }
 
     try {
@@ -769,10 +725,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
         if (!confirmed) return
 
-        const payload = {
-          ...plan,
-          isActive: false
-        }
+        // PUT is partial: only the field that changes is sent.
+        const payload = { isActive: false }
 
         await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
           method: 'PUT',
@@ -816,8 +770,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     const revisionHistory = plan.revisionHistory ? [...plan.revisionHistory] : []
     revisionHistory.unshift(historyEntry)
 
+    // PUT is partial: only the fields that change are sent.
     const payload = {
-      ...plan,
       version: newVersion,
       status: AnnualAuditPlanStatus.REVISED,
       revisionHistory: revisionHistory
@@ -845,7 +799,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     if (!plan) return
 
     const baseUrl = getAuditServiceBaseUrl()
-    const payload = { ...plan, status: status }
+    // PUT is partial: only the status is sent.
+    const payload = { status: status }
     try {
       await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
         method: 'PUT',
@@ -907,14 +862,14 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   }
 
   return {
-    plans, supervisors, monthsList, yearOptions, supervisorOptions, attachmentCategoryOptions,
+    plans, monthsList, yearOptions, attachmentCategoryOptions,
     showModal, isEditing, editingId, showViewModal, selectedPlan, approvalStepperItems,
     searchCode, selectedDepartment, selectedStatus, form, columns, errorMsg, loading, validationErrors,
-    filteredPlans, totalMandays, selectedSupervisor, scheduleWarning, utilizationData,
+    filteredPlans, totalMandays, scheduleWarning, utilizationData,
     computedQuarters, paginations, pagination: paginations,
-    clearFilters, openViewModal, closeViewModal, departmentOptions, departmentOptionsLoading, fetchDepartmentOptions, statusOptions,
+    clearFilters, openViewModal, closeViewModal, departmentOptions, departments, departmentOptionsLoading, fetchDepartmentOptions, statusOptions,
     toggleMonth, addActivity, removeActivity, handleDownload,
-    openModal, closeModal, handleSubmit, handleEdit, handleEditFromView, handleDelete, getSupervisorName,
+    openModal, closeModal, handleSubmit, handleEdit, handleEditFromView, handleDelete,
     getStatusColor, getStatusLabel, handleFileChange, fetchPlans,
     handleStaffApprove, handleStaffReject, handleManagerApprove, handleManagerReject, handleChiefApprove, handleChiefReject,
     createRevision, getRiskLevelColor

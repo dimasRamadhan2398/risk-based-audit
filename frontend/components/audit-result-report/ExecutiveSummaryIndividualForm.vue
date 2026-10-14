@@ -876,9 +876,12 @@ const syncFindingsFromLha = (lhaItem?: any) => {
       }
     })
 
-    store.form.risikoTinggi = findings.filter((f: any) => ['Very Significant', 'Significant'].includes(f.category)).length
-    store.form.risikoSedang = findings.filter((f: any) => f.category === 'Quite Significant').length
-    store.form.risikoRendah = findings.filter((f: any) => f.category === 'Not Significant').length
+    // Finding categories only have three levels: same as the legacy Tinggi/Sedang/Rendah -> High/Moderate/Low
+    store.form.risikoHigh = findings.filter((f: any) => ['Very Significant', 'Significant'].includes(f.category)).length
+    store.form.risikoModerateHigh = 0
+    store.form.risikoModerate = findings.filter((f: any) => f.category === 'Quite Significant').length
+    store.form.risikoLowModerate = 0
+    store.form.risikoLow = findings.filter((f: any) => f.category === 'Not Significant').length
   }
 
   if (item.findingsCount) {
