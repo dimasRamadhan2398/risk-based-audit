@@ -100,11 +100,9 @@ func autoMigrate(db *gorm.DB) error {
 		return err
 	}
 
-	if err := backfillAssessmentSnapshots(db); err != nil {
-		return err
-	}
-
-	return CleanupDummyAuditUniverseSubEntities(db)
+	// Migrations never delete data. The legacy dummy audit-universe cleanup is
+	// an explicit operator command (cleanup-dummy-universe), not a boot step.
+	return backfillAssessmentSnapshots(db)
 }
 
 // backfillAssessmentSnapshots gives assessment rows written before the
