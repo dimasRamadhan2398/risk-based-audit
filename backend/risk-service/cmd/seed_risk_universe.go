@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"strings"
 	"time"
 
 	"risk-service/models"
@@ -68,10 +67,6 @@ func seedRiskFactorsAndUniverse(db *gorm.DB) error {
 
 	if err := CleanupDummyAuditUniverseSubEntities(db); err != nil {
 		log.Printf("Warning: Failed to cleanup dummy audit universe sub-entities: %v", err)
-	}
-
-	if err := seedMasterDataSubEntities(db); err != nil {
-		log.Printf("Warning: Failed to seed master data sub-entities: %v", err)
 	}
 
 	return nil
@@ -926,76 +921,6 @@ func CleanupDummyAuditUniverseSubEntities(db *gorm.DB) error {
 			DELETE FROM standard_audit_universe WHERE name IN ?
 		`, legacyDummyNames).Error; err != nil {
 			return err
-		}
-
-		return nil
-	})
-}
-
-// seedMasterDataSubEntities ensures that active Master Data Companies and Locations
-// exist under Subsidiaries/Business Unit and Branches/Regional Offices in Corporate Audit Universe.
-func seedMasterDataSubEntities(db *gorm.DB) error {
-	now := time.Now()
-
-	// Default master companies
-	defaultCompanies := []string{
-		"PT AIFL Indonesia",
-		"AIFL Financial Services",
-		"AIFL Surabaya",
-	}
-
-	// Default master locations/branches
-	defaultLocations := []string{
-		"Head Office",
-		"Surabaya Branch",
-		"Bandung Branch",
-		"Jakarta Branch",
-		"Bali Branch",
-	}
-
-	return db.Transaction(func(tx *gorm.DB) error {
-		var subParent models.CorporateAuditUniverse
-		if err := tx.Where("LOWER(name) = ? AND parent_id IS NULL", "subsidiaries/business unit").First(&subParent).Error; err == nil {
-			for _, cName := range defaultCompanies {
-				var count int64
-				tx.Model(&models.CorporateAuditUniverse{}).
-					Where("parent_id = ? AND LOWER(TRIM(name)) = ?", subParent.ID, strings.ToLower(cName)).
-					Count(&count)
-				if count == 0 {
-					child := models.CorporateAuditUniverse{
-						ID:        uuid.New(),
-						Name:      cName,
-						ParentID:  &subParent.ID,
-						CreatedAt: now,
-						UpdatedAt: now,
-					}
-					if err := tx.Create(&child).Error; err != nil {
-						return err
-					}
-				}
-			}
-		}
-
-		var branchParent models.CorporateAuditUniverse
-		if err := tx.Where("LOWER(name) = ? AND parent_id IS NULL", "branches/regional offices").First(&branchParent).Error; err == nil {
-			for _, lName := range defaultLocations {
-				var count int64
-				tx.Model(&models.CorporateAuditUniverse{}).
-					Where("parent_id = ? AND LOWER(TRIM(name)) = ?", branchParent.ID, strings.ToLower(lName)).
-					Count(&count)
-				if count == 0 {
-					child := models.CorporateAuditUniverse{
-						ID:        uuid.New(),
-						Name:      lName,
-						ParentID:  &branchParent.ID,
-						CreatedAt: now,
-						UpdatedAt: now,
-					}
-					if err := tx.Create(&child).Error; err != nil {
-						return err
-					}
-				}
-			}
 		}
 
 		return nil

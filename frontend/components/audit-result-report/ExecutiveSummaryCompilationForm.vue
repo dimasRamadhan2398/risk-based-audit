@@ -2,7 +2,7 @@
   <div class="grid grid-cols-1 lg:grid-cols-4 h-full bg-gray-50 dark:bg-gray-950">
     <!-- Sidebar Navigation Index (Corporate Report Builder Layout) -->
     <div class="hidden lg:block lg:col-span-1 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 overflow-y-auto space-y-6">
-      <div class="text-md font-bold uppercase tracking-wider text-gray-400">Daftar Bagian Laporan</div>
+      <div class="text-md font-bold uppercase tracking-wider text-gray-400">{{ t('executiveSummaryForm.navTitle') }}</div>
       <nav class="space-y-1">
         <a
           v-for="sec in sections"
@@ -24,16 +24,16 @@
         <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-2 border">
           <div class="text-md font-semibold text-gray-500 flex items-center gap-1.5">
             <UIcon name="i-lucide-shield-alert" class="size-4" />
-            Status Penguncian
+            {{ t('executiveSummaryForm.lock.title') }}
           </div>
           <div class="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-1.5">
             <span class="size-2 rounded-full" :class="store.form.status === 'Approved' ? 'bg-success-500' : 'bg-warning-500'"></span>
-            {{ store.form.status === 'Approved' ? 'Terkunci (Approved)' : 'Terbuka (Draft)' }}
+            {{ store.form.status === 'Approved' ? t('executiveSummaryForm.lock.approved') : t('executiveSummaryForm.lock.draft') }}
           </div>
           <p class="text-md text-gray-400 leading-normal">
             {{ store.form.status === 'Approved' 
-              ? 'Laporan ini telah disetujui oleh Kepala SPI dan tidak dapat diedit.' 
-              : 'Silakan isi semua data sebelum mengajukan persetujuan.' }}
+              ? t('executiveSummaryForm.lock.approvedDescription') 
+              : t('executiveSummaryForm.lock.draftDescription') }}
           </p>
         </div>
       </div>
@@ -47,17 +47,17 @@
         <section id="sec-upload" class="space-y-6 scroll-mt-6">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4">
             <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
-              <span class="text-primary-500">I.</span> Navigation & Document Upload
+              {{ t('executiveSummaryForm.upload.title') }}
             </h2>
-            <p class="text-sm text-gray-400">Detail identitas laporan kompilasi dan unggahan dokumen resmi.</p>
+            <p class="text-sm text-gray-400">{{ t('executiveSummaryForm.upload.description') }}</p>
           </div>
 
           <div class="w-full">
-            <UFormField label="Pilih Surat Tugas (Assignment Letter) / LHA">
+            <UFormField :label="t('executiveSummaryForm.upload.lhaLabel')">
               <USelectMenu
                 v-model="selectedLhaId"
                 :items="lhaDropdownOptions"
-                placeholder="Pilih ID LHA..."
+                :placeholder="t('executiveSummaryForm.upload.lhaPlaceholder')"
                 class="w-full font-semibold"
                 :disabled="isLocked"
                 @update:modelValue="onLhaSelect"
@@ -66,21 +66,21 @@
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <UFormField label="Tahun Laporan" required>
+            <UFormField :label="t('executiveSummaryCompilation.reportYear')" required>
               <USelectMenu
                 v-model="store.form.tahun"
                 :items="[2026, 2025, 2024, 2023]"
-                placeholder="Pilih Tahun"
+                :placeholder="t('executiveSummaryForm.placeholders.year')"
                 class="w-full font-semibold"
                 :disabled="isLocked"
               />
             </UFormField>
 
-            <UFormField label="Periode Kuartal" required>
+            <UFormField :label="t('executiveSummaryCompilation.quarter')" required>
               <USelectMenu
                 v-model="reportingQuarter"
                 :items="quarterOptions"
-                placeholder="Pilih Kuartal"
+                :placeholder="t('executiveSummaryForm.placeholders.quarter')"
                 class="w-full font-semibold"
                 :disabled="isLocked"
               />
@@ -95,7 +95,7 @@
               </div>
               <div>
                 <div class="text-xs font-bold uppercase tracking-wider text-primary-700 dark:text-primary-300 flex items-center gap-2">
-                  <span>Surat Tugas: {{ linkedAssignmentLetter.letterNumber }}</span>
+                  <span>{{ t('executiveSummaryForm.upload.assignmentLetter', { number: linkedAssignmentLetter.letterNumber }) }}</span>
                   <UBadge color="primary" variant="subtle" size="xs">{{ linkedAssignmentLetter.status || 'Published' }}</UBadge>
                 </div>
                 <div class="text-sm font-semibold text-gray-900 dark:text-white mt-0.5">
@@ -105,17 +105,17 @@
             </div>
             <div class="flex flex-wrap items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
               <div v-if="linkedAssignmentLetter.leader">
-                <span class="text-gray-400">Ketua Tim:</span> <span class="font-medium text-gray-700 dark:text-gray-300">{{ linkedAssignmentLetter.leader }}</span>
+                <span class="text-gray-400">{{ t('executiveSummaryForm.upload.leader') }}</span> <span class="font-medium text-gray-700 dark:text-gray-300">{{ linkedAssignmentLetter.leader }}</span>
               </div>
               <div v-if="linkedAssignmentLetter.executionPeriod || (linkedAssignmentLetter as any).auditYear">
-                <span class="text-gray-400">Periode:</span> <span class="font-medium text-gray-700 dark:text-gray-300">{{ linkedAssignmentLetter.executionPeriod || (linkedAssignmentLetter as any).auditYear }}</span>
+                <span class="text-gray-400">{{ t('executiveSummaryForm.upload.period') }}</span> <span class="font-medium text-gray-700 dark:text-gray-300">{{ linkedAssignmentLetter.executionPeriod || (linkedAssignmentLetter as any).auditYear }}</span>
               </div>
             </div>
           </div>
 
           <!-- Document Upload Field -->
           <div class="bg-gray-50 dark:bg-gray-800/50 p-6 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
-            <UFormField label="Upload Dokumen Executive Summary Resmi" required>
+            <UFormField :label="t('executiveSummaryForm.upload.documentLabel')" required>
               <div class="space-y-4">
                 <div class="flex items-center gap-4">
                   <!-- File Input simulation -->
@@ -131,7 +131,7 @@
                     color="neutral"
                     variant="solid"
                     icon="i-lucide-upload"
-                    label="Pilih File (.pdf, .docx)"
+                    :label="t('executiveSummaryForm.upload.chooseFile')"
                     :disabled="isLocked"
                     @click="fileInput?.click()"
                   />
@@ -139,10 +139,10 @@
                     <UIcon name="i-lucide-file-check" class="text-success-500 size-5" />
                     {{ store.form.dokumenPath }}
                   </span>
-                  <span v-else class="text-sm text-gray-400">Belum ada file yang dipilih (Maks. 10MB)</span>
+                  <span v-else class="text-sm text-gray-400">{{ t('executiveSummaryForm.upload.noFile') }}</span>
                 </div>
                 <p class="text-md text-gray-400">
-                  PDF & Word is supported
+                  {{ t('executiveSummaryForm.upload.formats') }}
                 </p>
               </div>
             </UFormField>
@@ -153,27 +153,27 @@
         <section id="sec-narrative" class="space-y-6 scroll-mt-6">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4">
             <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
-              <span class="text-primary-500">II.</span> Section I: Executive Summary Narrative
+              {{ t('executiveSummaryForm.narrative.title') }}
             </h2>
-            <p class="text-sm text-gray-400">Narasi bebas untuk ringkasan eksekutif hasil audit triwulanan</p>
+            <p class="text-sm text-gray-400">{{ t('executiveSummaryForm.narrative.description') }}</p>
           </div>
 
           <div class="space-y-3">
             <div class="flex justify-between items-center">
-              <span class="text-md font-bold text-gray-400 uppercase">Teks Narasi Ringkasan</span>
+              <span class="text-md font-bold text-gray-400 uppercase">{{ t('executiveSummaryForm.narrative.label') }}</span>
               <UButton
                 v-if="!isLocked"
                 color="neutral"
                 variant="ghost"
                 icon="i-lucide-refresh-cw"
-                label="Reset Ke Template Default"
+                :label="t('executiveSummaryForm.narrative.reset')"
                 size="md"
                 @click="resetNarrativeToDefault"
               />
             </div>
             <UTextarea
               v-model="store.form.narrative"
-              placeholder="Isi teks ringkasan naratif..."
+              :placeholder="t('executiveSummaryForm.narrative.placeholder')"
               :rows="6"
               class="w-full"
               :disabled="isLocked"
@@ -186,38 +186,38 @@
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4 flex justify-between items-center">
             <div>
               <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
-                <span class="text-primary-500">III.</span> Section II: Statistik Kompilasi
+                {{ t('executiveSummaryCompilation.stats.title') }}
               </h2>
-              <p class="text-sm text-gray-400">Data kuantitatif total laporan, temuan (breakdown risiko), dan rekomendasi.</p>
+              <p class="text-sm text-gray-400">{{ t('executiveSummaryCompilation.stats.description') }}</p>
             </div>
             <UButton
               v-if="!isLocked"
               color="primary"
               variant="outline"
               icon="i-lucide-refresh-cw"
-              label="Sinkronkan dari LHA Individual"
+              :label="t('executiveSummaryCompilation.syncFromIndividual')"
               size="sm"
-              @click="syncFromIndividualLha"
+              @click="requireLhaThen(syncFromIndividualLha)"
             />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <UFormField label="Jumlah Laporan (LHA)" required>
+            <UFormField :label="t('executiveSummaryCompilation.reportCount')" required>
               <UInput
                 type="number"
                 v-model.number="store.form.jumlahLaporan"
-                placeholder="Contoh: 12"
+                :placeholder="t('executiveSummaryCompilation.reportCountPlaceholder')"
                 class="w-full font-bold"
                 :disabled="isLocked"
                 min="0"
               />
             </UFormField>
 
-            <UFormField label="Jumlah Rekomendasi" required>
+            <UFormField :label="t('executiveSummaryCompilation.recommendationCount')" required>
               <UInput
                 type="number"
                 v-model.number="store.form.jumlahRekomendasi"
-                placeholder="Contoh: 48"
+                :placeholder="t('executiveSummaryCompilation.recommendationCountPlaceholder')"
                 class="w-full font-bold"
                 :disabled="isLocked"
                 min="0"
@@ -225,24 +225,24 @@
             </UFormField>
 
             <!-- Auto calculated fields -->
-            <UFormField label="Total Temuan (Auto-Sum)">
+            <UFormField :label="t('executiveSummaryCompilation.totalFindings')">
               <UInput
                 v-model="totalTemuanSummary"
                 class="w-full font-bold bg-gray-50 dark:bg-gray-800"
                 disabled
-                title="Jumlah otomatis dari breakdown tingkat risiko"
+                :title="t('executiveSummaryCompilation.totalFindingsHint')"
               >
                 <template #trailing>
-                  <span class="text-md text-gray-400">Temuan</span>
+                  <span class="text-md text-gray-400">{{ t('executiveSummaryCompilation.findingsUnit') }}</span>
                 </template>
               </UInput>
             </UFormField>
           </div>
 
           <div class="p-6 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-200 dark:border-gray-800 space-y-4">
-            <h4 class="text-md font-extrabold uppercase tracking-wider text-gray-400">Breakdown Temuan Berdasarkan Risiko</h4>
+            <h4 class="text-md font-extrabold uppercase tracking-wider text-gray-400">{{ t('executiveSummaryCompilation.riskBreakdown') }}</h4>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <UFormField label="Risiko Tinggi (High)">
+              <UFormField :label="t('executiveSummaryCompilation.riskHigh')">
                 <UInput
                   type="number"
                   v-model.number="store.form.risikoTinggi"
@@ -252,7 +252,7 @@
                 />
               </UFormField>
 
-              <UFormField label="Risiko Sedang (Medium)">
+              <UFormField :label="t('executiveSummaryCompilation.riskMedium')">
                 <UInput
                   type="number"
                   v-model.number="store.form.risikoSedang"
@@ -262,7 +262,7 @@
                 />
               </UFormField>
 
-              <UFormField label="Risiko Rendah (Low)">
+              <UFormField :label="t('executiveSummaryCompilation.riskLow')">
                 <UInput
                   type="number"
                   v-model.number="store.form.risikoRendah"
@@ -279,19 +279,19 @@
         <section id="sec-followup" class="space-y-6 scroll-mt-6">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4">
             <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
-              <span class="text-primary-500">IV.</span> Section III: Status Tindak Lanjut
+              {{ t('executiveSummaryForm.followUp.title') }}
             </h2>
-            <p class="text-sm text-gray-400">Kalkulasi persentase dan rekap status penyelesaian temuan audit.</p>
+            <p class="text-sm text-gray-400">{{ t('executiveSummaryForm.followUp.description') }}</p>
           </div>
 
           <div class="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
               <thead class="bg-gray-50 dark:bg-gray-800/80">
                 <tr>
-                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">Status</th>
-                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">Jumlah</th>
-                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">% (Persentase)</th>
-                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">Keterangan</th>
+                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryForm.table.status') }}</th>
+                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">{{ t('executiveSummaryForm.table.count') }}</th>
+                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">{{ t('executiveSummaryForm.table.percent') }}</th>
+                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryForm.table.notes') }}</th>
                 </tr>
               </thead>
               <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800 font-medium">
@@ -316,7 +316,7 @@
                   <td class="px-6 py-2">
                     <UTextarea
                       v-model="row.keterangan"
-                      placeholder="Keterangan tindak lanjut..."
+                      :placeholder="t('executiveSummaryForm.followUp.notePlaceholder')"
                       class="w-full"
                       :disabled="isLocked"
                     />
@@ -324,10 +324,10 @@
                 </tr>
                 <!-- Total Row -->
                 <tr class="bg-gray-50 dark:bg-gray-800/40 font-bold border-t-2">
-                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white uppercase tracking-wider">Total</td>
+                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryForm.table.total') }}</td>
                   <td class="px-6 py-4 text-sm text-gray-900 dark:text-white font-mono font-extrabold">{{ totalFollowUpCount }}</td>
                   <td class="px-6 py-4 text-sm text-gray-900 dark:text-white font-mono font-extrabold">100.0%</td>
-                  <td class="px-6 py-4 text-md text-gray-400 italic">Dihitung otomatis</td>
+                  <td class="px-6 py-4 text-md text-gray-400 italic">{{ t('executiveSummaryForm.table.autoCalculated') }}</td>
                 </tr>
               </tbody>
             </table>
@@ -340,9 +340,9 @@
             <div class="flex justify-between items-center">
               <div>
                 <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
-                  <span class="text-primary-500">V.</span> Section IV: Top 5 Temuan Signifikan
+                  {{ t('executiveSummaryForm.topFindings.title') }}
                 </h2>
-                <p class="text-sm text-gray-400">Matriks temuan kritikal terpenting yang butuh eskalasi/tindakan jajaran direksi.</p>
+                <p class="text-sm text-gray-400">{{ t('executiveSummaryForm.topFindings.description') }}</p>
               </div>
               <div class="flex items-center gap-2">
                 <UButton
@@ -350,16 +350,16 @@
                   color="neutral"
                   variant="outline"
                   icon="i-lucide-refresh-cw"
-                  label="Sinkronkan Temuan dari LHA"
+                  :label="t('executiveSummaryForm.sync.findings')"
                   size="sm"
-                  @click="syncFromIndividualLha"
+                  @click="requireLhaThen(syncFromIndividualLha)"
                 />
                 <UButton
                   v-if="!isLocked && store.form.topFindings.length < 5"
                   color="primary"
                   variant="soft"
                   icon="i-lucide-plus-circle"
-                  label="Tambah Temuan"
+                  :label="t('executiveSummaryForm.topFindings.add')"
                   size="sm"
                   @click="addTopFinding"
                 />
@@ -371,12 +371,12 @@
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
               <thead class="bg-gray-50 dark:bg-gray-800/80">
                 <tr>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">Unit Divisi</th>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">Judul Temuan</th>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-32">Nilai Risiko</th>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">Status TL</th>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">Usulan Tindakan</th>
-                  <th v-if="!isLocked" class="px-4 py-3 text-center text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-16">Aksi</th>
+                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">{{ t('executiveSummaryForm.table.unitDivision') }}</th>
+                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryForm.table.findingTitle') }}</th>
+                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-32">{{ t('executiveSummaryForm.table.riskValue') }}</th>
+                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">{{ t('executiveSummaryForm.table.followUpStatus') }}</th>
+                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryForm.table.proposedAction') }}</th>
+                  <th v-if="!isLocked" class="px-4 py-3 text-center text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-16">{{ t('executiveSummaryForm.table.actions') }}</th>
                 </tr>
               </thead>
               <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
@@ -385,17 +385,17 @@
                     <USelectMenu
                       v-model="finding.unitDivision"
                       :items="divisionOptions"
-                      placeholder="Divisi"
+                      :placeholder="t('executiveSummaryForm.placeholders.division')"
                       :disabled="isLocked"
                     />
                   </td>
                   <td class="px-3 py-2">
                     <UInput
                       v-model="finding.judulTemuan"
-                      placeholder="Judul temuan utama..."
+                      :placeholder="t('executiveSummaryForm.placeholders.findingTitle')"
                       :disabled="isLocked"
                       maxlength="100"
-                      @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 100 karakter dan wajib diisi')"
+                      @invalid="($event.target as any)?.setCustomValidity(t('executiveSummaryForm.validation.findingTitle'))"
                       @input="($event.target as any)?.setCustomValidity('')"
                     />
                     <div class="text-xs text-gray-500 mt-1 text-right">
@@ -406,7 +406,7 @@
                     <USelectMenu
                       v-model="finding.risiko"
                       :items="['Tinggi', 'Sedang', 'Rendah']"
-                      placeholder="Risiko"
+                      :placeholder="t('executiveSummaryForm.placeholders.risk')"
                       :disabled="isLocked"
                     />
                   </td>
@@ -414,14 +414,14 @@
                     <USelectMenu
                       v-model="finding.statusTL"
                       :items="['Closed', 'In Progress', 'Overdue']"
-                      placeholder="Status TL"
+                      :placeholder="t('executiveSummaryForm.table.followUpStatus')"
                       :disabled="isLocked"
                     />
                   </td>
                   <td class="px-3 py-2">
                     <UTextarea
                       v-model="finding.usulan"
-                      placeholder="Contoh: Eskalasi Direksi"
+                      :placeholder="t('executiveSummaryForm.placeholders.proposedAction')"
                       :disabled="isLocked"
                     />
                   </td>
@@ -440,9 +440,9 @@
           </div>
           
           <div v-else class="text-center py-8 bg-gray-50 dark:bg-gray-800/30 rounded-lg text-sm text-gray-400 border border-dashed">
-            Belum ada temuan signifikan teratas yang ditambahkan.
+            {{ t('executiveSummaryForm.topFindings.empty') }}
             <button v-if="!isLocked" type="button" @click="addTopFinding" class="text-primary-500 font-bold ml-1 hover:underline">
-              Klik di sini untuk menambahkan.
+              {{ t('executiveSummaryForm.topFindings.emptyAction') }}
             </button>
           </div>
         </section>
@@ -452,36 +452,36 @@
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4 flex justify-between items-center">
             <div>
               <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
-                <span class="text-primary-500">VI.</span> Section V & VII: Analisis Temuan Berulang & Kesimpulan
+                {{ t('executiveSummaryForm.analysis.title') }}
               </h2>
-              <p class="text-sm text-gray-400">Deskripsi tema berulang, akar masalah, dan usulan task force atau arah kebijakan manajemen.</p>
+              <p class="text-sm text-gray-400">{{ t('executiveSummaryForm.analysis.description') }}</p>
             </div>
             <UButton
               v-if="!isLocked"
               color="neutral"
               variant="outline"
               icon="i-lucide-refresh-cw"
-              label="Sinkronkan Analisis dari LHA"
+              :label="t('executiveSummaryForm.sync.analysis')"
               size="sm"
-              @click="syncFromIndividualLha"
+              @click="requireLhaThen(syncFromIndividualLha)"
             />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <UFormField label="Section V: Tema Berulang (Akar masalah & Usulan revisi kebijakan)">
+            <UFormField :label="t('executiveSummaryForm.analysis.theme')">
               <UTextarea
                 v-model="store.form.akarMasalah"
-                placeholder="Tuliskan analisis akar masalah dan usulan kebijakan..."
+                :placeholder="t('executiveSummaryForm.analysis.rootCausePlaceholder')"
                 :rows="4"
                 class="w-full"
                 :disabled="isLocked"
               />
             </UFormField>
 
-            <UFormField label="Section VII: Kesimpulan & Rekomendasi Manajemen">
+            <UFormField :label="t('executiveSummaryForm.analysis.conclusion')">
               <UTextarea
                 v-model="store.form.kesimpulan"
-                placeholder="Tuliskan kesimpulan umum dan arahan Direksi yang diperlukan..."
+                :placeholder="t('executiveSummaryForm.analysis.conclusionPlaceholder')"
                 :rows="4"
                 class="w-full"
                 :disabled="isLocked"
@@ -491,15 +491,15 @@
 
           <!-- Electronic Signatures -->
           <div class="p-6 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-200 dark:border-gray-800 space-y-4">
-            <h4 class="text-md font-extrabold uppercase tracking-wider text-gray-400">Tanda Tangan Elektronik SPI</h4>
+            <h4 class="text-md font-extrabold uppercase tracking-wider text-gray-400">{{ t('executiveSummaryForm.signature.title') }}</h4>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <UFormField label="Tempat TTD" required>
+              <UFormField :label="t('executiveSummaryForm.signature.place')" required>
                 <UInput
                   v-model="store.form.signatureTempat"
-                  placeholder="Contoh: Jakarta"
+                  :placeholder="t('executiveSummaryForm.signature.placePlaceholder')"
                   :disabled="isLocked"
                   maxlength="50"
-                  @invalid="($event.target as any)?.setCustomValidity('Tempat TTD maksimal 20 karakter dan wajib diisi')"
+                  @invalid="($event.target as any)?.setCustomValidity(t('executiveSummaryForm.validation.signaturePlace'))"
                   @input="($event.target as any)?.setCustomValidity('')"
                 />
                 <div class="text-xs text-gray-500 mt-1 text-right">
@@ -507,20 +507,20 @@
                 </div>
               </UFormField>
 
-              <UFormField label="Tanggal TTD" required>
+              <UFormField :label="t('executiveSummaryForm.signature.date')" required>
                 <AppDatePicker
                   v-model="store.form.signatureTanggal"
                   :disabled="isLocked"
                 />
               </UFormField>
 
-              <UFormField label="Nama Kepala SPI" required>
+              <UFormField :label="t('executiveSummaryForm.signature.headName')" required>
                 <UInput
                   v-model="store.form.signatureNamaKepala"
-                  placeholder="Contoh: Budi Santoso, CIA"
+                  :placeholder="t('executiveSummaryForm.signature.headNamePlaceholder')"
                   :disabled="isLocked"
                   maxlength="50"
-                  @invalid="($event.target as any)?.setCustomValidity('Nama Kepala SPI maksimal 100 karakter dan wajib diisi')"
+                  @invalid="($event.target as any)?.setCustomValidity(t('executiveSummaryForm.validation.signatureName'))"
                   @input="($event.target as any)?.setCustomValidity('')"
                 />
                 <div class="text-xs text-gray-500 mt-1 text-right">
@@ -528,13 +528,13 @@
                 </div>
               </UFormField>
 
-              <UFormField label="NIK Kepala SPI" required>
+              <UFormField :label="t('executiveSummaryForm.signature.headNik')" required>
                 <UInput
                   v-model="store.form.signatureNIK"
-                  placeholder="Contoh: SPI-77621"
+                  :placeholder="t('executiveSummaryForm.signature.headNikPlaceholder')"
                   :disabled="isLocked"
                   maxlength="50"
-                  @invalid="($event.target as any)?.setCustomValidity('NIK Kepala SPI maksimal 20 karakter dan wajib diisi')"
+                  @invalid="($event.target as any)?.setCustomValidity(t('executiveSummaryForm.validation.signatureNik'))"
                   @input="($event.target as any)?.setCustomValidity('')"
                 />
                 <div class="text-xs text-gray-500 mt-1 text-right">
@@ -550,12 +550,12 @@
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4 flex justify-between items-center">
             <div>
               <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
-                <span class="text-primary-500">VII.</span> Section VIII: Matriks Kompilasi Temuan LHA Individual
+                {{ t('executiveSummaryCompilation.matrix.title') }}
               </h2>
-              <p class="text-sm text-gray-400">Daftar LHA Individual yang dikompilasi ke dalam laporan eksekutif ini.</p>
+              <p class="text-sm text-gray-400">{{ t('executiveSummaryCompilation.matrix.description') }}</p>
             </div>
             <UBadge color="primary" variant="subtle" size="md">
-              Total: {{ store.form.matriksKompilasi.length || store.form.jumlahLaporan }} LHA
+              {{ t('executiveSummaryCompilation.matrix.total', { count: store.form.matriksKompilasi.length || store.form.jumlahLaporan }) }}
             </UBadge>
           </div>
 
@@ -563,12 +563,12 @@
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
               <thead class="bg-gray-50 dark:bg-gray-800/80">
                 <tr>
-                  <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-white uppercase tracking-wider">No. Dokumen LHA</th>
-                  <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-white uppercase tracking-wider">Unit / Divisi</th>
-                  <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-white uppercase tracking-wider">Judul / Objek Audit</th>
-                  <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-white uppercase tracking-wider">Tingkat Risiko</th>
-                  <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-white uppercase tracking-wider">Rekomendasi Utama</th>
-                  <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-white uppercase tracking-wider">Status TL</th>
+                  <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryCompilation.matrix.columns.docNumber') }}</th>
+                  <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryCompilation.matrix.columns.unit') }}</th>
+                  <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryCompilation.matrix.columns.title') }}</th>
+                  <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryCompilation.matrix.columns.risk') }}</th>
+                  <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryCompilation.matrix.columns.recommendation') }}</th>
+                  <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryCompilation.matrix.columns.followUpStatus') }}</th>
                 </tr>
               </thead>
               <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800 text-sm">
@@ -591,9 +591,9 @@
           </div>
 
           <div v-else class="text-center py-8 bg-gray-50 dark:bg-gray-800/30 rounded-lg text-sm text-gray-400 border border-dashed">
-            Belum ada matriks kompilasi yang disinkronkan.
-            <button v-if="!isLocked" type="button" @click="syncFromIndividualLha" class="text-primary-500 font-bold ml-1 hover:underline">
-              Klik untuk menyinkronkan data dari LHA Individual.
+            {{ t('executiveSummaryCompilation.matrix.empty') }}
+            <button v-if="!isLocked" type="button" @click="requireLhaThen(syncFromIndividualLha)" class="text-primary-500 font-bold ml-1 hover:underline">
+              {{ t('executiveSummaryCompilation.matrix.emptyAction') }}
             </button>
           </div>
         </section>
@@ -603,15 +603,15 @@
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4">
             <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
               <UIcon name="i-lucide-message-square-text" class="size-5 text-primary-500" />
-              Noted dari Executive untuk Auditor
+              {{ t('executiveSummaryForm.notes.title') }}
             </h2>
-            <p class="text-sm text-gray-400">Catatan tindak lanjut atau arahan Executive kepada Auditor.</p>
+            <p class="text-sm text-gray-400">{{ t('executiveSummaryForm.notes.description') }}</p>
           </div>
 
-          <UFormField label="Noted">
+          <UFormField :label="t('executiveSummaryForm.notes.label')">
             <UTextarea
               v-model="store.form.executiveNote"
-              :placeholder="canWriteExecutiveNote ? 'Tuliskan catatan untuk Auditor...' : (store.form.executiveNote ? '' : 'Belum ada catatan dari Executive.')"
+              :placeholder="canWriteExecutiveNote ? t('executiveSummaryForm.notes.placeholder') : (store.form.executiveNote ? '' : t('executiveSummaryForm.notes.empty'))"
               :rows="5"
               class="w-full"
               :disabled="!canWriteExecutiveNote"
@@ -621,7 +621,7 @@
             <UButton
               color="primary"
               icon="i-lucide-save"
-              label="Simpan Catatan"
+              :label="t('executiveSummaryForm.notes.save')"
               :loading="store.loading"
               @click="store.saveExecutiveNote"
             />
@@ -635,7 +635,7 @@
     <div class="col-span-1 lg:col-span-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 px-6 py-4 flex justify-between items-center sticky bottom-0 z-20">
       <div>
         <UButton
-          label="Tutup"
+          :label="t('executiveSummaryForm.actions.close')"
           color="neutral"
           variant="outline"
           class="font-semibold"
@@ -654,7 +654,7 @@
             color="primary"
             variant="solid"
             icon="i-lucide-save"
-            label="Simpan Draft"
+            :label="t('executiveSummaryForm.actions.saveDraft')"
             class="font-bold px-6"
             :loading="store.loading"
             @click="saveReportDraft"
@@ -668,7 +668,7 @@
             color="success"
             variant="solid"
             icon="i-lucide-check"
-            label="Setujui (Approve)"
+            :label="t('executiveSummaryForm.actions.approve')"
             class="font-bold px-6"
             :loading="store.loading"
             @click="approveReportDirectly"
@@ -685,9 +685,13 @@ import { useExecutiveSummaryStore } from '~/stores/executive-summary'
 import { useAuthStore } from '~/stores/auth'
 import { useRbac } from '~/composables/useRbac'
 import { UserRole } from '~/types/auth'
+import { useI18n } from '~/composables/useI18n'
+import { useAppToast } from '~/composables/useAppToast'
 const store = useExecutiveSummaryStore()
 const authStore = useAuthStore()
 const { canReviewExecutiveSummary } = useRbac()
+const { t } = useI18n()
+const { warning } = useAppToast()
 
 const fileInput = ref<HTMLInputElement | null>(null)
 const activeSection = ref('sec-upload')
@@ -695,14 +699,14 @@ const scrollContainer = ref<HTMLElement | null>(null)
 
 // Navigation links
 const sections = computed(() => [
-  { id: 'sec-upload', index: '1', title: 'Navigation & Upload' },
-  { id: 'sec-narrative', index: '2', title: 'Narrative Summary' },
-  { id: 'sec-stats', index: '3', title: 'Statistik Kompilasi' },
-  { id: 'sec-followup', index: '4', title: 'Status Tindak Lanjut' },
-  { id: 'sec-topfindings', index: '5', title: 'Top 5 Significant' },
-  { id: 'sec-analysis', index: '6', title: 'Akar Masalah & Kesimpulan' },
-  { id: 'sec-matriks', index: '7', title: 'Matriks Kompilasi LHA' },
-  ...(store.isViewing ? [{ id: 'sec-notes', index: '8', title: 'Noted' }] : [])
+  { id: 'sec-upload', index: '1', title: t('executiveSummaryCompilation.nav.upload') },
+  { id: 'sec-narrative', index: '2', title: t('executiveSummaryCompilation.nav.narrative') },
+  { id: 'sec-stats', index: '3', title: t('executiveSummaryCompilation.nav.stats') },
+  { id: 'sec-followup', index: '4', title: t('executiveSummaryCompilation.nav.followUp') },
+  { id: 'sec-topfindings', index: '5', title: t('executiveSummaryCompilation.nav.topFindings') },
+  { id: 'sec-analysis', index: '6', title: t('executiveSummaryCompilation.nav.analysis') },
+  { id: 'sec-matriks', index: '7', title: t('executiveSummaryCompilation.nav.matrix') },
+  ...(store.isViewing ? [{ id: 'sec-notes', index: '8', title: t('executiveSummaryCompilation.nav.notes') }] : [])
 ])
 
 // Dropdown options
@@ -763,20 +767,20 @@ const handleFileUpload = (e: Event) => {
 
   // Size limit 10MB
   if (file.size > 10 * 1024 * 1024) {
-    alert('File size exceeds the 10MB limit.')
+    alert(t('executiveSummaryForm.messages.fileTooLarge'))
     return
   }
 
   // Type limit
   const ext = file.name.split('.').pop()?.toLowerCase()
   if (ext !== 'pdf' && ext !== 'docx' && ext !== 'doc') {
-    alert('Format file tidak didukung. Harap unggah PDF/Word.')
+    alert(t('executiveSummaryForm.messages.unsupportedFormat'))
     return
   }
 
   // Simulated file corruption error handling
   if (file.name.toLowerCase().includes('corrupt') || file.name.toLowerCase().includes('damaged')) {
-    alert('Gagal mengunggah file. Pastikan format file adalah PDF/Word yang valid dan tidak terkunci password.')
+    alert(t('executiveSummaryForm.messages.corruptedFile'))
     return
   }
 
@@ -810,13 +814,21 @@ const getStatusBadgeClass = (status: 'Closed' | 'In Progress' | 'Overdue') => {
 }
 
 // Form submission & workflow helpers
+const requireLhaThen = (sync: () => void) => {
+  if (!selectedLhaId.value) {
+    warning(t('executiveSummaryForm.messages.selectLhaFirst'))
+    return
+  }
+  sync()
+}
+
 const saveReportDraft = async () => {
   if (!store.form.nomorDokumen) {
-    alert('Nomor dokumen wajib diisi.')
+    alert(t('executiveSummaryForm.messages.docNumberRequired'))
     return
   }
   if (!store.form.dokumenPath) {
-    alert('Unggah dokumen resmi wajib diisi.')
+    alert(t('executiveSummaryForm.messages.documentRequired'))
     return
   }
   
@@ -896,7 +908,7 @@ const assignmentLetterDropdownOptions = computed(() => {
       lettersFromStore.push({
         label: defNum,
         value: defNum,
-        letter: { letterNumber: defNum, auditTitle: 'Audit Penugasan', leader: 'Head of SKAI' } as any
+        letter: { letterNumber: defNum, auditTitle: t('executiveSummaryForm.defaults.auditAssignment'), leader: 'Head of SKAI' } as any
       })
     }
   })
@@ -921,7 +933,7 @@ const linkedAssignmentLetter = computed(() => {
   if (!stNum) return null
   return (assignmentLetterStore.assignmentLetterList.find(st => st.letterNumber === stNum) as any) || {
     letterNumber: stNum,
-    auditTitle: store.form.narrative ? store.form.narrative.slice(0, 70) + '...' : 'Penugasan Audit Kompilasi SPI',
+    auditTitle: store.form.narrative ? store.form.narrative.slice(0, 70) + '...' : t('executiveSummaryCompilation.defaults.auditTitle'),
     status: 'Published' as any,
     leader: 'Head of SKAI',
     executionPeriod: `Kuartal ${store.form.quarter} ${store.form.tahun}`,

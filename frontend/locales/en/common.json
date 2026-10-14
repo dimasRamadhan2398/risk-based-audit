@@ -265,8 +265,36 @@
       "title": "Audit Execution Detail",
       "lifecyclePhase": "Audit Execution Lifecycle Phase",
       "overallProgress": "Overall Progress: {progress}%",
+      "progressDerived": "Derived from the source modules, not editable here",
+      "waitingApproval": "Waiting approval: the LHA is submitted and not final yet. Completed (100%) only after approval.",
+      "draftBand": {
+        "title": "Draft findings requirements",
+        "description": "The draft findings band needs all three below. Mitigation (auditee follow-up) decides whether the audit moves into this band.",
+        "findings": {
+          "label": "Findings & recommendations",
+          "detail": "{count} findings recorded in working papers"
+        },
+        "working_paper_plans": {
+          "label": "Working paper action plans",
+          "detail": "{count} action plans with management recommendations"
+        },
+        "mitigation": {
+          "label": "Mitigation (auditee follow-up)",
+          "detail": "{count} mitigation plans from auditee follow-up"
+        }
+      },
+      "missingRefWarning": "No assignment letter number (ref) yet. Set it in the assignment letter so this execution can be tracked.",
       "activePhase": "Active Phase {step}: {title}",
       "range": "Range: {min}% - {max}%",
+      "sources": {
+        "title": "[0] SOURCE DATA",
+        "description": "Progress is calculated from the data recorded in each module.",
+        "annual_plan": { "label": "Annual Audit Plan", "linked": "Linked to an annual plan activity", "notLinked": "No annual plan activity linked" },
+        "assignment_letter": { "label": "Assignment Letter", "issued": "Letter issued", "notIssued": "Letter not issued yet" },
+        "fieldwork": { "label": "Audit Fieldwork", "detail": "{count} fieldwork records · {tested}/{total} test controls tested · {mitigations} mitigation plans", "notStarted": "Fieldwork not started" },
+        "working_paper": { "label": "Working Paper", "detail": "{count} working paper records · {plans} plans", "notStarted": "No working paper yet" },
+        "result_report": { "label": "Result Report (LHA)", "approved": "LHA approved", "draft": "LHA drafted, not approved yet", "notYet": "LHA not created yet" }
+      },
       "sampleDataTitle": "[1] SAMPLE DATA & TEST CONTROLS",
       "progress": "Progress",
       "description": "Description",
@@ -1404,6 +1432,110 @@
     "title": "Annual Audit Plan",
     "importPlanDocument": "Import Plan Document",
     "newAuditPlan": "New Audit Plan",
+    "form": {
+      "activityCodeHelp": "Format: PKAT-Tahun-No.Urut (e.g. PKAT-2026-001). Generated automatically on save.",
+      "activityCodePending": "Generated on save",
+      "auditableEntityLabel": "Auditable Entity (from Audit Universe)",
+      "auditableEntityPlaceholder": "-- Select Auditable Entity --",
+      "auditableEntityEmpty": "No entities in the Audit Universe yet",
+      "priorityBadge": "Priority",
+      "auditPriorityBadge": "Audit Priority",
+      "departmentsPlaceholder": "Select Departments",
+      "departmentsEmpty": "No departments found in Master Data",
+      "title": "Annual audit form",
+      "sectionActivity": "1. Activity detail",
+      "status": "Status",
+      "statusPlaceholder": "Select status",
+      "activityCode": "Activity code",
+      "subActivity": "Sub-activity {number}",
+      "activityName": "Activity name",
+      "activityNamePlaceholder": "e.g. Operational audit of the Finance Division",
+      "activityNameInvalid": "Activity name is required and must not exceed 100 characters",
+      "category": "Category",
+      "involvedDepartments": "Involved departments",
+      "calculatedRiskLevel": "Calculated risk level",
+      "addActivity": "Add activity",
+      "sectionTimeline": "2. Timeline",
+      "year": "Year",
+      "selectMonths": "Select months",
+      "quarterDistribution": "Quarter distribution:",
+      "sectionAuditor": "3. Auditor",
+      "auditorCount": "Number of auditors (1-10)",
+      "auditorAdvice": "Advice: high risk requires at least 3 auditors",
+      "durationDays": "Duration (days)",
+      "totalMandays": "Total mandays",
+      "mandaysFormula": "= {auditors} person × {days} day",
+      "supervisor": "Supervisor",
+      "supervisorPlaceholder": "Enter the supervisor's name...",
+      "supervisorOverloadWarning": "⚠️ Warning: this supervisor is already supervising more than 6 activities!",
+      "teamCapacity": "Team estimated capacity",
+      "totalLoad": "Total load: {percent}% of annual capacity.",
+      "sectionNotes": "4. Notes",
+      "additionalNote": "Additional note (optional)",
+      "notesPlaceholder": "Example: High priority - external recommendation...",
+      "notesHint": "Use for special audits or investigations.",
+      "sectionAttachment": "5. Attachment",
+      "attachmentCategory": "Attachment category",
+      "attachmentUploadedBy": "Attachment uploaded by",
+      "attachmentUploadDate": "Attachment upload date",
+      "uploadLabel": "Upload your attachment here",
+      "dropLabel": "Drop your attachments here",
+      "uploadDescription": "You can upload multiple files (max. 2MB each)",
+      "savePlan": "Save plan",
+      "updatePlan": "Update plan"
+    },
+    "detail": {
+      "activityStatus": "Activity status",
+      "progress": "Progress",
+      "activityDetail": "Activity detail",
+      "activityCode": "Activity code",
+      "subActivity": "Sub-activity {number}",
+      "activityName": "Activity name",
+      "category": "Category",
+      "department": "Department",
+      "associatedRisk": "Associated risk",
+      "riskLevel": "Risk level",
+      "noActivityDetail": "No activity detail has been registered.",
+      "sectionTimeline": "2. Timeline",
+      "year": "Year",
+      "quarterDistribution": "Quarter distribution",
+      "executionMonth": "Execution month",
+      "sectionAuditorResources": "3. Auditor resources",
+      "supervisor": "Supervisor",
+      "timeAllocation": "Time allocation",
+      "auditorsCount": "{count} Auditor",
+      "daysDuration": "{count} days duration",
+      "totalMandays": "Total mandays",
+      "mandaysValue": "{count} Mandays",
+      "estimatedCapacity": "Estimated capacity",
+      "capacityOptimal": "Optimal (60-80%)",
+      "totalLoad": "Total load: 0.6% of annual capacity",
+      "sectionNotes": "4. Additional notes",
+      "sectionAttachment": "5. Attachment",
+      "fileCategory": "File category",
+      "fileUploadedBy": "File uploaded by",
+      "fileUploadDate": "File upload date",
+      "uploadedFiles": "Uploaded files:",
+      "download": "Download",
+      "noFiles": "No files attached.",
+      "revisionHistory": "Revision history",
+      "createRevisedRkat": "Create revised RKAT",
+      "revisionNoteLabel": "Revision note / description of changes",
+      "revisionNotePlaceholder": "Describe the reason for this mid-year revision...",
+      "submitRevision": "Submit revision",
+      "noRevisions": "No revisions yet.",
+      "approvalStatus": "Approval status",
+      "staffNoteLabel": "Audit Staff note / reason",
+      "managerNoteLabel": "Audit Manager note / reason",
+      "chiefNoteLabel": "Chief Audit Executive note / reason",
+      "approvalNotePlaceholder": "Write your note or reason to approve",
+      "approve": "Approve",
+      "reject": "Reject",
+      "waitingStaff": "Waiting for Audit Staff approval...",
+      "waitingManager": "Waiting for Audit Manager approval...",
+      "waitingChief": "Waiting for Chief Audit Executive approval...",
+      "approvedAlert": "This document has been approved."
+    },
     "upload": {
       "title": "Import Annual Audit Plan",
       "subtitle": "Import external Annual Audit Plan documents (PKPT)",
@@ -1805,220 +1937,224 @@
       "download": "The file could not be downloaded. Please try again in a moment."
     }
   },
-    "executiveSummaryForm": {
-      "navTitle": "Report Sections",
-      "lock": {
-        "title": "Lock Status",
-        "approved": "Locked (Approved)",
-        "draft": "Open (Draft)",
-        "approvedDescription": "This report has been approved by the Head of SPI and can no longer be edited.",
-        "draftDescription": "Please complete all fields before submitting for approval."
-      },
-      "upload": {
-        "title": "Navigation & Document Upload",
-        "description": "Identity details of the compiled report and official document upload.",
-        "lhaLabel": "Select Assignment Letter / LHA",
-        "lhaPlaceholder": "Select LHA ID...",
-        "assignmentLetter": "Assignment Letter: {number}",
-        "leader": "Team Leader:",
-        "period": "Period:",
-        "documentLabel": "Upload Official Executive Summary Document",
-        "chooseFile": "Choose File (.pdf, .docx)",
-        "noFile": "No file selected (Max. 10MB)",
-        "formats": "PDF & Word files are supported"
-      },
-      "narrative": {
-        "title": "Executive Summary Narrative",
-        "description": "Free-form narrative for the quarterly audit executive summary.",
-        "label": "Summary Narrative Text",
-        "reset": "Reset to Default Template",
-        "placeholder": "Enter the summary narrative text..."
-      },
-      "followUp": {
-        "title": "Follow-up Status",
-        "description": "Percentage calculation and summary of audit finding resolution status.",
-        "notePlaceholder": "Follow-up notes..."
-      },
-      "table": {
-        "status": "Status",
-        "count": "Count",
-        "percent": "% (Percentage)",
-        "notes": "Notes",
-        "total": "Total",
-        "autoCalculated": "Calculated automatically",
-        "unitDivision": "Unit Division",
-        "findingTitle": "Finding Title",
-        "riskValue": "Risk Rating",
-        "followUpStatus": "Follow-up Status",
-        "proposedAction": "Proposed Action",
-        "actions": "Actions"
-      },
-      "topFindings": {
-        "title": "Top 5 Significant Findings",
-        "description": "Critical findings that require escalation or action from the Board of Directors.",
-        "add": "Add Finding",
-        "empty": "No top significant findings added yet.",
-        "emptyAction": "Click here to add one."
-      },
-      "sync": {
-        "findings": "Sync Findings from LHA",
-        "analysis": "Sync Analysis from LHA"
-      },
-      "analysis": {
-        "title": "Recurring Findings Analysis & Conclusion",
-        "description": "Description of recurring themes, root causes, and proposed task forces or management policy direction.",
-        "theme": "Recurring Themes (Root Causes & Policy Revision Proposals)",
-        "conclusion": "Conclusion & Management Recommendations",
-        "rootCausePlaceholder": "Write the root cause analysis and policy proposals...",
-        "conclusionPlaceholder": "Write the general conclusion and the required Board directions..."
-      },
-      "signature": {
-        "title": "SPI Electronic Signature",
-        "place": "Signing Place",
-        "date": "Signing Date",
-        "headName": "Head of SPI Name",
-        "headNik": "Head of SPI Employee ID (NIK)",
-        "placePlaceholder": "e.g. Jakarta",
-        "headNamePlaceholder": "e.g. Budi Santoso, CIA",
-        "headNikPlaceholder": "e.g. SPI-77621"
-      },
-      "validation": {
-        "findingTitle": "Finding title is required and must be at most 100 characters.",
-        "signaturePlace": "Signing place is required and must be at most 20 characters.",
-        "signatureName": "Head of SPI name is required and must be at most 100 characters.",
-        "signatureNik": "Head of SPI employee ID is required and must be at most 20 characters."
-      },
-      "placeholders": {
-        "division": "Division",
-        "findingTitle": "Main finding title...",
-        "risk": "Risk",
-        "proposedAction": "e.g. Escalation to Board of Directors"
-      },
-      "notes": {
-        "title": "Executive Notes for Auditor",
-        "description": "Follow-up notes or directions from the Executive to the Auditor.",
-        "label": "Executive Note",
-        "placeholder": "Write a note for the Auditor...",
-        "empty": "No note from the Executive yet.",
-        "save": "Save Note"
-      },
-      "actions": {
-        "saveDraft": "Save Draft",
-        "saveReport": "Save Report",
-        "approve": "Approve",
-        "close": "Close"
-      },
-      "defaults": {
-        "auditAssignment": "Audit Assignment",
-        "leader": "Head of SKAI"
-      },
-      "messages": {
-        "fileTooLarge": "The file exceeds the 10MB limit.",
-        "unsupportedFormat": "Unsupported file format. Please upload a PDF or Word file.",
-        "corruptedFile": "Failed to upload the file. Make sure it is a valid PDF or Word file and is not password-protected.",
-        "docNumberRequired": "Document number is required.",
-        "documentRequired": "The official document upload is required.",
-        "selectLhaFirst": "The LHA field is empty. Please select an LHA first."
-      }
+  "executiveSummaryForm": {
+    "navTitle": "Report Sections",
+    "lock": {
+      "title": "Lock Status",
+      "approved": "Locked (Approved)",
+      "draft": "Open (Draft)",
+      "approvedDescription": "This report has been approved by the Head of SPI and can no longer be edited.",
+      "draftDescription": "Please complete all fields before submitting for approval."
     },
-    "executiveSummaryIndividual": {
-      "page": {
-        "description": "Official executive summary for each individual Audit Report (LHA).",
-        "importButton": "Import Executive Summary",
-        "createButton": "Create New Executive Summary"
-      },
-      "stats": {
-        "total": "Total Individual Summaries",
-        "approved": "Approved",
-        "draft": "Draft",
-        "handling": "Handling Count"
-      },
-      "filters": {
-        "assignmentLetter": "Filter by Assignment Letter...",
-        "search": "Search LHA ID number...",
-        "showingPrefix": "Showing",
-        "showingSuffix": "executive summary documents"
-      },
-      "card": {
-        "draftLha": "Draft LHA",
-        "status": "Status: {status}",
-        "viewDetail": "View Details",
-        "edit": "Edit Report",
-        "delete": "Delete",
-        "narrativeSummary": "Executive Summary Highlights",
-        "noNarrative": "No narrative summary yet.",
-        "metrics": "Findings & Recommendations Statistics",
-        "highRisk": "High Risk",
-        "totalRecommendations": "Total Recommendations"
-      },
-      "empty": {
-        "title": "No Executive Summary Yet",
-        "description": "No individual executive summary documents match this search or filter. Create a new one."
-      },
-      "modal": {
-        "view": "Individual Executive Summary Details",
-        "edit": "Edit Individual Executive Summary",
-        "create": "Create Individual Executive Summary",
-        "lhaId": "LHA ID: {id}",
-        "draft": "Draft"
-      },
-      "nav": {
-        "upload": "Navigation & Upload",
-        "narrative": "Narrative Summary",
-        "followUp": "Follow-up Status",
-        "topFindings": "Significant Findings",
-        "analysis": "Recurring Findings & Conclusion",
-        "notes": "Noted"
-      },
-      "defaults": {
-        "auditTitle": "SPI Audit Assignment"
-      }
+    "upload": {
+      "title": "Navigation & Document Upload",
+      "description": "Identity details of the compiled report and official document upload.",
+      "lhaLabel": "Select Assignment Letter / LHA",
+      "lhaPlaceholder": "Select LHA ID...",
+      "assignmentLetter": "Assignment Letter: {number}",
+      "leader": "Team Leader:",
+      "period": "Period:",
+      "documentLabel": "Upload Official Executive Summary Document",
+      "chooseFile": "Choose File (.pdf, .docx)",
+      "noFile": "No file selected (Max. 10MB)",
+      "formats": "PDF & Word files are supported"
     },
-    "executiveSummaryCompilation": {
-      "nav": {
-        "upload": "Navigation & Upload",
-        "narrative": "Narrative Summary",
-        "stats": "Compilation Statistics",
-        "followUp": "Follow-up Status",
-        "topFindings": "Top 5 Significant",
-        "analysis": "Root Causes & Conclusion",
-        "matrix": "LHA Compilation Matrix",
-        "notes": "Noted"
-      },
-      "reportYear": "Report Year",
-      "quarter": "Quarter Period",
-      "reportCount": "Number of Reports (LHA)",
-      "reportCountPlaceholder": "e.g. 12",
-      "recommendationCount": "Number of Recommendations",
-      "recommendationCountPlaceholder": "e.g. 48",
-      "totalFindings": "Total Findings (Auto-Sum)",
-      "totalFindingsHint": "Automatically summed from the risk level breakdown",
-      "findingsUnit": "Findings",
-      "riskBreakdown": "Findings Breakdown by Risk",
-      "riskHigh": "High Risk",
-      "riskMedium": "Medium Risk",
-      "riskLow": "Low Risk",
-      "syncFromIndividual": "Sync from Individual LHA",
-      "matrix": {
-        "title": "Findings Matrix from Individual LHA",
-        "description": "Individual LHAs compiled into this executive report.",
-        "total": "Total: {count} LHA",
-        "empty": "No compilation matrix has been synced yet.",
-        "emptyAction": "Click to sync data from the Individual LHAs.",
-        "columns": {
-          "docNumber": "LHA Document No.",
-          "unit": "Unit / Division",
-          "title": "Title / Audit Object",
-          "risk": "Risk Level",
-          "recommendation": "Key Recommendation",
-          "followUpStatus": "Follow-up Status"
-        }
-      },
-      "defaults": {
-        "auditTitle": "SPI Compilation Audit Assignment"
-      }
+    "narrative": {
+      "title": "Executive Summary Narrative",
+      "description": "Free-form narrative for the quarterly audit executive summary.",
+      "label": "Summary Narrative Text",
+      "reset": "Reset to Default Template",
+      "placeholder": "Enter the summary narrative text..."
+    },
+    "followUp": {
+      "title": "Follow-up Status",
+      "description": "Percentage calculation and summary of audit finding resolution status.",
+      "notePlaceholder": "Follow-up notes..."
+    },
+    "table": {
+      "status": "Status",
+      "count": "Count",
+      "percent": "% (Percentage)",
+      "notes": "Notes",
+      "total": "Total",
+      "autoCalculated": "Calculated automatically",
+      "unitDivision": "Unit Division",
+      "findingTitle": "Finding Title",
+      "riskValue": "Risk Rating",
+      "followUpStatus": "Follow-up Status",
+      "proposedAction": "Proposed Action",
+      "actions": "Actions"
+    },
+    "topFindings": {
+      "title": "Top 5 Significant Findings",
+      "description": "Critical findings that require escalation or action from the Board of Directors.",
+      "add": "Add Finding",
+      "empty": "No top significant findings added yet.",
+      "emptyAction": "Click here to add one."
+    },
+    "sync": {
+      "findings": "Sync Findings from LHA",
+      "analysis": "Sync Analysis from LHA"
+    },
+    "analysis": {
+      "title": "Recurring Findings Analysis & Conclusion",
+      "description": "Description of recurring themes, root causes, and proposed task forces or management policy direction.",
+      "theme": "Recurring Themes (Root Causes & Policy Revision Proposals)",
+      "conclusion": "Conclusion & Management Recommendations",
+      "rootCausePlaceholder": "Write the root cause analysis and policy proposals...",
+      "conclusionPlaceholder": "Write the general conclusion and the required Board directions..."
+    },
+    "signature": {
+      "title": "SPI Electronic Signature",
+      "place": "Signing Place",
+      "date": "Signing Date",
+      "headName": "Head of SPI Name",
+      "headNik": "Head of SPI Employee ID (NIK)",
+      "placePlaceholder": "e.g. Jakarta",
+      "headNamePlaceholder": "e.g. Budi Santoso, CIA",
+      "headNikPlaceholder": "e.g. SPI-77621"
+    },
+    "validation": {
+      "findingTitle": "Finding title is required and must be at most 100 characters.",
+      "signaturePlace": "Signing place is required and must be at most 20 characters.",
+      "signatureName": "Head of SPI name is required and must be at most 100 characters.",
+      "signatureNik": "Head of SPI employee ID is required and must be at most 20 characters."
+    },
+    "placeholders": {
+      "division": "Division",
+      "findingTitle": "Main finding title...",
+      "risk": "Risk",
+      "proposedAction": "e.g. Escalation to Board of Directors",
+      "year": "Select Year",
+      "quarter": "Select Quarter"
+    },
+    "notes": {
+      "title": "Executive Notes for Auditor",
+      "description": "Follow-up notes or directions from the Executive to the Auditor.",
+      "label": "Executive Note",
+      "placeholder": "Write a note for the Auditor...",
+      "empty": "No note from the Executive yet.",
+      "save": "Save Note"
+    },
+    "actions": {
+      "saveDraft": "Save Draft",
+      "saveReport": "Save Report",
+      "approve": "Approve",
+      "close": "Close"
+    },
+    "defaults": {
+      "auditAssignment": "Audit Assignment"
+    },
+    "messages": {
+      "fileTooLarge": "The file exceeds the 10MB limit.",
+      "unsupportedFormat": "Unsupported file format. Please upload a PDF or Word file.",
+      "corruptedFile": "Failed to upload the file. Make sure it is a valid PDF or Word file and is not password-protected.",
+      "docNumberRequired": "Document number is required.",
+      "documentRequired": "The official document upload is required.",
+      "selectLhaFirst": "The LHA field is empty. Please select an LHA first."
     }
-  ,
+  },
+  "executiveSummaryIndividual": {
+    "page": {
+      "description": "Official executive summary for each individual Audit Report (LHA).",
+      "importButton": "Import Executive Summary",
+      "createButton": "Create New Executive Summary"
+    },
+    "stats": {
+      "total": "Total Individual Summaries",
+      "approved": "Approved",
+      "draft": "Draft",
+      "handling": "Handling Count"
+    },
+    "filters": {
+      "assignmentLetter": "Filter by Assignment Letter...",
+      "search": "Search LHA ID number...",
+      "showingPrefix": "Showing",
+      "showingSuffix": "executive summary documents"
+    },
+    "card": {
+      "draftLha": "Draft LHA",
+      "status": "Status: {status}",
+      "viewDetail": "View Details",
+      "edit": "Edit Report",
+      "delete": "Delete",
+      "narrativeSummary": "Executive Summary Highlights",
+      "noNarrative": "No narrative summary yet.",
+      "metrics": "Findings & Recommendations Statistics",
+      "highRisk": "High Risk",
+      "totalRecommendations": "Total Recommendations"
+    },
+    "empty": {
+      "title": "No Executive Summary Yet",
+      "description": "No individual executive summary documents match this search or filter. Create a new one."
+    },
+    "modal": {
+      "view": "Individual Executive Summary Details",
+      "edit": "Edit Individual Executive Summary",
+      "create": "Create Individual Executive Summary",
+      "lhaId": "LHA ID: {id}",
+      "draft": "Draft"
+    },
+    "nav": {
+      "upload": "Navigation & Upload",
+      "narrative": "Narrative Summary",
+      "followUp": "Follow-up Status",
+      "topFindings": "Significant Findings",
+      "analysis": "Recurring Findings & Conclusion",
+      "notes": "Noted"
+    },
+    "defaults": {
+      "auditTitle": "SPI Audit Assignment"
+    }
+  },
+  "executiveSummaryCompilation": {
+    "nav": {
+      "upload": "Navigation & Upload",
+      "narrative": "Narrative Summary",
+      "stats": "Compilation Statistics",
+      "followUp": "Follow-up Status",
+      "topFindings": "Top 5 Significant",
+      "analysis": "Root Causes & Conclusion",
+      "matrix": "LHA Compilation Matrix",
+      "notes": "Noted"
+    },
+    "stats": {
+      "title": "Compilation Statistics",
+      "description": "Quantitative data on total reports, findings (risk breakdown), and recommendations."
+    },
+    "reportYear": "Report Year",
+    "quarter": "Quarter Period",
+    "reportCount": "Number of Reports (LHA)",
+    "reportCountPlaceholder": "e.g. 12",
+    "recommendationCount": "Number of Recommendations",
+    "recommendationCountPlaceholder": "e.g. 48",
+    "totalFindings": "Total Findings (Auto-Sum)",
+    "totalFindingsHint": "Automatically summed from the risk level breakdown",
+    "findingsUnit": "Findings",
+    "riskBreakdown": "Findings Breakdown by Risk",
+    "riskHigh": "High Risk",
+    "riskMedium": "Medium Risk",
+    "riskLow": "Low Risk",
+    "syncFromIndividual": "Sync from Individual LHA",
+    "matrix": {
+      "title": "Findings Matrix from Individual LHA",
+      "description": "Individual LHAs compiled into this executive report.",
+      "total": "Total: {count} LHA",
+      "empty": "No compilation matrix has been synced yet.",
+      "emptyAction": "Click to sync data from the Individual LHAs.",
+      "columns": {
+        "docNumber": "LHA Document No.",
+        "unit": "Unit / Division",
+        "title": "Title / Audit Object",
+        "risk": "Risk Level",
+        "recommendation": "Key Recommendation",
+        "followUpStatus": "Follow-up Status"
+      }
+    },
+    "defaults": {
+      "auditTitle": "SPI Compilation Audit Assignment"
+    }
+  },
   "executiveSummaryUpload": {
     "headerTitle": "Import Executive Summary",
     "headerSubtitle": "Import external Executive Summary documents for Audit Result Report",

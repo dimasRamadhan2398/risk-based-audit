@@ -157,14 +157,21 @@ func PlanYear(candidates ...string) int {
 // Reserve hands out n consecutive numbers for prefix and returns the first.
 // Call it inside the transaction that stores the codes.
 func Reserve(tx *gorm.DB, prefix string, n int) (int, error) {
-	if n <= 0 {
-		return 0, fmt.Errorf("activitycode: reserve %d numbers", n)
-	}
 	floor, err := highestStored(tx, prefix)
 	if err != nil {
 		return 0, err
 	}
+	return reserveAbove(tx, prefix, n, floor)
+}
+
+// reserveAbove is Reserve with the floor (the highest number already stored
+// under prefix) supplied by the caller.
+func reserveAbove(tx *gorm.DB, prefix string, n, floor int) (int, error) {
+	if n <= 0 {
+		return 0, fmt.Errorf("activitycode: reserve %d numbers", n)
+	}
 	var last int
+	var err error
 	// Fixed SQL; prefix is server-derived ([A-Z0-9-]) and passed as a parameter.
 	err = tx.Raw(`INSERT INTO activity_code_sequences (prefix, last_value, updated_at)
 VALUES (?, CAST(? AS INTEGER), ?)
@@ -272,4 +279,51 @@ func highestStored(tx *gorm.DB, prefix string) (int, error) {
 		}
 	}
 	return highest, nil
+}
+
+// PlanTypeCode is the type segment of an Annual Audit Plan code (PKAT-2026-001).
+// Plan codes have no audit category segment; the sequence is per plan year.
+const PlanTypeCode = "PKAT"
+
+// PlanCode builds an Annual Audit Plan code: PKAT-{year}-{seq}.
+func PlanCode(year, seq int) string {
+	return Format(PlanTypeCode, year, seq)
+}
+
+// NextPlan returns the next Annual Audit Plan code for the plan year. The
+// number is counted per year under the same activity_code_sequences table
+// (key "PKAT-{year}"), row-locked inside the caller's transaction, so it never
+// goes down and a soft-deleted plan keeps its number. The floor is the highest
+// number stored in audit_annuals.code for that year, soft-deleted rows
+// included, so codes written outside the counter (seed data) are not reused.
+// Plan codes that do not match PKAT-{year}-{digits} (old category-segment
+// codes such as PKAT-2026-ASR-001) do not count.
+func NextPlan(tx *gorm.DB, year int) (string, error) {
+	if year < 1000 || year > 9999 {
+		return "", fmt.Errorf("activitycode: plan year %d out of range", year)
+	}
+	prefix := Prefix(PlanTypeCode, year)
+
+	// prefix is [A-Z0-9-] only, so it has no LIKE wildcards.
+	var codes []string
+	if err := tx.Unscoped().Model(&models.AuditAnnual{}).
+		Where("code LIKE ?", prefix+"-%").
+		Pluck("code", &codes).Error; err != nil {
+		return "", fmt.Errorf("activitycode: read annual plan codes: %w", err)
+	}
+	floor := 0
+	for _, c := range codes {
+		if !strings.HasPrefix(c, prefix+"-") {
+			continue
+		}
+		if _, _, seq, ok := Parse(c); ok && seq > floor {
+			floor = seq
+		}
+	}
+
+	seq, err := reserveAbove(tx, prefix, 1, floor)
+	if err != nil {
+		return "", err
+	}
+	return PlanCode(year, seq), nil
 }

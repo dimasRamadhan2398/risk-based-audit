@@ -73,7 +73,7 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
 
       // Approve button strictly in View mode (under v-else of !store.isViewing)
       expect(content).toContain('v-if="isDraft && canApprove"')
-      expect(content).toContain('label="Setujui (Approve)"')
+      expect(content).toContain("t('executiveSummaryForm.actions.approve')")
       expect(content).toContain('@click="approveReportDirectly"')
 
       // Role check defines permissions from useRbac
@@ -92,7 +92,7 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
 
       // Approve button strictly in View mode
       expect(content).toContain('v-if="isDraft && canApprove"')
-      expect(content).toContain('label="Setujui (Approve)"')
+      expect(content).toContain("t('executiveSummaryForm.actions.approve')")
       expect(content).toContain('@click="approveReportDirectly"')
 
       // Role check defines permissions from useRbac
@@ -106,7 +106,7 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
 
       // Conditional note rendering
       expect(content).toContain('v-if="item.executiveNote && item.executiveNote.trim()"')
-      expect(content).toContain('Noted dari Executive untuk Auditor')
+      expect(content).toContain("t('executiveSummaryForm.notes.title')")
       expect(content).toContain('{{ item.executiveNote }}')
     })
 
@@ -234,14 +234,14 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       const compilationContent = read('components/audit-result-report/ExecutiveSummaryCompilationForm.vue')
 
       // Individual form checks
-      expect(individualContent).toContain('Pilih Surat Tugas (Assignment Letter)')
+      expect(individualContent).toContain("t('executiveSummaryForm.upload.lhaLabel')")
       expect(individualContent).toContain('assignmentLetterDropdownOptions')
       expect(individualContent).toContain('onAssignmentLetterSelect')
       expect(individualContent).toContain('linkedAssignmentLetter')
       expect(individualContent).toContain('useAssignmentLetterStore')
 
       // Compilation form checks
-      expect(compilationContent).toContain('Pilih Surat Tugas (Assignment Letter)')
+      expect(compilationContent).toContain("t('executiveSummaryForm.upload.lhaLabel')")
       expect(compilationContent).toContain('assignmentLetterDropdownOptions')
       expect(compilationContent).toContain('onAssignmentLetterSelect')
       expect(compilationContent).toContain('linkedAssignmentLetter')
@@ -269,12 +269,12 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       const individualContent = read('components/audit-result-report/ExecutiveSummaryIndividualForm.vue')
 
       // Section IV synchronization
-      expect(individualContent).toContain('Sinkronkan Temuan dari LHA')
+      expect(individualContent).toContain("t('executiveSummaryForm.sync.findings')")
       expect(individualContent).toContain('syncFindingsFromLha')
       expect(individualContent).toContain('store.form.topFindings')
 
       // Section V & VII synchronization
-      expect(individualContent).toContain('Sinkronkan Analisis dari LHA')
+      expect(individualContent).toContain("t('executiveSummaryForm.sync.analysis')")
       expect(individualContent).toContain('store.form.akarMasalah')
       expect(individualContent).toContain('store.form.kesimpulan')
     })
@@ -283,12 +283,12 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       const compilationContent = read('components/audit-result-report/ExecutiveSummaryCompilationForm.vue')
 
       // Sync button and method
-      expect(compilationContent).toContain('Sinkronkan dari LHA Individual')
+      expect(compilationContent).toContain("t('executiveSummaryCompilation.syncFromIndividual')")
       expect(compilationContent).toContain('syncFromIndividualLha')
 
       // Matriks Kompilasi section
       expect(compilationContent).toContain('id="sec-matriks"')
-      expect(compilationContent).toContain('Section VIII: Matriks Kompilasi Temuan LHA Individual')
+      expect(compilationContent).toContain("t('executiveSummaryCompilation.matrix.title')")
       expect(compilationContent).toContain('store.form.matriksKompilasi')
 
       // Synchronized stats

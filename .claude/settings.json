@@ -18,7 +18,10 @@
       "Bash(echo \"exit=$?\")",
       "Bash(gofmt -l models/audit-fieldwork.go)",
       "Bash(go build *)",
-      "Bash(go vet *)"
+      "Bash(go vet *)",
+      "Bash(gofmt -l pkg/activitycode controllers/annual_plan controllers/audit_activity routes/handler.go)",
+      "Bash(gofmt -l .)",
+      "Bash(python3 -c ' *)"
     ]
   }
 }

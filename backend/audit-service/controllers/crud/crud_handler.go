@@ -43,6 +43,17 @@ func NewCRUDHandler(db *gorm.DB, modelName string) *CRUDHandler {
 
 // List returns a paginated list of records
 func List(db *gorm.DB, modelName string, newSlice func() interface{}, preloads ...string) gin.HandlerFunc {
+	return ListWithItems(db, modelName, newSlice, nil, preloads...)
+}
+
+// ItemsDecorator maps the page fetched by ListWithItems to the response items,
+// for example to add fields derived from each row. items is the pointer to the
+// slice returned by newSlice.
+type ItemsDecorator func(c *gin.Context, items interface{}) (interface{}, error)
+
+// ListWithItems is List with an optional decorator (nil for none). The decorator
+// runs on the fetched page only, so per-row work is bounded by the page size.
+func ListWithItems(db *gorm.DB, modelName string, newSlice func() interface{}, decorate ItemsDecorator, preloads ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 		pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
@@ -123,12 +134,22 @@ func List(db *gorm.DB, modelName string, newSlice func() interface{}, preloads .
 			return
 		}
 
+		var out interface{} = items
+		if decorate != nil {
+			decorated, err := decorate(c, items)
+			if err != nil {
+				response.InternalServerError(c, "Failed to fetch "+modelName)
+				return
+			}
+			out = decorated
+		}
+
 		response.OK(c, modelName+" fetched successfully", gin.H{
-			"items": items,
+			"items": out,
 			"pagination": gin.H{
-				"page":       page,
-				"page_size":  pageSize,
-				"total":      total,
+				"page":        page,
+				"page_size":   pageSize,
+				"total":       total,
 				"total_pages": (total + int64(pageSize) - 1) / int64(pageSize),
 			},
 		})

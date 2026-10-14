@@ -9,6 +9,7 @@ import (
 
 	"master-service/controllers"
 	"master-service/pkg/database"
+	"master-service/pkg/kafka"
 	"master-service/pkg/logger"
 	"master-service/pkg/middleware"
 	"master-service/pkg/validations"
@@ -58,7 +59,19 @@ func runServe(cmd *cobra.Command, args []string) error {
 	authMiddleware := middleware.NewAuthMiddleware(cfg.JWT.Secret)
 
 	validator := validations.New()
-	serviceRegistry := services.NewServiceRegistry(db)
+	// Department events feed audit-service's annual plan sync. Best-effort: the
+	// service runs without them if the broker is unreachable at start-up.
+	var domainEvents *kafka.DomainPublisher
+	if cfg.Kafka.Enabled {
+		publisher, kafkaErr := kafka.NewDomainPublisher(cfg.Kafka.Brokers, cfg.Kafka.ServiceName)
+		if kafkaErr != nil {
+			logger.Warn("Department events disabled", zap.Error(kafkaErr))
+		} else {
+			domainEvents = publisher
+			defer publisher.Close()
+		}
+	}
+	serviceRegistry := services.NewServiceRegistry(db, domainEvents)
 	controllerRegistry := controllers.NewControllerRegistry(serviceRegistry, validator)
 
 	mode := strings.ToLower(cfg.Server.Mode)

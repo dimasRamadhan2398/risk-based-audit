@@ -1,9 +1,12 @@
 package controllers
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"risk-service/models"
+	"risk-service/pkg/kafka"
 	"strings"
 	"time"
 
@@ -14,10 +17,40 @@ import (
 
 type AuditUniverseController struct {
 	db *gorm.DB
+	// events may be nil (Kafka disabled or unreachable); *kafka.Publisher
+	// treats a nil receiver as a no-op.
+	events *kafka.Publisher
 }
 
-func NewAuditUniverseController(db *gorm.DB) *AuditUniverseController {
-	return &AuditUniverseController{db: db}
+func NewAuditUniverseController(db *gorm.DB, events *kafka.Publisher) *AuditUniverseController {
+	return &AuditUniverseController{db: db, events: events}
+}
+
+// publishEntity emits an entity event after the database write has committed.
+// Publishing is best-effort: a broker error is logged, not returned, so the
+// HTTP write still succeeds. POST /audit-universe/events/resync re-emits the
+// full state to repair any gap.
+func (ctrl *AuditUniverseController) publishEntity(eventType string, node models.CorporateAuditUniverse) {
+	if err := ctrl.events.PublishEntity(context.Background(), eventType, entityData(node)); err != nil {
+		log.Printf("audit universe event %s for %s not published: %v", eventType, node.ID, err)
+	}
+}
+
+func entityData(node models.CorporateAuditUniverse) kafka.EntityData {
+	return kafka.EntityData{
+		ID:                      node.ID.String(),
+		Name:                    node.Name,
+		ParentID:                uuidPtrToString(node.ParentID),
+		StandardAuditUniverseID: uuidPtrToString(node.StandardAuditUniverseID),
+	}
+}
+
+func uuidPtrToString(id *uuid.UUID) *string {
+	if id == nil {
+		return nil
+	}
+	s := id.String()
+	return &s
 }
 
 // ListStandardAuditUniverse returns the standard audit universe library
@@ -68,6 +101,7 @@ func (ctrl *AuditUniverseController) SyncMasterData(c *gin.Context) {
 	}
 
 	now := time.Now()
+	var createdNodes []models.CorporateAuditUniverse
 
 	err := ctrl.db.Transaction(func(tx *gorm.DB) error {
 		// 1. Find or create root node Subsidiaries/Business Unit
@@ -86,6 +120,7 @@ func (ctrl *AuditUniverseController) SyncMasterData(c *gin.Context) {
 			if err := tx.Create(&subParent).Error; err != nil {
 				return err
 			}
+			createdNodes = append(createdNodes, subParent)
 		}
 
 		// 2. Find or create root node Branches/Regional Offices
@@ -104,6 +139,7 @@ func (ctrl *AuditUniverseController) SyncMasterData(c *gin.Context) {
 			if err := tx.Create(&branchParent).Error; err != nil {
 				return err
 			}
+			createdNodes = append(createdNodes, branchParent)
 		}
 
 		// 3. Sync Companies under Subsidiaries/Business Unit
@@ -125,6 +161,7 @@ func (ctrl *AuditUniverseController) SyncMasterData(c *gin.Context) {
 				if err := tx.Create(&newChild).Error; err != nil {
 					return err
 				}
+				createdNodes = append(createdNodes, newChild)
 			}
 		}
 
@@ -147,6 +184,7 @@ func (ctrl *AuditUniverseController) SyncMasterData(c *gin.Context) {
 				if err := tx.Create(&newChild).Error; err != nil {
 					return err
 				}
+				createdNodes = append(createdNodes, newChild)
 			}
 		}
 
@@ -159,6 +197,10 @@ func (ctrl *AuditUniverseController) SyncMasterData(c *gin.Context) {
 			"error":   "Failed to synchronize master data: " + err.Error(),
 		})
 		return
+	}
+
+	for _, node := range createdNodes {
+		ctrl.publishEntity(kafka.EventEntityCreated, node)
 	}
 
 	// Fetch updated corporate audit universe
@@ -227,6 +269,7 @@ func (ctrl *AuditUniverseController) CreateOrUpdateCorporateNode(c *gin.Context)
 	}
 
 	// Perform saving inside a transaction to copy standard children if it is a parent
+	var copiedChildren []models.CorporateAuditUniverse
 	err := ctrl.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Save(&node).Error; err != nil {
 			return err
@@ -249,6 +292,7 @@ func (ctrl *AuditUniverseController) CreateOrUpdateCorporateNode(c *gin.Context)
 					if err := tx.Create(&corpChild).Error; err != nil {
 						return err
 					}
+					copiedChildren = append(copiedChildren, corpChild)
 				}
 			}
 		}
@@ -265,6 +309,15 @@ func (ctrl *AuditUniverseController) CreateOrUpdateCorporateNode(c *gin.Context)
 
 	// Fetch with standard preloads if it has one
 	ctrl.db.Preload("StandardAuditUniverse").First(&node, "id = ?", node.ID)
+
+	if req.ID == "" {
+		ctrl.publishEntity(kafka.EventEntityCreated, node)
+		for _, child := range copiedChildren {
+			ctrl.publishEntity(kafka.EventEntityCreated, child)
+		}
+	} else {
+		ctrl.publishEntity(kafka.EventEntityUpdated, node)
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -289,6 +342,11 @@ func (ctrl *AuditUniverseController) DeleteCorporateNode(c *gin.Context) {
 		return
 	}
 
+	// Snapshot the direct children first: the cascade below removes them, and
+	// their deleted events need the names and ids.
+	var children []models.CorporateAuditUniverse
+	ctrl.db.Where("parent_id = ?", nodeID).Find(&children)
+
 	// Delete recursively (in transaction)
 	err = ctrl.db.Transaction(func(tx *gorm.DB) error {
 		// Delete child scores first, if any
@@ -312,6 +370,11 @@ func (ctrl *AuditUniverseController) DeleteCorporateNode(c *gin.Context) {
 		})
 		return
 	}
+
+	for _, child := range children {
+		ctrl.publishEntity(kafka.EventEntityDeleted, child)
+	}
+	ctrl.publishEntity(kafka.EventEntityDeleted, node)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -610,6 +673,10 @@ func (ctrl *AuditUniverseController) ScoreYearlyEntity(c *gin.Context) {
 		return
 	}
 
+	if err := ctrl.events.PublishYearScore(context.Background(), yearScoreData(auYear)); err != nil {
+		log.Printf("audit universe event %s for %s not published: %v", kafka.EventYearScored, auYear.CorporateAuditUniverseID, err)
+	}
+
 	// Fetch updated entity to return
 	var updated models.AuditUniverseYear
 	ctrl.db.Preload("CorporateAuditUniverse.StandardAuditUniverse").Preload("RiskScores.CorporateRiskFactor.StandardRiskFactor").First(&updated, "id = ?", auYearID)
@@ -618,5 +685,64 @@ func (ctrl *AuditUniverseController) ScoreYearlyEntity(c *gin.Context) {
 		"success": true,
 		"message": "Risk scores updated and recalculated successfully",
 		"data":    updated,
+	})
+}
+
+func yearScoreData(auYear models.AuditUniverseYear) kafka.YearScoreData {
+	return kafka.YearScoreData{
+		CorporateAuditUniverseID: auYear.CorporateAuditUniverseID.String(),
+		Year:                     auYear.Year,
+		RiskIndex:                auYear.RiskIndex,
+		RiskLevel:                auYear.RiskLevel,
+		AuditPriority:            auYear.AuditPriority,
+	}
+}
+
+// ResyncEvents re-emits the current Audit Universe state: every corporate node
+// first, then every yearly score. Consumers apply events idempotently, so a
+// resync is safe to repeat. Use it after the first deploy of the event stream,
+// or after a broker outage, to repair links that were never published.
+func (ctrl *AuditUniverseController) ResyncEvents(c *gin.Context) {
+	if ctrl.events == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"success": false,
+			"error":   "Kafka event publishing is disabled for this service",
+		})
+		return
+	}
+
+	var nodes []models.CorporateAuditUniverse
+	if err := ctrl.db.Order("created_at ASC").Find(&nodes).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to load corporate nodes: " + err.Error()})
+		return
+	}
+	var years []models.AuditUniverseYear
+	if err := ctrl.db.Order("year ASC").Find(&years).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to load yearly scores: " + err.Error()})
+		return
+	}
+
+	ctx := c.Request.Context()
+	failed := 0
+	for _, node := range nodes {
+		if err := ctrl.events.PublishEntity(ctx, kafka.EventEntityUpdated, entityData(node)); err != nil {
+			failed++
+		}
+	}
+	for _, y := range years {
+		if err := ctrl.events.PublishYearScore(ctx, yearScoreData(y)); err != nil {
+			failed++
+		}
+	}
+
+	status := http.StatusOK
+	if failed > 0 {
+		status = http.StatusBadGateway
+	}
+	c.JSON(status, gin.H{
+		"success":     failed == 0,
+		"entities":    len(nodes),
+		"year_scores": len(years),
+		"failed":      failed,
 	})
 }

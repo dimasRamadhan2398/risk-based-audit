@@ -42,7 +42,8 @@ func activityRouter(t *testing.T) (*gin.Engine, *gorm.DB) {
 
 func annualPlan(t *testing.T, db *gorm.DB, year int) uuid.UUID {
 	t.Helper()
-	p := &models.AuditAnnual{Year: year}
+	// plan codes are unique among live plans, so each test plan gets its own
+	p := &models.AuditAnnual{Year: year, Code: "PKAT-TEST-" + uuid.NewString()}
 	if err := db.Create(p).Error; err != nil {
 		t.Fatal(err)
 	}

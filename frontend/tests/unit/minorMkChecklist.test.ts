@@ -54,7 +54,7 @@ describe('PROD minor checklist items assigned to Mk', () => {
       expect(form.slice(labelPosition, labelPosition + 160)).toContain('required')
     }
 
-    expect(form).toMatch(/v-model="store\.form\.code"[\s\S]*?disabled/)
+    expect(form).toMatch(/:model-value="activityCodePreview"[\s\S]*?disabled/)
     expect(form).toMatch(/v-model="store\.form\.attachmentUploadedBy"[\s\S]*?disabled/)
     expect(form).toContain('admin: \'System Administrator\'')
     expect(form).toContain('store.form.attachmentUploadedBy = signedInRoleLabel.value')

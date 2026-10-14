@@ -100,6 +100,9 @@ func (r *RiskRoute) Run() {
 		apiV1.POST("/audit-universe/year/:year", r.auditUniverseCtrl.EstablishYearlyUniverse)
 		apiV1.POST("/audit-universe/year/:year/score", r.auditUniverseCtrl.ScoreYearlyEntity)
 
+		// Re-emits the full universe state to Kafka (see pkg/kafka/events.go).
+		apiV1.POST("/audit-universe/events/resync", r.auditUniverseCtrl.ResyncEvents)
+
 		// Routes for Risk Control Matrix (RCM)
 		apiV1.GET("/rcm", r.rcmCtrl.ListRCM)
 		apiV1.POST("/rcm", r.rcmCtrl.CreateRCM)

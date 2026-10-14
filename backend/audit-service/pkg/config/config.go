@@ -21,6 +21,7 @@ type KafkaConsumerConfig struct {
 	Topics   []string `mapstructure:"topics"`
 	Version  string   `mapstructure:"version"`
 	Assignor string   `mapstructure:"assignor"` // range, roundrobin, sticky
+	Offset   string   `mapstructure:"offset"`   // oldest (replay retained events) or newest; used when the group has no offset yet
 }
 
 type Config struct {
@@ -118,10 +119,12 @@ func setDefaults() {
 	viper.SetDefault("kafka.topic", "service-logs")
 	viper.SetDefault("kafka.service_name", "auth-service")
 	viper.SetDefault("kafka_consumer.enabled", false)
-	viper.SetDefault("kafka_consumer.group_id", "auth-service-consumer")
-	viper.SetDefault("kafka_consumer.topics", []string{"events"})
+	viper.SetDefault("kafka_consumer.brokers", []string{"kafka:29092"})
+	viper.SetDefault("kafka_consumer.group_id", "audit-service-annual-plan-sync")
+	viper.SetDefault("kafka_consumer.topics", []string{"audit-universe.events", "department.events"})
 	viper.SetDefault("kafka_consumer.version", "3.6.0")
 	viper.SetDefault("kafka_consumer.assignor", "roundrobin")
+	viper.SetDefault("kafka_consumer.offset", "oldest")
 }
 
 func Load(configPath string) (*Config, error) {

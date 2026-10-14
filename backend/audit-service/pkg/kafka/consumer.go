@@ -31,12 +31,17 @@ type Consumer struct {
 
 // ConsumerConfig holds Kafka consumer configuration
 type ConsumerConfig struct {
-	Brokers  []string
-	GroupID  string
-	Topics   []string
-	Enabled  bool
-	Version  string // Kafka version, e.g., "3.6.0"
-	Assignor string // partition assignor: "range", "roundrobin", "sticky"
+	// InitialOffset is used only when the group has no committed offset:
+	// "oldest" replays the retained topic, anything else starts at the newest
+	// message. Business-event consumers should use "oldest" so events published
+	// before the first start are not skipped.
+	InitialOffset string
+	Brokers       []string
+	GroupID       string
+	Topics        []string
+	Enabled       bool
+	Version       string // Kafka version, e.g., "3.6.0"
+	Assignor      string // partition assignor: "range", "roundrobin", "sticky"
 }
 
 // NewConsumer creates a new Kafka consumer
@@ -60,17 +65,20 @@ func NewConsumer(cfg ConsumerConfig, logger *zap.Logger) (*Consumer, error) {
 	}
 
 	// Session config
-	config.Consumer.Group.Session.Timeout = 10 * 1000 * 1000 * 1000 // 10s (nanoseconds for older versions)
+	config.Consumer.Group.Session.Timeout = 10 * 1000 * 1000 * 1000   // 10s (nanoseconds for older versions)
 	config.Consumer.Group.Heartbeat.Interval = 3 * 1000 * 1000 * 1000 // 3s
-	config.Consumer.MaxProcessingTime = 5 * 1000 * 1000 * 1000 // 5s
+	config.Consumer.MaxProcessingTime = 5 * 1000 * 1000 * 1000        // 5s
 
 	// Fetch config
 	config.Consumer.Fetch.Min = 1
-	config.Consumer.Fetch.Default = 1024 * 1024 // 1MB
+	config.Consumer.Fetch.Default = 1024 * 1024     // 1MB
 	config.Consumer.MaxWaitTime = 500 * 1000 * 1000 // 500ms
 
 	// Offset reset policy
 	config.Consumer.Offsets.Initial = sarama.OffsetNewest
+	if cfg.InitialOffset == "oldest" {
+		config.Consumer.Offsets.Initial = sarama.OffsetOldest
+	}
 	config.Consumer.Offsets.AutoCommit.Enable = true
 	config.Consumer.Offsets.AutoCommit.Interval = 1 * 1000 * 1000 * 1000 // 1s
 

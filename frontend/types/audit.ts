@@ -1,5 +1,6 @@
 // Audit Types
 import type { RiskLevel, RiskTaxonomy } from "./risk";
+import { getExecutionStageIndex } from "~/utils/executionSources";
 
 export enum AuditCategory {
   ASSURANCE = "Assurance",
@@ -174,6 +175,8 @@ export interface AuditActivities {
   totalMandays?: number;
   supervisorName?: string;
   notesObjective?: string;
+  /** Audit Universe (corporate) id of the selected entity; riskName stays as the display snapshot. */
+  auditUniverseId?: string;
   riskName?: string;
   riskLevel?: string;
 }
@@ -270,7 +273,7 @@ export interface AtrReport {
   status: string;
 }
 
-export interface AuditExecutionStatus {
+export interface AuditExecutionStatusItem {
   id: number;
   name: string;
   percentage: number;
@@ -288,7 +291,7 @@ export interface AuditDataState {
   auditMainStatsLastMonth: AuditMainStats;
   auditCoverage: AuditCoverage;
   auditCategories: AuditCategoryRisk[];
-  auditExecutionStatus: AuditExecutionStatus[];
+  auditExecutionStatus: AuditExecutionStatusItem[];
   atrReports: AtrReport[];
 }
 
@@ -635,6 +638,26 @@ export interface AtrLhaInfo {
   approved_by: string
 }
 
+/** What the source modules reported for one execution (backend services/audit_execution_sync.Signals). */
+export interface AuditExecutionSources {
+  annual_plan: boolean
+  assignment_letter: boolean
+  fieldwork_records: number
+  test_controls: number
+  test_controls_tested: number
+  test_controls_with_finding: number
+  /** Fieldwork test controls with a non-empty mitigation_plan. */
+  mitigation_plans?: number
+  working_paper_records: number
+  working_paper_causes: number
+  /** Working paper plans (action plans) recorded on the working papers. */
+  working_paper_plans?: number
+  result_report: boolean
+  result_report_approved: boolean
+  /** LHA submitted and waiting review / CAE approval (not approved yet). Optional until the backend sends it. */
+  result_report_in_review?: boolean
+}
+
 export interface AuditExecution {
   id: string
   ref: string
@@ -645,6 +668,8 @@ export interface AuditExecution {
   lead_auditor: string
   status: AuditStatus | string
   status_detail?: 'Late' | 'On Time' | string
+  /** Per-module source data the progress is derived from (read-only). */
+  sources?: AuditExecutionSources | null
   created_at?: string
   createdAt?: string
   sample_data_test_controls?: {
@@ -768,12 +793,5 @@ export const EXECUTION_PHASES: ExecutionPhase[] = [
   }
 ]
 
-export const getExecutionPhase = (progress: number = 0): ExecutionPhase => {
-  const p = Number(progress) || 0
-  if (p >= 100) return EXECUTION_PHASES[5]!
-  if (p >= 76) return EXECUTION_PHASES[4]!
-  if (p >= 51) return EXECUTION_PHASES[3]!
-  if (p >= 26) return EXECUTION_PHASES[2]!
-  if (p >= 1) return EXECUTION_PHASES[1]!
-  return EXECUTION_PHASES[0]!
-}
+export const getExecutionPhase = (progress: number = 0): ExecutionPhase =>
+  EXECUTION_PHASES[getExecutionStageIndex(progress)]!

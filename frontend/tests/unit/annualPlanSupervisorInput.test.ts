@@ -27,7 +27,7 @@ describe('Annual Audit Form - Supervisor Input Field', () => {
 
   it('renders Supervisor field as UInput and not USelectMenu in AnnualAuditForm.vue', () => {
     const src = readFileSync(FORM_SFC, 'utf-8')
-    const supervisorFieldMatch = src.match(/<UFormField[^>]*?label="Supervisor"[\s\S]*?<\/UFormField>/)
+    const supervisorFieldMatch = src.match(/<UFormField[^>]*?:label="t\('annualAudit\.form\.supervisor'\)"[\s\S]*?<\/UFormField>/)
     expect(supervisorFieldMatch, 'Supervisor UFormField not found').not.toBeNull()
 
     const supervisorBlock = supervisorFieldMatch![0]
@@ -37,7 +37,6 @@ describe('Annual Audit Form - Supervisor Input Field', () => {
   })
 
   it('validates supervisor: fails if empty or whitespace', async () => {
-    store.form.code = 'PKAT-2026-ASR-001'
     store.form.activities = [
       { name: 'Audit Keuangan', category: 'Assurance', department: 'Finance', riskName: 'Risk Finance' }
     ]
@@ -55,7 +54,6 @@ describe('Annual Audit Form - Supervisor Input Field', () => {
   })
 
   it('submits successfully when supervisor name is provided as text input', async () => {
-    store.form.code = 'PKAT-2026-ASR-001'
     store.form.activities = [
       { name: 'Audit Keuangan', category: 'Assurance', department: 'Finance', riskName: 'Risk Finance' }
     ]

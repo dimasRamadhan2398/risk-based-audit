@@ -99,6 +99,9 @@ func CreateTable(t *testing.T, db *gorm.DB, model interface{}) {
 			names = append(names, "`"+o.DBName+"`")
 		}
 		q := "CREATE UNIQUE INDEX `" + idx.Name + "` ON `" + stmt.Schema.Table + "` (" + strings.Join(names, ", ") + ")"
+		if idx.Where != "" { // partial unique index, e.g. where deleted_at IS NULL
+			q += " WHERE " + idx.Where
+		}
 		if err := db.Exec(q).Error; err != nil {
 			t.Fatalf("%s: %v", q, err)
 		}

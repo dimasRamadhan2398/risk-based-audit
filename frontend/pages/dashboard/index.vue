@@ -729,9 +729,9 @@
             <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
               {{ t("dashboard.planningExecution.executionTitle") }}
             </h3>
-            <UBadge color="primary" label="Q4 2025" variant="soft"></UBadge>
+            <UBadge color="primary" :label="executionPeriodLabel" variant="soft"></UBadge>
           </div>
-          <div class="space-y-5">
+          <div class="space-y-5 max-h-80 overflow-y-auto pr-1">
             <div
               v-for="(item, index) in dashboardExecutionStatus"
               :key="index"
@@ -927,6 +927,7 @@ import { getControlEffectivenessColorClass, getRiskLevelColorClass } from "~/uti
 import { useAnnualPlanStore } from "~/stores/annual-audit";
 import { useActionTakenReportStore } from "~/stores/action-taken-report";
 import { useAuditExecutionStore } from "~/stores/audit-execution";
+import { getProgressValue } from "~/utils/executionSources";
 import { useAuditResultReportStore } from "~/stores/audit-result-report";
 import { useAuthStore } from "~/stores/auth";
 import { useRCMStore, cosoDimensions } from "~/stores/rcm";
@@ -1289,7 +1290,7 @@ const openFindingsCount = computed(() => atrStore.stats.counts.open);
 const executionStatusPercent = computed(() => {
   const executions = auditExecutionStore.auditExecutions;
   if (executions.length === 0) return 0;
-  return executions.reduce((sum, e) => sum + e.progress, 0) / (executions.length * 100);
+  return executions.reduce((sum, e) => sum + getProgressValue(e.progress), 0) / (executions.length * 100);
 });
 // ATR compliance = completed / all items (same basis as the donut "Completed" slice).
 const atrCompliancePercent = computed(() => atrStore.stats.compliance);
@@ -1495,13 +1496,17 @@ const progressModel = computed(() => {
 });
 
 // Audit Execution
+// Every execution the Audit Execution Status page lists (the card scrolls).
 const dashboardExecutionStatus = computed(() => {
-  return auditExecutionStore.auditExecutions
-    .map((e) => ({
-      name: e.name,
-      percentage: e.progress,
-    }))
-    .slice(0, 3);
+  return auditExecutionStore.auditExecutions.map((e) => ({
+    name: e.name,
+    percentage: getProgressValue(e.progress),
+  }));
+});
+// Period of the card: the current quarter, as "Q4 2026".
+const executionPeriodLabel = computed(() => {
+  const now = new Date();
+  return `Q${Math.floor(now.getMonth() / 3) + 1} ${now.getFullYear()}`;
 });
 
 // Recent Findings — GET /audit-result-reports/recent-findings: saved ARR findings
