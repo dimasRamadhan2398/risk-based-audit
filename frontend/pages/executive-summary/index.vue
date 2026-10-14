@@ -8,7 +8,7 @@
           {{ t('navigation.executiveSummaryIndividual') }}
         </h1>
         <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Rangkuman eksekutif resmi untuk setiap Laporan Hasil Audit (LHA) secara individual.
+          {{ t('executiveSummaryIndividual.page.description') }}
         </p>
       </div>
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
@@ -16,14 +16,14 @@
           color="info"
           variant="ghost"
           icon="i-lucide-upload"
-          label="Import Executive Summary"
+          :label="t('executiveSummaryIndividual.page.importButton')"
           to="/executive-summary/upload"
           class="font-bold shadow w-full sm:w-auto justify-center"
         />
         <UButton
           color="primary"
           icon="i-lucide-plus"
-          label="Buat Executive Summary Baru"
+          :label="t('executiveSummaryIndividual.page.createButton')"
           class="font-bold w-full sm:w-auto justify-center"
           @click="store.openNewForm(1)"
         />
@@ -38,7 +38,7 @@
             <UIcon name="i-lucide-file-text" class="size-6" />
           </div>
           <div>
-            <div class="text-md text-gray-500 dark:text-gray-400">Total Rangkuman Individual</div>
+            <div class="text-md text-gray-500 dark:text-gray-400">{{ t('executiveSummaryIndividual.stats.total') }}</div>
             <div class="text-2xl font-bold text-gray-800 dark:text-white">{{ syncedSummaries.length }}</div>
           </div>
         </div>
@@ -50,7 +50,7 @@
             <UIcon name="i-lucide-check-circle" class="size-6" />
           </div>
           <div>
-            <div class="text-md text-gray-500 dark:text-gray-400">Disetujui (Approved)</div>
+            <div class="text-md text-gray-500 dark:text-gray-400">{{ t('executiveSummaryIndividual.stats.approved') }}</div>
             <div class="text-2xl font-bold text-gray-800 dark:text-white">
               {{ syncedSummaries.filter(s => s.status === 'Approved').length }}
             </div>
@@ -64,7 +64,7 @@
             <UIcon name="i-lucide-edit-3" class="size-6" />
           </div>
           <div>
-            <div class="text-md text-gray-500 dark:text-gray-400">Draft</div>
+            <div class="text-md text-gray-500 dark:text-gray-400">{{ t('executiveSummaryIndividual.stats.draft') }}</div>
             <div class="text-2xl font-bold text-gray-800 dark:text-white">
               {{ syncedSummaries.filter(s => s.status === 'Draft').length }}
             </div>
@@ -78,7 +78,7 @@
             <UIcon name="i-lucide-list-checks" class="size-6" />
           </div>
           <div>
-            <div class="text-md text-gray-500 dark:text-gray-400">Jumlah Penanganan / Handling</div>
+            <div class="text-md text-gray-500 dark:text-gray-400">{{ t('executiveSummaryIndividual.stats.handling') }}</div>
             <div class="text-2xl font-bold text-gray-800 dark:text-white">
               {{ totalHandling }}
             </div>
@@ -108,13 +108,13 @@
             <UInput
               v-model="searchQuery"
               icon="i-lucide-search"
-              placeholder="Cari nomor ID LHA..."
+              :placeholder="t('executiveSummaryIndividual.filters.search')"
               class="w-full"
             />
           </div>
         </div>
         <div class="text-sm text-gray-500 dark:text-gray-400 shrink-0">
-          Menampilkan <span class="font-semibold">{{ filteredSummaries.length }}</span> dokumen executive summary
+          {{ t('executiveSummaryIndividual.filters.showingPrefix') }} <span class="font-semibold">{{ filteredSummaries.length }}</span> {{ t('executiveSummaryIndividual.filters.showingSuffix') }}
         </div>
       </div>
 
@@ -133,12 +133,12 @@
               </div>
               <div>
                 <div class="flex items-center gap-2 flex-wrap">
-                  <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ item.nomorDokumen || 'Draft LHA' }}</h3>
+                  <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ item.nomorDokumen || t('executiveSummaryIndividual.card.draftLha') }}</h3>
                   <UBadge :color="getStatusColor(item.status)" variant="soft" class="font-semibold uppercase tracking-wider text-[10px]">
-                    Status: {{ item.status }}
+                    {{ t('executiveSummaryIndividual.card.status', { status: item.status }) }}
                   </UBadge>
                   <UBadge v-if="item.assignmentLetterId" color="info" variant="subtle" class="font-mono text-[11px]">
-                    Surat Tugas: {{ item.assignmentLetterId }}
+                    {{ t('executiveSummaryForm.upload.assignmentLetter', { number: item.assignmentLetterId }) }}
                   </UBadge>
                 </div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -151,18 +151,18 @@
             </div>
             
             <div class="flex gap-2 shrink-0">
-              <UTooltip text="Lihat Detail">
+              <UTooltip :text="t('executiveSummaryIndividual.card.viewDetail')">
                 <UButton 
                   color="neutral" 
                   variant="ghost" 
                   icon="i-lucide-eye" 
                   size="md" 
-                  title="Lihat Detail"
-                  aria-label="Lihat Detail"
+                  :title="t('executiveSummaryIndividual.card.viewDetail')"
+                  :aria-label="t('executiveSummaryIndividual.card.viewDetail')"
                   @click="store.openView(item)" 
                 />
               </UTooltip>
-              <UTooltip text="Edit Laporan">
+              <UTooltip :text="t('executiveSummaryIndividual.card.edit')">
                 <UButton 
                   v-if="item.status !== 'Approved'" 
                   color="warning" 
@@ -172,7 +172,7 @@
                   @click="store.openEditForm(item as any)" 
                 />
               </UTooltip>
-              <UTooltip text="Hapus">
+              <UTooltip :text="t('executiveSummaryIndividual.card.delete')">
                 <UButton 
                   color="error" 
                   variant="ghost" 
@@ -189,22 +189,22 @@
           <div class="p-5 grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Narrative Preview -->
             <div class="md:col-span-2 space-y-2">
-              <span class="text-md font-bold uppercase tracking-wider text-gray-400">Ringkasan Utama Executive Summary</span>
+              <span class="text-md font-bold uppercase tracking-wider text-gray-400">{{ t('executiveSummaryIndividual.card.narrativeSummary') }}</span>
               <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed italic">
-                "{{ item.narrative || 'Belum ada ringkasan narasi.' }}"
+                "{{ item.narrative || t('executiveSummaryIndividual.card.noNarrative') }}"
               </p>
             </div>
 
             <!-- Metrics Overview -->
             <div class="bg-gray-50 dark:bg-gray-800/60 p-4 rounded-xl space-y-3 border border-gray-100 dark:border-gray-700/50">
-              <div class="text-md font-bold uppercase tracking-wider text-gray-400">Statistik Temuan & Rekomendasi</div>
+              <div class="text-md font-bold uppercase tracking-wider text-gray-400">{{ t('executiveSummaryIndividual.card.metrics') }}</div>
               <div class="grid grid-cols-2 gap-2 text-center">
                 <div class="bg-white dark:bg-gray-800 p-2 rounded border">
-                  <div class="text-md text-gray-400">Risiko Tinggi</div>
+                  <div class="text-md text-gray-400">{{ t('executiveSummaryIndividual.card.highRisk') }}</div>
                   <div class="text-lg font-bold text-error-600">{{ item.risikoTinggi || 0 }}</div>
                 </div>
                 <div class="bg-white dark:bg-gray-800 p-2 rounded border">
-                  <div class="text-md text-gray-400">Total Rekomendasi</div>
+                  <div class="text-md text-gray-400">{{ t('executiveSummaryIndividual.card.totalRecommendations') }}</div>
                   <div class="text-lg font-bold text-primary-600">{{ item.jumlahRekomendasi || 0 }}</div>
                 </div>
               </div>
@@ -219,7 +219,7 @@
               </div>
               <div class="flex-1 min-w-0">
                 <div class="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 mb-1 flex items-center gap-1.5">
-                  <span>Noted dari Executive untuk Auditor</span>
+                  <span>{{ t('executiveSummaryForm.notes.title') }}</span>
                 </div>
                 <p class="text-sm text-amber-900 dark:text-amber-200/90 whitespace-pre-line leading-relaxed">
                   {{ item.executiveNote }}
@@ -233,14 +233,14 @@
       <!-- Empty State -->
       <div v-else class="text-center py-12">
         <UIcon name="i-lucide-file-x" class="size-16 text-gray-300 mx-auto mb-3" />
-        <h3 class="text-lg font-bold text-gray-700 dark:text-gray-300">Belum Ada Executive Summary</h3>
+        <h3 class="text-lg font-bold text-gray-700 dark:text-gray-300">{{ t('executiveSummaryIndividual.empty.title') }}</h3>
         <p class="text-sm text-gray-500 mt-1 max-w-md mx-auto">
-          Tidak ditemukan dokumen executive summary individual untuk pencarian/filter ini. Silakan buat baru.
+          {{ t('executiveSummaryIndividual.empty.description') }}
         </p>
         <UButton
           color="primary"
           icon="i-lucide-plus"
-          label="Buat Executive Summary Baru"
+          :label="t('executiveSummaryIndividual.page.createButton')"
           class="mt-4 font-bold"
           @click="store.openNewForm(1)"
         />
@@ -259,13 +259,10 @@
               </div>
               <div>
                 <h2 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
-                  {{ store.isViewing ? 'Detail Executive Summary Individual' : store.isEditing ? 'Edit Executive Summary Individual' : 'Buat Executive Summary Individual' }}
+                  {{ store.isViewing ? t('executiveSummaryIndividual.modal.view') : store.isEditing ? t('executiveSummaryIndividual.modal.edit') : t('executiveSummaryIndividual.modal.create') }}
                 </h2>
-                <p class="text-xs sm:text-sm text-gray-500">ID LHA: {{ store.form.nomorDokumen || 'Draft' }}</p>
+                <p class="text-xs sm:text-sm text-gray-500">{{ t('executiveSummaryIndividual.modal.lhaId', { id: store.form.nomorDokumen || t('executiveSummaryIndividual.modal.draft') }) }}</p>
               </div>
-              <UBadge :color="getStatusColor(store.form.status)" variant="soft" class="font-bold uppercase">
-                Status: {{ store.form.status }}
-              </UBadge>
             </div>
 
             <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
@@ -273,7 +270,7 @@
                 v-if="!store.isViewing && store.form.status !== 'Approved'"
                 color="primary"
                 icon="i-lucide-save"
-                label="Simpan Laporan"
+                :label="t('executiveSummaryForm.actions.saveReport')"
                 class="font-bold flex-1 sm:flex-none justify-center" 
                 :loading="store.loading"
                 @click="store.saveForm"
@@ -282,7 +279,7 @@
                 color="neutral"
                 variant="ghost"
                 icon="i-lucide-x"
-                label="Tutup"
+                :label="t('executiveSummaryForm.actions.close')"
                 class="flex-1 sm:flex-none justify-center"
                 @click="() => { store.showModal = false }"
               />

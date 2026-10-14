@@ -169,97 +169,69 @@
       </template>
 
       <!-- Table Content -->
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-sm">
-          <thead class="bg-slate-50 dark:bg-slate-850/50">
-            <tr>
-              <th scope="col" class="px-6 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">
-                {{ t('riskFactors.priority.no') }}
-              </th>
-              <th scope="col" class="px-6 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">
-                {{ t('riskFactors.priority.auditableEntity') }}
-              </th>
-              <th scope="col" class="px-6 py-3 text-center scope font-semibold text-slate-700 dark:text-slate-300">
-                {{ t('riskFactors.priority.riskIndex') }}
-              </th>
-              <th scope="col" class="px-6 py-3 text-center scope font-semibold text-slate-700 dark:text-slate-300">
-                {{ t('riskFactors.priority.riskLevel') }}
-              </th>
-              <th scope="col" class="px-6 py-3 text-center scope font-semibold text-slate-700 dark:text-slate-300">
-                {{ t('riskFactors.priority.auditPriorityCol') }}
-              </th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-            <tr
-              v-for="(ent, idx) in filteredYearlyUniverse"
-              :key="ent.id"
-              class="hover:bg-slate-50/50 dark:hover:bg-slate-800/10 transition-colors"
-              :class="ent.audit_priority ? 'bg-primary-50/10 dark:bg-primary-950/20' : ''"
+      <!-- Table Content -->
+      <TableEntities
+        :columns="priorityColumns"
+        :data="filteredYearlyUniverse"
+        :loading="loading"
+        :show-pagination="false"
+      >
+        <template #no-cell="{ row }">
+          <span class="text-slate-500 font-medium">{{ row.index + 1 }}</span>
+        </template>
+
+        <template #name-cell="{ row }">
+          <span class="font-bold text-slate-800 dark:text-slate-200">{{ row.original.corporate_audit_universe?.name || 'Unnamed Entity' }}</span>
+        </template>
+
+        <template #risk_index-cell="{ row }">
+          <span class="font-semibold text-slate-700 dark:text-slate-300">{{ typeof row.original.risk_index === 'number' ? row.original.risk_index.toFixed(1) + '%' : '-' }}</span>
+        </template>
+
+        <template #risk_level-cell="{ row }">
+          <span :class="getRiskLevelBadgeClass(row.original.risk_level)">{{ formatRiskLevel(row.original.risk_level) }}</span>
+        </template>
+
+        <template #audit_priority-cell="{ row }">
+          <div v-if="row.original.audit_priority" class="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+            <UIcon name="i-lucide-check-circle" class="w-5 h-5 text-emerald-500" />
+            <span>{{ t('riskFactors.priority.priorityBadge') }}</span>
+          </div>
+          <span v-else class="text-slate-400 text-sm">-</span>
+        </template>
+
+        <template #loading>
+          <div class="text-center py-12 text-slate-400 text-sm">
+            <UIcon name="i-lucide-loader-2" class="w-8 h-8 mx-auto text-primary-500 animate-spin mb-2" />
+            <p>Loading audit priority data for year {{ selectedYear }}...</p>
+          </div>
+        </template>
+
+        <template #empty>
+          <div v-if="yearlyUniverse.length > 0" class="text-center py-10 text-slate-400 text-sm">
+            <UIcon name="i-lucide-filter-x" class="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+            <p>No auditable entities match your filter criteria.</p>
+          </div>
+          <div v-else class="text-center py-12 text-slate-400 text-sm">
+            <UIcon name="i-lucide-inbox" class="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+            <p class="font-medium text-slate-600 dark:text-slate-300">
+              {{ t('riskFactors.priority.noEntities', { year: selectedYear }) }}
+            </p>
+            <p class="text-xs text-slate-400 mt-1 mb-4">
+              Please establish active entities in the Yearly Establishment tab of Audit Universe first.
+            </p>
+            <UButton
+              to="/risk-profile/audit-universe?tab=establish"
+              icon="i-lucide-plus"
+              color="primary"
+              variant="subtle"
+              size="sm"
             >
-              <td class="px-6 py-4 text-slate-500 font-medium">
-                {{ idx + 1 }}
-              </td>
-              <td class="px-6 py-4 font-bold text-slate-800 dark:text-slate-200">
-                {{ ent.corporate_audit_universe?.name || 'Unnamed Entity' }}
-              </td>
-              <td class="px-6 py-4 text-center font-semibold text-slate-700 dark:text-slate-300">
-                {{ typeof ent.risk_index === 'number' ? ent.risk_index.toFixed(1) + '%' : '-' }}
-              </td>
-              <td class="px-6 py-4 text-center">
-                <span :class="getRiskLevelBadgeClass(ent.risk_level)">
-                  {{ formatRiskLevel(ent.risk_level) }}
-                </span>
-              </td>
-              <td class="px-6 py-4 text-center">
-                <div v-if="ent.audit_priority" class="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
-                  <UIcon name="i-lucide-check-circle" class="w-5 h-5 text-emerald-500" />
-                  <span>{{ t('riskFactors.priority.priorityBadge') }}</span>
-                </div>
-                <span v-else class="text-slate-400 text-sm">-</span>
-              </td>
-            </tr>
-
-            <!-- Empty Search State -->
-            <tr v-if="yearlyUniverse.length > 0 && filteredYearlyUniverse.length === 0">
-              <td colspan="5" class="text-center py-10 text-slate-400 text-sm">
-                <UIcon name="i-lucide-filter-x" class="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
-                <p>No auditable entities match your filter criteria.</p>
-              </td>
-            </tr>
-
-            <!-- Empty State for Year -->
-            <tr v-if="yearlyUniverse.length === 0 && !loading">
-              <td colspan="5" class="text-center py-12 text-slate-400 text-sm">
-                <UIcon name="i-lucide-inbox" class="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
-                <p class="font-medium text-slate-600 dark:text-slate-300">
-                  {{ t('riskFactors.priority.noEntities', { year: selectedYear }) }}
-                </p>
-                <p class="text-xs text-slate-400 mt-1 mb-4">
-                  Please establish active entities in the Yearly Establishment tab of Audit Universe first.
-                </p>
-                <UButton
-                  to="/risk-profile/audit-universe?tab=establish"
-                  icon="i-lucide-plus"
-                  color="primary"
-                  variant="subtle"
-                  size="sm"
-                >
-                  Establish Universe for {{ selectedYear }}
-                </UButton>
-              </td>
-            </tr>
-
-            <!-- Loading State -->
-            <tr v-if="loading">
-              <td colspan="5" class="text-center py-12 text-slate-400 text-sm">
-                <UIcon name="i-lucide-loader-2" class="w-8 h-8 mx-auto text-primary-500 animate-spin mb-2" />
-                <p>Loading audit priority data for year {{ selectedYear }}...</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+              Establish Universe for {{ selectedYear }}
+            </UButton>
+          </div>
+        </template>
+      </TableEntities>
 
       <template #footer>
         <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
@@ -395,6 +367,14 @@ watch(selectedYear, async (newYear) => {
 onMounted(async () => {
   await loadData()
 })
+
+const priorityColumns = computed(() => [
+  { accessorKey: 'no', header: t('riskFactors.priority.no'), meta: { class: { th: 'w-16', td: 'w-16' } } },
+  { accessorKey: 'name', header: t('riskFactors.priority.auditableEntity') },
+  { accessorKey: 'risk_index', header: t('riskFactors.priority.riskIndex'), meta: { class: { th: 'text-center', td: 'text-center' } } },
+  { accessorKey: 'risk_level', header: t('riskFactors.priority.riskLevel'), meta: { class: { th: 'text-center', td: 'text-center' } } },
+  { accessorKey: 'audit_priority', header: t('riskFactors.priority.auditPriorityCol'), meta: { class: { th: 'text-center', td: 'text-center' } } }
+])
 
 const formatRiskLevel = (level?: string) => {
   if (!level) return 'N/A'

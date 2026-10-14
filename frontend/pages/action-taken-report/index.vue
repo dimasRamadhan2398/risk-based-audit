@@ -23,6 +23,7 @@ import ATRActionPlanForm from '~/components/action-taken-report/ATRActionPlanFor
 import ATRAssignmentModal from '~/components/action-taken-report/ATRAssignmentModal.vue'
 import ATRReviewModal from '~/components/action-taken-report/ATRReviewModal.vue'
 import ATRCancelModal from '~/components/action-taken-report/ATRCancelModal.vue'
+import ATREditModal from '~/components/action-taken-report/ATREditModal.vue'
 import AtrStatusBadge from '~/components/action-taken-report/AtrStatusBadge.vue'
 
 definePageMeta({ middleware: 'auth' })
@@ -524,5 +525,6 @@ const filterByLha = (id: string) => {
     <ATRAssignmentModal />
     <ATRReviewModal />
     <ATRCancelModal />
+    <ATREditModal />
   </div>
 </template>

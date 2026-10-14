@@ -29,6 +29,13 @@ export interface AtrLhaOption {
   reportTitle: string
 }
 
+/** Data of POST /action-taken-reports/:id/reminder: who got the e-mail, who was skipped and why, who failed. */
+export interface AtrReminderResult {
+  sent_to: { role: string, name: string, email: string }[]
+  skipped: { role: string, reason: string }[]
+  failed: { role: string, name: string, email: string }[]
+}
+
 /** User that can be picked as PIC (GET /users/assignable on the auth service). */
 export interface AtrPicCandidate {
   id: string
@@ -282,6 +289,7 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
   const showAssignment = ref(false)
   const showReview = ref(false)
   const showCancel = ref(false)
+  const showEdit = ref(false)
 
   const closeAll = () => {
     showDetail.value = false
@@ -289,6 +297,7 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
     showAssignment.value = false
     showReview.value = false
     showCancel.value = false
+    showEdit.value = false
   }
 
   /** GET /action-taken-reports/:id; the modals work on this fresh copy, not on the list row. */
@@ -308,13 +317,14 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
     }
   }
 
-  type ModalName = 'detail' | 'actionPlan' | 'assignment' | 'review' | 'cancel'
+  type ModalName = 'detail' | 'actionPlan' | 'assignment' | 'review' | 'cancel' | 'edit'
   const modalFlags: Record<ModalName, typeof showDetail> = {
     detail: showDetail,
     actionPlan: showActionPlan,
     assignment: showAssignment,
     review: showReview,
-    cancel: showCancel
+    cancel: showCancel,
+    edit: showEdit
   }
 
   /** Open a modal for a row: show the row immediately, then replace it with the server copy. */
@@ -330,6 +340,7 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
   const openAssignment = (row: ActionTakenReport) => open('assignment', row)
   const openReview = (row: ActionTakenReport) => open('review', row)
   const openCancel = (row: ActionTakenReport) => open('cancel', row)
+  const openEdit = (row: ActionTakenReport) => open('edit', row)
 
   const closeModal = () => {
     closeAll()
@@ -428,6 +439,52 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
       payload.decision === 'approve' ? 'actionTakenReport.toast.approved' : 'actionTakenReport.toast.rejected',
       'actionTakenReport.toast.reviewFailed'
     )
+
+  /**
+   * PUT /:id with only the fields the caller changed (partial update). due_date goes as RFC3339 midnight UTC.
+   * The caller passes the subset it may edit; the server enforces the same split.
+   */
+  const updateReport = (id: string, payload: { action_plan?: string, progress?: number, due_date?: string }) => {
+    const body: Record<string, unknown> = {}
+    if (payload.action_plan !== undefined) body.action_plan = payload.action_plan.trim()
+    if (payload.progress !== undefined) body.progress = Math.round(payload.progress)
+    if (payload.due_date !== undefined) body.due_date = toAtrDueDatePayload(payload.due_date)
+    return runAction(
+      id,
+      () => $fetch<ApiEnvelope<unknown>>(`${baseUrl()}/${id}`, { method: 'PUT', body }),
+      'actionTakenReport.toast.updated',
+      'actionTakenReport.toast.updateFailed'
+    )
+  }
+
+  /**
+   * POST /:id/reminder: the server e-mails the PIC (auditee) and the PIC's department head about an open follow-up.
+   * Toasts the recipients, and a warning for any role that got no e-mail. A failed send toasts an error.
+   * Nothing on the item changes, so nothing is refetched. Returns true when at least one e-mail went out.
+   */
+  const sendReminder = async (id: string): Promise<boolean> => {
+    saving.value = true
+    try {
+      const response = await $fetch<ApiEnvelope<AtrReminderResult>>(`${baseUrl()}/${id}/reminder`, { method: 'POST' })
+      const sentTo = response?.data?.sent_to ?? []
+      const notSent = [...(response?.data?.skipped ?? []), ...(response?.data?.failed ?? [])]
+      toast.showSuccess(t('actionTakenReport.toast.reminderSent', {
+        recipients: sentTo.map(r => r.name || r.email).join(', ') || '-'
+      }))
+      if (notSent.length) {
+        toast.showWarning(t('actionTakenReport.toast.reminderNotSent', {
+          roles: [...new Set(notSent.map(r => t(`actionTakenReport.reminder.role.${r.role}`)))].join(', ')
+        }))
+      }
+      return true
+    } catch (error) {
+      console.error('ATR reminder failed:', error)
+      toast.showError(t('actionTakenReport.toast.reminderFailed'), extractErrorMessage(error, t('actionTakenReport.errors.generic')))
+      return false
+    } finally {
+      saving.value = false
+    }
+  }
 
   /** POST /:id/cancel { note } (manager/CAE/admin). */
   const cancel = (id: string, note: string) =>
@@ -543,6 +600,8 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
     openAssignment,
     openReview,
     openCancel,
+    openEdit,
+    showEdit,
     closeModal,
     // actions
     assign,
@@ -550,6 +609,8 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
     submit,
     review,
     cancel,
+    updateReport,
+    sendReminder,
     uploadEvidence,
     downloadEvidence
   }

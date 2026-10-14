@@ -9,6 +9,8 @@ import (
 	"audit-service/controllers"
 	ctrlATR "audit-service/controllers/action_taken_report"
 	ctrlActivityPlan "audit-service/controllers/activity_plan"
+	ctrlAnnualPlan "audit-service/controllers/annual_plan"
+	ctrlAuditExecution "audit-service/controllers/audit_execution"
 	ctrlAssignmentLetter "audit-service/controllers/assignment_letter"
 	"audit-service/controllers/crud"
 	ctrlFindings "audit-service/controllers/findings"
@@ -153,7 +155,8 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		annualPlans.GET("", crud.List(h.db, "AuditAnnual", func() interface{} { return &[]models.AuditAnnual{} }))
 		annualPlans.GET("/:id", crud.GetByID(h.db, "AuditAnnual", func() interface{} { return &models.AuditAnnual{} }))
-		annualPlans.POST("", crud.Create(h.db, "AuditAnnual", func() interface{} { return &models.AuditAnnual{} }))
+		// The server assigns the plan code (PKAT-{year}-{seq}), see controllers/annual_plan.
+		annualPlans.POST("", crud.CreateWithHook(h.db, "AuditAnnual", func() interface{} { return &models.AuditAnnual{} }, ctrlAnnualPlan.AssignCodeOnCreate))
 		annualPlans.PUT("/:id", crud.Update(h.db, "AuditAnnual", func() interface{} { return &models.AuditAnnual{} }))
 		annualPlans.DELETE("/:id", crud.Delete(h.db, "AuditAnnual", func() interface{} { return &models.AuditAnnual{} }))
 	}
@@ -189,16 +192,17 @@ func (h *RouteHandler) RegisterRoutes() {
 		// may publish or otherwise change a letter's status
 		letterStatusGuard := middleware.RequireRolesForStatusChange(h.db, "assignment_letters", "Draft",
 			"ADMIN", "AUDIT_MANAGER", "CHIEF_AUDIT_EXECUTIVE")
-		assignmentLetters.POST("", letterStatusGuard, crud.Create(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
+		assignmentLetters.POST("", letterStatusGuard, crud.CreateWithHooks(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }, nil, ctrlAuditExecution.SyncAfterCreate(ctrlAuditExecution.LetterKeysOf)))
 		// auditPurpose echoed back from purposeList is not frozen into the column, see controllers/assignment_letter
-		assignmentLetters.PUT("/:id", letterStatusGuard, crud.UpdateWithHook(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }, ctrlAssignmentLetter.NormalizePurposeOnUpdate))
-		assignmentLetters.DELETE("/:id", crud.Delete(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
+		assignmentLetters.PUT("/:id", letterStatusGuard, ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.AssignmentLetter{} }, ctrlAuditExecution.LetterKeysOf, crud.UpdateWithHook(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }, ctrlAssignmentLetter.NormalizePurposeOnUpdate)))
+		assignmentLetters.DELETE("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.AssignmentLetter{} }, ctrlAuditExecution.LetterKeysOf, crud.Delete(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} })))
 	}
 
 	// 5. Audit Execution
 	auditExecutions := apiV1.Group("/audit-executions")
 	{
-		auditExecutions.GET("", crud.List(h.db, "AuditExecution", func() interface{} { return &[]models.AuditExecution{} }))
+		auditExecutions.GET("", ctrlAuditExecution.ListWithSources(h.db))
+		auditExecutions.POST("/sync", ctrlAuditExecution.NewSyncController(h.db).SyncFromSources)
 		auditExecutions.GET("/:id", crud.GetByID(h.db, "AuditExecution", func() interface{} { return &models.AuditExecution{} }))
 		auditExecutions.POST("", crud.Create(h.db, "AuditExecution", func() interface{} { return &models.AuditExecution{} }))
 		auditExecutions.PUT("/:id", crud.Update(h.db, "AuditExecution", func() interface{} { return &models.AuditExecution{} }))
@@ -210,9 +214,9 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		fieldworkInterviews.GET("", crud.List(h.db, "FieldworkInterview", func() interface{} { return &[]models.FieldworkInterview{} }))
 		fieldworkInterviews.GET("/:id", crud.GetByID(h.db, "FieldworkInterview", func() interface{} { return &models.FieldworkInterview{} }))
-		fieldworkInterviews.POST("", crud.Create(h.db, "FieldworkInterview", func() interface{} { return &models.FieldworkInterview{} }))
-		fieldworkInterviews.PUT("/:id", crud.Update(h.db, "FieldworkInterview", func() interface{} { return &models.FieldworkInterview{} }))
-		fieldworkInterviews.DELETE("/:id", crud.Delete(h.db, "FieldworkInterview", func() interface{} { return &models.FieldworkInterview{} }))
+		fieldworkInterviews.POST("", crud.CreateWithHooks(h.db, "FieldworkInterview", func() interface{} { return &models.FieldworkInterview{} }, nil, ctrlAuditExecution.SyncAfterCreate(ctrlAuditExecution.LetterKeysOf)))
+		fieldworkInterviews.PUT("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.FieldworkInterview{} }, ctrlAuditExecution.LetterKeysOf, crud.Update(h.db, "FieldworkInterview", func() interface{} { return &models.FieldworkInterview{} })))
+		fieldworkInterviews.DELETE("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.FieldworkInterview{} }, ctrlAuditExecution.LetterKeysOf, crud.Delete(h.db, "FieldworkInterview", func() interface{} { return &models.FieldworkInterview{} })))
 	}
 
 	// 7. Fieldwork Observations
@@ -220,9 +224,9 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		fieldworkObservations.GET("", crud.List(h.db, "FieldworkObservation", func() interface{} { return &[]models.FieldworkObservation{} }))
 		fieldworkObservations.GET("/:id", crud.GetByID(h.db, "FieldworkObservation", func() interface{} { return &models.FieldworkObservation{} }))
-		fieldworkObservations.POST("", crud.Create(h.db, "FieldworkObservation", func() interface{} { return &models.FieldworkObservation{} }))
-		fieldworkObservations.PUT("/:id", crud.Update(h.db, "FieldworkObservation", func() interface{} { return &models.FieldworkObservation{} }))
-		fieldworkObservations.DELETE("/:id", crud.Delete(h.db, "FieldworkObservation", func() interface{} { return &models.FieldworkObservation{} }))
+		fieldworkObservations.POST("", crud.CreateWithHooks(h.db, "FieldworkObservation", func() interface{} { return &models.FieldworkObservation{} }, nil, ctrlAuditExecution.SyncAfterCreate(ctrlAuditExecution.LetterKeysOf)))
+		fieldworkObservations.PUT("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.FieldworkObservation{} }, ctrlAuditExecution.LetterKeysOf, crud.Update(h.db, "FieldworkObservation", func() interface{} { return &models.FieldworkObservation{} })))
+		fieldworkObservations.DELETE("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.FieldworkObservation{} }, ctrlAuditExecution.LetterKeysOf, crud.Delete(h.db, "FieldworkObservation", func() interface{} { return &models.FieldworkObservation{} })))
 	}
 
 	// 8. Fieldwork Documents
@@ -230,9 +234,9 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		fieldworkDocuments.GET("", crud.List(h.db, "FieldworkDocument", func() interface{} { return &[]models.FieldworkDocument{} }))
 		fieldworkDocuments.GET("/:id", crud.GetByID(h.db, "FieldworkDocument", func() interface{} { return &models.FieldworkDocument{} }))
-		fieldworkDocuments.POST("", crud.Create(h.db, "FieldworkDocument", func() interface{} { return &models.FieldworkDocument{} }))
-		fieldworkDocuments.PUT("/:id", crud.Update(h.db, "FieldworkDocument", func() interface{} { return &models.FieldworkDocument{} }))
-		fieldworkDocuments.DELETE("/:id", crud.Delete(h.db, "FieldworkDocument", func() interface{} { return &models.FieldworkDocument{} }))
+		fieldworkDocuments.POST("", crud.CreateWithHooks(h.db, "FieldworkDocument", func() interface{} { return &models.FieldworkDocument{} }, nil, ctrlAuditExecution.SyncAfterCreate(ctrlAuditExecution.LetterKeysOf)))
+		fieldworkDocuments.PUT("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.FieldworkDocument{} }, ctrlAuditExecution.LetterKeysOf, crud.Update(h.db, "FieldworkDocument", func() interface{} { return &models.FieldworkDocument{} })))
+		fieldworkDocuments.DELETE("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.FieldworkDocument{} }, ctrlAuditExecution.LetterKeysOf, crud.Delete(h.db, "FieldworkDocument", func() interface{} { return &models.FieldworkDocument{} })))
 	}
 
 	// 9. Fieldwork Samples
@@ -240,9 +244,9 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		fieldworkSamples.GET("", crud.List(h.db, "FieldworkSample", func() interface{} { return &[]models.FieldworkSample{} }))
 		fieldworkSamples.GET("/:id", crud.GetByID(h.db, "FieldworkSample", func() interface{} { return &models.FieldworkSample{} }))
-		fieldworkSamples.POST("", crud.Create(h.db, "FieldworkSample", func() interface{} { return &models.FieldworkSample{} }))
-		fieldworkSamples.PUT("/:id", crud.Update(h.db, "FieldworkSample", func() interface{} { return &models.FieldworkSample{} }))
-		fieldworkSamples.DELETE("/:id", crud.Delete(h.db, "FieldworkSample", func() interface{} { return &models.FieldworkSample{} }))
+		fieldworkSamples.POST("", crud.CreateWithHooks(h.db, "FieldworkSample", func() interface{} { return &models.FieldworkSample{} }, nil, ctrlAuditExecution.SyncAfterCreate(ctrlAuditExecution.LetterKeysOf)))
+		fieldworkSamples.PUT("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.FieldworkSample{} }, ctrlAuditExecution.LetterKeysOf, crud.Update(h.db, "FieldworkSample", func() interface{} { return &models.FieldworkSample{} })))
+		fieldworkSamples.DELETE("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.FieldworkSample{} }, ctrlAuditExecution.LetterKeysOf, crud.Delete(h.db, "FieldworkSample", func() interface{} { return &models.FieldworkSample{} })))
 	}
 
 	// 10. Fieldwork Test Controls
@@ -250,9 +254,9 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		fieldworkTestControls.GET("", crud.List(h.db, "FieldworkTestControl", func() interface{} { return &[]models.FieldworkTestControl{} }))
 		fieldworkTestControls.GET("/:id", crud.GetByID(h.db, "FieldworkTestControl", func() interface{} { return &models.FieldworkTestControl{} }))
-		fieldworkTestControls.POST("", crud.Create(h.db, "FieldworkTestControl", func() interface{} { return &models.FieldworkTestControl{} }))
-		fieldworkTestControls.PUT("/:id", crud.Update(h.db, "FieldworkTestControl", func() interface{} { return &models.FieldworkTestControl{} }))
-		fieldworkTestControls.DELETE("/:id", crud.Delete(h.db, "FieldworkTestControl", func() interface{} { return &models.FieldworkTestControl{} }))
+		fieldworkTestControls.POST("", crud.CreateWithHooks(h.db, "FieldworkTestControl", func() interface{} { return &models.FieldworkTestControl{} }, nil, ctrlAuditExecution.SyncAfterCreate(ctrlAuditExecution.LetterKeysOf)))
+		fieldworkTestControls.PUT("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.FieldworkTestControl{} }, ctrlAuditExecution.LetterKeysOf, crud.Update(h.db, "FieldworkTestControl", func() interface{} { return &models.FieldworkTestControl{} })))
+		fieldworkTestControls.DELETE("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.FieldworkTestControl{} }, ctrlAuditExecution.LetterKeysOf, crud.Delete(h.db, "FieldworkTestControl", func() interface{} { return &models.FieldworkTestControl{} })))
 	}
 
 	// 11. Working Paper Headers
@@ -260,10 +264,10 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		workingPaperHeaders.GET("", crud.List(h.db, "WorkingPaperHeader", func() interface{} { return &[]models.WorkingPaperHeader{} }))
 		workingPaperHeaders.GET("/:id", crud.GetByID(h.db, "WorkingPaperHeader", func() interface{} { return &models.WorkingPaperHeader{} }))
-		workingPaperHeaders.POST("", crud.Create(h.db, "WorkingPaperHeader", func() interface{} { return &models.WorkingPaperHeader{} }))
+		workingPaperHeaders.POST("", crud.CreateWithHooks(h.db, "WorkingPaperHeader", func() interface{} { return &models.WorkingPaperHeader{} }, nil, ctrlAuditExecution.SyncAfterCreate(ctrlAuditExecution.LetterKeysOf)))
 		// auditPurpose follows the linked assignment letter, see controllers/working_paper
-		workingPaperHeaders.PUT("/:id", crud.UpdateWithHook(h.db, "WorkingPaperHeader", func() interface{} { return &models.WorkingPaperHeader{} }, ctrlWorkingPaper.SyncHeaderOnUpdate))
-		workingPaperHeaders.DELETE("/:id", crud.Delete(h.db, "WorkingPaperHeader", func() interface{} { return &models.WorkingPaperHeader{} }))
+		workingPaperHeaders.PUT("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.WorkingPaperHeader{} }, ctrlAuditExecution.LetterKeysOf, crud.UpdateWithHook(h.db, "WorkingPaperHeader", func() interface{} { return &models.WorkingPaperHeader{} }, ctrlWorkingPaper.SyncHeaderOnUpdate)))
+		workingPaperHeaders.DELETE("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.WorkingPaperHeader{} }, ctrlAuditExecution.LetterKeysOf, crud.Delete(h.db, "WorkingPaperHeader", func() interface{} { return &models.WorkingPaperHeader{} })))
 	}
 
 	// 12. Working Paper Risks
@@ -271,9 +275,9 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		workingPaperRisks.GET("", crud.List(h.db, "WorkingPaperRisk", func() interface{} { return &[]models.WorkingPaperRisk{} }))
 		workingPaperRisks.GET("/:id", crud.GetByID(h.db, "WorkingPaperRisk", func() interface{} { return &models.WorkingPaperRisk{} }))
-		workingPaperRisks.POST("", crud.Create(h.db, "WorkingPaperRisk", func() interface{} { return &models.WorkingPaperRisk{} }))
-		workingPaperRisks.PUT("/:id", crud.Update(h.db, "WorkingPaperRisk", func() interface{} { return &models.WorkingPaperRisk{} }))
-		workingPaperRisks.DELETE("/:id", crud.Delete(h.db, "WorkingPaperRisk", func() interface{} { return &models.WorkingPaperRisk{} }))
+		workingPaperRisks.POST("", crud.CreateWithHooks(h.db, "WorkingPaperRisk", func() interface{} { return &models.WorkingPaperRisk{} }, nil, ctrlAuditExecution.SyncAfterCreate(ctrlAuditExecution.LetterKeysOf)))
+		workingPaperRisks.PUT("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.WorkingPaperRisk{} }, ctrlAuditExecution.LetterKeysOf, crud.Update(h.db, "WorkingPaperRisk", func() interface{} { return &models.WorkingPaperRisk{} })))
+		workingPaperRisks.DELETE("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.WorkingPaperRisk{} }, ctrlAuditExecution.LetterKeysOf, crud.Delete(h.db, "WorkingPaperRisk", func() interface{} { return &models.WorkingPaperRisk{} })))
 	}
 
 	// 13. Working Paper Samples
@@ -281,9 +285,9 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		workingPaperSamples.GET("", crud.List(h.db, "WorkingPaperSample", func() interface{} { return &[]models.WorkingPaperSample{} }))
 		workingPaperSamples.GET("/:id", crud.GetByID(h.db, "WorkingPaperSample", func() interface{} { return &models.WorkingPaperSample{} }))
-		workingPaperSamples.POST("", crud.Create(h.db, "WorkingPaperSample", func() interface{} { return &models.WorkingPaperSample{} }))
-		workingPaperSamples.PUT("/:id", crud.Update(h.db, "WorkingPaperSample", func() interface{} { return &models.WorkingPaperSample{} }))
-		workingPaperSamples.DELETE("/:id", crud.Delete(h.db, "WorkingPaperSample", func() interface{} { return &models.WorkingPaperSample{} }))
+		workingPaperSamples.POST("", crud.CreateWithHooks(h.db, "WorkingPaperSample", func() interface{} { return &models.WorkingPaperSample{} }, nil, ctrlAuditExecution.SyncAfterCreate(ctrlAuditExecution.LetterKeysOf)))
+		workingPaperSamples.PUT("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.WorkingPaperSample{} }, ctrlAuditExecution.LetterKeysOf, crud.Update(h.db, "WorkingPaperSample", func() interface{} { return &models.WorkingPaperSample{} })))
+		workingPaperSamples.DELETE("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.WorkingPaperSample{} }, ctrlAuditExecution.LetterKeysOf, crud.Delete(h.db, "WorkingPaperSample", func() interface{} { return &models.WorkingPaperSample{} })))
 	}
 
 	// 14. Working Paper Causes
@@ -291,9 +295,9 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		workingPaperCauses.GET("", crud.List(h.db, "WorkingPaperCause", func() interface{} { return &[]models.WorkingPaperCause{} }))
 		workingPaperCauses.GET("/:id", crud.GetByID(h.db, "WorkingPaperCause", func() interface{} { return &models.WorkingPaperCause{} }))
-		workingPaperCauses.POST("", crud.Create(h.db, "WorkingPaperCause", func() interface{} { return &models.WorkingPaperCause{} }))
-		workingPaperCauses.PUT("/:id", crud.Update(h.db, "WorkingPaperCause", func() interface{} { return &models.WorkingPaperCause{} }))
-		workingPaperCauses.DELETE("/:id", crud.Delete(h.db, "WorkingPaperCause", func() interface{} { return &models.WorkingPaperCause{} }))
+		workingPaperCauses.POST("", crud.CreateWithHooks(h.db, "WorkingPaperCause", func() interface{} { return &models.WorkingPaperCause{} }, nil, ctrlAuditExecution.SyncAfterCreate(ctrlAuditExecution.LetterKeysOf)))
+		workingPaperCauses.PUT("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.WorkingPaperCause{} }, ctrlAuditExecution.LetterKeysOf, crud.Update(h.db, "WorkingPaperCause", func() interface{} { return &models.WorkingPaperCause{} })))
+		workingPaperCauses.DELETE("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.WorkingPaperCause{} }, ctrlAuditExecution.LetterKeysOf, crud.Delete(h.db, "WorkingPaperCause", func() interface{} { return &models.WorkingPaperCause{} })))
 	}
 
 	// 15. Working Paper Plans
@@ -301,9 +305,9 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		workingPaperPlans.GET("", crud.List(h.db, "WorkingPaperPlan", func() interface{} { return &[]models.WorkingPaperPlan{} }))
 		workingPaperPlans.GET("/:id", crud.GetByID(h.db, "WorkingPaperPlan", func() interface{} { return &models.WorkingPaperPlan{} }))
-		workingPaperPlans.POST("", crud.Create(h.db, "WorkingPaperPlan", func() interface{} { return &models.WorkingPaperPlan{} }))
-		workingPaperPlans.PUT("/:id", crud.Update(h.db, "WorkingPaperPlan", func() interface{} { return &models.WorkingPaperPlan{} }))
-		workingPaperPlans.DELETE("/:id", crud.Delete(h.db, "WorkingPaperPlan", func() interface{} { return &models.WorkingPaperPlan{} }))
+		workingPaperPlans.POST("", crud.CreateWithHooks(h.db, "WorkingPaperPlan", func() interface{} { return &models.WorkingPaperPlan{} }, nil, ctrlAuditExecution.SyncAfterCreate(ctrlAuditExecution.LetterKeysOf)))
+		workingPaperPlans.PUT("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.WorkingPaperPlan{} }, ctrlAuditExecution.LetterKeysOf, crud.Update(h.db, "WorkingPaperPlan", func() interface{} { return &models.WorkingPaperPlan{} })))
+		workingPaperPlans.DELETE("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.WorkingPaperPlan{} }, ctrlAuditExecution.LetterKeysOf, crud.Delete(h.db, "WorkingPaperPlan", func() interface{} { return &models.WorkingPaperPlan{} })))
 	}
 
 	// 16. Working Papers (Original)
@@ -447,9 +451,9 @@ func (h *RouteHandler) RegisterRoutes() {
 		// Saving a report keeps its action taken reports in step in the same
 		// transaction: approving it ("Final"/"Approved"/"Published") creates one
 		// ATR per finding (see services/action_taken_report.SyncFromReport)
-		auditResultReports.POST("", crud.CreateWithHooks(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }, nil, SyncReportATRs))
-		auditResultReports.PUT("/:id", crud.UpdateWithHooks(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }, nil, SyncReportATRs))
-		auditResultReports.DELETE("/:id", crud.Delete(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }))
+		auditResultReports.POST("", crud.CreateWithHooks(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }, nil, syncReportAndExecutionsAfterCreate))
+		auditResultReports.PUT("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.AuditResultReport{} }, ctrlAuditExecution.LetterKeysOf, crud.UpdateWithHooks(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }, nil, SyncReportATRs)))
+		auditResultReports.DELETE("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.AuditResultReport{} }, ctrlAuditExecution.LetterKeysOf, crud.Delete(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} })))
 	}
 
 	// 17c. Auditee Surveys
@@ -513,6 +517,15 @@ func (h *RouteHandler) RegisterRoutes() {
 // update routes (see atrsvc.AfterReportWrite): approving a report creates its
 // action taken reports in the same transaction.
 var SyncReportATRs crud.AfterHook = atrsvc.AfterReportWrite
+
+// syncReportAndExecutionsAfterCreate is the create hook of the LHA route: the
+// ATR sync, then the sync of the report's letter executions, in one transaction.
+var syncReportAndExecutionsAfterCreate crud.AfterHook = func(tx *gorm.DB, entity interface{}) error {
+	if err := SyncReportATRs(tx, entity); err != nil {
+		return err
+	}
+	return ctrlAuditExecution.SyncAfterCreate(ctrlAuditExecution.LetterKeysOf)(tx, entity)
+}
 
 func (h *RouteHandler) deleteAuditGuideline(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))

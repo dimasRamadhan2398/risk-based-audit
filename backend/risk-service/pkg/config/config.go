@@ -12,6 +12,19 @@ type Config struct {
 	Database      DatabaseConfig      `mapstructure:"database"`
 	MasterService MasterServiceConfig `mapstructure:"master_service"`
 	JWT           JWTConfig           `mapstructure:"jwt"`
+	Kafka         KafkaConfig         `mapstructure:"kafka"`
+}
+
+// KafkaConfig controls the Audit Universe event producer. Publishing is
+// best-effort: when the broker is unreachable at start-up the service keeps
+// running without emitting events (see cmd/serve.go).
+//
+// Env overrides (via the "." -> "_" replacer): KAFKA_ENABLED, KAFKA_BROKERS
+// (comma separated), KAFKA_SERVICE_NAME.
+type KafkaConfig struct {
+	Enabled     bool     `mapstructure:"enabled"`
+	Brokers     []string `mapstructure:"brokers"`
+	ServiceName string   `mapstructure:"service_name"`
 }
 
 // JWTConfig carries the secret auth-service signs tokens with. Every service in
@@ -87,6 +100,11 @@ func setDefaults() {
 	// the key. Left empty on purpose: serve refuses to start without it rather
 	// than coming up with authentication that accepts anything.
 	viper.SetDefault("jwt.secret", "")
+	// Kafka is opt-in in code. config.yaml enables it for local runs; the broker
+	// address is only reachable on the internal PLAIN listener (kafka:29092).
+	viper.SetDefault("kafka.enabled", false)
+	viper.SetDefault("kafka.brokers", []string{"kafka:29092"})
+	viper.SetDefault("kafka.service_name", "risk-service")
 }
 
 func Load(configPath string) (*Config, error) {

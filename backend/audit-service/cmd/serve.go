@@ -12,12 +12,14 @@ import (
 	ctrlMedia "audit-service/controllers/media"
 	"audit-service/models"
 	"audit-service/pkg/database"
+	"audit-service/pkg/kafka"
 	"audit-service/pkg/logger"
 	"audit-service/pkg/media"
 	"audit-service/pkg/middleware"
 	"audit-service/pkg/redis"
 	"audit-service/repositories"
 	"audit-service/routes"
+	annualPlanSync "audit-service/services/annual_plan_sync"
 	svcActivity "audit-service/services/audit_activity"
 	svcAssignment "audit-service/services/audit_assignment"
 	svcCharter "audit-service/services/audit_charter"
@@ -31,6 +33,7 @@ import (
 	"github.com/spf13/cobra"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"gorm.io/gorm"
 )
 
 // serveCmd represents the serve command
@@ -75,7 +78,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 	}
 
 	// Auto-migrate uploaded document tables and analyzer snapshot on startup
-	_ = db.AutoMigrate(
+	if err := db.AutoMigrate(
 		&models.UploadedStrategicPlanDocument{},
 		&models.UploadedPlanDocument{},
 		&models.UploadedAnnualPlan{},
@@ -99,8 +102,18 @@ func runServe(cmd *cobra.Command, args []string) error {
 		// Activity ID counter (pkg/activitycode); created here too so a deploy
 		// that skips migrate/seed does not break creating activities.
 		&models.ActivityCodeSequence{},
+		// Plan code PKAT-{year}-{seq} and its partial unique index (models/audit-annual-plan.go).
+		&models.AuditAnnual{},
 		&models.AuditResultReport{},
-	)
+	); err != nil {
+		logger.Error("Auto-migrate failed; audit tables may be missing columns or indexes", logger.LogField("error", err))
+	}
+
+	// GORM's AutoMigrate did not create the partial unique index on the plan code
+	// (models/audit-annual-plan.go), so create it explicitly and idempotently.
+	if err := db.Exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_audit_annuals_code_live ON audit_annuals (code) WHERE deleted_at IS NULL AND code <> ''`).Error; err != nil {
+		logger.Error("Failed to create plan code index", logger.LogField("error", err))
+	}
 
 	// Ensure columns in audit_result_reports exist
 	db.Exec(`
@@ -232,6 +245,8 @@ func runServe(cmd *cobra.Command, args []string) error {
 	// Swagger UI endpoint
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
+	startAnnualPlanSync(db)
+
 	// Initialize route handler
 	routeHandler := routes.NewRouteHandler(engine, authMiddleware, db, redisClient)
 	routeHandler.SetRegistry(routeRegistry)
@@ -247,4 +262,35 @@ func runServe(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+// startAnnualPlanSync consumes Audit Universe and Department events and applies
+// them to annual plans (services/annual_plan_sync). It runs in the background
+// and never blocks or fails start-up: if the broker is unreachable the service
+// keeps serving, and the consumer group resumes from its committed offset on the
+// next start.
+func startAnnualPlanSync(db *gorm.DB) {
+	if !cfg.KafkaConsumer.Enabled {
+		logger.Info("Annual plan sync consumer disabled (kafka_consumer.enabled=false)")
+		return
+	}
+	consumer, err := kafka.NewConsumer(kafka.ConsumerConfig{
+		Brokers:       cfg.KafkaConsumer.Brokers,
+		GroupID:       cfg.KafkaConsumer.GroupID,
+		Topics:        cfg.KafkaConsumer.Topics,
+		Enabled:       cfg.KafkaConsumer.Enabled,
+		Version:       cfg.KafkaConsumer.Version,
+		Assignor:      cfg.KafkaConsumer.Assignor,
+		InitialOffset: cfg.KafkaConsumer.Offset,
+	}, logger.GetLogger())
+	if err != nil {
+		logger.Warn("Annual plan sync disabled: Kafka consumer unavailable", logger.LogField("error", err))
+		return
+	}
+	annualPlanSync.Register(consumer, annualPlanSync.NewHandler(annualPlanSync.New(db)))
+	go func() {
+		if err := consumer.Start(); err != nil {
+			logger.Error("Annual plan sync consumer failed", logger.LogField("error", err))
+		}
+	}()
 }

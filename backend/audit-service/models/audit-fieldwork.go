@@ -90,6 +90,7 @@ type FieldworkTestControl struct {
 	ControlName        string         `gorm:"type:varchar(255)" json:"controlName"`
 	ControlDescription string         `gorm:"type:text" json:"controlDescription"`
 	ControlType        string         `gorm:"type:varchar(100)" json:"controlType"`
+	UnitDivision       string         `gorm:"type:varchar(255)" json:"unitDivision"`
 	TestProcedure      string         `gorm:"type:text" json:"testProcedure"`
 	TestResult         string         `gorm:"type:varchar(100)" json:"testResult"`
 	Finding            string         `gorm:"type:text" json:"finding"`

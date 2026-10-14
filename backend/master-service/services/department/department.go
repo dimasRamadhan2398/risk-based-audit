@@ -1,14 +1,23 @@
 package department
 
 import (
+	"context"
+	"log"
 	"master-service/models"
 	"master-service/pkg/base"
 	apperrors "master-service/pkg/errors"
+	"master-service/pkg/kafka"
 	repo "master-service/repositories/department"
 	"net/http"
 
 	"github.com/google/uuid"
 )
+
+// EventPublisher emits department business events. *kafka.DomainPublisher
+// satisfies it; a nil publisher disables events.
+type EventPublisher interface {
+	PublishDepartment(ctx context.Context, eventType string, dept *models.Department) error
+}
 
 type DepartmentServiceInterface interface {
 	FindAll(ctx *base.BaseService) (*[]models.Department, error)
@@ -21,6 +30,19 @@ type DepartmentServiceInterface interface {
 
 type DepartmentService struct {
 	departmentRepo repo.IDepartmentRepository
+	events         EventPublisher
+}
+
+// publish sends a department event after the write has committed. Failures are
+// logged, not returned: the write already happened and the HTTP call should
+// still succeed. Repair with the operator resync path if events were lost.
+func (d *DepartmentService) publish(eventType string, dept *models.Department) {
+	if d.events == nil {
+		return
+	}
+	if err := d.events.PublishDepartment(context.Background(), eventType, dept); err != nil {
+		log.Printf("department event %s for %s not published: %v", eventType, dept.ID, err)
+	}
 }
 
 var (
@@ -58,6 +80,7 @@ func (d *DepartmentService) Create(ctx *base.BaseService, department *models.Dep
 		return nil, apperrors.DB(err, apperrors.OpCreate, "Failed to create the department.")
 	}
 
+	d.publish(kafka.DomainEventDepartmentCreated, department)
 	return department, nil
 }
 
@@ -68,7 +91,8 @@ func (d *DepartmentService) Delete(ctx *base.BaseService, id string) error {
 		return apperrors.InvalidID(err)
 	}
 
-	if _, err := d.departmentRepo.FindByID(departmentID); err != nil {
+	existing, err := d.departmentRepo.FindByID(departmentID)
+	if err != nil {
 		if err == apperrors.ErrNotFound {
 			return apperrors.ErrDepartmentNotFound
 		}
@@ -79,6 +103,7 @@ func (d *DepartmentService) Delete(ctx *base.BaseService, id string) error {
 		return apperrors.DB(err, apperrors.OpDelete, "Failed to delete the department.")
 	}
 
+	d.publish(kafka.DomainEventDepartmentDeleted, existing)
 	return nil
 }
 
@@ -187,6 +212,7 @@ func (d *DepartmentService) Update(ctx *base.BaseService, id string, department 
 		return nil, apperrors.DB(err, apperrors.OpUpdate, "Failed to update the department.")
 	}
 
+	d.publish(kafka.DomainEventDepartmentUpdated, existingDepartment)
 	return existingDepartment, nil
 }
 
@@ -243,8 +269,9 @@ func (d *DepartmentService) validateReferences(department *models.Department) er
 	return nil
 }
 
-func NewDepartmentService(departmentRepo repo.IDepartmentRepository) DepartmentServiceInterface {
+func NewDepartmentService(departmentRepo repo.IDepartmentRepository, events EventPublisher) DepartmentServiceInterface {
 	return &DepartmentService{
 		departmentRepo: departmentRepo,
+		events:         events,
 	}
 }

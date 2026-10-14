@@ -3,7 +3,8 @@ import type {
   Employee,
   CreateEmployeeRequest,
   UpdateEmployeeRequest,
-  ListEmployeesResponse
+  ListEmployeesResponse,
+  NextEmployeeCodeResponse
 } from '~/types/master'
 import { getMasterServiceBaseUrl } from '~/composables/useApiUrl'
 
@@ -77,6 +78,18 @@ export const useEmployeeApi = () => {
   }
 
   /**
+   * Preview the code the next created employee will receive (reserves nothing)
+   * GET /api/v1/employees/next-code
+   */
+  const getNextEmployeeCode = async (): Promise<string> => {
+    const response = await $fetch<{ data?: NextEmployeeCodeResponse }>(`${getBaseUrl()}/employees/next-code`, {
+      method: 'GET'
+    })
+
+    return response.data?.employee_code || ''
+  }
+
+  /**
    * Create new employee
    * POST /api/v1/employees
    */
@@ -131,6 +144,7 @@ export const useEmployeeApi = () => {
   return {
     getEmployees,
     getEmployeeById,
+    getNextEmployeeCode,
     createEmployee,
     updateEmployee,
     deleteEmployee,

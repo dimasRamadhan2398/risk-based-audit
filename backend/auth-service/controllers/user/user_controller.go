@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"strconv"
+	"strings"
 
 	"auth-service/models"
 	"auth-service/pkg/base"
@@ -25,6 +26,7 @@ type UserControllerInterface interface {
 	LookupByEmployee(c *gin.Context)
 	ResetPassword(c *gin.Context)
 	ListAssignableUsers(c *gin.Context)
+	ListUserContacts(c *gin.Context)
 }
 
 // ListAssignableUsers lists active users that can be assigned as the PIC of
@@ -78,6 +80,46 @@ func (ctrl *UserController) ListAssignableUsers(c *gin.Context) {
 		"users":      users,
 		"pagination": pagination,
 	})
+}
+
+// ListUserContacts returns the email and name of active users, for the
+// reminders audit-service sends. Filters: ids (comma-separated user ids, max
+// 20) and department_head_of (users holding DEPARTMENT_HEAD in that
+// department). Same roles as the assignable list (routes.AssignableUserRoles).
+// @Summary List User Contacts
+// @Description Active users with id, full_name, email and department, filtered by ids and/or department_head_of. At least one filter is required.
+// @Tags users
+// @Produce json
+// @Security Bearer
+// @Param ids query string false "Comma-separated user ids (max 20)"
+// @Param department_head_of query string false "Department whose DEPARTMENT_HEAD users to list"
+// @Success 200 {object} response.Response
+// @Router /api/v1/users/contacts [get]
+func (ctrl *UserController) ListUserContacts(c *gin.Context) {
+	req := &models.ListUserContactsRequest{DepartmentHeadOf: strings.TrimSpace(c.Query("department_head_of"))}
+	for _, raw := range strings.Split(c.Query("ids"), ",") {
+		raw = strings.TrimSpace(raw)
+		if raw == "" {
+			continue
+		}
+		id, err := uuid.Parse(raw)
+		if err != nil {
+			response.BadRequest(c, "Invalid user ID in ids")
+			return
+		}
+		req.IDs = append(req.IDs, id)
+	}
+
+	users, err := ctrl.userService.ListUserContacts(c.Request.Context(), req)
+	if err != nil {
+		if appErr, ok := err.(*apperrors.AppError); ok {
+			response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
+		} else {
+			response.InternalServerError(c, err.Error())
+		}
+		return
+	}
+	response.OK(c, "User contacts retrieved successfully", gin.H{"users": users})
 }
 
 // UserController handles user HTTP requests

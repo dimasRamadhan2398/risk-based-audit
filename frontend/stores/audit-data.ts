@@ -5,7 +5,7 @@ import type {
   AuditDataState,
   AuditCategoryRisk,
   AtrReport,
-  AuditExecutionStatus,
+  AuditExecutionStatusItem,
   RecentFinding,
 } from "~/types/audit";
 
@@ -44,7 +44,7 @@ export const useAuditDataStore = defineStore("audit-data", {
       return Array.from({ length: 3 }, (_, index) => currentYear - index);
     },
     getAtrReports: (state): AtrReport[] => state.atrReports,
-    getAuditExecutionStatus: (state): AuditExecutionStatus[] => state.auditExecutionStatus
+    getAuditExecutionStatus: (state): AuditExecutionStatusItem[] => state.auditExecutionStatus
   },
 
   actions: {

@@ -452,7 +452,7 @@ func seedStrategicPlans(db *gorm.DB) error {
 	logger.Info(fmt.Sprintf("Seeding %d strategic audit plans...", len(seeds)))
 	for i := range seeds {
 		var existing models.StrategicPlan
-		err := db.Where("code = ?", seeds[i].Code).First(&existing).Error
+		err := db.Unscoped().Where("code = ?", seeds[i].Code).First(&existing).Error
 		if err == gorm.ErrRecordNotFound {
 			if err := db.Create(&seeds[i]).Error; err != nil {
 				return err
@@ -1505,7 +1505,7 @@ func seedAnnualPlans(db *gorm.DB) error {
 	}
 	for i := range seeds {
 		var existing models.AuditAnnual
-		err := db.Where("code = ?", seeds[i].Code).First(&existing).Error
+		err := db.Unscoped().Where("code = ?", seeds[i].Code).First(&existing).Error
 		if err == gorm.ErrRecordNotFound {
 			if err := db.Create(&seeds[i]).Error; err != nil {
 				return err

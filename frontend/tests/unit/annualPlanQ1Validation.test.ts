@@ -40,7 +40,6 @@ let store: ReturnType<typeof useAnnualPlanStore>
 
 /** Fill every non-timeline field so validateForm() only has timeline rules left to fail. */
 function fillValidForm(months: number[], year = '2026') {
-  store.form.code = 'PKAT-2026-ASR-001'
   store.form.activities = [
     { name: 'Audit IT', category: 'Assurance', department: 'IT', riskName: 'Risk A' }
   ]

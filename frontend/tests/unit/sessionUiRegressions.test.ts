@@ -105,15 +105,14 @@ describe('Stores that must hold no seed data', () => {
 describe('Executive Summary (Individual) sections', () => {
   const src = read('components/audit-result-report/ExecutiveSummaryIndividualForm.vue')
 
-  it('numbers the headings I to V and titles section V', () => {
-    for (const n of ['I', 'II', 'III', 'IV', 'V']) {
-      expect(src).toContain(`<span class="text-primary-500">${n}.</span>`)
-    }
-    expect(src).not.toContain('<span class="text-primary-500">VI.</span>')
-    expect(src).toMatch(/V\.<\/span> Analisis Temuan Berulang & Kesimpulan/)
+  it('has no roman numeral or "Section" prefixes in headings and labels', () => {
+    expect(src).not.toMatch(/<span class="text-primary-500">[IVX]+\.<\/span>/)
+    expect(src).not.toMatch(/>\s*Section [IVX0-9]/)
+    expect(src).not.toMatch(/label="Section /)
+    expect(src).toContain("{{ t('executiveSummaryForm.analysis.title') }}")
   })
 
-  it('labels nav tab 5 "Temuan Berulang & Kesimpulan"', () => {
-    expect(src).toMatch(/index: '5', title: 'Temuan Berulang & Kesimpulan'/)
+  it('labels nav tab 5 through i18n', () => {
+    expect(src).toMatch(/index: '5', title: t\('executiveSummaryIndividual\.nav\.analysis'\)/)
   })
 })

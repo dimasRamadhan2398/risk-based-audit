@@ -103,3 +103,63 @@ func (c *Client) AssignableUser(ctx context.Context, authorization, id string) (
 	}
 	return nil, ErrNotFound
 }
+
+// Contact is an active user's email contact as returned by GET
+// /api/v1/users/contacts (only for callers with the assignable-user roles)
+type Contact struct {
+	ID         string `json:"id"`
+	FullName   string `json:"full_name"`
+	Email      string `json:"email"`
+	Department string `json:"department"`
+}
+
+// ContactLookup reads email contacts from auth-service. ids and
+// departmentHeadOf are optional filters (ANDed); at least one is needed.
+type ContactLookup interface {
+	Contacts(ctx context.Context, authorization string, ids []string, departmentHeadOf string) ([]Contact, error)
+}
+
+// Contacts calls GET /api/v1/users/contacts with the caller's token. Any
+// failure (unreachable, 401/403, 5xx, bad body) is returned as an error: the
+// caller cannot tell who the recipients are and must not guess.
+func (c *Client) Contacts(ctx context.Context, authorization string, ids []string, departmentHeadOf string) ([]Contact, error) {
+	if strings.TrimSpace(authorization) == "" {
+		return nil, errors.New("no authorization to forward")
+	}
+	q := url.Values{}
+	if len(ids) > 0 {
+		q.Set("ids", strings.Join(ids, ","))
+	}
+	if d := strings.TrimSpace(departmentHeadOf); d != "" {
+		q.Set("department_head_of", d)
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.BaseURL+"/api/v1/users/contacts?"+q.Encode(), nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", authorization)
+	req.Header.Set("Accept", "application/json")
+
+	hc := c.HTTPClient
+	if hc == nil {
+		hc = &http.Client{Timeout: 3 * time.Second}
+	}
+	resp, err := hc.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("auth-service answered %d", resp.StatusCode)
+	}
+
+	var body struct {
+		Data struct {
+			Users []Contact `json:"users"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(io.LimitReader(resp.Body, 1<<20)).Decode(&body); err != nil {
+		return nil, fmt.Errorf("decode auth-service response: %w", err)
+	}
+	return body.Data.Users, nil
+}

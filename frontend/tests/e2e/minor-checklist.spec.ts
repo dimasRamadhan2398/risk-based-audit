@@ -129,20 +129,20 @@ test.beforeEach(async ({ context }) => {
   await authenticate(context)
 })
 
-test('activity code is generated and disabled in add and edit Annual Audit forms', async ({ page }) => {
+test('activity code is server-generated and disabled in add and edit Annual Audit forms', async ({ page }) => {
   await mockApis(page)
   await page.goto('/annual-audit')
   await expect(page.getByText('PKAT-2026-ASR-007', { exact: true })).toBeVisible()
 
   await page.getByRole('button', { name: /New Audit Plan|Rencana Audit Baru/ }).click()
-  const addCode = page.locator('input[placeholder="Terisi otomatis"]')
+  const addCode = page.locator('input[placeholder="Generated on save"]')
   await expect(addCode).toBeDisabled()
-  await expect(addCode).toHaveValue(/^PKAT-2026-ASR-\d{3}$/)
+  await expect(addCode).toHaveValue('')
 
   await page.reload()
   await expect(page.getByText('PKAT-2026-ASR-007', { exact: true })).toBeVisible()
   await page.locator('button[title="Edit"]').first().click()
-  const editCode = page.locator('input[placeholder="Terisi otomatis"]')
+  const editCode = page.locator('input[placeholder="Generated on save"]')
   await expect(editCode).toBeDisabled()
   await expect(editCode).toHaveValue('PKAT-2026-ASR-007')
 })

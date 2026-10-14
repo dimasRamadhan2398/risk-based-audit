@@ -2,12 +2,13 @@
 import type { TableColumn } from '@nuxt/ui'
 import { defineStore } from 'pinia'
 import { ref, reactive, computed, watch } from 'vue'
-import { AnnualAuditPlanStatus, AuditDepartment, AuditCategory, type AnnualAuditPlan, type AnnualPlanForm } from '~/types/audit'
-import { getAuditServiceBaseUrl, getRiskServiceBaseUrl, getAuthServiceBaseUrl } from '~/composables/useApiUrl'
+import { AnnualAuditPlanStatus, AuditCategory, type AnnualAuditPlan, type AnnualPlanForm } from '~/types/audit'
+import { getAuditServiceBaseUrl, getAuthServiceBaseUrl } from '~/composables/useApiUrl'
 import type { TablePagination } from '~/types/common'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
 import { getFiscalYearStrings } from '~/composables/useFiscalYear'
+import { useDepartmentApi } from '~/composables/useDepartmentApi'
 
 export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const showModal = ref(false)
@@ -89,13 +90,25 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   // --- STATE UNTUK FILTER ---
   const searchCode = ref('')
-  const selectedDepartment = ref<AuditDepartment | undefined>(undefined)
+  const selectedDepartment = ref<string | undefined>(undefined)
   const selectedStatus = ref<AnnualAuditPlanStatus | undefined>(undefined)
 
   // --- OPSI UNTUK DROPDOWN FILTER ---
   const yearOptions = getFiscalYearStrings()
-  const departmentOptions = Object.values(AuditDepartment)
+  // Department names from master-service (no fixed list). Empty on failure: no mock fallback.
+  const departmentOptions = ref<string[]>([])
+  const departmentOptionsLoading = ref(false)
   const statusOptions = Object.values(AnnualAuditPlanStatus)
+
+  const fetchDepartmentOptions = async () => {
+    departmentOptionsLoading.value = true
+    try {
+      const list = await useDepartmentApi().getAllDepartments()
+      departmentOptions.value = list.map(d => d.department_name).filter(Boolean)
+    } finally {
+      departmentOptionsLoading.value = false
+    }
+  }
 
   const normalizePlans = (rawPlans: any[]): AnnualAuditPlan[] => {
     if (!Array.isArray(rawPlans)) return []
@@ -108,8 +121,9 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
           ...a,
           name: a.name || a.title || '',
           category: a.category || AuditCategory.ASSURANCE,
-          department: a.department || (a.involved_departments && a.involved_departments[0]?.name) || AuditDepartment.IT,
+          department: a.department || (a.involved_departments && a.involved_departments[0]?.name) || '',
           involvedDepartments: a.involvedDepartments || a.involved_departments || [],
+          auditUniverseId: a.auditUniverseId || a.audit_universe_id || '',
           timelineText: a.timeline_text || a.timelineText || '',
           auditorCount: a.auditor_count || a.auditorCount || 1,
           totalMandays: a.total_mandays || a.totalMandays || 0,
@@ -223,7 +237,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     version: 'v1.0',
     revisionHistory: [],
     activities: [
-      { name: '', category: AuditCategory.ASSURANCE, department: AuditDepartment.IT }
+      { name: '', category: AuditCategory.ASSURANCE, department: '' }
     ],
     status: AnnualAuditPlanStatus.NOT_AVAILABLE,
     selectedMonths: [],
@@ -268,7 +282,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     form.activities.push({
       name: '',
       category: AuditCategory.ASSURANCE,
-      department: AuditDepartment.IT
+      department: ''
     })
   }
 
@@ -277,39 +291,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       form.activities.splice(index, 1)
     }
   }
-
-  const getCategoryCode = (category?: string): string => {
-    if (!category) return 'ASR'
-    const cat = category.toLowerCase()
-    if (cat.includes('assurance') && !cat.includes('quality')) return 'ASR'
-    if (cat.includes('special')) return 'SPE'
-    if (cat.includes('specific')) return 'SPR'
-    if (cat.includes('consulting')) return 'CON'
-    if (cat.includes('investigation')) return 'INV'
-    if (cat.includes('quality') || cat.includes('qar')) return 'QAR'
-    if (cat.includes('follow')) return 'FLW'
-    const cleaned = category.replace(/[^a-zA-Z]/g, '')
-    return cleaned.length >= 3 ? cleaned.slice(0, 3).toUpperCase() : 'ASR'
-  }
-
-  const generateAutoCode = () => {
-    if (isEditing.value) return
-
-    const yr = form.year || new Date().getFullYear().toString()
-    const catCode = getCategoryCode(form.activities[0]?.category)
-
-    const seq = (plans.value.length + 1).toString().padStart(3, '0')
-    form.code = `PKAT-${yr}-${catCode}-${seq}`
-  }
-
-  watch(
-    [() => form.year, () => form.activities[0]?.category],
-    () => {
-      if (!isEditing.value && showModal.value) {
-        generateAutoCode()
-      }
-    }
-  )
 
   const openModal = () => {
     isEditing.value = false
@@ -323,7 +304,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       version: 'v1.0',
       revisionHistory: [],
       activities: [
-        { name: '', category: AuditCategory.ASSURANCE, department: AuditDepartment.IT }
+        { name: '', category: AuditCategory.ASSURANCE, department: '' }
       ],
       status: AnnualAuditPlanStatus.NOT_AVAILABLE,
       selectedMonths: [],
@@ -341,25 +322,10 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       year: defaultYear
     })
 
-    generateAutoCode()
     showModal.value = true
   }
 
   const closeModal = () => showModal.value = false
-
-  const yearlyUniverse = ref<any[]>([])
-
-  const fetchYearlyUniverse = async (year: number) => {
-    try {
-      const baseUrl = getRiskServiceBaseUrl()
-      const response: any = await $fetch(`${baseUrl}/audit-universe/year/${year}`)
-      if (response && response.success) {
-        yearlyUniverse.value = response.data
-      }
-    } catch (error) {
-      console.error('Failed to fetch yearly universe for annual plan:', error)
-    }
-  }
 
   watch(
     () => filteredPlans.value.length,
@@ -460,7 +426,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     const auditorErrors: string[] = []
 
     // 1. Activity Detail
-    if (!form.code.trim()) {
+    // New plans get their code from the server on save; only an existing plan must still carry one.
+    if (isEditing.value && !form.code?.trim()) {
       activityErrors.push('Activity Code wajib diisi.')
     }
 
@@ -545,7 +512,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
         await updatePlan(editingId.value, { ...form })
         toast.showSuccess('Data Rencana Audit Berhasil Diperbarui!')
       } else {
-        await addPlan({ ...form })
+        const createdCode = await addPlan({ ...form })
+        if (createdCode) form.code = createdCode
         toast.showSuccess('Data Rencana Audit Berhasil Disimpan!')
       }
 
@@ -577,13 +545,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     form.attachmentUploadDate = plan.attachmentUploadDate || ''
     form.isActive = plan.isActive
     form.year = plan.year || ''
-
-    if (!form.code) {
-      const yr = form.year || new Date().getFullYear().toString()
-      const catCode = getCategoryCode(form.activities[0]?.category)
-      const seq = (plans.value.length + 1).toString().padStart(3, '0')
-      form.code = `PKAT-${yr}-${catCode}-${seq}`
-    }
 
     showModal.value = true
   }
@@ -689,8 +650,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     const supervisorId = supervisor?.id || form.supervisorId
     const supervisorName = supervisor?.name || form.supervisorId || 'Unknown'
 
+    // No code is sent: the server generates PKAT-<Tahun>-<No.Urut> in the create transaction.
     const payload = {
-      code: form.code,
       version: 'v1.0',
       revisionHistory: [],
       activities: form.activities,
@@ -719,12 +680,14 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
     const baseUrl = getAuditServiceBaseUrl()
     try {
-      await $fetch(`${baseUrl}/annual-audit-plans`, {
+      const response: any = await $fetch(`${baseUrl}/annual-audit-plans`, {
         method: 'POST',
         body: payload
       })
-      toast.showSuccess('Rencana audit tahunan berhasil ditambahkan.')
       await fetchPlans()
+      // Read from the create response; shape not yet confirmed against the backend.
+      const createdCode = response?.data?.code ?? response?.code
+      return typeof createdCode === 'string' ? createdCode : ''
     } catch (error: any) {
       console.error('Failed to create annual plan:', error)
       const detail = extractErrorMessage(error, 'Gagal menambahkan rencana audit.')
@@ -765,7 +728,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
         method: 'PUT',
         body: payload
       })
-      toast.showSuccess('Rencana audit tahunan berhasil diperbarui.')
       await fetchPlans()
     } catch (error: any) {
       console.error('Failed to update annual plan:', error)
@@ -805,7 +767,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
           method: 'DELETE'
         })
       }
-      toast.showSuccess('Rencana audit tahunan berhasil diproses.')
       await fetchPlans()
     } catch (error: any) {
       console.error('Failed to delete annual plan:', error)
@@ -927,11 +888,11 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     searchCode, selectedDepartment, selectedStatus, form, columns, errorMsg, loading, validationErrors,
     filteredPlans, totalMandays, selectedSupervisor, scheduleWarning, utilizationData,
     computedQuarters, paginations, pagination: paginations,
-    clearFilters, openViewModal, closeViewModal, departmentOptions, statusOptions,
+    clearFilters, openViewModal, closeViewModal, departmentOptions, departmentOptionsLoading, fetchDepartmentOptions, statusOptions,
     toggleMonth, addActivity, removeActivity, handleDownload,
     openModal, closeModal, handleSubmit, handleEdit, handleEditFromView, handleDelete, getSupervisorName,
-    getStatusColor, handleFileChange, fetchPlans, generateAutoCode, getCategoryCode,
+    getStatusColor, handleFileChange, fetchPlans,
     handleStaffApprove, handleStaffReject, handleManagerApprove, handleManagerReject, handleChiefApprove, handleChiefReject,
-    createRevision, getRiskLevelColor, yearlyUniverse, fetchYearlyUniverse
+    createRevision, getRiskLevelColor
   }
 })

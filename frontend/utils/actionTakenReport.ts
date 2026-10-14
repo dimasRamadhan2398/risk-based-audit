@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { ActionTakenReport, AtrEvidence } from '~/types/audit'
+import type { ActionTakenReport, AtrEvidence, AtrLhaInfo } from '~/types/audit'
 
 /**
  * Action Taken Report (ATR) helpers shared by the ATR store, the ATR page, the LHA page and the dashboard.
@@ -156,6 +156,31 @@ const normalizeEvidence = (raw: unknown): AtrEvidence[] => {
     .filter(e => e.id)
 }
 
+/**
+ * The LHA header fields the ATR detail carries as a nested `lha` object (GET /action-taken-reports/:id).
+ * Null when the server sent none (list rows, LHA gone, ATR migrated without a link).
+ */
+const normalizeLha = (raw: unknown): AtrLhaInfo | null => {
+  if (!raw || typeof raw !== 'object') return null
+  const lha = raw as RawRow
+  return {
+    status: str(lha.status),
+    report_date: strOrNull(lha.report_date),
+    audit_object: str(lha.audit_object),
+    department: str(lha.department),
+    company_name: str(lha.company_name),
+    audit_period: str(lha.audit_period),
+    executive_summary: str(lha.executive_summary),
+    scope: str(lha.scope),
+    methodology: str(lha.methodology),
+    finding_summary: str(lha.finding_summary),
+    conclusion: str(lha.conclusion),
+    prepared_by: str(lha.prepared_by),
+    reviewed_by: str(lha.reviewed_by),
+    approved_by: str(lha.approved_by)
+  }
+}
+
 /** One ATR item from the API, with a canonical status, a 0-100 progress and server overdue flags (client fallback when absent). */
 export const normalizeAtrItem = (item: RawRow, now: Date = new Date()): ActionTakenReport => {
   const status = normalizeAtrStatus(item.status)
@@ -187,7 +212,8 @@ export const normalizeAtrItem = (item: RawRow, now: Date = new Date()): ActionTa
     reviewed_at: strOrNull(item.reviewed_at),
     created_at: str(item.created_at),
     updated_at: str(item.updated_at),
-    allowed_actions: Array.isArray(item.allowed_actions) ? item.allowed_actions.map(str) : null
+    allowed_actions: Array.isArray(item.allowed_actions) ? item.allowed_actions.map(str) : null,
+    lha: normalizeLha(item.lha)
   }
 }
 
@@ -302,6 +328,10 @@ export const atrCanSubmit = (item: Pick<ActionTakenReport, 'status' | 'action_pl
   isOpenForWork(item.status) && !!item.action_plan.trim()
 export const atrCanReviewStatus = (status: unknown) => normalizeAtrStatus(status) === 'PENDING_REVIEW'
 export const atrCanCancelStatus = (status: unknown) => !!normalizeAtrStatus(status) && !isAtrClosed(status)
+/** Reminders go out for any open follow-up; a cancelled ATR gets none. */
+export const atrCanRemindStatus = (status: unknown) => !!normalizeAtrStatus(status) && normalizeAtrStatus(status) !== 'CANCELLED'
+/** The edit form changes the open item (PLANNED, IN_PROGRESS, PENDING_REVIEW): not completed, not cancelled. */
+export const atrCanEditStatus = (status: unknown) => atrCanAssignStatus(status)
 
 // ---------------------------------------------------------------------------
 // Form schemas (messages are i18n keys)
@@ -333,6 +363,10 @@ export const atrActionPlanSchema = z.object({
   progress: z.number({ message: 'actionTakenReport.validation.progressRange' }).int()
     .min(0, 'actionTakenReport.validation.progressRange')
     .max(100, 'actionTakenReport.validation.progressRange')
+})
+
+export const atrDueDateSchema = z.object({
+  due_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'actionTakenReport.validation.dueDateRequired')
 })
 
 export const atrAssignmentSchema = z.object({

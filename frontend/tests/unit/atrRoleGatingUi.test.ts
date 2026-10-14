@@ -2,7 +2,7 @@
 /**
  * ATR UI: who sees which action (useRbac + status + the server's allowed_actions), the "My actions"
  * default for PICs, the PIC picker on 403, and source checks on the ATR page and modals
- * (TableEntities, shared modal shell, no assignment-letter fields, no fake reminder button).
+ * (TableEntities, shared modal shell, no assignment-letter fields, no mock data).
  */
 import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest'
 import { computed as vueComputed, createApp, defineComponent, h, nextTick } from 'vue'
@@ -378,11 +378,11 @@ describe('ATR source', () => {
     expect(JSON.stringify(en.actionTakenReport)).not.toMatch(/assignment letter|surat tugas/i)
   })
 
-  it('no mock data and no fake reminder button', () => {
+  it('no mock data and no hardcoded reminder text (the reminder calls the real endpoint, labels come from i18n)', () => {
     const files = ['pages/action-taken-report/index.vue', 'stores/action-taken-report.ts', ...ATR_COMPONENTS]
     for (const file of files) {
       const src = read(file)
-      expect(src, file).not.toMatch(/Kirim Pengingat|sendReminder|mockData|dummy|sampleData/i)
+      expect(src, file).not.toMatch(/Kirim Pengingat|mockData|dummy|sampleData/i)
     }
   })
 

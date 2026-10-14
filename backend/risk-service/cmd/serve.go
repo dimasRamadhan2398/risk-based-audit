@@ -11,6 +11,7 @@ import (
 	"risk-service/middleware"
 	"risk-service/models"
 	"risk-service/pkg/database"
+	"risk-service/pkg/kafka"
 	"risk-service/pkg/masterclient"
 	"risk-service/repositories"
 	"risk-service/routes"
@@ -150,7 +151,20 @@ func runServe(cmd *cobra.Command, args []string) error {
 	riskCtrl := controllers.NewRiskController(riskServ)
 	mitigationCtrl := controllers.NewMitigationController(mitigationServ)
 	riskFactorCtrl := controllers.NewRiskFactorController(db)
-	auditUniverseCtrl := controllers.NewAuditUniverseController(db)
+	// Audit Universe events feed audit-service's annual plan sync. Best-effort:
+	// if the broker is unreachable at start-up the service still serves the
+	// universe, and POST /audit-universe/events/resync repairs the gap later.
+	var universeEvents *kafka.Publisher
+	if cfg.Kafka.Enabled {
+		publisher, kafkaErr := kafka.NewPublisher(cfg.Kafka.Brokers, cfg.Kafka.ServiceName)
+		if kafkaErr != nil {
+			log.Printf("Warning: Audit Universe events disabled: %v", kafkaErr)
+		} else {
+			universeEvents = publisher
+			defer publisher.Close()
+		}
+	}
+	auditUniverseCtrl := controllers.NewAuditUniverseController(db, universeEvents)
 	rcmCtrl := controllers.NewRCMController(db)
 
 	// Register Routes

@@ -333,6 +333,59 @@ func IsLHAApproved(status string) bool {
 	return false
 }
 
+// lhaRejectedStatuses are LHA statuses that take the report out of the
+// reporting stage entirely. A rejected or cancelled LHA is not a report in progress.
+var lhaRejectedStatuses = []string{"REJECTED", "CANCELLED", "CANCELED"}
+
+// lhaAwaitingCAEStatuses are LHA statuses for a report that is submitted and
+// waiting on CAE approval. This is the last step before Final, so the execution
+// sits at 90 (Reporting), above the 88 of a report still in review.
+var lhaAwaitingCAEStatuses = []string{
+	"PENDING CAE", "CAE PENDING", "WAITING CAE", "PENDING APPROVAL", "WAITING APPROVAL",
+}
+
+// lhaInReviewStatuses are LHA statuses for a report that has been submitted and
+// is waiting on review or CAE approval (not yet approved). It includes
+// lhaAwaitingCAEStatuses. The LHA form today only offers Draft and Final; these
+// cover the review vocabulary used elsewhere in the app.
+var lhaInReviewStatuses = append([]string{
+	"IN REVIEW", "REVIEW", "PENDING REVIEW", "SUBMITTED", "PENDING",
+}, lhaAwaitingCAEStatuses...)
+
+// lhaStatusKey upper-cases a status and folds "_" and "-" into spaces, so
+// "IN_REVIEW", "In review" and " in-review " compare equal.
+func lhaStatusKey(status string) string {
+	s := strings.NewReplacer("_", " ", "-", " ").Replace(strings.ToUpper(strings.TrimSpace(status)))
+	return strings.Join(strings.Fields(s), " ")
+}
+
+// IsLHARejectedOrCancelled reports whether an AuditResultReport status means the
+// report was rejected or cancelled, so it must not count as reporting progress.
+func IsLHARejectedOrCancelled(status string) bool {
+	return containsStatus(lhaRejectedStatuses, lhaStatusKey(status))
+}
+
+// IsLHAInReview reports whether an AuditResultReport status means the report is
+// submitted and waiting on review or CAE approval (not yet approved).
+func IsLHAInReview(status string) bool {
+	return containsStatus(lhaInReviewStatuses, lhaStatusKey(status))
+}
+
+// IsLHAAwaitingCAE reports whether an AuditResultReport status means the report
+// is waiting on CAE approval. Such a report is still not final.
+func IsLHAAwaitingCAE(status string) bool {
+	return containsStatus(lhaAwaitingCAEStatuses, lhaStatusKey(status))
+}
+
+func containsStatus(list []string, key string) bool {
+	for _, s := range list {
+		if key == s {
+			return true
+		}
+	}
+	return false
+}
+
 // AssignFindingIDs returns incoming with a stable id on every finding:
 //   - a finding that carries a valid uuid keeps it (first occurrence wins when
 //     the same id is sent twice);
