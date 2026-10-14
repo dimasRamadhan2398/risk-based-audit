@@ -925,6 +925,7 @@ import { useI18n } from "~/composables/useI18n";
 import { useRiskProfileStore, riskLevelConfig } from "~/stores/risk-profile";
 import { getControlEffectivenessColorClass, getRiskLevelColorClass } from "~/utils/riskLevelBadge";
 import { useAnnualPlanStore } from "~/stores/annual-audit";
+import { AnnualAuditPlanStatus } from "~/types/audit";
 import { useActionTakenReportStore } from "~/stores/action-taken-report";
 import { useAuditExecutionStore } from "~/stores/audit-execution";
 import { getProgressValue } from "~/utils/executionSources";
@@ -1278,12 +1279,12 @@ const highRisks = computed(
 );
 const auditPlansCount = computed(() => annualPlanStore.plans.length);
 const completedAuditsCount = computed(
-  () => annualPlanStore.plans.filter((p) => p.status === "Done").length
+  () => annualPlanStore.plans.filter((p) => p.status === AnnualAuditPlanStatus.APPROVED).length
 );
 
 // Audit Statistics (Section 2)
 const plannedAuditCount = computed(
-  () => annualPlanStore.plans.filter((p) => p.status !== "Done").length
+  () => annualPlanStore.plans.filter((p) => p.status !== AnnualAuditPlanStatus.APPROVED).length
 );
 // Open findings = ATR items not COMPLETED and not CANCELLED (see utils/actionTakenReport).
 const openFindingsCount = computed(() => atrStore.stats.counts.open);
@@ -1478,8 +1479,8 @@ const registeredRiskColumns = [
 ];
 
 // Audit Coverage
-// Planned = every annual audit plan, Completed = status "Done",
-// Remaining = everything else (WIP, Pending Approval, Not Available, Draft, ...).
+// Planned = every annual audit plan, Completed = status "Approved",
+// Remaining = everything else (Draft, Pending Review, Pending Approval, Revised).
 const auditCoverage = computed(() => {
   const plannedAudits = auditPlansCount.value;
   const completedAudits = completedAuditsCount.value;

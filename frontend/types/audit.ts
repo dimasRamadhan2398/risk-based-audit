@@ -34,10 +34,11 @@ export enum AuditExecutionStatus {
 }
 
 export enum AnnualAuditPlanStatus {
-  DONE = "Done",
-  WORK_IN_PROGRESS = "Work In Progress",
+  DRAFT = "Draft",
+  PENDING_REVIEW = "Pending Review",
   PENDING_APPROVAL = "Pending Approval",
-  NOT_AVAILABLE = "Not Available"
+  APPROVED = "Approved",
+  REVISED = "Revised"
 }
 
 export enum FindingSeverity {

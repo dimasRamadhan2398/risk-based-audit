@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	ctrlActivity "audit-service/controllers/audit_activity"
 	ctrlAssignment "audit-service/controllers/audit_assignment"
@@ -113,6 +114,13 @@ func runServe(cmd *cobra.Command, args []string) error {
 	// (models/audit-annual-plan.go), so create it explicitly and idempotently.
 	if err := db.Exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_audit_annuals_code_live ON audit_annuals (code) WHERE deleted_at IS NULL AND code <> ''`).Error; err != nil {
 		logger.Error("Failed to create plan code index", logger.LogField("error", err))
+	}
+
+	// Legacy annual plan statuses (e.g. "Done", "DRAFT") become the canonical
+	// vocabulary before any request is served. Idempotent.
+	if err := normalizeAnnualPlanStatuses(db); err != nil {
+		logger.Error("Annual plan status normalization failed; status checks may reject legacy values",
+			logger.LogField("error", err))
 	}
 
 	// Ensure columns in audit_result_reports exist
@@ -274,23 +282,34 @@ func startAnnualPlanSync(db *gorm.DB) {
 		logger.Info("Annual plan sync consumer disabled (kafka_consumer.enabled=false)")
 		return
 	}
-	consumer, err := kafka.NewConsumer(kafka.ConsumerConfig{
-		Brokers:       cfg.KafkaConsumer.Brokers,
-		GroupID:       cfg.KafkaConsumer.GroupID,
-		Topics:        cfg.KafkaConsumer.Topics,
-		Enabled:       cfg.KafkaConsumer.Enabled,
-		Version:       cfg.KafkaConsumer.Version,
-		Assignor:      cfg.KafkaConsumer.Assignor,
-		InitialOffset: cfg.KafkaConsumer.Offset,
-	}, logger.GetLogger())
-	if err != nil {
-		logger.Warn("Annual plan sync disabled: Kafka consumer unavailable", logger.LogField("error", err))
-		return
-	}
-	annualPlanSync.Register(consumer, annualPlanSync.NewHandler(annualPlanSync.New(db)))
+	// The consumer is created in the background and retried until the broker
+	// and the group are reachable. A broker that is down at boot must not
+	// disable annual plan sync until the next restart.
 	go func() {
-		if err := consumer.Start(); err != nil {
-			logger.Error("Annual plan sync consumer failed", logger.LogField("error", err))
+		backoff := 2 * time.Second
+		for {
+			consumer, err := kafka.NewConsumer(kafka.ConsumerConfig{
+				Brokers:       cfg.KafkaConsumer.Brokers,
+				GroupID:       cfg.KafkaConsumer.GroupID,
+				Topics:        cfg.KafkaConsumer.Topics,
+				Enabled:       cfg.KafkaConsumer.Enabled,
+				Version:       cfg.KafkaConsumer.Version,
+				Assignor:      cfg.KafkaConsumer.Assignor,
+				InitialOffset: cfg.KafkaConsumer.Offset,
+			}, logger.GetLogger())
+			if err == nil {
+				annualPlanSync.Register(consumer, annualPlanSync.NewHandler(annualPlanSync.New(db)))
+				if err := consumer.Start(); err != nil {
+					logger.Error("Annual plan sync consumer failed to start", logger.LogField("error", err))
+				}
+				return
+			}
+			logger.Warn("Annual plan sync consumer unavailable, retrying",
+				logger.LogField("error", err), logger.LogField("retry_in", backoff.String()))
+			time.Sleep(backoff)
+			if backoff < time.Minute {
+				backoff *= 2
+			}
 		}
 	}()
 }

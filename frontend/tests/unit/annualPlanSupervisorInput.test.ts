@@ -77,7 +77,7 @@ describe('Annual Audit Form - Supervisor Input Field', () => {
       id: 'plan-123',
       code: 'PKAT-2026-ASR-001',
       version: 'v1.0',
-      status: 'Done',
+      status: 'Approved',
       selectedMonths: [0, 1],
       auditorCount: 3,
       daysPerAuditor: 4,

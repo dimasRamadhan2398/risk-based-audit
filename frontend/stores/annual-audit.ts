@@ -4,6 +4,7 @@ import { defineStore } from 'pinia'
 import { ref, reactive, computed, watch } from 'vue'
 import { AnnualAuditPlanStatus, AuditCategory, type AnnualAuditPlan, type AnnualPlanForm } from '~/types/audit'
 import { getAuditServiceBaseUrl, getAuthServiceBaseUrl } from '~/composables/useApiUrl'
+import { useI18n } from '~/composables/useI18n'
 import type { TablePagination } from '~/types/common'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
@@ -13,7 +14,6 @@ import { useDepartmentApi } from '~/composables/useDepartmentApi'
 export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const showModal = ref(false)
   const errorMsg = ref('')
-  const progressAudit = ref(50)
   const loading = ref(false)
   const validationErrors = reactive({
     activityDetail: '',
@@ -21,6 +21,16 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     auditor: ''
   })
   const toast = useToastNotification()
+  const { t } = useI18n()
+
+  // Canonical status vocabulary (API values) -> i18n key under annualAudit.status.*
+  const statusLabelKeys: Record<AnnualAuditPlanStatus, string> = {
+    [AnnualAuditPlanStatus.DRAFT]: 'annualAudit.status.draft',
+    [AnnualAuditPlanStatus.PENDING_REVIEW]: 'annualAudit.status.pendingReview',
+    [AnnualAuditPlanStatus.PENDING_APPROVAL]: 'annualAudit.status.pendingApproval',
+    [AnnualAuditPlanStatus.APPROVED]: 'annualAudit.status.approved',
+    [AnnualAuditPlanStatus.REVISED]: 'annualAudit.status.revised'
+  }
 
   // Constants
   const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -31,26 +41,26 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     totalPages: 1
   })
 
-  const approvalStepperItems = ref([
+  const approvalStepperItems = computed(() => [
     {
       slot: 'draft' as const,
-      label: 'Draft',
-      description: 'Audit Staff',
+      label: t('annualAudit.status.draft'),
+      description: t('annualAudit.approvalRole.staff'),
       icon: 'i-lucide-check'
     }, {
       slot: 'review' as const,
-      label: 'Under Review',
-      description: 'Audit Manager',
+      label: t('annualAudit.status.pendingReview'),
+      description: t('annualAudit.approvalRole.manager'),
       icon: 'i-lucide-clock'
     }, {
       slot: 'approval' as const,
-      label: 'Pending Approval',
-      description: 'Chief Audit Executive',
+      label: t('annualAudit.status.pendingApproval'),
+      description: t('annualAudit.approvalRole.chief'),
       icon: 'i-lucide-clock'
     }, {
       slot: 'approved' as const,
-      label: 'Approved',
-      description: 'System',
+      label: t('annualAudit.status.approved'),
+      description: t('annualAudit.approvalRole.system'),
       icon: 'i-lucide-check-circle'
     }
   ]) as any
@@ -77,7 +87,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     { accessorKey: 'department', header: 'Department', class: 'w-36' },
     { accessorKey: 'riskName', header: 'Risk Name', class: 'w-52' },
     { accessorKey: 'riskLevel', header: 'Risk Level', class: 'w-28 whitespace-nowrap' },
-    { accessorKey: 'progress', header: 'Progress', class: 'w-36' },
     { accessorKey: 'status', header: 'Status', class: 'w-20 whitespace-nowrap text-center' },
     { accessorKey: 'actions', header: 'Actions', class: 'w-36 whitespace-nowrap text-center' }
   ]
@@ -91,14 +100,18 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   // --- STATE UNTUK FILTER ---
   const searchCode = ref('')
   const selectedDepartment = ref<string | undefined>(undefined)
-  const selectedStatus = ref<AnnualAuditPlanStatus | undefined>(undefined)
+  const selectedStatus = ref<string | undefined>(undefined)
 
   // --- OPSI UNTUK DROPDOWN FILTER ---
   const yearOptions = getFiscalYearStrings()
   // Department names from master-service (no fixed list). Empty on failure: no mock fallback.
   const departmentOptions = ref<string[]>([])
   const departmentOptionsLoading = ref(false)
-  const statusOptions = Object.values(AnnualAuditPlanStatus)
+  // Filter options: value stays the canonical API string, label comes from i18n.
+  const statusOptions = computed(() => Object.values(AnnualAuditPlanStatus).map((value): { value: string, label: string } => ({
+    value,
+    label: t(statusLabelKeys[value])
+  })))
 
   const fetchDepartmentOptions = async () => {
     departmentOptionsLoading.value = true
@@ -189,11 +202,18 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     return supervisor ? supervisor.name : id
   }
 
+  const getStatusLabel = (status?: string) => {
+    const key = statusLabelKeys[status as AnnualAuditPlanStatus]
+    return key ? t(key) : (status || '-')
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Done': return 'bg-green-500'
-      case 'Work In Progress': return 'bg-amber-500'
-      case 'Not Available': return 'bg-gray-400'
+      case AnnualAuditPlanStatus.APPROVED: return 'bg-green-500'
+      case AnnualAuditPlanStatus.PENDING_REVIEW:
+      case AnnualAuditPlanStatus.PENDING_APPROVAL: return 'bg-amber-500'
+      case AnnualAuditPlanStatus.REVISED: return 'bg-red-500'
+      case AnnualAuditPlanStatus.DRAFT: return 'bg-gray-400'
       default: return 'bg-gray-200'
     }
   }
@@ -239,7 +259,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     activities: [
       { name: '', category: AuditCategory.ASSURANCE, department: '' }
     ],
-    status: AnnualAuditPlanStatus.NOT_AVAILABLE,
+    status: AnnualAuditPlanStatus.DRAFT,
     selectedMonths: [],
     auditorCount: 2,
     daysPerAuditor: 5,
@@ -306,7 +326,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       activities: [
         { name: '', category: AuditCategory.ASSURANCE, department: '' }
       ],
-      status: AnnualAuditPlanStatus.NOT_AVAILABLE,
+      status: AnnualAuditPlanStatus.DRAFT,
       selectedMonths: [],
       auditorCount: 2,
       daysPerAuditor: 5,
@@ -799,7 +819,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     const payload = {
       ...plan,
       version: newVersion,
-      status: AnnualAuditPlanStatus.NOT_AVAILABLE,
+      status: AnnualAuditPlanStatus.REVISED,
       revisionHistory: revisionHistory
     }
 
@@ -841,9 +861,10 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     }
   }
 
+  // Transitions: Draft|Revised -> submit (staff) -> Pending Review
   const handleStaffApprove = async () => {
     if (selectedPlan.value) {
-      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.WORK_IN_PROGRESS)
+      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.PENDING_REVIEW)
       selectedPlan.value = plans.value.find(p => p.id === selectedPlan.value.id)
     }
   }
@@ -861,37 +882,40 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     }
   }
 
+  // Pending Review -> manager reject -> Revised
   const handleManagerReject = async () => {
     if (selectedPlan.value) {
-      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.NOT_AVAILABLE)
+      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.REVISED)
       selectedPlan.value = plans.value.find(p => p.id === selectedPlan.value.id)
     }
   }
 
+  // Pending Approval -> CAE approve -> Approved
   const handleChiefApprove = async () => {
     if (selectedPlan.value) {
-      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.DONE)
+      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.APPROVED)
       selectedPlan.value = plans.value.find(p => p.id === selectedPlan.value.id)
     }
   }
 
+  // Pending Approval -> CAE reject -> Revised
   const handleChiefReject = async () => {
     if (selectedPlan.value) {
-      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.WORK_IN_PROGRESS)
+      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.REVISED)
       selectedPlan.value = plans.value.find(p => p.id === selectedPlan.value.id)
     }
   }
 
   return {
     plans, supervisors, monthsList, yearOptions, supervisorOptions, attachmentCategoryOptions,
-    showModal, isEditing, editingId, showViewModal, selectedPlan, progressAudit, approvalStepperItems,
+    showModal, isEditing, editingId, showViewModal, selectedPlan, approvalStepperItems,
     searchCode, selectedDepartment, selectedStatus, form, columns, errorMsg, loading, validationErrors,
     filteredPlans, totalMandays, selectedSupervisor, scheduleWarning, utilizationData,
     computedQuarters, paginations, pagination: paginations,
     clearFilters, openViewModal, closeViewModal, departmentOptions, departmentOptionsLoading, fetchDepartmentOptions, statusOptions,
     toggleMonth, addActivity, removeActivity, handleDownload,
     openModal, closeModal, handleSubmit, handleEdit, handleEditFromView, handleDelete, getSupervisorName,
-    getStatusColor, handleFileChange, fetchPlans,
+    getStatusColor, getStatusLabel, handleFileChange, fetchPlans,
     handleStaffApprove, handleStaffReject, handleManagerApprove, handleManagerReject, handleChiefApprove, handleChiefReject,
     createRevision, getRiskLevelColor
   }

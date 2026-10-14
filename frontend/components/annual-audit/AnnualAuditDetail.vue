@@ -20,7 +20,7 @@
                   </UBadge>
                   <div class="flex items-center gap-2">
                     <span class="w-4 h-4 rounded-full" :class="store.getStatusColor(store.selectedPlan.status)"></span>
-                    <span class="font-bold text-lg text-gray-800 dark:text-white">{{ store.selectedPlan.status }}</span>
+                    <span class="font-bold text-lg text-gray-800 dark:text-white">{{ store.getStatusLabel(store.selectedPlan.status) }}</span>
                   </div>
                 </div>
 
@@ -33,19 +33,6 @@
 
             <div class="space-y-6 pt-6">
 
-
-              <UCard class="border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-                <template #header>
-                  <h3 class="text-lg font-bold text-gray-800 dark:text-white">{{ t('annualAudit.detail.activityStatus') }}</h3>
-                </template>
-                <div class="flex items-center gap-8">
-                  <span class="font-bold text-gray-700 dark:text-gray-300 w-32">{{ t('annualAudit.detail.progress') }}</span>
-                  <div class="flex-1 max-w-xl">
-                    <UProgress v-model="store.progressAudit" color="secondary" class="h-3" />
-                  </div>
-                  <span class="text-secondary-600 dark:text-secondary-400 font-bold">50 %</span>
-                </div>
-              </UCard>
 
               <UCard class="border border-gray-200 dark:border-gray-800 rounded-lg p-6">
                 <template #header>
@@ -228,7 +215,7 @@
                   <div class="flex items-center justify-between">
                     <h3 class="text-lg font-bold text-gray-800 dark:text-white">{{ t('annualAudit.detail.revisionHistory') }}</h3>
                     <UButton 
-                      v-if="store.selectedPlan.status === 'Done' && !isCreatingRevision"
+                      v-if="isApproved && !isCreatingRevision"
                       color="primary" 
                       variant="soft" 
                       icon="i-heroicons-document-duplicate" 
@@ -274,7 +261,7 @@
                 </template>
 
                 <UStepper 
-                  :model-value="store.selectedPlan.status === 'Done' ? 'approved' : store.selectedPlan.status === 'Pending Approval' ? 'approval' : store.selectedPlan.status === 'Work In Progress' ? 'review' : 'draft'" 
+                  :model-value="approvalStep"
                   :items="store.approvalStepperItems" 
                   class="w-full"
                 >
@@ -330,12 +317,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from '~/composables/useI18n'
 import { useAnnualPlanStore } from '~/stores/annual-audit'
 import { getRiskLevelColorClass } from '~/utils/riskLevelBadge'
 import { useAuthStore } from '~/stores/auth'
 import { UserRole } from '~/types/auth'
+import { AnnualAuditPlanStatus } from '~/types/audit'
 
 // Cukup inisialisasi store. Komponen akan otomatis membaca status showModal, data form, dan fungsi dari sini.
 const store = useAnnualPlanStore()
@@ -344,6 +332,18 @@ const { t } = useI18n()
 
 const isCreatingRevision = ref(false)
 const revisionNote = ref('')
+
+const isApproved = computed(() => store.selectedPlan?.status === AnnualAuditPlanStatus.APPROVED)
+
+// Stepper slot for the current status. Draft and Revised both sit with Audit Staff (draft slot).
+const approvalStep = computed(() => {
+  switch (store.selectedPlan?.status) {
+    case AnnualAuditPlanStatus.APPROVED: return 'approved'
+    case AnnualAuditPlanStatus.PENDING_APPROVAL: return 'approval'
+    case AnnualAuditPlanStatus.PENDING_REVIEW: return 'review'
+    default: return 'draft'
+  }
+})
 
 const submitRevision = () => {
   if (!revisionNote.value) return

@@ -14,22 +14,48 @@ type RevisionHistoryEntry struct {
 	User    string `json:"user"`
 }
 
-// AnnualAuditActivity is one row of an annual plan. It is stored as JSON inside
-// audit_annuals.activities, so new fields need no SQL migration.
+// AnnualAuditActivity is one row of the Rencana Kegiatan Audit (the activity
+// table of an annual plan). It is stored as JSON inside audit_annuals.activities,
+// so new fields need no SQL migration.
 //
-// AuditUniverseID and DepartmentID are the stable links to risk-service's
-// corporate_audit_universe.id and master-service's departments.id. RiskName and
-// Department hold the names as last synced from those services (see
-// services/annual_plan_sync). Plans saved before the links existed have only the
-// names; the sync links them by name the first time a matching event arrives.
+// Every field is entered once. The template columns map as follows:
+//
+//	No                          itemNumber
+//	Kode Penugasan              activityCode
+//	Objek Penugasan Audit       name
+//	Jenis Audit                 category
+//	Audit Universe              auditUniverseId (picked; corporate id)
+//	Justifikasi Pemilihan Objek justification
+//	Tujuan Audit                auditObjective
+//	Fokus Audit                 auditFocus
+//	Jadwal Penugasan            timelineText
+//	Jumlah Tim (Orang)          auditorCount
+//	Total Mandays               totalMandays
+//	Ketua Tim                   supervisorName
+//
+// ID is a server-assigned UUID that stays with the row across updates (see
+// controllers/annual_plan). RiskName, RiskLevel and Department are display
+// snapshots of AuditUniverseID, the yearly score and DepartmentID. They are the
+// only fields that change without a user edit: services/annual_plan_sync
+// refreshes them from the Audit Universe and Department events.
 type AnnualAuditActivity struct {
+	ID              string `json:"id"`
+	ItemNumber      string `json:"itemNumber"`
+	ActivityCode    string `json:"activityCode"`
 	Name            string `json:"name"`
 	Category        string `json:"category"`
-	Department      string `json:"department"`
-	DepartmentID    string `json:"departmentId,omitempty"`
+	AuditUniverseID string `json:"auditUniverseId"`
 	RiskName        string `json:"riskName"`
 	RiskLevel       string `json:"riskLevel"`
-	AuditUniverseID string `json:"auditUniverseId,omitempty"`
+	DepartmentID    string `json:"departmentId"`
+	Department      string `json:"department"`
+	Justification   string `json:"justification"`
+	AuditObjective  string `json:"auditObjective"`
+	AuditFocus      string `json:"auditFocus"`
+	TimelineText    string `json:"timelineText"`
+	AuditorCount    int    `json:"auditorCount"`
+	TotalMandays    int    `json:"totalMandays"`
+	SupervisorName  string `json:"supervisorName"`
 }
 
 type AnnualAuditAttachment struct {
@@ -47,7 +73,9 @@ type AuditAnnual struct {
 	Version              string                   `gorm:"type:varchar(50);default:'v1.0'" json:"version"`
 	RevisionHistory      []RevisionHistoryEntry   `gorm:"serializer:json" json:"revisionHistory"`
 	Activities           []AnnualAuditActivity    `gorm:"serializer:json" json:"activities"`
-	Status               string                   `gorm:"type:varchar(50);default:'DRAFT'" json:"status"` // e.g., DRAFT, PENDING_APPROVAL, APPROVED, CLOSED
+	// Status is one of the AnnualPlanStatus* values (annual_plan_status.go). Changes
+	// are checked by the update hook in controllers/annual_plan.
+	Status               string                   `gorm:"type:varchar(50);default:'Draft'" json:"status"`
 	SelectedMonths       []int                    `gorm:"serializer:json" json:"selectedMonths"`
 	Quarters             []string                 `gorm:"serializer:json" json:"quarters"`
 	AuditorCount         int                      `gorm:"type:int" json:"auditorCount"`
@@ -56,6 +84,11 @@ type AuditAnnual struct {
 	SupervisorID         string                   `gorm:"type:varchar(50)" json:"supervisorId"`
 	SupervisorName       string                   `gorm:"type:varchar(255)" json:"supervisorName"`
 	Year                 int                      `gorm:"type:int;not null" json:"year"`
+	// Title is the Judul Kegiatan Audit (plan header).
+	Title                string                   `gorm:"type:varchar(255)" json:"title"`
+	// ActivityType is the Jenis Kegiatan Audit (plan header). When set it must be
+	// one of AnnualPlanActivityTypes (see controllers/annual_plan).
+	ActivityType         string                   `gorm:"type:varchar(100)" json:"activityType"`
 	Notes                string                   `gorm:"type:text" json:"notes"`
 	AttachmentCategory   string                   `gorm:"type:varchar(100)" json:"attachmentCategory"`
 	Attachments          []AnnualAuditAttachment  `gorm:"serializer:json" json:"attachments"`

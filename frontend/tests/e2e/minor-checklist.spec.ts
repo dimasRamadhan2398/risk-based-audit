@@ -45,7 +45,7 @@ const annualPlanFixture = {
   id: 'annual-plan-e2e',
   code: 'PKAT-2026-ASR-007',
   version: 'v1.0',
-  status: 'Work In Progress',
+  status: 'Pending Review',
   year: '2026',
   selectedMonths: [0, 1],
   auditorCount: 2,

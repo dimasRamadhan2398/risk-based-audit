@@ -1429,6 +1429,19 @@
   },
   "annualAudit": {
     "title": "Annual Audit Plan",
+    "status": {
+      "draft": "Draf",
+      "pendingReview": "Menunggu Review",
+      "pendingApproval": "Menunggu Persetujuan",
+      "approved": "Disetujui",
+      "revised": "Direvisi"
+    },
+    "approvalRole": {
+      "staff": "Staf Audit",
+      "manager": "Manajer Audit",
+      "chief": "Chief Audit Executive",
+      "system": "Sistem"
+    },
     "importPlanDocument": "Impor Dokumen Rencana",
     "newAuditPlan": "Rencana Audit Baru",
     "form": {
@@ -1441,7 +1454,8 @@
       "auditPriorityBadge": "Prioritas Audit",
       "departmentsPlaceholder": "Pilih Departemen",
       "departmentsEmpty": "Belum ada departemen di Master Data",
-      "title": "Formulir Annual Audit Plan",
+      "title": "Annual Audit Plan",
+      "defaultActivityName": "Audit Operasional {entity}",
       "sectionActivity": "1. Detail Aktivitas",
       "status": "Status",
       "statusPlaceholder": "Pilih Status",
@@ -2135,6 +2149,19 @@
     "riskMedium": "Risiko Sedang (Medium)",
     "riskLow": "Risiko Rendah (Low)",
     "syncFromIndividual": "Sinkronkan dari LHA Individual",
+    "sources": {
+      "loading": "Memuat data sumber (LHA, test control, working paper, ATR)...",
+      "error": "Gagal memuat data sumber: {message}",
+      "noLha": "Pilih LHA terlebih dahulu. Nilai statistik akan terisi otomatis dari data sumber.",
+      "noLhaInQuarter": "Belum ada LHA untuk tahun dan kuartal yang dipilih. Statistik akan terisi setelah LHA diterbitkan.",
+      "hintLha": "Otomatis dari LHA",
+      "hintRecommendation": "Otomatis dari test control fieldwork yang memiliki rekomendasi",
+      "hintRisk": "Otomatis dari working paper (tingkat risiko)",
+      "hintFollowUp": "Otomatis dari Action Taken Report (status tindak lanjut)",
+      "emptyRecommendation": "Belum ada test control dengan rekomendasi untuk penugasan LHA ini.",
+      "emptyRisk": "Belum ada risiko di working paper untuk penugasan LHA ini.",
+      "emptyFollowUp": "Belum ada Action Taken Report untuk LHA ini."
+    },
     "matrix": {
       "title": "Matriks Kompilasi Temuan LHA Individual",
       "description": "Daftar LHA Individual yang dikompilasi ke dalam laporan eksekutif ini.",

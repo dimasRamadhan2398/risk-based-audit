@@ -75,6 +75,7 @@ func autoMigrate(db *gorm.DB) error {
 	}
 
 	if err := db.AutoMigrate(
+		&models.KafkaOutboxEvent{},
 		&models.RiskLevel{},
 		&models.RiskAppetite{},
 		&models.RiskProfile{},

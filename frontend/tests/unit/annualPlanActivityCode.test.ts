@@ -77,7 +77,7 @@ describe('Annual plan activity code (PKAT-<Tahun>-<No.Urut>)', () => {
     store.handleEdit({
       id: 'plan-old',
       code: 'PKAT-2026-ASR-003-SPE',
-      status: 'Not Available',
+      status: 'Draft',
       year: '2026',
       activities: [{ name: 'Audit IT', category: 'Assurance', department: 'IT', riskName: 'Risk A' }],
       selectedMonths: [0],

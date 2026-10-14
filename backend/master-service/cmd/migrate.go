@@ -216,7 +216,7 @@ func autoMigrate(db *gorm.DB) error {
 		return err
 	}
 
-	return db.AutoMigrate(
+	if err := db.AutoMigrate(
 		&models.Employee{},
 		&models.Department{},
 		&models.RiskRegister{},
@@ -241,7 +241,58 @@ func autoMigrate(db *gorm.DB) error {
 		&models.VmgGoal{},
 		&models.DataSourceConnection{},
 		&models.DataSourceActivityLog{},
-	)
+	); err != nil {
+		return err
+	}
+
+	return normalizeAnnualPlanStatuses(db)
+}
+
+// normalizeAnnualPlanStatuses maps legacy annual_audit_plans.status values to the
+// canonical vocabulary (models/annual_audit_plan.go). Idempotent; covers
+// soft-deleted rows. Unknown values are left unchanged and logged.
+func normalizeAnnualPlanStatuses(db *gorm.DB) error {
+	groups := map[models.AuditPlanStatus][]string{
+		models.AuditPlanStatusDraft:           {"", "Not Available", "DRAFT"},
+		models.AuditPlanStatusPendingReview:   {"Work In Progress", "SUBMITTED"},
+		models.AuditPlanStatusPendingApproval: {"PENDING_APPROVAL"},
+		models.AuditPlanStatusApproved:        {"Done", "APPROVED"},
+		models.AuditPlanStatusRevised:         {"REJECTED", "REVISED"},
+	}
+	var rewritten int64
+	for target, legacy := range groups {
+		// The condition strings are constants; only the values are bound.
+		cond := "status IN ?"
+		if target == models.AuditPlanStatusDraft {
+			cond = "status IN ? OR status IS NULL"
+		}
+		res := db.Unscoped().Model(&models.AnnualAuditPlan{}).
+			Where("("+cond+")", legacy).
+			Update("status", target)
+		if res.Error != nil {
+			return fmt.Errorf("normalize annual plan statuses: %w", res.Error)
+		}
+		rewritten += res.RowsAffected
+	}
+	if rewritten > 0 {
+		fmt.Printf("Annual plan statuses normalized: %d row(s)\n", rewritten)
+	}
+
+	canonical := []models.AuditPlanStatus{
+		models.AuditPlanStatusDraft, models.AuditPlanStatusPendingReview,
+		models.AuditPlanStatusPendingApproval, models.AuditPlanStatusApproved,
+		models.AuditPlanStatusRevised,
+	}
+	var unknown []string
+	if err := db.Unscoped().Model(&models.AnnualAuditPlan{}).
+		Where("status NOT IN ?", canonical).
+		Distinct().Pluck("status", &unknown).Error; err != nil {
+		return fmt.Errorf("check annual plan statuses: %w", err)
+	}
+	if len(unknown) > 0 {
+		fmt.Printf("WARNING: annual plans with status outside the vocabulary: %v\n", unknown)
+	}
+	return nil
 }
 
 func dropAllTables(db *gorm.DB) error {

@@ -135,7 +135,7 @@
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800 font-medium">
                   <tr v-for="lha in quarterlyLhas" :key="lha.id || lha.reportNumber" class="hover:bg-gray-50/60 dark:hover:bg-gray-800/50 transition-colors">
                     <td class="px-4 py-2.5 font-mono font-semibold text-primary-600 dark:text-primary-400 whitespace-nowrap">
-                      {{ lha.reportNumber || lha.report_number }}
+                      {{ lha.reportNumber || (lha as any).report_number }}
                     </td>
                     <td class="px-4 py-2.5 font-mono text-gray-600 dark:text-gray-400 whitespace-nowrap">
                       <span v-if="lha.assignmentLetterId" class="inline-flex items-center gap-1">
@@ -161,7 +161,7 @@
                       </UBadge>
                     </td>
                     <td class="px-4 py-2.5 text-center whitespace-nowrap">
-                      <UBadge :color="lha.status === 'Final' || lha.status === 'Approved' ? 'success' : 'neutral'" variant="soft" size="xs">
+                      <UBadge :color="lha.status === 'Final' || (lha.status as string) === 'Approved' ? 'success' : 'neutral'" variant="soft" size="xs">
                         {{ lha.status }}
                       </UBadge>
                     </td>
@@ -266,40 +266,56 @@
               icon="i-lucide-refresh-cw"
               :label="t('executiveSummaryCompilation.syncFromIndividual')"
               size="sm"
-              @click="requireLhaThen(syncFromIndividualLha)"
+              :loading="sourcesLoading"
+              @click="syncFromIndividualLha"
             />
           </div>
 
+          <!-- Source status: loading / error / no LHA selected / empty sources -->
+          <div v-if="sourcesLoading" class="flex items-center gap-2 text-sm text-gray-400">
+            <UIcon name="i-lucide-loader-circle" class="size-4 animate-spin" />
+            {{ t('executiveSummaryCompilation.sources.loading') }}
+          </div>
+          <div v-else-if="sourcesError" class="text-sm text-error-500">
+            {{ t('executiveSummaryCompilation.sources.error', { message: sourcesError }) }}
+          </div>
+          <div v-else-if="!quarterlyLhas.length" class="text-sm text-gray-400">
+            {{ t('executiveSummaryCompilation.sources.noLhaInQuarter') }}
+          </div>
+          <ul v-else-if="sourceEmptyNotes.length" class="text-sm text-gray-400 space-y-1">
+            <li v-for="note in sourceEmptyNotes" :key="note">{{ note }}</li>
+          </ul>
+
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <UFormField :label="t('executiveSummaryCompilation.reportCount')" required>
+            <UFormField :label="t('executiveSummaryCompilation.reportCount')" :hint="t('executiveSummaryCompilation.sources.hintLha')">
               <UInput
                 type="number"
-                v-model.number="store.form.jumlahLaporan"
+                :model-value="store.form.jumlahLaporan"
                 :placeholder="t('executiveSummaryCompilation.reportCountPlaceholder')"
                 class="w-full font-bold"
-                :disabled="isLocked"
-                min="0"
+                disabled
+                readonly
               />
             </UFormField>
 
-            <UFormField :label="t('executiveSummaryCompilation.recommendationCount')" required>
+            <UFormField :label="t('executiveSummaryCompilation.recommendationCount')" :hint="t('executiveSummaryCompilation.sources.hintRecommendation')">
               <UInput
                 type="number"
-                v-model.number="store.form.jumlahRekomendasi"
+                :model-value="store.form.jumlahRekomendasi"
                 :placeholder="t('executiveSummaryCompilation.recommendationCountPlaceholder')"
                 class="w-full font-bold"
-                :disabled="isLocked"
-                min="0"
+                disabled
+                readonly
               />
             </UFormField>
 
             <!-- Auto calculated fields -->
-            <UFormField :label="t('executiveSummaryCompilation.totalFindings')">
+            <UFormField :label="t('executiveSummaryCompilation.totalFindings')" :hint="t('executiveSummaryCompilation.totalFindingsHint')">
               <UInput
-                v-model="totalTemuanSummary"
+                :model-value="totalTemuanSummary"
                 class="w-full font-bold bg-gray-50 dark:bg-gray-800"
                 disabled
-                :title="t('executiveSummaryCompilation.totalFindingsHint')"
+                readonly
               >
                 <template #trailing>
                   <span class="text-md text-gray-400">{{ t('executiveSummaryCompilation.findingsUnit') }}</span>
@@ -309,35 +325,38 @@
           </div>
 
           <div class="p-6 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-200 dark:border-gray-800 space-y-4">
-            <h4 class="text-md font-extrabold uppercase tracking-wider text-gray-400">{{ t('executiveSummaryCompilation.riskBreakdown') }}</h4>
+            <div class="flex justify-between items-center">
+              <h4 class="text-md font-extrabold uppercase tracking-wider text-gray-400">{{ t('executiveSummaryCompilation.riskBreakdown') }}</h4>
+              <span class="text-xs text-gray-400">{{ t('executiveSummaryCompilation.sources.hintRisk') }}</span>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <UFormField :label="t('executiveSummaryCompilation.riskHigh')">
                 <UInput
                   type="number"
-                  v-model.number="store.form.risikoTinggi"
+                  :model-value="store.form.risikoTinggi"
                   class="w-full border-l-4 border-error-500 font-bold"
-                  :disabled="isLocked"
-                  min="0"
+                  disabled
+                  readonly
                 />
               </UFormField>
 
               <UFormField :label="t('executiveSummaryCompilation.riskMedium')">
                 <UInput
                   type="number"
-                  v-model.number="store.form.risikoSedang"
+                  :model-value="store.form.risikoSedang"
                   class="w-full border-l-4 border-warning-500 font-bold"
-                  :disabled="isLocked"
-                  min="0"
+                  disabled
+                  readonly
                 />
               </UFormField>
 
               <UFormField :label="t('executiveSummaryCompilation.riskLow')">
                 <UInput
                   type="number"
-                  v-model.number="store.form.risikoRendah"
+                  :model-value="store.form.risikoRendah"
                   class="w-full border-l-4 border-success-500 font-bold"
-                  :disabled="isLocked"
-                  min="0"
+                  disabled
+                  readonly
                 />
               </UFormField>
             </div>
@@ -351,6 +370,7 @@
               {{ t('executiveSummaryForm.followUp.title') }}
             </h2>
             <p class="text-sm text-gray-400">{{ t('executiveSummaryForm.followUp.description') }}</p>
+            <p class="text-xs text-gray-400 mt-1">{{ t('executiveSummaryCompilation.sources.hintFollowUp') }}</p>
           </div>
 
           <div class="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
@@ -371,12 +391,11 @@
                   <td class="px-6 py-2">
                     <UInput
                       type="number"
-                      v-model.number="row.jumlah"
+                      :model-value="row.jumlah"
                       placeholder="0"
                       class="font-semibold"
-                      :disabled="isLocked"
-                      min="0"
-                      @input="recalculatePercentages"
+                      disabled
+                      readonly
                     />
                   </td>
                   <td class="px-6 py-4 text-sm font-semibold text-gray-600 dark:text-white">
@@ -421,7 +440,7 @@
                   icon="i-lucide-refresh-cw"
                   :label="t('executiveSummaryForm.sync.findings')"
                   size="sm"
-                  @click="requireLhaThen(syncFromIndividualLha)"
+                  @click="syncFromIndividualLha"
                 />
                 <UButton
                   v-if="!isLocked && store.form.topFindings.length < 5"
@@ -532,7 +551,7 @@
               icon="i-lucide-refresh-cw"
               :label="t('executiveSummaryForm.sync.analysis')"
               size="sm"
-              @click="requireLhaThen(syncFromIndividualLha)"
+              @click="syncFromIndividualLha"
             />
           </div>
 
@@ -661,7 +680,7 @@
 
           <div v-else class="text-center py-8 bg-gray-50 dark:bg-gray-800/30 rounded-lg text-sm text-gray-400 border border-dashed">
             {{ t('executiveSummaryCompilation.matrix.empty') }}
-            <button v-if="!isLocked" type="button" @click="requireLhaThen(syncFromIndividualLha)" class="text-primary-500 font-bold ml-1 hover:underline">
+            <button v-if="!isLocked" type="button" @click="syncFromIndividualLha" class="text-primary-500 font-bold ml-1 hover:underline">
               {{ t('executiveSummaryCompilation.matrix.emptyAction') }}
             </button>
           </div>
@@ -753,20 +772,38 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useExecutiveSummaryStore } from '~/stores/executive-summary'
 import { useAuthStore } from '~/stores/auth'
 import { useRbac } from '~/composables/useRbac'
+import { useI18n } from '~/composables/useI18n'
+import { useExecutiveSummarySources, type CompilationSources } from '~/composables/useExecutiveSummarySources'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
-
 const store = useExecutiveSummaryStore()
 const authStore = useAuthStore()
 const auditReportStore = useAuditResultReportStore()
 const assignmentLetterStore = useAssignmentLetterStore()
 const { canReviewExecutiveSummary } = useRbac()
 const { t } = useI18n()
-const { warning } = useAppToast()
-
+const { loading: sourcesLoading, error: sourcesError, fetchCompilationSources } = useExecutiveSummarySources()
 const fileInput = ref<HTMLInputElement | null>(null)
 const activeSection = ref('sec-upload')
 const scrollContainer = ref<HTMLElement | null>(null)
+
+// Last successful read of the statistics sources (null until the first sync)
+const lastSources = ref<CompilationSources | null>(null)
+
+// Empty-source hints shown under the statistics section after a sync
+const sourceEmptyNotes = computed<string[]>(() => {
+  const sources = lastSources.value
+  if (!sources) return []
+  const notes: string[] = []
+  if (sources.recommendationCount === 0) notes.push(t('executiveSummaryCompilation.sources.emptyRecommendation'))
+  if (sources.riskBreakdown.high + sources.riskBreakdown.medium + sources.riskBreakdown.low === 0) {
+    notes.push(t('executiveSummaryCompilation.sources.emptyRisk'))
+  }
+  if (sources.followUp.closed + sources.followUp.inProgress + sources.followUp.overdue === 0) {
+    notes.push(t('executiveSummaryCompilation.sources.emptyFollowUp'))
+  }
+  return notes
+})
 
 if (!auditReportStore.loading && auditReportStore.reportList.length === 0) {
   auditReportStore.fetchReports()
@@ -834,7 +871,6 @@ const generateEscDocNumber = (targetYear: number = 2026): string => {
 const getReportQuarterAndYear = (r: any, letters: any[] = []): { year: number; quarter: number } => {
   let year = 0
   let quarter = 0
-
   const dateStr = r.reportDate || (r as any).report_date || ''
   if (dateStr) {
     const parts = dateStr.split('T')[0].split('-')
@@ -855,7 +891,7 @@ const getReportQuarterAndYear = (r: any, letters: any[] = []): { year: number; q
     if (st) {
       if (!year && st.auditYear) {
         const yMatch = String(st.auditYear).match(/\b(20\d{2})\b/)
-        if (yMatch) year = parseInt(yMatch[1], 10)
+        if (yMatch) year = parseInt(yMatch[1] ?? '0', 10)
       }
       if (!quarter && st.startPeriod) {
         const parts = st.startPeriod.split('T')[0].split('-')
@@ -881,11 +917,9 @@ const getReportQuarterAndYear = (r: any, letters: any[] = []): { year: number; q
       year = 2026
     }
   }
-
   if (!quarter) {
     quarter = 1
   }
-
   return { year, quarter }
 }
 
@@ -893,7 +927,6 @@ const getReportQuarterAndYear = (r: any, letters: any[] = []): { year: number; q
 const quarterlyLhas = computed(() => {
   const targetYear = Number(store.form.tahun) || 2026
   const targetQuarter = Number(store.form.quarter) || 1
-
   const validReports = auditReportStore.reportList.filter(r => {
     const num = r.reportNumber || (r as any).report_number
     return (
@@ -905,7 +938,6 @@ const quarterlyLhas = computed(() => {
       num !== 'LHA-019/SKAI/2025'
     )
   })
-
   return validReports.filter(r => {
     const { year, quarter } = getReportQuarterAndYear(r, assignmentLetterStore.assignmentLetterList)
     return year === targetYear && quarter === targetQuarter
@@ -921,14 +953,6 @@ const totalTemuanSummary = computed(() => {
 const totalFollowUpCount = computed(() => {
   return store.form.followUpTable.reduce((acc, row) => acc + (row.jumlah || 0), 0)
 })
-
-// Force recalculate Section III percentages
-const recalculatePercentages = () => {
-  const total = totalFollowUpCount.value
-  store.form.followUpTable.forEach(row => {
-    row.persentase = total > 0 ? (row.jumlah / total) * 100 : 0
-  })
-}
 
 // Helper formatting percentage
 const formatPercent = (val: number) => {
@@ -993,9 +1017,9 @@ const getStatusBadgeClass = (status: 'Closed' | 'In Progress' | 'Overdue') => {
   return colors[status]
 }
 
-// Automatic Compilation Synchronization from all individual LHAs in the selected quarter and year
-const syncFromIndividualLha = () => {
-  const targetQuarter = store.form.quarter
+// Automatic Compilation Synchronization from all individual LHAs in the selected quarter and year.
+// Statistics (recommendations, risk levels, follow-up) are read-only and computed from the source data.
+const syncFromIndividualLha = async () => {
   const targetYear = store.form.tahun
 
   // Auto-set nomorDokumen if empty or follows legacy template
@@ -1011,6 +1035,7 @@ const syncFromIndividualLha = () => {
   store.form.jumlahLaporan = individualReports.length
 
   if (individualReports.length === 0) {
+    lastSources.value = null
     store.form.risikoTinggi = 0
     store.form.risikoSedang = 0
     store.form.risikoRendah = 0
@@ -1028,13 +1053,24 @@ const syncFromIndividualLha = () => {
     return
   }
 
-  // 2. Aggregate all findings across these individual reports
-  const allFindings: any[] = []
-  let totalHigh = 0
-  let totalMedium = 0
-  let totalLow = 0
-  let totalRecs = 0
+  // 2. Read-only sources: test-control recommendations, working paper risks, ATR follow-up status
+  const sources = await fetchCompilationSources({
+    assignmentLetterIds: individualReports.map(r => r.assignmentLetterId),
+    lhaIds: individualReports.map(r => r.id)
+  })
+  if (!sources) return
+  lastSources.value = sources
+  const totalHigh = sources.riskBreakdown.high
+  const totalMedium = sources.riskBreakdown.medium
+  const totalLow = sources.riskBreakdown.low
+  const totalRecs = sources.recommendationCount
+  store.form.risikoTinggi = totalHigh
+  store.form.risikoSedang = totalMedium
+  store.form.risikoRendah = totalLow
+  store.form.jumlahRekomendasi = totalRecs
 
+  // 3. Aggregate LHA findings for the Top 5 list and the compilation matrix
+  const allFindings: any[] = []
   const matriks: any[] = []
 
   individualReports.forEach(r => {
@@ -1050,13 +1086,10 @@ const syncFromIndividualLha = () => {
       let risiko: 'Tinggi' | 'Sedang' | 'Rendah' = 'Tinggi'
       if (f.category === 'Very Significant' || f.category === 'Significant') {
         risiko = 'Tinggi'
-        totalHigh++
       } else if (f.category === 'Quite Significant') {
         risiko = 'Sedang'
-        totalMedium++
       } else {
         risiko = 'Rendah'
-        totalLow++
       }
 
       allFindings.push({
@@ -1069,11 +1102,7 @@ const syncFromIndividualLha = () => {
       })
     })
 
-    const count = r.findingsCount || findings.length || 1
-    totalRecs += count
-
     const highestRisk = findings.some((f: any) => ['Very Significant', 'Significant'].includes(f.category)) ? 'Tinggi' : 'Sedang'
-
     matriks.push({
       nomor: rNum,
       division: div,
@@ -1090,13 +1119,9 @@ const syncFromIndividualLha = () => {
     })
   })
 
-  store.form.risikoTinggi = totalHigh
-  store.form.risikoSedang = totalMedium
-  store.form.risikoRendah = totalLow
-  store.form.jumlahRekomendasi = totalRecs
   store.form.matriksKompilasi = matriks
 
-  // 3. Sort findings by severity (High first) and pick Top 5
+  // 4. Sort findings by severity (High first) and pick Top 5
   allFindings.sort((a, b) => b.severityRank - a.severityRank)
   store.form.topFindings = allFindings.slice(0, 5).map(f => ({
     unitDivision: f.unitDivision,
@@ -1106,17 +1131,18 @@ const syncFromIndividualLha = () => {
     usulan: f.usulan
   }))
 
-  // 4. Update Follow-up table counts
-  const totalFindings = totalHigh + totalMedium + totalLow
-  const closedCount = Math.floor(totalFindings * 0.6)
-  const inProgCount = totalFindings - closedCount
+  // 5. Follow-up table from Action Taken Report statuses (read-only)
+  const { closed: closedCount, inProgress: inProgCount, overdue: overdueCount } = sources.followUp
+  const totalTl = closedCount + inProgCount + overdueCount
+  const percentOfTl = (n: number) => (totalTl > 0 ? (n / totalTl) * 100 : 0)
   store.form.followUpTable = [
-    { status: 'Closed', jumlah: closedCount, persentase: totalFindings > 0 ? (closedCount / totalFindings) * 100 : 0, keterangan: 'Telah diverifikasi' },
-    { status: 'In Progress', jumlah: inProgCount, persentase: totalFindings > 0 ? (inProgCount / totalFindings) * 100 : 0, keterangan: 'On-track pelaksanaan' },
-    { status: 'Overdue', jumlah: 0, persentase: 0, keterangan: '-' }
+    { status: 'Closed', jumlah: closedCount, persentase: percentOfTl(closedCount), keterangan: 'Telah diverifikasi' },
+    { status: 'In Progress', jumlah: inProgCount, persentase: percentOfTl(inProgCount), keterangan: 'On-track pelaksanaan' },
+    { status: 'Overdue', jumlah: overdueCount, persentase: percentOfTl(overdueCount), keterangan: '-' }
   ]
+  const totalFindings = totalHigh + totalMedium + totalLow
 
-  // 5. Section V & VII Qualitative text
+  // 6. Section V & VII Qualitative text
   if (store.form.topFindings.length > 0) {
     store.form.akarMasalah = `Analisis kompilasi terhadap ${individualReports.length} LHA Individual menunjukkan tema berulang utama pada: ${store.form.topFindings.slice(0, 2).map(f => f.judulTemuan).join('; ')}. Diperlukan penguatan regulasi operasional serta koordinasi lintas unit.`
     store.form.kesimpulan = `Secara keseluruhan hasil audit kompilasi ${reportingQuarter.value} ${targetYear} atas ${individualReports.length} LHA menunjukkan sistem pengendalian internal berjalan cukup efektif dengan total ${totalFindings} temuan (${totalHigh} risiko tinggi, ${totalMedium} sedang, ${totalLow} rendah) dan ${totalRecs} rekomendasi yang perlu dipantau implementasinya.`
@@ -1125,7 +1151,7 @@ const syncFromIndividualLha = () => {
     store.form.kesimpulan = `Secara keseluruhan hasil audit kompilasi ${reportingQuarter.value} ${targetYear} atas ${individualReports.length} LHA menunjukkan tata kelola dan kontrol internal telah dievaluasi.`
   }
 
-  // 6. Update narrative
+  // 7. Update narrative
   store.form.narrative = `Periode ${reportingQuarter.value} ${targetYear}, SPI telah menerbitkan ${individualReports.length} LHA Individual. Total temuan ${totalFindings} dengan ${totalRecs} rekomendasi perbaikan. Tingkat penyelesaian on-time 95%. Terdapat ${totalHigh} temuan risiko tinggi terkait ${store.form.topFindings[0]?.judulTemuan || 'operasional'} yang memerlukan perhatian dan arahan Direksi.`
 }
 
@@ -1135,10 +1161,10 @@ const saveReportDraft = async () => {
     store.form.nomorDokumen = generateEscDocNumber(Number(store.form.tahun) || 2026)
   }
   if (!store.form.dokumenPath) {
-    alert('Unggah dokumen resmi wajib diisi.')
+    alert(t('executiveSummaryForm.messages.documentRequired'))
     return
   }
-  
+
   // Set status Draft
   store.form.periodeBulan = reportingQuarter.value
   store.form.status = 'Draft'

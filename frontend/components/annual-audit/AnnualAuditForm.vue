@@ -601,8 +601,9 @@ const handleSelectAuditableEntity = (activity: { name?: string, riskName?: strin
     activity.riskLevel = match?.riskLevel || 'Not Scored'
 
     // Suggest default activity title if empty or using standard default prefix
-    if (!activity.name || activity.name.startsWith('Audit Operasional')) {
-      activity.name = `Audit Operasional ${activity.riskName}`
+    const defaultNamePrefixes = ['Audit Operasional', t('annualAudit.form.defaultActivityName', { entity: '|' }).split('|')[0]!.trim()]
+    if (!activity.name || defaultNamePrefixes.some(prefix => activity.name!.startsWith(prefix))) {
+      activity.name = t('annualAudit.form.defaultActivityName', { entity: activity.riskName })
     }
 
     // Auto-detect Department based on entity name

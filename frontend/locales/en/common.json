@@ -1430,6 +1430,19 @@
   },
   "annualAudit": {
     "title": "Annual Audit Plan",
+    "status": {
+      "draft": "Draft",
+      "pendingReview": "Pending Review",
+      "pendingApproval": "Pending Approval",
+      "approved": "Approved",
+      "revised": "Revised"
+    },
+    "approvalRole": {
+      "staff": "Audit Staff",
+      "manager": "Audit Manager",
+      "chief": "Chief Audit Executive",
+      "system": "System"
+    },
     "importPlanDocument": "Import Plan Document",
     "newAuditPlan": "New Audit Plan",
     "form": {
@@ -1442,7 +1455,8 @@
       "auditPriorityBadge": "Audit Priority",
       "departmentsPlaceholder": "Select Departments",
       "departmentsEmpty": "No departments found in Master Data",
-      "title": "Annual audit form",
+      "title": "Annual Audit Plan",
+      "defaultActivityName": "Operational audit of {entity}",
       "sectionActivity": "1. Activity detail",
       "status": "Status",
       "statusPlaceholder": "Select status",
@@ -2136,6 +2150,19 @@
     "riskMedium": "Medium Risk",
     "riskLow": "Low Risk",
     "syncFromIndividual": "Sync from Individual LHA",
+    "sources": {
+      "loading": "Loading source data (LHA, test controls, working papers, ATR)...",
+      "error": "Failed to load source data: {message}",
+      "noLha": "Select an LHA first. The statistics fill in automatically from the source data.",
+      "noLhaInQuarter": "No LHA exists for the selected year and quarter yet. The statistics fill in once an LHA is issued.",
+      "hintLha": "Automatically from LHA",
+      "hintRecommendation": "Automatically from fieldwork test controls that have a recommendation",
+      "hintRisk": "Automatically from working papers (risk level)",
+      "hintFollowUp": "Automatically from Action Taken Reports (follow-up status)",
+      "emptyRecommendation": "No test controls with a recommendation exist for this LHA's assignment letter yet.",
+      "emptyRisk": "No working paper risks exist for this LHA's assignment letter yet.",
+      "emptyFollowUp": "No Action Taken Reports exist for this LHA yet."
+    },
     "matrix": {
       "title": "Findings Matrix from Individual LHA",
       "description": "Individual LHAs compiled into this executive report.",

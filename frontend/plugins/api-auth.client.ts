@@ -35,6 +35,15 @@ export default defineNuxtPlugin(() => {
 
   const isApiRequest = (url: string) => apiBases().some(base => url.startsWith(base))
 
+  // Analytics / python-ai validate the token separately (and their callers already
+  // swallow failures), so a 401 there must not log the whole app out
+  const isSessionApiRequest = (url: string) => [
+    getAuditServiceBaseUrl(),
+    getMasterServiceBaseUrl(),
+    getRiskServiceBaseUrl(),
+    getAuthServiceBaseUrl(),
+  ].some(base => url.startsWith(base))
+
   // Auth endpoints return 401 for a wrong password; that must not end the session
   const isAuthEndpoint = (url: string) => /\/auth\/(login|verify-mfa-login|change-password|register)\b/.test(url)
 
@@ -52,7 +61,7 @@ export default defineNuxtPlugin(() => {
       const url = requestUrl(request)
       // Expired or revoked session: send the user back to login instead of
       // leaving every page failing with 401s
-      if (response.status === 401 && authStore.isAuthenticated && isApiRequest(url) && !isAuthEndpoint(url)) {
+      if (response.status === 401 && authStore.isAuthenticated && isSessionApiRequest(url) && !isAuthEndpoint(url)) {
         authStore._clearState()
         await navigateTo('/auth/login')
       }

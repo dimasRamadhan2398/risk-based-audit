@@ -159,7 +159,7 @@ describe('Q1 workload rule stays removed', () => {
     store.handleEdit({
       id: 'plan-1',
       code: 'PKAT-2026-ASR-001',
-      status: 'Not Available',
+      status: 'Draft',
       year: '2026',
       activities: [{ name: 'Audit IT', category: 'Assurance', department: 'IT', riskName: 'Risk A' }],
       selectedMonths: [0, 1, 2, 3],

@@ -13,6 +13,7 @@ import (
 	ctrlAuditExecution "audit-service/controllers/audit_execution"
 	ctrlAssignmentLetter "audit-service/controllers/assignment_letter"
 	"audit-service/controllers/crud"
+	ctrlExecutiveSummary "audit-service/controllers/executive_summary"
 	ctrlFindings "audit-service/controllers/findings"
 	ctrlStrategicPlan "audit-service/controllers/strategic_plan"
 	ctrlWorkingPaper "audit-service/controllers/working_paper"
@@ -155,9 +156,10 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		annualPlans.GET("", crud.List(h.db, "AuditAnnual", func() interface{} { return &[]models.AuditAnnual{} }))
 		annualPlans.GET("/:id", crud.GetByID(h.db, "AuditAnnual", func() interface{} { return &models.AuditAnnual{} }))
-		// The server assigns the plan code (PKAT-{year}-{seq}), see controllers/annual_plan.
-		annualPlans.POST("", crud.CreateWithHook(h.db, "AuditAnnual", func() interface{} { return &models.AuditAnnual{} }, ctrlAnnualPlan.AssignCodeOnCreate))
-		annualPlans.PUT("/:id", crud.Update(h.db, "AuditAnnual", func() interface{} { return &models.AuditAnnual{} }))
+		// The server assigns the plan code (PKAT-{year}-{seq}) and checks status
+		// transitions, see controllers/annual_plan.
+		annualPlans.POST("", crud.CreateWithHook(h.db, "AuditAnnual", func() interface{} { return &models.AuditAnnual{} }, ctrlAnnualPlan.PrepareOnCreate))
+		annualPlans.PUT("/:id", crud.UpdateWithHook(h.db, "AuditAnnual", func() interface{} { return &models.AuditAnnual{} }, ctrlAnnualPlan.PrepareOnUpdate))
 		annualPlans.DELETE("/:id", crud.Delete(h.db, "AuditAnnual", func() interface{} { return &models.AuditAnnual{} }))
 	}
 
@@ -474,6 +476,13 @@ func (h *RouteHandler) RegisterRoutes() {
 		executiveSummaries.POST("", crud.Create(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
 		executiveSummaries.PUT("/:id", crud.Update(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
 		executiveSummaries.DELETE("/:id", crud.Delete(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
+	}
+
+	// Read-only aggregates for the compilation form ("Statistik Kompilasi" and
+	// "Status Tindak Lanjut"), counted from the source tables for one year
+	executiveSummaryStats := apiV1.Group("/executive-summary")
+	{
+		executiveSummaryStats.GET("/compilation-stats", ctrlExecutiveSummary.CompilationStatsHandler(h.db))
 	}
 
 	// 18. Action Taken Reports: one per finding of an approved LHA, created by

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	ctrlAnnualPlan "audit-service/controllers/annual_plan"
 	"audit-service/models"
 	"audit-service/pkg/database"
 	"audit-service/pkg/logger"
@@ -175,12 +176,35 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 		CREATE UNIQUE INDEX IF NOT EXISTS idx_assignment_letters_letter_number ON assignment_letters (letter_number) WHERE deleted_at IS NULL;
 	`)
 
+	if err := normalizeAnnualPlanStatuses(db); err != nil {
+		logger.Fatal("Failed to normalize annual plan statuses", logger.LogField("error", err))
+		return err
+	}
+
 	if err := runATRDataMigrations(db); err != nil {
 		logger.Fatal("Failed to run action taken report data migrations", logger.LogField("error", err))
 		return err
 	}
 
 	logger.Info("Database migration completed successfully!")
+	return nil
+}
+
+// normalizeAnnualPlanStatuses maps legacy audit_annuals.status values to the
+// canonical vocabulary (models/annual_plan_status.go). Idempotent. serve runs it
+// on startup as well, because tenant stacks start with "audit serve" only.
+func normalizeAnnualPlanStatuses(db *gorm.DB) error {
+	n, unknown, err := ctrlAnnualPlan.NormalizeStoredStatuses(db)
+	if err != nil {
+		return fmt.Errorf("normalize annual plan statuses: %w", err)
+	}
+	if n > 0 {
+		logger.Info("Annual plan statuses normalized", logger.LogField("rows", n))
+	}
+	if len(unknown) > 0 {
+		logger.Warn("Annual plans with status outside the vocabulary; they cannot change status until fixed",
+			logger.LogField("statuses", unknown))
+	}
 	return nil
 }
 

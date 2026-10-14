@@ -999,7 +999,7 @@ func (s *Seeder) SeedAnnualAuditPlans() error {
 			AuditPeriodID:    period.ID,
 			DepartmentID:     auditDept.ID,
 			Priority:         models.AuditPlanPriorityMedium,
-			Status:           models.AuditPlanStatusSubmitted,
+			Status:           models.AuditPlanStatusPendingReview,
 			EstimatedDays:    12,
 			PlannedStartDate: time.Date(2026, 3, 3, 0, 0, 0, 0, time.UTC),
 			PlannedEndDate:   time.Date(2026, 3, 20, 0, 0, 0, 0, time.UTC),
