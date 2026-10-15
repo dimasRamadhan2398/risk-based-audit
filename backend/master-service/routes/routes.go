@@ -7,6 +7,7 @@ import (
 	"net"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -15,6 +16,7 @@ import (
 
 	"master-service/controllers"
 	"master-service/models"
+	"master-service/pkg/kafka"
 	"master-service/pkg/middleware"
 	"master-service/services"
 
@@ -24,7 +26,7 @@ import (
 )
 
 // RegisterRoutes wires all HTTP routes for the master-service.
-func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegistry, db *gorm.DB, authMiddleware *middleware.AuthMiddleware) {
+func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegistry, db *gorm.DB, authMiddleware *middleware.AuthMiddleware, domainEvents *kafka.DomainPublisher) {
 	// Unauthenticated on purpose, and before the API group: Kong's active
 	// healthcheck sends no token.
 	router.GET("/health", func(c *gin.Context) {
@@ -63,11 +65,15 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 		departments.POST("", controller.GetDepartment().Create)
 		departments.PUT("/:id", controller.GetDepartment().Update)
 		departments.DELETE("/:id", controller.GetDepartment().Delete)
+		// Queues department.updated for every live department (repairs audit-service
+		// links after an outage). Consumers apply events idempotently.
+		departments.POST("/events/resync", resyncDepartmentEvents(db, domainEvents))
 	}
 
 	employees := api.Group("/employees")
 	{
 		employees.GET("", controller.GetEmployee().FindAll)
+		employees.GET("/next-code", controller.GetEmployee().NextCode)
 		employees.GET("/:id", controller.GetEmployee().FindById)
 		employees.POST("", controller.GetEmployee().Create)
 		employees.PUT("/:id", controller.GetEmployee().Update)
@@ -279,6 +285,30 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			c.JSON(http.StatusCreated, report)
 		})
 
+		getQAContentType := func(fileName string) string {
+			ext := strings.ToLower(filepath.Ext(fileName))
+			switch ext {
+			case ".pdf":
+				return "application/pdf"
+			case ".png":
+				return "image/png"
+			case ".jpg", ".jpeg":
+				return "image/jpeg"
+			case ".txt":
+				return "text/plain"
+			case ".doc":
+				return "application/msword"
+			case ".docx":
+				return "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+			case ".xls":
+				return "application/vnd.ms-excel"
+			case ".xlsx":
+				return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+			default:
+				return "application/octet-stream"
+			}
+		}
+
 		qa.GET("/:id/download", func(c *gin.Context) {
 			report, err := findQAReport(c.Param("id"))
 			if err != nil {
@@ -286,17 +316,25 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 				return
 			}
 
-			if report.Attachment == nil || report.Attachment.FilePath == "" {
+			if report.Attachment == nil || (report.Attachment.FilePath == "" && len(report.FileContent) == 0) {
 				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "This report does not have an attached file"})
 				return
 			}
 
+			fileName := report.Attachment.Name
+			if fileName == "" {
+				fileName = "document.pdf"
+			}
+			contentType := getQAContentType(fileName)
+			encodedFileName := url.PathEscape(fileName)
+
+			c.Header("Content-Description", "File Transfer")
+			c.Header("Content-Transfer-Encoding", "binary")
+			c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"; filename*=UTF-8''%s", fileName, encodedFileName))
+			c.Header("Content-Type", contentType)
+
 			if len(report.FileContent) > 0 {
-				c.Header("Content-Description", "File Transfer")
-				c.Header("Content-Transfer-Encoding", "binary")
-				c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", report.Attachment.Name))
-				c.Header("Content-Type", "application/octet-stream")
-				c.Data(http.StatusOK, "application/octet-stream", report.FileContent)
+				c.Data(http.StatusOK, contentType, report.FileContent)
 				return
 			}
 
@@ -305,12 +343,46 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 				return
 			}
 
-			c.Header("Content-Description", "File Transfer")
-			c.Header("Content-Transfer-Encoding", "binary")
-			c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", report.Attachment.Name))
-			c.Header("Content-Type", "application/octet-stream")
 			c.File(report.Attachment.FilePath)
 		})
+
+		viewQAReportFile := func(c *gin.Context) {
+			report, err := findQAReport(c.Param("id"))
+			if err != nil {
+				c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "QA report not found"})
+				return
+			}
+
+			if report.Attachment == nil || (report.Attachment.FilePath == "" && len(report.FileContent) == 0) {
+				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "This report does not have an attached file"})
+				return
+			}
+
+			fileName := report.Attachment.Name
+			if fileName == "" {
+				fileName = "document.pdf"
+			}
+			contentType := getQAContentType(fileName)
+			encodedFileName := url.PathEscape(fileName)
+
+			c.Header("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"; filename*=UTF-8''%s", fileName, encodedFileName))
+			c.Header("Content-Type", contentType)
+
+			if len(report.FileContent) > 0 {
+				c.Data(http.StatusOK, contentType, report.FileContent)
+				return
+			}
+
+			if _, err := os.Stat(report.Attachment.FilePath); os.IsNotExist(err) {
+				c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Physical file not found on server"})
+				return
+			}
+
+			c.File(report.Attachment.FilePath)
+		}
+
+		qa.GET("/:id/view", viewQAReportFile)
+		qa.GET("/:id/view/:filename", viewQAReportFile)
 
 		qa.DELETE("/:id", func(c *gin.Context) {
 			report, err := findQAReport(c.Param("id"))
@@ -1187,5 +1259,22 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			}
 			c.JSON(http.StatusOK, gin.H{"success": true, "data": status})
 		})
+	}
+}
+
+// resyncDepartmentEvents queues department.updated for every live department.
+// The relay publishes them in the background, so the response is 202.
+func resyncDepartmentEvents(db *gorm.DB, events *kafka.DomainPublisher) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if events == nil {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"success": false, "message": "Kafka event publishing is disabled for this service"})
+			return
+		}
+		queued, err := kafka.ResyncDepartments(c.Request.Context(), db, events)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "queued": queued, "message": err.Error()})
+			return
+		}
+		c.JSON(http.StatusAccepted, gin.H{"success": true, "queued": queued})
 	}
 }

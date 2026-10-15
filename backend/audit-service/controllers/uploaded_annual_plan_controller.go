@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -170,16 +171,16 @@ func (ctrl *UploadedAnnualPlanController) Download(c *gin.Context) {
 		return
 	}
 
+	contentType := getDocumentContentType(doc.FileName, doc.FileType)
+	encodedFileName := url.PathEscape(doc.FileName)
+
+	c.Header("Content-Description", "File Transfer")
+	c.Header("Content-Transfer-Encoding", "binary")
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"; filename*=UTF-8''%s", doc.FileName, encodedFileName))
+	c.Header("Content-Type", contentType)
+
 	if len(doc.FileContent) > 0 {
-		c.Header("Content-Description", "File Transfer")
-		c.Header("Content-Transfer-Encoding", "binary")
-		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", doc.FileName))
-		if doc.FileType != "" {
-			c.Header("Content-Type", doc.FileType)
-		} else {
-			c.Header("Content-Type", "application/octet-stream")
-		}
-		c.Data(http.StatusOK, doc.FileType, doc.FileContent)
+		c.Data(http.StatusOK, contentType, doc.FileContent)
 		return
 	}
 
@@ -188,9 +189,42 @@ func (ctrl *UploadedAnnualPlanController) Download(c *gin.Context) {
 		return
 	}
 
-	c.Header("Content-Description", "File Transfer")
-	c.Header("Content-Transfer-Encoding", "binary")
-	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", doc.FileName))
-	c.Header("Content-Type", doc.FileType)
+	c.File(doc.FilePath)
+}
+
+func (ctrl *UploadedAnnualPlanController) View(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := uuid.Parse(idParam)
+	if err != nil {
+		response.BadRequest(c, "Invalid annual audit plan document ID")
+		return
+	}
+
+	var doc models.UploadedAnnualPlan
+	if err := ctrl.DB.First(&doc, "id = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			response.NotFound(c, "Uploaded annual audit plan document not found")
+			return
+		}
+		response.InternalServerError(c, "Failed to fetch document")
+		return
+	}
+
+	contentType := getDocumentContentType(doc.FileName, doc.FileType)
+	encodedFileName := url.PathEscape(doc.FileName)
+
+	c.Header("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"; filename*=UTF-8''%s", doc.FileName, encodedFileName))
+	c.Header("Content-Type", contentType)
+
+	if len(doc.FileContent) > 0 {
+		c.Data(http.StatusOK, contentType, doc.FileContent)
+		return
+	}
+
+	if _, err := os.Stat(doc.FilePath); os.IsNotExist(err) {
+		response.NotFound(c, "Physical file not found on server")
+		return
+	}
+
 	c.File(doc.FilePath)
 }

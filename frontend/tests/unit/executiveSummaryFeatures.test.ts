@@ -73,7 +73,7 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
 
       // Approve button strictly in View mode (under v-else of !store.isViewing)
       expect(content).toContain('v-if="isDraft && canApprove"')
-      expect(content).toContain('label="Setujui (Approve)"')
+      expect(content).toContain("t('executiveSummaryForm.actions.approve')")
       expect(content).toContain('@click="approveReportDirectly"')
 
       // Role check defines permissions from useRbac
@@ -92,7 +92,7 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
 
       // Approve button strictly in View mode
       expect(content).toContain('v-if="isDraft && canApprove"')
-      expect(content).toContain('label="Setujui (Approve)"')
+      expect(content).toContain("t('executiveSummaryForm.actions.approve')")
       expect(content).toContain('@click="approveReportDirectly"')
 
       // Role check defines permissions from useRbac
@@ -106,7 +106,7 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
 
       // Conditional note rendering
       expect(content).toContain('v-if="item.executiveNote && item.executiveNote.trim()"')
-      expect(content).toContain('Noted dari Executive untuk Auditor')
+      expect(content).toContain("t('executiveSummaryForm.notes.title')")
       expect(content).toContain('{{ item.executiveNote }}')
     })
 
@@ -121,6 +121,40 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
   })
 
   describe('Executive Summary Store Functions', () => {
+    const testItems = [
+      {
+        id: 'ES-LHA-021-2026',
+        assignmentLetterId: 'ST-001/SKAI/2026',
+        quarter: 1,
+        periodeBulan: 'Januari - Maret',
+        tahun: 2026,
+        nomorDokumen: 'LHA-021/SKAI/2026',
+        dokumenPath: 'Executive_Summary_021_LHA_2026.pdf',
+        status: 'Draft',
+        executiveNote: '',
+        narrative: 'Executive Summary Individual untuk Laporan Hasil Audit Operasional Keuangan (LHA-021/SKAI/2026).',
+        jumlahLaporan: 1,
+        risikoHigh: 3,
+        risikoModerateHigh: 0,
+        risikoModerate: 2,
+        risikoLowModerate: 0,
+        risikoLow: 0,
+        jumlahRekomendasi: 5,
+        followUpTable: [],
+        topFindings: [],
+        matriksKompilasi: []
+      }
+    ]
+
+    beforeEach(() => {
+      global.$fetch = (async (url: string, opts?: any) => {
+        if (!opts?.method || opts.method === 'GET') {
+          return { data: { items: [...testItems] } }
+        }
+        return { success: true }
+      }) as any
+    })
+
     it('handles saveExecutiveNote and updateStatus fallback and state sync', async () => {
       const store = useExecutiveSummaryStore()
       await store.fetchSummaries()
@@ -197,38 +231,72 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
   })
 
   describe('Assignment Letter (Surat Tugas) Integration', () => {
-    it('ensures IndividualForm and CompilationForm integrate Assignment Letter selection and context banner', () => {
+    it('ensures IndividualForm integrates LHA selection with Audit Result Report (LHA) context while CompilationForm compiles quarterly LHAs', () => {
       const individualContent = read('components/audit-result-report/ExecutiveSummaryIndividualForm.vue')
       const compilationContent = read('components/audit-result-report/ExecutiveSummaryCompilationForm.vue')
 
       // Individual form checks
-      expect(individualContent).toContain('Pilih Surat Tugas (Assignment Letter)')
-      expect(individualContent).toContain('assignmentLetterDropdownOptions')
-      expect(individualContent).toContain('onAssignmentLetterSelect')
-      expect(individualContent).toContain('linkedAssignmentLetter')
-      expect(individualContent).toContain('useAssignmentLetterStore')
+      expect(individualContent).toContain('Pilih Laporan Hasil Audit (LHA)')
+      expect(individualContent).toContain('lhaDropdownOptions')
+      expect(individualContent).toContain('onLhaSelect')
+      expect(individualContent).toContain('linkedLhaReport')
+      expect(individualContent).toContain('useAuditResultReportStore')
 
-      // Compilation form checks
-      expect(compilationContent).toContain('Pilih Surat Tugas (Assignment Letter)')
-      expect(compilationContent).toContain('assignmentLetterDropdownOptions')
-      expect(compilationContent).toContain('onAssignmentLetterSelect')
-      expect(compilationContent).toContain('linkedAssignmentLetter')
-      expect(compilationContent).toContain('useAssignmentLetterStore')
+      // Compilation form checks: removes single assignment letter selection and replaces with quarterly LHAs collection
+      expect(compilationContent).not.toContain('Pilih Surat Tugas (Assignment Letter) / LHA')
+      expect(compilationContent).not.toContain('linkedAssignmentLetter')
+      expect(compilationContent).toContain('quarterlyLhas')
+      expect(compilationContent).toContain('Kumpulan Data LHA Terkompilasi')
     })
 
-    it('ensures Executive Summary pages have Assignment Letter filter and badges', () => {
+    it('ensures Executive Summary Individual uses Nomor LHA filter and Compilation uses Nomor Dokumen Kompilasi filter', () => {
       const individualPage = read('pages/executive-summary/index.vue')
       const compilationPage = read('pages/executive-summary-compilation/index.vue')
 
-      // Individual page
-      expect(individualPage).toContain('selectedAssignmentLetter')
-      expect(individualPage).toContain('assignmentLetterOptions')
-      expect(individualPage).toContain('item.assignmentLetterId')
+      // Individual page uses Nomor LHA filter
+      expect(individualPage).toContain('selectedLhaNumber')
+      expect(individualPage).toContain('lhaNumberOptions')
+      expect(individualPage).toContain('Filter berdasarkan Nomor LHA...')
+      expect(individualPage).toContain('item.nomorDokumen')
 
-      // Compilation page
-      expect(compilationPage).toContain('selectedAssignmentLetter')
-      expect(compilationPage).toContain('assignmentLetterOptions')
-      expect(compilationPage).toContain('item.assignmentLetterId')
+      // Compilation page uses Nomor Dokumen Kompilasi filter
+      expect(compilationPage).toContain('selectedCompilationDoc')
+      expect(compilationPage).toContain('compilationDocOptions')
+      expect(compilationPage).toContain('Filter berdasarkan Nomor Dokumen Kompilasi...')
+      expect(compilationPage).toContain('item.nomorDokumen')
+    })
+
+    it('verifies compilation document options include ESC documents', () => {
+      const store = useExecutiveSummaryStore()
+      store.summaryList = [
+        {
+          id: 'comp-1',
+          nomorDokumen: 'ESC-001/2026',
+          quarter: 1,
+          periodeBulan: 'Kuartal I',
+          tahun: 2026,
+          dokumenPath: 'comp1.pdf',
+          status: 'Approved',
+          narrative: 'Narrative',
+          jumlahLaporan: 3,
+          risikoHigh: 1,
+          risikoModerateHigh: 0,
+          risikoModerate: 1,
+          risikoLowModerate: 0,
+          risikoLow: 1,
+          jumlahRekomendasi: 3,
+          followUpTable: [],
+          topFindings: [],
+          matriksKompilasi: [],
+          akarMasalah: '',
+          kesimpulan: '',
+          signatureTempat: 'Jakarta',
+          signatureTanggal: '2026-03-31',
+          signatureNamaKepala: '',
+          signatureNIK: ''
+        }
+      ]
+      expect(store.summaryList.some(s => s.nomorDokumen.startsWith('ESC-'))).toBe(true)
     })
   })
 
@@ -237,12 +305,12 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       const individualContent = read('components/audit-result-report/ExecutiveSummaryIndividualForm.vue')
 
       // Section IV synchronization
-      expect(individualContent).toContain('Sinkronkan Temuan dari LHA')
+      expect(individualContent).toContain("t('executiveSummaryForm.sync.findings')")
       expect(individualContent).toContain('syncFindingsFromLha')
       expect(individualContent).toContain('store.form.topFindings')
 
       // Section V & VII synchronization
-      expect(individualContent).toContain('Sinkronkan Analisis dari LHA')
+      expect(individualContent).toContain("t('executiveSummaryForm.sync.analysis')")
       expect(individualContent).toContain('store.form.akarMasalah')
       expect(individualContent).toContain('store.form.kesimpulan')
     })
@@ -251,19 +319,21 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       const compilationContent = read('components/audit-result-report/ExecutiveSummaryCompilationForm.vue')
 
       // Sync button and method
-      expect(compilationContent).toContain('Sinkronkan dari LHA Individual')
+      expect(compilationContent).toContain("t('executiveSummaryCompilation.syncFromIndividual')")
       expect(compilationContent).toContain('syncFromIndividualLha')
 
       // Matriks Kompilasi section
       expect(compilationContent).toContain('id="sec-matriks"')
-      expect(compilationContent).toContain('Section VIII: Matriks Kompilasi Temuan LHA Individual')
+      expect(compilationContent).toContain("t('executiveSummaryCompilation.matrix.title')")
       expect(compilationContent).toContain('store.form.matriksKompilasi')
 
       // Synchronized stats
       expect(compilationContent).toContain('store.form.jumlahLaporan')
-      expect(compilationContent).toContain('store.form.risikoTinggi')
-      expect(compilationContent).toContain('store.form.risikoSedang')
-      expect(compilationContent).toContain('store.form.risikoRendah')
+      expect(compilationContent).toContain('riskBucketFields')
+      expect(compilationContent).toContain('riskBucketBreakdown(risk)')
+      expect(compilationContent).toContain('riskBuckets.high')
+      expect(compilationContent).not.toContain('noMatchingLha')
+      expect(compilationContent).not.toContain('selectCompilationReports')
       expect(compilationContent).toContain('store.form.topFindings')
     })
 
@@ -282,7 +352,64 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       auth.user = { id: 'p3', username: 'exec', email: 'exec@test.com', fullName: 'Executive Director', roles: ['EXECUTIVE'] }
       expect(useRbac().canReviewExecutiveSummary.value).toBe(true)
     })
+
+    it('ensures Nomor Dokumen Kompilasi is disabled and auto-generated with ESC-[nomor urut]/[tahun] format', () => {
+      const compilationContent = read('components/audit-result-report/ExecutiveSummaryCompilationForm.vue')
+
+      // Verify template has disabled attribute on Nomor Dokumen Kompilasi input
+      expect(compilationContent).toContain('label="Nomor Dokumen Kompilasi"')
+      expect(compilationContent).toContain('placeholder="Contoh: ESC-001/2026"')
+      expect(compilationContent).toMatch(/<UFormField label="Nomor Dokumen Kompilasi"[\s\S]*?<UInput[\s\S]*?disabled/)
+
+      // Verify compilation script has ESC document generation logic
+      expect(compilationContent).toContain('generateEscDocNumber')
+      expect(compilationContent).toMatch(/ESC-\$\{.*\}\/\$\{.*targetYear.*\}/)
+
+      // Verify store generateEscDocNumber function
+      const store = useExecutiveSummaryStore()
+      expect(typeof store.generateEscDocNumber).toBe('function')
+
+      // Initial sequential number
+      const doc1 = store.generateEscDocNumber(2026)
+      expect(doc1).toMatch(/^ESC-\d{3}\/2026$/)
+
+      // When an existing ESC document is in summaryList, next document increments sequence
+      store.summaryList.push({
+        id: 'esc-test-1',
+        nomorDokumen: 'ESC-001/2026',
+        quarter: 1,
+        periodeBulan: 'Kuartal I',
+        tahun: 2026,
+        dokumenPath: 'doc.pdf',
+        status: 'Draft',
+        narrative: '',
+        jumlahLaporan: 1,
+        risikoHigh: 0,
+        risikoModerateHigh: 0,
+        risikoModerate: 0,
+        risikoLowModerate: 0,
+        risikoLow: 0,
+        jumlahRekomendasi: 0,
+        followUpTable: [],
+        topFindings: [],
+        matriksKompilasi: [],
+        akarMasalah: '',
+        kesimpulan: '',
+        signatureTempat: 'Jakarta',
+        signatureTanggal: '2026-03-31',
+        signatureNamaKepala: '',
+        signatureNIK: ''
+      })
+
+      const doc2 = store.generateEscDocNumber(2026)
+      expect(doc2).toBe('ESC-002/2026')
+
+      // openNewCompilationForm assigns the auto-generated ESC number
+      store.openNewCompilationForm(1)
+      expect(store.form.nomorDokumen).toBe('ESC-002/2026')
+    })
   })
 })
+
 
 

@@ -36,11 +36,9 @@ const backendPayload = {
   }
 }
 
-/** Replica of `dashboardExecutionStatus` in pages/dashboard/index.vue */
+/** Replica of `dashboardExecutionStatus` in pages/dashboard/index.vue (lists every execution; the card scrolls) */
 const buildDashboardCard = (executions: any[]) =>
-  executions
-    .map((e: any) => ({ name: e.name, percentage: e.progress }))
-    .slice(0, 3)
+  executions.map((e: any) => ({ name: e.name, percentage: e.progress }))
 
 /** Replica of `executionStatusPercent` in pages/dashboard/index.vue */
 const buildExecutionStatusPercent = (executions: any[]) => {

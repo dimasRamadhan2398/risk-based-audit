@@ -173,7 +173,7 @@
                     variant="ghost" 
                     size="md"  
                     :title="t('qualityAssurance.importPeriodic.actions.view')"
-                    @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                    @click="store.viewDocument(row.original.id, row.original.attachment ? row.original.attachment.name : (row.original.fileName || 'Periodic_Self_Assessment_Doc.pdf'))" 
                   />
                 </UTooltip>
                 <UTooltip text="Download Document">
@@ -309,7 +309,7 @@ const handleUpload = async () => {
 }
 
 const handleDelete = async (report: QAReport) => {
-  if (await useGlobalModalStore().confirmDelete({ description: t('qualityAssurance.importPeriodic.deleteConfirm') })) {
+  if (await useGlobalModalStore().confirmDelete({ description: t('qualityAssurance.importPeriodic.deleteConfirm'), body: [t('globalConfirmation.delete.note')] })) {
     store.selectedReport = report
     await store.deleteReport()
   }

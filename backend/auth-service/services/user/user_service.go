@@ -27,6 +27,7 @@ type UserServiceInterface interface {
 	FindUserByEmployee(ctx context.Context, employeeCode, email string) (*models.UserResponse, error)
 	AdminResetPassword(ctx context.Context, actorID, targetID uuid.UUID, ipAddress string) (*models.AdminResetPasswordResponse, error)
 	ListAssignableUsers(ctx context.Context, req *models.ListAssignableUsersRequest) ([]models.AssignableUser, *models.AssignableUsersPagination, error)
+	ListUserContacts(ctx context.Context, req *models.ListUserContactsRequest) ([]models.UserContact, error)
 }
 
 // Paging limits of GET /users/assignable
@@ -70,6 +71,36 @@ func (s *UserService) ListAssignableUsers(ctx context.Context, req *models.ListA
 		Total:      total,
 		TotalPages: (total + int64(pageSize) - 1) / int64(pageSize),
 	}, nil
+}
+
+// MaxContactIDs caps the ids of one GET /users/contacts call
+const MaxContactIDs = 20
+
+// ListUserContacts returns the contact details of the active users matching
+// the request filters. A request with no filter is rejected (400), so the
+// endpoint never lists every user's email.
+func (s *UserService) ListUserContacts(ctx context.Context, req *models.ListUserContactsRequest) ([]models.UserContact, error) {
+	if len(req.IDs) == 0 && strings.TrimSpace(req.DepartmentHeadOf) == "" {
+		return nil, errors.Wrap("VALIDATION_ERROR", "ids or department_head_of is required", 400, nil)
+	}
+	if len(req.IDs) > MaxContactIDs {
+		return nil, errors.Wrap("VALIDATION_ERROR", "at most 20 ids can be requested at once", 400, nil)
+	}
+	users, err := s.userRepo.FindContacts(req.IDs, req.DepartmentHeadOf)
+	if err != nil {
+		s.LogError("Failed to list user contacts", utils.LogField("error", err))
+		return nil, errors.ErrInternalServer
+	}
+	out := make([]models.UserContact, 0, len(users))
+	for _, u := range users {
+		out = append(out, models.UserContact{
+			ID:         u.ID.String(),
+			FullName:   u.FullName,
+			Email:      u.Email,
+			Department: u.Department,
+		})
+	}
+	return out, nil
 }
 
 // UserService handles user business logic

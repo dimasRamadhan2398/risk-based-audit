@@ -76,23 +76,35 @@ const processFile = (file: File) => {
   form.value.fileName = file.name
   form.value.fileType = file.type || getExtensionType(file.name)
   form.value.file = file
-  updateGeneratedTitle()
+  if (!isTitleManual.value || !form.value.title) {
+    updateGeneratedTitle(true)
+  }
 }
 
-const updateGeneratedTitle = () => {
+const isTitleManual = ref(false)
+
+const handleTitleInput = () => {
+  isTitleManual.value = true
+}
+
+const updateGeneratedTitle = (force = false) => {
   if (!form.value.fileName) {
-    form.value.title = ''
+    if (!isTitleManual.value) {
+      form.value.title = ''
+    }
     return
   }
 
-  const periodName = form.value.period === 'Tahunan'
-    ? t('kpiPerformance.upload.annual')
-    : `Q${form.value.period.replace(/\D/g, '')}`
-  const fileBaseName = form.value.fileName.replace(/\.[^/.]+$/, '')
-  form.value.title = `${periodName} ${form.value.year} - ${fileBaseName}`.slice(0, 100)
+  if (!isTitleManual.value || force) {
+    const periodName = form.value.period === 'Tahunan'
+      ? t('kpiPerformance.upload.annual')
+      : `Q${form.value.period.replace(/\D/g, '')}`
+    const fileBaseName = form.value.fileName.replace(/\.[^/.]+$/, '')
+    form.value.title = `${periodName} ${form.value.year} - ${fileBaseName}`.slice(0, 100)
+  }
 }
 
-watch([() => form.value.period, () => form.value.year, locale], updateGeneratedTitle)
+watch([() => form.value.period, () => form.value.year, locale], () => updateGeneratedTitle(false))
 
 const getExtensionType = (filename: string) => {
   const ext = filename.split('.').pop()?.toLowerCase()
@@ -107,6 +119,7 @@ const clearFile = () => {
   form.value.fileType = ''
   form.value.file = null as any
   form.value.title = ''
+  isTitleManual.value = false
   selectedFileLength.value = 0
   if (fileInput.value) {
     fileInput.value.value = ''
@@ -280,11 +293,10 @@ const columns = computed(() => [
               <UInput
                 v-model="form.title"
                 :placeholder="t('kpiPerformance.upload.documentTitlePlaceholder')"
-                class="w-full bg-gray-100 dark:bg-gray-800"
-                disabled
-                aria-readonly="true"
+                class="w-full"
                 required
                 maxlength="100"
+                @input="handleTitleInput"
               />
               <div class="text-sm text-gray-500 mt-1 text-right">
                 {{ form.title ? form.title.length : 0 }}/100

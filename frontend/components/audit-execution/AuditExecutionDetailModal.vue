@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { EXECUTION_PHASES, getExecutionPhase, type AuditExecution } from '~/types/audit'
+import {
+  describeDraftBand,
+  describeExecutionSources,
+  getDisplayProgress,
+  getReportingSubStage,
+  type ExecutionSourceRow
+} from '~/utils/executionSources'
 import { useI18n } from '~/composables/useI18n'
 
 const { t } = useI18n()
@@ -14,16 +21,43 @@ const emit = defineEmits(['update:open', 'remind'])
 
 const isOpen = computed({
   get: () => props.open,
-  set: (value) => emit('update:open', value)
+  set: value => emit('update:open', value)
 })
 
-const auditProgress = computed(() => {
-  return Number(props.audit?.progress) || 0
-})
+// Progress is derived on the server from the source modules; this modal only displays it.
+const sourceRows = computed(() => describeExecutionSources(props.audit?.sources))
+
+const sourceDetail = (row: ExecutionSourceRow): string => {
+  const base = `auditExecution.detailModal.sources.${row.key}`
+  switch (row.key) {
+    case 'annual_plan':
+      return t(row.done ? `${base}.linked` : `${base}.notLinked`)
+    case 'assignment_letter':
+      return t(row.done ? `${base}.issued` : `${base}.notIssued`)
+    case 'fieldwork':
+      return row.done
+        ? t(`${base}.detail`, { count: row.count, tested: row.tested, total: row.total, mitigations: row.mitigations })
+        : t(`${base}.notStarted`)
+    case 'working_paper':
+      return row.done ? t(`${base}.detail`, { count: row.count, plans: row.plans }) : t(`${base}.notStarted`)
+    case 'result_report':
+      if (row.approved) return t(`${base}.approved`)
+      return t(row.done ? `${base}.draft` : `${base}.notYet`)
+  }
+}
+
+// Progress is reconciled with the LHA state: a waiting-approval LHA is never shown as 100.
+const auditProgress = computed(() => getDisplayProgress(props.audit?.progress, props.audit?.sources))
 
 const currentPhase = computed(() => {
   return getExecutionPhase(auditProgress.value)
 })
+
+// Reporting splits into drafting (76–87) and approval (88–99); only approved reaches 100.
+const isWaitingApproval = computed(() => currentPhase.value.step === 5 && getReportingSubStage(auditProgress.value) === 'approval')
+
+// Draft findings band (51–75%): findings, working paper action plans and auditee mitigation.
+const draftBand = computed(() => describeDraftBand(props.audit?.sources))
 
 const getProgressColor = (val: number) => {
   if (val >= 100) return 'bg-secondary-600 shadow-sm shadow-secondary-600/40'
@@ -41,14 +75,14 @@ const sendReminder = () => {
 </script>
 
 <template>
-  <UModal 
-    v-model:open="isOpen" 
+  <UModal
+    v-model:open="isOpen"
     :ui="{
-        content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
-        header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
-        body: 'p-4 sm:p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
-        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
-        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+      header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
+      body: 'p-4 sm:p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+      footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
+      overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
     }"
   >
     <template #body>
@@ -57,8 +91,14 @@ const sendReminder = () => {
           <div class="flex items-center justify-between">
             <div class="space-y-1">
               <div class="flex items-center gap-3">
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ audit?.name || t('auditExecution.detailModal.title') }}</h3>
-                <UBadge :color="currentPhase.badgeColor" variant="subtle" size="md">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                  {{ audit?.name || t('auditExecution.detailModal.title') }}
+                </h3>
+                <UBadge
+                  :color="currentPhase.badgeColor"
+                  variant="subtle"
+                  size="md"
+                >
                   {{ t(`auditExecution.phases.${currentPhase.step}.title`) }}
                 </UBadge>
               </div>
@@ -66,21 +106,43 @@ const sendReminder = () => {
                 {{ t('auditExecution.table.ref') }} <span class="font-semibold text-gray-700 dark:text-gray-300">{{ audit?.ref }}</span> | {{ t('auditExecution.filters.categoryPlaceholder') }}: <span class="font-semibold text-gray-700 dark:text-gray-300">{{ audit?.category }}</span> | {{ t('auditExecution.columns.leadAuditor') }}: <span class="font-semibold text-gray-700 dark:text-gray-300">{{ audit?.lead_auditor || '-' }}</span>
               </p>
             </div>
-            <UButton color="neutral" variant="ghost" icon="i-lucide-x" class="-my-1" @click="() => { isOpen = false }" />
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-x"
+              class="-my-1"
+              @click="() => { isOpen = false }"
+            />
           </div>
         </template>
 
         <div class="space-y-6">
+          <UAlert
+            v-if="audit && !audit.ref"
+            color="warning"
+            variant="subtle"
+            icon="i-lucide-triangle-alert"
+            :title="t('auditExecution.detailModal.missingRefWarning')"
+          />
+
           <!-- Lifecycle Stepper Component -->
           <div class="p-4 sm:p-5 border border-primary-200 dark:border-primary-800/60 rounded-xl bg-gradient-to-b from-primary-50/40 to-transparent dark:from-primary-950/20 dark:to-transparent space-y-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <UIcon name="i-lucide-route" class="text-primary-600 dark:text-primary-400 text-lg" />
-                <h4 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">{{ t('auditExecution.detailModal.lifecyclePhase') }}</h4>
+                <UIcon
+                  name="i-lucide-route"
+                  class="text-primary-600 dark:text-primary-400 text-lg"
+                />
+                <h4 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                  {{ t('auditExecution.detailModal.lifecyclePhase') }}
+                </h4>
               </div>
-              <span class="text-sm font-extrabold text-primary-600 dark:text-primary-400">
-                {{ t('auditExecution.detailModal.overallProgress', { progress: auditProgress }) }}
-              </span>
+              <div class="text-right">
+                <span class="block text-sm font-extrabold text-primary-600 dark:text-primary-400">
+                  {{ t('auditExecution.detailModal.overallProgress', { progress: auditProgress }) }}
+                </span>
+                <span class="block text-xs text-gray-500">{{ t('auditExecution.detailModal.progressDerived') }}</span>
+              </div>
             </div>
 
             <!-- Stepper Steps Grid -->
@@ -107,10 +169,17 @@ const sendReminder = () => {
                         : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
                   ]"
                 >
-                  <UIcon v-if="phase.step < currentPhase.step" name="i-lucide-check" class="text-sm" />
+                  <UIcon
+                    v-if="phase.step < currentPhase.step"
+                    name="i-lucide-check"
+                    class="text-sm"
+                  />
                   <span v-else>{{ phase.step }}</span>
                 </div>
-                <span class="text-md font-bold line-clamp-1" :class="phase.step === currentPhase.step ? 'text-primary-700 dark:text-primary-300' : 'text-gray-700 dark:text-gray-300'">
+                <span
+                  class="text-md font-bold line-clamp-1"
+                  :class="phase.step === currentPhase.step ? 'text-primary-700 dark:text-primary-300' : 'text-gray-700 dark:text-gray-300'"
+                >
                   {{ t(`auditExecution.phases.${phase.step}.shortLabel`) }}
                 </span>
               </div>
@@ -118,21 +187,115 @@ const sendReminder = () => {
 
             <!-- Current Active Phase Card -->
             <div class="p-3.5 bg-white dark:bg-gray-900 border border-primary-200/80 dark:border-primary-800/80 rounded-lg flex items-start gap-3 shadow-md">
-              <UIcon :name="currentPhase.icon" class="text-primary-600 dark:text-primary-400 text-2xl shrink-0 mt-0.5" />
+              <UIcon
+                :name="currentPhase.icon"
+                class="text-primary-600 dark:text-primary-400 text-2xl shrink-0 mt-0.5"
+              />
               <div class="space-y-0.5 flex-1">
                 <div class="flex items-center justify-between">
                   <span class="text-sm font-bold text-gray-900 dark:text-white">{{ t('auditExecution.detailModal.activePhase', { step: currentPhase.step, title: t(`auditExecution.phases.${currentPhase.step}.title`) }) }}</span>
                   <span class="text-md font-semibold text-gray-500">{{ currentPhase.minProgress === currentPhase.maxProgress ? `${currentPhase.minProgress}%` : t('auditExecution.detailModal.range', { min: currentPhase.minProgress, max: currentPhase.maxProgress }) }}</span>
                 </div>
-                <p class="text-[11px] text-gray-500 dark:text-gray-400 leading-normal">{{ t(`auditExecution.phases.${currentPhase.step}.description`) }}</p>
+                <p class="text-[11px] text-gray-500 dark:text-gray-400 leading-normal">
+                  {{ t(`auditExecution.phases.${currentPhase.step}.description`) }}
+                </p>
+                <p
+                  v-if="isWaitingApproval"
+                  class="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 leading-normal"
+                >
+                  {{ t('auditExecution.detailModal.waitingApproval') }}
+                </p>
               </div>
             </div>
           </div>
 
+          <!-- Source Data: which module records set the progress -->
+          <UCard
+            variant="subtle"
+            class="bg-gray-50/50 dark:bg-gray-800/50"
+          >
+            <div class="space-y-3">
+              <div class="space-y-1">
+                <h4 class="font-bold text-gray-900 dark:text-white">
+                  {{ t('auditExecution.detailModal.sources.title') }}
+                </h4>
+                <p class="text-xs text-gray-500">
+                  {{ t('auditExecution.detailModal.sources.description') }}
+                </p>
+              </div>
+              <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <li
+                  v-for="row in sourceRows"
+                  :key="row.key"
+                  class="flex items-start gap-2.5 p-2.5 rounded-lg border bg-white dark:bg-gray-900"
+                  :class="row.done ? 'border-emerald-200 dark:border-emerald-900/60' : 'border-gray-200 dark:border-gray-800'"
+                >
+                  <UIcon
+                    :name="row.done ? 'i-lucide-check-circle-2' : 'i-lucide-circle-dashed'"
+                    class="text-lg shrink-0 mt-0.5"
+                    :class="row.done ? 'text-emerald-500' : 'text-gray-400'"
+                  />
+                  <div class="space-y-0.5 min-w-0">
+                    <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                      {{ t(`auditExecution.detailModal.sources.${row.key}.label`) }}
+                    </p>
+                    <p class="text-xs text-gray-500">
+                      {{ sourceDetail(row) }}
+                    </p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </UCard>
+
+          <!-- Draft findings band requirements: the 51–75% band needs all three -->
+          <UCard
+            variant="subtle"
+            class="bg-gray-50/50 dark:bg-gray-800/50"
+          >
+            <div class="space-y-3">
+              <div class="space-y-1">
+                <h4 class="font-bold text-gray-900 dark:text-white">
+                  {{ t('auditExecution.detailModal.draftBand.title') }}
+                </h4>
+                <p class="text-xs text-gray-500">
+                  {{ t('auditExecution.detailModal.draftBand.description') }}
+                </p>
+              </div>
+              <ul class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <li
+                  v-for="req in draftBand.requirements"
+                  :key="req.key"
+                  class="flex items-start gap-2.5 p-2.5 rounded-lg border bg-white dark:bg-gray-900"
+                  :class="req.done ? 'border-emerald-200 dark:border-emerald-900/60' : 'border-gray-200 dark:border-gray-800'"
+                >
+                  <UIcon
+                    :name="req.done ? 'i-lucide-check-circle-2' : 'i-lucide-circle-dashed'"
+                    class="text-lg shrink-0 mt-0.5"
+                    :class="req.done ? 'text-emerald-500' : 'text-gray-400'"
+                  />
+                  <div class="space-y-0.5 min-w-0">
+                    <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                      {{ t(`auditExecution.detailModal.draftBand.${req.key}.label`) }}
+                    </p>
+                    <p class="text-xs text-gray-500">
+                      {{ t(`auditExecution.detailModal.draftBand.${req.key}.detail`, { count: req.count }) }}
+                    </p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </UCard>
+
           <!-- Section 1: Sample Data & Test Controls -->
-          <UCard variant="subtle" class="bg-gray-50/50 dark:bg-gray-800/50">
+          <UCard
+            variant="subtle"
+            class="bg-gray-50/50 dark:bg-gray-800/50"
+          >
             <div class="space-y-4">
-              <h4 class="font-bold text-gray-900 dark:text-white">{{ t('auditExecution.detailModal.sampleDataTitle') }}</h4>
+              <h4 class="font-bold text-gray-900 dark:text-white">
+                {{ t('auditExecution.detailModal.sampleDataTitle') }}
+              </h4>
               <div class="grid grid-cols-4 gap-4 items-center">
                 <span class="text-sm font-medium text-gray-500">{{ t('auditExecution.detailModal.progress') }}</span>
                 <div class="col-span-3 flex items-center gap-3">
@@ -141,7 +304,7 @@ const sendReminder = () => {
                       class="h-full rounded-full transition-all duration-500 ease-out"
                       :class="getProgressColor(audit?.sample_data_test_controls?.progress || 0)"
                       :style="{ width: `${Math.min(100, Math.max(0, audit?.sample_data_test_controls?.progress || 0))}%` }"
-                    ></div>
+                    />
                   </div>
                   <span class="text-sm font-bold text-gray-700 dark:text-gray-300 w-12 text-right">{{ audit?.sample_data_test_controls?.progress || 0 }} %</span>
                 </div>
@@ -156,9 +319,14 @@ const sendReminder = () => {
           </UCard>
 
           <!-- Section 2: Working Papers -->
-          <UCard variant="subtle" class="bg-gray-50/50 dark:bg-gray-800/50">
+          <UCard
+            variant="subtle"
+            class="bg-gray-50/50 dark:bg-gray-800/50"
+          >
             <div class="space-y-4">
-              <h4 class="font-bold text-gray-900 dark:text-white">{{ t('auditExecution.detailModal.workingPapersTitle') }}</h4>
+              <h4 class="font-bold text-gray-900 dark:text-white">
+                {{ t('auditExecution.detailModal.workingPapersTitle') }}
+              </h4>
               <div class="grid grid-cols-4 gap-4">
                 <span class="text-sm font-medium text-gray-500">{{ t('auditExecution.detailModal.condition') }}</span>
                 <p class="col-span-3 text-sm text-gray-700 dark:text-gray-300">
@@ -175,9 +343,14 @@ const sendReminder = () => {
           </UCard>
 
           <!-- Section 3: Action Plan Improvements -->
-          <UCard variant="subtle" class="bg-gray-50/50 dark:bg-gray-800/50">
+          <UCard
+            variant="subtle"
+            class="bg-gray-50/50 dark:bg-gray-800/50"
+          >
             <div class="space-y-4">
-              <h4 class="font-bold text-gray-900 dark:text-white">{{ t('auditExecution.detailModal.actionPlanTitle') }}</h4>
+              <h4 class="font-bold text-gray-900 dark:text-white">
+                {{ t('auditExecution.detailModal.actionPlanTitle') }}
+              </h4>
               <div class="grid grid-cols-4 gap-4">
                 <span class="text-sm font-medium text-gray-500">{{ t('auditExecution.detailModal.recommendation') }}</span>
                 <p class="col-span-3 text-sm text-gray-700 dark:text-gray-300">
@@ -199,20 +372,31 @@ const sendReminder = () => {
             </div>
           </UCard>
 
-          <hr class="border-gray-200 dark:border-gray-700" />
+          <hr class="border-gray-200 dark:border-gray-700">
 
           <!-- Section 4: Latest Update Progress -->
-          <UCard variant="subtle" class="bg-gray-50/50 dark:bg-gray-800/50">
+          <UCard
+            variant="subtle"
+            class="bg-gray-50/50 dark:bg-gray-800/50"
+          >
             <div class="space-y-4">
-              <h4 class="font-bold text-gray-900 dark:text-white">{{ t('auditExecution.detailModal.latestUpdateTitle') }}</h4>
+              <h4 class="font-bold text-gray-900 dark:text-white">
+                {{ t('auditExecution.detailModal.latestUpdateTitle') }}
+              </h4>
               <div class="grid grid-cols-4 gap-4 items-center">
                 <span class="text-sm font-medium text-gray-500">{{ t('auditExecution.detailModal.attachment') }}</span>
                 <div class="col-span-3">
-                  <div v-if="audit?.latest_update_progress?.attachment" class="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
+                  <div
+                    v-if="audit?.latest_update_progress?.attachment"
+                    class="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400"
+                  >
                     <UIcon name="i-lucide-file-text" />
                     <span>[ {{ audit?.latest_update_progress?.attachment }} ]</span>
                   </div>
-                  <span v-else class="text-sm text-gray-400">{{ t('auditExecution.detailModal.noAttachment') }}</span>
+                  <span
+                    v-else
+                    class="text-sm text-gray-400"
+                  >{{ t('auditExecution.detailModal.noAttachment') }}</span>
                 </div>
               </div>
               <div class="grid grid-cols-4 gap-4">
@@ -239,4 +423,3 @@ const sendReminder = () => {
     </template>
   </UModal>
 </template>
-

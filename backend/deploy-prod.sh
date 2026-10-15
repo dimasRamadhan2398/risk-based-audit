@@ -136,6 +136,9 @@ services:
     command: ["sh", "-c", "./audit migrate up && ./audit serve"]
   master-service:
     command: ["sh", "-c", "./master migrate && ./master serve"]
+  risk-service:
+    environment:
+      SEED_ON_BOOT: "false"
   analytics-service:
     environment:
       JWT_SECRET: fec20f8c86f9c2657ef2423d6859c9b1355472e995d512753a710575fd4c3cd5

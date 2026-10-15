@@ -192,7 +192,7 @@ services:
         condition: service_healthy
     ports:
       - "8102:8001"
-    command: sh -c "./audit seed && ./audit serve"
+    command: sh -c "./audit serve"
     volumes:
       - audit_dev_uploads:/root/uploads
     networks:
@@ -217,7 +217,7 @@ services:
         condition: service_healthy
     ports:
       - "8103:8002"
-    command: sh -c "./master seed && ./master serve"
+    command: sh -c "./master serve"
     networks:
       - rb_audit_network_dev
     restart: unless-stopped

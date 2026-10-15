@@ -1,17 +1,15 @@
 import { defineStore } from 'pinia'
 import { AuditCategory, AuditStatus, type AuditExecution } from '~/types/audit'
 import { extractErrorMessage } from '~/utils/error'
+import { getDisplayProgress, progressToStageStatus } from '~/utils/executionSources'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 
+/**
+ * Canonical stage status for an execution. A recognised status string wins;
+ * otherwise (or for a generic "in progress") the stage follows the progress.
+ */
 export function normalizeAuditStatus(status?: string | null, progress?: number): string {
-  if (!status && typeof progress === 'number') {
-    if (progress >= 100) return 'completed'
-    if (progress >= 76) return 'reporting'
-    if (progress >= 51) return 'draft findings'
-    if (progress >= 26) return 'fieldwork'
-    if (progress >= 1) return 'entry meeting'
-    return 'planning'
-  }
+  if (!status) return progressToStageStatus(progress)
   const clean = String(status || '').toLowerCase().replace(/[\s_-]+/g, ' ').trim()
   if (clean === 'completed' || clean === 'done' || clean === 'finished' || clean === 'audit completed') {
     return 'completed'
@@ -32,152 +30,28 @@ export function normalizeAuditStatus(status?: string | null, progress?: number):
     return 'planning'
   }
   if (clean === 'in progress') {
-    if (typeof progress === 'number') {
-      if (progress >= 76) return 'reporting'
-      if (progress >= 51) return 'draft findings'
-      if (progress >= 26) return 'fieldwork'
-      if (progress >= 1) return 'entry meeting'
-    }
-    return 'fieldwork'
+    return typeof progress === 'number' ? progressToStageStatus(progress) : 'fieldwork'
   }
   return clean || 'planning'
 }
 
 export const useAuditExecutionStore = defineStore('audit-execution', {
   state: () => ({
-    auditExecutions: [
-      {
-        id: '1',
-        ref: 'AUD-2026-001',
-        name: 'Financial Operations',
-        category: AuditCategory.ASSURANCE,
-        progress: 100,
-        lead_auditor: 'Dimas P',
-        status: 'completed',
-        status_detail: 'Audit Completed',
-        created_at: '2026-01-15T10:00:00Z',
-        sample_data_test_controls: {
-          progress: 100,
-          description: 'Testing the efficiency of financial controls.'
-        },
-        working_papers: {
-          condition: 'All data is in order.',
-          criteria: 'Financial SOP No. 1'
-        },
-        action_plan_improvements: {
-          recommendation: '-',
-          deadline: '-',
-          pic: '-'
-        },
-        latest_update_progress: {
-          attachment: 'Financial Report.pdf',
-          description: 'Audit completed without material findings.'
-        }
-      },
-      {
-        id: '2',
-        ref: 'AUD-2026-002',
-        name: 'Financial Operations',
-        category: AuditCategory.ASSURANCE,
-        progress: 40,
-        lead_auditor: 'Sarah',
-        status: 'fieldwork',
-        status_detail: 'Fieldwork & Control Testing',
-        created_at: '2026-04-10T10:00:00Z',
-        sample_data_test_controls: {
-          progress: 50,
-          description: 'Testing the efficiency of controls & risk mitigation for IT security.'
-        },
-        working_papers: {
-          condition: 'Several ports are still open.',
-          criteria: 'ISO 27001'
-        },
-        action_plan_improvements: {
-          recommendation: 'Close unused ports.',
-          deadline: '2026-06-15',
-          pic: 'IT Security'
-        },
-        latest_update_progress: {
-          attachment: 'Scan_Result.jpg',
-          description: 'In progress for hardening.'
-        }
-      },
-      {
-        id: '3',
-        ref: 'AUD-2026-003',
-        name: 'Vendor Risk Assessment',
-        category: AuditCategory.SPECIAL_AUDIT,
-        progress: 80,
-        lead_auditor: 'Budi',
-        status: 'reporting',
-        status_detail: 'Reporting & Exit Meeting',
-        created_at: '2026-07-20T10:00:00Z',
-        sample_data_test_controls: {
-          progress: 100,
-          description: 'Vendor risk assessment'
-        },
-        working_papers: {
-          condition: 'Vendor meets requirements.',
-          criteria: 'Vendor Procurement Policy V.2'
-        },
-        action_plan_improvements: {
-          recommendation: '-',
-          deadline: '-',
-          pic: '-'
-        },
-        latest_update_progress: {
-          attachment: 'Vendor_Doc.pdf',
-          description: 'Vendor is approved.'
-        }
-      },
-      {
-        id: '4',
-        ref: 'AUD-2026-004',
-        name: 'Human Capital & Payroll',
-        category: AuditCategory.SPECIAL_AUDIT,
-        progress: 15,
-        lead_auditor: 'Budi Santoso',
-        status: 'entry meeting',
-        status_detail: 'Entry Meeting & Scope Alignment',
-        created_at: '2026-10-05T10:00:00Z',
-      },
-      {
-        id: '5',
-        ref: 'AUD-2026-005',
-        name: 'Logistics & Warehouse Audit',
-        category: AuditCategory.ASSURANCE,
-        progress: 60,
-        lead_auditor: 'Sarah Putri',
-        status: 'draft findings',
-        status_detail: 'Draft Findings & Recommendations',
-        created_at: '2026-02-20T10:00:00Z',
-      },
-      {
-        id: '6',
-        ref: 'AUD-2026-006',
-        name: 'Procurement Unit Planning',
-        category: AuditCategory.ASSURANCE,
-        progress: 0,
-        lead_auditor: 'Rina Wulandari',
-        status: 'planning',
-        status_detail: 'Planning & Preparation',
-        created_at: '2026-03-01T10:00:00Z',
-      }
-    ] as AuditExecution[],
+    auditExecutions: [] as AuditExecution[],
     loading: false,
-    error: null as string | null,
+    error: null as string | null
   }),
 
   getters: {
     getSummary: (state) => {
-      const completed = state.auditExecutions.filter((e: { status?: string; progress?: number }) => 
+      const completed = state.auditExecutions.filter((e: { status?: string, progress?: number }) =>
         normalizeAuditStatus(e.status, e.progress) === 'completed'
       ).length
-      const inProgress = state.auditExecutions.filter((e: { status?: string; progress?: number }) => {
+      const inProgress = state.auditExecutions.filter((e: { status?: string, progress?: number }) => {
         const norm = normalizeAuditStatus(e.status, e.progress)
         return norm === 'entry meeting' || norm === 'fieldwork' || norm === 'draft findings' || norm === 'reporting' || norm === 'in progress'
       }).length
-      const planned = state.auditExecutions.filter((e: { status?: string; progress?: number }) => 
+      const planned = state.auditExecutions.filter((e: { status?: string, progress?: number }) =>
         normalizeAuditStatus(e.status, e.progress) === 'planning'
       ).length
       return { completed, inProgress, planned }
@@ -188,125 +62,6 @@ export const useAuditExecutionStore = defineStore('audit-execution', {
     async fetchAuditExecutions() {
       this.loading = true
       this.error = null
-      const mockList = [
-        {
-          id: '1',
-          ref: 'AUD-2026-001',
-          name: 'Financial Operations',
-          category: 'Finance',
-          progress: 100,
-          lead_auditor: 'Dimas P',
-          status: 'completed',
-          status_detail: 'Audit Completed',
-          created_at: '2026-01-15T10:00:00Z',
-          sample_data_test_controls: {
-            progress: 100,
-            description: 'Testing the efficiency of financial controls.'
-          },
-          working_papers: {
-            condition: 'All data is in order.',
-            criteria: 'Financial SOP No. 1'
-          },
-          action_plan_improvements: {
-            recommendation: '-',
-            deadline: '-',
-            pic: '-'
-          },
-          latest_update_progress: {
-            attachment: 'Financial Report.pdf',
-            description: 'Audit completed without material findings.'
-          }
-        },
-        {
-          id: '2',
-          ref: 'AUD-2026-002',
-          name: 'Financial Operations',
-          category: AuditCategory.ASSURANCE,
-          progress: 40,
-          lead_auditor: 'Sarah',
-          status: 'fieldwork',
-          status_detail: 'Fieldwork & Control Testing',
-          created_at: '2026-04-10T10:00:00Z',
-          sample_data_test_controls: {
-            progress: 50,
-            description: 'Testing the efficiency of controls & risk mitigation for IT security.'
-          },
-          working_papers: {
-            condition: 'Several ports are still open.',
-            criteria: 'ISO 27001'
-          },
-          action_plan_improvements: {
-            recommendation: 'Close unused ports.',
-            deadline: '2026-06-15',
-            pic: 'IT Security'
-          },
-          latest_update_progress: {
-            attachment: 'Scan_Result.jpg',
-            description: 'In progress for hardening.'
-          }
-        },
-        {
-          id: '3',
-          ref: 'AUD-2026-003',
-          name: 'Vendor Risk Assessment',
-          category: AuditCategory.SPECIAL_AUDIT,
-          progress: 80,
-          lead_auditor: 'Budi',
-          status: 'reporting',
-          status_detail: 'Reporting & Exit Meeting',
-          created_at: '2026-07-20T10:00:00Z',
-          sample_data_test_controls: {
-            progress: 100,
-            description: 'Vendor risk assessment'
-          },
-          working_papers: {
-            condition: 'Vendor meets requirements.',
-            criteria: 'Vendor Procurement Policy V.2'
-          },
-          action_plan_improvements: {
-            recommendation: '-',
-            deadline: '-',
-            pic: '-'
-          },
-          latest_update_progress: {
-            attachment: 'Vendor_Doc.pdf',
-            description: 'Vendor is approved.'
-          }
-        },
-        {
-          id: '4',
-          ref: 'AUD-2026-004',
-          name: 'Human Capital & Payroll',
-          category: AuditCategory.SPECIAL_AUDIT,
-          progress: 15,
-          lead_auditor: 'Budi Santoso',
-          status: 'entry meeting',
-          status_detail: 'Entry Meeting & Scope Alignment',
-          created_at: '2026-10-05T10:00:00Z',
-        },
-        {
-          id: '5',
-          ref: 'AUD-2026-005',
-          name: 'Logistics & Warehouse Audit',
-          category: AuditCategory.ASSURANCE,
-          progress: 60,
-          lead_auditor: 'Sarah Putri',
-          status: 'draft findings',
-          status_detail: 'Draft Findings & Recommendations',
-          created_at: '2026-02-20T10:00:00Z',
-        },
-        {
-          id: '6',
-          ref: 'AUD-2026-006',
-          name: 'Procurement Unit Planning',
-          category: AuditCategory.ASSURANCE,
-          progress: 0,
-          lead_auditor: 'Rina Wulandari',
-          status: 'planning',
-          status_detail: 'Planning & Preparation',
-          created_at: '2026-03-01T10:00:00Z',
-        }
-      ] as AuditExecution[]
 
       try {
         const baseUrl = getAuditServiceBaseUrl()
@@ -322,18 +77,20 @@ export const useAuditExecutionStore = defineStore('audit-execution', {
           items = response
         }
 
-        if (items.length > 0) {
-          this.auditExecutions = items.map(item => ({
+        // Read-only: progress is derived on the server. Here it is only coerced, reconciled with the
+        // LHA state (waiting approval is never 100), and the stage follows that progress.
+        this.auditExecutions = items.map((item) => {
+          const progress = getDisplayProgress(item.progress, item.sources)
+          return {
             ...item,
-            status: normalizeAuditStatus(item.status, item.progress)
-          }))
-        } else {
-          this.auditExecutions = mockList
-        }
+            progress,
+            status: progressToStageStatus(progress)
+          }
+        })
       } catch (err: any) {
         console.error('Failed to fetch audit executions:', err)
         this.error = extractErrorMessage(err, 'Failed to load audit executions.')
-        this.auditExecutions = mockList
+        this.auditExecutions = []
       } finally {
         this.loading = false
       }

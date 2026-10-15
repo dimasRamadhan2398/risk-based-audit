@@ -8,7 +8,7 @@
       :size="size"
       class="flex flex-col items-start px-2 py-1 max-w-full"
     >
-      <span class="font-bold text-primary truncate max-w-full">{{ member.name }}</span>
+      <span class="font-bold text-primary dark:text-white truncate max-w-full">{{ member.name }}</span>
       <span v-if="member.role" class="text-[10px] opacity-70 italic truncate max-w-full">{{ member.role }}</span>
     </UBadge>
     <span v-if="!formattedMembers.length" class="text-gray-400">-</span>

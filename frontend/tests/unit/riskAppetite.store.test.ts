@@ -3,12 +3,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useRiskAppetiteStore } from '~/stores/risk-appetite'
 
-vi.mock('#app', () => ({
-  useRuntimeConfig: () => ({
-    public: {
-      riskServiceBaseUrl: 'http://localhost:8004/api/v1'
-    }
-  })
+vi.mock('~/composables/useApiUrl', () => ({
+  getRiskServiceBaseUrl: () => 'http://localhost:8004/api/v1'
 }))
 
 vi.mock('~/components/shared/ToastNotification.vue', () => ({

@@ -143,33 +143,11 @@
 
           <div class="space-y-2 max-w-lg mx-auto">
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-              {{ deployedSite.resendError ? 'Client Site Generated — With Errors' : 'Client Site Successfully Generated!' }}
+              Client Site Successfully Generated!
             </h2>
             <p class="text-sm text-gray-500 dark:text-gray-400">
               The isolated instance for <span class="font-bold text-gray-900 dark:text-white">{{ deployedSite.clientName }}</span>
-              {{ deployedSite.resendError ? 'has been provisioned, but one or more steps failed — review the details below before onboarding.' : 'has been provisioned and is ready for onboarding.' }}
-            </p>
-          </div>
-
-          <!-- Resend Provisioning Failure Notice -->
-          <div
-            v-if="deployedSite.resendError"
-            class="max-w-xl mx-auto p-4 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-left space-y-2 text-xs"
-          >
-            <div class="flex items-center gap-2 font-semibold text-red-800 dark:text-red-300">
-              <UIcon
-                name="i-lucide-alert-triangle"
-                class="w-4 h-4 shrink-0"
-              />
-              Resend email provisioning failed
-            </div>
-            <p class="text-red-700 dark:text-red-300/90 leading-relaxed font-mono break-words">
-              {{ deployedSite.resendError }}
-            </p>
-            <p class="text-red-700 dark:text-red-300/90 leading-relaxed">
-              No sending domain, API key, or DNS records were created for this tenant. The site is deployed but
-              <strong>cannot send email</strong> — register the domain in the Resend dashboard manually and inject the
-              scoped key into the tenant's auth-service config before onboarding.
+              has been provisioned and is ready for onboarding.
             </p>
           </div>
 
@@ -218,25 +196,12 @@
 
             <div class="flex items-center justify-between border-b pb-2.5 border-gray-200 dark:border-neutral-800">
               <span class="text-gray-500 dark:text-gray-400 font-medium">Email Dispatcher</span>
-              <span
-                v-if="deployedSite.resendDomain"
-                class="font-mono text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1"
-              >
+              <span class="font-mono text-gray-700 dark:text-gray-300 flex items-center gap-1">
                 <UIcon
-                  name="i-lucide-mail-check"
+                  name="i-lucide-mail"
                   class="w-3.5 h-3.5"
                 />
-                Resend API ({{ deployedSite.resendDomain }})
-              </span>
-              <span
-                v-else
-                class="font-mono text-red-600 dark:text-red-400 font-medium flex items-center gap-1"
-              >
-                <UIcon
-                  name="i-lucide-mail-x"
-                  class="w-3.5 h-3.5"
-                />
-                Not provisioned — manual setup required
+                Shared domain mail.auditsphere.app (tenant key via provision-tenant-email.sh)
               </span>
             </div>
 
@@ -264,46 +229,6 @@
             <div class="flex items-center justify-between">
               <span class="text-gray-500 dark:text-gray-400 font-medium">Compliance Framework</span>
               <span class="text-gray-800 dark:text-gray-200 font-medium">{{ deployedSite.complianceFramework }}</span>
-            </div>
-          </div>
-
-          <!-- Resend DNS Records & Scoped Key Card -->
-          <div
-            v-if="deployedSite.resendDnsRecords && deployedSite.resendDnsRecords.length"
-            class="max-w-xl mx-auto p-4 rounded-2xl bg-white dark:bg-neutral-900 border border-emerald-500/30 text-left space-y-3 text-xs shadow-sm"
-          >
-            <div class="flex items-center justify-between border-b pb-2 border-gray-200 dark:border-neutral-800">
-              <span class="font-semibold text-gray-900 dark:text-white flex items-center gap-1.5">
-                <UIcon name="i-lucide-shield-check" class="w-4 h-4 text-emerald-500" />
-                Resend DNS Records for Verification
-              </span>
-              <span class="text-[11px] font-mono text-gray-500 dark:text-gray-400 truncate max-w-[200px]" :title="deployedSite.resendApiKey">
-                API Key: {{ deployedSite.resendApiKey }}
-              </span>
-            </div>
-
-            <div class="space-y-1.5">
-              <div
-                v-for="(rec, idx) in deployedSite.resendDnsRecords"
-                :key="idx"
-                class="p-2 rounded-lg bg-gray-50 dark:bg-neutral-800/60 border border-gray-200 dark:border-neutral-700/60 font-mono text-[11px] flex items-center justify-between gap-2"
-              >
-                <div class="min-w-0 flex-1 truncate">
-                  <span class="font-bold text-primary">{{ rec.type }}</span>
-                  <span class="text-gray-400 mx-1">|</span>
-                  <span class="text-gray-700 dark:text-gray-300">{{ rec.name }}</span>
-                  <span class="text-gray-400 mx-1">→</span>
-                  <span class="text-gray-500 truncate">{{ rec.value }}</span>
-                </div>
-                <button
-                  type="button"
-                  class="text-primary hover:text-primary-700 p-1 shrink-0"
-                  title="Copy value"
-                  @click="copyText(rec.value, `${rec.type} Value`)"
-                >
-                  <UIcon name="i-lucide-copy" class="w-3.5 h-3.5" />
-                </button>
-              </div>
             </div>
           </div>
 
@@ -915,7 +840,7 @@
                       name="i-lucide-mail"
                       class="w-3.5 h-3.5"
                     />
-                    Resend API ({{ form.slug || 'client' }}.auditsphere.app)
+                    Shared Resend domain (mail.auditsphere.app), tenant sending key
                   </span>
                 </div>
                 <div>
@@ -1057,17 +982,15 @@ import ReusableButton from '~/components/shared/ReusableButton.vue'
 import ReusableSelectMenu from '~/components/shared/ReusableSelectMenu.vue'
 import Logo from '~/components/Logo.vue'
 import { useAppToast } from '~/composables/useAppToast'
-import { useAuthStore } from '~/stores/auth'
 
 definePageMeta({
   layout: false,
-  // Provisioning spends real Resend quota and mints sending keys — ADMIN only,
-  // matching the RequireRoles("ADMIN") guard on /api/v1/resend/provision.
+  // Tenant sending keys are created on the VPS by scripts/provision-tenant-email.sh,
+  // not from this page.
   middleware: 'auth'
 })
 
-const { success, error: errorToast } = useAppToast()
-const authStore = useAuthStore()
+const { success } = useAppToast()
 
 interface DeployedSite {
   clientName: string
@@ -1083,31 +1006,7 @@ interface DeployedSite {
   complianceFramework: string
   envMode: 'local' | 'production'
   localFrontendUrl?: string
-  resendDomain?: string
-  resendDomainId?: string
-  resendApiKey?: string
-  resendDnsRecords?: ResendDnsRecord[]
-  // Set when Resend provisioning failed. The rest of the tenant is still
-  // deployed, but email must be configured manually before the site can send.
-  resendError?: string
   dataState: string
-}
-
-interface ResendDnsRecord {
-  name: string
-  type: string
-  value: string
-  priority?: number
-  status?: string
-}
-
-/** Shape of `data` returned by POST /api/v1/resend/provision */
-interface ResendProvisionData {
-  domain_id: string
-  domain: string
-  status: string
-  dns_records: ResendDnsRecord[]
-  client_api_key: string
 }
 
 interface ProvisioningLog {
@@ -1239,21 +1138,6 @@ const copyText = async (text: string, label: string) => {
   }
 }
 
-// Extracts a human-readable message from a $fetch error, preferring the
-// service's own error envelope over the generic "500 Internal Server Error".
-const extractApiError = (err: unknown): string => {
-  const e = err as {
-    data?: { error?: { message?: string }, message?: string }
-    statusMessage?: string
-    message?: string
-  }
-  return e?.data?.error?.message
-    || e?.data?.message
-    || e?.statusMessage
-    || e?.message
-    || 'Unknown error'
-}
-
 const handleProvisionSite = async () => {
   isProvisioning.value = true
   provisioningProgress.value = 10
@@ -1279,35 +1163,7 @@ const handleProvisionSite = async () => {
   await new Promise(r => setTimeout(r, 500))
   provisioningProgress.value = 88
 
-  const resendDomainName = envMode.value === 'local' ? `${form.slug || 'client'}.auditsphere.app` : targetDomain.value
-  let resendData: ResendProvisionData | null = null
-  let resendError: string | null = null
-
-  try {
-    const res = await $fetch<{ success: boolean, data: ResendProvisionData }>('/api/v1/resend/provision', {
-      method: 'POST',
-      headers: authStore.token ? { Authorization: `Bearer ${authStore.token}` } : undefined,
-      body: {
-        slug: form.slug || 'client',
-        domain: resendDomainName,
-        client_name: form.clientName || 'Client'
-      }
-    })
-    if (res?.data) {
-      resendData = res.data
-    } else {
-      resendError = 'Resend provisioning returned no data.'
-    }
-  } catch (err) {
-    resendError = extractApiError(err)
-  }
-
-  if (resendData) {
-    provisioningLogs.value.push({ text: 'Provisioned Resend sending domain (' + resendData.domain + ') & created scoped API key', ok: true })
-  } else {
-    provisioningLogs.value.push({ text: 'Resend provisioning FAILED for ' + resendDomainName + ': ' + resendError, ok: false })
-    provisioningLogs.value.push({ text: 'Tenant email is NOT configured — no sending domain, no API key, no DNS records', ok: false })
-  }
+  provisioningLogs.value.push({ text: 'Tenant email NOT configured: run scripts/provision-tenant-email.sh tenant ' + (form.slug || 'client') + ' on the VPS', ok: false })
 
   await new Promise(r => setTimeout(r, 500))
   provisioningProgress.value = 100
@@ -1334,27 +1190,12 @@ const handleProvisionSite = async () => {
     complianceFramework: form.complianceFramework,
     envMode: envMode.value,
     localFrontendUrl: `http://localhost:${form.frontendPort}`,
-    // Only ever populated from the real API response — never synthesised.
-    // Publishing invented DKIM/SPF records would produce a domain that
-    // silently fails to send.
-    resendDomain: resendData?.domain,
-    resendDomainId: resendData?.domain_id,
-    resendApiKey: resendData?.client_api_key,
-    resendDnsRecords: resendData?.dns_records,
-    resendError: resendError ?? undefined,
     dataState: 'Clean / Empty (0 Records)'
   }
 
   isDeploymentComplete.value = true
 
-  if (resendError) {
-    errorToast(
-      'Site Provisioned — Email Setup Failed',
-      `${form.clientName} is deployed, but the Resend sending domain could not be created: ${resendError}`
-    )
-  } else {
-    success('Client Site Provisioned', `${form.clientName} (${targetDomain.value}) is now ready with empty clean data.`)
-  }
+  success('Client Site Provisioned', `${form.clientName} (${targetDomain.value}) is now ready with empty clean data.`)
 }
 
 const resetForm = () => {

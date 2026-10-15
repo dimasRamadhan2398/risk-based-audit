@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -11,6 +13,7 @@ import (
 	"risk-service/middleware"
 	"risk-service/models"
 	"risk-service/pkg/database"
+	"risk-service/pkg/kafka"
 	"risk-service/pkg/masterclient"
 	"risk-service/repositories"
 	"risk-service/routes"
@@ -150,7 +153,20 @@ func runServe(cmd *cobra.Command, args []string) error {
 	riskCtrl := controllers.NewRiskController(riskServ)
 	mitigationCtrl := controllers.NewMitigationController(mitigationServ)
 	riskFactorCtrl := controllers.NewRiskFactorController(db)
-	auditUniverseCtrl := controllers.NewAuditUniverseController(db)
+	// Audit Universe events feed audit-service's annual plan sync. Best-effort:
+	// if the broker is unreachable at start-up the service still serves the
+	// universe, and POST /audit-universe/events/resync repairs the gap later.
+	var universeEvents *kafka.Publisher
+	if cfg.Kafka.Enabled {
+		// Events go to the transactional outbox and are published by the relay,
+		// so the broker being down at start-up delays events, it does not drop them.
+		if err := db.AutoMigrate(&models.KafkaOutboxEvent{}); err != nil {
+			return fmt.Errorf("migrate kafka outbox: %w", err)
+		}
+		universeEvents = kafka.NewPublisher(db, cfg.Kafka.ServiceName)
+		go kafka.NewRelay(db, cfg.Kafka.Brokers, kafka.TopicAuditUniverse).Run(context.Background())
+	}
+	auditUniverseCtrl := controllers.NewAuditUniverseController(db, universeEvents)
 	rcmCtrl := controllers.NewRCMController(db)
 
 	// Register Routes

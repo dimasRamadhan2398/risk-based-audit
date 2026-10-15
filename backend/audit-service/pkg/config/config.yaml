@@ -28,9 +28,23 @@ log:
 kafka:
   enabled: true
   brokers:
-    - "kafka:9092"
+    - "kafka:29092"
   topic: "service-logs"
   service_name: "audit-service"
+
+# Business-event consumer: applies risk-service and master-service events to
+# annual plans (services/annual_plan_sync). Brokers use the PLAIN listener.
+kafka_consumer:
+  enabled: true
+  brokers:
+    - "kafka:29092"
+  group_id: "audit-service-annual-plan-sync"
+  topics:
+    - "audit-universe.events"
+    - "department.events"
+  version: "3.6.0"
+  assignor: "roundrobin"
+  offset: "oldest"
 
 app:
   app_name: risk-based-internal-audit

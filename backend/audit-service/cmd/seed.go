@@ -142,20 +142,20 @@ func runSeed(cmd *cobra.Command, args []string) error {
 	// 	return err
 	// }
 	//
-	// logger.Info("Seeding audit result reports...")
-	// if err := seedResultReports(db); err != nil {
-	// 	logger.Fatal("Failed to seed audit result reports", logger.LogField("error", err))
-	// 	return err
-	// }
+	logger.Info("Seeding audit result reports...")
+	if err := seedResultReports(db); err != nil {
+		logger.Fatal("Failed to seed audit result reports", logger.LogField("error", err))
+		return err
+	}
 
 	// Action taken reports are not seeded: the server creates them from the
 	// findings of approved LHAs (see services/action_taken_report).
 
-	// logger.Info("Seeding executive summaries...")
-	// if err := seedExecutiveSummaries(db); err != nil {
-	// 	logger.Fatal("Failed to seed executive summaries", logger.LogField("error", err))
-	// 	return err
-	// }
+	logger.Info("Seeding executive summaries...")
+	if err := seedExecutiveSummaries(db); err != nil {
+		logger.Fatal("Failed to seed executive summaries", logger.LogField("error", err))
+		return err
+	}
 
 	logger.Info("Seeding annual plans...")
 	if err := seedAnnualPlans(db); err != nil {
@@ -452,7 +452,7 @@ func seedStrategicPlans(db *gorm.DB) error {
 	logger.Info(fmt.Sprintf("Seeding %d strategic audit plans...", len(seeds)))
 	for i := range seeds {
 		var existing models.StrategicPlan
-		err := db.Where("code = ?", seeds[i].Code).First(&existing).Error
+		err := db.Unscoped().Where("code = ?", seeds[i].Code).First(&existing).Error
 		if err == gorm.ErrRecordNotFound {
 			if err := db.Create(&seeds[i]).Error; err != nil {
 				return err
@@ -1444,122 +1444,9 @@ func seedResultReports(db *gorm.DB) error {
 }
 
 func seedExecutiveSummaries(db *gorm.DB) error {
-	legacyMigrations := map[string]string{
-		"021/LHA/01/KS IAD/2026": "LHA-021/SKAI/2026",
-		"022/LHA/01/KS IAD/2026": "LHA-022/SKAI/2026",
-		"025/LHA/01/KS IAD/2026": "LHA-025/SKAI/2026",
-	}
-	for oldNum, newNum := range legacyMigrations {
-		db.Model(&models.ExecutiveSummary{}).Where("nomor_dokumen = ?", oldNum).Update("nomor_dokumen", newNum)
-	}
-
-	// Clean up legacy and dummy executive summaries
-	_ = db.Where("nomor_dokumen IN ?", []string{
-		"DOC-EXSUM-Q1-2026",
-		"020/LHA/01/KS IAD/2023",
-		"019/LHA/01/KS IAD/2025",
-		"LHA-020/SKAI/2023",
-		"LHA-019/SKAI/2025",
-	}).Delete(&models.ExecutiveSummary{}).Error
-
-	seeds := []models.ExecutiveSummary{
-		{
-			Quarter:             2,
-			PeriodeBulan:        "April 2026",
-			Tahun:               2026,
-			NomorDokumen:        "LHA-021/SKAI/2026",
-			AssignmentLetterID:  "ST-001/SKAI/2026",
-			DokumenPath:         "Executive_Summary_021_LHA_2026.pdf",
-			Status:              "Approved",
-			ExecutiveNote:       "Mohon tindak lanjuti rekonsiliasi kas harian dan koordinasikan perbaikan dengan tim Keuangan.",
-			Narrative:           "Executive Summary Individual untuk Laporan Hasil Audit Operasional Keuangan (LHA-021/SKAI/2026). Audit dilakukan untuk mengevaluasi efektivitas ICOFR dan kepatuhan terhadap SOP pembayaran.",
-			JumlahLaporan:       1,
-			RisikoTinggi:        3,
-			RisikoSedang:        2,
-			RisikoRendah:        0,
-			JumlahRekomendasi:   5,
-			FollowUpTable:       `[{"unit":"Departemen Keuangan","open":2,"closed":3}]`,
-			TopFindings:         `[{"finding":"Selisih pencatatan inventaris fisik vs buku besar","severity":"High"},{"finding":"Keterlambatan rekonsiliasi kas harian cabang utama","severity":"High"}]`,
-			MatriksKompilasi:    `[{"nomor":"LHA-021/01","division":"Finance","unitKerja":"Departemen Keuangan","prosesBisnis":"ICOFR","judulTemuan":"Selisih pencatatan inventaris fisik vs buku besar","nilaiRisiko":"Tinggi","rekomendasi":"Lakukan rekonsiliasi harian dan alert SMTP","dueDate":"2026-05-15","picUnit":"Manager Keuangan","progres":60,"status":"In Progress","buktiTL":"BA_Rekonsiliasi.pdf"}]`,
-			AkarMasalah:         "Kurangnya otomatisasi alarm kegagalan backup data dan kelalaian non-aktifkan akses user kasir.",
-			Kesimpulan:          "Secara umum pengendalian internal departemen keuangan memadai dengan beberapa area peningkatan yang perlu segera ditindaklanjuti.",
-			SignatureTempat:     "Jakarta",
-			SignatureTanggal:    "2026-04-15",
-			SignatureNamaKepala: "Zeta Ramadhani",
-			SignatureNIK:        "NIK-100240",
-		},
-		{
-			Quarter:             1,
-			PeriodeBulan:        "Februari 2026",
-			Tahun:               2026,
-			NomorDokumen:        "LHA-022/SKAI/2026",
-			AssignmentLetterID:  "ST-002/SKAI/2026",
-			DokumenPath:         "Executive_Summary_022_LHA_2026.pdf",
-			Status:              "Draft",
-			ExecutiveNote:       "",
-			Narrative:           "Executive Summary Individual untuk Audit Keamanan Sistem Informasi & Infrastruktur ERP (LHA-022/SKAI/2026). Audit mengevaluasi tata kelola akses pengguna dan keamanan database ERP.",
-			JumlahLaporan:       1,
-			RisikoTinggi:        1,
-			RisikoSedang:        2,
-			RisikoRendah:        1,
-			JumlahRekomendasi:   4,
-			FollowUpTable:       `[{"unit":"IT Infrastructure","open":2,"closed":2}]`,
-			TopFindings:         `[{"finding":"ERP Backup issue","severity":"Medium"}]`,
-			MatriksKompilasi:    `[]`,
-			AkarMasalah:         "Kurangnya monitoring sistem secara real-time dan otomasi alerting.",
-			Kesimpulan:          "Pengendalian keamanan sistem informasi cukup memadai dengan prioritas perbaikan pada backup recovery ERP.",
-			SignatureTempat:     "Jakarta",
-			SignatureTanggal:    "2026-02-28",
-			SignatureNamaKepala: "Andi Firmansyah",
-			SignatureNIK:        "NIK-100241",
-		},
-		{
-			Quarter:             1,
-			PeriodeBulan:        "Januari - Maret 2026",
-			Tahun:               2026,
-			NomorDokumen:        "LHA-025/SKAI/2026",
-			AssignmentLetterID:  "ST-005/SKAI/2026",
-			DokumenPath:         "ExSum_Q1_2026.pdf",
-			Status:              "Approved",
-			ExecutiveNote:       "Disetujui. Mohon koordinasikan dengan Direksi terkait temuan overhauling dan konsolidasi LHA Q1 2026.",
-			Narrative:           "Ringkasan eksekutif kompilasi ini menjelaskan pencapaian program kerja audit Triwulan I 2026 dan konsolidasi temuan audit.",
-			JumlahLaporan:       3,
-			RisikoTinggi:        1,
-			RisikoSedang:        2,
-			RisikoRendah:        5,
-			JumlahRekomendasi:   12,
-			FollowUpTable:       `[{"unit":"Finance","open":1,"closed":5}]`,
-			TopFindings:         `[{"finding":"ERP Backup issue","severity":"Medium"}]`,
-			MatriksKompilasi:    `[]`,
-			AkarMasalah:         "Kurangnya monitoring sistem secara real-time.",
-			Kesimpulan:          "Secara umum, tata kelola perusahaan berjalan dengan baik.",
-			SignatureTempat:     "Jakarta",
-			SignatureTanggal:    "2026-04-01",
-			SignatureNamaKepala: "Head of SKAI",
-			SignatureNIK:        "NIK-100239",
-		},
-	}
-	for i := range seeds {
-		var existing models.ExecutiveSummary
-		err := db.Where("nomor_dokumen = ?", seeds[i].NomorDokumen).First(&existing).Error
-		if err == gorm.ErrRecordNotFound {
-			if err := db.Create(&seeds[i]).Error; err != nil {
-				return err
-			}
-		} else {
-			db.Model(&existing).Updates(map[string]interface{}{
-				"assignment_letter_id": seeds[i].AssignmentLetterID,
-				"narrative":            seeds[i].Narrative,
-				"periode_bulan":        seeds[i].PeriodeBulan,
-				"tahun":                seeds[i].Tahun,
-				"quarter":              seeds[i].Quarter,
-				"jumlah_laporan":       seeds[i].JumlahLaporan,
-				"risiko_tinggi":        seeds[i].RisikoTinggi,
-				"risiko_sedang":        seeds[i].RisikoSedang,
-				"risiko_rendah":        seeds[i].RisikoRendah,
-				"jumlah_rekomendasi":   seeds[i].JumlahRekomendasi,
-			})
-		}
+	// User requirement: Remove all dummy Executive Summaries so data is generated from real LHAs or manual input
+	if err := db.Exec("DELETE FROM executive_summaries").Error; err != nil {
+		logger.Warn("Failed to clean executive_summaries table", logger.LogField("error", err))
 	}
 	return nil
 }
@@ -1569,7 +1456,7 @@ func seedAnnualPlans(db *gorm.DB) error {
 		{
 			Code:                 "PKAT-2026-001",
 			Version:              "v1.0",
-			Status:               "APPROVED",
+			Status:               models.AnnualPlanStatusApproved,
 			SelectedMonths:       []int{1, 2, 3},
 			Quarters:             []string{"Q1"},
 			AuditorCount:         3,
@@ -1593,7 +1480,7 @@ func seedAnnualPlans(db *gorm.DB) error {
 		{
 			Code:                 "PKAT-2025-001",
 			Version:              "v1.0",
-			Status:               "APPROVED",
+			Status:               models.AnnualPlanStatusApproved,
 			SelectedMonths:       []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12},
 			Quarters:             []string{"Q1", "Q2", "Q3", "Q4"},
 			AuditorCount:         4,
@@ -1618,7 +1505,7 @@ func seedAnnualPlans(db *gorm.DB) error {
 	}
 	for i := range seeds {
 		var existing models.AuditAnnual
-		err := db.Where("code = ?", seeds[i].Code).First(&existing).Error
+		err := db.Unscoped().Where("code = ?", seeds[i].Code).First(&existing).Error
 		if err == gorm.ErrRecordNotFound {
 			if err := db.Create(&seeds[i]).Error; err != nil {
 				return err

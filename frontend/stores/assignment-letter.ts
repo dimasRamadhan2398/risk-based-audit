@@ -27,151 +27,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
   state: (): AssignmentLetterState => ({
     isModalOpen: false,
     editingId: null,
-    assignmentLetterList: [
-      {
-        id: 'mock-uuid-zeta-1',
-        letterNumber: 'ST-001/SKAI/2026',
-        status: 'Published' as AssignmentLetterStatus,
-        createdAt: new Date().toISOString(),
-        auditTitle: 'Audit Pengendalian Keuangan & Pengeluaran Kas Q1 2026',
-        leader: 'Zeta Ramadhani',
-        category: AuditCategory.ASSURANCE,
-        auditYear: new Date().getFullYear().toString(),
-        auditTeam: 'SKAI',
-        startPeriod: '2026-03-01',
-        finishPeriod: '2026-03-31',
-        workingUnit: 'Finance',
-        auditPurpose: 'Annual Audit',
-        letterDate: '2026-01-01',
-        caeSignature: 'System',
-        executionPeriod: '2026-03-01 to 2026-03-31',
-        membersList: [
-          { name: 'Zeta Ramadhani', role: 'Chairperson' },
-          { name: 'Budi Santoso', role: 'Supervisor' },
-          { name: 'Rina Wulandari', role: 'Member' },
-          { name: 'Andi Firmansyah', role: 'Member' },
-          { name: 'Dewi Kusumawati', role: 'Person in Charge' }
-        ],
-        purposeList: [
-          'Menilai efektivitas pengendalian internal pada divisi keuangan',
-          'Memastikan kepatuhan terhadap kebijakan dan prosedur perusahaan',
-          'Mengidentifikasi potensi risiko yang dapat mempengaruhi operasional keuangan'
-        ],
-        scopeList: [
-          'Proses pencatatan dan pelaporan keuangan periode Januari - Desember 2025',
-          'Pengelolaan kas dan setara kas',
-          'Rekonsiliasi bank dan laporan arus kas',
-          'Kepatuhan terhadap standar akuntansi yang berlaku (PSAK)'
-        ],
-        ccList: [
-          'President Director',
-          'Chief Financial Officer',
-          'Head of Internal Audit',
-          'Board of Commissioners'
-        ]
-      },
-      {
-        id: 'mock-uuid-andi-2',
-        letterNumber: 'ST-002/SKAI/2026',
-        status: 'Published' as AssignmentLetterStatus,
-        createdAt: new Date().toISOString(),
-        auditTitle: 'Audit Keamanan Sistem Informasi & Infrastruktur ERP 2026',
-        leader: 'Andi Firmansyah',
-        category: AuditCategory.ASSURANCE,
-        auditYear: '2026',
-        auditTeam: 'SKAI',
-        startPeriod: '2026-04-01',
-        finishPeriod: '2026-04-30',
-        workingUnit: 'IT',
-        auditPurpose: 'IT Security Audit',
-        letterDate: '2026-01-10',
-        caeSignature: 'System',
-        executionPeriod: '2026-04-01 to 2026-04-30',
-        membersList: [
-          { name: 'Andi Firmansyah', role: 'Chairperson' },
-          { name: 'Budi Santoso', role: 'Supervisor' },
-          { name: 'Dedi Prasetyo', role: 'Member' }
-        ],
-        purposeList: ['Evaluasi tata kelola akses pengguna dan keamanan database ERP'],
-        scopeList: ['Hak akses user ERP dan database pusat'],
-        ccList: ['Chief Information Officer', 'Head of Internal Audit']
-      },
-      {
-        id: 'mock-uuid-rina-3',
-        letterNumber: 'ST-003/SKAI/2026',
-        status: 'Published' as AssignmentLetterStatus,
-        createdAt: new Date().toISOString(),
-        auditTitle: 'Audit Operasional Branch, Gudang & Logistik 2026',
-        leader: 'Rina Wulandari',
-        category: AuditCategory.ASSURANCE,
-        auditYear: '2026',
-        auditTeam: 'SKAI',
-        startPeriod: '2026-07-01',
-        finishPeriod: '2026-07-31',
-        workingUnit: 'Operations',
-        auditPurpose: 'Operational Audit',
-        letterDate: '2026-01-25',
-        caeSignature: 'System',
-        executionPeriod: '2026-07-01 to 2026-07-31',
-        membersList: [
-          { name: 'Rina Wulandari', role: 'Chairperson' },
-          { name: 'Budi Santoso', role: 'Supervisor' }
-        ],
-        purposeList: ['Memastikan pengelolaan persediaan dan stok gudang sesuai SOP'],
-        scopeList: ['Opname stok persediaan gudang pusat'],
-        ccList: ['Chief Operating Officer', 'Head of Internal Audit']
-      },
-      {
-        id: 'mock-uuid-budi-4',
-        letterNumber: 'ST-004/SKAI/2026',
-        status: 'Published' as AssignmentLetterStatus,
-        createdAt: new Date().toISOString(),
-        auditTitle: 'Audit Kepatuhan Manajemen Risiko & Pengadaan Barang/Jasa 2026',
-        leader: 'Budi Santoso',
-        category: AuditCategory.ASSURANCE,
-        auditYear: '2026',
-        auditTeam: 'SKAI',
-        startPeriod: '2026-08-01',
-        finishPeriod: '2026-08-31',
-        workingUnit: 'Procurement',
-        auditPurpose: 'Compliance Audit',
-        letterDate: '2026-02-01',
-        caeSignature: 'System',
-        executionPeriod: '2026-08-01 to 2026-08-31',
-        membersList: [
-          { name: 'Budi Santoso', role: 'Chairperson' },
-          { name: 'Zeta Ramadhani', role: 'Supervisor' }
-        ],
-        purposeList: ['Evaluasi proses HPS dan tender SCM'],
-        scopeList: ['Kontrak dan vendor management'],
-        ccList: ['Head of Procurement', 'Head of Internal Audit']
-      },
-      {
-        id: 'mock-uuid-dewi-5',
-        letterNumber: 'ST-005/SKAI/2026',
-        status: 'Published' as AssignmentLetterStatus,
-        createdAt: new Date().toISOString(),
-        auditTitle: 'Audit Pengendalian K3LH & Manufaktur Pembangkit 2026',
-        leader: 'Dewi Kusumawati',
-        category: AuditCategory.ASSURANCE,
-        auditYear: '2026',
-        auditTeam: 'SKAI',
-        startPeriod: '2026-09-01',
-        finishPeriod: '2026-09-30',
-        workingUnit: 'Maintenance',
-        auditPurpose: 'HSE Audit',
-        letterDate: '2026-02-15',
-        caeSignature: 'System',
-        executionPeriod: '2026-09-01 to 2026-09-30',
-        membersList: [
-          { name: 'Dewi Kusumawati', role: 'Chairperson' },
-          { name: 'Rina Wulandari', role: 'Member' }
-        ],
-        purposeList: ['Evaluasi implementasi K3LH dan sertifikasi alat'],
-        scopeList: ['Inspeksi K3 dan fasilitas pemadam kebakaran'],
-        ccList: ['Chief Safety Officer', 'Head of Internal Audit']
-      }
-    ],
+    assignmentLetterList: [],
     loading: false,
     errorMsg: '',
     form: {
@@ -242,132 +98,10 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
     async fetchAssignmentLetters() {
       this.loading = true
       this.errorMsg = ''
-      const mockList = [
-        {
-          id: 'mock-uuid-zeta-1',
-          letterNumber: 'ST-001/SKAI/2026',
-          status: 'Published' as AssignmentLetterStatus,
-          createdAt: new Date().toISOString(),
-          auditTitle: 'Audit Pengendalian Keuangan & Pengeluaran Kas Q1 2026',
-          leader: 'Zeta Ramadhani',
-          category: AuditCategory.ASSURANCE,
-          auditYear: new Date().getFullYear().toString(),
-          auditTeam: 'SKAI',
-          startPeriod: '2026-03-01',
-          finishPeriod: '2026-03-31',
-          workingUnit: 'Finance',
-          auditPurpose: 'Annual Audit',
-          letterDate: '2026-01-01',
-          caeSignature: 'System',
-          executionPeriod: '2026-03-01 to 2026-03-31',
-          membersList: [
-            { name: 'Zeta Ramadhani', role: 'Chairperson' },
-            { name: 'Budi Santoso', role: 'Supervisor' },
-            { name: 'Rina Wulandari', role: 'Member' }
-          ],
-          purposeList: ['Menilai efektivitas pengendalian internal pada divisi keuangan'],
-          scopeList: ['Proses pencatatan dan pelaporan keuangan'],
-          ccList: ['President Director']
-        },
-        {
-          id: 'mock-uuid-andi-2',
-          letterNumber: 'ST-002/SKAI/2026',
-          status: 'Published' as AssignmentLetterStatus,
-          createdAt: new Date().toISOString(),
-          auditTitle: 'Audit Keamanan Sistem Informasi & Infrastruktur ERP 2026',
-          leader: 'Andi Firmansyah',
-          category: AuditCategory.ASSURANCE,
-          auditYear: '2026',
-          auditTeam: 'SKAI',
-          startPeriod: '2026-04-01',
-          finishPeriod: '2026-04-30',
-          workingUnit: 'IT',
-          auditPurpose: 'IT Security Audit',
-          letterDate: '2026-01-10',
-          caeSignature: 'System',
-          executionPeriod: '2026-04-01 to 2026-04-30',
-          membersList: [
-            { name: 'Andi Firmansyah', role: 'Chairperson' },
-            { name: 'Budi Santoso', role: 'Supervisor' }
-          ],
-          purposeList: ['Evaluasi tata kelola akses pengguna dan keamanan database ERP'],
-          scopeList: ['Hak akses user ERP dan database pusat'],
-          ccList: ['Chief Information Officer']
-        },
-        {
-          id: 'mock-uuid-rina-3',
-          letterNumber: 'ST-003/SKAI/2026',
-          status: 'Published' as AssignmentLetterStatus,
-          createdAt: new Date().toISOString(),
-          auditTitle: 'Audit Operasional Branch, Gudang & Logistik 2026',
-          leader: 'Rina Wulandari',
-          category: AuditCategory.ASSURANCE,
-          auditYear: '2026',
-          auditTeam: 'SKAI',
-          startPeriod: '2026-07-01',
-          finishPeriod: '2026-07-31',
-          workingUnit: 'Operations',
-          auditPurpose: 'Operational Audit',
-          letterDate: '2026-01-25',
-          caeSignature: 'System',
-          executionPeriod: '2026-07-01 to 2026-07-31',
-          membersList: [
-            { name: 'Rina Wulandari', role: 'Chairperson' },
-            { name: 'Budi Santoso', role: 'Supervisor' }
-          ],
-          purposeList: ['Memastikan pengelolaan persediaan dan stok gudang sesuai SOP'],
-          scopeList: ['Opname stok persediaan gudang pusat'],
-          ccList: ['Chief Operating Officer']
-        },
-        {
-          id: 'mock-uuid-budi-4',
-          letterNumber: 'ST-004/SKAI/2026',
-          status: 'Published' as AssignmentLetterStatus,
-          createdAt: new Date().toISOString(),
-          auditTitle: 'Audit Kepatuhan Manajemen Risiko & Pengadaan Barang/Jasa 2026',
-          leader: 'Budi Santoso',
-          category: AuditCategory.ASSURANCE,
-          auditYear: '2026',
-          auditTeam: 'SKAI',
-          startPeriod: '2026-08-01',
-          finishPeriod: '2026-08-31',
-          workingUnit: 'Procurement',
-          auditPurpose: 'Compliance Audit',
-          letterDate: '2026-02-01',
-          caeSignature: 'System',
-          executionPeriod: '2026-08-01 to 2026-08-31',
-          membersList: [{ name: 'Budi Santoso', role: 'Chairperson' }],
-          purposeList: ['Evaluasi proses HPS dan tender SCM'],
-          scopeList: ['Kontrak dan vendor management'],
-          ccList: ['Head of Procurement']
-        },
-        {
-          id: 'mock-uuid-dewi-5',
-          letterNumber: 'ST-005/SKAI/2026',
-          status: 'Published' as AssignmentLetterStatus,
-          createdAt: new Date().toISOString(),
-          auditTitle: 'Audit Pengendalian K3LH & Manufaktur Pembangkit 2026',
-          leader: 'Dewi Kusumawati',
-          category: AuditCategory.ASSURANCE,
-          auditYear: '2026',
-          auditTeam: 'SKAI',
-          startPeriod: '2026-09-01',
-          finishPeriod: '2026-09-30',
-          workingUnit: 'Maintenance',
-          auditPurpose: 'HSE Audit',
-          letterDate: '2026-02-15',
-          caeSignature: 'System',
-          executionPeriod: '2026-09-01 to 2026-09-30',
-          membersList: [{ name: 'Dewi Kusumawati', role: 'Chairperson' }],
-          purposeList: ['Evaluasi K3LH'],
-          scopeList: ['Inspeksi fasilitas K3'],
-          ccList: ['Chief Safety Officer']
-        }
-      ] as AssignmentLetter[]
 
       try {
         const baseUrl = this.getAuditServiceBaseUrl()
-        const response: any = await $fetch(`${baseUrl}/assignment-letters`, {
+        const response: any = await $fetch(`${baseUrl}/assignment-letters?page_size=100`, {
           method: 'GET'
         })
         let items: AssignmentLetter[] = []
@@ -379,15 +113,11 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
           items = response
         }
 
-        if (items.length > 0) {
-          this.assignmentLetterList = items
-        } else {
-          this.assignmentLetterList = mockList
-        }
+        this.assignmentLetterList = items
       } catch (error: any) {
         console.error('Failed to fetch assignment letters:', error)
         this.errorMsg = extractErrorMessage(error, 'Failed to load assignment letters.')
-        this.assignmentLetterList = mockList
+        this.assignmentLetterList = []
       } finally {
         this.loading = false
       }

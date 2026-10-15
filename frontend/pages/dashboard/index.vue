@@ -729,9 +729,9 @@
             <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
               {{ t("dashboard.planningExecution.executionTitle") }}
             </h3>
-            <UBadge color="primary" label="Q4 2025" variant="soft"></UBadge>
+            <UBadge color="primary" :label="executionPeriodLabel" variant="soft"></UBadge>
           </div>
-          <div class="space-y-5">
+          <div class="space-y-5 max-h-80 overflow-y-auto pr-1">
             <div
               v-for="(item, index) in dashboardExecutionStatus"
               :key="index"
@@ -925,8 +925,10 @@ import { useI18n } from "~/composables/useI18n";
 import { useRiskProfileStore, riskLevelConfig } from "~/stores/risk-profile";
 import { getControlEffectivenessColorClass, getRiskLevelColorClass } from "~/utils/riskLevelBadge";
 import { useAnnualPlanStore } from "~/stores/annual-audit";
+import { AnnualAuditPlanStatus } from "~/types/audit";
 import { useActionTakenReportStore } from "~/stores/action-taken-report";
 import { useAuditExecutionStore } from "~/stores/audit-execution";
+import { getProgressValue } from "~/utils/executionSources";
 import { useAuditResultReportStore } from "~/stores/audit-result-report";
 import { useAuthStore } from "~/stores/auth";
 import { useRCMStore, cosoDimensions } from "~/stores/rcm";
@@ -1251,12 +1253,20 @@ const getTrendBadgeColor = (trend: string) => {
   }
 };
 
-// Sync state and action simulation
+// Sync state and action
 const isSyncing = ref(false);
 const handleSync = async () => {
   isSyncing.value = true;
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  isSyncing.value = false;
+  try {
+    await Promise.allSettled([
+      riskProfileStore.fetchRisks(),
+      annualPlanStore.fetchPlans(),
+      auditExecutionStore.fetchAuditExecutions(),
+      atrStore.fetchAtrList()
+    ]);
+  } finally {
+    isSyncing.value = false;
+  }
 };
 
 // Stats for Header
@@ -1269,19 +1279,19 @@ const highRisks = computed(
 );
 const auditPlansCount = computed(() => annualPlanStore.plans.length);
 const completedAuditsCount = computed(
-  () => annualPlanStore.plans.filter((p) => p.status === "Done").length
+  () => annualPlanStore.plans.filter((p) => p.status === AnnualAuditPlanStatus.APPROVED).length
 );
 
 // Audit Statistics (Section 2)
 const plannedAuditCount = computed(
-  () => annualPlanStore.plans.filter((p) => p.status !== "Done").length
+  () => annualPlanStore.plans.filter((p) => p.status !== AnnualAuditPlanStatus.APPROVED).length
 );
 // Open findings = ATR items not COMPLETED and not CANCELLED (see utils/actionTakenReport).
 const openFindingsCount = computed(() => atrStore.stats.counts.open);
 const executionStatusPercent = computed(() => {
   const executions = auditExecutionStore.auditExecutions;
   if (executions.length === 0) return 0;
-  return executions.reduce((sum, e) => sum + e.progress, 0) / (executions.length * 100);
+  return executions.reduce((sum, e) => sum + getProgressValue(e.progress), 0) / (executions.length * 100);
 });
 // ATR compliance = completed / all items (same basis as the donut "Completed" slice).
 const atrCompliancePercent = computed(() => atrStore.stats.compliance);
@@ -1328,12 +1338,12 @@ const calculateTrend = (
   }
 };
 
-// Mock last month for trends
+// Comparison base for trends (neutral 0 when no historical snapshot exists)
 const auditMainStatsLastMonth = {
-  plannedAudit: 25,
-  openFinding: 12,
-  executionStatus: 0.7,
-  atrCompliance: 0.8,
+  plannedAudit: 0,
+  openFinding: 0,
+  executionStatus: 0,
+  atrCompliance: 0,
 };
 
 // Computed properties for each metric's trend
@@ -1469,8 +1479,8 @@ const registeredRiskColumns = [
 ];
 
 // Audit Coverage
-// Planned = every annual audit plan, Completed = status "Done",
-// Remaining = everything else (WIP, Pending Approval, Not Available, Draft, ...).
+// Planned = every annual audit plan, Completed = status "Approved",
+// Remaining = everything else (Draft, Pending Review, Pending Approval, Revised).
 const auditCoverage = computed(() => {
   const plannedAudits = auditPlansCount.value;
   const completedAudits = completedAuditsCount.value;
@@ -1487,13 +1497,17 @@ const progressModel = computed(() => {
 });
 
 // Audit Execution
+// Every execution the Audit Execution Status page lists (the card scrolls).
 const dashboardExecutionStatus = computed(() => {
-  return auditExecutionStore.auditExecutions
-    .map((e) => ({
-      name: e.name,
-      percentage: e.progress,
-    }))
-    .slice(0, 3);
+  return auditExecutionStore.auditExecutions.map((e) => ({
+    name: e.name,
+    percentage: getProgressValue(e.progress),
+  }));
+});
+// Period of the card: the current quarter, as "Q4 2026".
+const executionPeriodLabel = computed(() => {
+  const now = new Date();
+  return `Q${Math.floor(now.getMonth() / 3) + 1} ${now.getFullYear()}`;
 });
 
 // Recent Findings — GET /audit-result-reports/recent-findings: saved ARR findings

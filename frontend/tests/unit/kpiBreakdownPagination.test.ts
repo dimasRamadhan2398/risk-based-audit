@@ -58,7 +58,12 @@ const fake = (impl: FetchFn): Mock<FetchFn> => vi.fn(impl)
 const failWith = (message: string) => fake(async () => {
   throw new Error(message)
 })
-const callParams = (index: number): Record<string, string | number> => g.$fetch.mock.calls.at(index)?.[1]?.params ?? {}
+// `_ts` is the cache-buster the store adds (see performance.ts); the exact-params assertions ignore it.
+const callParams = (index: number): Record<string, string | number> => {
+  const { _ts, ...params } = g.$fetch.mock.calls.at(index)?.[1]?.params ?? {}
+  return params
+}
+const callCacheBust = (index: number): unknown => g.$fetch.mock.calls.at(index)?.[1]?.params?._ts
 /** Element of a list that the test expects to exist. */
 const nth = <T>(list: T[], index: number): T => {
   const value = list[index]
@@ -121,6 +126,15 @@ describe('KPI breakdown store: query sent to /performance/kpi-breakdown', () => 
 
     await store.setKpiBreakdownFilters({ status: 'On Track', period: 'Q1-2026', category: 'Financial' })
     expect(lastParams()).toEqual({ year: 2026, page: 1, page_size: 10, status: 'On Track', period: 'Q1-2026', category: 'Financial' })
+  })
+
+  it('adds a cache-buster to every fetch so an upstream proxy cache cannot replay an old page', async () => {
+    g.$fetch = pagedBackend(30)
+    const store = usePerformanceStore()
+    await store.loadKpiBreakdown(2026)
+    await store.setKpiBreakdownPage(2)
+    expect(typeof callCacheBust(0)).toBe('number')
+    expect(typeof callCacheBust(1)).toBe('number')
   })
 
   it('debounces search and sends only the last term', async () => {

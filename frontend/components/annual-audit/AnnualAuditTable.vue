@@ -53,15 +53,8 @@
           </div>
         </template>
 
-        <template #progress-cell="{ row }">
-          <UProgress v-model="store.progressAudit" color="secondary" status :ui="{ status: 'text-black dark:text-white font-medium' }" />
-        </template>
-
         <template #status-cell="{ row }">
-          <span 
-            class="w-2.5 h-2.5 rounded-full inline-block"
-            :class="store.getStatusColor((row.original || row)?.status)"
-          ></span>
+          <span class="whitespace-nowrap">{{ store.getStatusLabel((row.original || row)?.status) }}</span>
         </template>
 
         <template #actions-cell="{ row }">
@@ -118,15 +111,8 @@ const getRowDepartments = (plan: any): string[] => {
   
   if (Array.isArray(plan.activities)) {
     plan.activities.forEach((act: any) => {
+      // Department name snapshot from the server; a row has one department now.
       if (act.department) depts.add(typeof act.department === 'string' ? act.department : act.department.name)
-      const inv = act.involvedDepartments || act.involved_departments
-      if (Array.isArray(inv)) {
-        inv.forEach((d: any) => {
-          if (typeof d === 'string') depts.add(d)
-          else if (d?.name) depts.add(d.name)
-          else if (d?.code) depts.add(d.code)
-        })
-      }
     })
   }
   return Array.from(depts).filter(Boolean)

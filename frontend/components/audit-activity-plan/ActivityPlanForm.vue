@@ -113,8 +113,8 @@
                       <span class="text-xs text-gray-500 dark:text-gray-400">{{ store.formState.planTitle.length }}/100</span>
                     </div>
                   </UFormField>
-                  <UFormField :label="t('auditActivityPlan.form.planYear')" required>
-                    <USelectMenu v-model="store.formState.planYear" :items="yearOptions" class="w-full" placeholder="Pilih Tahun" />
+                  <UFormField :label="t('auditActivityPlan.form.planYear')" :hint="t('auditActivityPlan.form.derivedFromAnnual')">
+                    <UInput :model-value="store.formState.planYear" disabled class="w-full" />
                   </UFormField>
                   <UFormField :label="t('auditActivityPlan.form.planPeriod')" required class="col-span-1 md:col-span-2 w-full">
                     <div class="flex items-center gap-3">
@@ -123,14 +123,8 @@
                       <AppDatePicker v-model="store.formState.planPeriodEnd" class="flex-1 w-full" />
                     </div>
                   </UFormField>
-                  <UFormField :label="t('auditActivityPlan.form.department')" required>
-                    <USelectMenu
-                      v-model="store.formState.department"
-                      :placeholder="t('auditActivityPlan.form.selectDepartment')"
-                      class="w-full"
-                      :items="store.departmentOptions"
-                      :loading="store.optionsLoading"
-                    />
+                  <UFormField :label="t('auditActivityPlan.form.department')" :hint="t('auditActivityPlan.form.derivedFromAnnual')">
+                    <UInput :model-value="store.formState.department" disabled class="w-full" />
                   </UFormField>
                   <UFormField :label="t('auditActivityPlan.form.createdBy')" :hint="store.isEditMode ? undefined : t('auditActivityPlan.form.autoFilledFromAccount')">
                     <UInput v-model="store.formState.createdBy" class="w-full" disabled />
@@ -217,54 +211,45 @@
                           <span class="text-xs text-gray-500 dark:text-gray-400">{{ activity.auditee.length }}/100</span>
                         </div>
                       </UFormField>
-                      <UFormField :label="t('auditActivityPlan.form.category')" class="col-span-1 md:col-span-2">
+                      <UFormField :label="t('auditActivityPlan.form.annualActivity')" required class="col-span-1 md:col-span-2" :hint="t('auditActivityPlan.form.annualActivityHint')">
                         <USelectMenu
-                          v-model="activity.category"
-                          :items="Object.values(AuditCategory)"
-                          :placeholder="t('auditActivityPlan.form.selectCategory')"
+                          :model-value="activity.annualActivityId || undefined"
+                          :items="store.annualActivityOptions"
+                          value-key="value"
+                          label-key="label"
+                          :placeholder="t('auditActivityPlan.form.selectAnnualActivity')"
                           class="w-full"
-                        />
-                      </UFormField>
-                      <UFormField :label="t('auditActivityPlan.form.associatedRisk')" class="col-span-1 md:col-span-2">
-                        <USelectMenu
-                          :model-value="store.riskOptions.find(r => r.name === activity.riskName) || (activity.riskName ? { name: activity.riskName, category: '', riskLevel: activity.riskLevel } : undefined)"
-                          @update:model-value="(val: any) => {
-                            activity.riskName = val?.name || '';
-                            if (val?.riskLevel) activity.riskLevel = val.riskLevel;
-                          }"
-                          :items="store.riskOptions"
-                          label-key="name"
-                          :loading="store.optionsLoading"
-                          :placeholder="t('auditActivityPlan.form.selectRiskProfile')"
-                          class="w-full"
+                          @update:model-value="(val: string | undefined) => store.linkAnnualActivity(index, val)"
                         >
-                          <template #item="{ item }">
-                            <div class="flex items-center gap-2 max-w-full w-full">
-                              <span
-                                class="w-2.5 h-2.5 rounded-full shrink-0"
-                                :class="getRiskLevelDotClass(item.riskLevel)"
-                              ></span>
-                              <span class="text-[10px] font-bold text-gray-500 shrink-0">[{{ riskLevelLabel(item.riskLevel) }}]</span>
-                              <span class="truncate text-md">{{ item.name }}</span>
-                              <span v-if="item.category" class="ml-auto text-[10px] text-gray-400 shrink-0">{{ item.category }}</span>
-                            </div>
+                          <template #empty>
+                            {{ t('auditActivityPlan.form.noAnnualActivities') }}
                           </template>
                         </USelectMenu>
                       </UFormField>
 
-                      <UFormField :label="t('auditActivityPlan.form.riskLevel')">
-                        <USelectMenu
-                          v-model="activity.riskLevel"
-                          :items="store.riskLevelOptions"
-                          value-key="value"
-                          label-key="label"
-                          :placeholder="t('auditActivityPlan.form.selectRiskLevel')"
-                          class="w-full"
-                        />
-                      </UFormField>
-                      <UFormField :label="t('auditActivityPlan.form.duration')">
-                        <UInput v-model="activity.duration" type="number" min="0" class="w-full"/>
-                      </UFormField>
+                      <!-- Copied from the linked annual activity: read-only here, edited in the Annual Audit Plan. -->
+                      <div class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 rounded-lg border border-dashed border-[var(--border-main)] p-3 bg-gray-50 dark:bg-gray-900/40">
+                        <p class="md:col-span-2 text-xs text-gray-500 dark:text-gray-400">{{ t('auditActivityPlan.form.copiedFromAnnual') }}</p>
+                        <UFormField :label="t('auditActivityPlan.form.category')">
+                          <UInput :model-value="activity.category" disabled class="w-full" />
+                        </UFormField>
+                        <UFormField :label="t('auditActivityPlan.form.associatedRisk')">
+                          <UInput :model-value="activity.riskName || '-'" disabled class="w-full" />
+                        </UFormField>
+                        <UFormField :label="t('auditActivityPlan.form.riskLevel')">
+                          <span
+                            class="inline-flex items-center px-2 py-1 rounded-md text-sm font-semibold"
+                            :class="getRiskLevelColorClass(activity.riskLevel)"
+                          >{{ riskLevelLabel(activity.riskLevel) }}</span>
+                        </UFormField>
+                        <UFormField :label="t('auditActivityPlan.form.duration')">
+                          <UInput :model-value="activity.duration" disabled class="w-full" />
+                        </UFormField>
+                        <UFormField :label="t('auditActivityPlan.form.auditorsNum')">
+                          <UInput :model-value="activity.numberOfAuditors" disabled class="w-full" />
+                        </UFormField>
+                      </div>
+
                       <UFormField :label="t('auditActivityPlan.form.priority')">
                         <USelectMenu 
                           v-model="activity.priority" 
@@ -274,9 +259,6 @@
                           :placeholder="t('auditActivityPlan.form.selectPriority')" 
                           class="w-full"
                         />
-                      </UFormField>
-                      <UFormField :label="t('auditActivityPlan.form.auditorsNum')">
-                        <UInput v-model="activity.numberOfAuditors" type="number" min="0" class="w-full"/>
                       </UFormField>
                       <UFormField :label="t('auditActivityPlan.form.estimatedSchedule')">
                         <AppDatePicker v-model="activity.estimatedSchedule" class="w-full"/>
@@ -587,11 +569,9 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useActivityPlanStore } from '~/stores/activity-plan'
-import { getRiskLevelDotClass } from '~/utils/riskLevelBadge'
-import { AuditCategory } from '~/types/audit';
+import { getRiskLevelColorClass } from '~/utils/riskLevelBadge'
 import { useI18n } from '~/composables/useI18n'
 import ReusableButton from '~/components/shared/ReusableButton.vue'
-import { getFiscalYearStrings } from '~/composables/useFiscalYear'
 import { formatNumber } from '~/utils/numberFormatter'
 
 const { t } = useI18n()
@@ -600,7 +580,6 @@ const store = useActivityPlanStore()
 const currentStep = ref(0)
 const stepError = ref('')
 
-const yearOptions = computed(() => getFiscalYearStrings())
 
 const steps = computed(() => [
   { key: 'basic', label: t('auditActivityPlan.stepper.step1'), icon: 'i-heroicons-information-circle' },
@@ -668,7 +647,7 @@ const validateStep = (stepIdx: number): boolean => {
   // Step 0: Basic Planning Information
   if (stepIdx === 0) {
     const s = store.formState
-    if (!s.planTitle?.trim() || !s.planYear || !s.planPeriodStart || !s.planPeriodEnd || !s.department) {
+    if (!s.planTitle?.trim() || !s.planPeriodStart || !s.planPeriodEnd) {
       stepError.value = t('auditActivityPlan.validation.basicInfo')
       return false
     }
@@ -684,6 +663,15 @@ const validateStep = (stepIdx: number): boolean => {
     const acts = store.formState.plannedActivities
     if (!acts || acts.length === 0) {
       stepError.value = t('auditActivityPlan.validation.plannedActivities')
+      return false
+    }
+    // Category, risk, year, department and team are copied from the annual activity: each row needs one.
+    if (store.unlinkedActivityCount > 0) {
+      stepError.value = t('auditActivityPlan.form.annualActivityRequired');
+      return false
+    }
+    if (!store.formState.planYear || !store.formState.department) {
+      stepError.value = t('auditActivityPlan.validation.annualDepartmentMissing');
       return false
     }
     const { planPeriodStart, planPeriodEnd } = store.formState

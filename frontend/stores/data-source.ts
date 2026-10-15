@@ -61,22 +61,11 @@ export const useDataSourceStore = defineStore("data-source", () => {
       if (res && res.data && Array.isArray(res.data)) {
         sources.value = res.data;
       } else {
-        // Fallback default simulator source if API not yet populated
-        sources.value = [
-          {
-            id: "cbs_simulator",
-            source_id: "cbs_simulator",
-            name: "Core Banking Simulator",
-            source_type: "postgres",
-            host: "postgres-timescale",
-            port: 5432,
-            database: "auditsphere_cbs",
-            status: "synced"
-          }
-        ];
+        sources.value = [];
       }
     } catch (e) {
-      console.warn("Failed to fetch sources, using fallback", e);
+      console.warn("Failed to fetch sources", e);
+      sources.value = [];
     } finally {
       isLoading.value = false;
     }

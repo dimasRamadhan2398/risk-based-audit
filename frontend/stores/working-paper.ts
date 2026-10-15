@@ -12,6 +12,8 @@ import type {
 import { ROOT_CAUSE_METHOD_OPTIONS, TEST_RESULT_OPTIONS } from '~/types/audit'
 import { useAuditFieldworkStore } from './audit-fieldwork'
 import { useAssignmentLetterStore } from './assignment-letter'
+import { useLocationStore } from './location'
+import { useRiskProfileStore, riskLevelConfig } from './risk-profile'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { RiskLevel, RiskTaxonomy } from '../types/risk'
 import { extractErrorMessage } from '~/utils/error'
@@ -59,6 +61,8 @@ export const planSchema = z.object({
 export const useWorkingPaperStore = defineStore('working-paper', () => {
   const fieldworkStore = useAuditFieldworkStore()
   const assignmentLetterStore = useAssignmentLetterStore()
+  const locationStore = useLocationStore()
+  const riskProfileStore = useRiskProfileStore()
   const toast = useToastNotification()
 
   const fileInput = ref<HTMLInputElement | null>(null)
@@ -336,8 +340,8 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   const riskForm = reactive<WorkingPaperRiskForm>({
     risk: '',
-    taxonomy: RiskTaxonomy.Financial,
-    riskLevel: RiskLevel.HIGH,
+    taxonomy: '',
+    riskLevel: '',
     controlDescription: ''
   })
 
@@ -402,6 +406,13 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       if (assignmentLetterStore.assignmentLetterList.length <= 3) {
         assignmentLetterStore.fetchAssignmentLetters().catch(() => {})
       }
+      if (locationStore.locations.length === 0) {
+        locationStore.fetchLocations().catch(() => {})
+      }
+      if (riskProfileStore.rawRisks.length === 0) {
+        riskProfileStore.fetchRisks().catch(() => {})
+        riskProfileStore.fetchBranches().catch(() => {})
+      }
       const baseUrl = getAuditServiceBaseUrl()
 
       const resF01: any = await $fetch(`${baseUrl}/working-papers/headers`, { method: 'GET' })
@@ -459,6 +470,104 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const showModalF03 = ref(false)
   const showModalF04 = ref(false)
   const showModalF05 = ref(false)
+  const activeHeaderLocation = computed(() => {
+    const selectedLetter = fieldworkStore.selectedAssignmentLetter
+    if (selectedLetter) {
+      const saved = filteredDataF01.value.find((h: any) => h.location?.trim())
+      if (saved?.location?.trim()) {
+        return saved.location.trim()
+      }
+    }
+    if (headerForm.location?.trim()) {
+      return headerForm.location.trim()
+    }
+    return ''
+  })
+
+  const crpRisksPool = computed(() => {
+    const raw = riskProfileStore.rawRisks || []
+    const assessed = riskProfileStore.risks || []
+    if (raw.length === 0) return assessed
+    return raw.map((r: any) => {
+      const found = assessed.find((a: any) => String(a.id) === String(r.id))
+      return found || r
+    })
+  })
+
+  const isRiskMatchingLocation = (risk: any, locationStr: string): boolean => {
+    if (!locationStr) return true
+    const targetLoc = locationStr.trim().toLowerCase()
+
+    // 1. Direct branch string match
+    if (risk.branch && risk.branch.trim().toLowerCase() === targetLoc) {
+      return true
+    }
+
+    // 2. Location ID matching via locationStore or riskProfileStore
+    const locId = risk.location_id || (riskProfileStore.riskLocationId && riskProfileStore.riskLocationId(risk))
+    if (locId) {
+      const locObj = locationStore.locations.find((l: any) => String(l.id) === String(locId))
+        || riskProfileStore.masterLocations?.find((l: any) => String(l.id) === String(locId))
+      if (locObj && locObj.name?.trim().toLowerCase() === targetLoc) {
+        return true
+      }
+    }
+
+    // 3. Check if targetLoc corresponds to a master location ID
+    const targetMasterLoc = locationStore.locations.find((l: any) => l.name?.trim().toLowerCase() === targetLoc)
+      || riskProfileStore.masterLocations?.find((l: any) => l.name?.trim().toLowerCase() === targetLoc)
+    if (targetMasterLoc && locId && String(targetMasterLoc.id) === String(locId)) {
+      return true
+    }
+
+    return false
+  }
+
+  const resolveRiskLevel = (r: any): string => {
+    if (!r) return 'Low'
+    if (r.likelihood && r.impact) {
+      const lvl = riskProfileStore.getRiskLevel(Number(r.likelihood), Number(r.impact))
+      return riskLevelConfig[lvl]?.label || 'Low'
+    }
+    if (r.riskLevel) {
+      const raw = String(r.riskLevel).toLowerCase()
+      for (const [key, cfg] of Object.entries(riskLevelConfig)) {
+        if (key.toLowerCase() === raw || cfg.label.toLowerCase() === raw) {
+          return cfg.label
+        }
+      }
+      return r.riskLevel
+    }
+    return 'Low'
+  }
+
+  const onRiskSelect = (riskName?: string) => {
+    const name = (riskName || riskForm.risk || '').trim()
+    if (!name) return
+
+    const pool = crpRisksPool.value
+    let matched = pool.find((r: any) => r.name === name)
+    if (!matched) {
+      matched = pool.find((r: any) => r.name?.toLowerCase().trim() === name.toLowerCase())
+    }
+
+    if (matched) {
+      if (matched.category) {
+        riskForm.taxonomy = matched.category
+      }
+      riskForm.riskLevel = resolveRiskLevel(matched)
+    }
+  }
+
+  watch(
+    () => riskForm.risk,
+    (newVal) => {
+      if (newVal) {
+        onRiskSelect(newVal)
+      }
+    }
+  )
+
   const closeModalF01 = () => showModalF01.value = false
 
   // The page opens the header modal on mount (?action=create / edit) while the
@@ -532,6 +641,10 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     isEditingF01.value = false
     editingIdF01.value = null
 
+    if (locationStore.locations.length === 0) {
+      locationStore.fetchLocations().catch(() => {})
+    }
+
     // The form has no assignment letter field: a new working paper always
     // belongs to the letter selected in Audit Fieldwork. Without one there is
     // nothing to attach it to, so refuse rather than guess.
@@ -579,6 +692,10 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const handleEditF01 = (header: any) => {
     isEditingF01.value = true
     editingIdF01.value = header.id
+
+    if (locationStore.locations.length === 0) {
+      locationStore.fetchLocations().catch(() => {})
+    }
 
     let start = ''
     let end = ''
@@ -671,11 +788,16 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     isEditingF02.value = false
     editingIdF02.value = null
 
+    if (riskProfileStore.rawRisks.length === 0) {
+      riskProfileStore.fetchRisks().catch(() => {})
+      riskProfileStore.fetchBranches().catch(() => {})
+    }
+
     // Reset Form
     Object.assign(riskForm, {
       risk: '',
-      taxonomy: 'Operational',
-      riskLevel: 'High',
+      taxonomy: '',
+      riskLevel: '',
       controlDescription: ''
     })
     showModalF02.value = true
@@ -701,10 +823,19 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     isEditingF02.value = true
     editingIdF02.value = risk.id
 
+    if (riskProfileStore.rawRisks.length === 0) {
+      riskProfileStore.fetchRisks().catch(() => {})
+      riskProfileStore.fetchBranches().catch(() => {})
+    }
+
     riskForm.risk = risk.risk
     riskForm.taxonomy = risk.taxonomy
     riskForm.riskLevel = risk.riskLevel
     riskForm.controlDescription = risk.controlDescription
+
+    if (!riskForm.taxonomy || !riskForm.riskLevel) {
+      onRiskSelect(risk.risk)
+    }
 
     showModalF02.value = true
   }
@@ -1199,53 +1330,25 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       return fieldworkStore.publishedAssignmentLetters
     },
     businessProcess: ['Procurement', 'Finance', 'HR', 'IT Operations'],
-    location: ['Head Office', 'Jakarta Branch', 'Bandung Branch'],
-    risk: [
-      'FIN-001: Fluktuasi Nilai Tukar Mata Uang',
-      'OPS-001: Gangguan Sistem IT',
-      'COM-001: Ketidakpatuhan Regulasi GDPR',
-      'STR-001: Perubahan Strategi Kompetitor',
-      'OPS-002: Kegagalan Rantai Pasokan',
-      'FIN-002: Risiko Kredit Pelanggan',
-      'SEC-001: Serangan Siber dan Ransomware',
-      'REP-001: Penurunan Reputasi Brand',
-      'ENV-001: Dampak Perubahan Iklim',
-      'HR-001: Retensi Talenta Kunci',
-      'OPS-003: Kegagalan Peralatan Kritis',
-      'FIN-003: Kenaikan Suku Bunga',
-      'COM-002: Perubahan Regulasi Pajak',
-      'STR-002: Disrupsi Teknologi',
-      'SEC-002: Kebocoran Data Pelanggan',
-      'REP-002: Krisis Reputasi Media Sosial',
-      'ENV-002: Bencana Alam Lokal',
-      'HR-002: Konflik Industrial',
-      'OPS-004: Keterlambatan Proyek Konstruksi',
-      'FIN-004: Penipuan Internal',
-      'COM-003: Perubahan Regulasi Lingkungan',
-      'STR-003: Kegagalan Merger & Akuisisi',
-      'SEC-003: Pencurian Kekayaan Intelektual',
-      'REP-003: Ulasan Negatif Pelanggan',
-      'ENV-003: Kenaikan Biaya Energi',
-      'HR-003: Kesenjangan Keterampilan',
-      'OPS-005: Kegagalan Sistem Logistik',
-      'FIN-005: Penurunan Pendapatan',
-      'COM-004: Perubahan Regulasi Pasar',
-      'STR-004: Kegagalan Inovasi Produk',
-      'SEC-004: Pelanggaran Privasi Data',
-      'REP-004: Tuduhan Etika Bisnis',
-      'ENV-004: Kerusakan Reputasi Akibat Polusi',
-      'HR-004: Korupsi dan Penipuan Internal',
-      'OPS-006: Kegagalan Sistem Keamanan Fisik',
-      'FIN-006: Penipuan Pelanggan',
-      'COM-005: Perubahan Regulasi Pasar',
-      'STR-005: Kegagalan Inovasi Produk',
-      'SEC-005: Pelanggaran Privasi Data',
-      'REP-005: Tuduhan Etika Bisnis',
-      'ENV-005: Kerusakan Reputasi Akibat Polusi',
-      'HR-005: Korupsi dan Penipuan Internal',
-      'OPS-007: Kegagalan Sistem Keamanan Fisik',
-      'FIN-007: Penipuan Pelanggan'
-    ],
+    get location() {
+      const names = locationStore.branchNames || []
+      if (headerForm.location && !names.includes(headerForm.location)) {
+        return [headerForm.location, ...names]
+      }
+      return names
+    },
+    get risk() {
+      const loc = activeHeaderLocation.value
+      const pool = crpRisksPool.value
+      const filtered = pool.filter((r: any) => isRiskMatchingLocation(r, loc))
+      const names = filtered.map((r: any) => r.name).filter(Boolean)
+      const uniqueNames = Array.from(new Set(names))
+
+      if (riskForm.risk && !uniqueNames.includes(riskForm.risk)) {
+        return [riskForm.risk, ...uniqueNames]
+      }
+      return uniqueNames
+    },
     pic: ['Dimas - IT', 'Budi - Finance', 'Siti - HR'],
     testResult: [...TEST_RESULT_OPTIONS],
     rootCauseMethod: [...ROOT_CAUSE_METHOD_OPTIONS]
@@ -1322,8 +1425,11 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     checkSampleStatus, addTeamMember, removeTeamMember, getAvailableMembers, removeFile,
     addActivity, removeActivity,
     syncFromAssignmentLetter,
+    activeHeaderLocation,
+    onRiskSelect,
     criteriaOptions, loadingSopOptions,
     fieldworkSampleOptions,
+    fetchLocations: () => locationStore.fetchLocations(),
     loading, errorMsg, fetchAllData
   }
 })

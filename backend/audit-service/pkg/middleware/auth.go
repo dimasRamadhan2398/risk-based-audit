@@ -46,6 +46,8 @@ func (m *AuthMiddleware) Authenticate() gin.HandlerFunc {
 		if tokenString == "" {
 			if cookie, err := c.Cookie("auth_token"); err == nil && cookie != "" {
 				tokenString = cookie
+			} else if cookie, err := c.Cookie("auth-token"); err == nil && cookie != "" {
+				tokenString = cookie
 			} else if cookie, err := c.Cookie("token"); err == nil && cookie != "" {
 				tokenString = cookie
 			}

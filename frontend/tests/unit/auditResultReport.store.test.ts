@@ -4,6 +4,7 @@ import { setActivePinia, createPinia } from 'pinia'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import { useWorkingPaperStore } from '~/stores/working-paper'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
+import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 
 vi.mock('#app', () => ({
   useRuntimeConfig: () => ({
@@ -44,6 +45,20 @@ global.$fetch = vi.fn()
 const LETTER = 'ST-001/SKAI/2026'
 
 function seedAuditStores() {
+  const al = useAssignmentLetterStore()
+  al.assignmentLetterList = [
+    {
+      id: 'al-1',
+      letterNumber: LETTER,
+      auditTeam: 'SKAI',
+      status: 'Published',
+      leader: 'Zeta Ramadhani',
+      membersList: [
+        { name: 'Zeta Ramadhani', role: 'Chairperson' },
+        { name: 'Budi Santoso', role: 'Supervisor' }
+      ]
+    }
+  ]
   const wp = useWorkingPaperStore()
   wp.dataF02 = [{ id: 'R1', workingPaperId: LETTER, risk: 'Selisih kas', riskLevel: 'HIGH' }]
   wp.dataF04 = [{ id: 'C1', workingPaperId: LETTER, condition: 'Rekonsiliasi kas harian terlambat', criteria: 'SOP Kas', impact: 'Selisih kas' }]
@@ -159,18 +174,24 @@ describe('Audit Result Report Store - Automated Findings Detection', () => {
   it('should dynamically generate Report Number (LHA ID) with auto-increment and dynamic month/year', async () => {
     const store = useAuditResultReportStore()
     
-    // Test with specific date: 2026-10-15
+    // When no reports exist, the first generated number should start at LHA-001
+    store.reportList = []
     const dynamicNum = store.generateReportNumber('2026-10-15')
-    expect(dynamicNum).toMatch(/^LHA-\d{3}\/SKAI\/2026$/)
+    expect(dynamicNum).toBe('LHA-001/SKAI/2026')
 
     // Test with different year and month: 2027-02-01
     const futureNum = store.generateReportNumber('2027-02-01')
-    expect(futureNum).toMatch(/^LHA-\d{3}\/SKAI\/2027$/)
+    expect(futureNum).toBe('LHA-001/SKAI/2027')
+
+    // If an existing report has LHA-001, next should be LHA-002
+    store.reportList = [{ reportNumber: 'LHA-001/SKAI/2026' } as any]
+    const secondNum = store.generateReportNumber('2026-10-15')
+    expect(secondNum).toBe('LHA-002/SKAI/2026')
 
     // Check that resetForm initializes reportForm.reportNumber dynamically
+    store.reportList = []
     store.resetForm()
-    expect(store.reportForm.reportNumber).toBeTruthy()
-    expect(store.reportForm.reportNumber).toMatch(/^LHA-\d{3}\/[^\/]+\/\d{4}$/)
+    expect(store.reportForm.reportNumber).toBe('LHA-001/SKAI/2026')
   })
 
   it('should dynamically generate Assignment Letter number with sanitized year and highest sequence', async () => {
@@ -185,10 +206,10 @@ describe('Audit Result Report Store - Automated Findings Detection', () => {
     const st2 = alStore.generateNomorSurat('SKAI', '2026-05-20')
     expect(st2).toMatch(/^ST-\d{3}\/SKAI\/2026$/)
 
-    // Test fallback to default SKAI and current year when empty
+    // Test fallback to default SKAI and current year when empty (starts at ST-001)
     const currentYear = new Date().getFullYear().toString()
     const stDefault = alStore.generateNomorSurat('', '')
-    expect(stDefault).toBe(`ST-006/SKAI/${currentYear}`)
+    expect(stDefault).toBe(`ST-001/SKAI/${currentYear}`)
   })
 })
 
@@ -279,6 +300,7 @@ describe('Audit Result Report Store - saveReport requires an assignment letter',
   })
 
   it('retrieves team members from the selected assignment letter', () => {
+    seedAuditStores()
     const store = useAuditResultReportStore()
     const members = store.getTeamMembersForLetter('ST-001/SKAI/2026')
     expect(members.length).toBeGreaterThan(0)

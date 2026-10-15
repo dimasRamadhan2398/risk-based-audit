@@ -795,7 +795,7 @@ const userDropdownItems = computed(() => [
         </div>
       </template>
       <template #body>
-        <div class="min-h-screen bg-[var(--bg-main)] w-full min-w-0 overflow-x-hidden transition-colors duration-300">
+        <div class="min-h-screen bg-[var(--bg-main)] w-full min-w-0 overflow-x-clip transition-colors duration-300">
           <div
             v-if="authStore.isNewDevice"
             class="max-w-7xl mx-auto p-4 pb-0"

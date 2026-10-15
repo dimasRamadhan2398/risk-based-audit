@@ -49,11 +49,13 @@ export interface ExecutiveSummary {
   // Section I
   narrative: string
 
-  // Section II
+  // Section II: five-level risk breakdown (Total Temuan = sum of the five)
   jumlahLaporan: number
-  risikoTinggi: number
-  risikoSedang: number
-  risikoRendah: number
+  risikoHigh: number
+  risikoModerateHigh: number
+  risikoModerate: number
+  risikoLowModerate: number
+  risikoLow: number
   jumlahRekomendasi: number
 
   // Section III (JSON string stored in DB, array in store)
@@ -113,9 +115,11 @@ export const savePersistedExecutiveSummaryOverride = (keys: (string | undefined)
     if (data.executiveNote !== undefined) safeData.executiveNote = data.executiveNote
     if (data.narrative) safeData.narrative = data.narrative
     if (data.jumlahRekomendasi !== undefined) safeData.jumlahRekomendasi = data.jumlahRekomendasi
-    if (data.risikoTinggi !== undefined) safeData.risikoTinggi = data.risikoTinggi
-    if (data.risikoSedang !== undefined) safeData.risikoSedang = data.risikoSedang
-    if (data.risikoRendah !== undefined) safeData.risikoRendah = data.risikoRendah
+    if (data.risikoHigh !== undefined) safeData.risikoHigh = data.risikoHigh
+    if (data.risikoModerateHigh !== undefined) safeData.risikoModerateHigh = data.risikoModerateHigh
+    if (data.risikoModerate !== undefined) safeData.risikoModerate = data.risikoModerate
+    if (data.risikoLowModerate !== undefined) safeData.risikoLowModerate = data.risikoLowModerate
+    if (data.risikoLow !== undefined) safeData.risikoLow = data.risikoLow
     if (data.topFindings) safeData.topFindings = data.topFindings
     if (data.matriksKompilasi) safeData.matriksKompilasi = data.matriksKompilasi
     if (data.akarMasalah) safeData.akarMasalah = data.akarMasalah
@@ -166,9 +170,11 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     executiveNote: '',
     narrative: '',
     jumlahLaporan: 0,
-    risikoTinggi: 0,
-    risikoSedang: 0,
-    risikoRendah: 0,
+    risikoHigh: 0,
+    risikoModerateHigh: 0,
+    risikoModerate: 0,
+    risikoLowModerate: 0,
+    risikoLow: 0,
     jumlahRekomendasi: 0,
     followUpTable: [
       { status: 'Closed', jumlah: 0, persentase: 0, keterangan: '' },
@@ -187,157 +193,6 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
 
 
 
-  const mockSummaries: ExecutiveSummary[] = [
-    {
-      id: 'ES-LHA-021-2026',
-      assignmentLetterId: 'ST-001/SKAI/2026',
-      quarter: 1,
-      periodeBulan: 'Januari - Maret',
-      tahun: 2026,
-      nomorDokumen: 'LHA-021/SKAI/2026',
-      dokumenPath: 'Executive_Summary_021_LHA_2026.pdf',
-      status: 'Approved',
-      executiveNote: 'Mohon tindak lanjuti rekonsiliasi kas harian dan koordinasikan perbaikan dengan tim Keuangan.',
-      narrative: 'Executive Summary Individual untuk Laporan Hasil Audit Operasional Keuangan (LHA-021/SKAI/2026). Audit dilakukan untuk mengevaluasi efektivitas ICOFR dan kepatuhan terhadap SOP pembayaran.',
-      jumlahLaporan: 1,
-      risikoTinggi: 3,
-      risikoSedang: 2,
-      risikoRendah: 0,
-      jumlahRekomendasi: 5,
-      followUpTable: [
-        { status: 'Closed', jumlah: 3, persentase: 60.0, keterangan: 'Telah divalidasi' },
-        { status: 'In Progress', jumlah: 2, persentase: 40.0, keterangan: 'On track' },
-        { status: 'Overdue', jumlah: 0, persentase: 0.0, keterangan: '-' }
-      ],
-      topFindings: [
-        { unitDivision: 'Finance', judulTemuan: 'Selisih pencatatan inventaris fisik vs buku besar', risiko: 'Tinggi', statusTL: 'In Progress', usulan: 'Rekonsiliasi Harian' },
-        { unitDivision: 'Finance', judulTemuan: 'Keterlambatan rekonsiliasi kas harian cabang utama', risiko: 'Tinggi', statusTL: 'In Progress', usulan: 'Otomatisasi Sistem' }
-      ],
-      matriksKompilasi: [
-        { nomor: 'LHA-021/01', division: 'Finance', unitKerja: 'Departemen Keuangan', prosesBisnis: 'ICOFR', judulTemuan: 'Selisih pencatatan inventaris fisik vs buku besar', nilaiRisiko: 'Tinggi', rekomendasi: 'Lakukan rekonsiliasi harian dan alert SMTP', dueDate: '2026-05-15', picUnit: 'Manager Keuangan', progres: 60, status: 'In Progress', buktiTL: 'BA_Rekonsiliasi.pdf' }
-      ],
-      akarMasalah: 'Kurangnya otomatisasi alarm kegagalan backup data dan kelalaian non-aktifkan akses user kasir.',
-      kesimpulan: 'Secara umum pengendalian internal departemen keuangan memadai dengan beberapa area peningkatan yang perlu segera ditindaklanjuti.',
-      signatureTempat: 'Jakarta',
-      signatureTanggal: '2026-04-15',
-      signatureNamaKepala: 'Zeta Ramadhani',
-      signatureNIK: 'NIK-100240'
-    },
-    {
-      id: 'ES-LHA-022-2026',
-      assignmentLetterId: 'ST-002/SKAI/2026',
-      quarter: 2,
-      periodeBulan: 'Mei',
-      tahun: 2026,
-      nomorDokumen: 'LHA-022/SKAI/2026',
-      dokumenPath: 'Executive_Summary_022_LHA_2026.pdf',
-      status: 'Approved',
-      narrative: 'Executive Summary Individual untuk Audit Keamanan Sistem Informasi & ERP (LHA-022/SKAI/2026). Audit mengevaluasi tata kelola akses pengguna, patch ERP, dan pengujian DRC.',
-      jumlahLaporan: 1,
-      risikoTinggi: 2,
-      risikoSedang: 2,
-      risikoRendah: 0,
-      jumlahRekomendasi: 4,
-      followUpTable: [
-        { status: 'Closed', jumlah: 2, persentase: 50.0, keterangan: 'Telah diterapkan' },
-        { status: 'In Progress', jumlah: 2, persentase: 50.0, keterangan: 'Pengadaan MFA' },
-        { status: 'Overdue', jumlah: 0, persentase: 0.0, keterangan: '-' }
-      ],
-      topFindings: [
-        { unitDivision: 'IT', judulTemuan: 'Akses Superadmin ERP belum menggunakan MFA', risiko: 'Tinggi', statusTL: 'In Progress', usulan: 'Implementasi Mandatory MFA' }
-      ],
-      matriksKompilasi: [],
-      akarMasalah: 'Keterlambatan rilis jadwal DRC drill tahunan.',
-      kesimpulan: 'Keamanan TI berjalan cukup baik dengan rekomendasi pengetatan autentikasi superadmin.',
-      signatureTempat: 'Jakarta',
-      signatureTanggal: '2026-05-02',
-      signatureNamaKepala: 'Andi Firmansyah',
-      signatureNIK: 'NIK-100311'
-    },
-    {
-      id: 'ES-LHA-023-2026',
-      assignmentLetterId: 'ST-003/SKAI/2026',
-      quarter: 3,
-      periodeBulan: 'Agustus',
-      tahun: 2026,
-      nomorDokumen: 'LHA-023/SKAI/2026',
-      dokumenPath: 'Executive_Summary_023_LHA_2026.pdf',
-      status: 'Draft',
-      narrative: 'Executive Summary Individual untuk Audit Operasional Gudang & Persediaan Logistik 2026 (LHA-023/SKAI/2026).',
-      jumlahLaporan: 1,
-      risikoTinggi: 1,
-      risikoSedang: 2,
-      risikoRendah: 0,
-      jumlahRekomendasi: 3,
-      followUpTable: [],
-      topFindings: [],
-      matriksKompilasi: [],
-      akarMasalah: 'Prosedur pemantauan fisik stok persediaan belum otomatis.',
-      kesimpulan: 'Pengelolaan logistik gudang berjalan dengan baik.',
-      signatureTempat: 'Jakarta',
-      signatureTanggal: '2026-08-10',
-      signatureNamaKepala: 'Rina Wulandari',
-      signatureNIK: 'NIK-100422'
-    },
-    {
-      id: 'ES-LHA-024-2026',
-      assignmentLetterId: 'ST-004/SKAI/2026',
-      quarter: 3,
-      periodeBulan: 'Agustus',
-      tahun: 2026,
-      nomorDokumen: 'LHA-024/SKAI/2026',
-      dokumenPath: 'Executive_Summary_024_LHA_2026.pdf',
-      status: 'Approved',
-      narrative: 'Executive Summary Individual untuk Laporan Hasil Audit Kepatuhan Procurement & SCM 2026 (LHA-024/SKAI/2026).',
-      jumlahLaporan: 1,
-      risikoTinggi: 1,
-      risikoSedang: 1,
-      risikoRendah: 0,
-      jumlahRekomendasi: 2,
-      followUpTable: [],
-      topFindings: [],
-      matriksKompilasi: [],
-      akarMasalah: 'Kelengkapan administrasi kertas kerja HPS vendor.',
-      kesimpulan: 'Kepatuhan pengadaan memenuhi standar kepatuhan internal.',
-      signatureTempat: 'Jakarta',
-      signatureTanggal: '2026-08-18',
-      signatureNamaKepala: 'Budi Santoso',
-      signatureNIK: 'NIK-100155'
-    },
-    {
-      id: 'ES-LHA-025-2026',
-      assignmentLetterId: 'ST-005/SKAI/2026',
-      quarter: 4,
-      periodeBulan: 'September',
-      tahun: 2026,
-      nomorDokumen: 'LHA-025/SKAI/2026',
-      dokumenPath: 'Executive_Summary_025_LHA_2026.pdf',
-      status: 'Approved',
-      executiveNote: 'Disetujui. Mohon koordinasikan dengan Direksi terkait temuan overhauling.',
-      narrative: 'Executive Summary Individual untuk Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit (LHA-025/SKAI/2026). Audit mengevaluasi keandalan instalasi K3LH, sertifikasi alat, dan fasilitas pemadam kebakaran.',
-      jumlahLaporan: 1,
-      risikoTinggi: 2,
-      risikoSedang: 1,
-      risikoRendah: 0,
-      jumlahRekomendasi: 3,
-      followUpTable: [
-        { status: 'Closed', jumlah: 2, persentase: 66.7, keterangan: 'Selesai disertifikasi' },
-        { status: 'In Progress', jumlah: 1, persentase: 33.3, keterangan: 'Progres pemeliharaan hidran' },
-        { status: 'Overdue', jumlah: 0, persentase: 0.0, keterangan: '-' }
-      ],
-      topFindings: [
-        { unitDivision: 'Maintenance', judulTemuan: 'Inspeksi berkala sistem pemadam kebakaran hidran belum 100% terlaksana', risiko: 'Tinggi', statusTL: 'In Progress', usulan: 'Jadwal Pemeliharaan Hidran' }
-      ],
-      matriksKompilasi: [],
-      akarMasalah: 'Keterlambatan pengadaan sparepart hidran dan pembaruan sertifikasi K3.',
-      kesimpulan: 'Sistem pengendalian K3LH beroperasi secara aman dengan perbaikan pada fasilitas hidran.',
-      signatureTempat: 'Jakarta',
-      signatureTanggal: '2026-09-15',
-      signatureNamaKepala: 'Dewi Kusumawati',
-      signatureNIK: 'NIK-100533'
-    }
-  ]
-
   const fetchSummaries = async () => {
     loading.value = true
     errorMsg.value = ''
@@ -353,28 +208,21 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
         items = response
       }
 
-      if (items.length > 0) {
-        const isExcluded = (doc?: string) =>
-          !doc ||
-          doc === 'DOC-EXSUM-Q1-2026' ||
-          doc === '020/LHA/01/KS IAD/2023' ||
-          doc === '019/LHA/01/KS IAD/2025' ||
-          doc === 'LHA-020/SKAI/2023' ||
-          doc === 'LHA-019/SKAI/2025'
+      const isExcluded = (doc?: string) =>
+        !doc ||
+        doc === 'DOC-EXSUM-Q1-2026' ||
+        doc === '020/LHA/01/KS IAD/2023' ||
+        doc === '019/LHA/01/KS IAD/2025' ||
+        doc === 'LHA-020/SKAI/2023' ||
+        doc === 'LHA-019/SKAI/2025'
 
-        const backendItems = items
-          .map(item => parseSummaryFromBackend(item))
-          .filter(b => !isExcluded(b.nomorDokumen))
-        const docSet = new Set(backendItems.map(b => b.nomorDokumen))
-        const remainingMocks = mockSummaries.filter(m => !docSet.has(m.nomorDokumen))
-        summaryList.value = [...backendItems, ...remainingMocks]
-      } else {
-        summaryList.value = [...mockSummaries]
-      }
+      summaryList.value = items
+        .map(item => parseSummaryFromBackend(item))
+        .filter(b => !isExcluded(b.nomorDokumen))
     } catch (error) {
-      console.error('Failed to fetch executive summaries, falling back to mock data:', error)
+      console.error('Failed to fetch executive summaries:', error)
       errorMsg.value = extractErrorMessage(error, 'Failed to load executive summaries.')
-      summaryList.value = [...mockSummaries]
+      summaryList.value = []
     } finally {
       // Overlay persisted changes from localStorage (status approvals and notes)
       const overrides = loadPersistedExecutiveSummaryOverrides()
@@ -404,9 +252,12 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       quarter: Number(item.quarter),
       tahun: Number(item.tahun),
       jumlahLaporan: Number(item.jumlahLaporan),
-      risikoTinggi: Number(item.risikoTinggi),
-      risikoSedang: Number(item.risikoSedang),
-      risikoRendah: Number(item.risikoRendah),
+      // Five levels. Legacy-only rows are copied into these columns by the backend on startup.
+      risikoHigh: Number(item.risikoHigh) || 0,
+      risikoModerateHigh: Number(item.risikoModerateHigh) || 0,
+      risikoModerate: Number(item.risikoModerate) || 0,
+      risikoLowModerate: Number(item.risikoLowModerate) || 0,
+      risikoLow: Number(item.risikoLow) || 0,
       jumlahRekomendasi: Number(item.jumlahRekomendasi),
       followUpTable: item.followUpTable ? (typeof item.followUpTable === 'string' ? JSON.parse(item.followUpTable) : item.followUpTable) : [],
       topFindings: item.topFindings ? (typeof item.topFindings === 'string' ? JSON.parse(item.topFindings) : item.topFindings) : [],
@@ -422,9 +273,11 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       quarter: Number(data.quarter),
       tahun: Number(data.tahun),
       jumlahLaporan: Number(data.jumlahLaporan),
-      risikoTinggi: Number(data.risikoTinggi),
-      risikoSedang: Number(data.risikoSedang),
-      risikoRendah: Number(data.risikoRendah),
+      risikoHigh: Number(data.risikoHigh) || 0,
+      risikoModerateHigh: Number(data.risikoModerateHigh) || 0,
+      risikoModerate: Number(data.risikoModerate) || 0,
+      risikoLowModerate: Number(data.risikoLowModerate) || 0,
+      risikoLow: Number(data.risikoLow) || 0,
       jumlahRekomendasi: Number(data.jumlahRekomendasi),
       followUpTable: typeof data.followUpTable === 'string' ? data.followUpTable : JSON.stringify(data.followUpTable || []),
       topFindings: typeof data.topFindings === 'string' ? data.topFindings : JSON.stringify(data.topFindings || []),
@@ -436,7 +289,52 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     return payload
   }
 
-  const openNewForm = (quarterNum: number = 1, assignmentLetterId: string = '') => {
+  const generateEscDocNumber = (year: number = 2026): string => {
+    let maxSeq = 0
+    const escRegex = new RegExp(`^ESC-(\\d+)/${year}$`, 'i')
+
+    for (const s of summaryList.value) {
+      if (s.nomorDokumen) {
+        const match = s.nomorDokumen.match(escRegex)
+        if (match && match[1]) {
+          const val = parseInt(match[1], 10)
+          if (!isNaN(val) && val > maxSeq) {
+            maxSeq = val
+          }
+        }
+      }
+    }
+
+    try {
+      const overrides = loadPersistedExecutiveSummaryOverrides()
+      for (const key of Object.keys(overrides)) {
+        const matchKey = key.match(escRegex)
+        if (matchKey && matchKey[1]) {
+          const val = parseInt(matchKey[1], 10)
+          if (!isNaN(val) && val > maxSeq) {
+            maxSeq = val
+          }
+        }
+        const item = overrides[key]
+        if (item && item.nomorDokumen) {
+          const matchDoc = item.nomorDokumen.match(escRegex)
+          if (matchDoc && matchDoc[1]) {
+            const val = parseInt(matchDoc[1], 10)
+            if (!isNaN(val) && val > maxSeq) {
+              maxSeq = val
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // ignore localstorage errors
+    }
+
+    const nextSeq = (maxSeq + 1).toString().padStart(3, '0')
+    return `ESC-${nextSeq}/${year}`
+  }
+
+  const openNewForm = (quarterNum: number = 1, assignmentLetterId: string = '', isCompilation: boolean = false) => {
     isEditing.value = false
     isViewing.value = false
     currentSummary.value = null
@@ -447,20 +345,25 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     if (quarterNum === 3) defaultMonth = 'Juli'
     if (quarterNum === 4) defaultMonth = 'Oktober'
 
+    const targetYear = 2026
+    const autoDocNumber = isCompilation ? generateEscDocNumber(targetYear) : ''
+
     Object.assign(form, {
       assignmentLetterId: assignmentLetterId || 'ST-001/SKAI/2026',
       quarter: quarterNum || 1,
       periodeBulan: defaultMonth,
-      tahun: 2026,
-      nomorDokumen: '',
+      tahun: targetYear,
+      nomorDokumen: autoDocNumber,
       dokumenPath: '',
       status: 'Draft',
       executiveNote: '',
       narrative: defaultNarrativeTemplate(defaultMonth, 2026),
       jumlahLaporan: 0,
-      risikoTinggi: 0,
-      risikoSedang: 0,
-      risikoRendah: 0,
+      risikoHigh: 0,
+      risikoModerateHigh: 0,
+      risikoModerate: 0,
+      risikoLowModerate: 0,
+      risikoLow: 0,
       jumlahRekomendasi: 0,
       followUpTable: [
         { status: 'Closed', jumlah: 0, persentase: 0, keterangan: '' },
@@ -477,6 +380,12 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       signatureNIK: ''
     })
     showModal.value = true
+  }
+
+  const openNewCompilationForm = (quarterNum: number = 1, targetYear: number = 2026) => {
+    openNewForm(quarterNum, '', true)
+    form.tahun = targetYear
+    form.nomorDokumen = generateEscDocNumber(targetYear)
   }
 
   const openEditForm = (summary: ExecutiveSummary) => {
@@ -505,6 +414,9 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     loading.value = true
     errorMsg.value = ''
     try {
+      if (!form.nomorDokumen) {
+        form.nomorDokumen = generateEscDocNumber(form.tahun || 2026)
+      }
       const baseUrl = getAuditServiceBaseUrl()
       const payload = serializeSummaryForBackend(form)
 
@@ -577,7 +489,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
           ...summaryList.value[idx],
           ...JSON.parse(JSON.stringify(form))
         }
-        currentSummary.value = summaryList.value[idx]
+        currentSummary.value = summaryList.value[idx] || null
       } else {
         const newSummary: ExecutiveSummary = {
           id: `ES-Q${form.quarter}-2026-${Math.floor(100 + Math.random() * 900)}`,
@@ -820,6 +732,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     errorMsg,
     form,
     openNewForm,
+    openNewCompilationForm,
     openEditForm,
     openView,
     saveForm,
@@ -827,6 +740,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     deleteSummary,
     updateStatus,
     fetchSummaries,
-    defaultNarrativeTemplate
+    defaultNarrativeTemplate,
+    generateEscDocNumber
   }
 })

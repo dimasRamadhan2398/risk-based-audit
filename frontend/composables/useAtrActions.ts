@@ -4,6 +4,8 @@ import {
   atrCanAssignStatus,
   atrCanCancelStatus,
   atrCanEditPlanStatus,
+  atrCanEditStatus,
+  atrCanRemindStatus,
   atrCanReviewStatus
 } from '~/utils/actionTakenReport'
 
@@ -27,6 +29,12 @@ const SERVER_ACTION: Record<keyof AtrAvailableActions, string> = {
   review: 'review',
   cancel: 'cancel'
 }
+// The server's name for the reminder action (not part of AtrAvailableActions).
+const SERVER_ACTION_REMIND = 'remind'
+
+/** The server's allowed_actions, when present, must list the action; without the list the local rules decide. */
+const serverAllows = (item: ActionTakenReport, name: string) =>
+  !Array.isArray(item.allowed_actions) || item.allowed_actions.includes(name)
 
 /**
  * What the logged-in user can do with an ATR: role (useRbac) AND status. When the item carries the
@@ -55,5 +63,29 @@ export const useAtrActions = () => {
     }
   }
 
-  return { availableActions }
+  /**
+   * Which edit-form fields the caller may change. Due date: assign rights (auditor/manager/admin) on an open item.
+   * Action plan and progress: PIC rights (or admin) on a PLANNED/IN_PROGRESS item. Both also need the server's
+   * allowed_actions to list the matching action, when the list is present.
+   */
+  const editableFields = (item: ActionTakenReport | null | undefined): { dueDate: boolean, actionPlan: boolean, progress: boolean } => {
+    if (!item || !atrCanEditStatus(item.status)) return { dueDate: false, actionPlan: false, progress: false }
+    const dueDate = rbac.canAssignAtr.value && serverAllows(item, SERVER_ACTION.assign)
+    const plan = rbac.canWorkOnAtr(item) && atrCanEditPlanStatus(item.status) && serverAllows(item, SERVER_ACTION.actionPlan)
+    return { dueDate, actionPlan: plan, progress: plan }
+  }
+
+  /** The edit form is offered when at least one of its fields can be changed. */
+  const canEdit = (item: ActionTakenReport | null | undefined): boolean => {
+    const fields = editableFields(item)
+    return fields.dueDate || fields.actionPlan
+  }
+
+  /** Send reminder (auditee and department head): any open item, not cancelled; assign rights (auditor/manager/admin). */
+  const canRemind = (item: ActionTakenReport | null | undefined): boolean => {
+    if (!item || !atrCanRemindStatus(item.status)) return false
+    return rbac.canAssignAtr.value && serverAllows(item, SERVER_ACTION_REMIND)
+  }
+
+  return { availableActions, canEdit, editableFields, canRemind }
 }

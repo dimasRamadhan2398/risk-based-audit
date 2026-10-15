@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -167,6 +168,33 @@ func (ctrl *UploadedPerformanceReportController) Delete(c *gin.Context) {
 	response.OK(c, "Uploaded performance report document deleted successfully", nil)
 }
 
+func getDocumentContentType(fileName, fileType string) string {
+	if fileType != "" && fileType != "application/octet-stream" {
+		return fileType
+	}
+	ext := strings.ToLower(filepath.Ext(fileName))
+	switch ext {
+	case ".pdf":
+		return "application/pdf"
+	case ".png":
+		return "image/png"
+	case ".jpg", ".jpeg":
+		return "image/jpeg"
+	case ".txt":
+		return "text/plain"
+	case ".doc":
+		return "application/msword"
+	case ".docx":
+		return "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+	case ".xls":
+		return "application/vnd.ms-excel"
+	case ".xlsx":
+		return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+	default:
+		return "application/octet-stream"
+	}
+}
+
 func (ctrl *UploadedPerformanceReportController) Download(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -181,16 +209,15 @@ func (ctrl *UploadedPerformanceReportController) Download(c *gin.Context) {
 		return
 	}
 
+	contentType := getDocumentContentType(doc.FileName, doc.FileType)
+	encodedFileName := url.PathEscape(doc.FileName)
+
 	if len(doc.FileContent) > 0 {
 		c.Header("Content-Description", "File Transfer")
 		c.Header("Content-Transfer-Encoding", "binary")
-		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", doc.FileName))
-		if doc.FileType != "" {
-			c.Header("Content-Type", doc.FileType)
-		} else {
-			c.Header("Content-Type", "application/octet-stream")
-		}
-		c.Data(http.StatusOK, doc.FileType, doc.FileContent)
+		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"; filename*=UTF-8''%s", doc.FileName, encodedFileName))
+		c.Header("Content-Type", contentType)
+		c.Data(http.StatusOK, contentType, doc.FileContent)
 		return
 	}
 
@@ -200,6 +227,39 @@ func (ctrl *UploadedPerformanceReportController) Download(c *gin.Context) {
 	}
 
 	c.FileAttachment(doc.FilePath, doc.FileName)
+}
+
+func (ctrl *UploadedPerformanceReportController) View(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		response.BadRequest(c, "Invalid report ID")
+		return
+	}
+
+	var doc models.UploadedPerformanceReport
+	if err := ctrl.DB.First(&doc, "id = ?", id).Error; err != nil {
+		response.NotFound(c, "Uploaded performance report document not found")
+		return
+	}
+
+	contentType := getDocumentContentType(doc.FileName, doc.FileType)
+	encodedFileName := url.PathEscape(doc.FileName)
+
+	c.Header("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"; filename*=UTF-8''%s", doc.FileName, encodedFileName))
+	c.Header("Content-Type", contentType)
+
+	if len(doc.FileContent) > 0 {
+		c.Data(http.StatusOK, contentType, doc.FileContent)
+		return
+	}
+
+	if _, err := os.Stat(doc.FilePath); os.IsNotExist(err) {
+		response.NotFound(c, "File not found on server storage")
+		return
+	}
+
+	c.File(doc.FilePath)
 }
 
 func (ctrl *UploadedPerformanceReportController) generateKPIAchievementsForReport(doc models.UploadedPerformanceReport) {

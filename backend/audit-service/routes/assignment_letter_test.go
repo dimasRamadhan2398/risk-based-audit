@@ -6,21 +6,17 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
+	"audit-service/controllers/crud"
+	"audit-service/models"
 	"audit-service/pkg/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
+	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 )
-
-type mockAuthMiddleware struct {
-	handler gin.HandlerFunc
-}
-
-func (m *mockAuthMiddleware) Authenticate() gin.HandlerFunc {
-	return m.handler
-}
 
 func TestAssignmentLetterCreate(t *testing.T) {
 	gin.SetMode(gin.TestMode)
@@ -66,19 +62,27 @@ func TestAssignmentLetterCreate(t *testing.T) {
 	// Setup Gin engine
 	engine := gin.New()
 
-	// Create mock authentication middleware that allows all requests
-	mockAuth := func(c *gin.Context) {
-		c.Set("user_id", "test-user-id")
-		c.Set("roles", []string{"AUDITOR"})
-		c.Next()
+	secret := "test-secret"
+	auth := middleware.NewAuthMiddleware(secret)
+
+	apiV1 := engine.Group("/api/v1")
+	apiV1.Use(auth.Authenticate())
+	assignmentLetters := apiV1.Group("/assignment-letters")
+	letterStatusGuard := middleware.RequireRolesForStatusChange(db, "assignment_letters", "Draft", "Lead Auditor", "Head of SKAI", "Super Admin")
+	assignmentLetters.POST("", letterStatusGuard, crud.Create(db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &middleware.Claims{
+		UserID:   "test-user-id",
+		Username: "tester",
+		Roles:    []string{"Lead Auditor", "Super Admin"},
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+		},
+	})
+	tokenString, err := token.SignedString([]byte(secret))
+	if err != nil {
+		t.Fatalf("failed to sign token: %v", err)
 	}
-
-	// Create a mock auth middleware with a working Authenticate method
-	auth := &mockAuthMiddleware{handler: mockAuth}
-
-	// Create route handler and register routes
-	routeHandler := NewRouteHandler(engine, auth, db, nil)
-	routeHandler.RegisterRoutes()
 
 	// Test case: Create assignment letter with Draft status (should succeed)
 	letterData := map[string]interface{}{
@@ -107,6 +111,7 @@ func TestAssignmentLetterCreate(t *testing.T) {
 	// Make POST request
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/assignment-letters", bytes.NewBuffer(jsonData))
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+tokenString)
 	w := httptest.NewRecorder()
 	engine.ServeHTTP(w, req)
 

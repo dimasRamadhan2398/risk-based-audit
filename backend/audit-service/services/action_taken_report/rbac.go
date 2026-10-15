@@ -201,6 +201,7 @@ const (
 	ActionReview           = "review"
 	ActionCancel           = "cancel"
 	ActionDelete           = "delete"
+	ActionRemind           = "remind"
 )
 
 // AllowedActions lists what the caller can do with the ATR right now (role
@@ -225,6 +226,9 @@ func (a Actor) AllowedActions(r *models.ActionTakenReport) []string {
 	}
 	if a.Perms[PermCancel] && open {
 		out = append(out, ActionCancel)
+	}
+	if a.Perms[PermAssign] && status != models.ATRStatusCancelled {
+		out = append(out, ActionRemind)
 	}
 	if a.Perms[PermDelete] {
 		out = append(out, ActionDelete)
