@@ -4,6 +4,7 @@ import type { RiskMitigation, RiskMitigationForm } from '~/types/risk'
 import { useRiskProfileStore } from '~/stores/risk-profile'
 import { extractErrorMessage } from '~/utils/error'
 import { getRiskServiceBaseUrl } from '~/composables/useApiUrl'
+import { useI18n } from '~/composables/useI18n'
 
 export const initialMitigationsData: RiskMitigation[] = [
   {
@@ -138,6 +139,7 @@ initialMitigationsData.forEach(mit => {
 })
 
 export const useMitigationStore = defineStore('mitigation', () => {
+    const { t } = useI18n()
     // --- STATE ---
     const mitigations = ref<RiskMitigation[]>(initialMitigationsData)
     const isFormOpen = ref(false)
@@ -360,7 +362,7 @@ export const useMitigationStore = defineStore('mitigation', () => {
     }
 
     const deleteMitigation = async (id: string, currentRiskId?: string) => {
-        if (!await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin menghapus rencana mitigasi ini?' })) return
+        if (!await useGlobalModalStore().confirmDelete({ description: t('riskMitigation.deleteConfirm') })) return
         loading.value = true
         errorMsg.value = ''
         try {

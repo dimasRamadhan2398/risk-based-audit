@@ -13,6 +13,7 @@ const props = defineProps({
 
 const store = useStrategicPlanStore()
 const perfStore = usePerformanceStore()
+const { t } = useI18n()
 
 const search = ref('')
 const category = ref()
@@ -22,6 +23,27 @@ const status = ref()
 const categories = ['Operational', 'Financial', 'Quality', 'Issue', 'Efficiency']
 const periods = ['Q1', 'Q2', 'Q3', 'Q4', '2025', '2026']
 const statuses = ['On Track', 'Exceeded', 'Completed', 'Needs Attention']
+
+const categoryKeys: Record<string, string> = {
+  Operational: 'operational',
+  Financial: 'financial',
+  Quality: 'quality',
+  Issue: 'issue',
+  Efficiency: 'efficiency',
+  Corporate: 'corporate'
+}
+
+const statusKeys: Record<string, string> = {
+  'On Track': 'onTrack',
+  Exceeded: 'exceeded',
+  Completed: 'completed',
+  'Needs Attention': 'needsAttention'
+}
+
+const getCategoryLabel = (value: string) => categoryKeys[value] ? t(`kpiPerformance.dashboard.detail.categories.${categoryKeys[value]}`) : value
+const getStatusLabel = (value: string) => statusKeys[value] ? t(`kpiPerformance.dashboard.detail.statuses.${statusKeys[value]}`) : value
+const categoryOptions = computed(() => categories.map(value => ({ label: getCategoryLabel(value), value })))
+const statusOptions = computed(() => statuses.map(value => ({ label: getStatusLabel(value), value })))
 
 const resetFilters = () => {
   search.value = ''
@@ -87,7 +109,7 @@ const tableData = computed(() => {
       }
     }
 
-    let mappedCategory = categories[index % categories.length]
+    let mappedCategory = categories[index % categories.length] || 'Operational'
 
     return {
       id: obj.id,
@@ -145,7 +167,7 @@ const filteredData = computed(() => {
        { id: 101, metric: 'Audit Plan Completion Rate', category: 'Operational', target: '100%', actual: '97%', gap: '3%', gapIsPositive: true, status: 'On Track', statusColor: 'bg-emerald-500', rawPeriod: '2026' },
        { id: 102, metric: 'Cost Variance to Budget', category: 'Financial', target: '5%', actual: '2.3%', gap: '2.7%', gapIsPositive: true, status: 'On Track', statusColor: 'bg-emerald-500', rawPeriod: '2026' },
        { id: 103, metric: 'Auditee Satisfaction (CSAT)', category: 'Quality', target: '4.5', actual: '4.7', gap: '+0.2', gapIsPositive: true, status: 'Exceeded', statusColor: 'bg-secondary-500', rawPeriod: '2026' },
-       { id: 104, metric: 'High-risk Issue Resolution', category: 'Issue', target: '100%', actual: '100%', gap: '0%', gapIsPositive: true, status: 'Selesai', statusColor: 'bg-emerald-500', rawPeriod: '2026' },
+       { id: 104, metric: 'High-risk Issue Resolution', category: 'Issue', target: '100%', actual: '100%', gap: '0%', gapIsPositive: true, status: 'Completed', statusColor: 'bg-emerald-500', rawPeriod: '2026' },
        { id: 105, metric: 'Reporting Timeliness', category: 'Efficiency', target: '90%', actual: '95%', gap: '+5%', gapIsPositive: true, status: 'Exceeded', statusColor: 'bg-secondary-500', rawPeriod: '2026' },
      ]
      mockData.forEach(mock => {
@@ -158,15 +180,15 @@ const filteredData = computed(() => {
   return data
 })
 
-const columns = [
-  { accessorKey: 'metric', header: 'KPI Metric' },
-  { accessorKey: 'category', header: 'Category' },
-  { accessorKey: 'target', header: 'Target' },
-  { accessorKey: 'actual', header: 'Actual' },
-  { accessorKey: 'gap', header: 'Gap' },
-  { accessorKey: 'status', header: 'Status' },
-  { accessorKey: 'actions', header: 'Actions' }
-]
+const columns = computed(() => [
+  { accessorKey: 'metric', header: t('kpiPerformance.dashboard.detail.columns.metric') },
+  { accessorKey: 'category', header: t('kpiPerformance.dashboard.detail.columns.category') },
+  { accessorKey: 'target', header: t('kpiPerformance.dashboard.detail.columns.target') },
+  { accessorKey: 'actual', header: t('kpiPerformance.dashboard.detail.columns.actual') },
+  { accessorKey: 'gap', header: t('kpiPerformance.dashboard.detail.columns.gap') },
+  { accessorKey: 'status', header: t('kpiPerformance.dashboard.detail.columns.status') },
+  { accessorKey: 'actions', header: t('kpiPerformance.dashboard.detail.columns.actions') }
+])
 
 function editKpiTarget(rowOriginal: any) {
   const existing = store.strategicObjectives.find(o => String(o.id) === String(rowOriginal.id) || o.kpi === rowOriginal.metric)
@@ -183,9 +205,9 @@ function editKpiTarget(rowOriginal: any) {
 <template>
   <div class="space-y-6">
     <div class="flex items-center justify-between">
-      <h2 class="text-xl font-bold text-gray-900 dark:text-white">KPI Detailed Breakdown</h2>
+      <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ t('kpiPerformance.dashboard.detail.title') }}</h2>
       <UButton
-        label="Set KPI Targets"
+        :label="t('kpiPerformance.dashboard.detail.setTargets')"
         icon="i-lucide-plus"
         color="primary"
         size="sm"
@@ -198,29 +220,31 @@ function editKpiTarget(rowOriginal: any) {
       <UInput
         v-model="search"
         icon="i-lucide-search"
-        placeholder="Search Report"
+        :placeholder="t('kpiPerformance.dashboard.detail.search')"
         class="w-full sm:w-64"
       />
       <USelectMenu
         v-model="category"
-        :items="categories"
-        placeholder="Select Category"
+        :items="categoryOptions"
+        value-key="value"
+        :placeholder="t('kpiPerformance.dashboard.detail.selectCategory')"
         class="w-full sm:w-48"
       />
       <USelectMenu
         v-model="period"
         :items="periods"
-        placeholder="Select Period"
+        :placeholder="t('kpiPerformance.dashboard.detail.selectPeriod')"
         class="w-full sm:w-48"
       />
       <USelectMenu
         v-model="status"
-        :items="statuses"
-        placeholder="Select Status"
+        :items="statusOptions"
+        value-key="value"
+        :placeholder="t('kpiPerformance.dashboard.detail.selectStatus')"
         class="w-full sm:w-48"
       />
       <UButton
-        label="Reset Filter"
+        :label="t('kpiPerformance.dashboard.detail.reset')"
         icon="i-lucide-rotate-ccw"
         color="neutral"
         variant="outline"
@@ -236,7 +260,7 @@ function editKpiTarget(rowOriginal: any) {
         </template>
         
         <template #category-cell="{ row }">
-          <span class="font-semibold text-gray-900 dark:text-white">{{ row.original.category }}</span>
+          <span class="font-semibold text-gray-900 dark:text-white">{{ getCategoryLabel(row.original.category) }}</span>
         </template>
 
         <template #target-cell="{ row }">
@@ -256,12 +280,12 @@ function editKpiTarget(rowOriginal: any) {
         <template #status-cell="{ row }">
           <div class="flex items-center gap-2">
             <span :class="['w-3 h-3 rounded-full', row.original.statusColor]"></span>
-            <span class="font-semibold text-gray-900 dark:text-white">{{ row.original.status }}</span>
+            <span class="font-semibold text-gray-900 dark:text-white">{{ getStatusLabel(row.original.status) }}</span>
           </div>
         </template>
 
         <template #actions-cell="{ row }">
-          <UTooltip text="Edit KPI Target">
+          <UTooltip :text="t('kpiPerformance.dashboard.detail.editTarget')">
           <UButton
               color="warning"
               variant="ghost"
@@ -280,7 +304,7 @@ function editKpiTarget(rowOriginal: any) {
           <span class="text-sm font-medium">1 / 10</span>
           <UButton icon="i-lucide-chevron-right" variant="ghost" color="neutral" size="md" />
         </div>
-        <span class="text-md text-gray-500 font-semibold">Showing 1 - {{ filteredData.length }} of 50 data</span>
+        <span class="text-md text-gray-500 font-semibold">{{ t('kpiPerformance.dashboard.detail.showing', { start: 1, end: filteredData.length, total: 50 }) }}</span>
       </div>
     </div>
 

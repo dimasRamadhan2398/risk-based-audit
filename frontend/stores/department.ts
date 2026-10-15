@@ -44,14 +44,14 @@ export const useDepartmentStore = defineStore('department', () => {
   })
 
   // Table Columns
-  const columns: TableColumn<Department>[] = [
-    { accessorKey: 'department_code', header: 'Code' },
-    { accessorKey: 'department_name', header: 'Department Name' },
-    { accessorKey: 'department_description', header: 'Description' },
-    { accessorKey: 'level', header: 'Level' },
-    { accessorKey: 'is_active', header: 'Status' },
-    { accessorKey: 'actions', header: '' }
-  ]
+  const columns = computed<TableColumn<Department>[]>(() => [
+    { accessorKey: 'department_code', header: t('masterData.department.columns.code') },
+    { accessorKey: 'department_name', header: t('masterData.department.columns.name') },
+    { accessorKey: 'department_description', header: t('masterData.department.columns.description') },
+    { accessorKey: 'level', header: t('masterData.department.columns.level') },
+    { accessorKey: 'is_active', header: t('masterData.department.columns.status') },
+    { accessorKey: 'actions', header: t('masterData.department.columns.actions') }
+  ])
 
   // ============= Getters =============
   const totalPages = computed(() => pagination.value.total_pages)
@@ -291,13 +291,13 @@ export const useDepartmentStore = defineStore('department', () => {
    * Handle delete with confirmation
    */
   const handleDelete = async (department: Department) => {
-    if (!await useGlobalModalStore().confirmDelete({ description: `Are you sure you want to delete department "${department.department_name}"?` })) {
+    if (!await useGlobalModalStore().confirmDelete({ description: t('masterData.department.deleteConfirm', { name: department.department_name }) })) {
       return
     }
 
     const success = await deleteDepartment(department.id)
     if (success) {
-      alert('Department berhasil dihapus!')
+      alert(t('masterData.department.deleted'))
     }
   }
 

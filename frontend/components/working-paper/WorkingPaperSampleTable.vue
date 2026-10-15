@@ -5,7 +5,7 @@
         <TableEntities
           :data="store.filteredDataF03"
           :columns="store.columnsF03"
-          :empty-state="{ icon: 'i-heroicons-circle-stack', label: 'Belum ada data tersimpan.' }"
+          :empty-state="{ icon: 'i-heroicons-circle-stack', label: t('workingPaper.common.empty') }"
           :ui="{ td: '!whitespace-normal' }"
         >
             <template #samples-cell="{ row }">
@@ -20,7 +20,7 @@
                 >
                   <div class="flex items-start justify-between gap-2 mb-1.5">
                     <span class="text-sm font-semibold text-gray-800 dark:text-gray-100 leading-snug">
-                      {{ s.document || 'Tanpa Nama Dokumen' }}
+                      {{ s.document || t('workingPaper.common.unnamedDocument') }}
                     </span>
                     <UBadge
                       :color="store.checkSampleStatus(s) ? 'success' : 'error'"
@@ -28,7 +28,7 @@
                       variant="subtle"
                       class="shrink-0"
                     >
-                      {{ store.checkSampleStatus(s) ? 'Efektif' : 'Tidak Efektif' }}
+                      {{ store.checkSampleStatus(s) ? t('workingPaper.common.effective') : t('workingPaper.common.ineffective') }}
                     </UBadge>
                   </div>
                   <USeparator class="my-1.5" />
@@ -38,7 +38,7 @@
                 </UCard>
 
                 <p v-if="!row.original.samples?.length" class="text-sm text-gray-400 dark:text-gray-500 italic">
-                  Tidak ada data sampel
+                  {{ t('workingPaper.common.noSamples') }}
                 </p>
               </div>
             </template>
@@ -54,7 +54,7 @@
 
             <template #actions-cell="{ row }">
                 <div class="flex gap-2">
-                  <UTooltip text="Edit Risk">
+                  <UTooltip :text="t('workingPaper.common.editRisk')">
                     <UButton 
                         size="md" 
                         color="warning" 
@@ -63,7 +63,7 @@
                         @click="store.handleEditF03(row.original)" 
                     />
                   </UTooltip>
-                  <UTooltip text="Delete Risk">
+                  <UTooltip :text="t('workingPaper.common.deleteRisk')">
                     <UButton 
                         size="md" 
                         color="error" 
@@ -85,4 +85,5 @@ import { useWorkingPaperStore } from '~/stores/working-paper'
 
 // Cukup inisialisasi store. Komponen akan otomatis membaca status showModal, data form, dan fungsi dari sini.
 const store = useWorkingPaperStore()
+const { t } = useI18n()
 </script>

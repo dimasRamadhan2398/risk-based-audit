@@ -35,6 +35,9 @@ const props = defineProps({
 
 const perfStore = usePerformanceStore()
 const spStore = useStrategicPlanStore()
+const { t } = useI18n()
+
+const monthLabels = computed(() => ['jan', 'feb', 'mar', 'apr', 'may', 'jun'].map(month => t(`kpiPerformance.dashboard.charts.months.${month}`)))
 
 const findSpMetric = (keywords: string[]) => {
   if (!spStore.strategicObjectives || spStore.strategicObjectives.length === 0) return null
@@ -45,7 +48,7 @@ const findSpMetric = (keywords: string[]) => {
 }
 
 const barChartData = computed(() => {
-  let labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+  let labels = monthLabels.value
   let monthlyData = [85, 90, 95, 92, 98, 100]
 
   if (perfStore.monthlyTrends && perfStore.monthlyTrends.completion_rate_series && perfStore.monthlyTrends.completion_rate_series.length > 0) {
@@ -68,7 +71,7 @@ const barChartData = computed(() => {
     labels,
     datasets: [
       {
-        label: 'Monthly Completion Rate',
+        label: t('kpiPerformance.dashboard.charts.monthlyCompletion'),
         backgroundColor: '#4D00FF',
         borderRadius: 4,
         data: monthlyData,
@@ -112,7 +115,7 @@ const barChartOptions = {
 }
 
 const lineChartData = computed(() => {
-  let labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+  let labels = monthLabels.value
   let timelinessData = [85, 87, 90, 88, 92, 98]
   let csatData = [4.2, 4.3, 4.5, 4.4, 4.6, 4.7]
 
@@ -150,7 +153,7 @@ const lineChartData = computed(() => {
     labels,
     datasets: [
       {
-        label: 'Timeliness (%)',
+        label: t('kpiPerformance.dashboard.charts.timeliness'),
         borderColor: '#10B981',
         backgroundColor: '#10B981',
         pointBackgroundColor: '#10B981',
@@ -161,7 +164,7 @@ const lineChartData = computed(() => {
         yAxisID: 'y'
       },
       {
-        label: 'CSAT Score',
+        label: t('kpiPerformance.dashboard.charts.csat'),
         borderColor: '#F97316',
         backgroundColor: '#F97316',
         pointBackgroundColor: '#F97316',
@@ -230,7 +233,7 @@ const lineChartOptions = {
     <UCard :ui="{ body: 'p-6' }" class="bg-white dark:bg-gray-900 shadow-sm border border-gray-100 dark:border-gray-800">
       <div class="flex items-center gap-2 mb-6">
         <UIcon name="i-lucide-bar-chart-2" class="w-5 h-5 text-gray-400" />
-        <h3 class="text-base font-semibold text-gray-900 dark:text-white">Monthly Completion Rate</h3>
+        <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ t('kpiPerformance.dashboard.charts.monthlyCompletion') }}</h3>
       </div>
       <div class="h-64">
         <Bar :data="barChartData" :options="barChartOptions" />
@@ -242,16 +245,16 @@ const lineChartOptions = {
       <div class="flex flex-col mb-6">
         <div class="flex items-center gap-2">
           <UIcon name="i-lucide-activity" class="w-5 h-5 text-gray-400" />
-          <h3 class="text-base font-semibold text-gray-900 dark:text-white">CSAT & Timeliness Trend</h3>
+          <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ t('kpiPerformance.dashboard.charts.trend') }}</h3>
         </div>
         <div class="flex items-center justify-center gap-6 mt-2">
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-            <span class="text-md font-semibold text-emerald-500">Timeliness (%)</span>
+            <span class="text-md font-semibold text-emerald-500">{{ t('kpiPerformance.dashboard.charts.timeliness') }}</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
-            <span class="text-md font-semibold text-orange-500">CSAT Score</span>
+            <span class="text-md font-semibold text-orange-500">{{ t('kpiPerformance.dashboard.charts.csat') }}</span>
           </div>
         </div>
       </div>

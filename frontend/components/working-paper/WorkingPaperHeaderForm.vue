@@ -1,8 +1,8 @@
 <template>
-    
-      <UModal 
-        v-model:open="store.showModalF01" 
-        :dismissible="false" 
+
+      <UModal
+        v-model:open="store.showModalF01"
+        :dismissible="false"
         :ui="{
             content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
             header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
@@ -16,38 +16,38 @@
         <div class="rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-y-auto">
         <div class="px-6 py-4 border-b border-secondary-200  rounded-t-xl flex justify-between items-center">
             <UIcon name="charter" class=" text-primary-500" size="32"></UIcon>
-            <h3 class="text-lg font-bold text-secondary-900 ">Assignment Reference</h3>
+            <h3 class="text-lg font-bold text-secondary-900 ">{{ t('workingPaper.headerForm.title') }}</h3>
             <UIcon name="close" @click="store.closeModalF01" class="text-primary-400 hover:text-primary-600 text-2xl">&times;</UIcon>
         </div>
 
         <div class="space-y-6 m-6">
-        <UFormField 
-            label="Assignment Letter" 
-            name="assignmentLetterId" 
-            required 
-            class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10" 
+        <UFormField
+            :label="t('workingPaper.headerForm.assignmentLetter')"
+            name="assignmentLetterId"
+            required
+            class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10"
             :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm text-gray-700 mt-2' }"
         >
-            <USelectMenu v-model="store.headerForm.assignmentLetterId" :items="store.options.assignmentLetter" placeholder="Choose Assignment Letter" class="w-full" />
+            <USelectMenu v-model="store.headerForm.assignmentLetterId" :items="store.options.assignmentLetter" :placeholder="t('workingPaper.headerForm.assignmentPlaceholder')" class="w-full" />
         </UFormField>
 
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
-            <UFormField label="Audit Purpose" class="font-semibold text-sm text-gray-700  mt-2" />
-            <UInput class="md:col-span-3" v-model="store.headerForm.auditPurpose" disabled placeholder="(Automatically filled in when filling out the assignment letter)" />
+            <UFormField :label="t('workingPaper.headerForm.auditPurpose')" class="font-semibold text-sm text-gray-700  mt-2" />
+            <UInput class="md:col-span-3" v-model="store.headerForm.auditPurpose" disabled :placeholder="t('workingPaper.headerForm.auditPurposePlaceholder')" />
         </div>
 
-        <UFormField 
-            label="Business Process Name" 
-            name="businessProcess" 
-            required 
-            class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10" 
+        <UFormField
+            :label="t('workingPaper.headerForm.businessProcess')"
+            name="businessProcess"
+            required
+            class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10"
             :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm text-gray-700 mt-2' }"
         >
-            <UInput 
-                v-model="store.headerForm.businessProcess" 
-                class="w-full" 
+            <UInput
+                v-model="store.headerForm.businessProcess"
+                class="w-full"
                 :maxlength="100"
-                @invalid="($event.target as any)?.setCustomValidity('Business Process Name maksimal 100 karakter dan wajib diisi')"
+                @invalid="($event.target as any)?.setCustomValidity(t('workingPaper.headerForm.businessProcessValidation'))"
                 @input="($event.target as any)?.setCustomValidity('')"
             />
             <div class="text-xs text-gray-500 mt-1 text-right">
@@ -56,112 +56,112 @@
         </UFormField>
 
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
-            <UFormField label="Activities" class="font-semibold text-sm text-gray-700 mt-2 w-full" />
+            <UFormField :label="t('workingPaper.headerForm.activities')" class="font-semibold text-sm text-gray-700 mt-2 w-full" />
             <div class="md:col-span-3 space-y-4 ">
                 <div v-for="(activity, index) in store.headerForm.activities" :key="activity.id" class="flex gap-2 items-start">
                     <div class="flex-1">
-                        <UTextarea 
-                            v-model="activity.name" 
-                            placeholder="Activity Description"
+                        <UTextarea
+                            v-model="activity.name"
+                            :placeholder="t('workingPaper.headerForm.activityPlaceholder')"
                             autoresize
                             :rows="2"
                             :maxrows="5"
                             class="w-full"
                         />
                     </div>
-                    <UButton 
+                    <UButton
                         v-if="store.headerForm.activities.length > 1"
-                        icon="i-heroicons-trash" 
-                        color="error" 
-                        variant="ghost" 
+                        icon="i-heroicons-trash"
+                        color="error"
+                        variant="ghost"
                         class="mt-1"
-                        @click="store.removeActivity(index)" 
+                        @click="store.removeActivity(index)"
                     />
                 </div>
-                <UButton 
-                    color="primary" 
+                <UButton
+                    color="primary"
                     variant="soft"
-                    icon="i-heroicons-plus" 
-                    label="Add Activity" 
+                    icon="i-heroicons-plus"
+                    :label="t('workingPaper.headerForm.addActivity')"
                     @click="store.addActivity()"
                 />
             </div>
         </div>
 
-        <UFormField 
-            label="Audit Period" 
-            required 
-            class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10" 
+        <UFormField
+            :label="t('workingPaper.headerForm.auditPeriod')"
+            required
+            class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10"
             :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm text-gray-700 mt-2' }"
         >
             <div class="flex items-center gap-4 w-full">
                 <UFormField name="periodStart" class="w-full">
-                    <AppDatePicker 
-                        v-model="store.headerForm.periodStart" 
+                    <AppDatePicker
+                        v-model="store.headerForm.periodStart"
                         class="w-full"
                     />
                 </UFormField>
-                <span class="text-gray-500 font-bold whitespace-nowrap">s/d</span>
+                <span class="text-gray-500 font-bold whitespace-nowrap">{{ t('workingPaper.headerForm.until') }}</span>
                 <UFormField name="periodEnd" class="w-full">
-                    <AppDatePicker 
-                        v-model="store.headerForm.periodEnd" 
+                    <AppDatePicker
+                        v-model="store.headerForm.periodEnd"
                         class="w-full"
                     />
                 </UFormField>
             </div>
         </UFormField>
 
-        <UFormField 
-            label="Location" 
-            name="location" 
-            required 
-            class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10" 
+        <UFormField
+            :label="t('workingPaper.headerForm.location')"
+            name="location"
+            required
+            class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10"
             :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm text-gray-700 mt-2' }"
         >
-            <USelectMenu v-model="store.headerForm.location" :items="store.options.location" placeholder="Choose Location" class="w-full" />
+            <USelectMenu v-model="store.headerForm.location" :items="store.options.location" :placeholder="t('workingPaper.headerForm.locationPlaceholder')" class="w-full" />
         </UFormField>
 
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
-            <UFormField label="Team" class="font-semibold text-sm text-gray-700  mt-2" />
+            <UFormField :label="t('workingPaper.headerForm.team')" class="font-semibold text-sm text-gray-700  mt-2" />
             <div class="md:col-span-3 space-y-4">
 
             <div v-for="(member, index) in store.headerForm.teamMembers" :key="member.id" class="flex gap-2 items-center">
                 <div class="grid grid-cols-2 gap-2 flex-1">
-                <USelectMenu 
-                    v-model="member.name" 
-                    :items="store.getAvailableMembers(index)" 
-                    placeholder="Choose Member"
+                <USelectMenu
+                    v-model="member.name"
+                    :items="store.getAvailableMembers(index)"
+                    :placeholder="t('workingPaper.headerForm.memberPlaceholder')"
                 />
-                <UInput 
-                    v-model="member.role" 
-                    placeholder="Position" 
+                <UInput
+                    v-model="member.role"
+                    :placeholder="t('workingPaper.headerForm.positionPlaceholder')"
                 />
                 </div>
 
-                <UButton 
+                <UButton
                 v-if="store.headerForm.teamMembers.length > 1"
-                icon="i-heroicons-trash" 
-                color="error" 
-                variant="ghost" 
-                @click="store.removeTeamMember(index)" 
+                icon="i-heroicons-trash"
+                color="error"
+                variant="ghost"
+                @click="store.removeTeamMember(index)"
                 />
             </div>
 
-            <UButton 
-                color="primary" 
+            <UButton
+                color="primary"
                 variant="soft"
-                icon="i-heroicons-plus" 
-                label="Add Member" 
+                icon="i-heroicons-plus"
+                :label="t('workingPaper.headerForm.addMember')"
                 @click="store.addTeamMember()"
             />
             </div>
         </div>
-        
+
 
         <div class="flex justify-end p-6 border-gray-100 ">
-            <UButton 
+            <UButton
                 type="submit"
-                :label="store.isEditingF01 ? 'Update Data' : 'Submit'" 
+                :label="store.isEditingF01 ? t('workingPaper.headerForm.update') : t('workingPaper.headerForm.submit')"
                 color="primary"
             />
         </div>
@@ -170,11 +170,12 @@
     </UForm>
     </template>
     </UModal>
-    
+
 </template>
 
 <script setup lang="ts">
 import { useWorkingPaperStore, headerSchema } from '~/stores/working-paper'
 
 const store = useWorkingPaperStore()
+const { t } = useI18n()
 </script>

@@ -6,6 +6,7 @@ import { AuditDepartment, AuditStatus } from '~/types/audit'
 import type { ActionTakenReport } from '~/types/audit'
 
 const store = useActionTakenReportStore()
+const { t } = useI18n()
 
 interface TableColumn<T> {
   accessorKey: keyof T | string
@@ -13,14 +14,14 @@ interface TableColumn<T> {
   sortable?: boolean
 }
 
-const columns = [
-  { accessorKey: 'auditRef', header: 'Audit Reference', sortable: true },
-  { accessorKey: 'title', header: 'Title', sortable: true },
-  { accessorKey: 'department', header: 'Department', sortable: true },
-  { accessorKey: 'deadline', header: 'Deadline', sortable: true },
-  { accessorKey: 'status', header: 'Status', sortable: true },
-  { accessorKey: 'actions', header: 'Actions' }
-]
+const columns = computed(() => [
+  { accessorKey: 'auditRef', header: t('actionTakenReport.columns.auditReference'), sortable: true },
+  { accessorKey: 'title', header: t('actionTakenReport.columns.title'), sortable: true },
+  { accessorKey: 'department', header: t('actionTakenReport.columns.department'), sortable: true },
+  { accessorKey: 'deadline', header: t('actionTakenReport.columns.deadline'), sortable: true },
+  { accessorKey: 'status', header: t('actionTakenReport.columns.status'), sortable: true },
+  { accessorKey: 'actions', header: t('actionTakenReport.columns.actions') }
+])
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -33,11 +34,17 @@ const getStatusColor = (status: string) => {
 }
 
 const getStatusLabel = (status: string) => {
-  if (status === AuditStatus.CANCELLED) return 'Cancelled'
-  if (status === AuditStatus.IN_PROGRESS) return 'In Progress'
-  if (status === AuditStatus.COMPLETED) return 'Completed'
-  if (status === AuditStatus.PLANNED) return 'Planned'
+  if (status === AuditStatus.CANCELLED) return t('actionTakenReport.statuses.cancelled')
+  if (status === AuditStatus.IN_PROGRESS) return t('actionTakenReport.statuses.inProgress')
+  if (status === AuditStatus.COMPLETED) return t('actionTakenReport.statuses.completed')
+  if (status === AuditStatus.PLANNED) return t('actionTakenReport.statuses.planned')
+  return status
 }
+
+const statusOptions = computed(() => Object.values(AuditStatus).map(status => ({
+  label: getStatusLabel(status),
+  value: status
+})))
 
 const page = ref(1)
 const pageCount = 5
@@ -56,22 +63,22 @@ const items = computed(() => {
 <template>
   <div class="p-4 sm:p-6 space-y-6 min-w-0">
     <div class="flex flex-col space-y-4">
-      <h1 class="text-2xl font-bold">Action Taken Report</h1>
+      <h1 class="text-2xl font-bold">{{ t('actionTakenReport.title') }}</h1>
       
       <div class="space-y-2">
-        <p class="text-sm font-bold">Status Summary:</p>
+        <p class="text-sm font-bold">{{ t('actionTakenReport.statusSummary') }}</p>
         <div class="flex flex-wrap items-center gap-3 sm:gap-6">
           <div class="flex items-center space-x-2">
             <div class="w-4 h-4 rounded-full bg-emerald-500"></div>
-            <span class="text-sm font-bold">{{ store.stats.donePercent }}% Done</span>
+            <span class="text-sm font-bold">{{ t('actionTakenReport.summary.done', { percent: store.stats.donePercent }) }}</span>
           </div>
           <div class="flex items-center space-x-2">
             <div class="w-4 h-4 rounded-full bg-amber-400"></div>
-            <span class="text-sm font-bold">{{ store.stats.wipPercent }}% Work In Progress</span>
+            <span class="text-sm font-bold">{{ t('actionTakenReport.summary.inProgress', { percent: store.stats.wipPercent }) }}</span>
           </div>
           <div class="flex items-center space-x-2">
             <div class="w-4 h-4 rounded-full bg-rose-500"></div>
-            <span class="text-sm font-bold">{{ store.stats.latePercent }}% Late</span>
+            <span class="text-sm font-bold">{{ t('actionTakenReport.summary.late', { percent: store.stats.latePercent }) }}</span>
           </div>
         </div>
       </div>
@@ -81,26 +88,27 @@ const items = computed(() => {
       <UInput
         v-model="store.searchQuery"
         icon="i-lucide-search"
-        placeholder="Search Finding"
+        :placeholder="t('actionTakenReport.filters.searchPlaceholder')"
         class="w-full sm:max-w-md"
         size="md"
       />
       <USelectMenu
         v-model="(store.selectedDepartment as any)"
         :items="Object.values(AuditDepartment)"
-        placeholder="Choose Department"
+        :placeholder="t('actionTakenReport.filters.departmentPlaceholder')"
         class="w-full sm:w-52"
         size="md"
       />
       <USelectMenu
         v-model="(store.selectedStatus as any)"
-        :items="Object.values(AuditStatus)"
-        placeholder="Choose Status"
+        :items="statusOptions"
+        value-key="value"
+        :placeholder="t('actionTakenReport.filters.statusPlaceholder')"
         class="w-full sm:w-52"
         size="md"
       />
       <UButton
-        label="Reset Filter"
+        :label="t('actionTakenReport.filters.reset')"
         icon="i-lucide-rotate-ccw"
         color="neutral"
         variant="outline"

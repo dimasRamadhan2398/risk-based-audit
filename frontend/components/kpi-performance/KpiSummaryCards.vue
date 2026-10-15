@@ -12,6 +12,14 @@ const props = defineProps({
 
 const store = usePerformanceStore()
 const spStore = useStrategicPlanStore()
+const { t } = useI18n()
+
+const cardTitleKeys: Record<string, string> = {
+  audit_completion_rate: 'auditCompletion',
+  report_timeliness: 'reportTimeliness',
+  client_satisfaction: 'clientSatisfaction',
+  action_plan_closed: 'actionPlanClosed'
+}
 
 const findSpMetric = (keywords: string[]) => {
   if (!spStore.strategicObjectives || spStore.strategicObjectives.length === 0) return null
@@ -54,7 +62,7 @@ const cards = computed(() => {
     return store.dashboardCards.map(c => {
       const iconConfig = iconMap[c.key] || { icon: 'i-lucide-target', color: 'text-orange-500', bg: 'bg-orange-100 dark:bg-orange-900/30' }
       return {
-        title: c.title,
+        title: cardTitleKeys[c.key] ? t(`kpiPerformance.dashboard.summary.${cardTitleKeys[c.key]}`) : c.title,
         value: c.value,
         target: c.target,
         trend: c.trend,
@@ -74,7 +82,7 @@ const cards = computed(() => {
   const completionActualNum = parseFloat(spCompletion?.actual || '92')
   const completionTargetNum = getTargetValueForYear(spCompletion, 90)
   const completionGap = (completionActualNum - completionTargetNum).toFixed(1)
-  const completionTrend = `${parseFloat(completionGap) >= 0 ? '+' : ''}${completionGap}% vs target`
+  const completionTrend = t('kpiPerformance.dashboard.summary.vsTarget', { value: `${parseFloat(completionGap) >= 0 ? '+' : ''}${completionGap}%` })
   const completionTrendUp = completionActualNum >= completionTargetNum
 
   // 2. Report Timeliness
@@ -84,7 +92,7 @@ const cards = computed(() => {
   const timelinessActualNum = parseFloat(spTimeliness?.actual || '98')
   const timelinessTargetNum = getTargetValueForYear(spTimeliness, 90)
   const timelinessGap = (timelinessActualNum - timelinessTargetNum).toFixed(1)
-  const timelinessTrend = `${parseFloat(timelinessGap) >= 0 ? '+' : ''}${timelinessGap}% vs target`
+  const timelinessTrend = t('kpiPerformance.dashboard.summary.vsTarget', { value: `${parseFloat(timelinessGap) >= 0 ? '+' : ''}${timelinessGap}%` })
   const timelinessTrendUp = timelinessActualNum >= timelinessTargetNum
 
   // 3. Client Satisfaction
@@ -94,7 +102,7 @@ const cards = computed(() => {
   const csatActualNum = parseFloat(spCsat?.actual || '4.0')
   const csatTargetNum = getTargetValueForYear(spCsat, 4.0)
   const csatGap = (csatActualNum - csatTargetNum).toFixed(1)
-  const csatTrend = `${parseFloat(csatGap) >= 0 ? '+' : ''}${csatGap} vs target`
+  const csatTrend = t('kpiPerformance.dashboard.summary.vsTarget', { value: `${parseFloat(csatGap) >= 0 ? '+' : ''}${csatGap}` })
   const csatTrendUp = csatActualNum >= csatTargetNum
 
   // 4. Action Plan Closed
@@ -104,12 +112,12 @@ const cards = computed(() => {
   const actionPlanActualNum = parseFloat(spActionPlan?.actual || '87')
   const actionPlanTargetNum = getTargetValueForYear(spActionPlan, 90)
   const actionPlanGap = (actionPlanActualNum - actionPlanTargetNum).toFixed(1)
-  const actionPlanTrend = `${parseFloat(actionPlanGap) >= 0 ? '+' : ''}${actionPlanGap}% vs target`
+  const actionPlanTrend = t('kpiPerformance.dashboard.summary.vsTarget', { value: `${parseFloat(actionPlanGap) >= 0 ? '+' : ''}${actionPlanGap}%` })
   const actionPlanTrendUp = actionPlanActualNum >= actionPlanTargetNum
 
   return [
     {
-      title: 'Audit Completion Rate',
+      title: t('kpiPerformance.dashboard.summary.auditCompletion'),
       value: completionVal,
       target: completionTarget,
       trend: completionTrend,
@@ -119,15 +127,15 @@ const cards = computed(() => {
       iconBg: 'bg-orange-100 dark:bg-orange-900/30',
       subMetrics: [
         {
-          title: 'Operational Completion Rate (Started Audits)',
+          title: t('kpiPerformance.dashboard.summary.operationalCompletion'),
           value: '92.0%',
           target: '90%',
-          trend: '11 completed / 12 started'
+          trend: t('kpiPerformance.dashboard.summary.completionDetail', { completed: 11, started: 12 })
         }
       ]
     },
     {
-      title: 'Report Timeliness',
+      title: t('kpiPerformance.dashboard.summary.reportTimeliness'),
       value: timelinessVal,
       target: timelinessTarget,
       trend: timelinessTrend,
@@ -137,15 +145,15 @@ const cards = computed(() => {
       iconBg: 'bg-orange-100 dark:bg-orange-900/30',
       subMetrics: [
         {
-          title: 'Avg Drafting Cycle-Time',
-          value: '12.5 days',
-          target: '< 14 days',
-          trend: '-1.5 days vs target'
+          title: t('kpiPerformance.dashboard.summary.draftingCycle'),
+          value: t('kpiPerformance.dashboard.summary.days', { value: 12.5 }),
+          target: t('kpiPerformance.dashboard.summary.lessThanDays', { value: 14 }),
+          trend: t('kpiPerformance.dashboard.summary.vsTarget', { value: t('kpiPerformance.dashboard.summary.days', { value: -1.5 }) })
         }
       ]
     },
     {
-      title: 'Client Satisfaction',
+      title: t('kpiPerformance.dashboard.summary.clientSatisfaction'),
       value: csatVal,
       target: csatTarget,
       trend: csatTrend,
@@ -155,15 +163,15 @@ const cards = computed(() => {
       iconBg: 'bg-orange-100 dark:bg-orange-900/30',
       subMetrics: [
         {
-          title: 'Survey Response Rate',
+          title: t('kpiPerformance.dashboard.summary.surveyResponse'),
           value: '85.5%',
           target: '80%',
-          trend: '12 responses from 14 completed audits'
+          trend: t('kpiPerformance.dashboard.summary.responseDetail', { responses: 12, audits: 14 })
         }
       ]
     },
     {
-      title: 'Action Plan Closed',
+      title: t('kpiPerformance.dashboard.summary.actionPlanClosed'),
       value: actionPlanVal,
       target: actionPlanTarget,
       trend: actionPlanTrend,
@@ -173,10 +181,10 @@ const cards = computed(() => {
       iconBg: 'bg-orange-100 dark:bg-orange-900/30',
       subMetrics: [
         {
-          title: 'Open / Pending Action Plans',
-          value: '4 open',
-          target: '0 overdue',
-          trend: '31 total recommendations registered'
+          title: t('kpiPerformance.dashboard.summary.openPending'),
+          value: t('kpiPerformance.dashboard.summary.openCount', { count: 4 }),
+          target: t('kpiPerformance.dashboard.summary.overdueCount', { count: 0 }),
+          trend: t('kpiPerformance.dashboard.summary.recommendationsRegistered', { count: 31 })
         }
       ]
     }
@@ -192,7 +200,7 @@ const cards = computed(() => {
           <UIcon :name="card.icon" :class="['w-6 h-6', card.iconColor]" />
         </div>
         <div class="bg-success-100 dark:bg-success-900/30 text-success-600 dark:text-success-400 text-md font-semibold px-2 py-1 rounded">
-          Target: {{ card.target }}
+          {{ t('kpiPerformance.dashboard.summary.target', { value: card.target }) }}
         </div>
       </div>
       <div class="space-y-1">

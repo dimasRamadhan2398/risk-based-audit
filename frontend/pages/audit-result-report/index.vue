@@ -2,8 +2,8 @@
   <div class="p-4 sm:p-6 min-w-0">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Audit Result Report</h1>
-        <p class="text-gray-500 dark:text-gray-400">Finalize and publish audit results and findings</p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ t('auditResultReport.dashboard.title') }}</h1>
+        <p class="text-gray-500 dark:text-gray-400">{{ t('auditResultReport.dashboard.subtitle') }}</p>
       </div>
       <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
         <UButton
@@ -11,7 +11,7 @@
           color="neutral"
           variant="outline"
           icon="i-lucide-upload"
-          label="Import LHA Document"
+          :label="t('auditResultReport.dashboard.importDocument')"
           to="/audit-result-report/upload"
           class="w-full sm:w-auto font-bold shadow"
         />
@@ -23,12 +23,12 @@
       <div class="flex flex-col md:flex-row md:items-center gap-4">
         <div class="flex-1">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Select Assignment Letter (Audit)
+            {{ t('auditResultReport.dashboard.assignment.label') }}
           </label>
           <USelectMenu
             v-model="store.selectedAssignmentLetter"
             :items="store.publishedAssignmentLetters"
-            placeholder="Select Assignment Letter to audit"
+            :placeholder="t('auditResultReport.dashboard.assignment.placeholder')"
             class="w-full sm:max-w-md"
             :disabled="store.publishedAssignmentLetters.length === 0"
           >
@@ -39,15 +39,15 @@
         </div>
         <div v-if="store.publishedAssignmentLetters.length === 0" class="text-sm text-amber-600">
           <UIcon name="i-heroicons-exclamation-triangle" class="size-4 inline mr-1" />
-          No Assignment Letter with Published status. Please create and publish an Assignment Letter first.
+          {{ t('auditResultReport.dashboard.assignment.nonePublished') }}
         </div>
         <div v-else-if="store.selectedAssignmentLetter" class="text-sm text-green-600 flex items-center gap-2">
           <UIcon name="i-heroicons-check-circle" class="size-4 inline" />
-          <span>Audit: <strong>{{ store.selectedAssignmentLetter }}</strong></span>
+          <span>{{ t('auditResultReport.dashboard.assignment.selected', { number: store.selectedAssignmentLetter }) }}</span>
         </div>
         <div v-else class="text-sm text-gray-600">
           <UIcon name="i-heroicons-document-text" class="size-4 inline mr-1" />
-          No Assignment Letter selected
+          {{ t('auditResultReport.dashboard.assignment.noneSelected') }}
         </div>
       </div>
     </UCard>
@@ -68,7 +68,7 @@
           </template>
           <template #status-cell="{ row }">
             <UBadge :color="row.original.status === 'Final' ? 'success' : 'neutral'" variant="soft">
-              {{ row.original.status }}
+              {{ getStatusLabel(row.original.status) }}
             </UBadge>
           </template>
           <template #findingsCount-cell="{ row }">
@@ -82,7 +82,7 @@
             <div class="flex flex-col gap-2">
               <div v-for="group in getGroupedFindings(row.original.findings)" :key="group.category" class="h-6 flex items-center">
                 <UBadge :color="getRatingColor(group.category)" variant="subtle" size="sm" class="w-full justify-center">
-                  {{ group.category }}
+                  {{ getCategoryLabel(group.category) }}
                 </UBadge>
               </div>
             </div>
@@ -92,11 +92,11 @@
               <div v-for="group in getGroupedFindings(row.original.findings)" :key="group.category" class="h-6 flex items-center justify-center">
                 <UPopover v-if="group.count > 0" mode="hover">
                   <UButton color="neutral" variant="soft" size="md" trailing-icon="i-heroicons-chevron-down" class="text-md">
-                    View {{ group.count }} Findings
+                    {{ t('auditResultReport.dashboard.findings.viewCount', { count: group.count }) }}
                   </UButton>
                   <template #content>
                     <div class="p-3 max-w-sm max-h-60 overflow-y-auto">
-                      <h4 class="text-md font-bold text-gray-900 dark:text-white mb-2 border-b pb-1">{{ group.category }} Findings</h4>
+                      <h4 class="text-md font-bold text-gray-900 dark:text-white mb-2 border-b pb-1">{{ t('auditResultReport.dashboard.findings.title', { category: getCategoryLabel(group.category) }) }}</h4>
                       <ul class="list-disc pl-4 text-md text-gray-700 dark:text-gray-300 space-y-1">
                         <li v-for="(item, idx) in group.items" :key="idx" class="leading-relaxed">
                           {{ item.title }}
@@ -115,15 +115,15 @@
               <div v-for="group in getGroupedFindings(row.original.findings)" :key="group.category" class="h-6 flex items-center justify-center">
                 <UPopover v-if="group.count > 0" mode="hover">
                   <UButton color="neutral" variant="soft" size="md" trailing-icon="i-heroicons-chevron-down" class="text-md">
-                    View Actions
+                    {{ t('auditResultReport.dashboard.findings.viewActions') }}
                   </UButton>
                   <template #content>
                     <div class="p-3 max-w-sm max-h-60 overflow-y-auto">
-                      <h4 class="text-md font-bold text-gray-900 dark:text-white mb-2 border-b pb-1">{{ group.category }} Actions</h4>
+                      <h4 class="text-md font-bold text-gray-900 dark:text-white mb-2 border-b pb-1">{{ t('auditResultReport.dashboard.findings.actionsTitle', { category: getCategoryLabel(group.category) }) }}</h4>
                       <ul class="list-disc pl-4 text-md text-gray-700 dark:text-gray-300 space-y-1">
                         <li v-for="(item, idx) in group.items" :key="idx" class="leading-relaxed">
                           <span class="font-semibold block mb-0.5 text-gray-800 dark:text-gray-200">{{ item.title }}:</span>
-                          <span class="text-primary-700 dark:text-primary-400 block mb-1">{{ item.action || 'No action defined' }}</span>
+                          <span class="text-primary-700 dark:text-primary-400 block mb-1">{{ item.action || t('auditResultReport.dashboard.findings.noAction') }}</span>
                         </li>
                       </ul>
                     </div>
@@ -135,17 +135,17 @@
           </template>
           <template #actions-cell="{ row }">
             <div class="flex gap-2 items-center">
-              <UTooltip text="Sync Temuan Otomatis dari KKA & Fieldwork">
+              <UTooltip :text="t('auditResultReport.dashboard.actions.syncTooltip')">
                 <UButton
                   color="primary"
                   variant="soft"
                   icon="i-heroicons-sparkles"
                   size="sm"
-                  label="Sync"
+                  :label="t('auditResultReport.dashboard.actions.sync')"
                   @click="syncReportFindings(row.original as any)"
                 />
               </UTooltip>
-              <UTooltip text="Generate LHA (.docx)">
+              <UTooltip :text="t('auditResultReport.dashboard.actions.generateDocx')">
                 <UButton
                   color="success"
                   variant="soft"
@@ -155,7 +155,7 @@
                   @click="store.downloadDocx((row.original as any).id, (row.original as any).reportNumber)"
                 />
               </UTooltip>
-              <UTooltip text="Edit">
+              <UTooltip :text="t('auditResultReport.dashboard.actions.edit')">
                 <UButton
                   color="warning"
                   variant="ghost"
@@ -164,7 +164,7 @@
                   @click="store.editReport(row.original as any)"
                 />
               </UTooltip>
-              <UTooltip text="Cetak">
+              <UTooltip :text="t('auditResultReport.dashboard.actions.print')">
                 <UButton
                   color="neutral"
                   variant="ghost"
@@ -182,15 +182,15 @@
         <div class="p-4 bg-primary-50 dark:bg-primary-950/40 rounded-full w-fit mx-auto mb-4 text-primary-600">
           <UIcon name="i-heroicons-sparkles" class="size-12" />
         </div>
-        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Belum Ada Laporan Hasil Audit (LHA)</h3>
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">{{ t('auditResultReport.dashboard.empty.title') }}</h3>
         <p class="text-gray-500 mt-2 max-w-md mx-auto mb-6 text-sm">
-          Belum ada laporan yang dibuat untuk surat tugas ini. Anda dapat membuat laporan dengan temuan audit yang langsung terisi otomatis dari modul KKA dan Fieldwork.
+          {{ t('auditResultReport.dashboard.empty.description') }}
         </p>
         <div class="flex justify-center gap-3">
           <UButton
             color="primary"
             icon="i-heroicons-sparkles"
-            label="Buat Laporan dengan Temuan Otomatis"
+            :label="t('auditResultReport.dashboard.empty.create')"
             size="lg"
             class="font-bold shadow"
             @click="store.openModal"
@@ -202,9 +202,9 @@
     <!-- Empty State -->
     <div v-else class="text-center py-16">
       <UIcon name="i-heroicons-document-magnifying-glass" class="size-20 text-gray-200 dark:text-gray-800 mx-auto mb-4" />
-      <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 text-center">Select Assignment Letter</h3>
+      <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 text-center">{{ t('auditResultReport.dashboard.selectAssignment.title') }}</h3>
       <p class="text-gray-500 mt-2 max-w-md mx-auto text-center">
-        Please select an assignment letter to view or manage its audit result reports.
+        {{ t('auditResultReport.dashboard.selectAssignment.description') }}
       </p>
     </div>
 
@@ -222,18 +222,19 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 const store = useAuditResultReportStore()
 const { canImportPlanDocs } = useRbac()
 const toast = useToastNotification()
+const { t } = useI18n()
 
-const columns = [
-  { accessorKey: 'reportNumber', header: 'No. LHA / ID' },
-  { accessorKey: 'reportTitle', header: 'Report Title' },
-  { accessorKey: 'reportDate', header: 'Date' },
-  { accessorKey: 'findingsCount', header: 'Findings' },
-  { accessorKey: 'category', header: 'Category' },
-  { accessorKey: 'listOfFinding', header: 'List of Finding' },
-  { accessorKey: 'action', header: 'Action' },
-  { accessorKey: 'status', header: 'Status' },
+const columns = computed(() => [
+  { accessorKey: 'reportNumber', header: t('auditResultReport.dashboard.columns.reportNumber') },
+  { accessorKey: 'reportTitle', header: t('auditResultReport.dashboard.columns.reportTitle') },
+  { accessorKey: 'reportDate', header: t('auditResultReport.dashboard.columns.date') },
+  { accessorKey: 'findingsCount', header: t('auditResultReport.dashboard.columns.findings') },
+  { accessorKey: 'category', header: t('auditResultReport.dashboard.columns.category') },
+  { accessorKey: 'listOfFinding', header: t('auditResultReport.dashboard.columns.findingList') },
+  { accessorKey: 'action', header: t('auditResultReport.dashboard.columns.action') },
+  { accessorKey: 'status', header: t('auditResultReport.dashboard.columns.status') },
   { accessorKey: 'actions', header: '' }
-]
+])
 
 const getRatingColor = (rating: any) => {
   switch (rating) {
@@ -246,6 +247,23 @@ const getRatingColor = (rating: any) => {
 }
 
 const CATEGORY_ORDER = ['Very Significant', 'Significant', 'Quite Significant', 'Not Significant']
+
+const categoryKeys: Record<string, string> = {
+  'Very Significant': 'verySignificant',
+  'Significant': 'significant',
+  'Quite Significant': 'quiteSignificant',
+  'Not Significant': 'notSignificant'
+}
+
+const getCategoryLabel = (category: string) => {
+  const key = categoryKeys[category]
+  return key ? t(`auditResultReport.dashboard.categories.${key}`) : category
+}
+
+const getStatusLabel = (status: string) => {
+  const key = status.toLowerCase()
+  return ['final', 'draft'].includes(key) ? t(`auditResultReport.dashboard.status.${key}`) : status
+}
 
 const getGroupedFindings = (findings: any[] | undefined) => {
   if (!findings || findings.length === 0) return CATEGORY_ORDER.map(c => ({ category: c, count: 0, items: [] }))
@@ -266,7 +284,7 @@ const syncReportFindings = async (report: any) => {
 }
 
 const printReport = (report: any) => {
-  toast.showSuccess(`Printing report: ${report.reportTitle}`)
+  toast.showSuccess(t('auditResultReport.dashboard.printing', { title: report.reportTitle }))
 }
 </script>
 

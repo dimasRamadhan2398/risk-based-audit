@@ -3,27 +3,29 @@ import { ref, computed, reactive } from 'vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { QAStatus, QAType, type QAReport } from '~/types/quality-assurance'
 import { extractErrorMessage } from '~/utils/error'
+import { useI18n } from '~/composables/useI18n'
 
 export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const loading = ref(false)
   const errorMsg = ref('')
   const toast = useToastNotification()
+  const { t } = useI18n()
 
   const getMasterServiceBaseUrl = () => {
     const config = useRuntimeConfig()
     return config.public.masterServiceBaseUrl || config.public.apiBase || '/api/v1'
   }
 
-  const columns = [
-    { accessorKey: 'type', header: 'QA Type', sortable: true },
-    { accessorKey: 'period', header: 'Period', sortable: true },
-    { accessorKey: 'reportName', header: 'Report Name', sortable: true },
-    { accessorKey: 'result', header: 'Result/Score', sortable: true },
-    { accessorKey: 'status', header: 'Status', sortable: true },
-    { accessorKey: 'conductedBy', header: 'Conducted By', sortable: true },
-    { accessorKey: 'viewReport', header: 'View Report' },
-    { accessorKey: 'actions', header: 'Action' }
-  ]
+  const columns = computed(() => [
+    { accessorKey: 'type', header: t('qualityAssurance.dashboard.table.columns.type'), sortable: true },
+    { accessorKey: 'period', header: t('qualityAssurance.dashboard.table.columns.period'), sortable: true },
+    { accessorKey: 'reportName', header: t('qualityAssurance.dashboard.table.columns.reportName'), sortable: true },
+    { accessorKey: 'result', header: t('qualityAssurance.dashboard.table.columns.result'), sortable: true },
+    { accessorKey: 'status', header: t('qualityAssurance.dashboard.table.columns.status'), sortable: true },
+    { accessorKey: 'conductedBy', header: t('qualityAssurance.dashboard.table.columns.conductedBy'), sortable: true },
+    { accessorKey: 'viewReport', header: t('qualityAssurance.dashboard.table.columns.viewReport') },
+    { accessorKey: 'actions', header: t('qualityAssurance.dashboard.table.columns.actions') }
+  ])
 
   const getStatusColor = (status: QAStatus) => {
     switch (status) {
@@ -585,7 +587,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
 
     if (!targetReport) return
 
-    if (!await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin menghapus laporan Quality Assurance ini?' })) {
+    if (!await useGlobalModalStore().confirmDelete({ description: t('qualityAssurance.dashboard.deleteConfirm') })) {
       return
     }
 
@@ -605,7 +607,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       }
 
       await fetchReports()
-      toast.showSuccess('Berhasil menghapus data laporan QA')
+      toast.showSuccess(t('qualityAssurance.dashboard.deleteSuccess'))
     } catch (error: any) {
       console.error('Failed to delete QA report (API failed, falling back to local):', error)
       errorMsg.value = extractErrorMessage(error, 'Failed to delete Quality Assurance report.')

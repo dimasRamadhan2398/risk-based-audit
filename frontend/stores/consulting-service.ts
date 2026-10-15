@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, reactive, computed } from 'vue'
 import { extractErrorMessage } from '~/utils/error'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
+import { useI18n } from '~/composables/useI18n'
 
 export interface ConsultingAttachment {
   name: string
@@ -28,6 +29,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
   const loading = ref(false)
   const errorMsg = ref('')
   const toast = useToastNotification()
+  const { t } = useI18n()
 
   const isFormOpen = ref(false)
   const isDetailOpen = ref(false)
@@ -127,7 +129,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
       }
     } catch (error) {
       console.error('Failed to fetch consulting services, falling back to mock:', error)
-      errorMsg.value = extractErrorMessage(error, 'Failed to load consulting services.')
+      errorMsg.value = extractErrorMessage(error, t('consultingService.dashboard.messages.fetchFailed'))
       services.value = [...mockServices]
     } finally {
       loading.value = false
@@ -143,7 +145,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
 
   const saveService = async () => {
     if (!newService.title || !newService.consultantName) {
-      errorMsg.value = 'Title and Consultant Name are required.'
+      errorMsg.value = t('consultingService.dashboard.messages.required')
       return
     }
     loading.value = true
@@ -169,7 +171,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
           body: payload
         })
         if (newService.attachment instanceof File) {
-          toast.showError('Warning: Update file pada edit belum didukung oleh server backend.')
+          toast.showError(t('consultingService.dashboard.messages.updateFileUnsupported'))
         }
       } else {
         if (newService.attachment && newService.attachment instanceof File) {
@@ -209,11 +211,11 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
       resetForm()
       isEditing.value = false
       isFormOpen.value = false
-      toast.showSuccess('Consulting service berhasil disimpan')
+      toast.showSuccess(t('consultingService.dashboard.messages.saveSuccess'))
       await fetchServices()
     } catch (error: any) {
       console.error('Failed to save consulting service:', error)
-      toast.showError(error.data?.message || 'Gagal menyimpan consulting service')
+      toast.showError(error.data?.message || t('consultingService.dashboard.messages.saveFailed'))
     } finally {
       loading.value = false
     }
@@ -238,11 +240,11 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
         isDetailOpen.value = false
         selectedService.value = null
       }
-      toast.showSuccess('Consulting service berhasil dihapus')
+      toast.showSuccess(t('consultingService.dashboard.messages.deleteSuccess'))
       await fetchServices()
     } catch (error: any) {
       console.error('Failed to delete consulting service:', error)
-      toast.showError(error.data?.message || 'Gagal menghapus consulting service')
+      toast.showError(error.data?.message || t('consultingService.dashboard.messages.deleteFailed'))
     } finally {
       loading.value = false
     }
@@ -254,7 +256,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
       if (!file) return
 
       if (file.size > 10 * 1024 * 1024) {
-        errorMsg.value = 'File is too large (max 10MB)'
+        errorMsg.value = t('consultingService.dashboard.messages.fileTooLarge')
         return
       }
       newService.attachment = markRaw(file) as any
@@ -276,7 +278,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
       window.URL.revokeObjectURL(link.href)
     } catch (error) {
       console.error('Failed to download consulting attachment:', error)
-      errorMsg.value = extractErrorMessage(error, 'Failed to download consulting attachment.')
+      errorMsg.value = extractErrorMessage(error, t('consultingService.dashboard.messages.downloadFailed'))
     }
   }
 
@@ -292,7 +294,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
       setTimeout(() => window.URL.revokeObjectURL(url), 10000)
     } catch (error) {
       console.error('Failed to view consulting attachment:', error)
-      toast.showError('Failed to view document.')
+      toast.showError(t('consultingService.dashboard.messages.viewFailed'))
     }
   }
 

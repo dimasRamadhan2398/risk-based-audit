@@ -23,9 +23,9 @@
           <template #header>
             <div class="flex items-center justify-between">
               <div class="space-y-1">
-                <h3 class="text-xl font-bold">Action Taken Report Detail</h3>
+                <h3 class="text-xl font-bold">{{ t('actionTakenReport.detail.title') }}</h3>
                 <p class="text-sm font-bold">
-                  Ref: {{ store.selectedReport?.auditRef }} | Status: [ <span :class="modalStatusDetails.class">
+                  {{ t('actionTakenReport.detail.referenceStatus', { reference: store.selectedReport?.auditRef || '-' }) }} [ <span :class="modalStatusDetails.class">
                     {{ modalStatusDetails.icon }} {{ store.selectedReport?.status }}
                   </span> ]
                 </p>
@@ -44,26 +44,26 @@
             <!-- Assignment Letter Info -->
             <div v-if="store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter" class="p-4 sm:p-5 rounded-xl space-y-4 bg-primary-600 dark:bg-primary-800">
               <div class="flex items-center justify-between">
-                <h4 class="text-lg font-bold text-white">Assignment Letter Information</h4>
+                <h4 class="text-lg font-bold text-white">{{ t('actionTakenReport.detail.assignmentInfo') }}</h4>
                 <UBadge color="neutral" variant="solid" class="bg-white/20 text-white border-0">
                   {{ (store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter)?.letterNumber }}
                 </UBadge>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
                 <div>
-                  <p class="font-bold text-primary-100">Audit Title</p>
+                  <p class="font-bold text-primary-100">{{ t('actionTakenReport.detail.auditTitle') }}</p>
                   <p class="font-medium text-white">{{ (store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter)?.auditTitle || '-' }}</p>
                 </div>
                 <div>
-                  <p class="font-bold text-primary-100">Working Unit</p>
+                  <p class="font-bold text-primary-100">{{ t('actionTakenReport.detail.workingUnit') }}</p>
                   <p class="font-medium text-white">{{ (store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter)?.workingUnit || '-' }}</p>
                 </div>
                 <div>
-                  <p class="font-bold text-primary-100">Audit Leader</p>
+                  <p class="font-bold text-primary-100">{{ t('actionTakenReport.detail.auditLeader') }}</p>
                   <p class="font-medium text-white">{{ (store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter)?.leader || '-' }}</p>
                 </div>
                 <div>
-                  <p class="font-bold text-primary-100">Period</p>
+                  <p class="font-bold text-primary-100">{{ t('actionTakenReport.detail.period') }}</p>
                   <p class="font-medium text-white">{{ (store.selectedReport?.assignmentLetter || store.selectedReport?.assignment_letter)?.executionPeriod || '-' }}</p>
                 </div>
               </div>
@@ -71,14 +71,14 @@
 
             <!-- Category & Context -->
             <div class="p-4 sm:p-5 border border-gray-200 dark:border-gray-700 rounded-xl space-y-4 bg-white dark:bg-gray-900">
-              <h4 class="text-lg font-bold">Category & Context</h4>
+              <h4 class="text-lg font-bold">{{ t('actionTakenReport.detail.categoryContext') }}</h4>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
                 <div class="space-y-1">
-                  <p class="text-sm font-bold">Audit Object</p>
+                  <p class="text-sm font-bold">{{ t('actionTakenReport.detail.auditObject') }}</p>
                   <p class="text-sm">{{ store.selectedReport?.auditObject || '-' }}</p>
                 </div>
                 <div class="space-y-1">
-                  <p class="text-sm font-bold">Findings Category</p>
+                  <p class="text-sm font-bold">{{ t('actionTakenReport.detail.findingsCategory') }}</p>
                   <p class="text-sm">{{ store.selectedReport?.findingCategory || '-' }}</p>
                 </div>
               </div>
@@ -86,14 +86,14 @@
 
             <!-- Detail Findings -->
             <div class="p-4 sm:p-5 border border-gray-200 dark:border-gray-700 rounded-xl space-y-4 bg-white dark:bg-gray-900">
-              <h4 class="text-lg font-bold">Detail Findings</h4>
+              <h4 class="text-lg font-bold">{{ t('actionTakenReport.detail.findingsDetail') }}</h4>
               <div class="space-y-4">
                 <div class="flex flex-col sm:flex-row gap-1 sm:gap-4">
-                  <p class="w-full sm:w-1/3 text-sm font-bold">Condition</p>
+                  <p class="w-full sm:w-1/3 text-sm font-bold">{{ t('actionTakenReport.detail.condition') }}</p>
                   <p class="w-full sm:w-2/3 text-sm">{{ store.selectedReport?.condition || '-' }}</p>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-1 sm:gap-4">
-                  <p class="w-full sm:w-1/3 text-sm font-bold">Criteria</p>
+                  <p class="w-full sm:w-1/3 text-sm font-bold">{{ t('actionTakenReport.detail.criteria') }}</p>
                   <p class="w-full sm:w-2/3 text-sm">{{ store.selectedReport?.criteria || '-' }}</p>
                 </div>
               </div>
@@ -101,18 +101,18 @@
 
             <!-- Corrective Action Plan -->
             <div class="p-4 sm:p-5 border border-gray-200 dark:border-gray-700 rounded-xl space-y-4 bg-white dark:bg-gray-900">
-              <h4 class="text-lg font-bold">Corrective Action Plan</h4>
+              <h4 class="text-lg font-bold">{{ t('actionTakenReport.detail.correctivePlan') }}</h4>
               <div class="space-y-4">
                 <div class="flex flex-col sm:flex-row gap-1 sm:gap-4">
-                  <p class="w-full sm:w-1/3 text-sm font-bold">Recommendation</p>
+                  <p class="w-full sm:w-1/3 text-sm font-bold">{{ t('actionTakenReport.detail.recommendation') }}</p>
                   <p class="w-full sm:w-2/3 text-sm">{{ store.selectedReport?.recommendation || '-' }}</p>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-1 sm:gap-4">
-                  <p class="w-full sm:w-1/3 text-sm font-bold">Deadline</p>
+                  <p class="w-full sm:w-1/3 text-sm font-bold">{{ t('actionTakenReport.detail.deadline') }}</p>
                   <p class="w-full sm:w-2/3 text-sm">{{ store.selectedReport?.deadline || '-' }}</p>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-1 sm:gap-4">
-                  <p class="w-full sm:w-1/3 text-sm font-bold">PIC</p>
+                  <p class="w-full sm:w-1/3 text-sm font-bold">{{ t('actionTakenReport.detail.pic') }}</p>
                   <p class="w-full sm:w-2/3 text-sm">{{ store.selectedReport?.pic || '-' }}</p>
                 </div>
               </div>
@@ -122,16 +122,16 @@
 
             <!-- Latest Progress Update -->
             <div class="p-4 sm:p-5 border border-gray-200 dark:border-gray-700 rounded-xl space-y-4 bg-white dark:bg-gray-900">
-              <h4 class="text-lg font-bold">Latest Progress Update</h4>
+              <h4 class="text-lg font-bold">{{ t('actionTakenReport.detail.latestProgress') }}</h4>
               <div class="space-y-4">
                 <div class="flex flex-col sm:flex-row gap-1 sm:gap-4">
-                  <p class="w-full sm:w-1/3 text-sm font-bold">Attachment</p>
+                  <p class="w-full sm:w-1/3 text-sm font-bold">{{ t('actionTakenReport.detail.attachment') }}</p>
                   <div class="w-full sm:w-2/3 flex items-center space-x-1 text-sm font-bold cursor-pointer">
-                    <span>[ 📄 {{ store.selectedReport?.attachment || 'No attachment' }} ]</span>
+                    <span>[ 📄 {{ store.selectedReport?.attachment || t('actionTakenReport.detail.noAttachment') }} ]</span>
                   </div>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-1 sm:gap-4">
-                  <p class="w-full sm:w-1/3 text-sm font-bold">Description</p>
+                  <p class="w-full sm:w-1/3 text-sm font-bold">{{ t('actionTakenReport.detail.description') }}</p>
                   <p class="w-full sm:w-2/3 text-sm">{{ store.selectedReport?.progressDescription || '-' }}</p>
                 </div>
               </div>
@@ -142,7 +142,7 @@
             <div class="flex justify-end">
               <UButton
                 color="primary"
-                label="Kirim Pengingat"
+                :label="t('actionTakenReport.detail.sendReminder')"
                 class="w-full sm:w-auto px-6 py-2.5 font-bold"
                 @click="store.closeModal"
               />
@@ -159,6 +159,7 @@ import { useActionTakenReportStore } from '~/stores/action-taken-report'
 import { AuditStatus } from '~/types/audit'
 
 const store = useActionTakenReportStore()
+const { t } = useI18n()
 
 const modalStatusDetails = computed(() => {
   const status = store.selectedReport?.status
