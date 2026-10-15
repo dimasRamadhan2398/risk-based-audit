@@ -85,7 +85,7 @@
                     <p class="font-semibold border-b pb-1 mb-2">{{ t('auditActivityPlan.view.approver') }}</p>
                     <div class="flex"><strong class="w-24 shrink-0">{{ t('auditActivityPlan.view.name') }}</strong> <span>{{ store.selectedPlan.review.approverName }}</span></div>
                     <div class="flex"><strong class="w-24 shrink-0">{{ t('auditActivityPlan.view.position') }}</strong> <span>{{ store.selectedPlan.review.approverPosition }}</span></div>
-                    <div class="flex"><strong class="w-24 shrink-0">{{ t('auditActivityPlan.view.date') }}</strong> <span>{{ new Date(store.selectedPlan.review.approvalDate).toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-US', { day: '2-digit', month: 'long', year: 'numeric' }) }}</span></div>
+                    <div class="flex"><strong class="w-24 shrink-0">{{ t('auditActivityPlan.view.date') }}</strong> <span>{{ store.selectedPlan.review.approvalDate ? formatDateLocale(store.selectedPlan.review.approvalDate, locale) : '-' }}</span></div>
                 </div>
                 <div class="col-span-2 mt-2">
                     <strong class="font-semibold">{{ t('auditActivityPlan.view.additionalNotes') }}</strong>
@@ -95,7 +95,7 @@
         </UCard>
 
         <!-- Attachments -->
-        <UCard v-if="store.selectedPlan.attachmentCategory">
+        <UCard v-if="store.selectedPlan.attachmentCategory || store.selectedPlan.attachments?.length">
             <template #header>
                 <h4 class="text-lg font-medium">{{ t('auditActivityPlan.view.attachment') }}</h4>
             </template>
@@ -135,8 +135,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, h } from 'vue'
 import { useActivityPlanStore } from '~/stores/activity-plan'
+import type { PlannedAuditActivity } from '~/types/audit'
 import { useI18n } from '~/composables/useI18n'
 import { formatPeriod, formatDateLocale } from '~/utils/dateConverter'
 
@@ -144,6 +145,14 @@ const { t, locale } = useI18n()
 const store = useActivityPlanStore()
 
 const plannedActivitiesColumns = computed(() => [
+  {
+    accessorKey: 'activityCode',
+    header: t('auditActivityPlan.view.columns.activityId'),
+    // Activities saved before Activity IDs existed have none until the plan is saved again.
+    cell: ({ row }: { row: { original: PlannedAuditActivity } }) => row.original.activityCode
+      ? h('span', { class: 'font-mono text-xs font-semibold whitespace-nowrap text-gray-900 dark:text-gray-100' }, row.original.activityCode)
+      : h('span', { class: 'text-gray-400 dark:text-gray-500' }, '-')
+  },
   { accessorKey: 'auditName', header: t('auditActivityPlan.view.columns.auditName') },
   { accessorKey: 'auditee', header: t('auditActivityPlan.view.columns.auditee') },
   { accessorKey: 'category', header: t('auditActivityPlan.view.columns.category') },

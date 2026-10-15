@@ -2,6 +2,9 @@ package services
 
 import (
 	"context"
+	"encoding/base64"
+	"net/http"
+	"regexp"
 	"strings"
 
 	"auth-service/models"
@@ -17,12 +20,87 @@ import (
 // UserServiceInterface defines the user service interface
 type UserServiceInterface interface {
 	CreateUser(ctx context.Context, req *models.CreateUserRequest) error
-	UpdateUser(ctx context.Context, id uuid.UUID, req *models.UpdateUserRequest) error
+	UpdateUser(ctx context.Context, id uuid.UUID, req *models.UpdateUserRequest) (*models.UserResponse, error)
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	GetUser(ctx context.Context, id uuid.UUID) (*models.UserResponse, error)
 	ListUsers(ctx context.Context, req *models.ListUsersRequest) ([]*models.UserResponse, *utils.PaginationResponse, error)
 	FindUserByEmployee(ctx context.Context, employeeCode, email string) (*models.UserResponse, error)
 	AdminResetPassword(ctx context.Context, actorID, targetID uuid.UUID, ipAddress string) (*models.AdminResetPasswordResponse, error)
+	ListAssignableUsers(ctx context.Context, req *models.ListAssignableUsersRequest) ([]models.AssignableUser, *models.AssignableUsersPagination, error)
+	ListUserContacts(ctx context.Context, req *models.ListUserContactsRequest) ([]models.UserContact, error)
+}
+
+// Paging limits of GET /users/assignable
+const (
+	AssignableDefaultPageSize = 20
+	AssignableMaxPageSize     = 100
+)
+
+// ListAssignableUsers returns one page of active users with only the fields a
+// PIC picker needs. Page < 1 is read as 1; page_size < 1 as 20, > 100 as 100.
+func (s *UserService) ListAssignableUsers(ctx context.Context, req *models.ListAssignableUsersRequest) ([]models.AssignableUser, *models.AssignableUsersPagination, error) {
+	page, pageSize := req.Page, req.PageSize
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 {
+		pageSize = AssignableDefaultPageSize
+	}
+	if pageSize > AssignableMaxPageSize {
+		pageSize = AssignableMaxPageSize
+	}
+
+	users, total, err := s.userRepo.FindAssignable((page-1)*pageSize, pageSize, req.Search, req.ID)
+	if err != nil {
+		s.LogError("Failed to list assignable users", utils.LogField("error", err))
+		return nil, nil, errors.ErrInternalServer
+	}
+
+	out := make([]models.AssignableUser, 0, len(users))
+	for _, u := range users {
+		out = append(out, models.AssignableUser{
+			ID:         u.ID.String(),
+			FullName:   u.FullName,
+			Department: u.Department,
+			Position:   u.Position,
+		})
+	}
+	return out, &models.AssignableUsersPagination{
+		Page:       page,
+		PageSize:   pageSize,
+		Total:      total,
+		TotalPages: (total + int64(pageSize) - 1) / int64(pageSize),
+	}, nil
+}
+
+// MaxContactIDs caps the ids of one GET /users/contacts call
+const MaxContactIDs = 20
+
+// ListUserContacts returns the contact details of the active users matching
+// the request filters. A request with no filter is rejected (400), so the
+// endpoint never lists every user's email.
+func (s *UserService) ListUserContacts(ctx context.Context, req *models.ListUserContactsRequest) ([]models.UserContact, error) {
+	if len(req.IDs) == 0 && strings.TrimSpace(req.DepartmentHeadOf) == "" {
+		return nil, errors.Wrap("VALIDATION_ERROR", "ids or department_head_of is required", 400, nil)
+	}
+	if len(req.IDs) > MaxContactIDs {
+		return nil, errors.Wrap("VALIDATION_ERROR", "at most 20 ids can be requested at once", 400, nil)
+	}
+	users, err := s.userRepo.FindContacts(req.IDs, req.DepartmentHeadOf)
+	if err != nil {
+		s.LogError("Failed to list user contacts", utils.LogField("error", err))
+		return nil, errors.ErrInternalServer
+	}
+	out := make([]models.UserContact, 0, len(users))
+	for _, u := range users {
+		out = append(out, models.UserContact{
+			ID:         u.ID.String(),
+			FullName:   u.FullName,
+			Email:      u.Email,
+			Department: u.Department,
+		})
+	}
+	return out, nil
 }
 
 // UserService handles user business logic
@@ -80,14 +158,51 @@ func (s *UserService) CreateUser(ctx context.Context, req *models.CreateUserRequ
 	return nil
 }
 
-// UpdateUser updates a user
-func (s *UserService) UpdateUser(ctx context.Context, id uuid.UUID, req *models.UpdateUserRequest) error {
-	user, err := s.userRepo.FindByID(id)
-	if err != nil {
-		return err
+// MaxAvatarDataURLLength caps the avatar data URL string (about 220 KB of image bytes).
+const MaxAvatarDataURLLength = 300000
+
+var avatarDataURLPattern = regexp.MustCompile(`^data:image/(png|jpeg|webp);base64,([A-Za-z0-9+/]+={0,2})$`)
+
+// invalidAvatar builds the 400 error returned when avatar_url is not acceptable.
+func invalidAvatar(msg string) *errors.AppError {
+	return errors.New("INVALID_AVATAR", msg, http.StatusBadRequest)
+}
+
+// ValidateAvatarDataURL validates a non-empty avatar data URL.
+func ValidateAvatarDataURL(v string) error {
+	if len(v) > MaxAvatarDataURLLength {
+		return invalidAvatar("avatar_url is too large (max 300000 characters)")
+	}
+	m := avatarDataURLPattern.FindStringSubmatch(v)
+	if m == nil {
+		return invalidAvatar("avatar_url must be a data URL like data:image/(png|jpeg|webp);base64,<data>")
+	}
+	if dec, err := base64.StdEncoding.DecodeString(m[2]); err != nil || len(dec) == 0 {
+		return invalidAvatar("avatar_url contains invalid base64 data")
+	}
+	return nil
+}
+
+func avatarOrEmpty(p *string) string {
+	if p == nil {
+		return ""
+	}
+	return *p
+}
+
+// UpdateUser updates a user. Only fields present in the request are changed.
+func (s *UserService) UpdateUser(ctx context.Context, id uuid.UUID, req *models.UpdateUserRequest) (*models.UserResponse, error) {
+	if req.AvatarURL != nil && *req.AvatarURL != "" {
+		if err := ValidateAvatarDataURL(*req.AvatarURL); err != nil {
+			return nil, err
+		}
 	}
 
-	// Update fields
+	user, err := s.userRepo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+
 	if req.FullName != nil {
 		user.FullName = *req.FullName
 	}
@@ -103,14 +218,22 @@ func (s *UserService) UpdateUser(ctx context.Context, id uuid.UUID, req *models.
 	if req.IsActive != nil {
 		user.IsActive = *req.IsActive
 	}
+	if req.AvatarURL != nil {
+		if *req.AvatarURL == "" {
+			user.AvatarURL = nil
+		} else {
+			v := *req.AvatarURL
+			user.AvatarURL = &v
+		}
+	}
 
 	if err := s.userRepo.Update(user); err != nil {
 		s.LogError("Failed to update user", utils.LogField("error", err))
-		return errors.ErrInternalServer
+		return nil, errors.ErrInternalServer
 	}
 
 	s.LogInfo("User updated successfully", utils.LogField("user_id", user.ID))
-	return nil
+	return s.userToResponse(user), nil
 }
 
 // DeleteUser deletes a user
@@ -269,9 +392,14 @@ func (s *UserService) userToResponse(user *models.User) *models.UserResponse {
 		roles[i] = role.Name
 	}
 
+	employeeID := ""
+	if user.EmployeeID != nil {
+		employeeID = *user.EmployeeID
+	}
+
 	return &models.UserResponse{
 		ID:         user.ID.String(),
-		EmployeeID: user.EmployeeID,
+		EmployeeID: employeeID,
 		Username:   user.Username,
 		Email:      user.Email,
 		FullName:   user.FullName,
@@ -279,6 +407,7 @@ func (s *UserService) userToResponse(user *models.User) *models.UserResponse {
 		Department: user.Department,
 		Position:   user.Position,
 		IsActive:   user.IsActive,
+		AvatarURL:  avatarOrEmpty(user.AvatarURL),
 		Roles:      roles,
 		MustChangePassword: user.MustChangePassword,
 		CreatedAt:  user.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),

@@ -22,9 +22,11 @@ const summaryFixture = {
   executiveNote: '',
   narrative: 'Ringkasan pengujian checklist minor.',
   jumlahLaporan: 1,
-  risikoTinggi: 1,
-  risikoSedang: 1,
-  risikoRendah: 0,
+  risikoHigh: 1,
+  risikoModerateHigh: 0,
+  risikoModerate: 1,
+  risikoLowModerate: 0,
+  risikoLow: 0,
   jumlahRekomendasi: 2,
   followUpTable: JSON.stringify([
     { status: 'Closed', jumlah: 3, persentase: 50, keterangan: 'Selesai' },
@@ -45,7 +47,7 @@ const annualPlanFixture = {
   id: 'annual-plan-e2e',
   code: 'PKAT-2026-ASR-007',
   version: 'v1.0',
-  status: 'Work In Progress',
+  status: 'Pending Review',
   year: '2026',
   selectedMonths: [0, 1],
   auditorCount: 2,
@@ -129,20 +131,20 @@ test.beforeEach(async ({ context }) => {
   await authenticate(context)
 })
 
-test('activity code is generated and disabled in add and edit Annual Audit forms', async ({ page }) => {
+test('activity code is server-generated and disabled in add and edit Annual Audit forms', async ({ page }) => {
   await mockApis(page)
   await page.goto('/annual-audit')
   await expect(page.getByText('PKAT-2026-ASR-007', { exact: true })).toBeVisible()
 
   await page.getByRole('button', { name: /New Audit Plan|Rencana Audit Baru/ }).click()
-  const addCode = page.locator('input[placeholder="Terisi otomatis"]')
+  const addCode = page.locator('input[placeholder="Generated on save"]')
   await expect(addCode).toBeDisabled()
-  await expect(addCode).toHaveValue(/^PKAT-2026-ASR-\d{3}$/)
+  await expect(addCode).toHaveValue('')
 
   await page.reload()
   await expect(page.getByText('PKAT-2026-ASR-007', { exact: true })).toBeVisible()
   await page.locator('button[title="Edit"]').first().click()
-  const editCode = page.locator('input[placeholder="Terisi otomatis"]')
+  const editCode = page.locator('input[placeholder="Generated on save"]')
   await expect(editCode).toBeDisabled()
   await expect(editCode).toHaveValue('PKAT-2026-ASR-007')
 })

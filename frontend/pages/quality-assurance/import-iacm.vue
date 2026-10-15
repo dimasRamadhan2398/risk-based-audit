@@ -173,7 +173,7 @@
                   variant="ghost" 
                   size="md" 
                   :title="t('qualityAssurance.importIacm.actions.view')" 
-                  @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                  @click="store.viewDocument(row.original.id, row.original.attachment ? row.original.attachment.name : (row.original.fileName || 'IACM_Document.pdf'))" 
                 />
                 </UTooltip>
                 <UTooltip :text="t('qualityAssurance.importIacm.actions.download')">
@@ -288,7 +288,7 @@ const handleUpload = async () => {
     await store.importQARReport({
       assessmentTitle: form.value.title,
       type: QAType.IACM,
-      periodYear: '2026',
+      periodYear: new Date().getFullYear().toString(),
       result: 'Level 4 (Managed)',
       status: QAStatus.COMPLETED,
       conductedBy: form.value.description || 'BPKP / Kementerian BUMN',
@@ -309,7 +309,7 @@ const handleUpload = async () => {
 }
 
 const handleDelete = async (report: QAReport) => {
-  if (await useGlobalModalStore().confirmDelete({ description: t('qualityAssurance.importIacm.deleteConfirm') })) {
+  if (await useGlobalModalStore().confirmDelete({ description: t('qualityAssurance.importIacm.deleteConfirm'), body: [t('globalConfirmation.delete.note')] })) {
     store.selectedReport = report
     await store.deleteReport()
   }

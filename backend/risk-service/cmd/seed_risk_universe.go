@@ -65,6 +65,8 @@ func seedRiskFactorsAndUniverse(db *gorm.DB) error {
 		}
 	}
 
+	// The legacy dummy-node cleanup used to run here on every boot. It is now an
+	// explicit operator command (cleanup-dummy-universe); see cleanup_dummy_universe.go.
 	return nil
 }
 
@@ -539,54 +541,6 @@ func seedStandardAuditUniverse(db *gorm.DB) error {
 		return err
 	}
 
-	// PT A has children
-	ptaID := uuid.New()
-	pta := models.StandardAuditUniverse{
-		ID:        ptaID,
-		Name:      "PT A",
-		ParentID:  &subID,
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
-	if err := db.Create(&pta).Error; err != nil {
-		return err
-	}
-	ptaChildren := []string{"Finance", "Operations", "Procurement", "HR", "IT", "Sales & Marketing"}
-	for _, childName := range ptaChildren {
-		c := models.StandardAuditUniverse{
-			ID:        uuid.New(),
-			Name:      childName,
-			ParentID:  &ptaID,
-			CreatedAt: now,
-			UpdatedAt: now,
-		}
-		if err := db.Create(&c).Error; err != nil {
-			return err
-		}
-	}
-
-	// PT B, PT C
-	ptb := models.StandardAuditUniverse{
-		ID:        uuid.New(),
-		Name:      "PT B",
-		ParentID:  &subID,
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
-	if err := db.Create(&ptb).Error; err != nil {
-		return err
-	}
-	ptc := models.StandardAuditUniverse{
-		ID:        uuid.New(),
-		Name:      "PT C",
-		ParentID:  &subID,
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
-	if err := db.Create(&ptc).Error; err != nil {
-		return err
-	}
-
 	// 4. Branches/Regional Offices
 	brID := uuid.New()
 	branchesCat := models.StandardAuditUniverse{
@@ -597,19 +551,6 @@ func seedStandardAuditUniverse(db *gorm.DB) error {
 	}
 	if err := db.Create(&branchesCat).Error; err != nil {
 		return err
-	}
-	branches := []string{"Jakarta", "Bandung", "Surabaya", "Medan", "Makassar"}
-	for _, br := range branches {
-		c := models.StandardAuditUniverse{
-			ID:        uuid.New(),
-			Name:      br,
-			ParentID:  &brID,
-			CreatedAt: now,
-			UpdatedAt: now,
-		}
-		if err := db.Create(&c).Error; err != nil {
-			return err
-		}
 	}
 
 	// 5. Products/Services
@@ -622,19 +563,6 @@ func seedStandardAuditUniverse(db *gorm.DB) error {
 	}
 	if err := db.Create(&prodsCat).Error; err != nil {
 		return err
-	}
-	prods := []string{"Product/Service A", "Product/Service B", "Product/Service C"}
-	for _, p := range prods {
-		c := models.StandardAuditUniverse{
-			ID:        uuid.New(),
-			Name:      p,
-			ParentID:  &prodID,
-			CreatedAt: now,
-			UpdatedAt: now,
-		}
-		if err := db.Create(&c).Error; err != nil {
-			return err
-		}
 	}
 
 	// 6. Major Business Process
@@ -764,42 +692,7 @@ func seedCorporateAuditUniverseAndScores(db *gorm.DB) error {
 		}
 	}
 
-	// Hand-craft a couple of specific ones (e.g. Branches/Regional Offices: Jakarta, Subsidiaries: PT A etc.)
-	// PT A Subsidiary under Subsidiaries/Business Unit
-	var subParent models.CorporateAuditUniverse
-	if err := db.Where("name = ? AND parent_id IS NULL", "Subsidiaries/Business Unit").First(&subParent).Error; err == nil {
-		pta := models.CorporateAuditUniverse{
-			ID:        uuid.New(),
-			Name:      "PT A",
-			ParentID:  &subParent.ID,
-			CreatedAt: now,
-			UpdatedAt: now,
-		}
-		db.Create(&pta)
-		// PT A child Finance
-		ptaFinance := models.CorporateAuditUniverse{
-			ID:        uuid.New(),
-			Name:      "Finance",
-			ParentID:  &pta.ID,
-			CreatedAt: now,
-			UpdatedAt: now,
-		}
-		db.Create(&ptaFinance)
-	}
 
-	// Jakarta branch under Branches/Regional Offices
-	var brParent models.CorporateAuditUniverse
-	if err := db.Where("name = ? AND parent_id IS NULL", "Branches/Regional Offices").First(&brParent).Error; err == nil {
-		jkt := models.CorporateAuditUniverse{
-			ID:        uuid.New(),
-			Name:      "Jakarta",
-			ParentID:  &brParent.ID,
-			CreatedAt: now,
-			UpdatedAt: now,
-		}
-		db.Create(&jkt)
-		corporateMap["Branches/Regional Offices: Jakarta"] = jkt.ID
-	}
 
 	// Fetch all corporate risk factors to perform scoring
 	var corporateRiskFactors []models.CorporateRiskFactor
@@ -964,3 +857,4 @@ func seedCorporateAuditUniverseAndScores(db *gorm.DB) error {
 
 	return nil
 }
+

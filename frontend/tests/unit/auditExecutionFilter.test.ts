@@ -102,31 +102,31 @@ describe('Audit Execution 6-Stage Filter Logic', () => {
   it('filters 1. Planning correctly', () => {
     const res = items.filter(i => isStatusMatch(i.status, 'planning', i.progress))
     expect(res.length).toBe(1)
-    expect(res[0].id).toBe('1')
+    expect(res[0]!.id).toBe('1')
   })
 
   it('filters 2. Entry Meeting correctly', () => {
     const res = items.filter(i => isStatusMatch(i.status, 'entry meeting', i.progress))
     expect(res.length).toBe(1)
-    expect(res[0].id).toBe('2')
+    expect(res[0]!.id).toBe('2')
   })
 
   it('filters 3. Fieldwork correctly', () => {
     const res = items.filter(i => isStatusMatch(i.status, 'fieldwork', i.progress))
     expect(res.length).toBe(1)
-    expect(res[0].id).toBe('3')
+    expect(res[0]!.id).toBe('3')
   })
 
   it('filters 4. Draft Findings correctly', () => {
     const res = items.filter(i => isStatusMatch(i.status, 'draft findings', i.progress))
     expect(res.length).toBe(1)
-    expect(res[0].id).toBe('4')
+    expect(res[0]!.id).toBe('4')
   })
 
   it('filters 5. Reporting correctly', () => {
     const res = items.filter(i => isStatusMatch(i.status, 'reporting', i.progress))
     expect(res.length).toBe(1)
-    expect(res[0].id).toBe('5')
+    expect(res[0]!.id).toBe('5')
   })
 
   it('filters 6. Completed correctly', () => {

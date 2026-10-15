@@ -10,7 +10,8 @@
 <script setup lang="ts">
 
 const toaster = {
-  max: 1
+  max: 1,
+  position: 'bottom-right' as const
 }
 // Auth is initialized via plugins and middleware
 // No need for manual initialization here

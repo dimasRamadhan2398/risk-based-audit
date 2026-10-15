@@ -42,27 +42,19 @@
 
         <template #riskLevel-cell="{ row }">
           <div class="flex flex-col gap-1 items-start">
-            <UBadge 
-              v-for="(act, idx) in ((row.original || row)?.activities || [])" 
+            <span
+              v-for="(act, idx) in ((row.original || row)?.activities || [])"
               :key="idx"
-              :color="store.getRiskLevelColor ? store.getRiskLevelColor(act.riskLevel) : 'neutral'"
-              variant="soft"
-              size="md"
+              class="inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold"
+              :class="getRiskLevelColorClass(act.riskLevel)"
             >
               {{ act.riskLevel || '-' }}
-            </UBadge>
+            </span>
           </div>
         </template>
 
-        <template #progress-cell="{ row }">
-          <UProgress v-model="store.progressAudit" color="secondary" status :ui="{ status: 'text-black dark:text-white font-medium' }" />
-        </template>
-
         <template #status-cell="{ row }">
-          <span 
-            class="w-2.5 h-2.5 rounded-full inline-block"
-            :class="store.getStatusColor((row.original || row)?.status)"
-          ></span>
+          <span class="whitespace-nowrap">{{ store.getStatusLabel((row.original || row)?.status) }}</span>
         </template>
 
         <template #actions-cell="{ row }">
@@ -107,6 +99,7 @@
 
 <script setup lang="ts">
 import { useAnnualPlanStore } from '~/stores/annual-audit'
+import { getRiskLevelColorClass } from '~/utils/riskLevelBadge'
 
 // Cukup inisialisasi store. Komponen akan otomatis membaca status showModal, data form, dan fungsi dari sini.
 const store = useAnnualPlanStore()
@@ -118,15 +111,8 @@ const getRowDepartments = (plan: any): string[] => {
   
   if (Array.isArray(plan.activities)) {
     plan.activities.forEach((act: any) => {
+      // Department name snapshot from the server; a row has one department now.
       if (act.department) depts.add(typeof act.department === 'string' ? act.department : act.department.name)
-      const inv = act.involvedDepartments || act.involved_departments
-      if (Array.isArray(inv)) {
-        inv.forEach((d: any) => {
-          if (typeof d === 'string') depts.add(d)
-          else if (d?.name) depts.add(d.name)
-          else if (d?.code) depts.add(d.code)
-        })
-      }
     })
   }
   return Array.from(depts).filter(Boolean)

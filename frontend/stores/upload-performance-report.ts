@@ -3,6 +3,8 @@ import { ref } from 'vue';
 import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
 import { extractErrorMessage } from '~/utils/error';
+import { useI18n } from '~/composables/useI18n';
+import { viewDocumentInNewTab } from '~/utils/documentViewer';
 
 export interface UploadedPerformanceReport {
   id: string;
@@ -23,6 +25,7 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
   const loading = ref(false);
   const errorMsg = ref('');
   const toast = useToastNotification();
+  const { t } = useI18n();
 
   const fetchUploadedReports = async (period?: string, year?: number) => {
     loading.value = true;
@@ -51,7 +54,7 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
       }
     } catch (error: any) {
       console.error('Failed to fetch uploaded performance reports:', error);
-      errorMsg.value = extractErrorMessage(error, 'Failed to load uploaded performance report documents.');
+      errorMsg.value = extractErrorMessage(error, t('kpiPerformance.store.loadReportsFailed'));
     } finally {
       loading.value = false;
     }
@@ -81,14 +84,14 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
         method: 'POST',
         body: formData
       });
-      toast.showSuccess('Performance report document uploaded successfully');
+      toast.showSuccess(t('kpiPerformance.store.uploadedDocument'));
       await fetchUploadedReports(payload.period, payload.year);
-      toast.showSuccess('Performance report uploaded successfully.');
+      toast.showSuccess(t('kpiPerformance.store.uploadedReport'));
     } catch (error: any) {
       console.error('Failed to upload performance report:', error);
-      const detail = extractErrorMessage(error, 'Failed to upload performance report document.');
+      const detail = extractErrorMessage(error, t('kpiPerformance.store.uploadFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to upload performance report document.', detail);
+      toast.showError(t('kpiPerformance.store.uploadFailed'), detail);
       throw error;
     } finally {
       loading.value = false;
@@ -103,14 +106,14 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
       await $fetch(`${baseUrl}/uploaded-performance-reports/${id}`, {
         method: 'DELETE'
       });
-      toast.showSuccess('Performance report document deleted successfully');
+      toast.showSuccess(t('kpiPerformance.store.deletedDocument'));
       await fetchUploadedReports(currentPeriod, currentYear);
-      toast.showSuccess('Performance report deleted successfully.');
+      toast.showSuccess(t('kpiPerformance.store.deletedReport'));
     } catch (error: any) {
       console.error('Failed to delete performance report document:', error);
-      const detail = extractErrorMessage(error, 'Failed to delete performance report document.');
+      const detail = extractErrorMessage(error, t('kpiPerformance.store.deleteFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to delete performance report document.', detail);
+      toast.showError(t('kpiPerformance.store.deleteFailed'), detail);
       throw error;
     } finally {
       loading.value = false;
@@ -135,35 +138,39 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
       console.error('Failed to download performance report document:', error);
-      const detail = extractErrorMessage(error, 'Failed to download document.');
+      const detail = extractErrorMessage(error, t('kpiPerformance.store.downloadFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to download document.', detail);
+      toast.showError(t('kpiPerformance.store.downloadFailed'), detail);
     }
   };
 
-  const viewDocument = async (id: string, fileName: string) => {
+  const viewDocument = async (id: string, fileName?: string, title?: string) => {
+    const report = uploadedReports.value.find(r => r.id === id);
+    const resolvedName = fileName || report?.fileName || 'Document.pdf';
+    const resolvedFileName = fileName || report?.fileName || 'Document.pdf';
+
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      const response: any = await $fetch(`${baseUrl}/uploaded-performance-reports/${id}/download`, {
-        responseType: 'blob'
-      });
-      let mimeType = 'application/pdf';
-      if (fileName) {
-        const lowerName = fileName.toLowerCase();
-        if (lowerName.endsWith('.png')) mimeType = 'image/png';
-        else if (lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg')) mimeType = 'image/jpeg';
-        else if (lowerName.endsWith('.txt')) mimeType = 'text/plain';
-      }
-
-      const blob = new Blob([response], { type: mimeType });
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, '_blank');
-      setTimeout(() => window.URL.revokeObjectURL(url), 10000);
+      await viewDocumentInNewTab(
+        async () => {
+          try {
+            return await $fetch(`${baseUrl}/uploaded-performance-reports/${id}/view`, {
+              responseType: 'blob'
+            });
+          } catch (_viewErr) {
+            return await $fetch(`${baseUrl}/uploaded-performance-reports/${id}/download`, {
+              responseType: 'blob'
+            });
+          }
+        },
+        resolvedName,
+        resolvedFileName
+      );
     } catch (error: any) {
       console.error('Failed to view performance report document:', error);
-      const detail = extractErrorMessage(error, 'Failed to view document.');
+      const detail = extractErrorMessage(error, t('kpiPerformance.store.viewFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to view document.', detail);
+      toast.showError(t('kpiPerformance.store.viewFailed'), detail);
     }
   };
 

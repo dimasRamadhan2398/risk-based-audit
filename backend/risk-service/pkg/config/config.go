@@ -2,13 +2,80 @@ package config
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	Database DatabaseConfig `mapstructure:"database"`
+	Database      DatabaseConfig      `mapstructure:"database"`
+	MasterService MasterServiceConfig `mapstructure:"master_service"`
+	JWT           JWTConfig           `mapstructure:"jwt"`
+	Kafka         KafkaConfig         `mapstructure:"kafka"`
+}
+
+// KafkaConfig controls the Audit Universe event producer. Publishing is
+// best-effort: when the broker is unreachable at start-up the service keeps
+// running without emitting events (see cmd/serve.go).
+//
+// Env overrides (via the "." -> "_" replacer): KAFKA_ENABLED, KAFKA_BROKERS
+// (comma separated), KAFKA_SERVICE_NAME.
+type KafkaConfig struct {
+	Enabled     bool     `mapstructure:"enabled"`
+	Brokers     []string `mapstructure:"brokers"`
+	ServiceName string   `mapstructure:"service_name"`
+}
+
+// JWTConfig carries the secret auth-service signs tokens with. Every service in
+// a stack must share it, and each tenant must have its own — see
+// scripts/templates/docker-compose.tenant.yml.tpl, which requires
+// TENANT_JWT_SECRET so a token minted for one tenant cannot be replayed at
+// another.
+//
+// Env override (via the "." -> "_" replacer): JWT_SECRET.
+type JWTConfig struct {
+	Secret string `mapstructure:"secret"`
+}
+
+// MasterServiceConfig points risk-service at the master-service that owns this
+// stack's Location master data.
+//
+// Env overrides (via the "." -> "_" replacer): MASTER_SERVICE_URL,
+// MASTER_SERVICE_TIMEOUT_SECONDS, MASTER_SERVICE_CACHE_TTL_SECONDS.
+type MasterServiceConfig struct {
+	URL             string `mapstructure:"url"`
+	TimeoutSeconds  int    `mapstructure:"timeout_seconds"`
+	CacheTTLSeconds int    `mapstructure:"cache_ttl_seconds"`
+}
+
+// defaultMasterServicePort is the port every master-service container listens
+// on inside the docker network (shared and tenant stacks alike).
+const defaultMasterServicePort = "8002"
+
+// BaseURL returns the master-service base URL for this stack.
+//
+// An explicit url (MASTER_SERVICE_URL) always wins. Without one, the URL is
+// derived per stack, never hard-wired to the shared service: tenant stacks
+// share the rb_audit_network bridge with the control plane, so the bare alias
+// "master-service" resolves to the *shared* master-service from inside a tenant
+// container and would report another tenant's locations. Tenant services are
+// named "<service>-<slug>" (see scripts/templates/docker-compose.tenant.yml.tpl)
+// and set KAFKA_SERVICE_NAME to that name, so the tenant's own master-service is
+// "master-service-<slug>".
+func (c MasterServiceConfig) BaseURL() string {
+	if u := strings.TrimSpace(c.URL); u != "" {
+		return strings.TrimRight(u, "/")
+	}
+	return derivedMasterServiceURL(os.Getenv("KAFKA_SERVICE_NAME"))
+}
+
+func derivedMasterServiceURL(serviceName string) string {
+	const prefix = "risk-service-"
+	if slug := strings.TrimPrefix(strings.TrimSpace(serviceName), prefix); slug != serviceName && slug != "" {
+		return "http://master-service-" + slug + ":" + defaultMasterServicePort
+	}
+	return "http://master-service:" + defaultMasterServicePort
 }
 
 type DatabaseConfig struct {
@@ -24,6 +91,20 @@ func setDefaults() {
 	viper.SetDefault("database.host", "localhost")
 	viper.SetDefault("database.port", 5432)
 	viper.SetDefault("database.sslmode", "disable")
+	// Registered as defaults so AutomaticEnv binds MASTER_SERVICE_* even though
+	// config.yaml leaves them out. An empty url means "derive per stack".
+	viper.SetDefault("master_service.url", "")
+	viper.SetDefault("master_service.timeout_seconds", 2)
+	viper.SetDefault("master_service.cache_ttl_seconds", 60)
+	// Registered so AutomaticEnv binds JWT_SECRET even when config.yaml omits
+	// the key. Left empty on purpose: serve refuses to start without it rather
+	// than coming up with authentication that accepts anything.
+	viper.SetDefault("jwt.secret", "")
+	// Kafka is opt-in in code. config.yaml enables it for local runs; the broker
+	// address is only reachable on the internal PLAIN listener (kafka:29092).
+	viper.SetDefault("kafka.enabled", false)
+	viper.SetDefault("kafka.brokers", []string{"kafka:29092"})
+	viper.SetDefault("kafka.service_name", "risk-service")
 }
 
 func Load(configPath string) (*Config, error) {

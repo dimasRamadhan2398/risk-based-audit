@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, reactive, computed } from 'vue'
 import { extractErrorMessage } from '~/utils/error'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
-import { useI18n } from '~/composables/useI18n'
+import { getFiscalYearStrings } from '~/composables/useFiscalYear'
 
 export interface ConsultingAttachment {
   name: string
@@ -29,7 +29,6 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
   const loading = ref(false)
   const errorMsg = ref('')
   const toast = useToastNotification()
-  const { t } = useI18n()
 
   const isFormOpen = ref(false)
   const isDetailOpen = ref(false)
@@ -41,14 +40,14 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
   const statuses = ['Planned', 'In Progress', 'Completed', 'Cancelled']
   const departments = ['IT', 'Finance', 'HR', 'Ops', 'Procurement', 'Legal', 'Sales']
   const quarters = ['Q1', 'Q2', 'Q3', 'Q4']
-  const years = ['2024', '2025', '2026', '2027']
+  const years = getFiscalYearStrings()
 
   const newService = reactive({
     title: '',
     category: 'Operational Advisory',
     requestorDept: 'IT',
     periodQuarter: 'Q1',
-    periodYear: '2026',
+    periodYear: new Date().getFullYear().toString(),
     consultantName: '',
     status: 'Planned',
     notes: '',
@@ -61,7 +60,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
       category: 'Operational Advisory',
       requestorDept: 'IT',
       periodQuarter: 'Q1',
-      periodYear: '2026',
+      periodYear: new Date().getFullYear().toString(),
       consultantName: '',
       status: 'Planned',
       notes: '',
@@ -73,64 +72,21 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
     return getAuditServiceBaseUrl()
   }
 
-  const mockServices: ConsultingService[] = [
-    {
-      id: 'CS-001',
-      title: 'Review & Assessment SOP Procurement & Purchasing',
-      category: 'Policy & SOP Review',
-      requestorDept: 'Procurement',
-      period: 'Q1 2026',
-      consultantName: 'Budi Hartanto',
-      status: 'Completed',
-      notes: 'Rekomendasi perbaikan kontrol persetujuan pembelian di atas Rp 100jt telah disetujui.',
-      attachment: {
-        name: 'SOP_Procurement_Review_Report.pdf',
-        size: '1.2 MB',
-        uploadedAt: '2026-03-10'
-      }
-    },
-    {
-      id: 'CS-002',
-      title: 'IT Security Governance Assessment & Training',
-      category: 'IT Advisory',
-      requestorDept: 'IT',
-      period: 'Q2 2026',
-      consultantName: 'Wahyu Hidayat',
-      status: 'In Progress',
-      notes: 'Melakukan review celah keamanan dan melatih staf IT tentang standar ISO 27001.',
-      attachment: {
-        name: 'IT_Security_Audit_Scope.pdf',
-        size: '850 KB',
-        uploadedAt: '2026-05-18'
-      }
-    },
-    {
-      id: 'CS-003',
-      title: 'Corporate Governance & Compliance Assessment',
-      category: 'Governance Assessment',
-      requestorDept: 'Legal',
-      period: 'Q3 2026',
-      consultantName: 'Carolina Wijaya',
-      status: 'Planned',
-      notes: 'Asesmen keselarasan kebijakan internal perusahaan terhadap regulasi POJK terbaru.'
-    }
-  ]
-
   const fetchServices = async () => {
     loading.value = true
     errorMsg.value = ''
     try {
       const baseUrl = getMasterServiceBaseUrl()
       const data: any = await $fetch(`${baseUrl}/consulting-services`)
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         services.value = data
       } else {
-        services.value = [...mockServices]
+        services.value = []
       }
     } catch (error) {
-      console.error('Failed to fetch consulting services, falling back to mock:', error)
-      errorMsg.value = extractErrorMessage(error, t('consultingService.dashboard.messages.fetchFailed'))
-      services.value = [...mockServices]
+      console.error('Failed to fetch consulting services:', error)
+      errorMsg.value = extractErrorMessage(error, 'Failed to load consulting services.')
+      services.value = []
     } finally {
       loading.value = false
     }
@@ -145,7 +101,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
 
   const saveService = async () => {
     if (!newService.title || !newService.consultantName) {
-      errorMsg.value = t('consultingService.dashboard.messages.required')
+      errorMsg.value = 'Title and Consultant Name are required.'
       return
     }
     loading.value = true
@@ -171,7 +127,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
           body: payload
         })
         if (newService.attachment instanceof File) {
-          toast.showError(t('consultingService.dashboard.messages.updateFileUnsupported'))
+          toast.showError('Warning: Update file pada edit belum didukung oleh server backend.')
         }
       } else {
         if (newService.attachment && newService.attachment instanceof File) {
@@ -211,11 +167,11 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
       resetForm()
       isEditing.value = false
       isFormOpen.value = false
-      toast.showSuccess(t('consultingService.dashboard.messages.saveSuccess'))
+      toast.showSuccess('Consulting service berhasil disimpan')
       await fetchServices()
     } catch (error: any) {
       console.error('Failed to save consulting service:', error)
-      toast.showError(error.data?.message || t('consultingService.dashboard.messages.saveFailed'))
+      toast.showError(error.data?.message || 'Gagal menyimpan consulting service')
     } finally {
       loading.value = false
     }
@@ -240,11 +196,11 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
         isDetailOpen.value = false
         selectedService.value = null
       }
-      toast.showSuccess(t('consultingService.dashboard.messages.deleteSuccess'))
+      toast.showSuccess('Consulting service berhasil dihapus')
       await fetchServices()
     } catch (error: any) {
       console.error('Failed to delete consulting service:', error)
-      toast.showError(error.data?.message || t('consultingService.dashboard.messages.deleteFailed'))
+      toast.showError(error.data?.message || 'Gagal menghapus consulting service')
     } finally {
       loading.value = false
     }
@@ -256,7 +212,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
       if (!file) return
 
       if (file.size > 10 * 1024 * 1024) {
-        errorMsg.value = t('consultingService.dashboard.messages.fileTooLarge')
+        errorMsg.value = 'File is too large (max 10MB)'
         return
       }
       newService.attachment = markRaw(file) as any
@@ -278,7 +234,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
       window.URL.revokeObjectURL(link.href)
     } catch (error) {
       console.error('Failed to download consulting attachment:', error)
-      errorMsg.value = extractErrorMessage(error, t('consultingService.dashboard.messages.downloadFailed'))
+      errorMsg.value = extractErrorMessage(error, 'Failed to download consulting attachment.')
     }
   }
 
@@ -294,7 +250,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
       setTimeout(() => window.URL.revokeObjectURL(url), 10000)
     } catch (error) {
       console.error('Failed to view consulting attachment:', error)
-      toast.showError(t('consultingService.dashboard.messages.viewFailed'))
+      toast.showError('Failed to view document.')
     }
   }
 

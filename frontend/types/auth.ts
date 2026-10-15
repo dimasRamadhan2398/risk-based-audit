@@ -7,6 +7,8 @@ export interface User {
   phone?: string
   department?: string
   position?: string
+  /** Profile picture as a data URL. Held in memory only, never written to the auth-user cookie. */
+  avatarUrl?: string
   roles: string[]
   mustChangePassword?: boolean
   createdAt?: string

@@ -1,6 +1,9 @@
 package models
 
 import (
+	"encoding/json"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -36,6 +39,49 @@ func (WorkingPaperHeader) TableName() string {
 	return "working_paper_headers"
 }
 
+// BeforeCreate fills an empty audit purpose and team from the linked
+// Assignment Letter. Updates go through the generic crud handler, which
+// writes a column map; a BeforeUpdate hook only sees the stored record there
+// and cannot change what is written, so the update-time sync lives in
+// controllers/working_paper (SyncHeaderOnUpdate).
+func (w *WorkingPaperHeader) BeforeCreate(tx *gorm.DB) error {
+	w.syncFromAssignmentLetter(tx)
+	return nil
+}
+
+// AfterFind shows the linked letter's audit purpose for headers stored
+// without one (older records, or saved before the letter had a purpose).
+// Nothing is written back.
+func (w *WorkingPaperHeader) AfterFind(tx *gorm.DB) error {
+	if strings.TrimSpace(w.AuditPurpose) != "" || strings.TrimSpace(w.AssignmentLetterID) == "" {
+		return nil
+	}
+	if st, ok := FindAssignmentLetter(tx, w.AssignmentLetterID); ok {
+		w.AuditPurpose = st.EffectiveAuditPurpose()
+	}
+	return nil
+}
+
+func (w *WorkingPaperHeader) syncFromAssignmentLetter(tx *gorm.DB) {
+	st, ok := FindAssignmentLetter(tx, w.AssignmentLetterID)
+	if ok {
+		if strings.TrimSpace(w.AuditPurpose) == "" {
+			w.AuditPurpose = st.EffectiveAuditPurpose()
+		}
+		if len(w.TeamMembers) == 0 && len(st.MembersList) > 0 {
+			members := make([]TeamMember, 0, len(st.MembersList))
+			for idx, m := range st.MembersList {
+				members = append(members, TeamMember{
+					ID:   time.Now().UnixMilli() + int64(idx),
+					Name: m.Name,
+					Role: m.Role,
+				})
+			}
+			w.TeamMembers = members
+		}
+	}
+}
+
 type WorkingPaperRisk struct {
 	ID                 uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
 	WorkingPaperID     string         `gorm:"type:varchar(100);index" json:"workingPaperId"` // Link back if needed, or assignment letter ID
@@ -53,23 +99,101 @@ func (WorkingPaperRisk) TableName() string {
 }
 
 type SampleDoc struct {
-	ID       int64  `json:"id"`
-	Document string `json:"document"`
-	L1       *bool  `json:"l1"`
-	L2       *bool  `json:"l2"`
-	L3       *bool  `json:"l3"`
+	ID                int64  `json:"id"`
+	FieldworkDocument string `json:"fieldworkDocument,omitempty"`
+	Document          string `json:"document"`
+	Step1             string `json:"step1,omitempty"`
+	Step2             string `json:"step2,omitempty"`
+	Step3             string `json:"step3,omitempty"`
+	L1                any    `json:"l1"`
+	L2                any    `json:"l2"`
+	L3                any    `json:"l3"`
+}
+
+// UnmarshalJSON handles flexible parsing of L1, L2, L3 which can be boolean, string ("Pass"/"Fail"), or nil
+func (s *SampleDoc) UnmarshalJSON(data []byte) error {
+	type Alias SampleDoc
+	aux := &struct {
+		L1 any `json:"l1"`
+		L2 any `json:"l2"`
+		L3 any `json:"l3"`
+		*Alias
+	}{
+		Alias: (*Alias)(s),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	parseResult := func(val any) any {
+		if val == nil {
+			return nil
+		}
+		switch v := val.(type) {
+		case bool:
+			return v
+		case string:
+			lower := strings.ToLower(strings.TrimSpace(v))
+			if lower == "pass" || lower == "true" {
+				return true
+			}
+			if lower == "fail" || lower == "false" {
+				return false
+			}
+			return v
+		default:
+			return v
+		}
+	}
+
+	s.L1 = parseResult(aux.L1)
+	s.L2 = parseResult(aux.L2)
+	s.L3 = parseResult(aux.L3)
+	return nil
 }
 
 type WorkingPaperSample struct {
 	ID             uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
 	WorkingPaperID string         `gorm:"type:varchar(100);index" json:"workingPaperId"`
-	Population     *int           `gorm:"type:int" json:"population"`
+	Population     *string        `gorm:"type:varchar(255)" json:"population"`
 	SampleSize     *int           `gorm:"type:int" json:"sampleSize"`
 	Samples        []SampleDoc    `gorm:"serializer:json" json:"samples"`
 	Conclusion     string         `gorm:"type:text" json:"conclusion"`
 	CreatedAt      time.Time      `json:"created_at"`
 	UpdatedAt      time.Time      `json:"updated_at"`
 	DeletedAt      gorm.DeletedAt `gorm:"index" json:"-"`
+}
+
+func (w *WorkingPaperSample) UnmarshalJSON(data []byte) error {
+	type Alias WorkingPaperSample
+	aux := &struct {
+		Population interface{} `json:"population"`
+		*Alias
+	}{
+		Alias: (*Alias)(w),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	if aux.Population != nil {
+		switch v := aux.Population.(type) {
+		case string:
+			w.Population = &v
+		case float64:
+			str := fmt.Sprintf("%.0f", v)
+			w.Population = &str
+		case int:
+			str := fmt.Sprintf("%d", v)
+			w.Population = &str
+		default:
+			str := fmt.Sprintf("%v", v)
+			w.Population = &str
+		}
+	} else {
+		w.Population = nil
+	}
+	return nil
 }
 
 func (WorkingPaperSample) TableName() string {

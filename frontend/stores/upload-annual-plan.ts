@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
 import { extractErrorMessage } from '~/utils/error';
+import { viewDocumentInNewTab } from '~/utils/documentViewer';
 
 export interface UploadedAnnualPlan {
   id: string;
@@ -97,17 +98,28 @@ export const useUploadAnnualPlanStore = defineStore('upload-annual-plan', () => 
     }
   };
 
-  const viewDocument = async (id: string, fileName: string) => {
+  const viewDocument = async (id: string, fileName?: string, title?: string) => {
+    const doc = uploadedDocuments.value.find(d => d.id === id);
+    const resolvedName = fileName || doc?.fileName || 'document.pdf';
+    const resolvedFileName = fileName || doc?.fileName || 'document.pdf';
+
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      const response: any = await $fetch(`${baseUrl}/uploaded-annual-plans/${id}/download`, {
-        responseType: 'blob'
-      });
-
-      const blob = new Blob([response], { type: response.type || 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, '_blank');
-      setTimeout(() => window.URL.revokeObjectURL(url), 10000);
+      await viewDocumentInNewTab(
+        async () => {
+          try {
+            return await $fetch(`${baseUrl}/uploaded-annual-plans/${id}/view`, {
+              responseType: 'blob'
+            });
+          } catch (_err) {
+            return await $fetch(`${baseUrl}/uploaded-annual-plans/${id}/download`, {
+              responseType: 'blob'
+            });
+          }
+        },
+        resolvedName,
+        resolvedFileName
+      );
     } catch (error: any) {
       console.error('Failed to view document:', error);
       const detail = extractErrorMessage(error, 'Failed to view document.');

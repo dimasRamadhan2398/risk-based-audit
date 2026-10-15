@@ -3,29 +3,29 @@ import { ref, computed, reactive } from 'vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { QAStatus, QAType, type QAReport } from '~/types/quality-assurance'
 import { extractErrorMessage } from '~/utils/error'
-import { useI18n } from '~/composables/useI18n'
+import { getFiscalYearStrings } from '~/composables/useFiscalYear'
+import { viewDocumentInNewTab, openDocumentTab, renderDocumentInTab } from '~/utils/documentViewer'
 
 export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const loading = ref(false)
   const errorMsg = ref('')
   const toast = useToastNotification()
-  const { t } = useI18n()
 
   const getMasterServiceBaseUrl = () => {
     const config = useRuntimeConfig()
     return config.public.masterServiceBaseUrl || config.public.apiBase || '/api/v1'
   }
 
-  const columns = computed(() => [
-    { accessorKey: 'type', header: t('qualityAssurance.dashboard.table.columns.type'), sortable: true },
-    { accessorKey: 'period', header: t('qualityAssurance.dashboard.table.columns.period'), sortable: true },
-    { accessorKey: 'reportName', header: t('qualityAssurance.dashboard.table.columns.reportName'), sortable: true },
-    { accessorKey: 'result', header: t('qualityAssurance.dashboard.table.columns.result'), sortable: true },
-    { accessorKey: 'status', header: t('qualityAssurance.dashboard.table.columns.status'), sortable: true },
-    { accessorKey: 'conductedBy', header: t('qualityAssurance.dashboard.table.columns.conductedBy'), sortable: true },
-    { accessorKey: 'viewReport', header: t('qualityAssurance.dashboard.table.columns.viewReport') },
-    { accessorKey: 'actions', header: t('qualityAssurance.dashboard.table.columns.actions') }
-  ])
+  const columns = [
+    { accessorKey: 'type', header: 'QA Type', sortable: true },
+    { accessorKey: 'period', header: 'Period', sortable: true },
+    { accessorKey: 'reportName', header: 'Report Name', sortable: true },
+    { accessorKey: 'result', header: 'Result/Score', sortable: true },
+    { accessorKey: 'status', header: 'Status', sortable: true },
+    { accessorKey: 'conductedBy', header: 'Conducted By', sortable: true },
+    { accessorKey: 'viewReport', header: 'View Report' },
+    { accessorKey: 'actions', header: 'Action' }
+  ]
 
   const getStatusColor = (status: QAStatus) => {
     switch (status) {
@@ -76,7 +76,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
 
   const qaTypes = Object.values(QAType)
   const qaStatuses = Object.values(QAStatus)
-  const periods = ['2026', '2025', '2024', '2023']
+  const periods = getFiscalYearStrings()
 
   const parsePeriodWeight = (period?: string, createdAt?: string): number => {
     let year = 0
@@ -154,84 +154,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     })
   }
 
-  const mockReports: QAReport[] = [
-    {
-      id: '4f8037e3-5eca-423a-b99c-015b8a835cc4',
-      type: QAType.REGULAR,
-      period: 'Q3 2025',
-      reportName: 'Operational Efficiency Q3',
-      result: '8.7/10',
-      status: QAStatus.COMPLETED,
-      conductedBy: 'Internal Audit Team A',
-      assessmentTitle: 'RSA - Audit 2025 Q3',
-      internalEvaluator: 'Internal Audit Team A',
-      attachment: {
-        name: 'Report_RSA_Q3_2025.pdf',
-        size: '1.5 MB',
-        uploadedAt: '2025-10-01'
-      }
-    },
-    {
-      id: '8fdb7363-9092-4b7a-9c8b-2ef94f46a296',
-      type: QAType.SAIV,
-      period: 'Cycle 2025',
-      reportName: 'Self Assessment GIAS \'22-24',
-      result: 'Generally Conformed',
-      status: QAStatus.COMPLETED,
-      conductedBy: 'PT Independent Consultant X',
-      assessmentTitle: 'SAIV - Cycle 2025',
-      validator: 'PT Independent Consultant X',
-      attachment: {
-        name: 'Certificate_SAIV_2025.pdf',
-        size: '2.1 MB',
-        uploadedAt: '2025-11-15'
-      }
-    },
-    {
-      id: '4c22f5d1-4442-482e-9591-d4615eb18321',
-      type: QAType.QAR,
-      period: 'Year 2025',
-      reportName: 'External QAR (IPPF 2027)',
-      result: 'G/C*',
-      status: QAStatus.COMPLETED,
-      conductedBy: 'Deloitte Independent Consultant',
-      assessmentTitle: 'QAR - Year 2025',
-      validator: 'Deloitte Independent Consultant',
-      attachment: {
-        name: 'Report_External_QAR_2025.pdf',
-        size: '4.2 MB',
-        uploadedAt: '2025-12-20'
-      }
-    },
-    {
-      id: '605c2dbf-61a1-42db-9e46-3f8aeba62cc4',
-      type: QAType.REGULAR,
-      period: 'Q2 2025',
-      reportName: 'Operational Efficiency Q2',
-      result: '8.3/10',
-      status: QAStatus.COMPLETED,
-      assessmentTitle: 'RSA - Audit 2025 Q2'
-    },
-    {
-      id: '36fe54aa-df5a-4c3c-810f-74fdb98ca591',
-      type: QAType.REGULAR,
-      period: 'Q1 2025',
-      reportName: 'Operational Efficiency Q1',
-      result: '6.9/10',
-      status: QAStatus.COMPLETED,
-      assessmentTitle: 'RSA - Audit 2025 Q1'
-    },
-    {
-      id: 'e0c25c0b-5323-4987-99af-3e8e147a275e',
-      type: QAType.IACM,
-      period: 'Year 2025',
-      reportName: 'BUMN IACM Assessment 2025',
-      result: '4',
-      status: QAStatus.COMPLETED,
-      conductedBy: 'BPKP / Kementerian BUMN',
-      assessmentTitle: 'BUMN IACM Assessment 2025'
-    }
-  ]
+  const reports = ref<QAReport[]>([])
 
   const fetchReports = async () => {
     loading.value = true
@@ -241,15 +164,15 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       const response: any = await $fetch(`${baseUrl}/quality-assurance`, {
         method: 'GET'
       })
-      if (Array.isArray(response) && response.length > 0) {
+      if (Array.isArray(response)) {
         reports.value = response
       } else {
-        reports.value = mockReports
+        reports.value = []
       }
     } catch (error: any) {
       console.error('Failed to fetch QA reports:', error)
       errorMsg.value = extractErrorMessage(error, 'Failed to fetch quality assurance reports.')
-      reports.value = mockReports
+      reports.value = []
     } finally {
       loading.value = false
     }
@@ -266,7 +189,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
 
     const reportData = {
       type: newReport.type,
-      period: newReport.periodYear || '2025',
+      period: newReport.periodYear || new Date().getFullYear().toString(),
       reportName: newReport.assessmentTitle,
       result: newReport.result,
       status: newReport.status,
@@ -300,32 +223,13 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       closeForm()
       await fetchReports()
     } catch (error: any) {
-      console.error('Failed to save QA report (API failed, falling back to local):', error)
+      console.error('Failed to save QA report:', error)
       errorMsg.value = extractErrorMessage(error, 'Failed to save QA report.')
-      // Local fallback for frontend testing
-      if (isEditing.value && selectedReport.value) {
-        const index = mockReports.findIndex(r => r.id === selectedReport.value!.id)
-        if (index !== -1) {
-          mockReports[index] = { ...mockReports[index], ...reportData } as QAReport
-        }
-        toast.showSuccess('Berhasil mengubah data laporan QA')
-      } else {
-        mockReports.unshift({
-          id: Date.now().toString(),
-          ...reportData
-        } as QAReport)
-        toast.showSuccess('Berhasil menambahkan data laporan QA')
-      }
-      reports.value = [...mockReports]
-      resetForm()
-      isEditing.value = false
-      closeForm()
+      toast.showError('Gagal menyimpan data laporan QA')
     } finally {
       loading.value = false
     }
   }
-
-  const reports = ref<QAReport[]>([...mockReports])
 
   const searchQuery = ref('')
   const selectedType = ref('')
@@ -425,30 +329,41 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     }
   }
 
-  const viewDocument = async (id: string, fileName: string) => {
+  const viewDocument = async (id: string, fileName?: string, title?: string) => {
     const report = reports.value.find(r => r.id === id)
+    const resolvedName = fileName || report?.attachment?.name || 'document.pdf'
+    const resolvedFileName = fileName || report?.attachment?.name || 'document.pdf'
+
     if (report?.attachment?.filePath && report.attachment.filePath.startsWith('blob:')) {
-      window.open(report.attachment.filePath, '_blank')
+      const tab = openDocumentTab(resolvedName)
+      try {
+        const response = await fetch(report.attachment.filePath)
+        const blob = await response.blob()
+        renderDocumentInTab(tab, blob, resolvedName, resolvedFileName)
+      } catch (err) {
+        if (tab) tab.close()
+        console.error('Failed to view blob document:', err)
+      }
       return
     }
 
     try {
       const baseUrl = getMasterServiceBaseUrl()
-      const response: any = await $fetch(`${baseUrl}/quality-assurance/${id}/download`, {
-        responseType: 'blob'
-      })
-      let mimeType = 'application/pdf'
-      if (fileName) {
-        const lowerName = fileName.toLowerCase()
-        if (lowerName.endsWith('.png')) mimeType = 'image/png'
-        else if (lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg')) mimeType = 'image/jpeg'
-        else if (lowerName.endsWith('.txt')) mimeType = 'text/plain'
-      }
-
-      const blob = new Blob([response], { type: mimeType })
-      const url = window.URL.createObjectURL(blob)
-      window.open(url, '_blank')
-      setTimeout(() => window.URL.revokeObjectURL(url), 10000)
+      await viewDocumentInNewTab(
+        async () => {
+          try {
+            return await $fetch(`${baseUrl}/quality-assurance/${id}/view`, {
+              responseType: 'blob'
+            })
+          } catch (_err) {
+            return await $fetch(`${baseUrl}/quality-assurance/${id}/download`, {
+              responseType: 'blob'
+            })
+          }
+        },
+        resolvedName,
+        resolvedFileName
+      )
     } catch (error: any) {
       console.error('Failed to view QAR attachment:', error)
       errorMsg.value = extractErrorMessage(error, 'Failed to view QAR attachment.')
@@ -556,7 +471,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     Object.assign(newReport, {
       type: selectedReport.value.type,
       assessmentTitle: selectedReport.value.assessmentTitle,
-      periodYear: selectedReport.value.period || '2025',
+      periodYear: selectedReport.value.period || new Date().getFullYear().toString(),
       status: selectedReport.value.status,
       conductedBy: selectedReport.value.conductedBy || '',
       result: selectedReport.value.result,
@@ -587,10 +502,6 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
 
     if (!targetReport) return
 
-    if (!await useGlobalModalStore().confirmDelete({ description: t('qualityAssurance.dashboard.deleteConfirm') })) {
-      return
-    }
-
     loading.value = true
     errorMsg.value = ''
 
@@ -607,23 +518,11 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       }
 
       await fetchReports()
-      toast.showSuccess(t('qualityAssurance.dashboard.deleteSuccess'))
+      toast.showSuccess('Berhasil menghapus data laporan QA')
     } catch (error: any) {
-      console.error('Failed to delete QA report (API failed, falling back to local):', error)
+      console.error('Failed to delete QA report:', error)
       errorMsg.value = extractErrorMessage(error, 'Failed to delete Quality Assurance report.')
-      const index = mockReports.findIndex(r => r.id === targetReport.id)
-      if (index !== -1) {
-        mockReports.splice(index, 1)
-        reports.value = [...mockReports]
-        if (selectedReport.value?.id === targetReport.id) {
-          isDetailOpen.value = false
-          selectedReport.value = null
-        }
-        toast.showSuccess('Berhasil menghapus data laporan QA')
-      } else {
-        errorMsg.value = 'Failed to delete Quality Assurance report.'
-        toast.showError('Gagal menghapus data laporan QA')
-      }
+      toast.showError('Gagal menghapus data laporan QA')
     } finally {
       loading.value = false
     }

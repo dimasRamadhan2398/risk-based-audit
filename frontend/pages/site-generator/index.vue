@@ -21,7 +21,7 @@
                 name="i-lucide-globe"
                 class="w-3.5 h-3.5"
               />
-              {{ t('siteGenerator.badge') }}
+              Client Site Generator
             </UBadge>
           </div>
         </div>
@@ -29,7 +29,7 @@
         <!-- Right Header Actions (Without Back to Dashboard) -->
         <div class="flex items-center gap-3">
           <span class="text-xs text-[var(--text-muted)] font-mono hidden md:inline">
-            {{ t('siteGenerator.domainRoot', { domain: envMode === 'local' ? '*.localhost / 127.0.0.1' : '*.auditsphere.id' }) }}
+            Domain Root: {{ envMode === 'local' ? '*.localhost / 127.0.0.1' : '*.auditsphere.app' }}
           </span>
           <UColorModeButton />
         </div>
@@ -64,16 +64,16 @@
               </div>
               <div>
                 <h2 class="text-lg sm:text-xs font-bold text-gray-900 dark:text-neutral-200!">
-                  {{ t('siteGenerator.title') }}
+                  Generate New Client Site
                 </h2>
                 <p class="text-xs text-gray-500 dark:text-neutral-200!">
-                  {{ t('siteGenerator.subtitle') }}
+                  Provision an isolated AuditSphere instance. This is important if you want to get demo access to AuditSphere Risk Based Internal Audit
                 </p>
               </div>
             </div>
 
             <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/50 text-secondary-700 border border-primary/20">
-              {{ t('siteGenerator.stepProgress', { current: currentStep, total: steps.length }) }}
+              Step {{ currentStep }} of {{ steps.length }}
             </span>
           </div>
 
@@ -143,39 +143,18 @@
 
           <div class="space-y-2 max-w-lg mx-auto">
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-              {{ deployedSite.resendError ? t('siteGenerator.success.titleWithErrors') : t('siteGenerator.success.title') }}
+              Client Site Successfully Generated!
             </h2>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              {{ deployedSite.resendError
-                ? t('siteGenerator.success.descriptionWithErrors', { client: deployedSite.clientName })
-                : t('siteGenerator.success.description', { client: deployedSite.clientName }) }}
-            </p>
-          </div>
-
-          <!-- Resend Provisioning Failure Notice -->
-          <div
-            v-if="deployedSite.resendError"
-            class="max-w-xl mx-auto p-4 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-left space-y-2 text-xs"
-          >
-            <div class="flex items-center gap-2 font-semibold text-red-800 dark:text-red-300">
-              <UIcon
-                name="i-lucide-alert-triangle"
-                class="w-4 h-4 shrink-0"
-              />
-              {{ t('siteGenerator.success.resendFailed') }}
-            </div>
-            <p class="text-red-700 dark:text-red-300/90 leading-relaxed font-mono break-words">
-              {{ deployedSite.resendError }}
-            </p>
-            <p class="text-red-700 dark:text-red-300/90 leading-relaxed">
-              {{ t('siteGenerator.success.resendExplanation') }}
+              The isolated instance for <span class="font-bold text-gray-900 dark:text-white">{{ deployedSite.clientName }}</span>
+              has been provisioned and is ready for onboarding.
             </p>
           </div>
 
           <!-- Provisioned Details Card -->
           <div class="max-w-xl mx-auto p-5 rounded-2xl bg-gray-50 dark:bg-neutral-900/90 border border-gray-200 dark:border-neutral-800 text-left space-y-3.5 text-xs shadow-sm">
             <div class="flex items-center justify-between border-b pb-2.5 border-gray-200 dark:border-neutral-800">
-              <span class="text-gray-500 dark:text-gray-400 font-medium">{{ t('siteGenerator.success.portalUrl') }}</span>
+              <span class="text-gray-500 dark:text-gray-400 font-medium">Portal URL</span>
               <div class="text-right space-y-0.5">
                 <a
                   :href="deployedSite.envMode === 'local' ? deployedSite.localFrontendUrl : `https://${deployedSite.domain}`"
@@ -192,134 +171,81 @@
                   v-if="deployedSite.envMode === 'local'"
                   class="text-[11px] font-mono text-gray-400 dark:text-neutral-500"
                 >
-                  {{ t('siteGenerator.success.subdomain', { url: `http://${deployedSite.domain}` }) }}
+                  Subdomain: http://{{ deployedSite.domain }}
                 </div>
               </div>
             </div>
 
             <div class="flex items-center justify-between border-b pb-2.5 border-gray-200 dark:border-neutral-800">
-              <span class="text-gray-500 dark:text-gray-400 font-medium">{{ t('siteGenerator.success.apiGateway') }}</span>
+              <span class="text-gray-500 dark:text-gray-400 font-medium">API Gateway</span>
               <span class="font-mono text-gray-700 dark:text-gray-300">
                 {{ deployedSite.envMode === 'local' ? `http://${deployedSite.apiDomain}` : `https://${deployedSite.apiDomain}` }}
               </span>
             </div>
 
             <div class="flex items-center justify-between border-b pb-2.5 border-gray-200 dark:border-neutral-800">
-              <span class="text-gray-500 dark:text-gray-400 font-medium">{{ t('siteGenerator.success.databases') }}</span>
+              <span class="text-gray-500 dark:text-gray-400 font-medium">Isolated Databases</span>
               <span class="font-mono text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
                 <UIcon
                   name="i-lucide-check-circle"
                   class="w-3.5 h-3.5"
                 />
-                {{ t('siteGenerator.success.schemas') }}
+                5 Schemas (Clean / Empty Data State)
               </span>
             </div>
 
             <div class="flex items-center justify-between border-b pb-2.5 border-gray-200 dark:border-neutral-800">
-              <span class="text-gray-500 dark:text-gray-400 font-medium">{{ t('siteGenerator.success.emailDispatcher') }}</span>
-              <span
-                v-if="deployedSite.resendDomain"
-                class="font-mono text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1"
-              >
+              <span class="text-gray-500 dark:text-gray-400 font-medium">Email Dispatcher</span>
+              <span class="font-mono text-gray-700 dark:text-gray-300 flex items-center gap-1">
                 <UIcon
-                  name="i-lucide-mail-check"
+                  name="i-lucide-mail"
                   class="w-3.5 h-3.5"
                 />
-                {{ t('siteGenerator.success.resendApi', { domain: deployedSite.resendDomain }) }}
-              </span>
-              <span
-                v-else
-                class="font-mono text-red-600 dark:text-red-400 font-medium flex items-center gap-1"
-              >
-                <UIcon
-                  name="i-lucide-mail-x"
-                  class="w-3.5 h-3.5"
-                />
-                {{ t('siteGenerator.success.notProvisioned') }}
+                Shared domain mail.auditsphere.app (tenant key via provision-tenant-email.sh)
               </span>
             </div>
 
             <div class="flex items-center justify-between border-b pb-2.5 border-gray-200 dark:border-neutral-800">
-              <span class="text-gray-500 dark:text-gray-400 font-medium">{{ t('siteGenerator.success.evidenceStorage') }}</span>
+              <span class="text-gray-500 dark:text-gray-400 font-medium">Evidence Storage</span>
               <span class="font-mono text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1.5 truncate max-w-[320px]">
                 <UIcon
                   name="i-lucide-hard-drive"
                   class="w-3.5 h-3.5"
                 />
-                {{ t('siteGenerator.success.storageSilo', { path: `/var/data/storage/${deployedSite.slug}` }) }}
+                VPS Dedicated Silo (/var/data/storage/{{ deployedSite.slug }})
               </span>
             </div>
 
             <div class="flex items-center justify-between border-b pb-2.5 border-gray-200 dark:border-neutral-800">
-              <span class="text-gray-500 dark:text-gray-400 font-medium">{{ t('siteGenerator.success.containerPorts') }}</span>
-              <span class="font-mono text-gray-700 dark:text-gray-300">{{ t('siteGenerator.success.ports', { frontend: deployedSite.frontendPort, kong: deployedSite.kongPort }) }}</span>
+              <span class="text-gray-500 dark:text-gray-400 font-medium">Container Ports</span>
+              <span class="font-mono text-gray-700 dark:text-gray-300">Frontend: {{ deployedSite.frontendPort }} | Kong: {{ deployedSite.kongPort }}</span>
             </div>
 
             <div class="flex items-center justify-between border-b pb-2.5 border-gray-200 dark:border-neutral-800">
-              <span class="text-gray-500 dark:text-gray-400 font-medium">{{ t('siteGenerator.success.chiefAuditExecutive') }}</span>
+              <span class="text-gray-500 dark:text-gray-400 font-medium">Chief Audit Executive</span>
               <span class="text-gray-800 dark:text-gray-200 font-medium">{{ deployedSite.adminName }} ({{ deployedSite.adminEmail }})</span>
             </div>
 
             <div class="flex items-center justify-between">
-              <span class="text-gray-500 dark:text-gray-400 font-medium">{{ t('siteGenerator.success.complianceFramework') }}</span>
+              <span class="text-gray-500 dark:text-gray-400 font-medium">Compliance Framework</span>
               <span class="text-gray-800 dark:text-gray-200 font-medium">{{ deployedSite.complianceFramework }}</span>
-            </div>
-          </div>
-
-          <!-- Resend DNS Records & Scoped Key Card -->
-          <div
-            v-if="deployedSite.resendDnsRecords && deployedSite.resendDnsRecords.length"
-            class="max-w-xl mx-auto p-4 rounded-2xl bg-white dark:bg-neutral-900 border border-emerald-500/30 text-left space-y-3 text-xs shadow-sm"
-          >
-            <div class="flex items-center justify-between border-b pb-2 border-gray-200 dark:border-neutral-800">
-              <span class="font-semibold text-gray-900 dark:text-white flex items-center gap-1.5">
-                <UIcon name="i-lucide-shield-check" class="w-4 h-4 text-emerald-500" />
-                {{ t('siteGenerator.success.dnsRecords') }}
-              </span>
-              <span class="text-[11px] font-mono text-gray-500 dark:text-gray-400 truncate max-w-[200px]" :title="deployedSite.resendApiKey">
-                {{ t('siteGenerator.success.apiKey', { key: deployedSite.resendApiKey || '-' }) }}
-              </span>
-            </div>
-
-            <div class="space-y-1.5">
-              <div
-                v-for="(rec, idx) in deployedSite.resendDnsRecords"
-                :key="idx"
-                class="p-2 rounded-lg bg-gray-50 dark:bg-neutral-800/60 border border-gray-200 dark:border-neutral-700/60 font-mono text-[11px] flex items-center justify-between gap-2"
-              >
-                <div class="min-w-0 flex-1 truncate">
-                  <span class="font-bold text-primary">{{ rec.type }}</span>
-                  <span class="text-gray-400 mx-1">|</span>
-                  <span class="text-gray-700 dark:text-gray-300">{{ rec.name }}</span>
-                  <span class="text-gray-400 mx-1">→</span>
-                  <span class="text-gray-500 truncate">{{ rec.value }}</span>
-                </div>
-                <button
-                  type="button"
-                  class="text-primary hover:text-primary-700 p-1 shrink-0"
-                  :title="t('siteGenerator.success.copyValue')"
-                  @click="copyText(rec.value, t('siteGenerator.copy.recordValue', { type: rec.type }))"
-                >
-                  <UIcon name="i-lucide-copy" class="w-3.5 h-3.5" />
-                </button>
-              </div>
             </div>
           </div>
 
           <!-- Automated CLI Command -->
           <div class="max-w-xl mx-auto text-left space-y-1.5">
             <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-500 font-medium">{{ t('siteGenerator.success.cliCommand') }}</span>
+              <span class="text-gray-500 font-medium">CLI Deployment Command</span>
               <button
                 type="button"
                 class="text-primary hover:text-primary-700 font-medium flex items-center gap-1"
-                @click="copyText(generatedCliCommand, t('siteGenerator.copy.cliCommand'))"
+                @click="copyText(generatedCliCommand, 'CLI Command')"
               >
                 <UIcon
                   name="i-lucide-copy"
                   class="w-3.5 h-3.5"
                 />
-                {{ t('siteGenerator.success.copy') }}
+                Copy
               </button>
             </div>
             <div class="bg-gray-950 text-emerald-400 p-3.5 rounded-xl font-mono text-xs overflow-x-auto border border-gray-800">
@@ -335,7 +261,7 @@
               icon="i-lucide-plus"
               @click="resetForm"
             >
-              {{ t('siteGenerator.success.generateAnother') }}
+              Generate Another Site
             </ReusableButton>
           </div>
         </div>
@@ -352,8 +278,8 @@
           >
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <AppFormField
-                :label="t('siteGenerator.organization.clientName')"
-                :tooltip="t('siteGenerator.organization.clientNameTooltip')"
+                label="Client Organization Name"
+                tooltip="Official name of the client organization displayed across their portal"
                 required
                 counter
                 :max-count="100"
@@ -361,22 +287,21 @@
               >
                 <UInput
                   v-model="form.clientName"
-                  :placeholder="t('siteGenerator.organization.clientNamePlaceholder')"
+                  placeholder="Company Name"
                   maxlength="100"
                   class="w-full"
                 />
               </AppFormField>
 
               <AppFormField
-                :label="t('siteGenerator.organization.industry')"
-                :tooltip="t('siteGenerator.organization.industryTooltip')"
+                label="Industry / Sector"
+                tooltip="Primary industry sector for benchmarking risk metrics"
                 required
               >
                 <ReusableSelectMenu
                   v-model="form.industry"
                   :items="industryOptions"
-                  value-key="value"
-                  :placeholder="t('siteGenerator.organization.industryPlaceholder')"
+                  placeholder="Select industry sector"
                   class="w-full"
                 />
               </AppFormField>
@@ -391,7 +316,7 @@
                     name="i-lucide-server"
                     class="w-3.5 h-3.5 text-primary"
                   />
-                  {{ t('siteGenerator.organization.environment') }}
+                  Target Deployment Environment
                 </label>
                 <div class="inline-flex rounded-lg p-0.5 bg-gray-100 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 text-xs">
                   <button
@@ -408,7 +333,7 @@
                       name="i-lucide-monitor"
                       class="w-3.5 h-3.5"
                     />
-                    {{ t('siteGenerator.organization.localhost') }}
+                    Localhost Dev
                   </button>
                   <button
                     type="button"
@@ -424,7 +349,7 @@
                       name="i-lucide-cloud"
                       class="w-3.5 h-3.5"
                     />
-                    {{ t('siteGenerator.organization.production') }}
+                    Production Cloud
                   </button>
                 </div>
               </div>
@@ -440,20 +365,17 @@
                 />
                 <div class="space-y-1 leading-relaxed">
                   <p class="font-semibold text-blue-900 dark:text-blue-200">
-                    {{ t('siteGenerator.organization.localhostRecommendation') }}
+                    Localhost Subdomain Recommendation (RFC 6761 Standard):
                   </p>
                   <p>
-                    {{ t('siteGenerator.organization.localhostDescription', {
-                      url: `http://${form.slug || 'client'}.localhost:${form.frontendPort}`,
-                      directUrl: `http://localhost:${form.frontendPort}`
-                    }) }}
+                    Modern browsers (Chrome, Edge, Firefox, Safari) natively route any <code>*.localhost</code> subdomain directly to <code>127.0.0.1</code> with zero hosts file editing needed! You can test the tenant via <code>http://{{ form.slug || 'client' }}.localhost:{{ form.frontendPort }}</code> or direct port <code>http://localhost:{{ form.frontendPort }}</code>.
                   </p>
                 </div>
               </div>
 
               <AppFormField
-                :label="t('siteGenerator.organization.slug')"
-                :tooltip="t('siteGenerator.organization.slugTooltip')"
+                label="Tenant Subdomain Slug"
+                tooltip="Alphanumeric identifier used for DNS subdomain, database prefixes, and container routing"
                 required
                 counter
                 :max-count="40"
@@ -472,7 +394,7 @@
                     @input="sanitizeSlug"
                   />
                   <span class="inline-flex items-center px-3 py-2 rounded-r-md border border-l-0 border-gray-300 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-800 text-gray-600 dark:text-gray-300 text-sm font-mono font-medium select-none">
-                    {{ envMode === 'local' ? `.localhost:${form.frontendPort}` : '.auditsphere.id' }}
+                    {{ envMode === 'local' ? `.localhost:${form.frontendPort}` : '.auditsphere.app' }}
                   </span>
                 </div>
               </AppFormField>
@@ -488,7 +410,7 @@
                   </div>
                   <div class="text-xs min-w-0 flex-1">
                     <div class="text-gray-500 dark:text-neutral-400 font-medium">
-                      {{ t('siteGenerator.organization.frontendDomain') }}
+                      Frontend Portal Domain
                     </div>
                     <div class="font-mono font-semibold text-gray-900 dark:text-neutral-100 mt-0.5 break-all">
                       {{ envMode === 'local' ? 'http://' : 'https://' }}{{ targetDomain }}
@@ -497,7 +419,7 @@
                       v-if="envMode === 'local'"
                       class="text-[11px] text-gray-400 dark:text-neutral-500 mt-0.5 font-mono"
                     >
-                      {{ t('siteGenerator.organization.direct', { url: `http://localhost:${form.frontendPort}` }) }}
+                      Direct: http://localhost:{{ form.frontendPort }}
                     </div>
                   </div>
                 </div>
@@ -511,7 +433,7 @@
                   </div>
                   <div class="text-xs min-w-0 flex-1">
                     <div class="text-gray-500 dark:text-neutral-400 font-medium">
-                      {{ t('siteGenerator.organization.apiEndpoint') }}
+                      Kong API Gateway Endpoint
                     </div>
                     <div class="font-mono font-semibold text-gray-900 dark:text-neutral-100 mt-0.5 break-all">
                       {{ envMode === 'local' ? 'http://' : 'https://' }}{{ targetApiDomain }}
@@ -520,7 +442,7 @@
                       v-if="envMode === 'local'"
                       class="text-[11px] text-gray-400 dark:text-neutral-500 mt-0.5 font-mono"
                     >
-                      {{ t('siteGenerator.organization.proxyPort', { port: form.kongPort }) }}
+                      Proxy Port: {{ form.kongPort }}
                     </div>
                   </div>
                 </div>
@@ -530,8 +452,8 @@
             <!-- Brand Customization & Framework -->
             <div class="grid grid-cols-1 gap-4 pt-2">
               <AppFormField
-                :label="t('siteGenerator.organization.brandColor')"
-                :tooltip="t('siteGenerator.organization.brandColorTooltip')"
+                label="Primary Brand Color"
+                tooltip="Used for accent highlights on the client's custom theme"
                 optional
               >
                 <div class="flex items-center gap-3">
@@ -575,14 +497,14 @@
                 class="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0"
               />
               <p class="text-xs text-blue-800 dark:text-blue-300 leading-relaxed">
-                {{ t('siteGenerator.administrator.info') }}
+                The initial administrator account will have <strong>Chief Audit Executive (CAE) / Super Admin</strong> privileges on the new tenant instance with automated RBAC seeding.
               </p>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <AppFormField
-                :label="t('siteGenerator.administrator.fullName')"
-                :tooltip="t('siteGenerator.administrator.fullNameTooltip')"
+                label="Admin Full Name"
+                tooltip="Full name of the Chief Audit Executive or primary system administrator"
                 required
                 counter
                 :max-count="100"
@@ -590,15 +512,15 @@
               >
                 <UInput
                   v-model="form.adminName"
-                  :placeholder="t('siteGenerator.administrator.fullNamePlaceholder')"
+                  placeholder="e.g. Budi Santoso, CIA, CISA"
                   maxlength="100"
                   class="w-full"
                 />
               </AppFormField>
 
               <AppFormField
-                :label="t('siteGenerator.administrator.email')"
-                :tooltip="t('siteGenerator.administrator.emailTooltip')"
+                label="Admin Email Address"
+                tooltip="Will receive initial login credentials and security alerts"
                 required
               >
                 <UInput
@@ -612,8 +534,8 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <AppFormField
-                :label="t('siteGenerator.administrator.phone')"
-                :tooltip="t('siteGenerator.administrator.phoneTooltip')"
+                label="Admin Phone / WhatsApp"
+                tooltip="Emergency contact for security and incident alerts"
                 optional
               >
                 <UInput
@@ -624,13 +546,13 @@
               </AppFormField>
 
               <AppFormField
-                :label="t('siteGenerator.administrator.twoFactor')"
-                :tooltip="t('siteGenerator.administrator.twoFactorTooltip')"
+                label="Two-Factor Authentication (2FA)"
+                tooltip="Enforce mandatory TOTP Two-Factor Authentication for all tenant auditors"
               >
                 <div class="pt-2">
                   <UCheckbox
                     v-model="form.enforceMfa"
-                    :label="t('siteGenerator.administrator.enforceTwoFactor')"
+                    label="Enforce Mandatory 2FA for all auditors"
                   />
                 </div>
               </AppFormField>
@@ -658,10 +580,10 @@
                       name="i-lucide-sparkles"
                       class="w-4 h-4 text-primary"
                     />
-                    {{ t('siteGenerator.infrastructure.autoConfigure') }}
+                    Let system automatically configure cloud infrastructure (Recommended)
                   </label>
                   <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                    {{ t('siteGenerator.infrastructure.autoConfigureDesc') }}
+                    Recommended for most client companies. The platform will automatically allocate container ports, configure the dedicated VPS evidence storage silo (/var/data/auditsphere/storage/...), assign host gateways, and prepare database clusters without requiring technical network setup.
                   </p>
                 </div>
               </div>
@@ -678,55 +600,55 @@
                     name="i-lucide-cpu"
                     class="w-4 h-4 text-emerald-500"
                   />
-                  {{ t('siteGenerator.infrastructure.matrix') }}
+                  Automated Provisioning Matrix
                 </span>
                 <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40 flex items-center gap-1">
                   <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  {{ t('siteGenerator.infrastructure.autoConfigured') }}
+                  Auto-Configured
                 </span>
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div class="space-y-1">
-                  <span class="text-gray-400 block">{{ t('siteGenerator.infrastructure.webPort') }}</span>
-                  <span class="font-mono font-medium text-gray-800 dark:text-gray-200">{{ t('siteGenerator.infrastructure.portNuxt', { port: form.frontendPort }) }}</span>
+                  <span class="text-gray-400 block">Assigned Web Port</span>
+                  <span class="font-mono font-medium text-gray-800 dark:text-gray-200">Port {{ form.frontendPort }} (Internal Nuxt)</span>
                 </div>
                 <div class="space-y-1">
-                  <span class="text-gray-400 block">{{ t('siteGenerator.infrastructure.gatewayPort') }}</span>
-                  <span class="font-mono font-medium text-gray-800 dark:text-gray-200">{{ t('siteGenerator.infrastructure.portKong', { port: form.kongPort }) }}</span>
+                  <span class="text-gray-400 block">Assigned Gateway Port</span>
+                  <span class="font-mono font-medium text-gray-800 dark:text-gray-200">Port {{ form.kongPort }} (Kong Gateway)</span>
                 </div>
                 <div class="space-y-1">
-                  <span class="text-gray-400 block">{{ t('siteGenerator.infrastructure.storageProvider') }}</span>
+                  <span class="text-gray-400 block">Evidence Storage Provider</span>
                   <span class="font-mono font-medium text-emerald-600 dark:text-emerald-400 truncate block flex items-center gap-1">
                     <UIcon
                       name="i-lucide-hard-drive"
                       class="w-3.5 h-3.5"
                     />
-                    {{ t('siteGenerator.infrastructure.storageSilo', { path: `/var/data/storage/${form.slug || 'client'}` }) }}
+                    VPS Dedicated Silo (/var/data/storage/{{ form.slug || 'client' }})
                   </span>
                 </div>
                 <div class="space-y-1">
-                  <span class="text-gray-400 block">{{ t('siteGenerator.infrastructure.hostCluster') }}</span>
-                  <span class="font-mono font-medium text-gray-800 dark:text-gray-200">{{ t('siteGenerator.infrastructure.productionVps', { ip: form.serverIp }) }}</span>
+                  <span class="text-gray-400 block">Host Node Cluster</span>
+                  <span class="font-mono font-medium text-gray-800 dark:text-gray-200">{{ form.serverIp }} (Production VPS)</span>
                 </div>
                 <div class="space-y-1">
-                  <span class="text-gray-400 block">{{ t('siteGenerator.infrastructure.emailDispatcher') }}</span>
+                  <span class="text-gray-400 block">Email Service Dispatcher</span>
                   <span class="font-mono font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                     <UIcon
                       name="i-lucide-mail"
                       class="w-3.5 h-3.5"
                     />
-                    {{ t('siteGenerator.infrastructure.emailApi') }}
+                    Email API
                   </span>
                 </div>
                 <div class="space-y-1">
-                  <span class="text-gray-400 block">{{ t('siteGenerator.infrastructure.databaseInitialization') }}</span>
+                  <span class="text-gray-400 block">Database Data Initialization</span>
                   <span class="font-mono font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                     <UIcon
                       name="i-lucide-database-zap"
                       class="w-3.5 h-3.5"
                     />
-                    {{ t('siteGenerator.infrastructure.cleanStateBusiness') }}
+                    Clean / Empty Data State (0 Business Records)
                   </span>
                 </div>
               </div>
@@ -736,16 +658,16 @@
                   name="i-lucide-info"
                   class="w-3.5 h-3.5 text-primary shrink-0"
                 />
-                <span>{{ t('siteGenerator.infrastructure.storagePolicy') }}</span>
+                <span>Storage is hosted directly on the VPS filesystem. Google Drive integration is blocked by architecture policy.</span>
               </div>
             </div>
 
             <!-- Manual Configuration Inputs (Only when autoConfigInfrastructure is false) -->
             <template v-else>
               <AppFormField
-                :label="t('siteGenerator.infrastructure.storageDirectory')"
-                :tooltip="t('siteGenerator.infrastructure.storageDirectoryTooltip')"
-                :hint="t('siteGenerator.infrastructure.filesystemPath')"
+                label="Host VPS Evidence Storage Directory"
+                tooltip="Dedicated directory on host VPS filesystem for storing working paper attachments and audit observation evidence"
+                hint="VPS Filesystem Path"
                 required
               >
                 <div class="flex items-center">
@@ -767,22 +689,22 @@
                     name="i-lucide-shield-ban"
                     class="w-4 h-4 text-red-500 shrink-0"
                   />
-                  <span>{{ t('siteGenerator.infrastructure.thirdPartyStorage') }}</span>
+                  <span>Third-Party Cloud Storage (Google Drive)</span>
                 </div>
                 <UBadge
                   color="error"
                   variant="subtle"
                   size="xs"
                 >
-                  {{ t('siteGenerator.infrastructure.blocked') }}
+                  Blocked by Architecture Policy
                 </UBadge>
               </div>
 
               <!-- Assigned Ports & Server IP -->
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <AppFormField
-                  :label="t('siteGenerator.infrastructure.hostIp')"
-                  :tooltip="t('siteGenerator.infrastructure.hostIpTooltip')"
+                  label="Host VPS IP"
+                  tooltip="Public IP of the target hosting server running Docker and Nginx"
                   required
                 >
                   <UInput
@@ -793,8 +715,8 @@
                 </AppFormField>
 
                 <AppFormField
-                  :label="t('siteGenerator.infrastructure.frontendPort')"
-                  :tooltip="t('siteGenerator.infrastructure.frontendPortTooltip')"
+                  label="Assigned Frontend Port"
+                  tooltip="Internal container port for this tenant's Nuxt frontend"
                   required
                 >
                   <UInput
@@ -806,8 +728,8 @@
                 </AppFormField>
 
                 <AppFormField
-                  :label="t('siteGenerator.infrastructure.kongPort')"
-                  :tooltip="t('siteGenerator.infrastructure.kongPortTooltip')"
+                  label="Assigned Kong Proxy Port"
+                  tooltip="Internal container port for this tenant's Kong Gateway"
                   required
                 >
                   <UInput
@@ -827,7 +749,7 @@
                   name="i-lucide-database"
                   class="w-3.5 h-3.5 text-primary"
                 />
-                {{ t('siteGenerator.infrastructure.isolatedDatabases') }}
+                Dedicated Isolated PostgreSQL Databases (Auto-Generated)
               </label>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
                 <div
@@ -858,85 +780,85 @@
                     name="i-lucide-clipboard-check"
                     class="w-4 h-4 text-primary"
                   />
-                  {{ t('siteGenerator.review.summary') }}
+                  Tenant Site Provisioning Summary
                 </span>
                 <span class="text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
                   <UIcon
                     name="i-lucide-check-circle-2"
                     class="w-3.5 h-3.5"
                   />
-                  {{ t('siteGenerator.review.validated') }}
+                  Pre-flight Validated
                 </span>
               </div>
               <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6">
                 <div>
-                  <span class="text-gray-400 block">{{ t('siteGenerator.review.organization') }}</span>
+                  <span class="text-gray-400 block">Organization Name</span>
                   <span class="font-semibold text-gray-900 dark:text-white">{{ form.clientName }}</span>
                 </div>
                 <div>
-                  <span class="text-gray-400 block">{{ t('siteGenerator.review.environment') }}</span>
+                  <span class="text-gray-400 block">Target Environment</span>
                   <span class="font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-1">
                     <UIcon
                       :name="envMode === 'local' ? 'i-lucide-monitor' : 'i-lucide-cloud'"
                       class="w-3.5 h-3.5 text-primary"
                     />
-                    {{ envMode === 'local' ? t('siteGenerator.review.localEnvironment') : t('siteGenerator.review.productionEnvironment') }}
+                    {{ envMode === 'local' ? 'Localhost Dev (RFC 6761 Loopback)' : 'Production Cloud Cluster' }}
                   </span>
                 </div>
                 <div>
-                  <span class="text-gray-400 block">{{ t('siteGenerator.review.portalUrl') }}</span>
+                  <span class="text-gray-400 block">Target Portal URL</span>
                   <span class="font-mono text-primary font-bold">{{ envMode === 'local' ? 'http://' : 'https://' }}{{ targetDomain }}</span>
                   <div
                     v-if="envMode === 'local'"
                     class="text-[11px] font-mono text-gray-400 dark:text-neutral-500"
                   >
-                    {{ t('siteGenerator.organization.direct', { url: `http://localhost:${form.frontendPort}` }) }}
+                    Direct: http://localhost:{{ form.frontendPort }}
                   </div>
                 </div>
                 <div>
-                  <span class="text-gray-400 block">{{ t('siteGenerator.review.apiGateway') }}</span>
+                  <span class="text-gray-400 block">Kong API Gateway</span>
                   <span class="font-mono text-gray-700 dark:text-gray-300">{{ envMode === 'local' ? 'http://' : 'https://' }}{{ targetApiDomain }}</span>
                 </div>
                 <div>
-                  <span class="text-gray-400 block">{{ t('siteGenerator.review.ports') }}</span>
-                  <span class="font-mono text-gray-700 dark:text-gray-300">{{ t('siteGenerator.review.portsValue', { frontend: form.frontendPort, kong: form.kongPort }) }}</span>
+                  <span class="text-gray-400 block">Assigned Ports</span>
+                  <span class="font-mono text-gray-700 dark:text-gray-300">FE: {{ form.frontendPort }} | Kong: {{ form.kongPort }}</span>
                 </div>
                 <div>
-                  <span class="text-gray-400 block">{{ t('siteGenerator.review.dataState') }}</span>
+                  <span class="text-gray-400 block">Data Initialization State</span>
                   <span class="font-mono text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
                     <UIcon
                       name="i-lucide-database-zap"
                       class="w-3.5 h-3.5"
                     />
-                    {{ t('siteGenerator.review.cleanState') }}
+                    Clean / Empty Data State (0 Records)
                   </span>
                 </div>
                 <div>
-                  <span class="text-gray-400 block">{{ t('siteGenerator.review.emailDispatcher') }}</span>
+                  <span class="text-gray-400 block">Email Service Dispatcher</span>
                   <span class="font-mono text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                     <UIcon
                       name="i-lucide-mail"
                       class="w-3.5 h-3.5"
                     />
-                    Resend API ({{ form.slug || 'client' }}.auditsphere.id)
+                    Shared Resend domain (mail.auditsphere.app), tenant sending key
                   </span>
                 </div>
                 <div>
-                  <span class="text-gray-400 block">{{ t('siteGenerator.review.evidenceStorage') }}</span>
+                  <span class="text-gray-400 block">Evidence Storage Provider</span>
                   <span class="font-mono text-emerald-600 dark:text-emerald-400 font-medium truncate block flex items-center gap-1">
                     <UIcon
                       name="i-lucide-hard-drive"
                       class="w-3.5 h-3.5"
                     />
-                    {{ t('siteGenerator.infrastructure.storageSilo', { path: `/var/data/storage/${form.vpsStorageDir || form.slug || 'client'}` }) }}
+                    VPS Storage (/var/data/storage/{{ form.vpsStorageDir || form.slug || 'client' }})
                   </span>
                 </div>
                 <div>
-                  <span class="text-gray-400 block">{{ t('siteGenerator.review.chiefAuditExecutive') }}</span>
+                  <span class="text-gray-400 block">Chief Audit Executive</span>
                   <span class="text-gray-700 dark:text-gray-300">{{ form.adminName }} ({{ form.adminEmail }})</span>
                 </div>
                 <div>
-                  <span class="text-gray-400 block">{{ t('siteGenerator.review.complianceStandard') }}</span>
+                  <span class="text-gray-400 block">Compliance Standard</span>
                   <span class="text-gray-700 dark:text-gray-300">{{ form.complianceFramework }}</span>
                 </div>
               </div>
@@ -950,18 +872,18 @@
                     name="i-lucide-terminal"
                     class="w-3.5 h-3.5 text-primary"
                   />
-                  {{ t('siteGenerator.review.onboardingCommand') }}
+                  Automated Onboarding Command (CLI)
                 </label>
                 <button
                   type="button"
                   class="text-xs text-primary hover:text-primary-700 flex items-center gap-1 font-medium focus:outline-none"
-                  @click="copyText(generatedCliCommand, t('siteGenerator.copy.cliCommand'))"
+                  @click="copyText(generatedCliCommand, 'CLI Command')"
                 >
                   <UIcon
                     name="i-lucide-copy"
                     class="w-3.5 h-3.5"
                   />
-                  {{ t('siteGenerator.review.copyCommand') }}
+                  Copy Command
                 </button>
               </div>
               <div class="bg-gray-950 text-gray-200 p-3.5 rounded-xl font-mono text-xs overflow-x-auto shadow-inner border border-gray-800">
@@ -980,7 +902,7 @@
                     name="i-lucide-loader-2"
                     class="w-4 h-4 animate-spin"
                   />
-                  {{ t('siteGenerator.review.provisioning', { domain: targetDomain }) }}
+                  Provisioning {{ targetDomain }}...
                 </span>
                 <span class="text-gray-400">{{ provisioningProgress }}%</span>
               </div>
@@ -1020,7 +942,7 @@
             class="px-4 py-2 rounded-xl text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             @click="currentStep--"
           >
-            {{ t('siteGenerator.actions.back') }}
+            Back
           </button>
           <div v-else />
 
@@ -1033,7 +955,7 @@
               :disabled="!isCurrentStepValid"
               @click="currentStep++"
             >
-              {{ t('siteGenerator.actions.continue') }}
+              Continue
             </ReusableButton>
 
             <ReusableButton
@@ -1044,7 +966,7 @@
               :loading="isProvisioning"
               @click="handleProvisionSite"
             >
-              {{ t('siteGenerator.actions.deploy') }}
+              Generate & Deploy Site
             </ReusableButton>
           </div>
         </template>
@@ -1060,18 +982,15 @@ import ReusableButton from '~/components/shared/ReusableButton.vue'
 import ReusableSelectMenu from '~/components/shared/ReusableSelectMenu.vue'
 import Logo from '~/components/Logo.vue'
 import { useAppToast } from '~/composables/useAppToast'
-import { useAuthStore } from '~/stores/auth'
 
 definePageMeta({
   layout: false,
-  // Provisioning spends real Resend quota and mints sending keys — ADMIN only,
-  // matching the RequireRoles("ADMIN") guard on /api/v1/resend/provision.
+  // Tenant sending keys are created on the VPS by scripts/provision-tenant-email.sh,
+  // not from this page.
   middleware: 'auth'
 })
 
-const { success, error: errorToast } = useAppToast()
-const authStore = useAuthStore()
-const { t } = useI18n()
+const { success } = useAppToast()
 
 interface DeployedSite {
   clientName: string
@@ -1087,31 +1006,7 @@ interface DeployedSite {
   complianceFramework: string
   envMode: 'local' | 'production'
   localFrontendUrl?: string
-  resendDomain?: string
-  resendDomainId?: string
-  resendApiKey?: string
-  resendDnsRecords?: ResendDnsRecord[]
-  // Set when Resend provisioning failed. The rest of the tenant is still
-  // deployed, but email must be configured manually before the site can send.
-  resendError?: string
   dataState: string
-}
-
-interface ResendDnsRecord {
-  name: string
-  type: string
-  value: string
-  priority?: number
-  status?: string
-}
-
-/** Shape of `data` returned by POST /api/v1/resend/provision */
-interface ResendProvisionData {
-  domain_id: string
-  domain: string
-  status: string
-  dns_records: ResendDnsRecord[]
-  client_api_key: string
 }
 
 interface ProvisioningLog {
@@ -1127,28 +1022,23 @@ const provisioningLogs = ref<ProvisioningLog[]>([])
 const isDeploymentComplete = ref(false)
 const deployedSite = ref<DeployedSite | null>(null)
 
-const steps = computed(() => [
-  { id: 1, title: t('siteGenerator.steps.organization') },
-  { id: 2, title: t('siteGenerator.steps.administrator') },
-  { id: 3, title: t('siteGenerator.steps.infrastructure') },
-  { id: 4, title: t('siteGenerator.steps.review') }
-])
-
-const industries = [
-  { value: 'Consulting & Professional Services', key: 'consulting' },
-  { value: 'Telecommunications', key: 'telecommunications' },
-  { value: 'Banking & Financial Services', key: 'banking' },
-  { value: 'Energy, Oil & Gas', key: 'energy' },
-  { value: 'State-Owned Enterprise (BUMN)', key: 'stateOwned' },
-  { value: 'Manufacturing & Supply Chain', key: 'manufacturing' },
-  { value: 'Healthcare & Pharmaceuticals', key: 'healthcare' },
-  { value: 'Technology & Software', key: 'technology' }
+const steps = [
+  { id: 1, title: 'Organization' },
+  { id: 2, title: 'Administrator' },
+  { id: 3, title: 'Infrastructure' },
+  { id: 4, title: 'Review & Deploy' }
 ]
 
-const industryOptions = computed(() => industries.map(item => ({
-  label: t(`siteGenerator.industries.${item.key}`),
-  value: item.value
-})))
+const industryOptions = [
+  'Consulting & Professional Services',
+  'Telecommunications',
+  'Banking & Financial Services',
+  'Energy, Oil & Gas',
+  'State-Owned Enterprise (BUMN)',
+  'Manufacturing & Supply Chain',
+  'Healthcare & Pharmaceuticals',
+  'Technology & Software'
+]
 
 const frameworkOptions = [
   'ISO 27001 + IIA Global Standards',
@@ -1197,14 +1087,14 @@ const targetDomain = computed(() => {
   if (envMode.value === 'local') {
     return `${form.slug || 'client'}.localhost:${form.frontendPort}`
   }
-  return `${form.slug || 'client'}.auditsphere.id`
+  return `${form.slug || 'client'}.auditsphere.app`
 })
 
 const targetApiDomain = computed(() => {
   if (envMode.value === 'local') {
     return `localhost:${form.kongPort}`
   }
-  return `api-${form.slug || 'client'}.auditsphere.id`
+  return `api-${form.slug || 'client'}.auditsphere.app`
 })
 
 const generatedDatabases = computed(() => {
@@ -1242,88 +1132,45 @@ const copyText = async (text: string, label: string) => {
     if (navigator?.clipboard?.writeText) {
       await navigator.clipboard.writeText(text)
     }
-    success(t('siteGenerator.copy.success'), t('siteGenerator.copy.successDescription', { label }))
+    success('Copied to Clipboard', `${label} copied successfully.`)
   } catch {
-    success(t('siteGenerator.copy.fallback'), text)
+    success('Copied', text)
   }
-}
-
-// Extracts a human-readable message from a $fetch error, preferring the
-// service's own error envelope over the generic "500 Internal Server Error".
-const extractApiError = (err: unknown): string => {
-  const e = err as {
-    data?: { error?: { message?: string }, message?: string }
-    statusMessage?: string
-    message?: string
-  }
-  return e?.data?.error?.message
-    || e?.data?.message
-    || e?.statusMessage
-    || e?.message
-    || t('siteGenerator.messages.unknownError')
 }
 
 const handleProvisionSite = async () => {
   isProvisioning.value = true
   provisioningProgress.value = 10
   if (envMode.value === 'local') {
-    provisioningLogs.value = [{ text: t('siteGenerator.messages.localDns', { domain: targetDomain.value }), ok: true }]
+    provisioningLogs.value = [{ text: 'Configuring RFC 6761 localhost DNS loopback for ' + targetDomain.value, ok: true }]
   } else {
-    provisioningLogs.value = [{ text: t('siteGenerator.messages.productionDns', { domain: targetDomain.value }), ok: true }]
+    provisioningLogs.value = [{ text: 'Resolving DNS *.auditsphere.app for ' + targetDomain.value, ok: true }]
   }
 
   await new Promise(r => setTimeout(r, 600))
   provisioningProgress.value = 35
-  provisioningLogs.value.push({ text: t('siteGenerator.messages.databasesCreated', { prefix: `rb_audit_*_${form.slug}` }), ok: true })
+  provisioningLogs.value.push({ text: 'Created 5 isolated PostgreSQL databases (rb_audit_*_' + form.slug + ')', ok: true })
 
   await new Promise(r => setTimeout(r, 700))
   provisioningProgress.value = 55
-  provisioningLogs.value.push({ text: t('siteGenerator.messages.migrations'), ok: true })
+  provisioningLogs.value.push({ text: 'Executed schema migrations in clean empty data state (0 business records)', ok: true })
 
   await new Promise(r => setTimeout(r, 600))
   provisioningProgress.value = 75
-  provisioningLogs.value.push({ text: t('siteGenerator.messages.storageAllocated', { path: `/var/data/auditsphere/storage/${form.vpsStorageDir || form.slug}` }), ok: true })
-  provisioningLogs.value.push({ text: t('siteGenerator.messages.storagePolicy'), ok: true })
+  provisioningLogs.value.push({ text: 'Allocated dedicated VPS storage silo (/var/data/auditsphere/storage/' + (form.vpsStorageDir || form.slug) + ')', ok: true })
+  provisioningLogs.value.push({ text: 'Enforced storage policy: Google Drive integration blocked', ok: true })
 
   await new Promise(r => setTimeout(r, 500))
   provisioningProgress.value = 88
 
-  const resendDomainName = envMode.value === 'local' ? `${form.slug || 'client'}.auditsphere.id` : targetDomain.value
-  let resendData: ResendProvisionData | null = null
-  let resendError: string | null = null
-
-  try {
-    const res = await $fetch<{ success: boolean, data: ResendProvisionData }>('/api/v1/resend/provision', {
-      method: 'POST',
-      headers: authStore.token ? { Authorization: `Bearer ${authStore.token}` } : undefined,
-      body: {
-        slug: form.slug || 'client',
-        domain: resendDomainName,
-        client_name: form.clientName || 'Client'
-      }
-    })
-    if (res?.data) {
-      resendData = res.data
-    } else {
-      resendError = t('siteGenerator.messages.resendNoData')
-    }
-  } catch (err) {
-    resendError = extractApiError(err)
-  }
-
-  if (resendData) {
-    provisioningLogs.value.push({ text: t('siteGenerator.messages.resendSuccess', { domain: resendData.domain }), ok: true })
-  } else {
-    provisioningLogs.value.push({ text: t('siteGenerator.messages.resendFailure', { domain: resendDomainName, error: resendError || t('siteGenerator.messages.unknownError') }), ok: false })
-    provisioningLogs.value.push({ text: t('siteGenerator.messages.emailNotConfigured'), ok: false })
-  }
+  provisioningLogs.value.push({ text: 'Tenant email NOT configured: run scripts/provision-tenant-email.sh tenant ' + (form.slug || 'client') + ' on the VPS', ok: false })
 
   await new Promise(r => setTimeout(r, 500))
   provisioningProgress.value = 100
   if (envMode.value === 'local') {
-    provisioningLogs.value.push({ text: t('siteGenerator.messages.localGateway', { port: form.kongPort }), ok: true })
+    provisioningLogs.value.push({ text: 'Configured local Kong Gateway proxy on port ' + form.kongPort, ok: true })
   } else {
-    provisioningLogs.value.push({ text: t('siteGenerator.messages.sslActivated', { domain: targetDomain.value }), ok: true })
+    provisioningLogs.value.push({ text: 'SSL Let\'s Encrypt certificate activated for ' + targetDomain.value, ok: true })
   }
 
   await new Promise(r => setTimeout(r, 400))
@@ -1343,27 +1190,12 @@ const handleProvisionSite = async () => {
     complianceFramework: form.complianceFramework,
     envMode: envMode.value,
     localFrontendUrl: `http://localhost:${form.frontendPort}`,
-    // Only ever populated from the real API response — never synthesised.
-    // Publishing invented DKIM/SPF records would produce a domain that
-    // silently fails to send.
-    resendDomain: resendData?.domain,
-    resendDomainId: resendData?.domain_id,
-    resendApiKey: resendData?.client_api_key,
-    resendDnsRecords: resendData?.dns_records,
-    resendError: resendError ?? undefined,
-    dataState: t('siteGenerator.review.cleanState')
+    dataState: 'Clean / Empty (0 Records)'
   }
 
   isDeploymentComplete.value = true
 
-  if (resendError) {
-    errorToast(
-      t('siteGenerator.messages.emailSetupFailed'),
-      t('siteGenerator.messages.emailSetupFailedDesc', { client: form.clientName, error: resendError })
-    )
-  } else {
-    success(t('siteGenerator.messages.siteProvisioned'), t('siteGenerator.messages.siteProvisionedDesc', { client: form.clientName, domain: targetDomain.value }))
-  }
+  success('Client Site Provisioned', `${form.clientName} (${targetDomain.value}) is now ready with empty clean data.`)
 }
 
 const resetForm = () => {

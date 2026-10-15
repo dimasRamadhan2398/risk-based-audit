@@ -10,7 +10,7 @@ import {
   type NLPDocumentResult,
   type KPIForecast
 } from '~/composables/useAnalyticsData'
-import { riskLevelConfig } from '~/stores/risk-profile'
+import { normalizeRiskLevel, getRiskLevelColorClass } from '~/utils/riskLevelBadge'
 import { getAnalyticsServiceBaseUrl, getPythonAiBaseUrl } from '~/composables/useApiUrl'
 
 // Module-level singletons so all AI Insight sub-pages share data & connection status
@@ -143,30 +143,19 @@ export const useAiAnalytics = () => {
     return Number(val).toFixed(decimals)
   }
 
+  // Level names come from the AI service in many spellings; normalizeRiskLevel maps them onto one scale
+  // (combined levels first, so "Moderate to High" no longer collapses into "Moderate").
   const getRiskConfig = (level: string) => {
-    if (!level) return { label: 'Moderate', color: '#FFC107', bg: '#FF6F00' }
-    const raw = String(level).trim().toLowerCase().replace(/[\s\-_]+/g, '')
-
-    if (raw.includes('critical') || raw.includes('extreme') || raw === 'high' || raw.includes('veryhigh')) {
-      return { label: level.toUpperCase() === 'HIGH' ? 'High' : level, color: '#F44336', bg: '#B71C1C' }
+    const key = normalizeRiskLevel(level || 'Moderate')
+    const badgeClass = getRiskLevelColorClass(key)
+    switch (key) {
+      case 'High': return { label: String(level).toUpperCase() === 'HIGH' ? 'High' : level, color: '#F44336', bg: '#B71C1C', badgeClass }
+      case 'Medium to High': return { label: 'Moderate to High', color: '#FF9800', bg: '#E65100', badgeClass }
+      case 'Medium': return { label: 'Moderate', color: '#FFC107', bg: '#FF6F00', badgeClass }
+      case 'Low to Medium': return { label: 'Low to Moderate', color: '#8BC34A', bg: '#33691E', badgeClass }
+      case 'Low': return { label: 'Low', color: '#4CAF50', bg: '#1B5E20', badgeClass }
+      default: return { label: level, color: '#9E9E9E', bg: '#616161', badgeClass }
     }
-    if (raw.includes('moderatehigh') || raw.includes('mediumhigh')) {
-      return { label: 'Moderate to High', color: '#FF9800', bg: '#E65100' }
-    }
-    if (raw.includes('moderate') || raw.includes('medium') || raw.includes('watch')) {
-      return { label: 'Moderate', color: '#FFC107', bg: '#FF6F00' }
-    }
-    if (raw.includes('lowmoderate')) {
-      return { label: 'Low to Moderate', color: '#8BC34A', bg: '#33691E' }
-    }
-    if (raw.includes('low') || raw.includes('verylow')) {
-      return { label: 'Low', color: '#4CAF50', bg: '#1B5E20' }
-    }
-
-    const mapped = (riskLevelConfig as any)[raw] || (riskLevelConfig as any)[level]
-    if (mapped) return mapped
-
-    return { label: level, color: '#FFC107', bg: '#FF6F00' }
   }
 
   type BadgeColor = 'error' | 'primary' | 'warning' | 'success' | 'info' | 'neutral'

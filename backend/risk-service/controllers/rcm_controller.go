@@ -4,6 +4,7 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"time"
 
 	"risk-service/models"
 
@@ -88,7 +89,7 @@ func parseRCMRequest(req *RCMRequest, target *models.RiskControlMatrix) {
 	if req.Year != 0 {
 		target.Year = req.Year
 	} else if target.Year == 0 {
-		target.Year = 2026
+		target.Year = time.Now().Year()
 	}
 
 	if req.DesignEffectivenessWeight > 0 {

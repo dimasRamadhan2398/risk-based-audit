@@ -5,10 +5,10 @@
       <div>
         <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
           <UIcon name="i-lucide-file-text" class="size-6 sm:size-7 text-primary-500 shrink-0" />
-          {{ t('executiveSummary.individual.title') }}
+          {{ t('navigation.executiveSummaryIndividual') }}
         </h1>
         <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
-          {{ t('executiveSummary.individual.subtitle') }}
+          {{ t('executiveSummaryIndividual.page.description') }}
         </p>
       </div>
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
@@ -16,14 +16,14 @@
           color="info"
           variant="ghost"
           icon="i-lucide-upload"
-          :label="t('executiveSummary.individual.import')"
+          :label="t('executiveSummaryIndividual.page.importButton')"
           to="/executive-summary/upload"
           class="font-bold shadow w-full sm:w-auto justify-center"
         />
         <UButton
           color="primary"
           icon="i-lucide-plus"
-          :label="t('executiveSummary.individual.create')"
+          :label="t('executiveSummaryIndividual.page.createButton')"
           class="font-bold w-full sm:w-auto justify-center"
           @click="store.openNewForm(1)"
         />
@@ -38,8 +38,8 @@
             <UIcon name="i-lucide-file-text" class="size-6" />
           </div>
           <div>
-            <div class="text-md text-gray-500 dark:text-gray-400">{{ t('executiveSummary.individual.stats.total') }}</div>
-            <div class="text-2xl font-bold text-gray-800 dark:text-white">{{ store.summaryList.length }}</div>
+            <div class="text-md text-gray-500 dark:text-gray-400">{{ t('executiveSummaryIndividual.stats.total') }}</div>
+            <div class="text-2xl font-bold text-gray-800 dark:text-white">{{ syncedSummaries.length }}</div>
           </div>
         </div>
       </UCard>
@@ -50,9 +50,9 @@
             <UIcon name="i-lucide-check-circle" class="size-6" />
           </div>
           <div>
-            <div class="text-md text-gray-500 dark:text-gray-400">{{ t('executiveSummary.individual.stats.approved') }}</div>
+            <div class="text-md text-gray-500 dark:text-gray-400">{{ t('executiveSummaryIndividual.stats.approved') }}</div>
             <div class="text-2xl font-bold text-gray-800 dark:text-white">
-              {{ store.summaryList.filter(s => s.status === 'Approved').length }}
+              {{ syncedSummaries.filter(s => s.status === 'Approved').length }}
             </div>
           </div>
         </div>
@@ -64,9 +64,9 @@
             <UIcon name="i-lucide-edit-3" class="size-6" />
           </div>
           <div>
-            <div class="text-md text-gray-500 dark:text-gray-400">{{ t('executiveSummary.individual.stats.draft') }}</div>
+            <div class="text-md text-gray-500 dark:text-gray-400">{{ t('executiveSummaryIndividual.stats.draft') }}</div>
             <div class="text-2xl font-bold text-gray-800 dark:text-white">
-              {{ store.summaryList.filter(s => s.status === 'Draft').length }}
+              {{ syncedSummaries.filter(s => s.status === 'Draft').length }}
             </div>
           </div>
         </div>
@@ -78,7 +78,7 @@
             <UIcon name="i-lucide-list-checks" class="size-6" />
           </div>
           <div>
-            <div class="text-md text-gray-500 dark:text-gray-400">{{ t('executiveSummary.individual.stats.handling') }}</div>
+            <div class="text-md text-gray-500 dark:text-gray-400">{{ t('executiveSummaryIndividual.stats.handling') }}</div>
             <div class="text-2xl font-bold text-gray-800 dark:text-white">
               {{ totalHandling }}
             </div>
@@ -94,14 +94,13 @@
         <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto flex-1">
           <div class="w-full md:w-80">
             <USelectMenu
-              v-model="selectedAssignmentLetter"
-              :items="assignmentLetterOptions"
-              value-key="value"
-              :placeholder="t('executiveSummary.individual.filters.assignmentLetter')"
+              v-model="selectedLhaNumber"
+              :items="lhaNumberOptions"
+              placeholder="Filter berdasarkan Nomor LHA..."
               class="w-full"
             >
               <template #leading>
-                <UIcon name="i-heroicons-document-text" class="size-4 text-primary-500" />
+                <UIcon name="i-lucide-file-text" class="size-4 text-primary-500" />
               </template>
             </USelectMenu>
           </div>
@@ -109,13 +108,13 @@
             <UInput
               v-model="searchQuery"
               icon="i-lucide-search"
-              :placeholder="t('executiveSummary.individual.filters.search')"
+              :placeholder="t('executiveSummaryIndividual.filters.search')"
               class="w-full"
             />
           </div>
         </div>
         <div class="text-sm text-gray-500 dark:text-gray-400 shrink-0">
-          {{ t('executiveSummary.individual.filters.showing', { count: filteredSummaries.length }) }}
+          {{ t('executiveSummaryIndividual.filters.showingPrefix') }} <span class="font-semibold">{{ filteredSummaries.length }}</span> {{ t('executiveSummaryIndividual.filters.showingSuffix') }}
         </div>
       </div>
 
@@ -134,12 +133,12 @@
               </div>
               <div>
                 <div class="flex items-center gap-2 flex-wrap">
-                  <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ item.nomorDokumen || t('executiveSummary.individual.card.draftLha') }}</h3>
+                  <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ item.nomorDokumen || t('executiveSummaryIndividual.card.draftLha') }}</h3>
                   <UBadge :color="getStatusColor(item.status)" variant="soft" class="font-semibold uppercase tracking-wider text-[10px]">
-                    {{ t('executiveSummary.individual.card.status', { status: getStatusLabel(item.status) }) }}
+                    {{ t('executiveSummaryIndividual.card.status', { status: item.status }) }}
                   </UBadge>
                   <UBadge v-if="item.assignmentLetterId" color="info" variant="subtle" class="font-mono text-[11px]">
-                    {{ t('executiveSummary.individual.card.assignmentLetter', { number: item.assignmentLetterId }) }}
+                    {{ t('executiveSummaryForm.upload.assignmentLetter', { number: item.assignmentLetterId }) }}
                   </UBadge>
                 </div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -152,18 +151,18 @@
             </div>
             
             <div class="flex gap-2 shrink-0">
-              <UTooltip :text="t('executiveSummary.individual.actions.view')">
+              <UTooltip :text="t('executiveSummaryIndividual.card.viewDetail')">
                 <UButton 
                   color="neutral" 
                   variant="ghost" 
                   icon="i-lucide-eye" 
                   size="md" 
-                  :title="t('executiveSummary.individual.actions.view')"
-                  :aria-label="t('executiveSummary.individual.actions.view')"
+                  :title="t('executiveSummaryIndividual.card.viewDetail')"
+                  :aria-label="t('executiveSummaryIndividual.card.viewDetail')"
                   @click="store.openView(item)" 
                 />
               </UTooltip>
-              <UTooltip :text="t('executiveSummary.individual.actions.edit')">
+              <UTooltip :text="t('executiveSummaryIndividual.card.edit')">
                 <UButton 
                   v-if="item.status !== 'Approved'" 
                   color="warning" 
@@ -173,7 +172,7 @@
                   @click="store.openEditForm(item as any)" 
                 />
               </UTooltip>
-              <UTooltip :text="t('executiveSummary.individual.actions.delete')">
+              <UTooltip :text="t('executiveSummaryIndividual.card.delete')">
                 <UButton 
                   color="error" 
                   variant="ghost" 
@@ -190,24 +189,41 @@
           <div class="p-5 grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Narrative Preview -->
             <div class="md:col-span-2 space-y-2">
-              <span class="text-md font-bold uppercase tracking-wider text-gray-400">{{ t('executiveSummary.individual.card.mainSummary') }}</span>
+              <span class="text-md font-bold uppercase tracking-wider text-gray-400">{{ t('executiveSummaryIndividual.card.narrativeSummary') }}</span>
               <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed italic">
-                "{{ item.narrative || t('executiveSummary.individual.card.noNarrative') }}"
+                "{{ item.narrative || t('executiveSummaryIndividual.card.noNarrative') }}"
               </p>
             </div>
 
             <!-- Metrics Overview -->
             <div class="bg-gray-50 dark:bg-gray-800/60 p-4 rounded-xl space-y-3 border border-gray-100 dark:border-gray-700/50">
-              <div class="text-md font-bold uppercase tracking-wider text-gray-400">{{ t('executiveSummary.individual.card.statistics') }}</div>
+              <div class="text-md font-bold uppercase tracking-wider text-gray-400">{{ t('executiveSummaryIndividual.card.metrics') }}</div>
               <div class="grid grid-cols-2 gap-2 text-center">
                 <div class="bg-white dark:bg-gray-800 p-2 rounded border">
-                  <div class="text-md text-gray-400">{{ t('executiveSummary.individual.card.highRisk') }}</div>
-                  <div class="text-lg font-bold text-error-600">{{ item.risikoTinggi || 0 }}</div>
+                  <div class="text-md text-gray-400">{{ t('executiveSummaryIndividual.card.highRisk') }}</div>
+                  <div class="text-lg font-bold text-error-600">{{ item.risikoHigh || 0 }}</div>
                 </div>
                 <div class="bg-white dark:bg-gray-800 p-2 rounded border">
-                  <div class="text-md text-gray-400">{{ t('executiveSummary.individual.card.totalRecommendations') }}</div>
+                  <div class="text-md text-gray-400">{{ t('executiveSummaryIndividual.card.totalRecommendations') }}</div>
                   <div class="text-lg font-bold text-primary-600">{{ item.jumlahRekomendasi || 0 }}</div>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Note dari Executive untuk Auditor (Hanya muncul jika diisi oleh Admin/CAE/Audit Manager) -->
+          <div v-if="item.executiveNote && item.executiveNote.trim()" class="px-5 pb-5 pt-0">
+            <div class="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl p-3.5 flex items-start gap-3">
+              <div class="p-1.5 bg-amber-100 dark:bg-amber-900/60 rounded-lg text-amber-700 dark:text-amber-400 shrink-0 mt-0.5">
+                <UIcon name="i-lucide-message-square-text" class="size-4" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 mb-1 flex items-center gap-1.5">
+                  <span>{{ t('executiveSummaryForm.notes.title') }}</span>
+                </div>
+                <p class="text-sm text-amber-900 dark:text-amber-200/90 whitespace-pre-line leading-relaxed">
+                  {{ item.executiveNote }}
+                </p>
               </div>
             </div>
           </div>
@@ -217,14 +233,14 @@
       <!-- Empty State -->
       <div v-else class="text-center py-12">
         <UIcon name="i-lucide-file-x" class="size-16 text-gray-300 mx-auto mb-3" />
-        <h3 class="text-lg font-bold text-gray-700 dark:text-gray-300">{{ t('executiveSummary.individual.empty.title') }}</h3>
+        <h3 class="text-lg font-bold text-gray-700 dark:text-gray-300">{{ t('executiveSummaryIndividual.empty.title') }}</h3>
         <p class="text-sm text-gray-500 mt-1 max-w-md mx-auto">
-          {{ t('executiveSummary.individual.empty.description') }}
+          {{ t('executiveSummaryIndividual.empty.description') }}
         </p>
         <UButton
           color="primary"
           icon="i-lucide-plus"
-          :label="t('executiveSummary.individual.create')"
+          :label="t('executiveSummaryIndividual.page.createButton')"
           class="mt-4 font-bold"
           @click="store.openNewForm(1)"
         />
@@ -243,13 +259,10 @@
               </div>
               <div>
                 <h2 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
-                  {{ store.isViewing ? t('executiveSummary.individual.modal.detail') : store.isEditing ? t('executiveSummary.individual.modal.edit') : t('executiveSummary.individual.modal.create') }}
+                  {{ store.isViewing ? t('executiveSummaryIndividual.modal.view') : store.isEditing ? t('executiveSummaryIndividual.modal.edit') : t('executiveSummaryIndividual.modal.create') }}
                 </h2>
-                <p class="text-xs sm:text-sm text-gray-500">{{ t('executiveSummary.individual.modal.lhaId', { id: store.form.nomorDokumen || t('executiveSummary.individual.modal.draft') }) }}</p>
+                <p class="text-xs sm:text-sm text-gray-500">{{ t('executiveSummaryIndividual.modal.lhaId', { id: store.form.nomorDokumen || t('executiveSummaryIndividual.modal.draft') }) }}</p>
               </div>
-              <UBadge :color="getStatusColor(store.form.status)" variant="soft" class="font-bold uppercase">
-                {{ t('executiveSummary.individual.modal.status', { status: getStatusLabel(store.form.status) }) }}
-              </UBadge>
             </div>
 
             <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
@@ -257,7 +270,7 @@
                 v-if="!store.isViewing && store.form.status !== 'Approved'"
                 color="primary"
                 icon="i-lucide-save"
-                :label="t('executiveSummary.individual.modal.save')"
+                :label="t('executiveSummaryForm.actions.saveReport')"
                 class="font-bold flex-1 sm:flex-none justify-center" 
                 :loading="store.loading"
                 @click="store.saveForm"
@@ -266,7 +279,7 @@
                 color="neutral"
                 variant="ghost"
                 icon="i-lucide-x"
-                :label="t('executiveSummary.individual.modal.close')"
+                :label="t('executiveSummaryForm.actions.close')"
                 class="flex-1 sm:flex-none justify-center"
                 @click="() => { store.showModal = false }"
               />
@@ -285,10 +298,13 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useExecutiveSummaryStore, type ExecutiveSummary } from '~/stores/executive-summary'
+import { useExecutiveSummaryStore, loadPersistedExecutiveSummaryOverrides, type ExecutiveSummary } from '~/stores/executive-summary'
+import { useI18n } from '~/composables/useI18n'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import ExecutiveSummaryIndividualForm from '~/components/audit-result-report/ExecutiveSummaryIndividualForm.vue'
+
+const { t } = useI18n()
 
 definePageMeta({
   middleware: 'auth'
@@ -297,25 +313,43 @@ definePageMeta({
 const store = useExecutiveSummaryStore()
 const auditReportStore = useAuditResultReportStore()
 const assignmentLetterStore = useAssignmentLetterStore()
-const { t, locale } = useI18n()
 const searchQuery = ref('')
-const selectedAssignmentLetter = ref('')
-const ALL_ASSIGNMENT_LETTERS = '__all__'
+const selectedLhaNumber = ref('')
 
 const totalHandling = computed(() => {
-  return store.summaryList.reduce((total, summary) => {
+  return syncedSummaries.value.reduce((total, summary) => {
     return total + (summary.followUpTable || []).reduce((count, row) => count + Number(row.jumlah || 0), 0)
   }, 0)
 })
 
-const assignmentLetterOptions = computed(() => {
-  const lettersFromStore = assignmentLetterStore.assignmentLetterList.map((st: any) => st.letterNumber)
-  const lettersFromReports = auditReportStore.reportList.map((r: any) => r.assignmentLetterId).filter(Boolean)
-  const combined = Array.from(new Set([...lettersFromStore, ...lettersFromReports, 'ST-001/SKAI/2026', 'ST-002/SKAI/2026', 'ST-003/SKAI/2026', '020/ST/01/KSIAD/2023']))
-  return [
-    { label: t('executiveSummary.individual.filters.allAssignmentLetters'), value: ALL_ASSIGNMENT_LETTERS },
-    ...combined.map(value => ({ label: value, value }))
-  ]
+const lhaNumberOptions = computed(() => {
+  const isExcluded = (num: string) =>
+    num === 'DOC-EXSUM-Q1-2026' ||
+    num === '020/LHA/01/KS IAD/2023' ||
+    num === '019/LHA/01/KS IAD/2025' ||
+    num === 'LHA-020/SKAI/2023' ||
+    num === 'LHA-019/SKAI/2025' ||
+    num.startsWith('ESC-')
+
+  const numsFromReports = auditReportStore.reportList
+    .map((r: any) => r.reportNumber || r.report_number)
+    .filter(Boolean)
+  const numsFromSummaries = store.summaryList
+    .map((s: any) => s.nomorDokumen)
+    .filter(Boolean)
+  const numsFromSynced = syncedSummaries.value
+    .map((s: any) => s.nomorDokumen)
+    .filter(Boolean)
+
+  const combined = Array.from(new Set([
+    ...numsFromReports, 
+    ...numsFromSummaries, 
+    ...numsFromSynced
+  ]))
+    .filter(num => !isExcluded(num))
+    .sort()
+
+  return ['Semua Nomor LHA', ...combined]
 })
 
 // Load stores on mount
@@ -329,52 +363,102 @@ if (!auditReportStore.loading) {
 // Map month string
 const getMonthName = (mStr: string) => {
   const m = parseInt(mStr)
-  if (!Number.isInteger(m) || m < 1 || m > 12) return new Date(2000, 3, 1).toLocaleString(locale.value === 'id' ? 'id-ID' : 'en-US', { month: 'long' })
-  return new Date(2000, m - 1, 1).toLocaleString(locale.value === 'id' ? 'id-ID' : 'en-US', { month: 'long' })
+  const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+  return months[m - 1] || 'Januari'
 }
 
 // Synced list combining Executive Summaries and Result Reports LHA items
 const syncedSummaries = computed(() => {
-  const summaries: (ExecutiveSummary & { assignmentLetterId?: string })[] = JSON.parse(JSON.stringify(store.summaryList))
+  const overrides = loadPersistedExecutiveSummaryOverrides()
+  const rawList: (ExecutiveSummary & { assignmentLetterId?: string })[] = JSON.parse(JSON.stringify(store.summaryList))
 
+  // Filter out any dummy / non-standard legacy documents
+  const filteredRaw = rawList.filter(s => 
+    s.nomorDokumen !== 'DOC-EXSUM-Q1-2026' &&
+    s.nomorDokumen !== '020/LHA/01/KS IAD/2023' &&
+    s.nomorDokumen !== '019/LHA/01/KS IAD/2025' &&
+    s.nomorDokumen !== 'LHA-020/SKAI/2023' &&
+    s.nomorDokumen !== 'LHA-019/SKAI/2025'
+  )
+
+  // Map to deduplicate strictly by nomorDokumen
+  const docMap = new Map<string, ExecutiveSummary & { assignmentLetterId?: string }>()
+
+  filteredRaw.forEach(s => {
+    const override = overrides[s.nomorDokumen] || overrides[s.id]
+    if (override) {
+      if (override.status) s.status = override.status as any
+      if (override.executiveNote !== undefined) s.executiveNote = override.executiveNote
+      if (override.assignmentLetterId) s.assignmentLetterId = override.assignmentLetterId
+    }
+    if (s.nomorDokumen) {
+      docMap.set(s.nomorDokumen, s)
+    }
+  })
+
+  // Synchronize with LHA items from auditReportStore
   auditReportStore.reportList.forEach(lha => {
     const lhaNum = lha.reportNumber || (lha as any).report_number
-    if (!lhaNum) return
+    if (!lhaNum ||
+      lhaNum === 'DOC-EXSUM-Q1-2026' ||
+      lhaNum === '020/LHA/01/KS IAD/2023' ||
+      lhaNum === '019/LHA/01/KS IAD/2025' ||
+      lhaNum === 'LHA-020/SKAI/2023' ||
+      lhaNum === 'LHA-019/SKAI/2025') return
 
-    const existingIndex = summaries.findIndex(s => s.nomorDokumen === (lhaNum || ''))
-    if (existingIndex >= 0) {
-      const existing = summaries[existingIndex]
-      if (!existing) return
-      existing.assignmentLetterId = lha.assignmentLetterId
-      // Keep narrative and findingsCount in sync with LHA
+    if (docMap.has(lhaNum)) {
+      const existing = docMap.get(lhaNum)!
+      if (lha.assignmentLetterId && (!existing.assignmentLetterId || !existing.assignmentLetterId.startsWith('ST-'))) {
+        existing.assignmentLetterId = lha.assignmentLetterId
+      }
       if (lha.executiveSummary && (!existing.narrative || existing.narrative.startsWith('Executive Summary Individual untuk'))) {
         existing.narrative = lha.executiveSummary
       }
       if (lha.findingsCount && existing.jumlahRekomendasi === 0 && lha.findingsCount > 0) {
         existing.jumlahRekomendasi = lha.findingsCount
       }
+      const override = overrides[lhaNum] || overrides[existing.id]
+      if (override?.executiveNote !== undefined) {
+        existing.executiveNote = override.executiveNote
+      }
+      if (override?.status) {
+        existing.status = override.status as any
+      }
     } else {
       if (!store.deletedDocNumbers.includes(lhaNum)) {
-        // Automatically add synced Executive Summary card for this LHA ID
-        const dateParts = lha.reportDate ? lha.reportDate.split('-') : ['2026', '04', '15']
+        const dateParts = lha.reportDate ? lha.reportDate.split('-') : ['2026', '01', '15']
         const yr = parseInt(dateParts[0] || '2026') || 2026
-        const monthNumber = parseInt(dateParts[1] || '04') || 4
-        const mo = getMonthName(String(monthNumber))
+        const mo = getMonthName(dateParts[1] || '01')
 
-        summaries.push({
+        const override = overrides[lhaNum] || overrides[`ES-${lha.id}`]
+        let itemStatus: 'Draft' | 'Approved' | 'Rejected' = 
+          (lha.status === 'Final' || (lha.status as any) === 'Approved' || (lha.status as any) === 'APPROVED') ? 'Approved' : 'Draft'
+        let itemNote = (lha as any).executiveNote || (lha as any).executive_note || ''
+
+        if (override) {
+          if (override.status) itemStatus = override.status as any
+          if (override.executiveNote !== undefined) itemNote = override.executiveNote
+        }
+
+        const fallbackSt = lha.assignmentLetterId || ''
+
+        docMap.set(lhaNum, {
           id: `ES-${lha.id}`,
-          assignmentLetterId: lha.assignmentLetterId,
-          quarter: Math.ceil(monthNumber / 3),
+          assignmentLetterId: fallbackSt,
+          quarter: mo === 'Januari' || mo === 'Februari' || mo === 'Maret' ? 1 : mo === 'April' || mo === 'Mei' || mo === 'Juni' ? 2 : 3,
           periodeBulan: `${mo} ${yr}`,
           tahun: yr,
           nomorDokumen: lhaNum,
           dokumenPath: `Executive_Summary_${lhaNum.replace(/[\/\s]/g, '_')}.pdf`,
-          status: lha.status === 'Final' ? 'Approved' : 'Draft',
+          status: itemStatus,
+          executiveNote: itemNote,
           narrative: lha.executiveSummary || `Executive Summary untuk ${lha.reportTitle} (${lhaNum}).`,
           jumlahLaporan: 1,
-          risikoTinggi: (lha.findings || []).filter(f => ['Very Significant', 'Significant'].includes(f.category)).length || 1,
-          risikoSedang: (lha.findings || []).filter(f => f.category === 'Quite Significant').length || 0,
-          risikoRendah: (lha.findings || []).filter(f => f.category === 'Not Significant').length || 0,
+          risikoHigh: (lha.findings || []).filter(f => ['Very Significant', 'Significant'].includes(f.category)).length || 0,
+          risikoModerateHigh: 0,
+          risikoModerate: (lha.findings || []).filter(f => f.category === 'Quite Significant').length || 0,
+          risikoLowModerate: 0,
+          risikoLow: (lha.findings || []).filter(f => f.category === 'Not Significant').length || 0,
           jumlahRekomendasi: lha.findingsCount || (lha.findings?.length || 0),
           followUpTable: [],
           topFindings: (lha.findings || []).map(f => ({
@@ -396,32 +480,21 @@ const syncedSummaries = computed(() => {
     }
   })
 
-  // Map missing assignmentLetterId for initial items
-  summaries.forEach(s => {
-    if (!s.assignmentLetterId) {
-      const matchLha = auditReportStore.reportList.find(l => l.reportNumber === s.nomorDokumen)
-      if (matchLha) {
-        s.assignmentLetterId = matchLha.assignmentLetterId
-      } else if (s.nomorDokumen.includes('021')) {
-        s.assignmentLetterId = 'ST-001/SKAI/2026'
-      } else if (s.nomorDokumen.includes('020')) {
-        s.assignmentLetterId = '020/ST/01/KSIAD/2023'
-      } else if (s.nomorDokumen.includes('022')) {
-        s.assignmentLetterId = 'ST-002/SKAI/2026'
-      } else if (s.nomorDokumen.includes('023')) {
-        s.assignmentLetterId = 'ST-003/SKAI/2026'
-      }
+  const result: (ExecutiveSummary & { assignmentLetterId?: string })[] = []
+  docMap.forEach(s => {
+    if (!store.deletedDocNumbers.includes(s.nomorDokumen)) {
+      result.push(s)
     }
   })
 
-  return summaries.filter(s => !store.deletedDocNumbers.includes(s.nomorDokumen))
+  return result
 })
 
 const filteredSummaries = computed(() => {
   let list = syncedSummaries.value
 
-  if (selectedAssignmentLetter.value && selectedAssignmentLetter.value !== ALL_ASSIGNMENT_LETTERS) {
-    list = list.filter(s => s.assignmentLetterId === selectedAssignmentLetter.value)
+  if (selectedLhaNumber.value && selectedLhaNumber.value !== 'Semua Nomor LHA' && selectedLhaNumber.value !== 'All LHA Numbers') {
+    list = list.filter(s => s.nomorDokumen === selectedLhaNumber.value)
   }
 
   if (searchQuery.value) {
@@ -443,12 +516,5 @@ const getStatusColor = (status: string) => {
     case 'Rejected': return 'error'
     default: return 'neutral'
   }
-}
-
-const getStatusLabel = (status: string) => {
-  const key = status.toLowerCase()
-  return ['approved', 'draft', 'rejected'].includes(key)
-    ? t(`executiveSummary.individual.statuses.${key}`)
-    : status
 }
 </script>

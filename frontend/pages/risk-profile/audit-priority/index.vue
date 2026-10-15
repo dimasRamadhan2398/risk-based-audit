@@ -66,13 +66,11 @@
               {{ t('auditPriority.selectYear') !== 'auditPriority.selectYear' ? t('auditPriority.selectYear') : 'Audit Year' }}
             </p>
             <div class="flex items-center gap-2 mt-1.5">
-              <UInput
+              <USelect
                 v-model.number="selectedYear"
-                type="number"
+                :items="fiscalYears"
                 size="sm"
-                class="w-24 font-bold"
-                :min="2020"
-                :max="2035"
+                class="w-28 font-bold"
               />
               <UButton
                 icon="i-lucide-refresh-cw"
@@ -171,97 +169,69 @@
       </template>
 
       <!-- Table Content -->
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-sm">
-          <thead class="bg-slate-50 dark:bg-slate-850/50">
-            <tr>
-              <th scope="col" class="px-6 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">
-                {{ t('riskFactors.priority.no') }}
-              </th>
-              <th scope="col" class="px-6 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">
-                {{ t('riskFactors.priority.auditableEntity') }}
-              </th>
-              <th scope="col" class="px-6 py-3 text-center scope font-semibold text-slate-700 dark:text-slate-300">
-                {{ t('riskFactors.priority.riskIndex') }}
-              </th>
-              <th scope="col" class="px-6 py-3 text-center scope font-semibold text-slate-700 dark:text-slate-300">
-                {{ t('riskFactors.priority.riskLevel') }}
-              </th>
-              <th scope="col" class="px-6 py-3 text-center scope font-semibold text-slate-700 dark:text-slate-300">
-                {{ t('riskFactors.priority.auditPriorityCol') }}
-              </th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-            <tr
-              v-for="(ent, idx) in filteredYearlyUniverse"
-              :key="ent.id"
-              class="hover:bg-slate-50/50 dark:hover:bg-slate-800/10 transition-colors"
-              :class="ent.audit_priority ? 'bg-primary-50/10 dark:bg-primary-950/20' : ''"
+      <!-- Table Content -->
+      <TableEntities
+        :columns="priorityColumns"
+        :data="filteredYearlyUniverse"
+        :loading="loading"
+        :show-pagination="false"
+      >
+        <template #no-cell="{ row }">
+          <span class="text-slate-500 font-medium">{{ row.index + 1 }}</span>
+        </template>
+
+        <template #name-cell="{ row }">
+          <span class="font-bold text-slate-800 dark:text-slate-200">{{ row.original.corporate_audit_universe?.name || 'Unnamed Entity' }}</span>
+        </template>
+
+        <template #risk_index-cell="{ row }">
+          <span class="font-semibold text-slate-700 dark:text-slate-300">{{ typeof row.original.risk_index === 'number' ? row.original.risk_index.toFixed(1) + '%' : '-' }}</span>
+        </template>
+
+        <template #risk_level-cell="{ row }">
+          <span :class="getRiskLevelBadgeClass(row.original.risk_level)">{{ formatRiskLevel(row.original.risk_level) }}</span>
+        </template>
+
+        <template #audit_priority-cell="{ row }">
+          <div v-if="row.original.audit_priority" class="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+            <UIcon name="i-lucide-check-circle" class="w-5 h-5 text-emerald-500" />
+            <span>{{ t('riskFactors.priority.priorityBadge') }}</span>
+          </div>
+          <span v-else class="text-slate-400 text-sm">-</span>
+        </template>
+
+        <template #loading>
+          <div class="text-center py-12 text-slate-400 text-sm">
+            <UIcon name="i-lucide-loader-2" class="w-8 h-8 mx-auto text-primary-500 animate-spin mb-2" />
+            <p>Loading audit priority data for year {{ selectedYear }}...</p>
+          </div>
+        </template>
+
+        <template #empty>
+          <div v-if="yearlyUniverse.length > 0" class="text-center py-10 text-slate-400 text-sm">
+            <UIcon name="i-lucide-filter-x" class="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+            <p>No auditable entities match your filter criteria.</p>
+          </div>
+          <div v-else class="text-center py-12 text-slate-400 text-sm">
+            <UIcon name="i-lucide-inbox" class="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+            <p class="font-medium text-slate-600 dark:text-slate-300">
+              {{ t('riskFactors.priority.noEntities', { year: selectedYear }) }}
+            </p>
+            <p class="text-xs text-slate-400 mt-1 mb-4">
+              Please establish active entities in the Yearly Establishment tab of Audit Universe first.
+            </p>
+            <UButton
+              to="/risk-profile/audit-universe?tab=establish"
+              icon="i-lucide-plus"
+              color="primary"
+              variant="subtle"
+              size="sm"
             >
-              <td class="px-6 py-4 text-slate-500 font-medium">
-                {{ idx + 1 }}
-              </td>
-              <td class="px-6 py-4 font-bold text-slate-800 dark:text-slate-200">
-                {{ ent.corporate_audit_universe?.name || 'Unnamed Entity' }}
-              </td>
-              <td class="px-6 py-4 text-center font-semibold text-slate-700 dark:text-slate-300">
-                {{ typeof ent.risk_index === 'number' ? ent.risk_index.toFixed(1) + '%' : '-' }}
-              </td>
-              <td class="px-6 py-4 text-center">
-                <UBadge :color="getRiskLevelBadgeColor(ent.risk_level)" size="md" class="font-bold">
-                  {{ formatRiskLevel(ent.risk_level) }}
-                </UBadge>
-              </td>
-              <td class="px-6 py-4 text-center">
-                <div v-if="ent.audit_priority" class="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
-                  <UIcon name="i-lucide-check-circle" class="w-5 h-5 text-emerald-500" />
-                  <span>{{ t('riskFactors.priority.priorityBadge') }}</span>
-                </div>
-                <span v-else class="text-slate-400 text-sm">-</span>
-              </td>
-            </tr>
-
-            <!-- Empty Search State -->
-            <tr v-if="yearlyUniverse.length > 0 && filteredYearlyUniverse.length === 0">
-              <td colspan="5" class="text-center py-10 text-slate-400 text-sm">
-                <UIcon name="i-lucide-filter-x" class="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
-                <p>No auditable entities match your filter criteria.</p>
-              </td>
-            </tr>
-
-            <!-- Empty State for Year -->
-            <tr v-if="yearlyUniverse.length === 0 && !loading">
-              <td colspan="5" class="text-center py-12 text-slate-400 text-sm">
-                <UIcon name="i-lucide-inbox" class="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
-                <p class="font-medium text-slate-600 dark:text-slate-300">
-                  {{ t('riskFactors.priority.noEntities', { year: selectedYear }) }}
-                </p>
-                <p class="text-xs text-slate-400 mt-1 mb-4">
-                  Please establish active entities in the Yearly Establishment tab of Audit Universe first.
-                </p>
-                <UButton
-                  to="/risk-profile/audit-universe?tab=establish"
-                  icon="i-lucide-plus"
-                  color="primary"
-                  variant="subtle"
-                  size="sm"
-                >
-                  Establish Universe for {{ selectedYear }}
-                </UButton>
-              </td>
-            </tr>
-
-            <!-- Loading State -->
-            <tr v-if="loading">
-              <td colspan="5" class="text-center py-12 text-slate-400 text-sm">
-                <UIcon name="i-lucide-loader-2" class="w-8 h-8 mx-auto text-primary-500 animate-spin mb-2" />
-                <p>Loading audit priority data for year {{ selectedYear }}...</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+              Establish Universe for {{ selectedYear }}
+            </UButton>
+          </div>
+        </template>
+      </TableEntities>
 
       <template #footer>
         <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
@@ -295,58 +265,17 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-            <tr>
-              <td class="px-4 py-2.5 text-slate-600 dark:text-slate-400 font-medium text-center">80 - 100%</td>
-              <td class="px-4 py-2.5 text-center flex justify-center">
-                <span class="inline-flex items-center justify-center font-bold px-3 py-1 rounded text-white text-xs w-36 shadow-sm" style="background-color: #F44336;">
-                  {{ t('riskFactors.priority.levels.high') }}
+            <tr v-for="row in riskLevelReferenceRows" :key="row.level">
+              <td class="px-4 py-2.5 text-slate-600 dark:text-slate-400 font-medium text-center">{{ row.range }}</td>
+              <td class="px-4 py-2.5 text-center">
+                <span :class="getRiskLevelBadgeClass(row.level)">
+                  {{ formatRiskLevel(row.level) }}
                 </span>
               </td>
-              <td class="px-4 py-2.5 text-center text-xs font-bold text-emerald-600 dark:text-emerald-400">
+              <td v-if="row.prioritized" class="px-4 py-2.5 text-center text-xs font-bold text-emerald-600 dark:text-emerald-400">
                 √ {{ t('riskFactors.scoring.priorityYes') }}
               </td>
-            </tr>
-            <tr>
-              <td class="px-4 py-2.5 text-slate-600 dark:text-slate-400 font-medium text-center">60 - 79%</td>
-              <td class="px-4 py-2.5 text-center flex justify-center">
-                <span class="inline-flex items-center justify-center font-bold px-3 py-1 rounded text-white text-xs w-36 shadow-sm" style="background-color: #FF9800;">
-                  {{ t('riskFactors.priority.levels.moderateToHigh') }}
-                </span>
-              </td>
-              <td class="px-4 py-2.5 text-center text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                √ {{ t('riskFactors.scoring.priorityYes') }}
-              </td>
-            </tr>
-            <tr>
-              <td class="px-4 py-2.5 text-slate-600 dark:text-slate-400 font-medium text-center">40 - 59%</td>
-              <td class="px-4 py-2.5 text-center flex justify-center">
-                <span class="inline-flex items-center justify-center font-bold px-3 py-1 rounded text-black text-xs w-36 shadow-sm" style="background-color: #FFC107;">
-                  {{ t('riskFactors.priority.levels.moderate') }}
-                </span>
-              </td>
-              <td class="px-4 py-2.5 text-center text-xs text-slate-400">
-                {{ t('riskFactors.scoring.priorityNo') }}
-              </td>
-            </tr>
-            <tr>
-              <td class="px-4 py-2.5 text-slate-600 dark:text-slate-400 font-medium text-center">20 - 39%</td>
-              <td class="px-4 py-2.5 text-center flex justify-center">
-                <span class="inline-flex items-center justify-center font-bold px-3 py-1 rounded text-black text-xs w-36 shadow-sm" style="background-color: #8BC34A;">
-                  {{ t('riskFactors.priority.levels.lowToModerate') }}
-                </span>
-              </td>
-              <td class="px-4 py-2.5 text-center text-xs text-slate-400">
-                {{ t('riskFactors.scoring.priorityNo') }}
-              </td>
-            </tr>
-            <tr>
-              <td class="px-4 py-2.5 text-slate-600 dark:text-slate-400 font-medium text-center">0 - 19%</td>
-              <td class="px-4 py-2.5 text-center flex justify-center">
-                <span class="inline-flex items-center justify-center font-bold px-3 py-1 rounded text-white text-xs w-36 shadow-sm" style="background-color: #4CAF50;">
-                  {{ t('riskFactors.priority.levels.low') }}
-                </span>
-              </td>
-              <td class="px-4 py-2.5 text-center text-xs text-slate-400">
+              <td v-else class="px-4 py-2.5 text-center text-xs text-slate-400">
                 {{ t('riskFactors.scoring.priorityNo') }}
               </td>
             </tr>
@@ -361,12 +290,20 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
 import { useI18n } from '~/composables/useI18n'
+import { useFiscalYear } from '~/composables/useFiscalYear'
+import {
+  getRiskLevelBadgeClass,
+  isPriorityRiskLevel,
+  RISK_LEVEL_LABEL_KEYS,
+  type PriorityRiskLevel
+} from '~/utils/riskLevelBadge'
 
 const store = useAuditUniverseStore()
 const { t } = useI18n()
 
 // State
-const selectedYear = ref(2026)
+const { fiscalYears, selectedFiscalYear } = useFiscalYear()
+const selectedYear = selectedFiscalYear
 const searchQuery = ref('')
 const statusFilter = ref<'all' | 'prioritized' | 'non_prioritized'>('all')
 const alertMessage = ref('')
@@ -431,29 +368,27 @@ onMounted(async () => {
   await loadData()
 })
 
+const priorityColumns = computed(() => [
+  { accessorKey: 'no', header: t('riskFactors.priority.no'), meta: { class: { th: 'w-16', td: 'w-16' } } },
+  { accessorKey: 'name', header: t('riskFactors.priority.auditableEntity') },
+  { accessorKey: 'risk_index', header: t('riskFactors.priority.riskIndex'), meta: { class: { th: 'text-center', td: 'text-center' } } },
+  { accessorKey: 'risk_level', header: t('riskFactors.priority.riskLevel'), meta: { class: { th: 'text-center', td: 'text-center' } } },
+  { accessorKey: 'audit_priority', header: t('riskFactors.priority.auditPriorityCol'), meta: { class: { th: 'text-center', td: 'text-center' } } }
+])
+
 const formatRiskLevel = (level?: string) => {
   if (!level) return 'N/A'
-  switch (level) {
-    case 'High': return t('riskFactors.priority.levels.high')
-    case 'Medium to High': return t('riskFactors.priority.levels.moderateToHigh')
-    case 'Medium': return t('riskFactors.priority.levels.moderate')
-    case 'Low to Medium': return t('riskFactors.priority.levels.lowToModerate')
-    case 'Low': return t('riskFactors.priority.levels.low')
-    default: return level
-  }
+  return isPriorityRiskLevel(level) ? t(RISK_LEVEL_LABEL_KEYS[level]) : level
 }
 
-const getRiskLevelBadgeColor = (level?: string) => {
-  if (!level) return 'neutral'
-  switch (level) {
-    case 'High': return 'error'
-    case 'Medium to High': return 'warning'
-    case 'Medium': return 'primary'
-    case 'Low to Medium': return 'info'
-    case 'Low': return 'success'
-    default: return 'neutral'
-  }
-}
+// Corporate Risk Index Level Information reference table; badges share getRiskLevelBadgeClass with the main table.
+const riskLevelReferenceRows: { range: string, level: PriorityRiskLevel, prioritized: boolean }[] = [
+  { range: '80 - 100%', level: 'High', prioritized: true },
+  { range: '60 - 79%', level: 'Medium to High', prioritized: true },
+  { range: '40 - 59%', level: 'Medium', prioritized: false },
+  { range: '20 - 39%', level: 'Low to Medium', prioritized: false },
+  { range: '0 - 19%', level: 'Low', prioritized: false }
+]
 
 const showAlert = (msg: string, type: string) => {
   alertMessage.value = msg

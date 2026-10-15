@@ -25,7 +25,7 @@
           icon="i-lucide-plus"
           :label="t('executiveSummary.createNew')"
           class="font-bold w-full sm:w-auto justify-center"
-          @click="store.openNewForm(activeQuarter)"
+          @click="store.openNewCompilationForm(activeQuarter)"
         />
       </div>
     </div>
@@ -109,15 +109,29 @@
 
       <!-- Search and Filters -->
       <div class="mb-4 flex flex-col md:flex-row gap-4 items-center justify-between">
-        <div class="w-full md:w-80">
-          <UInput
-            v-model="searchQuery"
-            icon="i-lucide-search"
-            :placeholder="t('executiveSummary.searchPlaceholder')"
-            class="w-full"
-          />
+        <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto flex-1">
+          <div class="w-full md:w-80">
+            <USelectMenu
+              v-model="selectedCompilationDoc"
+              :items="compilationDocOptions"
+              placeholder="Filter berdasarkan Nomor Dokumen Kompilasi..."
+              class="w-full"
+            >
+              <template #leading>
+                <UIcon name="i-lucide-file-text" class="size-4 text-primary-500" />
+              </template>
+            </USelectMenu>
+          </div>
+          <div class="w-full md:w-80">
+            <UInput
+              v-model="searchQuery"
+              icon="i-lucide-search"
+              :placeholder="t('executiveSummary.searchPlaceholder')"
+              class="w-full"
+            />
+          </div>
         </div>
-        <div class="text-sm text-gray-500 dark:text-gray-400">
+        <div class="text-sm text-gray-500 dark:text-gray-400 shrink-0">
           {{ t('executiveSummary.showingDocuments', { count: filteredSummaries.length }) }}
         </div>
       </div>
@@ -140,6 +154,10 @@
                   <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ item.nomorDokumen || t('executiveSummary.draftReport') }}</h3>
                   <UBadge :color="getStatusColor(item.status)" variant="soft" class="font-semibold uppercase tracking-wider text-[10px]">
                     Status: {{ item.status }}
+                  </UBadge>
+                  <UBadge v-if="item.assignmentLetterId" color="info" variant="subtle" class="font-mono text-[11px]">
+                    <UIcon name="i-lucide-file-signature" class="size-3 mr-1" />
+                    {{ item.assignmentLetterId }}
                   </UBadge>
                 </div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -170,12 +188,16 @@
             <div class="pt-4 md:pt-0">
               <span class="block text-md font-semibold text-gray-400 uppercase tracking-wider mb-1">{{ t('executiveSummary.cardStats.totalFindings') }}</span>
               <span class="block text-2xl font-bold text-gray-800 dark:text-white">
-                {{ Number(item.risikoTinggi) + Number(item.risikoSedang) + Number(item.risikoRendah) }}
+                {{ riskBreakdownTotal(riskFieldsToBreakdown(item)) }}
               </span>
-              <div class="flex justify-center gap-2 mt-1.5 text-md">
-                <span class="text-error-600 font-semibold bg-error-50 dark:bg-error-950/50 px-1.5 rounded">{{ item.risikoTinggi }} H</span>
-                <span class="text-warning-600 font-semibold bg-warning-50 dark:bg-warning-950/50 px-1.5 rounded">{{ item.risikoSedang }} M</span>
-                <span class="text-success-600 font-semibold bg-success-50 dark:bg-success-950/50 px-1.5 rounded">{{ item.risikoRendah }} L</span>
+              <div class="flex flex-wrap justify-center gap-1.5 mt-1.5 text-md">
+                <span
+                  v-for="level in RISK_LEVELS"
+                  :key="level"
+                  class="font-semibold px-1.5 rounded"
+                  :class="RISK_LEVEL_STYLE[level].chip"
+                  :title="t(riskLevelI18nKey(level))"
+                >{{ riskFieldsToBreakdown(item)[level] }} {{ t(riskLevelI18nKey(level, true)) }}</span>
               </div>
             </div>
             <div class="pt-4 md:pt-0">
@@ -203,6 +225,23 @@
               <span class="italic line-clamp-2">{{ item.narrative }}</span>
             </div>
           </div>
+
+          <!-- Note dari Executive untuk Auditor (Hanya muncul jika diisi oleh Admin/CAE/Audit Manager) -->
+          <div v-if="item.executiveNote && item.executiveNote.trim()" class="px-5 pb-5 pt-0">
+            <div class="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl p-3.5 flex items-start gap-3">
+              <div class="p-1.5 bg-amber-100 dark:bg-amber-900/60 rounded-lg text-amber-700 dark:text-amber-400 shrink-0 mt-0.5">
+                <UIcon name="i-lucide-message-square-text" class="size-4" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 mb-1 flex items-center gap-1.5">
+                  <span>Noted dari Executive untuk Auditor</span>
+                </div>
+                <p class="text-sm text-amber-900 dark:text-amber-200/90 whitespace-pre-line leading-relaxed">
+                  {{ item.executiveNote }}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -217,7 +256,7 @@
           color="primary"
           icon="i-lucide-plus"
           :label="t('executiveSummary.empty.button')"
-          @click="store.openNewForm(activeQuarter)"
+          @click="store.openNewCompilationForm(activeQuarter)"
         />
       </div>
     </UCard>
@@ -249,11 +288,14 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useExecutiveSummaryStore } from '~/stores/executive-summary'
+import { useExecutiveSummaryStore, loadPersistedExecutiveSummaryOverrides } from '~/stores/executive-summary'
 import { useAuthStore } from '~/stores/auth'
 import { useI18n } from '~/composables/useI18n'
 import { UserRole } from '~/types/auth'
+import { useAssignmentLetterStore } from '~/stores/assignment-letter'
+import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import ExecutiveSummaryCompilationForm from '~/components/audit-result-report/ExecutiveSummaryCompilationForm.vue'
+import { RISK_LEVELS, RISK_LEVEL_STYLE, riskFieldsToBreakdown, riskBreakdownTotal, riskLevelI18nKey } from '~/utils/executiveSummaryCompilation'
 
 definePageMeta({
   middleware: 'auth'
@@ -262,9 +304,41 @@ definePageMeta({
 const { t } = useI18n()
 const store = useExecutiveSummaryStore()
 const authStore = useAuthStore()
+const assignmentLetterStore = useAssignmentLetterStore()
+const auditReportStore = useAuditResultReportStore()
 
 const activeQuarter = ref(1)
 const searchQuery = ref('')
+const selectedCompilationDoc = ref('')
+
+const compilationDocOptions = computed(() => {
+  const overrides = loadPersistedExecutiveSummaryOverrides()
+  const isExcluded = (num: string) =>
+    num === 'DOC-EXSUM-Q1-2026' ||
+    num === '020/LHA/01/KS IAD/2023' ||
+    num === '019/LHA/01/KS IAD/2025' ||
+    num === 'LHA-020/SKAI/2023' ||
+    num === 'LHA-019/SKAI/2025'
+
+  const docsFromStore = store.summaryList
+    .map(s => s.nomorDokumen)
+    .filter(Boolean)
+  const docsFromOverrides = Object.values(overrides)
+    .map(o => o.nomorDokumen)
+    .filter((d): d is string => Boolean(d))
+  const overrideKeys = Object.keys(overrides)
+    .filter(k => k.startsWith('ESC-') || k.startsWith('EXSUM-KOMP-'))
+
+  const combined = Array.from(new Set([
+    ...docsFromStore, 
+    ...docsFromOverrides, 
+    ...overrideKeys
+  ]))
+    .filter(doc => !isExcluded(doc) && (doc.startsWith('ESC-') || doc.startsWith('EXSUM-KOMP-') || doc.startsWith('KOMPILASI-') || !doc.startsWith('LHA-')))
+    .sort()
+
+  return ['Semua Dokumen Kompilasi', ...combined]
+})
 
 const totalHandling = computed(() => {
   return store.summaryList.reduce((total, summary) => {
@@ -294,15 +368,62 @@ const getStatusColor = (status: string) => {
 }
 
 const filteredSummaries = computed(() => {
-  return store.summaryList.filter(s => {
+  const overrides = loadPersistedExecutiveSummaryOverrides()
+  const rawSummaries = store.summaryList.filter(s => 
+    s.nomorDokumen !== 'DOC-EXSUM-Q1-2026' &&
+    s.nomorDokumen !== '020/LHA/01/KS IAD/2023' &&
+    s.nomorDokumen !== '019/LHA/01/KS IAD/2025' &&
+    s.nomorDokumen !== 'LHA-020/SKAI/2023' &&
+    s.nomorDokumen !== 'LHA-019/SKAI/2025'
+  )
+
+  const docMap = new Map<string, ExecutiveSummary>()
+  rawSummaries.forEach(s => {
+    const override = overrides[s.nomorDokumen] || overrides[s.id]
+    const updated = override ? { ...s, ...override } : { ...s }
+    if (updated.nomorDokumen) {
+      docMap.set(updated.nomorDokumen, updated)
+    }
+  })
+
+  const summaries = Array.from(docMap.values()).map(updated => {
+    // Synchronize jumlahLaporan with individual LHAs count matching quarter or assignment letter
+    const matchingIndividualLhas = auditReportStore.reportList.filter(r => {
+      if (r.reportNumber === '020/LHA/01/KS IAD/2023' ||
+          r.reportNumber === '019/LHA/01/KS IAD/2025' ||
+          r.reportNumber === 'LHA-020/SKAI/2023' ||
+          r.reportNumber === 'LHA-019/SKAI/2025') return false
+      if (updated.assignmentLetterId && r.assignmentLetterId === updated.assignmentLetterId) return true
+      const dateParts = r.reportDate ? r.reportDate.split('-') : []
+      const m = parseInt(dateParts[1] || '0')
+      const q = m <= 3 ? 1 : m <= 6 ? 2 : m <= 9 ? 3 : 4
+      return q === updated.quarter
+    })
+
+    if (matchingIndividualLhas.length > 0 && (!updated.jumlahLaporan || updated.jumlahLaporan <= 1)) {
+      updated.jumlahLaporan = matchingIndividualLhas.length
+      const totalRecs = matchingIndividualLhas.reduce((sum, r) => sum + (r.findingsCount || r.findings?.length || 1), 0)
+      if (!updated.jumlahRekomendasi) updated.jumlahRekomendasi = totalRecs
+    }
+
+    return updated
+  })
+
+  return summaries.filter(s => {
     const qMatches = s.quarter === activeQuarter.value
+    const docMatches = !selectedCompilationDoc.value ||
+      selectedCompilationDoc.value === 'Semua Dokumen Kompilasi' ||
+      selectedCompilationDoc.value === 'All Compilation Documents' ||
+      s.nomorDokumen === selectedCompilationDoc.value
+
     const searchLower = searchQuery.value.toLowerCase()
     const matchesSearch = !searchQuery.value ||
       s.nomorDokumen.toLowerCase().includes(searchLower) ||
+      (s.assignmentLetterId && s.assignmentLetterId.toLowerCase().includes(searchLower)) ||
       `kuartal ${s.quarter}`.includes(searchLower) ||
       String(s.tahun).includes(searchLower)
     
-    return qMatches && matchesSearch
+    return qMatches && docMatches && matchesSearch
   })
 })
 </script>

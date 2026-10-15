@@ -1,5 +1,6 @@
 // Audit Types
 import type { RiskLevel, RiskTaxonomy } from "./risk";
+import { getExecutionStageIndex } from "~/utils/executionSources";
 
 export enum AuditCategory {
   ASSURANCE = "Assurance",
@@ -33,10 +34,11 @@ export enum AuditExecutionStatus {
 }
 
 export enum AnnualAuditPlanStatus {
-  DONE = "Done",
-  WORK_IN_PROGRESS = "Work In Progress",
+  DRAFT = "Draft",
+  PENDING_REVIEW = "Pending Review",
   PENDING_APPROVAL = "Pending Approval",
-  NOT_AVAILABLE = "Not Available"
+  APPROVED = "Approved",
+  REVISED = "Revised"
 }
 
 export enum FindingSeverity {
@@ -161,21 +163,45 @@ export interface CharterFormState {
   fileName?: string;
 }
 
+/** Jenis Kegiatan Audit (plan header). Values are the backend strings. */
+export const ANNUAL_ACTIVITY_TYPE_OPTIONS = ['Assurance', 'Audit Khusus', 'Audit Tujuan Tertentu', 'Audit Investigasi'] as const;
+export type AnnualActivityType = typeof ANNUAL_ACTIVITY_TYPE_OPTIONS[number];
+
+/** One row of the Formulir Rencana Kegiatan Audit (annual plan activities[] item). */
 export interface AuditActivities {
+  /** Server-assigned UUID. Kept on edit and sent back on PUT. */
   id?: string;
+  /** No. */
   itemNumber?: string;
-  category: AuditCategory | string;
-  groupTitle?: string;
+  /** Kode Penugasan. */
+  activityCode?: string;
+  /** Objek Penugasan Audit. */
   name: string;
-  department?: AuditDepartment | string;
-  involvedDepartments?: any[];
-  timelineText?: string;
-  auditorCount?: number;
-  totalMandays?: number;
-  supervisorName?: string;
-  notesObjective?: string;
+  /** Jenis Audit. */
+  category: AuditCategory | string;
+  /** Department id from the master list (GET /departments). */
+  departmentId?: string;
+  /** Department name snapshot, refreshed by the server. Read-only. */
+  department?: string;
+  /** Audit Universe (corporate) id picked in the form. */
+  auditUniverseId?: string;
+  /** Snapshots refreshed by the server from the Audit Universe. Read-only, never sent. */
   riskName?: string;
   riskLevel?: string;
+  /** Justifikasi Pemilihan Objek. */
+  justification?: string;
+  /** Tujuan Audit. */
+  auditObjective?: string;
+  /** Fokus Audit. */
+  auditFocus?: string;
+  /** Jadwal Penugasan. */
+  timelineText?: string;
+  /** Jumlah Tim (Orang). */
+  auditorCount?: number;
+  /** Total Mandays. */
+  totalMandays?: number;
+  /** Ketua Tim. */
+  supervisorName?: string;
 }
 
 export interface RevisionHistory {
@@ -188,6 +214,9 @@ export interface RevisionHistory {
 export interface AnnualAuditPlan {
   id?: string;
   code: string;
+  title?: string;
+  /** Jenis Kegiatan Audit; "" allowed for now. */
+  activityType?: AnnualActivityType | '';
   version?: string;
   parentPlanId?: string;
   revisionHistory?: RevisionHistory[];
@@ -195,11 +224,6 @@ export interface AnnualAuditPlan {
   status: AnnualAuditPlanStatus;
   selectedMonths: number[];
   quarters?: string[];
-  auditorCount: number;
-  daysPerAuditor: number;
-  totalMandays?: number;      // Calculated: count * days
-  supervisorId?: string;
-  supervisorName?: string;
   year: string;
   notes?: string;
   attachmentCategory: string;
@@ -219,15 +243,14 @@ export interface AnnualAuditAttachment {
 export interface AnnualPlanForm {
   id?: string;
   code: string;
+  title: string;
+  activityType: AnnualActivityType | '';
   version?: string;
   parentPlanId?: string;
   revisionHistory?: RevisionHistory[];
   activities: AuditActivities[];
   status: AnnualAuditPlanStatus;
   selectedMonths: number[];
-  auditorCount: number;
-  daysPerAuditor: number;
-  supervisorId?: string;
   notes?: string;
   year: string;
   attachmentCategory: string;
@@ -269,7 +292,7 @@ export interface AtrReport {
   status: string;
 }
 
-export interface AuditExecutionStatus {
+export interface AuditExecutionStatusItem {
   id: number;
   name: string;
   percentage: number;
@@ -287,15 +310,19 @@ export interface AuditDataState {
   auditMainStatsLastMonth: AuditMainStats;
   auditCoverage: AuditCoverage;
   auditCategories: AuditCategoryRisk[];
-  auditExecutionStatus: AuditExecutionStatus[];
+  auditExecutionStatus: AuditExecutionStatusItem[];
   atrReports: AtrReport[];
 }
 
 export interface SampleItem {
   id: number;
+  fieldworkDocument?: string;
   document: string;
+  step1?: string;
   l1: TestResult;
+  step2?: string;
   l2: TestResult;
+  step3?: string;
   l3: TestResult;
 }
 
@@ -365,7 +392,7 @@ export interface WorkingPaperSample {
   id?: string;
   workingPaperId?: string;
   assignmentLetterId?: string;
-  population: number | undefined;
+  population: string | number | undefined;
   sampleSize: number | undefined;
   samples: SampleItem[];
   conclusion: string;
@@ -375,7 +402,7 @@ export interface WorkingPaperSampleForm {
   id?: string;
   workingPaperId?: string;
   assignmentLetterId?: string;
-  population: number | undefined;
+  population: string | number | undefined;
   sampleSize: number | undefined;
   samples: SampleItem[];
   conclusion: string;
@@ -440,6 +467,8 @@ export interface AssignmentLetterForm {
   startPeriod: string;  // Format YYYY-MM-DD
   finishPeriod: string; // Format YYYY-MM-DD
   workingUnit: string;
+  companyId?: string;
+  companyName?: string;
   auditPurpose: string;
   letterDate?: string;
   caeSignature?: string;
@@ -461,17 +490,31 @@ export interface AssignmentLetter extends AssignmentLetterForm {
 // --- Audit Activity Plan Types ---
 
 export interface PlannedAuditActivity {
+  /** Client-side row key. The backend matches it on update to keep activityCode. */
   id?: string;
+  /**
+   * Activity ID, e.g. "ASR-2026-003" (audit type code, plan year, sequence).
+   * Assigned by audit-service on save; never generated by the frontend.
+   */
+  activityCode?: string;
+  /** Link to the Annual Audit Plan activity this row carries out (set by picking it in the form). */
+  annualPlanId?: string;
+  annualActivityId?: string;
   auditName: string;
   auditee: string;
+  /** Copied from the linked annual activity (read-only in the form). */
   category: AuditCategory;
+  /** Copied from the linked annual activity (read-only in the form). */
   riskName?: string;
+  /** Copied from the linked annual activity (read-only in the form). */
   riskLevel: RiskLevel;
+  /** Copied from the linked annual activity Total Mandays (read-only in the form). */
   duration: number;
   priority: string;
+  /** Copied from the linked annual activity Jumlah Tim (read-only in the form). */
   numberOfAuditors: number;
   estimatedSchedule: string;
-  budgetEstimation: string;
+  budgetEstimation: number;
 }
 
 export interface ResourceAuditor {
@@ -502,7 +545,8 @@ export interface ActivityPlanFormState {
   planYear: string;
   planPeriodStart: string;
   planPeriodEnd: string;
-  department: AuditDepartment;
+  /** Department name from master-service (GET /departments). */
+  department: string;
   createdBy: string;
   creationDate: string;
   plannedActivities: PlannedAuditActivity[];
@@ -550,39 +594,109 @@ export interface StrategicAuditPlan {
   target: string;
   calculation: string;
   status: string;
+  /** "Operational" | "Financial" | "Quality" | "Issue" | "Efficiency", or "" when not set (older rows). */
+  category?: string;
 }
 
+/** Evidence file attached to an ATR; downloaded through GET /action-taken-reports/:id/evidence/:evidenceId. */
+export interface AtrEvidence {
+  id: string
+  file_name: string
+  uploaded_at: string
+  uploaded_by: string
+}
+
+/**
+ * Action Taken Report: the follow-up of one Audit Result Report (LHA) finding, created by the backend
+ * when the LHA is approved. Finding fields are a copy taken at creation. Status values are the backend's
+ * UPPER_SNAKE (see utils/actionTakenReport.ts).
+ */
 export interface ActionTakenReport {
   id: string
-  assignment_letter_id?: string
-  assignmentLetterId?: string
-  assignment_letter?: AssignmentLetter
-  assignmentLetter?: AssignmentLetter
-  auditRef: AnnualAuditPlan['code']
-  title: string
-  department: AuditDepartment | string
-  deadline: string
-  status: AuditStatus | string
-  auditObject?: string
-  findingCategory?: AuditCategory | string
-  condition?: string
-  criteria?: string
-  recommendation?: string
-  pic?: string
-  attachment?: string
-  progressDescription?: string
+  audit_result_report_id: string
+  report_number: string
+  report_title: string
+  finding_id: string
+  finding_title: string
+  finding_category: string
+  recommendation: string
+  action_plan: string
+  pic_user_id: string | null
+  pic_name: string
+  /** RFC3339 or null when not assigned yet. */
+  due_date: string | null
+  /** 0-100. */
+  progress: number
+  status: string
+  /** Server-computed: past the due date and not COMPLETED/CANCELLED. */
+  is_overdue: boolean
+  /** Whole days past the due date when overdue, else 0. */
+  overdue_days: number
+  evidence: AtrEvidence[]
+  review_note: string
+  reviewed_by: string
+  reviewed_at: string | null
+  created_at: string
+  updated_at: string
+  /**
+   * What the caller may do with this item now, from the server ('assign', 'update_action_plan',
+   * 'upload_evidence', 'submit', 'review', 'cancel', 'delete', 'remind'); null when the response has no such list.
+   */
+  allowed_actions: string[] | null
+  /** The LHA the ATR follows up (`lha` in the detail response); null when the server sent none. */
+  lha: AtrLhaInfo | null
+}
+
+/** Header fields of the audit result report (LHA) an ATR belongs to. Strings are '' when the LHA has none. */
+export interface AtrLhaInfo {
+  status: string
+  report_date: string | null
+  audit_object: string
+  department: string
+  company_name: string
+  audit_period: string
+  executive_summary: string
+  scope: string
+  methodology: string
+  finding_summary: string
+  conclusion: string
+  prepared_by: string
+  reviewed_by: string
+  approved_by: string
+}
+
+/** What the source modules reported for one execution (backend services/audit_execution_sync.Signals). */
+export interface AuditExecutionSources {
+  annual_plan: boolean
+  assignment_letter: boolean
+  fieldwork_records: number
+  test_controls: number
+  test_controls_tested: number
+  test_controls_with_finding: number
+  /** Fieldwork test controls with a non-empty mitigation_plan. */
+  mitigation_plans?: number
+  working_paper_records: number
+  working_paper_causes: number
+  /** Working paper plans (action plans) recorded on the working papers. */
+  working_paper_plans?: number
+  result_report: boolean
+  result_report_approved: boolean
+  /** LHA submitted and waiting review / CAE approval (not approved yet). Optional until the backend sends it. */
+  result_report_in_review?: boolean
 }
 
 export interface AuditExecution {
   id: string
-  ref: ActionTakenReport['auditRef']
-  name: ActionTakenReport['title']
+  ref: string
+  name: string
   category: AuditCategory | string
   department?: AuditDepartment | string
   progress: number
   lead_auditor: string
   status: AuditStatus | string
   status_detail?: 'Late' | 'On Time' | string
+  /** Per-module source data the progress is derived from (read-only). */
+  sources?: AuditExecutionSources | null
   created_at?: string
   createdAt?: string
   sample_data_test_controls?: {
@@ -706,12 +820,5 @@ export const EXECUTION_PHASES: ExecutionPhase[] = [
   }
 ]
 
-export const getExecutionPhase = (progress: number = 0): ExecutionPhase => {
-  const p = Number(progress) || 0
-  if (p >= 100) return EXECUTION_PHASES[5]!
-  if (p >= 76) return EXECUTION_PHASES[4]!
-  if (p >= 51) return EXECUTION_PHASES[3]!
-  if (p >= 26) return EXECUTION_PHASES[2]!
-  if (p >= 1) return EXECUTION_PHASES[1]!
-  return EXECUTION_PHASES[0]!
-}
+export const getExecutionPhase = (progress: number = 0): ExecutionPhase =>
+  EXECUTION_PHASES[getExecutionStageIndex(progress)]!

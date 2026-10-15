@@ -1,6 +1,12 @@
 <template>
   <div class="relative inline-block w-full">
-    <UPopover v-model:open="isOpen" :disabled="disabled" class="w-full">
+    <UPopover
+      v-model:open="isOpen"
+      :disabled="disabled"
+      :portal="true"
+      :ui="popoverUi"
+      class="w-full"
+    >
       <!-- Input Field Trigger -->
       <div class="relative flex items-center w-full">
         <input
@@ -14,6 +20,7 @@
           maxlength="10"
           @input="handleTextInput"
           @blur="handleBlur"
+          @click.stop="openCalendar"
           @keydown.down.prevent="isOpen = true"
           :class="[
             'block w-full rounded-md border text-sm transition-colors duration-150',
@@ -40,12 +47,17 @@
           >
             <UIcon name="i-lucide-x" class="w-3.5 h-3.5" />
           </button>
-          <div
-            class="text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 p-0.5 rounded focus:outline-none disabled:cursor-not-allowed cursor-pointer pointer-events-auto flex items-center justify-center"
+          <button
+            type="button"
+            :disabled="disabled"
+            @click.stop="toggleCalendar"
+            class="text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 p-0.5 rounded focus:outline-none disabled:cursor-not-allowed cursor-pointer pointer-events-auto flex items-center justify-center transition-colors"
+            tabindex="-1"
             title="Open calendar"
+            aria-label="Open calendar"
           >
             <UIcon name="i-lucide-calendar" class="w-4 h-4" />
-          </div>
+          </button>
         </div>
       </div>
 
@@ -182,13 +194,15 @@ const props = withDefaults(
     size?: 'sm' | 'md' | 'lg'
     minDate?: string // 'YYYY-MM-DD'
     maxDate?: string // 'YYYY-MM-DD'
+    ui?: Record<string, any>
   }>(),
   {
     modelValue: '',
     placeholder: 'dd/mm/yyyy',
     disabled: false,
     required: false,
-    size: 'md'
+    size: 'md',
+    ui: undefined
   }
 )
 
@@ -238,6 +252,15 @@ watch(
     }
   }
 )
+
+const popoverUi = computed(() => {
+  const customUi = props.ui || {}
+  const contentClass = ['z-[9999]', customUi.content].filter(Boolean).join(' ')
+  return {
+    ...customUi,
+    content: contentClass
+  }
+})
 
 // Size classes
 const sizeClasses = computed(() => {
@@ -327,6 +350,18 @@ const selectToday = () => {
   viewMonth.value = today.getMonth()
   viewYear.value = today.getFullYear()
   selectDate(today)
+}
+
+const toggleCalendar = () => {
+  if (props.disabled) return
+  isOpen.value = !isOpen.value
+}
+
+const openCalendar = () => {
+  if (props.disabled) return
+  if (!isOpen.value) {
+    isOpen.value = true
+  }
 }
 
 const clearDate = () => {

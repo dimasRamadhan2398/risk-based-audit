@@ -288,10 +288,10 @@
                     <span class="text-md font-semibold text-slate-500">{{ t('riskFactors.scoring.yearLabel') }}</span>
                     <USelect
                       v-model.number="selectedYear"
-                      :items="[2025, 2026, 2027, 2028]"
+                      :items="fiscalYears"
                       size="sm"
                       color="neutral"
-                      class="w-20"
+                      class="w-24"
                       @update:model-value="fetchYearlyUniverse"
                     />
                   </div>
@@ -644,12 +644,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRiskFactorsStore } from '~/stores/risk-factors'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
 import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
+import { useFiscalYear } from '~/composables/useFiscalYear'
 
 const store = useRiskFactorsStore()
 const auditStore = useAuditUniverseStore()
@@ -692,12 +693,17 @@ const factorToDelete = ref<any>(null)
 const deleteSubmitting = ref(false)
 
 // For scoring workspace:
-const selectedYear = ref(2026)
+const { fiscalYears, selectedFiscalYear } = useFiscalYear()
+const selectedYear = selectedFiscalYear
 const selectedEntityId = ref<string | undefined>(undefined)
 const activeYearlyEntity = ref<any>(null)
 const scoringRows = ref<any[]>([])
 const rubricModalOpen = ref(false)
 const rubricFactor = ref<any>(null)
+
+watch(selectedYear, async () => {
+  await fetchYearlyUniverse()
+})
 
 // Lifecycle
 onMounted(async () => {

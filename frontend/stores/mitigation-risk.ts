@@ -6,60 +6,7 @@ import { extractErrorMessage } from '~/utils/error'
 import { getRiskServiceBaseUrl } from '~/composables/useApiUrl'
 import { useI18n } from '~/composables/useI18n'
 
-export const initialMitigationsData: RiskMitigation[] = [
-  {
-    id: 'mit-1',
-    riskId: '1',
-    riskControlId: 'CTL-FIN-001',
-    riskEvent: 'Target pendapatan dan laba tidak tercapai',
-    mitigationPlan: 'Review bulanan pencapaian KPI sales dan monitoring piutang usaha secara ketat.',
-    supervisor: 'Dimas',
-    pic: 'Finance Manager',
-    unitInCharge: 'Financial',
-    start_date: '2026-01-01',
-    end_date: '2026-12-31',
-    notes: 'Monitoring piutang dijalankan setiap minggu.'
-  },
-  {
-    id: 'mit-1b',
-    riskId: '1',
-    riskControlId: 'CTL-FIN-002',
-    riskEvent: 'Target pendapatan dan laba tidak tercapai',
-    mitigationPlan: 'Evaluasi ulang strategi penetapan harga dan diskon produk Kuartal II.',
-    supervisor: 'Dimas',
-    pic: 'Sales Director',
-    unitInCharge: 'Sales',
-    start_date: '2026-04-01',
-    end_date: '2026-06-30',
-    notes: 'Penyesuaian promo produk unggulan.'
-  },
-  {
-    id: 'mit-2',
-    riskId: '3',
-    riskControlId: 'CTL-TEC-003',
-    riskEvent: 'Ancaman terhadap Cyber Security dan perlindungan data pribadi',
-    mitigationPlan: 'Implementasi Multi-Factor Authentication (MFA) & vulnerability scanning mingguan.',
-    supervisor: 'Eka',
-    pic: 'IT Security Lead',
-    unitInCharge: 'Product Development',
-    start_date: '2026-01-15',
-    end_date: '2026-12-31',
-    notes: 'Vulnerability scan otomatis tiap Jumat malam.'
-  },
-  {
-    id: 'mit-3',
-    riskId: '4',
-    riskControlId: 'CTL-FIN-004',
-    riskEvent: 'Terjadinya fraud',
-    mitigationPlan: 'Dual approval pada sistem transaksi pembayaran di atas Rp 50 juta & audit mendadak.',
-    supervisor: 'Budi',
-    pic: 'Head of Internal Audit',
-    unitInCharge: 'Financial',
-    start_date: '2026-02-01',
-    end_date: '2026-12-31',
-    notes: 'SOP pembatasan wewenang keuangan.'
-  }
-]
+export const initialMitigationsData: RiskMitigation[] = []
 
 // Helper to generate flat monitoring checks (Weekly or Monthly) based on timeline
 function generateMonitoringChecks(startDateStr: string, endDateStr: string) {
@@ -133,15 +80,10 @@ function generateMonitoringChecks(startDateStr: string, endDateStr: string) {
     return checks
 }
 
-// Pre-fill initial data with monitoring checks
-initialMitigationsData.forEach(mit => {
-    mit.monitoring = generateMonitoringChecks(mit.start_date, mit.end_date)
-})
-
 export const useMitigationStore = defineStore('mitigation', () => {
     const { t } = useI18n()
     // --- STATE ---
-    const mitigations = ref<RiskMitigation[]>(initialMitigationsData)
+    const mitigations = ref<RiskMitigation[]>([])
     const isFormOpen = ref(false)
     const isEditing = ref(false)
     const editingId = ref<string | null>(null)
@@ -173,11 +115,7 @@ export const useMitigationStore = defineStore('mitigation', () => {
     // --- GETTERS ---
     const getMitigationsByRiskId = computed(() => {
         return (risk_id: string) => {
-            const list = mitigations.value.filter(m => String(m.riskId) === String(risk_id))
-            if (list.length === 0) {
-                return initialMitigationsData.filter(m => String(m.riskId) === String(risk_id))
-            }
-            return list
+            return mitigations.value.filter(m => String(m.riskId) === String(risk_id))
         }
     })
 
@@ -215,10 +153,13 @@ export const useMitigationStore = defineStore('mitigation', () => {
                         monitoring: safeMonitoring
                     }
                 })
+            } else {
+                mitigations.value = []
             }
         } catch (error: any) {
-            console.warn('Backend mitigations unavailable, using initial data.', error)
-            errorMsg.value = extractErrorMessage(error, 'Backend mitigations unavailable, using initial data.')
+            console.error('Failed to fetch mitigations:', error)
+            errorMsg.value = extractErrorMessage(error, 'Failed to fetch mitigations.')
+            mitigations.value = []
         } finally {
             loading.value = false
         }
@@ -287,8 +228,8 @@ export const useMitigationStore = defineStore('mitigation', () => {
             if (isEditing.value && editingId.value) {
                 const idx = mitigations.value.findIndex(m => m.id === editingId.value)
                 let payloadWithMonitoring = { ...payload }
-                if (idx !== -1) {
-                    const oldMit = mitigations.value[idx]
+                if (idx !== -1 && mitigations.value[idx]) {
+                    const oldMit = mitigations.value[idx]!
                     const dateChanged = oldMit.start_date !== payload.start_date || oldMit.end_date !== payload.end_date
                     const updatedMonitoring = dateChanged ? newMonitoring : (oldMit.monitoring || [])
                     payloadWithMonitoring = { ...payload, monitoring: updatedMonitoring }

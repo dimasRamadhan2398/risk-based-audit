@@ -22,6 +22,16 @@ export const useEmployeeStore = defineStore('employee', () => {
   const isEditing = ref(false)
   const editingId = ref<string | null>(null)
 
+  // Create-mode preview of the next employee code (display only, not reserved)
+  const nextEmployeeCode = ref('')
+  const nextEmployeeCodeLoading = ref(false)
+  const nextEmployeeCodeFailed = ref(false)
+  // Guards against a slow response landing after the modal was reopened or closed
+  let nextEmployeeCodeRequestId = 0
+
+  // Code returned by the last successful create, used in the success message
+  const createdEmployeeCode = ref('')
+
   // Pagination State
   const pagination = ref<PaginationMeta>({
     page: 1,
@@ -66,6 +76,13 @@ export const useEmployeeStore = defineStore('employee', () => {
   const totalPages = computed(() => pagination.value.total_pages)
   const hasNextPage = computed(() => pagination.value.page < pagination.value.total_pages)
   const hasPrevPage = computed(() => pagination.value.page > 1)
+
+  // ============= Helpers =============
+
+  /**
+   * Keep only digits. Phone is numeric-only (no "+", spaces or dashes).
+   */
+  const normalizePhone = (value: string | null | undefined): string => (value || '').replace(/\D/g, '')
 
   // ============= Actions =============
 
@@ -123,29 +140,30 @@ export const useEmployeeStore = defineStore('employee', () => {
   const createEmployee = async (): Promise<boolean> => {
     loading.value = true
     errorMsg.value = ''
+    createdEmployeeCode.value = ''
 
     try {
       const api = useEmployeeApi()
       const payload: CreateEmployeeRequest = {
-        employee_code: form.employee_code,
         full_name: form.full_name,
         email: form.email,
-        phone: form.phone || '',
+        phone: normalizePhone(form.phone) || '',
         company_id: form.company_id,
         department_id: form.department_id,
         job_role_id: form.job_role_id,
-        level_grade: form.level_grade,
-        work_location_id: form.work_location_id || undefined,
+        work_location_id: (form.work_location_id && form.work_location_id !== '__none__') ? form.work_location_id : undefined,
         residence_address: form.residence_address || undefined,
         residence_city: form.residence_city || undefined,
         residence_province: form.residence_province || undefined,
         residence_postal_code: form.residence_postal_code || undefined,
-        manager_id: form.manager_id || undefined,
+        manager_id: (form.manager_id && form.manager_id !== '__none__') ? form.manager_id : undefined,
         is_active: form.is_active,
-        join_date: form.join_date
+        // Backend parses join_date as RFC 3339; a bare YYYY-MM-DD is rejected
+        join_date: `${form.join_date}T00:00:00Z`
       }
 
-      await api.createEmployee(payload)
+      const created = await api.createEmployee(payload)
+      createdEmployeeCode.value = created?.employee_code || ''
       await fetchEmployees()
       return true
     } catch (error: any) {
@@ -167,18 +185,19 @@ export const useEmployeeStore = defineStore('employee', () => {
     try {
       const api = useEmployeeApi()
       const payload: UpdateEmployeeRequest = {
+        // Backend still requires the existing code on update; it is read-only in the form
+        employee_code: form.employee_code,
         full_name: form.full_name || undefined,
         email: form.email || undefined,
-        phone: form.phone || undefined,
+        phone: normalizePhone(form.phone) || undefined,
         department_id: form.department_id || undefined,
         job_role_id: form.job_role_id || undefined,
-        level_grade: form.level_grade || undefined,
-        work_location_id: form.work_location_id || undefined,
+        work_location_id: (form.work_location_id && form.work_location_id !== '__none__') ? form.work_location_id : undefined,
         residence_address: form.residence_address || undefined,
         residence_city: form.residence_city || undefined,
         residence_province: form.residence_province || undefined,
         residence_postal_code: form.residence_postal_code || undefined,
-        manager_id: form.manager_id || undefined,
+        manager_id: (form.manager_id && form.manager_id !== '__none__') ? form.manager_id : undefined,
         is_active: form.is_active
       }
 
@@ -218,6 +237,33 @@ export const useEmployeeStore = defineStore('employee', () => {
   // ============= UI Actions =============
 
   /**
+   * Fetch the next employee code for display. Failure is not fatal:
+   * the backend generates the real code on create.
+   */
+  const fetchNextEmployeeCode = async () => {
+    const requestId = ++nextEmployeeCodeRequestId
+    nextEmployeeCode.value = ''
+    nextEmployeeCodeFailed.value = false
+    nextEmployeeCodeLoading.value = true
+
+    try {
+      const api = useEmployeeApi()
+      const code = await api.getNextEmployeeCode()
+      if (requestId !== nextEmployeeCodeRequestId) return
+      if (!code) throw new Error('Next employee code response was empty')
+      nextEmployeeCode.value = code
+    } catch (error) {
+      if (requestId !== nextEmployeeCodeRequestId) return
+      console.error('Failed to fetch next employee code:', error)
+      nextEmployeeCodeFailed.value = true
+    } finally {
+      if (requestId === nextEmployeeCodeRequestId) {
+        nextEmployeeCodeLoading.value = false
+      }
+    }
+  }
+
+  /**
    * Open modal for creating new employee
    */
   const openCreateModal = () => {
@@ -225,6 +271,7 @@ export const useEmployeeStore = defineStore('employee', () => {
     editingId.value = null
     resetForm()
     showModal.value = true
+    fetchNextEmployeeCode()
   }
 
   /**
@@ -238,7 +285,7 @@ export const useEmployeeStore = defineStore('employee', () => {
     form.employee_code = employee.employee_code
     form.full_name = employee.full_name
     form.email = employee.email
-    form.phone = employee.phone || ''
+    form.phone = normalizePhone(employee.phone)
     form.company_id = employee.company_id
     form.department_id = employee.department_id
     form.job_role_id = employee.job_role_id
@@ -263,6 +310,11 @@ export const useEmployeeStore = defineStore('employee', () => {
     isEditing.value = false
     editingId.value = null
     errorMsg.value = ''
+    // Invalidate any in-flight next-code request
+    nextEmployeeCodeRequestId++
+    nextEmployeeCodeLoading.value = false
+    nextEmployeeCodeFailed.value = false
+    nextEmployeeCode.value = ''
     resetForm()
   }
 
@@ -292,11 +344,7 @@ export const useEmployeeStore = defineStore('employee', () => {
    * Handle form submit
    */
   const handleSubmit = async () => {
-    // Validation
-    if (!form.employee_code.trim()) {
-      errorMsg.value = t('masterData.validation.employeeCodeRequired')
-      return
-    }
+    // Validation (employee_code is auto-generated by the backend, not required here)
     if (!form.full_name.trim()) {
       errorMsg.value = t('masterData.validation.fullNameRequired')
       return
@@ -328,7 +376,9 @@ export const useEmployeeStore = defineStore('employee', () => {
       } else {
         const success = await createEmployee()
         if (success) {
-          alert('Employee berhasil dibuat!')
+          alert(createdEmployeeCode.value
+            ? t('masterData.employee.createdWithCode', { code: createdEmployeeCode.value })
+            : 'Employee berhasil dibuat!')
           closeModal()
         }
       }
@@ -392,10 +442,14 @@ export const useEmployeeStore = defineStore('employee', () => {
     showModal,
     isEditing,
     editingId,
+    nextEmployeeCode,
+    nextEmployeeCodeLoading,
+    nextEmployeeCodeFailed,
     pagination,
     search,
     form,
     columns,
+    normalizePhone,
 
     // Getters
     totalPages,
@@ -405,6 +459,7 @@ export const useEmployeeStore = defineStore('employee', () => {
     // Actions
     fetchEmployees,
     getEmployeeById,
+    fetchNextEmployeeCode,
     createEmployee,
     updateEmployee,
     deleteEmployee,

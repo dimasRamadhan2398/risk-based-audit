@@ -72,6 +72,9 @@ type FieldworkSample struct {
 	DocumentNumber     string         `gorm:"type:varchar(100)" json:"documentNumber"`
 	Date               string         `gorm:"type:varchar(100)" json:"date"`
 	Description        string         `gorm:"type:text" json:"description"`
+	FileName           string         `gorm:"type:varchar(255)" json:"fileName,omitempty"`
+	FilePath           string         `gorm:"type:varchar(500)" json:"filePath,omitempty"`
+	FileUrl            string         `gorm:"type:varchar(500)" json:"fileUrl,omitempty"`
 	CreatedAt          time.Time      `json:"created_at"`
 	UpdatedAt          time.Time      `json:"updated_at"`
 	DeletedAt          gorm.DeletedAt `gorm:"index" json:"-"`
@@ -87,6 +90,7 @@ type FieldworkTestControl struct {
 	ControlName        string         `gorm:"type:varchar(255)" json:"controlName"`
 	ControlDescription string         `gorm:"type:text" json:"controlDescription"`
 	ControlType        string         `gorm:"type:varchar(100)" json:"controlType"`
+	UnitDivision       string         `gorm:"type:varchar(255)" json:"unitDivision"`
 	TestProcedure      string         `gorm:"type:text" json:"testProcedure"`
 	TestResult         string         `gorm:"type:varchar(100)" json:"testResult"`
 	Finding            string         `gorm:"type:text" json:"finding"`

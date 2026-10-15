@@ -1,16 +1,48 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type { TableColumn } from '@nuxt/ui'
-import { type ActivityPlan, type ActivityPlanFormState, AuditCategory, AuditDepartment } from '~/types/audit';
+import { type ActivityPlan, type ActivityPlanFormState, type AnnualAuditAttachment, AuditCategory } from '~/types/audit';
+import { useAuthStore } from '~/stores/auth';
 import { RiskLevel } from '~/types/risk';
 import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 import { formatPeriod } from '~/utils/dateConverter';
 import { useI18n } from '~/composables/useI18n';
 import { extractErrorMessage } from '~/utils/error';
-import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
+import { getAuditServiceBaseUrl, getRiskServiceBaseUrl } from '~/composables/useApiUrl';
+import { useDepartmentApi } from '~/composables/useDepartmentApi';
+import { useRiskProfileStore } from '~/stores/risk-profile';
+import { useAnnualPlanStore } from '~/stores/annual-audit';
+
+/** An entry of the "Associated Risk" dropdown, built from GET /risks. */
+export interface RiskOption {
+  name: string;
+  category: string;
+  riskLevel: RiskLevel;
+}
+
+// The generic list endpoint caps page_size at 100.
+const PLAN_PAGE_SIZE = 100;
+
+/** Number input value → number; "", null and unparseable values become 0. */
+const toNumber = (value: unknown): number => {
+  const n = typeof value === 'number' ? value : parseFloat(String(value ?? '').replace(/[,\s]/g, ''));
+  return Number.isFinite(n) ? n : 0;
+};
+
+/** Annual activity risk level text (e.g. "High", "Moderate") → the RiskLevel enum; undefined when not mapped. */
+const toRiskLevel = (level?: string): RiskLevel | undefined => {
+  const lvl = (level || '').toLowerCase();
+  if (lvl.includes('low-moderate') || lvl.includes('low moderate')) return RiskLevel.LOW_MODERATE;
+  if (lvl.includes('moderate-high') || lvl.includes('moderate high')) return RiskLevel.MODERATE_HIGH;
+  if (lvl.includes('high')) return RiskLevel.HIGH;
+  if (lvl.includes('mod') || lvl.includes('medium')) return RiskLevel.MODERATE;
+  if (lvl.includes('low')) return RiskLevel.LOW;
+  return undefined;
+};
 
 export const useActivityPlanStore = defineStore('activity-plan', () => {
   const { t, locale } = useI18n();
+  const annualPlanStore = useAnnualPlanStore();
   const isModalOpen = ref(false);
   const isViewModalOpen = ref(false);
   const isEditMode = ref(false);
@@ -42,12 +74,80 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
     { label: "P3", value: "p3" }
   ];
 
+  // ── Dropdown data from the APIs ───────────────────────────────
+  // Departments come from master-service and risks from risk-service. There is
+  // no mock fallback: an empty or failed response leaves the dropdown empty.
+  const departmentNames = ref<string[]>([]);
+  const riskOptions = ref<RiskOption[]>([]);
+  const optionsLoading = ref(false);
+
+  // A plan saved with an older value (e.g. "IT" from the former fixed list)
+  // keeps it selectable while it is being edited.
+  const departmentOptions = computed(() => {
+    const current = formState.value.department;
+    return current && !departmentNames.value.includes(current)
+      ? [current, ...departmentNames.value]
+      : departmentNames.value;
+  });
+
+  const fetchRiskOptions = async (): Promise<RiskOption[]> => {
+    try {
+      const response: any = await $fetch(`${getRiskServiceBaseUrl()}/risks`);
+      const items: any[] = Array.isArray(response?.data) ? response.data : [];
+      const { getRiskLevel } = useRiskProfileStore();
+      return items
+        .filter(r => r?.name)
+        .map(r => ({
+          name: r.name,
+          category: r.category || '',
+          // /risks has no stored level; derive it from the risk's own likelihood × impact.
+          riskLevel: getRiskLevel(Number(r.likelihood), Number(r.impact))
+        }));
+    } catch (error) {
+      console.error('Failed to fetch risks for the activity plan form:', error);
+      return [];
+    }
+  };
+
+  // Activities of the Annual Audit Plan. A planned activity links to one of them.
+  const annualActivityOptions = computed(() =>
+    annualPlanStore.plans
+      .filter(plan => plan.isActive !== false)
+      .flatMap(plan => (plan.activities || [])
+        .filter(activity => activity.id)
+        .map(activity => ({
+          value: activity.id as string,
+          label: `${plan.code} · ${activity.activityCode ? `${activity.activityCode} · ` : ''}${activity.name}`,
+          plan,
+          activity
+        })))
+  );
+
+  const fetchFormOptions = async () => {
+    optionsLoading.value = true;
+    try {
+      const [departments, risks] = await Promise.all([
+        useDepartmentApi().getAllDepartments(),
+        fetchRiskOptions(),
+        annualPlanStore.fetchPlans()
+      ]);
+      departmentNames.value = departments
+        .filter(d => d.is_active !== false && d.department_name)
+        .map(d => d.department_name)
+        .sort((a, b) => a.localeCompare(b));
+      riskOptions.value = risks;
+    } finally {
+      optionsLoading.value = false;
+    }
+  };
+
   const getInitialFormState = (): ActivityPlanFormState => ({
     planTitle: '',
+    // Read-only in the form: taken from the linked annual activities.
     planYear: new Date().getFullYear().toString(),
     planPeriodStart: '',
     planPeriodEnd: '',
-    department: AuditDepartment.IT,
+    department: '',
     createdBy: '',
     creationDate: new Date().toISOString().split('T')[0]!,
     plannedActivities: [],
@@ -105,16 +205,19 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      const response: any = await $fetch(`${baseUrl}/activity-plans`, {
-        method: 'GET'
+      // Without page/page_size the endpoint returns only the first 20 plans.
+      const fetchPage = (page: number): Promise<any> => $fetch(`${baseUrl}/activity-plans`, {
+        method: 'GET',
+        query: { page, page_size: PLAN_PAGE_SIZE }
       });
-      if (response && response.data && Array.isArray(response.data.items)) {
-        plans.value = response.data.items
-      } else if (response && Array.isArray(response.items)) {
-        plans.value = response.items;
-      } else if (Array.isArray(response)) {
-        plans.value = response;
-      }
+      const first = await fetchPage(1);
+      const totalPages = Number(first?.data?.pagination?.total_pages) || 1;
+      const rest = totalPages > 1
+        ? await Promise.all(Array.from({ length: totalPages - 1 }, (_, i) => fetchPage(i + 2)))
+        : [];
+      plans.value = [first, ...rest].flatMap((res: any) =>
+        Array.isArray(res?.data?.items) ? res.data.items : Array.isArray(res?.items) ? res.items : []
+      );
     } catch (error: any) {
       console.error('Failed to fetch activity plans:', error);
       errorMsg.value = extractErrorMessage(error, 'Failed to load activity plans.');
@@ -125,9 +228,48 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
 
   function openModal() {
     isEditMode.value = false;
-    formState.value = getInitialFormState();
+    const form = getInitialFormState();
+    // The creator is whoever is signed in, not a free-text name.
+    const user = useAuthStore().user;
+    form.createdBy = user?.fullName || '';
+    form.review.creatorName = user?.fullName || '';
+    form.review.creatorPosition = user?.position || '';
+    formState.value = form;
     isModalOpen.value = true;
   }
+
+  // Derived from the activities so it can never disagree with them.
+  const totalEstimatedCost = computed(() =>
+    formState.value.plannedActivities.reduce((sum, activity) => sum + toNumber(activity.budgetEstimation), 0)
+  );
+
+  // Stores the files with the audit-service media endpoint. The local provider
+  // returns a /uploads/... path that the frontend proxies; Google Drive returns
+  // a full link. One folder per save keeps same-named files from overwriting.
+  const uploadAttachments = async (files: File[]): Promise<AnnualAuditAttachment[]> => {
+    const baseUrl = getAuditServiceBaseUrl();
+    const folder = `Auditsphere/activity-plans/${Date.now()}`;
+    const uploaded: AnnualAuditAttachment[] = [];
+    for (const file of files) {
+      const body = new FormData();
+      body.append('file', file);
+      body.append('folder', folder);
+      const failed = t('auditActivityPlan.form.uploadFailed', { name: file.name });
+      let res: any;
+      try {
+        res = await $fetch(`${baseUrl}/media/upload`, { method: 'POST', body });
+      } catch (error) {
+        throw new Error(`${failed} ${extractErrorMessage(error, '')}`.trim());
+      }
+      if (!res?.data?.filePath) throw new Error(failed);
+      uploaded.push({
+        name: file.name,
+        size: Math.round(file.size / 1024) + ' KB',
+        url: res.data.filePath
+      });
+    }
+    return uploaded;
+  };
 
   function closeModal() {
     isModalOpen.value = false;
@@ -178,20 +320,47 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
     try {
       const baseUrl = getAuditServiceBaseUrl();
 
-      // Transform planned activities to match backend expectations if needed
-      // but for now we follow existing structure and just ensure fields are there
+      const newFiles = formState.value.file || [];
+      const fileList = newFiles.length > 0 ? await uploadAttachments(newFiles) : [];
+      if (fileList.length > 0) {
+        formState.value.attachmentUploadedBy = useAuthStore().user?.fullName || '';
+        formState.value.attachmentUploadDate = new Date().toISOString().split('T')[0]!;
+      }
 
-      const fileList = formState.value.file && formState.value.file.length > 0
-        ? formState.value.file.map((f: any) => ({
-          name: f.name,
-          size: Math.round(f.size / 1024) + ' KB',
-          url: '#'
-        }))
-        : [];
-
+      // Only the fields of the backend ActivityPlan model. Numbers are sent as
+      // numbers: a cleared number input yields "", which the create endpoint
+      // rejects and the update endpoint would store, breaking the plan list.
+      const form = formState.value;
       const payload = {
-        ...formState.value,
-        attachments: isEditMode.value ? (formState.value.attachments || []).concat(fileList) : fileList
+        planTitle: form.planTitle,
+        planYear: form.planYear,
+        planPeriodStart: form.planPeriodStart,
+        planPeriodEnd: form.planPeriodEnd,
+        department: form.department,
+        createdBy: form.createdBy,
+        creationDate: form.creationDate,
+        // `id` is sent as is: on update the backend matches it to keep each
+        // activity's Activity ID. `activityCode` is assigned by the backend, so
+        // only a code loaded with the plan is sent back (edit), never one made
+        // up here; new rows go without it and get a code on save.
+        plannedActivities: form.plannedActivities.map(({ activityCode, ...activity }) => ({
+          ...activity,
+          ...(isEditMode.value && activityCode ? { activityCode } : {}),
+          duration: toNumber(activity.duration),
+          numberOfAuditors: toNumber(activity.numberOfAuditors),
+          budgetEstimation: toNumber(activity.budgetEstimation)
+        })),
+        resourceAuditors: form.resourceAuditors,
+        budget: {
+          ...form.budget,
+          totalEstimatedCost: totalEstimatedCost.value,
+          totalAllocatedBudget: toNumber(form.budget.totalAllocatedBudget)
+        },
+        review: form.review,
+        attachmentCategory: form.attachmentCategory,
+        attachmentUploadedBy: form.attachmentUploadedBy,
+        attachmentUploadDate: form.attachmentUploadDate,
+        attachments: isEditMode.value ? (form.attachments || []).concat(fileList) : fileList
       };
 
       if (isEditMode.value) {
@@ -201,25 +370,13 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
           body: payload
         });
       } else {
+        // Planned activities are stored inside the plan itself. /audit-activities is a
+        // different resource (annual plan, target unit, project code, dates) this
+        // form does not collect, so it is not written from here.
         await $fetch(`${baseUrl}/activity-plans`, {
           method: 'POST',
           body: payload
         });
-
-        for (const act of formState.value.plannedActivities) {
-          await $fetch(`${baseUrl}/audit-activities`, {
-            method: 'POST',
-            body: {
-              title: act.auditName,
-              engagement_subject: act.auditee,
-              audit_type: act.category,
-              justification: act.priority, // or mapped differently
-              audit_purpose: 'Standard Audit',
-              team_size: act.numberOfAuditors,
-              status: 'PLANNED'
-            }
-          });
-        }
       }
       closeModal();
       toast.showSuccess('Activity plan saved successfully.');
@@ -235,8 +392,11 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
   }
 
   function addPlannedActivity() {
+    // No activityCode: the backend assigns the Activity ID when the plan is saved.
     formState.value.plannedActivities.push({
       id: Date.now().toString(),
+      annualPlanId: '',
+      annualActivityId: '',
       auditName: '',
       auditee: '',
       category: AuditCategory.ASSURANCE,
@@ -245,13 +405,53 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
       priority: '',
       numberOfAuditors: 1,
       estimatedSchedule: '',
-      budgetEstimation: ''
+      budgetEstimation: 0
     });
   }
 
   function removePlannedActivity(index: number) {
     formState.value.plannedActivities.splice(index, 1);
+    syncPlanHeader();
   }
+
+  // Plan year and department are not entered again: they follow the first linked annual activity.
+  function syncPlanHeader() {
+    const first = formState.value.plannedActivities.find(a => a.annualActivityId);
+    const option = first ? annualActivityOptions.value.find(o => o.value === first.annualActivityId) : undefined;
+    if (!option) return;
+    formState.value.planYear = String(option.plan.year ?? formState.value.planYear);
+    formState.value.department = option.activity.department || formState.value.department;
+  }
+
+  /**
+   * Links a planned activity to an annual activity and copies its values (category, risk,
+   * risk level, team size, mandays) into the row. The copied fields are read-only in the form.
+   */
+  function linkAnnualActivity(index: number, annualActivityId: string | undefined) {
+    const row = formState.value.plannedActivities[index];
+    if (!row) return;
+    const option = annualActivityOptions.value.find(o => o.value === annualActivityId);
+    if (!option) {
+      row.annualPlanId = '';
+      row.annualActivityId = '';
+      syncPlanHeader();
+      return;
+    }
+    const { plan, activity } = option;
+    row.annualPlanId = plan.id || '';
+    row.annualActivityId = activity.id || '';
+    row.category = (activity.category as AuditCategory) || row.category;
+    row.riskName = activity.riskName || '';
+    row.riskLevel = toRiskLevel(activity.riskLevel) ?? row.riskLevel;
+    row.numberOfAuditors = toNumber(activity.auditorCount);
+    row.duration = toNumber(activity.totalMandays);
+    syncPlanHeader();
+  }
+
+  // Rows that still need a link to an annual activity before the plan can be saved.
+  const unlinkedActivityCount = computed(() =>
+    formState.value.plannedActivities.filter(a => !a.annualActivityId).length
+  );
 
   function addResourceAuditor() {
     formState.value.resourceAuditors.push({
@@ -310,8 +510,10 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
   return {
     isModalOpen, isViewModalOpen, isEditMode, priorityOptions, riskLevelOptions,
     formState, plans, selectedPlan, columns, filteredPlans,
-    openModal, closeModal, openViewModal, closeViewModal, handleEdit, handleDelete, savePlan,
+    openModal, closeModal, openViewModal, closeViewModal, handleEdit, handleDelete, savePlan, totalEstimatedCost,
     addPlannedActivity, removePlannedActivity, addResourceAuditor, removeResourceAuditor,
-    fetchPlans, loading, errorMsg, getRiskLevelColor, attachmentCategoryOptions, handleFileChange
+    fetchPlans, loading, errorMsg, getRiskLevelColor, attachmentCategoryOptions, handleFileChange,
+    departmentOptions, riskOptions, optionsLoading, fetchFormOptions,
+    annualActivityOptions, linkAnnualActivity, unlinkedActivityCount
   };
 });

@@ -43,6 +43,7 @@ type UserInfo struct {
 	FullName  string   `json:"full_name"`
 	Phone     string   `json:"phone"`
 	Department string  `json:"department"`
+	AvatarURL string   `json:"avatar_url"`
 	Roles     []string `json:"roles"`
 	MustChangePassword bool `json:"must_change_password"`
 }
@@ -72,6 +73,8 @@ type UpdateUserRequest struct {
 	Department *string  `json:"department" validate:"omitempty,max=100"`
 	Position   *string  `json:"position" validate:"omitempty,max=100"`
 	IsActive   *bool    `json:"is_active"`
+	// AvatarURL: absent/null = unchanged, "" = clear, otherwise a data URL (png/jpeg/webp, <= 300000 chars).
+	AvatarURL  *string  `json:"avatar_url"`
 }
 
 // ListUsersRequest represents a list users request
@@ -81,6 +84,33 @@ type ListUsersRequest struct {
 	Search    string `form:"search"`
 	Department string `form:"department"`
 	IsActive  *bool  `form:"is_active"`
+}
+
+// ListAssignableUsersRequest is the query of GET /users/assignable
+type ListAssignableUsersRequest struct {
+	Page     int
+	PageSize int
+	Search   string
+	// ID, when set, restricts the result to that one user (used by
+	// audit-service to resolve an ATR PIC's name)
+	ID *uuid.UUID
+}
+
+// AssignableUser is a user that can be picked as the PIC of a follow-up
+// item. Deliberately minimal: no email, username, roles or contact data.
+type AssignableUser struct {
+	ID         string `json:"id"`
+	FullName   string `json:"full_name"`
+	Department string `json:"department"`
+	Position   string `json:"position"`
+}
+
+// AssignableUsersPagination is the pagination block of GET /users/assignable
+type AssignableUsersPagination struct {
+	Page       int   `json:"page"`
+	PageSize   int   `json:"page_size"`
+	Total      int64 `json:"total"`
+	TotalPages int64 `json:"total_pages"`
 }
 
 // UserResponse represents a user response
@@ -94,6 +124,7 @@ type UserResponse struct {
 	Department string  `json:"department"`
 	Position   string  `json:"position"`
 	IsActive   bool    `json:"is_active"`
+	AvatarURL  string  `json:"avatar_url"`
 	Roles      []string `json:"roles"`
 	MustChangePassword bool `json:"must_change_password"`
 	CreatedAt  string  `json:"created_at"`
@@ -230,4 +261,19 @@ type AcceptConfidentialityRequest struct {
 type ConfidentialityStatusResponse struct {
 	HasAccepted bool   `json:"has_accepted"`
 	AcceptedAt  string `json:"accepted_at,omitempty"`
+}
+// ListUserContactsRequest is the query of GET /users/contacts. IDs and
+// DepartmentHeadOf are both optional filters (ANDed); at least one is needed.
+type ListUserContactsRequest struct {
+	IDs              []uuid.UUID
+	DepartmentHeadOf string
+}
+
+// UserContact is an active user's contact details, for notifications sent by
+// audit-service (reminders to the PIC and the department head)
+type UserContact struct {
+	ID         string `json:"id"`
+	FullName   string `json:"full_name"`
+	Email      string `json:"email"`
+	Department string `json:"department"`
 }

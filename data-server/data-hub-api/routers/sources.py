@@ -1,23 +1,20 @@
 """
 Data Hub API — Sources Router
-Manages registered external data sources, multi-source ingestion, and real schema introspection.
+Manages registered external data sources, multi-source ingestion queue, and real schema introspection.
 """
 from typing import Optional, List, Any, Dict
-from fastapi import APIRouter, HTTPException, BackgroundTasks
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy import text, create_engine
-import pandas as pd
-import uuid
 import json
 import os
 import urllib.request
 
 from main import engine
-from services.transform_service import (
-    transform_source_bronze_to_silver,
-    transform_source_silver_to_gold,
-    feed_ai_training_pool
-)
+from core.identifiers import validate_identifier, quote_identifier
+from core.db import build_client_conn_string, get_read_only_client_conn
+from ingestion.introspect import introspect_schema
+from jobs.queue import enqueue_job, get_job_status
 
 router = APIRouter()
 
@@ -40,35 +37,7 @@ class IngestRequest(BaseModel):
     source_ids: Optional[List[str]] = [] # Can be empty if mode is "all"
     mode: str = "selected"               # "selected" | "all"
     run_transform: bool = True           # Auto Bronze -> Silver -> Gold?
-
-# ─── Track multi-source pipeline progress ────────────────────────────────────
-pipeline_progress: Dict[str, Any] = {}
-
-def _build_connection_string(src: dict) -> str:
-    stype = (src.get("source_type") or "postgres").lower()
-    host = src.get("host", "localhost")
-    port = src.get("port", 5432)
-    db = src.get("database_name", "")
-    user = src.get("username", "")
-    pwd = src.get("password_encrypted", "") or ""
-
-    auth = f"{user}:{pwd}@" if user or pwd else ""
-
-    if "postgres" in stype:
-        ssl_mode = "?sslmode=require" if src.get("ssl_enabled", True) else "?sslmode=disable"
-        # If localhost or 127.0.0.1 or docker internal, disable ssl requirement by default for stability
-        if host in ("localhost", "127.0.0.1", "cbs-simulator", "datalake-db", "host.docker.internal"):
-            ssl_mode = "?sslmode=disable"
-        return f"postgresql://{auth}{host}:{port}/{db}{ssl_mode}"
-    elif "mysql" in stype:
-        return f"mysql+pymysql://{auth}{host}:{port}/{db}"
-    elif "mssql" in stype:
-        return f"mssql+pyodbc://{auth}{host}:{port}/{db}?driver=ODBC+Driver+17+for+SQL+Server"
-    elif "oracle" in stype:
-        return f"oracle+cx_oracle://{auth}{host}:{port}/?service_name={db}"
-    else:
-        return f"postgresql://{auth}{host}:{port}/{db}"
-
+    priority: int = 10                   # 5=high, 10=normal, 20=low
 
 # ─── Source Registration Endpoints ───────────────────────────────────────────
 @router.post("/register")
@@ -93,7 +62,7 @@ def register_source(req: SourceRegistration):
                 sync_schedule = EXCLUDED.sync_schedule,
                 scopes = EXCLUDED.scopes,
                 data_mappings = EXCLUDED.data_mappings,
-                updated_at = NOW()
+                updated_at = NOW();
         """), {
             "sid": req.source_id,
             "name": req.name,
@@ -111,37 +80,32 @@ def register_source(req: SourceRegistration):
         conn.commit()
     return {"status": "success", "message": f"Source '{req.name}' successfully registered"}
 
-
 @router.get("")
 def list_sources():
     """List all registered external sources."""
     with engine.connect() as conn:
-        result = conn.execute(text("SELECT * FROM bronze.registered_sources ORDER BY created_at DESC"))
+        result = conn.execute(text("SELECT * FROM bronze.registered_sources ORDER BY created_at DESC;"))
         sources = [dict(r._mapping) for r in result]
     return {"status": "success", "data": sources}
-
 
 @router.delete("/{source_id}")
 def deregister_source(source_id: str):
     """Remove a registered source."""
     with engine.connect() as conn:
-        conn.execute(text("DELETE FROM bronze.registered_sources WHERE source_id = :sid"), {"sid": source_id})
+        conn.execute(text("DELETE FROM bronze.registered_sources WHERE source_id = :sid;"), {"sid": source_id})
         conn.commit()
     return {"status": "success", "message": f"Source {source_id} deregistered"}
 
-
-# ─── Multi-Source Ingestion Endpoints ─────────────────────────────────────────
+# ─── Multi-Source Ingestion Endpoints (Persistent Job Queue) ─────────────────
 @router.post("/ingest")
-def trigger_multi_ingest(req: IngestRequest, background_tasks: BackgroundTasks):
+def trigger_multi_ingest(req: IngestRequest):
     """
-    Trigger ingestion for 1, selected, or ALL registered sources.
-    Executes sequentially in background with progress tracking.
+    Enqueue multi-source ingestion job to ops.jobs queue.
+    Executed asynchronously by datahub-worker daemon with full crash recovery.
     """
-    job_id = str(uuid.uuid4())[:8]
-
     if req.mode == "all":
         with engine.connect() as conn:
-            result = conn.execute(text("SELECT source_id FROM bronze.registered_sources"))
+            result = conn.execute(text("SELECT source_id FROM bronze.registered_sources;"))
             source_ids = [str(r[0]) for r in result]
     else:
         source_ids = req.source_ids or []
@@ -149,259 +113,139 @@ def trigger_multi_ingest(req: IngestRequest, background_tasks: BackgroundTasks):
     if not source_ids:
         raise HTTPException(status_code=400, detail="No sources specified or registered for ingestion")
 
-    pipeline_progress[job_id] = {
+    job_id = enqueue_job(
+        job_type="ingest",
+        source_id=source_ids[0] if len(source_ids) == 1 else "multiple",
+        source_name="Multi-Source Batch",
+        payload={
+            "source_ids": source_ids,
+            "run_transform": req.run_transform
+        },
+        priority=req.priority
+    )
+
+    return {
+        "status": "scheduled",
         "job_id": job_id,
-        "total": len(source_ids),
-        "completed": 0,
-        "current_source": None,
-        "status": "running",
-        "results": []
+        "sources_count": len(source_ids),
+        "message": "Ingestion job queued for background streaming worker"
     }
 
-    background_tasks.add_task(_run_multi_source_pipeline, job_id, source_ids, req.run_transform)
-    return {"status": "scheduled", "job_id": job_id, "sources_count": len(source_ids)}
-
-
 @router.get("/ingest/{job_id}/status")
-def get_ingest_status(job_id: str):
-    """Check progress of a multi-source ingest job."""
-    if job_id not in pipeline_progress:
+def get_ingest_job_status(job_id: str):
+    """Check persistent progress and status of an ingest job."""
+    status_info = get_job_status(job_id)
+    if not status_info:
         raise HTTPException(status_code=404, detail="Job not found")
-    return pipeline_progress[job_id]
+    return status_info
 
-
-def _run_multi_source_pipeline(job_id: str, source_ids: list, run_transform: bool):
-    """Background task: sequential ingest for each source."""
-    for sid in source_ids:
-        pipeline_progress[job_id]["current_source"] = sid
-        try:
-            result = _ingest_single_source(sid, run_transform)
-            pipeline_progress[job_id]["results"].append({"source_id": sid, **result})
-        except Exception as e:
-            pipeline_progress[job_id]["results"].append({
-                "source_id": sid,
-                "status": "failed",
-                "error": str(e)
-            })
-        pipeline_progress[job_id]["completed"] += 1
-
-    pipeline_progress[job_id]["status"] = "completed"
-    pipeline_progress[job_id]["current_source"] = None
-
-
-def _ingest_single_source(source_id: str, run_transform: bool) -> dict:
-    """Ingest data from a single registered source into Bronze zone, then Silver and Gold."""
-    # 1. Read source config
-    with engine.connect() as conn:
-        row = conn.execute(text(
-            "SELECT * FROM bronze.registered_sources WHERE source_id = :sid"
-        ), {"sid": source_id}).fetchone()
-
-    if not row:
-        return {"status": "error", "error": "Source not registered in Data Hub"}
-
-    src = dict(row._mapping)
-    raw_mappings = src.get("data_mappings") or []
-    mappings = json.loads(raw_mappings) if isinstance(raw_mappings, str) else raw_mappings
-
-    raw_scopes = src.get("scopes") or []
-    scopes = json.loads(raw_scopes) if isinstance(raw_scopes, str) else raw_scopes
-
-    active_mappings = [m for m in mappings if m.get("isActive")]
-
-    # If no specific active mappings, discover tables or fallback
-    conn_str = _build_connection_string(src)
-    src_engine = create_engine(conn_str, pool_pre_ping=True)
-
-    total_records = 0
-    table_results = {}
-    has_analytics_scope = "data_analytics" in scopes
-
-    try:
-        tables_to_ingest = []
-        if active_mappings:
-            tables_to_ingest = active_mappings
-        else:
-            # Auto-ingest first 5 public base tables if no mappings defined
-            with src_engine.connect() as s_conn:
-                res = s_conn.execute(text("""
-                    SELECT table_name FROM information_schema.tables 
-                    WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
-                    LIMIT 5
-                """))
-                tables_to_ingest = [{"tableName": r[0], "isActive": True, "targetScope": "audit_features"} for r in res]
-
-        for mapping in tables_to_ingest:
-            table = mapping["tableName"]
-            try:
-                df = pd.read_sql(f"SELECT * FROM {table}", src_engine)
-                df["_source"] = src["name"]
-                df["_source_id"] = source_id
-                df["_loaded_at"] = pd.Timestamp.now()
-
-                clean_src_name = "".join(c if c.isalnum() else "_" for c in src["name"].lower())
-                target_table = f"{clean_src_name}_{table}".lower()
-
-                df.to_sql(target_table, engine, schema="bronze", if_exists="replace", index=False, method="multi", chunksize=1000)
-
-                rec_count = len(df)
-                total_records += rec_count
-                table_results[table] = rec_count
-
-                if run_transform:
-                    # Silver transformation
-                    transform_source_bronze_to_silver(engine, source_id, src["name"], table, mapping, df)
-                    # Gold transformation
-                    transform_source_silver_to_gold(engine, source_id, src["name"], table, mapping)
-
-                    # Check table-level or connection-level data_analytics scope
-                    table_scope = mapping.get("targetScope", "")
-                    if table_scope == "data_analytics" or has_analytics_scope:
-                        feed_ai_training_pool(engine, source_id, src["name"], table, mapping)
-
-            except Exception as ex:
-                table_results[table] = f"ERROR: {str(ex)}"
-
-        # If data_analytics scope present, notify AI Engine
-        if has_analytics_scope or any(m.get("targetScope") == "data_analytics" for m in tables_to_ingest):
-            _notify_ai_engine(source_id, src["name"])
-
-    finally:
-        src_engine.dispose()
-
-    # Update bronze.registered_sources record
+@router.post("/{source_id}/full-resync")
+def reset_source_watermark(source_id: str):
+    """Reset watermark for a source to trigger complete re-extraction."""
     with engine.connect() as conn:
         conn.execute(text("""
-            UPDATE bronze.registered_sources 
-            SET status = 'synced', last_sync_at = NOW(), records_synced = :count, updated_at = NOW()
-            WHERE source_id = :sid
-        """), {"count": total_records, "sid": source_id})
+            DELETE FROM ops.sync_watermarks WHERE source_id = :sid;
+        """), {"sid": source_id})
         conn.commit()
+    return {"status": "success", "message": f"Watermark reset for source {source_id}. Next sync will be full."}
 
-    return {"status": "success", "total_records": total_records, "tables": table_results}
+@router.get("/{source_id}/batches")
+def list_source_batch_manifests(source_id: str, limit: int = Query(20, le=100)):
+    """Retrieve audit trail batch manifests (checksums, records loaded)."""
+    with engine.connect() as conn:
+        res = conn.execute(text("""
+            SELECT batch_id, table_name, rows_count, checksum_sha256, watermark_end, loaded_at
+            FROM ops.ingest_batches
+            WHERE source_id = :sid
+            ORDER BY loaded_at DESC
+            LIMIT :lim;
+        """), {"sid": source_id, "lim": limit})
+        batches = [dict(r._mapping) for r in res]
+    return {"status": "success", "data": batches}
 
+@router.post("/{source_id}/reconcile")
+def run_source_reconciliation(source_id: str):
+    """Trigger read-only delete detection reconciliation against registered client database."""
+    from reconcile.delete_detection import reconcile_source_deletes
+    return reconcile_source_deletes(source_id)
 
-def _notify_ai_engine(source_id: str, source_name: str):
-    """Notify AI engine that new data is available in gold.ai_training_pool."""
-    ai_url = os.getenv("AI_ENGINE_URL", "http://ai-engine:8200")
-    endpoint = f"{ai_url}/retrain/auto"
-    try:
-        req = urllib.request.Request(
-            endpoint,
-            data=json.dumps({"source_id": source_id, "source_name": source_name}).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-            method="POST"
-        )
-        with urllib.request.urlopen(req, timeout=3) as resp:
-            pass
-    except Exception as e:
-        print(f"[Sources] Notice: AI Engine auto-retrain trigger: {e}")
+@router.get("/{source_id}/reconcile-runs")
+def list_source_reconcile_runs(source_id: str, limit: int = Query(20, le=100)):
+    """List historical delete detection and reconciliation runs."""
+    with engine.connect() as conn:
+        res = conn.execute(text("""
+            SELECT run_id, table_name, buckets_checked, buckets_mismatched, deletes_detected, started_at, completed_at, status
+            FROM ops.reconcile_runs
+            WHERE source_id = :sid
+            ORDER BY started_at DESC
+            LIMIT :lim;
+        """), {"sid": source_id, "lim": limit})
+        runs = [dict(r._mapping) for r in res]
+    return {"status": "success", "data": runs}
 
-
-# ─── Schema Introspection (Task 4.1) ──────────────────────────────────────────
+# ─── Fast Schema Introspection ────────────────────────────────────────────────
 @router.get("/{source_id}/schema")
 def introspect_source_schema(source_id: str):
-    """Connect to a registered source and return real database catalog schema."""
+    """Connect to registered source (Read-Only) and return table catalog in sub-second."""
     with engine.connect() as conn:
         row = conn.execute(text(
-            "SELECT * FROM bronze.registered_sources WHERE source_id = :sid"
+            "SELECT * FROM bronze.registered_sources WHERE source_id = :sid;"
         ), {"sid": source_id}).fetchone()
 
     if not row:
         raise HTTPException(status_code=404, detail="Source connection not registered in Data Hub")
 
     src = dict(row._mapping)
-    conn_str = _build_connection_string(src)
-    src_engine = create_engine(conn_str, pool_pre_ping=True)
-
-    tables = []
     try:
-        with src_engine.connect() as src_conn:
-            # Query base tables
-            tbl_res = src_conn.execute(text("""
-                SELECT table_name FROM information_schema.tables 
-                WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
-                ORDER BY table_name
-            """))
-
-            for tbl_row in tbl_res:
-                tbl_name = tbl_row[0]
-                # Columns metadata
-                cols_res = src_conn.execute(text("""
-                    SELECT c.column_name, c.data_type, c.is_nullable,
-                           CASE WHEN tc.constraint_type = 'PRIMARY KEY' THEN TRUE ELSE FALSE END as is_primary
-                    FROM information_schema.columns c
-                    LEFT JOIN information_schema.key_column_usage kcu 
-                        ON c.column_name = kcu.column_name AND c.table_name = kcu.table_name
-                    LEFT JOIN information_schema.table_constraints tc 
-                        ON kcu.constraint_name = tc.constraint_name AND tc.constraint_type = 'PRIMARY KEY'
-                    WHERE c.table_name = :tbl AND c.table_schema = 'public'
-                    ORDER BY c.ordinal_position
-                """), {"tbl": tbl_name})
-
-                columns = [
-                    {
-                        "name": c[0],
-                        "dataType": c[1],
-                        "isNullable": c[2] == "YES",
-                        "isPrimary": bool(c[3])
-                    }
-                    for c in cols_res
-                ]
-
-                # Estimated or exact row count
-                try:
-                    cnt_res = src_conn.execute(text(f"SELECT COUNT(*) FROM {tbl_name}"))
-                    row_count = cnt_res.scalar() or 0
-                except Exception:
-                    row_count = 0
-
-                tables.append({
-                    "tableName": tbl_name,
-                    "rowCount": row_count,
-                    "columnCount": len(columns),
-                    "description": f"Real catalog table '{tbl_name}' from {src['database_name']}",
-                    "columns": columns
-                })
+        catalog = introspect_schema(src)
+        return {"success": True, "data": catalog}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to introspect source schema: {str(e)}")
-    finally:
-        src_engine.dispose()
-
-    return {
-        "success": True,
-        "data": {
-            "tables": tables,
-            "database": src["database_name"],
-            "source_name": src["name"]
-        }
-    }
-
+        raise HTTPException(status_code=500, detail=f"Failed to introspect schema: {str(e)}")
 
 @router.get("/{source_id}/preview/{table_name}")
 def preview_source_table(source_id: str, table_name: str, limit: int = 10):
-    """Preview live records from a specific table in the registered source."""
+    """Preview sample records from a specific table in client database safely."""
+    # Sanitize identifier to prevent SQL injection
+    validate_identifier(table_name)
+
     with engine.connect() as conn:
         row = conn.execute(text(
-            "SELECT * FROM bronze.registered_sources WHERE source_id = :sid"
+            "SELECT * FROM bronze.registered_sources WHERE source_id = :sid;"
         ), {"sid": source_id}).fetchone()
 
     if not row:
         raise HTTPException(status_code=404, detail="Source not registered")
 
     src = dict(row._mapping)
-    conn_str = _build_connection_string(src)
-    src_engine = create_engine(conn_str, pool_pre_ping=True)
-
     rows = []
     try:
-        with src_engine.connect() as src_conn:
-            res = src_conn.execute(text(f"SELECT * FROM {table_name} LIMIT :lim"), {"lim": limit})
-            for r in res:
-                rows.append(dict(r._mapping))
+        with get_read_only_client_conn(src) as conn:
+            with conn.cursor() as cur:
+                cur.execute(f"SELECT * FROM {quote_identifier(table_name)} LIMIT %s;", (limit,))
+                col_names = [desc[0] for desc in cur.description] if cur.description else []
+                for r in cur.fetchall():
+                    rows.append(dict(zip(col_names, r)))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to preview table {table_name}: {str(e)}")
-    finally:
-        src_engine.dispose()
 
     return {"success": True, "data": {"tableName": table_name, "rows": rows}}
+
+def notify_ai_engine(source_id: str, source_name: str):
+    """Notify AI engine that new data is available in gold.ai_training_pool with authentication."""
+    ai_url = os.getenv("AI_ENGINE_URL", "http://ai-engine:8000")
+    api_key = os.getenv("AI_ENGINE_API_KEY", "dev-ai-api-key")
+    endpoint = f"{ai_url}/retrain/auto"
+    try:
+        req = urllib.request.Request(
+            endpoint,
+            data=json.dumps({"source_id": source_id, "source_name": source_name}).encode("utf-8"),
+            headers={
+                "Content-Type": "application/json",
+                "X-API-Key": api_key
+            },
+            method="POST"
+        )
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            pass
+    except Exception as e:
+        print(f"[Sources] Notice: AI Engine auto-retrain trigger: {e}")

@@ -173,7 +173,7 @@
                   variant="ghost" 
                   size="md" 
                   :title="t('qualityAssurance.importQar.actions.view')" 
-                  @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                  @click="store.viewDocument(row.original.id, row.original.attachment ? row.original.attachment.name : (row.original.fileName || 'QAR_Report.pdf'))" 
                 />
                 </UTooltip>
                 <UTooltip :text="t('qualityAssurance.importQar.actions.download')">
@@ -288,7 +288,7 @@ const handleUpload = async () => {
     await store.importQARReport({
       assessmentTitle: form.value.title,
       type: QAType.QAR,
-      periodYear: '2026',
+      periodYear: new Date().getFullYear().toString(),
       result: 'Generally Conformed',
       status: QAStatus.COMPLETED,
       conductedBy: form.value.description || 'External QA Assessor',
@@ -309,7 +309,7 @@ const handleUpload = async () => {
 }
 
 const handleDelete = async (report: QAReport) => {
-  if (await useGlobalModalStore().confirmDelete({ description: t('qualityAssurance.importQar.deleteConfirm') })) {
+  if (await useGlobalModalStore().confirmDelete({ description: t('qualityAssurance.importQar.deleteConfirm'), body: [t('globalConfirmation.delete.note')] })) {
     store.selectedReport = report
     await store.deleteReport()
   }

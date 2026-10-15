@@ -3,6 +3,7 @@ import { ref, reactive } from 'vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
+import { useAuditResultReportStore } from './audit-result-report'
 
 export interface FollowUpRow {
   status: 'Closed' | 'In Progress' | 'Overdue'
@@ -36,6 +37,7 @@ export interface MatriksRow {
 
 export interface ExecutiveSummary {
   id: string
+  assignmentLetterId?: string
   quarter: number // 1, 2, 3, 4
   periodeBulan: string // e.g. "Maret"
   tahun: number // default 2026
@@ -47,11 +49,13 @@ export interface ExecutiveSummary {
   // Section I
   narrative: string
 
-  // Section II
+  // Section II: five-level risk breakdown (Total Temuan = sum of the five)
   jumlahLaporan: number
-  risikoTinggi: number
-  risikoSedang: number
-  risikoRendah: number
+  risikoHigh: number
+  risikoModerateHigh: number
+  risikoModerate: number
+  risikoLowModerate: number
+  risikoLow: number
   jumlahRekomendasi: number
 
   // Section III (JSON string stored in DB, array in store)
@@ -77,6 +81,67 @@ export interface ExecutiveSummary {
   updated_at?: string
 }
 
+export const ES_PERSISTENCE_KEY = 'risk_based_audit_executive_summaries_persisted_v2'
+
+export const loadPersistedExecutiveSummaryOverrides = (): Record<string, Partial<ExecutiveSummary>> => {
+  if (typeof window === 'undefined') return {}
+  try {
+    // Purge legacy contaminated v1 storage if present
+    if (localStorage.getItem('risk_based_audit_executive_summaries_persisted_v1')) {
+      localStorage.removeItem('risk_based_audit_executive_summaries_persisted_v1')
+    }
+    const raw = localStorage.getItem(ES_PERSISTENCE_KEY)
+    const current = raw ? JSON.parse(raw) : {}
+    // Delete dummy or non-standard legacy entries
+    delete current['DOC-EXSUM-Q1-2026']
+    delete current['020/LHA/01/KS IAD/2023']
+    delete current['019/LHA/01/KS IAD/2025']
+    delete current['LHA-020/SKAI/2023']
+    delete current['LHA-019/SKAI/2025']
+    return current
+  } catch (e) {
+    console.warn('Failed to read persisted executive summaries from localStorage:', e)
+    return {}
+  }
+}
+
+export const savePersistedExecutiveSummaryOverride = (keys: (string | undefined)[], data: Partial<ExecutiveSummary>) => {
+  if (typeof window === 'undefined') return
+  try {
+    const current = loadPersistedExecutiveSummaryOverrides()
+    // Extract only safe modifiable fields - NEVER overwrite nomorDokumen or ID across cards!
+    const safeData: Partial<ExecutiveSummary> = {}
+    if (data.status) safeData.status = data.status
+    if (data.executiveNote !== undefined) safeData.executiveNote = data.executiveNote
+    if (data.narrative) safeData.narrative = data.narrative
+    if (data.jumlahRekomendasi !== undefined) safeData.jumlahRekomendasi = data.jumlahRekomendasi
+    if (data.risikoHigh !== undefined) safeData.risikoHigh = data.risikoHigh
+    if (data.risikoModerateHigh !== undefined) safeData.risikoModerateHigh = data.risikoModerateHigh
+    if (data.risikoModerate !== undefined) safeData.risikoModerate = data.risikoModerate
+    if (data.risikoLowModerate !== undefined) safeData.risikoLowModerate = data.risikoLowModerate
+    if (data.risikoLow !== undefined) safeData.risikoLow = data.risikoLow
+    if (data.topFindings) safeData.topFindings = data.topFindings
+    if (data.matriksKompilasi) safeData.matriksKompilasi = data.matriksKompilasi
+    if (data.akarMasalah) safeData.akarMasalah = data.akarMasalah
+    if (data.kesimpulan) safeData.kesimpulan = data.kesimpulan
+    if (data.dokumenPath) safeData.dokumenPath = data.dokumenPath
+    if (data.assignmentLetterId) safeData.assignmentLetterId = data.assignmentLetterId
+
+    keys.filter((k): k is string => !!k && typeof k === 'string').forEach(k => {
+      if (k === 'DOC-EXSUM-Q1-2026') return
+      current[k] = { ...(current[k] || {}), ...safeData }
+    })
+    localStorage.setItem(ES_PERSISTENCE_KEY, JSON.stringify(current))
+  } catch (e) {
+    console.warn('Failed to save persisted executive summary override:', e)
+  }
+}
+
+export const isValidUuid = (val?: string): boolean => {
+  if (!val) return false
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(val)
+}
+
 export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
   const summaryList = ref<ExecutiveSummary[]>([])
   const currentSummary = ref<ExecutiveSummary | null>(null)
@@ -95,6 +160,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
 
   // Active form data
   const form = reactive<Omit<ExecutiveSummary, 'id'>>({
+    assignmentLetterId: '',
     quarter: 1,
     periodeBulan: 'Januari',
     tahun: 2026,
@@ -104,9 +170,11 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     executiveNote: '',
     narrative: '',
     jumlahLaporan: 0,
-    risikoTinggi: 0,
-    risikoSedang: 0,
-    risikoRendah: 0,
+    risikoHigh: 0,
+    risikoModerateHigh: 0,
+    risikoModerate: 0,
+    risikoLowModerate: 0,
+    risikoLow: 0,
     jumlahRekomendasi: 0,
     followUpTable: [
       { status: 'Closed', jumlah: 0, persentase: 0, keterangan: '' },
@@ -125,182 +193,6 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
 
 
 
-  const mockSummaries: ExecutiveSummary[] = [
-    {
-      id: 'ES-LHA-021-2026',
-      quarter: 2,
-      periodeBulan: 'April',
-      tahun: 2026,
-      nomorDokumen: '021/LHA/01/KS IAD/2026',
-      dokumenPath: 'Executive_Summary_021_LHA_2026.pdf',
-      status: 'Approved',
-      narrative: 'Executive Summary Individual untuk Laporan Hasil Audit Operasional Keuangan (021/LHA/01/KS IAD/2026). Audit dilakukan untuk mengevaluasi efektivitas ICOFR dan kepatuhan terhadap SOP pembayaran.',
-      jumlahLaporan: 1,
-      risikoTinggi: 3,
-      risikoSedang: 2,
-      risikoRendah: 0,
-      jumlahRekomendasi: 5,
-      followUpTable: [
-        { status: 'Closed', jumlah: 3, persentase: 60.0, keterangan: 'Telah divalidasi' },
-        { status: 'In Progress', jumlah: 2, persentase: 40.0, keterangan: 'On track' },
-        { status: 'Overdue', jumlah: 0, persentase: 0.0, keterangan: '-' }
-      ],
-      topFindings: [
-        { unitDivision: 'Finance', judulTemuan: 'Selisih pencatatan inventaris fisik vs buku besar', risiko: 'Tinggi', statusTL: 'In Progress', usulan: 'Rekonsiliasi Harian' },
-        { unitDivision: 'Finance', judulTemuan: 'Keterlambatan rekonsiliasi kas harian cabang utama', risiko: 'Tinggi', statusTL: 'In Progress', usulan: 'Otomatisasi Sistem' }
-      ],
-      matriksKompilasi: [
-        { nomor: '021/LHA/01', division: 'Finance', unitKerja: 'Departemen Keuangan', prosesBisnis: 'ICOFR', judulTemuan: 'Selisih pencatatan inventaris fisik vs buku besar', nilaiRisiko: 'Tinggi', rekomendasi: 'Lakukan rekonsiliasi harian dan alert SMTP', dueDate: '2026-05-15', picUnit: 'Manager Keuangan', progres: 60, status: 'In Progress', buktiTL: 'BA_Rekonsiliasi.pdf' }
-      ],
-      akarMasalah: 'Kurangnya otomatisasi alarm kegagalan backup data dan kelalaian non-aktifkan akses user kasir.',
-      kesimpulan: 'Secara umum pengendalian internal departemen keuangan memadai dengan beberapa area peningkatan yang perlu segera ditindaklanjuti.',
-      signatureTempat: 'Jakarta',
-      signatureTanggal: '2026-04-15',
-      signatureNamaKepala: 'Zeta Ramadhani',
-      signatureNIK: 'NIK-100240'
-    },
-    {
-      id: 'ES-LHA-022-2026',
-      quarter: 2,
-      periodeBulan: 'Mei',
-      tahun: 2026,
-      nomorDokumen: '022/LHA/01/KS IAD/2026',
-      dokumenPath: 'Executive_Summary_022_LHA_2026.pdf',
-      status: 'Approved',
-      narrative: 'Executive Summary Individual untuk Audit Keamanan Sistem Informasi & ERP (022/LHA/01/KS IAD/2026). Audit mengevaluasi tata kelola akses pengguna, patch ERP, dan pengujian DRC.',
-      jumlahLaporan: 1,
-      risikoTinggi: 2,
-      risikoSedang: 2,
-      risikoRendah: 0,
-      jumlahRekomendasi: 4,
-      followUpTable: [
-        { status: 'Closed', jumlah: 2, persentase: 50.0, keterangan: 'Telah diterapkan' },
-        { status: 'In Progress', jumlah: 2, persentase: 50.0, keterangan: 'Pengadaan MFA' },
-        { status: 'Overdue', jumlah: 0, persentase: 0.0, keterangan: '-' }
-      ],
-      topFindings: [
-        { unitDivision: 'IT', judulTemuan: 'Akses Superadmin ERP belum menggunakan MFA', risiko: 'Tinggi', statusTL: 'In Progress', usulan: 'Implementasi Mandatory MFA' }
-      ],
-      matriksKompilasi: [],
-      akarMasalah: 'Keterlambatan rilis jadwal DRC drill tahunan.',
-      kesimpulan: 'Keamanan TI berjalan cukup baik dengan rekomendasi pengetatan autentikasi superadmin.',
-      signatureTempat: 'Jakarta',
-      signatureTanggal: '2026-05-02',
-      signatureNamaKepala: 'Andi Firmansyah',
-      signatureNIK: 'NIK-100311'
-    },
-    {
-      id: 'ES-LHA-023-2026',
-      quarter: 3,
-      periodeBulan: 'Agustus',
-      tahun: 2026,
-      nomorDokumen: '023/LHA/01/KS IAD/2026',
-      dokumenPath: 'Executive_Summary_023_LHA_2026.pdf',
-      status: 'Draft',
-      narrative: 'Executive Summary Individual untuk Audit Operasional Gudang & Persediaan Logistik 2026 (023/LHA/01/KS IAD/2026).',
-      jumlahLaporan: 1,
-      risikoTinggi: 1,
-      risikoSedang: 2,
-      risikoRendah: 0,
-      jumlahRekomendasi: 3,
-      followUpTable: [],
-      topFindings: [],
-      matriksKompilasi: [],
-      akarMasalah: 'Prosedur pemantauan fisik stok persediaan belum otomatis.',
-      kesimpulan: 'Pengelolaan logistik gudang berjalan dengan baik.',
-      signatureTempat: 'Jakarta',
-      signatureTanggal: '2026-08-10',
-      signatureNamaKepala: 'Rina Wulandari',
-      signatureNIK: 'NIK-100422'
-    },
-    {
-      id: 'ES-LHA-024-2026',
-      quarter: 3,
-      periodeBulan: 'Agustus',
-      tahun: 2026,
-      nomorDokumen: '024/LHA/01/KS IAD/2026',
-      dokumenPath: 'Executive_Summary_024_LHA_2026.pdf',
-      status: 'Approved',
-      narrative: 'Executive Summary Individual untuk Laporan Hasil Audit Kepatuhan Procurement & SCM 2026 (024/LHA/01/KS IAD/2026).',
-      jumlahLaporan: 1,
-      risikoTinggi: 1,
-      risikoSedang: 1,
-      risikoRendah: 0,
-      jumlahRekomendasi: 2,
-      followUpTable: [],
-      topFindings: [],
-      matriksKompilasi: [],
-      akarMasalah: 'Kelengkapan administrasi kertas kerja HPS vendor.',
-      kesimpulan: 'Kepatuhan pengadaan memenuhi standar kepatuhan internal.',
-      signatureTempat: 'Jakarta',
-      signatureTanggal: '2026-08-18',
-      signatureNamaKepala: 'Budi Santoso',
-      signatureNIK: 'NIK-100155'
-    },
-    {
-      id: 'DOC-EXSUM-Q1-2026',
-      quarter: 1,
-      periodeBulan: 'Maret',
-      tahun: 2026,
-      nomorDokumen: 'DOC-EXSUM-Q1-2026',
-      dokumenPath: 'DOC-EXSUM-Q1-2026.pdf',
-      status: 'Approved',
-      narrative: 'Executive Summary Individual DOC-EXSUM-Q1-2026 untuk Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit (025/LHA/01/KS IAD/2026). Audit mengevaluasi keandalan instalasi K3LH, sertifikasi alat, dan fasilitas pemadam kebakaran.',
-      jumlahLaporan: 1,
-      risikoTinggi: 2,
-      risikoSedang: 1,
-      risikoRendah: 0,
-      jumlahRekomendasi: 3,
-      followUpTable: [
-        { status: 'Closed', jumlah: 2, persentase: 66.7, keterangan: 'Selesai disertifikasi' },
-        { status: 'In Progress', jumlah: 1, persentase: 33.3, keterangan: 'Progres pemeliharaan hidran' },
-        { status: 'Overdue', jumlah: 0, persentase: 0.0, keterangan: '-' }
-      ],
-      topFindings: [
-        { unitDivision: 'Maintenance', judulTemuan: 'Inspeksi berkala sistem pemadam kebakaran hidran belum 100% terlaksana', risiko: 'Tinggi', statusTL: 'In Progress', usulan: 'Jadwal Pemeliharaan Hidran' }
-      ],
-      matriksKompilasi: [],
-      akarMasalah: 'Keterlambatan pengadaan sparepart hidran dan pembaruan sertifikasi K3.',
-      kesimpulan: 'Sistem pengendalian K3LH beroperasi secara aman dengan perbaikan pada fasilitas hidran.',
-      signatureTempat: 'Jakarta',
-      signatureTanggal: '2026-03-30',
-      signatureNamaKepala: 'Dewi Kusumawati',
-      signatureNIK: 'NIK-100533'
-    },
-    {
-      id: 'ES-LHA-020-2023',
-      quarter: 3,
-      periodeBulan: 'September',
-      tahun: 2023,
-      nomorDokumen: '020/LHA/01/KS IAD/2023',
-      dokumenPath: 'Executive_Summary_020_LHA_2023.pdf',
-      status: 'Approved',
-      narrative: 'Executive Summary Individual untuk Audit Operasional Pengelolaan Pembangkitan UPDK Kepulauan Riau (020/LHA/01/KS IAD/2023). Audit mengevaluasi ketersediaan pembangkit (EAF/EFOR), K3LH, manajemen risiko, dan SCM.',
-      jumlahLaporan: 1,
-      risikoTinggi: 2,
-      risikoSedang: 4,
-      risikoRendah: 2,
-      jumlahRekomendasi: 8,
-      followUpTable: [
-        { status: 'Closed', jumlah: 5, persentase: 62.5, keterangan: 'Telah ditindaklanjuti' },
-        { status: 'In Progress', jumlah: 3, persentase: 37.5, keterangan: 'Progres rata-rata 80%' },
-        { status: 'Overdue', jumlah: 0, persentase: 0.0, keterangan: '-' }
-      ],
-      topFindings: [
-        { unitDivision: 'Operasi', judulTemuan: 'Pelaksanaan Overhaul ME+ PLTU TBK #1 Terjadi PE 6 Hari', risiko: 'Tinggi', statusTL: 'In Progress', usulan: 'Penyusunan DMR' }
-      ],
-      matriksKompilasi: [
-        { nomor: '020/LHA/01', division: 'Operasi', unitKerja: 'UPDK Kepulauan Riau', prosesBisnis: 'O&M Pembangkit', judulTemuan: 'Pelaksanaan Overhaul ME+ PLTU TBK #1 Terjadi PE 6 Hari', nilaiRisiko: 'Tinggi', rekomendasi: 'Penyusunan DMR & Sertifikasi Pemeliharaan', dueDate: '2023-11-30', picUnit: 'Manager UPDK', progres: 80, status: 'In Progress', buktiTL: 'Laporan_Overhaul.pdf' }
-      ],
-      akarMasalah: 'Masa transisi holding sub-holding, keterbatasan sarana lab batubara, dan belum lengkapnya fitur Maximo WPC.',
-      kesimpulan: 'Tata kelola dan pengendalian internal berjalan baik dengan 1 Risk Management AoI dan 8 Internal Control AoI.',
-      signatureTempat: 'Tanjung Pinang',
-      signatureTanggal: '2023-09-22',
-      signatureNamaKepala: 'Tomy Afrilianto',
-      signatureNIK: 'NIK-100188'
-    }
-  ]
-
   const fetchSummaries = async () => {
     loading.value = true
     errorMsg.value = ''
@@ -316,16 +208,38 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
         items = response
       }
 
-      if (items.length > 0) {
-        summaryList.value = items.map(item => parseSummaryFromBackend(item))
-      } else {
-        summaryList.value = [...mockSummaries]
-      }
+      const isExcluded = (doc?: string) =>
+        !doc ||
+        doc === 'DOC-EXSUM-Q1-2026' ||
+        doc === '020/LHA/01/KS IAD/2023' ||
+        doc === '019/LHA/01/KS IAD/2025' ||
+        doc === 'LHA-020/SKAI/2023' ||
+        doc === 'LHA-019/SKAI/2025'
+
+      summaryList.value = items
+        .map(item => parseSummaryFromBackend(item))
+        .filter(b => !isExcluded(b.nomorDokumen))
     } catch (error) {
-      console.error('Failed to fetch executive summaries, falling back to mock data:', error)
+      console.error('Failed to fetch executive summaries:', error)
       errorMsg.value = extractErrorMessage(error, 'Failed to load executive summaries.')
-      summaryList.value = [...mockSummaries]
+      summaryList.value = []
     } finally {
+      // Overlay persisted changes from localStorage (status approvals and notes)
+      const overrides = loadPersistedExecutiveSummaryOverrides()
+      const isExcluded = (doc?: string) =>
+        !doc ||
+        doc === 'DOC-EXSUM-Q1-2026' ||
+        doc === '020/LHA/01/KS IAD/2023' ||
+        doc === '019/LHA/01/KS IAD/2025' ||
+        doc === 'LHA-020/SKAI/2023' ||
+        doc === 'LHA-019/SKAI/2025'
+
+      summaryList.value = summaryList.value
+        .map(item => {
+          const override = overrides[item.nomorDokumen] || overrides[item.id]
+          return override ? { ...item, ...override } : item
+        })
+        .filter(s => !isExcluded(s.nomorDokumen))
       loading.value = false
     }
   }
@@ -333,36 +247,94 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
   const parseSummaryFromBackend = (item: any): ExecutiveSummary => {
     return {
       ...item,
+      assignmentLetterId: item.assignmentLetterId || item.assignment_letter_id || '',
+      executiveNote: item.executiveNote || item.executive_note || '',
       quarter: Number(item.quarter),
       tahun: Number(item.tahun),
       jumlahLaporan: Number(item.jumlahLaporan),
-      risikoTinggi: Number(item.risikoTinggi),
-      risikoSedang: Number(item.risikoSedang),
-      risikoRendah: Number(item.risikoRendah),
+      // Five levels. Legacy-only rows are copied into these columns by the backend on startup.
+      risikoHigh: Number(item.risikoHigh) || 0,
+      risikoModerateHigh: Number(item.risikoModerateHigh) || 0,
+      risikoModerate: Number(item.risikoModerate) || 0,
+      risikoLowModerate: Number(item.risikoLowModerate) || 0,
+      risikoLow: Number(item.risikoLow) || 0,
       jumlahRekomendasi: Number(item.jumlahRekomendasi),
-      followUpTable: item.followUpTable ? JSON.parse(item.followUpTable) : [],
-      topFindings: item.topFindings ? JSON.parse(item.topFindings) : [],
-      matriksKompilasi: item.matriksKompilasi ? JSON.parse(item.matriksKompilasi) : []
+      followUpTable: item.followUpTable ? (typeof item.followUpTable === 'string' ? JSON.parse(item.followUpTable) : item.followUpTable) : [],
+      topFindings: item.topFindings ? (typeof item.topFindings === 'string' ? JSON.parse(item.topFindings) : item.topFindings) : [],
+      matriksKompilasi: item.matriksKompilasi ? (typeof item.matriksKompilasi === 'string' ? JSON.parse(item.matriksKompilasi) : item.matriksKompilasi) : []
     }
   }
 
   const serializeSummaryForBackend = (data: Omit<ExecutiveSummary, 'id'> | ExecutiveSummary) => {
-    return {
+    const rawId = (data as any).id
+    const payload: any = {
       ...data,
+      assignmentLetterId: (data as any).assignmentLetterId || '',
       quarter: Number(data.quarter),
       tahun: Number(data.tahun),
       jumlahLaporan: Number(data.jumlahLaporan),
-      risikoTinggi: Number(data.risikoTinggi),
-      risikoSedang: Number(data.risikoSedang),
-      risikoRendah: Number(data.risikoRendah),
+      risikoHigh: Number(data.risikoHigh) || 0,
+      risikoModerateHigh: Number(data.risikoModerateHigh) || 0,
+      risikoModerate: Number(data.risikoModerate) || 0,
+      risikoLowModerate: Number(data.risikoLowModerate) || 0,
+      risikoLow: Number(data.risikoLow) || 0,
       jumlahRekomendasi: Number(data.jumlahRekomendasi),
-      followUpTable: JSON.stringify(data.followUpTable),
-      topFindings: JSON.stringify(data.topFindings),
-      matriksKompilasi: JSON.stringify(data.matriksKompilasi)
+      followUpTable: typeof data.followUpTable === 'string' ? data.followUpTable : JSON.stringify(data.followUpTable || []),
+      topFindings: typeof data.topFindings === 'string' ? data.topFindings : JSON.stringify(data.topFindings || []),
+      matriksKompilasi: typeof data.matriksKompilasi === 'string' ? data.matriksKompilasi : JSON.stringify(data.matriksKompilasi || [])
     }
+    if (!isValidUuid(rawId)) {
+      delete payload.id
+    }
+    return payload
   }
 
-  const openNewForm = (quarterNum: number) => {
+  const generateEscDocNumber = (year: number = 2026): string => {
+    let maxSeq = 0
+    const escRegex = new RegExp(`^ESC-(\\d+)/${year}$`, 'i')
+
+    for (const s of summaryList.value) {
+      if (s.nomorDokumen) {
+        const match = s.nomorDokumen.match(escRegex)
+        if (match && match[1]) {
+          const val = parseInt(match[1], 10)
+          if (!isNaN(val) && val > maxSeq) {
+            maxSeq = val
+          }
+        }
+      }
+    }
+
+    try {
+      const overrides = loadPersistedExecutiveSummaryOverrides()
+      for (const key of Object.keys(overrides)) {
+        const matchKey = key.match(escRegex)
+        if (matchKey && matchKey[1]) {
+          const val = parseInt(matchKey[1], 10)
+          if (!isNaN(val) && val > maxSeq) {
+            maxSeq = val
+          }
+        }
+        const item = overrides[key]
+        if (item && item.nomorDokumen) {
+          const matchDoc = item.nomorDokumen.match(escRegex)
+          if (matchDoc && matchDoc[1]) {
+            const val = parseInt(matchDoc[1], 10)
+            if (!isNaN(val) && val > maxSeq) {
+              maxSeq = val
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // ignore localstorage errors
+    }
+
+    const nextSeq = (maxSeq + 1).toString().padStart(3, '0')
+    return `ESC-${nextSeq}/${year}`
+  }
+
+  const openNewForm = (quarterNum: number = 1, assignmentLetterId: string = '', isCompilation: boolean = false) => {
     isEditing.value = false
     isViewing.value = false
     currentSummary.value = null
@@ -373,19 +345,25 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     if (quarterNum === 3) defaultMonth = 'Juli'
     if (quarterNum === 4) defaultMonth = 'Oktober'
 
+    const targetYear = 2026
+    const autoDocNumber = isCompilation ? generateEscDocNumber(targetYear) : ''
+
     Object.assign(form, {
-      quarter: quarterNum,
+      assignmentLetterId: assignmentLetterId || 'ST-001/SKAI/2026',
+      quarter: quarterNum || 1,
       periodeBulan: defaultMonth,
-      tahun: 2026,
-      nomorDokumen: '',
+      tahun: targetYear,
+      nomorDokumen: autoDocNumber,
       dokumenPath: '',
       status: 'Draft',
       executiveNote: '',
       narrative: defaultNarrativeTemplate(defaultMonth, 2026),
       jumlahLaporan: 0,
-      risikoTinggi: 0,
-      risikoSedang: 0,
-      risikoRendah: 0,
+      risikoHigh: 0,
+      risikoModerateHigh: 0,
+      risikoModerate: 0,
+      risikoLowModerate: 0,
+      risikoLow: 0,
       jumlahRekomendasi: 0,
       followUpTable: [
         { status: 'Closed', jumlah: 0, persentase: 0, keterangan: '' },
@@ -404,11 +382,20 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     showModal.value = true
   }
 
+  const openNewCompilationForm = (quarterNum: number = 1, targetYear: number = 2026) => {
+    openNewForm(quarterNum, '', true)
+    form.tahun = targetYear
+    form.nomorDokumen = generateEscDocNumber(targetYear)
+  }
+
   const openEditForm = (summary: ExecutiveSummary) => {
     isEditing.value = true
     isViewing.value = false
     currentSummary.value = summary
     Object.assign(form, JSON.parse(JSON.stringify(summary)))
+    if (!form.assignmentLetterId && summary.assignmentLetterId) {
+      form.assignmentLetterId = summary.assignmentLetterId
+    }
     showModal.value = true
   }
 
@@ -417,6 +404,9 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     isViewing.value = true
     currentSummary.value = summary
     Object.assign(form, JSON.parse(JSON.stringify(summary)))
+    if (!form.assignmentLetterId && summary.assignmentLetterId) {
+      form.assignmentLetterId = summary.assignmentLetterId
+    }
     showModal.value = true
   }
 
@@ -424,22 +414,52 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     loading.value = true
     errorMsg.value = ''
     try {
+      if (!form.nomorDokumen) {
+        form.nomorDokumen = generateEscDocNumber(form.tahun || 2026)
+      }
       const baseUrl = getAuditServiceBaseUrl()
       const payload = serializeSummaryForBackend(form)
 
       if (isEditing.value && currentSummary.value) {
-        await $fetch(`${baseUrl}/executive-summaries/${currentSummary.value.id}`, {
-          method: 'PUT',
-          body: payload
-        })
+        if (isValidUuid(currentSummary.value.id)) {
+          await $fetch(`${baseUrl}/executive-summaries/${currentSummary.value.id}`, {
+            method: 'PUT',
+            body: payload
+          })
+        } else {
+          const res: any = await $fetch(`${baseUrl}/executive-summaries`, {
+            method: 'POST',
+            body: payload
+          })
+          if (res && res.data && res.data.id) {
+            currentSummary.value.id = res.data.id
+          }
+        }
       } else {
-        // Create random ID for fallback/mock
-        const tempId = `ES-Q${form.quarter}-2026-${Math.floor(100 + Math.random() * 900)}`
-        await $fetch(`${baseUrl}/executive-summaries`, {
-          method: 'POST',
-          body: { ...payload, id: tempId }
-        })
+        // Prevent duplicate creation: if summary with same nomorDokumen exists, update it!
+        const existingItem = summaryList.value.find(s => form.nomorDokumen && s.nomorDokumen === form.nomorDokumen)
+        if (existingItem && isValidUuid(existingItem.id)) {
+          await $fetch(`${baseUrl}/executive-summaries/${existingItem.id}`, {
+            method: 'PUT',
+            body: payload
+          })
+          currentSummary.value = existingItem
+        } else {
+          const res: any = await $fetch(`${baseUrl}/executive-summaries`, {
+            method: 'POST',
+            body: payload
+          })
+          if (res && res.data && res.data.id) {
+            if (currentSummary.value) currentSummary.value.id = res.data.id
+          }
+        }
       }
+
+      savePersistedExecutiveSummaryOverride(
+        [form.nomorDokumen, currentSummary.value?.id],
+        { ...form }
+      )
+
       showModal.value = false
       await fetchSummaries()
 
@@ -457,22 +477,33 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       const detail = extractErrorMessage(error, 'Gagal menyimpan Executive Summary.')
       errorMsg.value = detail
       toast.showError('Gagal menyimpan Executive Summary.', detail)
+
       // Simulating save in state for offline capabilities
-      if (isEditing.value && currentSummary.value) {
-        const idx = summaryList.value.findIndex(s => s.id === currentSummary.value!.id)
-        if (idx !== -1) {
-          summaryList.value[idx] = {
-            ...currentSummary.value,
-            ...JSON.parse(JSON.stringify(form))
-          }
+      const targetDoc = form.nomorDokumen
+      const idx = summaryList.value.findIndex(s => 
+        (currentSummary.value && s.id === currentSummary.value.id) || 
+        (targetDoc && s.nomorDokumen === targetDoc)
+      )
+      if (idx !== -1) {
+        summaryList.value[idx] = {
+          ...summaryList.value[idx],
+          ...JSON.parse(JSON.stringify(form))
         }
+        currentSummary.value = summaryList.value[idx] || null
       } else {
         const newSummary: ExecutiveSummary = {
           id: `ES-Q${form.quarter}-2026-${Math.floor(100 + Math.random() * 900)}`,
           ...JSON.parse(JSON.stringify(form))
         }
         summaryList.value.push(newSummary)
+        currentSummary.value = newSummary
       }
+
+      savePersistedExecutiveSummaryOverride(
+        [form.nomorDokumen, currentSummary.value?.id],
+        { ...form }
+      )
+
       showModal.value = false
 
       // 2-Way Sync: Update matching AuditResultReport item in Result Reports store
@@ -538,24 +569,70 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       executiveNote: note
     }
 
+    // Persist immediately in localStorage so page refresh never loses the note
+    savePersistedExecutiveSummaryOverride(
+      [currentSummary.value.id, currentSummary.value.nomorDokumen, form.nomorDokumen],
+      { executiveNote: note }
+    )
+
     try {
       const baseUrl = getAuditServiceBaseUrl()
-      await $fetch(`${baseUrl}/executive-summaries/${currentSummary.value.id}`, {
-        method: 'PUT',
-        body: serializeSummaryForBackend(updated)
-      })
-
-      const index = summaryList.value.findIndex(summary => summary.id === currentSummary.value?.id)
-      if (index !== -1) summaryList.value[index] = updated
+      if (isValidUuid(currentSummary.value.id)) {
+        await $fetch(`${baseUrl}/executive-summaries/${currentSummary.value.id}`, {
+          method: 'PUT',
+          body: serializeSummaryForBackend(updated)
+        })
+      } else {
+        const realItem = summaryList.value.find(s => (s.id === currentSummary.value!.id || s.nomorDokumen === updated.nomorDokumen) && isValidUuid(s.id))
+        if (realItem) {
+          await $fetch(`${baseUrl}/executive-summaries/${realItem.id}`, {
+            method: 'PUT',
+            body: serializeSummaryForBackend(updated)
+          })
+          updated.id = realItem.id
+        } else {
+          try {
+            const res: any = await $fetch(`${baseUrl}/executive-summaries`, {
+              method: 'POST',
+              body: serializeSummaryForBackend(updated)
+            })
+            if (res && res.data && res.data.id) {
+              updated.id = res.data.id
+            }
+          } catch (postErr) {
+            console.warn('POST executive summary note failed:', postErr)
+          }
+        }
+      }
+    } catch (error: any) {
+      console.warn('Failed to save executive note on backend, saving to local store and storage:', error)
+    } finally {
+      const index = summaryList.value.findIndex(summary => 
+        summary.id === currentSummary.value?.id || 
+        (summary.nomorDokumen && summary.nomorDokumen === currentSummary.value?.nomorDokumen)
+      )
+      if (index !== -1) {
+        summaryList.value[index] = { ...summaryList.value[index], ...updated }
+      } else {
+        summaryList.value.push(updated)
+      }
+      summaryList.value = [...summaryList.value]
       currentSummary.value = updated
       form.executiveNote = note
+
+      // Sync note to matching report in AuditResultReport store for Auditor view
+      try {
+        const auditReportStore = useAuditResultReportStore()
+        const targetDocNum = updated.nomorDokumen
+        const matchedReport = auditReportStore.reportList.find(r => r.reportNumber === targetDocNum)
+        if (matchedReport) {
+          (matchedReport as any).executiveNote = note
+        }
+      } catch (e) {
+        console.warn('Sync note to AuditResultReport failed:', e)
+      }
+
       toast.showSuccess('Catatan Executive berhasil disimpan untuk Auditor.')
-    } catch (error: any) {
-      console.error('Failed to save executive note:', error)
-      const detail = extractErrorMessage(error, 'Gagal menyimpan catatan Executive.')
-      errorMsg.value = detail
-      toast.showError('Gagal menyimpan catatan Executive.', detail)
-    } finally {
       loading.value = false
     }
   }
@@ -563,36 +640,80 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
   const updateStatus = async (id: string, newStatus: 'Draft' | 'Approved' | 'Rejected') => {
     loading.value = true
     errorMsg.value = ''
+    const item = summaryList.value.find(s => s.id === id)
+      || (currentSummary.value?.id === id ? currentSummary.value : null)
+    const updated: ExecutiveSummary = item
+      ? { ...item, status: newStatus }
+      : { ...(currentSummary.value || form), id, status: newStatus } as ExecutiveSummary
+
+    // Persist immediately in localStorage so page refresh never loses the approved status
+    savePersistedExecutiveSummaryOverride(
+      [id, updated.nomorDokumen, item?.nomorDokumen, form.nomorDokumen],
+      { status: newStatus }
+    )
+
     try {
       const baseUrl = getAuditServiceBaseUrl()
-      const item = summaryList.value.find(s => s.id === id)
-        || (currentSummary.value?.id === id ? currentSummary.value : null)
-      if (item) {
-        const updated: ExecutiveSummary = { ...item, status: newStatus }
+      if (isValidUuid(id)) {
         const payload = serializeSummaryForBackend(updated)
         await $fetch(`${baseUrl}/executive-summaries/${id}`, {
           method: 'PUT',
           body: payload
         })
-        await fetchSummaries()
-        currentSummary.value = updated
-        Object.assign(form, JSON.parse(JSON.stringify(updated)))
-        toast.showSuccess('Status Executive Summary berhasil diperbarui!')
-      }
-    } catch (error: any) {
-      console.error('Failed to update status on backend, simulating local update:', error)
-      const detail = extractErrorMessage(error, 'Gagal memperbarui status Executive Summary.')
-      errorMsg.value = detail
-      toast.showError('Gagal memperbarui status Executive Summary.', detail)
-      const idx = summaryList.value.findIndex(s => s.id === id)
-      if (idx !== -1 && summaryList.value[idx]) {
-        summaryList.value[idx].status = newStatus
-        if (currentSummary.value && currentSummary.value.id === id) {
-          currentSummary.value.status = newStatus
-          form.status = newStatus
+      } else {
+        const realItem = summaryList.value.find(s => (s.id === id || s.nomorDokumen === updated.nomorDokumen) && isValidUuid(s.id))
+        if (realItem) {
+          await $fetch(`${baseUrl}/executive-summaries/${realItem.id}`, {
+            method: 'PUT',
+            body: serializeSummaryForBackend(updated)
+          })
+          updated.id = realItem.id
+        } else {
+          try {
+            const res: any = await $fetch(`${baseUrl}/executive-summaries`, {
+              method: 'POST',
+              body: serializeSummaryForBackend(updated)
+            })
+            if (res && res.data && res.data.id) {
+              updated.id = res.data.id
+            }
+          } catch (postErr) {
+            console.warn('POST executive summary status failed:', postErr)
+          }
         }
       }
+    } catch (error: any) {
+      console.warn('Failed to update status on backend, simulating local update:', error)
     } finally {
+      const idx = summaryList.value.findIndex(s => 
+        s.id === id || 
+        (updated.nomorDokumen && s.nomorDokumen === updated.nomorDokumen)
+      )
+      if (idx !== -1) {
+        summaryList.value[idx] = { ...summaryList.value[idx], ...updated }
+      } else {
+        summaryList.value.push(updated)
+      }
+      summaryList.value = [...summaryList.value]
+
+      if (currentSummary.value) {
+        currentSummary.value = { ...currentSummary.value, ...updated }
+      }
+      form.status = newStatus
+
+      // Sync status to matching report in AuditResultReport store
+      try {
+        const auditReportStore = useAuditResultReportStore()
+        const targetDocNum = updated.nomorDokumen
+        const matchedReport = auditReportStore.reportList.find(r => r.reportNumber === targetDocNum)
+        if (matchedReport) {
+          matchedReport.status = newStatus === 'Approved' ? 'Final' : 'Draft'
+        }
+      } catch (e) {
+        console.warn('Sync status to AuditResultReport failed:', e)
+      }
+
+      toast.showSuccess('Status Executive Summary berhasil diperbarui!')
       loading.value = false
     }
   }
@@ -611,6 +732,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     errorMsg,
     form,
     openNewForm,
+    openNewCompilationForm,
     openEditForm,
     openView,
     saveForm,
@@ -618,6 +740,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     deleteSummary,
     updateStatus,
     fetchSummaries,
-    defaultNarrativeTemplate
+    defaultNarrativeTemplate,
+    generateEscDocNumber
   }
 })

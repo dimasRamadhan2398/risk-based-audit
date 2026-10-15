@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"strconv"
+	"strings"
 
 	"auth-service/models"
 	"auth-service/pkg/base"
@@ -24,6 +25,101 @@ type UserControllerInterface interface {
 	ListUsers(c *gin.Context)
 	LookupByEmployee(c *gin.Context)
 	ResetPassword(c *gin.Context)
+	ListAssignableUsers(c *gin.Context)
+	ListUserContacts(c *gin.Context)
+}
+
+// ListAssignableUsers lists active users that can be assigned as the PIC of
+// an action taken report. The route restricts it to the assigner/reviewer
+// roles (routes.AssignableUserRoles).
+// @Summary List Assignable Users
+// @Description Active users with id, full_name, department and position only. Search is case-insensitive on full_name, department and position; ordered by full_name, id.
+// @Tags users
+// @Produce json
+// @Security Bearer
+// @Param search query string false "Search on full name, department or position"
+// @Param id query string false "Restrict to one user id"
+// @Param page query int false "Page number" default(1)
+// @Param page_size query int false "Page size (max 100)" default(20)
+// @Success 200 {object} response.Response
+// @Router /api/v1/users/assignable [get]
+func (ctrl *UserController) ListAssignableUsers(c *gin.Context) {
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if err != nil {
+		page = 1
+	}
+	pageSize, err := strconv.Atoi(c.DefaultQuery("page_size", strconv.Itoa(userService.AssignableDefaultPageSize)))
+	if err != nil {
+		pageSize = userService.AssignableDefaultPageSize
+	}
+	req := &models.ListAssignableUsersRequest{
+		Page:     page,
+		PageSize: pageSize,
+		Search:   c.Query("search"),
+	}
+	if raw := c.Query("id"); raw != "" {
+		id, err := uuid.Parse(raw)
+		if err != nil {
+			response.BadRequest(c, "Invalid user ID")
+			return
+		}
+		req.ID = &id
+	}
+
+	users, pagination, err := ctrl.userService.ListAssignableUsers(c.Request.Context(), req)
+	if err != nil {
+		if appErr, ok := err.(*apperrors.AppError); ok {
+			response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
+		} else {
+			response.InternalServerError(c, err.Error())
+		}
+		return
+	}
+
+	response.OK(c, "Assignable users retrieved successfully", gin.H{
+		"users":      users,
+		"pagination": pagination,
+	})
+}
+
+// ListUserContacts returns the email and name of active users, for the
+// reminders audit-service sends. Filters: ids (comma-separated user ids, max
+// 20) and department_head_of (users holding DEPARTMENT_HEAD in that
+// department). Same roles as the assignable list (routes.AssignableUserRoles).
+// @Summary List User Contacts
+// @Description Active users with id, full_name, email and department, filtered by ids and/or department_head_of. At least one filter is required.
+// @Tags users
+// @Produce json
+// @Security Bearer
+// @Param ids query string false "Comma-separated user ids (max 20)"
+// @Param department_head_of query string false "Department whose DEPARTMENT_HEAD users to list"
+// @Success 200 {object} response.Response
+// @Router /api/v1/users/contacts [get]
+func (ctrl *UserController) ListUserContacts(c *gin.Context) {
+	req := &models.ListUserContactsRequest{DepartmentHeadOf: strings.TrimSpace(c.Query("department_head_of"))}
+	for _, raw := range strings.Split(c.Query("ids"), ",") {
+		raw = strings.TrimSpace(raw)
+		if raw == "" {
+			continue
+		}
+		id, err := uuid.Parse(raw)
+		if err != nil {
+			response.BadRequest(c, "Invalid user ID in ids")
+			return
+		}
+		req.IDs = append(req.IDs, id)
+	}
+
+	users, err := ctrl.userService.ListUserContacts(c.Request.Context(), req)
+	if err != nil {
+		if appErr, ok := err.(*apperrors.AppError); ok {
+			response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
+		} else {
+			response.InternalServerError(c, err.Error())
+		}
+		return
+	}
+	response.OK(c, "User contacts retrieved successfully", gin.H{"users": users})
 }
 
 // UserController handles user HTTP requests
@@ -102,7 +198,8 @@ func (ctrl *UserController) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	if err := ctrl.userService.UpdateUser(c.Request.Context(), id, &req); err != nil {
+	updated, err := ctrl.userService.UpdateUser(c.Request.Context(), id, &req)
+	if err != nil {
 		appErr, ok := err.(*apperrors.AppError)
 		if ok {
 			response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
@@ -112,7 +209,7 @@ func (ctrl *UserController) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "User updated successfully", nil)
+	response.OK(c, "User updated successfully", updated)
 }
 
 // DeleteUser deletes a user

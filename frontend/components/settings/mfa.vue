@@ -134,7 +134,7 @@
                       variant="subtle"
                       color="neutral"
                       class="flex-1 rounded-xl font-semibold"
-                      @click="setupData = null"
+                      @click="() => {setupData = null}"
                     >
                       {{ t('settings.mfa.cancel') }}
                     </UButton>
@@ -184,7 +184,7 @@
             color="error"
             variant="soft"
             class="font-bold rounded-xl px-5 py-2.5 transition-all duration-200 cursor-pointer w-full sm:w-auto shrink-0 justify-center"
-            @click="isDisabling = true"
+            @click="() => {isDisabling = true}"
           >
             {{ t('settings.mfa.disableButton') }}
           </UButton>

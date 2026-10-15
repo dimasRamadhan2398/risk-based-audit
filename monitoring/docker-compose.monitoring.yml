@@ -95,7 +95,9 @@ services:
 
   # ── Loki (Log Aggregation) ─────────────────────────────────────
   loki:
-    image: grafana/loki:latest
+    # Pinned: :latest pulled Loki 3.x, which needs ~150-300 MB plus WAL replay
+    # on start; at 64M it was OOM-killed every ~10s (Sept-Oct 2026).
+    image: grafana/loki:3.7.8
     container_name: rbia_loki
     volumes:
       - ./loki/loki-config.yml:/etc/loki/local-config.yaml:ro
@@ -106,14 +108,14 @@ services:
     deploy:
       resources:
         limits:
-          memory: 64M
+          memory: 256M
     networks:
       - monitoring_network
     restart: unless-stopped
 
   # ── Promtail (Docker Log Collector → Loki) ─────────────────────
   promtail:
-    image: grafana/promtail:latest
+    image: grafana/promtail:3.6.8
     container_name: rbia_promtail
     volumes:
       - ./promtail/promtail-config.yml:/etc/promtail/config.yml:ro

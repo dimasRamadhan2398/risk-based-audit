@@ -4,7 +4,7 @@
         <TableEntities
           :data="store.filteredDataF04"
           :columns="store.columnsF04"
-          :empty-state="{ icon: 'i-heroicons-circle-stack', label: t('workingPaper.common.empty') }"
+          :empty-state="store.hasAssignmentLetter ? { icon: 'i-heroicons-circle-stack', label: 'Belum ada data tersimpan.' } : { icon: 'i-heroicons-document-magnifying-glass', label: t('workingPaper.index.selectLetterFirst') }"
           :ui="{ td: '!whitespace-normal' }"
         >
             <template #condition-cell="{ row }">
@@ -38,7 +38,7 @@
                     <div v-for="rca in row.original.rootCause" :key="rca.id" class="text-[11px] leading-tight border-l-2 border-orange-400 pl-2">
                         <div class="font-bold text-lg text-gray-700">{{ rca.method }}</div>
                     <div class="text-gray-500 text-sm italic">
-                        {{ t('workingPaper.common.why') }}: {{ rca.w1 || '-' }} <br>
+                        Why: {{ rca.w1 || '-' }} <br>
                     </div>
                     </div>
                 </div>
@@ -46,7 +46,7 @@
 
             <template #actions-cell="{ row }">
                 <div class="flex gap-2">
-                <UTooltip :text="t('workingPaper.common.edit')">
+                <UTooltip text="Edit">
                 <UButton 
                     size="md" 
                     color="warning" 
@@ -55,7 +55,7 @@
                     @click="store.handleEditF04(row.original)" 
                 />
                 </UTooltip>
-                <UTooltip :text="t('workingPaper.common.delete')">
+                <UTooltip text="Hapus">
                 <UButton 
                     size="md" 
                     color="error" 
@@ -73,8 +73,9 @@
 
 <script setup lang="ts">
 import { useWorkingPaperStore } from '~/stores/working-paper'
+import { useI18n } from '~/composables/useI18n'
 
-const store = useWorkingPaperStore()
 const { t } = useI18n()
+const store = useWorkingPaperStore()
 
 </script>

@@ -1,0 +1,489 @@
+# Prometheus Alert Rules for Dashboard & Analytics Performance Monitoring
+# Location: monitoring/prometheus-dashboard-alerts.yml
+#
+# Dashboard endpoints carry high concurrency with complex queries.
+# This alert set monitors:
+# - Analytics service load (least-connections load balancing)
+# - Cache effectiveness for dashboard aggregates
+# - Response time degradation (P95, P99)
+# - Rate limiting and abuse prevention
+# - Upstream health status
+#
+# Deploy with:
+# docker cp prometheus-dashboard-alerts.yml rb_audit_prometheus:/etc/prometheus/rules/dashboard-alerts.yml
+# docker exec rb_audit_prometheus kill -HUP 1
+
+groups:
+  - name: auditsphere-dashboard-performance
+    interval: 30s
+    rules:
+
+      # ==================================================================
+      # ANALYTICS SERVICE LOAD
+      # ==================================================================
+      # Dashboard depends heavily on analytics-service.
+      # Uses least-connections (better for long queries).
+
+      - alert: AnalyticsServiceHighLoad
+        expr: |
+          sum(rate(kong_http_requests_total{service="analytics-service"}[1m])) > 100
+        for: 2m
+        labels:
+          severity: warning
+          component: analytics-service
+          endpoint: dashboard
+        annotations:
+          summary: "Analytics service request rate is high (> 100 req/sec)"
+          description: |
+            Dashboard queries driving high load on analytics-service.
+
+            Current Metrics:
+            - Request Rate: {{ $value | humanize }} req/sec
+            - Service: analytics-service
+            - Impact: Dashboard may experience slowness
+
+            Actions:
+            1. Check Kong dashboard load: `curl http://localhost:8009/admin/upstreams/analytics-service-upstream/health`
+            2. Monitor analytics-service CPU: `docker stats rb_audit_analytics_service`
+            3. Check for cache misses: analyze `X-Cache: MISS` headers
+            4. Review recent dashboard changes (new metrics, batch queries)
+
+      - alert: AnalyticsServiceCriticalLoad
+        expr: |
+          sum(rate(kong_http_requests_total{service="analytics-service"}[1m])) > 200
+        for: 1m
+        labels:
+          severity: critical
+          component: analytics-service
+          endpoint: dashboard
+        annotations:
+          summary: "Critical: Analytics service overloaded (> 200 req/sec)"
+          description: |
+            Sustained high load on analytics-service. Dashboard is degraded.
+
+            Current Status:
+            - Request Rate: {{ $value | humanize }} req/sec
+            - Estimated P95: likely > 1000ms
+
+            Actions:
+            1. Page on-call engineer
+            2. Check Kong upstream health: `docker exec rb_audit_kong kong health`
+            3. Restart analytics-service if CPU > 90%: `docker-compose restart analytics-service`
+            4. Enable rate limiting if under attack: increase Kong rate-limiting rules
+
+      # ==================================================================
+      # DASHBOARD CACHE HIT RATIO
+      # ==================================================================
+      # Dashboard aggregates should have high cache hit ratio (70%+)
+
+      - alert: DashboardCacheLowHitRatio
+        expr: |
+          (sum(rate(kong_cache_hits_total{service="analytics-service",path=~".*/analytics.*"}[5m])) /
+           (sum(rate(kong_cache_hits_total{service="analytics-service",path=~".*/analytics.*"}[5m])) +
+            sum(rate(kong_cache_misses_total{service="analytics-service",path=~".*/analytics.*"}[5m]))))
+          < 0.6
+        for: 10m
+        labels:
+          severity: warning
+          component: kong-cache
+          endpoint: dashboard
+        annotations:
+          summary: "Dashboard cache hit ratio is below 60%"
+          description: |
+            Analytics cache is ineffective. Dashboard queries hitting backend.
+
+            Current Metrics:
+            - Cache Hit Ratio: {{ $value | humanizePercentage }}
+            - Service: analytics-service
+
+            Possible Causes:
+            1. Dashboard making requests with dynamic query params (cache buster)
+            2. User filters changing on every request
+            3. Date range parameters vary (TTL too long)
+            4. Cache size too small for dashboard data
+
+            Actions:
+            1. Check Kong cache size: `docker exec rb_audit_kong curl -s http://localhost:8001/services/analytics-service/plugins | jq '.[] | select(.name=="proxy-cache")'`
+            2. Review frontend for unnecessary query param changes
+            3. Increase cache TTL if data freshness allows (currently 10m for prod)
+            4. Check cache memory: `docker stats rb_audit_kong`
+
+      - alert: DashboardNoCaching
+        expr: |
+          sum(rate(kong_cache_hits_total{service="analytics-service",path=~".*/analytics.*"}[5m])) == 0
+        for: 5m
+        labels:
+          severity: warning
+          component: kong-cache
+          endpoint: dashboard
+        annotations:
+          summary: "Dashboard analytics caching appears disabled"
+          description: |
+            No cache hits detected for analytics endpoints in 5 minutes.
+
+            Possible Causes:
+            1. Kong proxy-cache plugin is disabled/misconfigured
+            2. All requests are POST (non-cacheable)
+            3. Cache was flushed (Kong restart)
+
+            Actions:
+            1. Verify Kong proxy-cache plugin: `docker exec rb_audit_kong kong plugins list`
+            2. Check plugin config: `curl http://localhost:8001/plugins | jq '.[] | select(.name=="proxy-cache")'`
+            3. Restart Kong if needed: `docker-compose restart kong-gateway`
+
+      # ==================================================================
+      # DASHBOARD RESPONSE TIME
+      # ==================================================================
+
+      - alert: DashboardHighP95ResponseTime
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(kong_request_upstream_duration_ms_bucket{service="analytics-service",path=~".*/analytics.*"}[5m]))
+            by (le)
+          ) > 500
+        for: 5m
+        labels:
+          severity: warning
+          component: analytics-service
+          endpoint: dashboard
+        annotations:
+          summary: "Dashboard API P95 response time > 500ms"
+          description: |
+            95th percentile response time for dashboard queries is degraded.
+
+            Current Status:
+            - P95 Response Time: {{ $value | humanize }}ms
+            - Service: analytics-service
+            - Impact: Dashboard will feel slow for most users
+
+            Possible Causes:
+            1. Analytics service under high load
+            2. Database slow queries (missing index)
+            3. Cache miss storm
+            4. Network latency
+
+            Actions:
+            1. Check analytics-service logs: `docker logs -f rb_audit_analytics_service | grep -i error`
+            2. Check database slow query log:
+               `docker exec rb_audit_postgres psql -U postgres -c 'SELECT * FROM pg_stat_statements ORDER BY mean_time DESC LIMIT 5;'`
+            3. Check upstream health: `curl http://localhost:8009/admin/upstreams/analytics-service-upstream/health`
+            4. Monitor for 10 minutes (may be temporary)
+
+      - alert: DashboardP99ResponseTimeExtreme
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(kong_request_upstream_duration_ms_bucket{service="analytics-service",path=~".*/analytics.*"}[5m]))
+            by (le)
+          ) > 2000
+        for: 3m
+        labels:
+          severity: critical
+          component: analytics-service
+          endpoint: dashboard
+        annotations:
+          summary: "Critical: Dashboard P99 response time > 2 seconds"
+          description: |
+            Worst 1% of dashboard requests are very slow.
+
+            Current Status:
+            - P99 Response Time: {{ $value | humanize }}ms
+            - Service: analytics-service
+
+            Actions:
+            1. Check backend logs: `docker logs -f rb_audit_analytics_service | head -50`
+            2. Check analytics-service resource usage: `docker stats rb_audit_analytics_service --no-stream`
+            3. Check database connection pool: `docker exec rb_audit_postgres psql -U postgres -c 'SELECT count(*) FROM pg_stat_activity;'`
+            4. Restart analytics-service if needed: `docker-compose restart analytics-service`
+            5. Page on-call engineer
+
+      # ==================================================================
+      # RATE LIMITING
+      # ==================================================================
+
+      - alert: DashboardRateLimitExceeded
+        expr: |
+          rate(kong_rate_limiting_exceeded_total{service="analytics-service"}[1m]) > 0
+        for: 2m
+        labels:
+          severity: warning
+          component: kong-api-gateway
+          endpoint: dashboard
+        annotations:
+          summary: "Dashboard API rate limits being exceeded"
+          description: |
+            Users are hitting rate limits on dashboard endpoints.
+
+            Current Status:
+            - Rate: {{ $value | humanize }} violations/sec
+            - Service: analytics-service
+            - Limit: 120 req/min per IP
+
+            Possible Causes:
+            1. Legitimate traffic spike (report generation)
+            2. Frontend bug polling API too aggressively
+            3. Automation/scraping
+
+            Actions:
+            1. Check if rate limit increase is needed (currently 120 req/min)
+            2. Review frontend for unnecessary polls
+            3. Check browser console for JavaScript errors causing retry loops
+
+      - alert: DashboardRateLimitCritical
+        expr: |
+          rate(kong_rate_limiting_exceeded_total{service="analytics-service"}[1m]) > 5
+        for: 1m
+        labels:
+          severity: critical
+          component: kong-api-gateway
+          endpoint: dashboard
+        annotations:
+          summary: "Critical: Dashboard under DDoS/abuse attack"
+          description: |
+            Massive rate limit violations detected.
+
+            Current Status:
+            - Violations: {{ $value | humanize }}/sec
+
+            Actions:
+            1. Check Kong logs: `docker logs rb_audit_kong | grep rate_limiting`
+            2. Block attacker IP at firewall
+            3. Enable Kong DDoS protection if available
+            4. Page on-call engineer
+
+      # ==================================================================
+      # MASTER DATA (Dashboard Lookups)
+      # ==================================================================
+      # Dashboard lookups (companies, departments, etc.) should be fast
+
+      - alert: MasterServiceHighResponseTime
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(kong_request_upstream_duration_ms_bucket{service="master-service"}[5m]))
+            by (le)
+          ) > 200
+        for: 5m
+        labels:
+          severity: warning
+          component: master-service
+          endpoint: dashboard
+        annotations:
+          summary: "Master service P95 response time > 200ms (lookups slow)"
+          description: |
+            Dashboard master data lookups are slow. Affects dropdown loading.
+
+            Current Status:
+            - P95 Response Time: {{ $value | humanize }}ms
+            - Service: master-service
+
+            Actions:
+            1. Check master-service logs: `docker logs -f rb_audit_master_service`
+            2. Check database indexes on lookup tables (companies, departments)
+            3. Monitor cache hit ratio for master-service
+
+      # ==================================================================
+      # UPSTREAM HEALTH
+      # ==================================================================
+
+      - alert: AnalyticsServiceUnhealthy
+        expr: |
+          count(kong_upstream_target_health{upstream="analytics-service-upstream",state="unhealthy"}) > 0
+        for: 2m
+        labels:
+          severity: critical
+          component: kong-api-gateway
+          endpoint: dashboard
+        annotations:
+          summary: "Analytics service targets unhealthy in Kong upstream"
+          description: |
+            One or more analytics-service instances are marked unhealthy.
+
+            Current Status:
+            - Unhealthy Targets: {{ $value }}
+
+            Actions:
+            1. Check Kong upstream health: `curl http://localhost:8009/admin/upstreams/analytics-service-upstream/health`
+            2. Check analytics-service health: `curl http://localhost:8084/api/analytics/health`
+            3. Check analytics-service logs: `docker logs rb_audit_analytics_service`
+            4. Restart if needed: `docker-compose restart analytics-service`
+
+      - alert: AuditServiceUnhealthy
+        expr: |
+          count(kong_upstream_target_health{upstream="audit-service-upstream",state="unhealthy"}) > 0
+        for: 2m
+        labels:
+          severity: critical
+          component: kong-api-gateway
+          endpoint: dashboard
+        annotations:
+          summary: "Audit service targets unhealthy in Kong upstream"
+          description: "Audit service instances are marked unhealthy by Kong health checks"
+          actions: |
+            1. Check upstream: `curl http://localhost:8009/admin/upstreams/audit-service-upstream/health`
+            2. Check logs: `docker logs rb_audit_audit_service`
+            3. Restart: `docker-compose restart audit-service`
+
+      - alert: MasterServiceUnhealthy
+        expr: |
+          count(kong_upstream_target_health{upstream="master-service-upstream",state="unhealthy"}) > 0
+        for: 2m
+        labels:
+          severity: critical
+          component: kong-api-gateway
+          endpoint: dashboard
+        annotations:
+          summary: "Master service targets unhealthy in Kong upstream"
+          description: "Master service instances are marked unhealthy by Kong health checks"
+          actions: |
+            1. Check upstream: `curl http://localhost:8009/admin/upstreams/master-service-upstream/health`
+            2. Check logs: `docker logs rb_audit_master_service`
+            3. Restart: `docker-compose restart master-service`
+
+      # ==================================================================
+      # REQUEST VOLUME (Dashboard Activity)
+      # ==================================================================
+
+      - alert: DashboardHighRequestVolume
+        expr: |
+          sum(rate(kong_http_requests_total{service=~"analytics-service|audit-service|master-service|risk-service"}[1m])) > 300
+        for: 3m
+        labels:
+          severity: info
+          component: kong-api-gateway
+          endpoint: dashboard
+        annotations:
+          summary: "High dashboard-related API request volume"
+          description: |
+            Dashboard and related endpoints seeing sustained high traffic.
+
+            Current Status:
+            - Total Request Rate: {{ $value | humanize }} req/sec
+            - Services: analytics, audit, master, risk
+
+            This is informational. Monitor for:
+            - Cache hit ratio (should stay > 60%)
+            - Response times (should stay < 500ms P95)
+            - Error rates (should stay < 1%)
+
+      # ==================================================================
+      # ERROR RATES
+      # ==================================================================
+
+      - alert: DashboardServiceErrorRate
+        expr: |
+          (sum(rate(kong_http_requests_total{service="analytics-service",status=~"5.."}[5m])) /
+           sum(rate(kong_http_requests_total{service="analytics-service"}[5m])))
+          > 0.05
+        for: 2m
+        labels:
+          severity: critical
+          component: analytics-service
+          endpoint: dashboard
+        annotations:
+          summary: "Critical: Analytics service error rate > 5%"
+          description: |
+            More than 5% of analytics requests are failing.
+
+            Current Status:
+            - Error Rate: {{ $value | humanizePercentage }}
+
+            Actions:
+            1. Check backend error logs: `docker logs -f rb_audit_analytics_service | grep -i error`
+            2. Check database connectivity: `docker exec rb_audit_postgres pg_isready`
+            3. Check for OOM: `docker stats rb_audit_analytics_service`
+            4. Restart service: `docker-compose restart analytics-service`
+            5. Page on-call engineer
+
+      # ==================================================================
+      # DATABASE CONNECTIONS (Dashboard Query Pool)
+      # ==================================================================
+
+      - alert: HighDatabaseConnectionUsage
+        expr: |
+          pg_stat_activity_count{datname="rb_audit"} > 30
+        for: 3m
+        labels:
+          severity: warning
+          component: postgresql
+          endpoint: dashboard
+        annotations:
+          summary: "High database connection count (> 30)"
+          description: |
+            Database has many active connections, likely from dashboard load.
+
+            Current Connections: {{ $value }}
+
+            Possible Causes:
+            1. Dashboard query spike
+            2. Connection pool saturation
+            3. Slow queries holding connections open
+
+            Actions:
+            1. Check connection breakdown: `docker exec rb_audit_postgres psql -U postgres -c 'SELECT application_name, count(*) FROM pg_stat_activity GROUP BY application_name;'`
+            2. Kill idle connections: `docker exec rb_audit_postgres psql -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE state='idle' AND state_change < now() - interval '5 minutes';" `
+            3. Monitor query times for long-running queries
+
+      - alert: DashboardDatabaseSlowQueries
+        expr: |
+          pg_stat_statements_mean_time{datname="rb_audit",query=~".*analytics.*|.*audit.*"} > 1000
+        for: 5m
+        labels:
+          severity: warning
+          component: postgresql
+          endpoint: dashboard
+        annotations:
+          summary: "Dashboard-related database queries are slow (> 1s average)"
+          description: |
+            Dashboard queries averaging > 1 second on database.
+
+            Slow Query: {{ $labels.query }}
+
+            Actions:
+            1. Check if table needs ANALYZE: `ANALYZE audit; ANALYZE master;`
+            2. Check for missing indexes on frequently queried columns
+            3. Review query execution plan: `EXPLAIN ANALYZE [query]`
+            4. Consider query optimization or materialized views
+
+      # ==================================================================
+      # KONG HEALTH
+      # ==================================================================
+
+      - alert: KongHighProxyLatency
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(kong_request_duration_ms_bucket[5m]))
+            by (le)
+          ) > 300
+        for: 5m
+        labels:
+          severity: warning
+          component: kong-api-gateway
+          endpoint: dashboard
+        annotations:
+          summary: "Kong proxy P95 latency > 300ms"
+          description: |
+            Kong itself is adding significant latency (P95 > 300ms).
+
+            Current Status:
+            - Kong Proxy P95: {{ $value | humanize }}ms
+
+            Actions:
+            1. Check Kong resource usage: `docker stats rb_audit_kong`
+            2. Check Kong worker process: `docker top rb_audit_kong`
+            3. Review Kong logs: `docker logs rb_audit_kong | tail -50`
+            4. Restart Kong: `docker-compose restart kong`
+
+      - alert: KongDown
+        expr: up{job="kong"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: kong-api-gateway
+          endpoint: dashboard
+        annotations:
+          summary: "Kong API Gateway is down"
+          description: "Kong gateway is not responding to health checks. Dashboard API is unavailable."
+          actions: |
+            1. Check status: `docker ps | grep kong`
+            2. Check logs: `docker logs rb_audit_kong`
+            3. Restart: `docker-compose restart kong`
+

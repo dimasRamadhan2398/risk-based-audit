@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -16,7 +17,7 @@ type LetterMember struct {
 
 type AssignmentLetter struct {
 	ID                 uuid.UUID           `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	LetterNumber       string              `gorm:"type:varchar(100);uniqueIndex;not null" json:"letterNumber"`
+	LetterNumber       string              `gorm:"type:varchar(100);uniqueIndex:idx_assignment_letters_letter_number,where:deleted_at IS NULL;not null" json:"letterNumber"`
 	Status             string              `gorm:"type:varchar(50);default:'Draft'" json:"status"`
 	AuditTitle         string              `gorm:"type:varchar(255)" json:"auditTitle"`
 	Leader             string              `gorm:"type:varchar(200)" json:"leader"`
@@ -26,6 +27,8 @@ type AssignmentLetter struct {
 	StartPeriod        string              `gorm:"type:varchar(100)" json:"startPeriod"`
 	FinishPeriod       string              `gorm:"type:varchar(100)" json:"finishPeriod"`
 	WorkingUnit        string              `gorm:"type:varchar(255)" json:"workingUnit"`
+	CompanyID          *uuid.UUID          `gorm:"type:uuid;index" json:"companyId,omitempty"`
+	CompanyName        string              `gorm:"type:varchar(255)" json:"companyName,omitempty"`
 	ExecutionPeriod    string              `gorm:"type:varchar(255)" json:"executionPeriod"`
 	AuditPurpose       string              `gorm:"type:text" json:"auditPurpose"`
 	LetterDate         *time.Time          `json:"letterDate"`
@@ -34,7 +37,6 @@ type AssignmentLetter struct {
 	PurposeList        []string            `gorm:"serializer:json" json:"purposeList"`
 	ScopeList          []string            `gorm:"serializer:json" json:"scopeList"`
 	CcList             []string            `gorm:"serializer:json" json:"ccList"`
-	ActionTakenReports []ActionTakenReport `gorm:"foreignKey:AssignmentLetterID" json:"actionTakenReports,omitempty"`
 	CreatedAt          time.Time           `json:"created_at"`
 	UpdatedAt          time.Time           `json:"updated_at"`
 	DeletedAt          gorm.DeletedAt      `gorm:"index" json:"-"`
@@ -48,6 +50,7 @@ func (a *AssignmentLetter) UnmarshalJSON(data []byte) error {
 	type Alias AssignmentLetter
 	aux := struct {
 		LetterDate *string `json:"letterDate"`
+		CompanyID  *string `json:"companyId"`
 		*Alias
 	}{
 		Alias: (*Alias)(a),
@@ -55,6 +58,17 @@ func (a *AssignmentLetter) UnmarshalJSON(data []byte) error {
 
 	if err := json.Unmarshal(data, &aux); err != nil {
 		return err
+	}
+
+	if aux.CompanyID != nil {
+		cidStr := strings.TrimSpace(*aux.CompanyID)
+		if cidStr == "" || cidStr == "null" {
+			a.CompanyID = nil
+		} else if parsedID, err := uuid.Parse(cidStr); err == nil {
+			a.CompanyID = &parsedID
+		} else {
+			a.CompanyID = nil
+		}
 	}
 
 	if aux.LetterDate != nil {
@@ -90,6 +104,109 @@ func (a *AssignmentLetter) UnmarshalJSON(data []byte) error {
 		}
 	} else {
 		a.LetterDate = nil
+	}
+
+	return nil
+}
+
+// JoinAuditPurposes joins the non-blank entries of a letter's purposeList
+// into one line, the form used for a single "audit purpose" value.
+func JoinAuditPurposes(purposes []string) string {
+	parts := make([]string, 0, len(purposes))
+	for _, p := range purposes {
+		if p = strings.TrimSpace(p); p != "" {
+			parts = append(parts, p)
+		}
+	}
+	return strings.Join(parts, "; ")
+}
+
+// EffectiveAuditPurpose is the letter's audit purpose: the auditPurpose
+// column when set, otherwise its purposeList. The Assignment Letter form only
+// edits purposeList ("Audit Purpose" in the UI), so letters created there
+// store an empty audit_purpose.
+func (a *AssignmentLetter) EffectiveAuditPurpose() string {
+	if p := strings.TrimSpace(a.AuditPurpose); p != "" {
+		return p
+	}
+	return JoinAuditPurposes(a.PurposeList)
+}
+
+// AfterFind fills an empty AuditPurpose from PurposeList, so every read
+// (list, detail, Working Paper sync, reports) returns the letter's purpose.
+// Nothing is written back.
+func (a *AssignmentLetter) AfterFind(tx *gorm.DB) error {
+	if strings.TrimSpace(a.AuditPurpose) == "" {
+		a.AuditPurpose = JoinAuditPurposes(a.PurposeList)
+	}
+	return nil
+}
+
+// FindAssignmentLetter looks a letter up by letter number, or by id when ref
+// is a UUID. Working papers and fieldwork store either form.
+func FindAssignmentLetter(tx *gorm.DB, ref string) (*AssignmentLetter, bool) {
+	ref = strings.TrimSpace(ref)
+	if ref == "" {
+		return nil, false
+	}
+	var letter AssignmentLetter
+	if err := tx.Where("letter_number = ?", ref).First(&letter).Error; err == nil {
+		return &letter, true
+	}
+	if _, err := uuid.Parse(ref); err == nil {
+		if err := tx.Where("id = ?", ref).First(&letter).Error; err == nil {
+			return &letter, true
+		}
+	}
+	return nil, false
+}
+
+// NextLetterNumber generates the next sequence letter number for the given team and year among active letters.
+func NextLetterNumber(tx *gorm.DB, team, year string) string {
+	year = strings.TrimSpace(year)
+	if len(year) > 4 {
+		year = year[:4]
+	}
+	if year == "" {
+		year = fmt.Sprintf("%d", time.Now().Year())
+	}
+	team = strings.TrimSpace(team)
+	if team == "" {
+		team = "SKAI"
+	}
+
+	var letters []AssignmentLetter
+	tx.Model(&AssignmentLetter{}).Select("letter_number").Find(&letters)
+
+	maxSeq := 0
+	prefix := "ST-"
+	for _, l := range letters {
+		numStr := strings.ToUpper(strings.TrimSpace(l.LetterNumber))
+		if strings.HasPrefix(numStr, prefix) {
+			parts := strings.Split(numStr, "/")
+			if len(parts) > 0 {
+				var seq int
+				numPart := strings.TrimPrefix(parts[0], prefix)
+				if _, err := fmt.Sscanf(numPart, "%d", &seq); err == nil && seq > maxSeq {
+					maxSeq = seq
+				}
+			}
+		}
+	}
+	return fmt.Sprintf("ST-%03d/%s/%s", maxSeq+1, strings.ToUpper(team), year)
+}
+
+func (a *AssignmentLetter) BeforeCreate(tx *gorm.DB) error {
+	a.LetterNumber = strings.TrimSpace(a.LetterNumber)
+	if a.LetterNumber == "" {
+		a.LetterNumber = NextLetterNumber(tx, a.AuditTeam, a.AuditYear)
+		return nil
+	}
+
+	// If a letter number was provided, ensure it doesn't collide with an existing active letter
+	var count int64
+	if err := tx.Model(&AssignmentLetter{}).Where("letter_number = ?", a.LetterNumber).Count(&count).Error; err == nil && count > 0 {
+		a.LetterNumber = NextLetterNumber(tx, a.AuditTeam, a.AuditYear)
 	}
 
 	return nil

@@ -22,11 +22,12 @@
                 <h3 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white">{{ t('workingPaper.riskForm.title') }}</h3>
               </div>
               <UButton
+                type="button"
                 color="neutral"
                 variant="ghost"
                 icon="i-heroicons-x-mark-20-solid"
                 class="-my-1"
-                @click="store.closeModalF02"
+                @click="store.closeModalF02()"
               />
             </div>
 
@@ -39,7 +40,14 @@
                 class="grid grid-cols-1 md:grid-cols-4 items-start gap-2 md:gap-4" 
                 :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm text-gray-700 dark:text-gray-300 md:mt-2' }"
               >
-                <USelectMenu v-model="store.riskForm.risk" :items="store.options.risk" :placeholder="t('workingPaper.riskForm.riskPlaceholder')" class="w-full" />
+                <USelectMenu 
+                  v-model="store.riskForm.risk" 
+                  :items="store.options.risk" 
+                  :loading="riskProfileStore.loading"
+                  :placeholder="t('workingPaper.riskForm.riskPlaceholder')" 
+                  class="w-full"
+                  @update:model-value="store.onRiskSelect"
+                />
               </UFormField>
 
               <UFormField 
@@ -76,10 +84,11 @@
             <!-- Pinned Footer -->
             <div class="px-5 sm:px-6 py-3.5 border-t border-gray-100 dark:border-gray-800 flex justify-end items-center gap-3 shrink-0 bg-gray-50/70 dark:bg-gray-800/40">
               <UButton
+                type="button"
                 color="neutral"
                 variant="ghost"
                 :label="t('common.cancel')"
-                @click="store.closeModalF02"
+                @click="store.closeModalF02()"
               />
               <UButton 
                 type="submit"
@@ -95,9 +104,29 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, watch } from 'vue'
 import { useI18n } from '~/composables/useI18n'
 import { useWorkingPaperStore, riskSchema } from '~/stores/working-paper'
+import { useRiskProfileStore } from '~/stores/risk-profile'
 
 const { t } = useI18n()
 const store = useWorkingPaperStore()
+const riskProfileStore = useRiskProfileStore()
+
+onMounted(() => {
+  if (riskProfileStore.rawRisks.length === 0) {
+    riskProfileStore.fetchRisks().catch(() => {})
+    riskProfileStore.fetchBranches().catch(() => {})
+  }
+})
+
+watch(
+  () => store.showModalF02,
+  (open) => {
+    if (open && riskProfileStore.rawRisks.length === 0) {
+      riskProfileStore.fetchRisks().catch(() => {})
+      riskProfileStore.fetchBranches().catch(() => {})
+    }
+  }
+)
 </script>

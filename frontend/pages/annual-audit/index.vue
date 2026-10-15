@@ -51,4 +51,5 @@ const { canManageAnnualPlan, canImportPlanDocs } = useRbac()
 // Inisialisasi Store
 const store = useAnnualPlanStore()
 store.fetchPlans()
+store.fetchDepartmentOptions()
 </script>

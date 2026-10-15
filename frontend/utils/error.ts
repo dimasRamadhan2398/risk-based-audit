@@ -144,6 +144,33 @@ export const getErrorCode = (error: unknown): string | undefined => {
 const NETWORK_ERROR_PATTERN = /failed to fetch|networkerror|network request failed|load failed|fetch failed|err_network|err_connection|econnrefused|enotfound|timed? ?out|aborted/i
 
 /**
+ * `$fetch(url, { responseType: 'blob' })` reads error bodies as a Blob too, so
+ * the backend's JSON error (`{ success, error: { code, message } }`) never
+ * reaches `error.data` and the helpers here only see a Blob. Returns an
+ * error-like object with the body parsed (JSON, else text) so status, code
+ * and message can be read; any other error is returned unchanged.
+ */
+export const parseBlobErrorBody = async (error: unknown): Promise<unknown> => {
+  const data = (error && typeof error === 'object') ? (error as { data?: unknown }).data : undefined
+  if (typeof Blob === 'undefined' || !(data instanceof Blob)) return error
+
+  let parsed: unknown
+  try {
+    const text = await data.text()
+    try {
+      parsed = JSON.parse(text)
+    } catch {
+      parsed = text
+    }
+  } catch {
+    parsed = undefined
+  }
+
+  const e = asErrorLike(error)
+  return { statusCode: getErrorStatus(error), message: e.message, cause: e.cause, data: parsed }
+}
+
+/**
  * True when the request never got an HTTP response (offline, DNS, CORS,
  * gateway unreachable, timeout).
  */

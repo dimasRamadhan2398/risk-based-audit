@@ -56,10 +56,11 @@ type MonthlyTrendResponse struct {
 
 // GetDashboardSummary returns calculated actuals vs strategic plan targets for 4 core KPI cards
 func (c *PerformanceStatsController) GetDashboardSummary(ctx *gin.Context) {
-	yearStr := ctx.DefaultQuery("year", "2026")
+	currentYear := time.Now().Year()
+	yearStr := ctx.DefaultQuery("year", strconv.Itoa(currentYear))
 	year, err := strconv.Atoi(yearStr)
 	if err != nil {
-		year = 2026
+		year = currentYear
 	}
 
 	// 1. Fetch Strategic Plan targets for reference
@@ -265,24 +266,15 @@ func (c *PerformanceStatsController) GetDashboardSummary(ctx *gin.Context) {
 	// -------------------------------------------------------------
 	actionPlanTarget, actionPlanUnit := findTarget([]string{"action plan", "tindak lanjut", "recommendation"}, 90.0, "%")
 
-	var totalATR int64
-	c.db.Model(&models.ActionTakenReport{}).Count(&totalATR)
-
-	var closedATR int64
-	c.db.Model(&models.ActionTakenReport{}).Where("status = ? OR status = ?", "Completed", "Closed").Count(&closedATR)
-
-	var actionPlanActual float64
-	if totalATR > 0 {
-		actionPlanActual = math.Round((float64(closedATR)/float64(totalATR))*1000) / 10
-	} else {
-		actionPlanActual = 87.0
+	// Stored ATR statuses: COMPLETED closes an action plan; PLANNED,
+	// IN_PROGRESS and PENDING_REVIEW are open; CANCELLED is left out of both.
+	// With no countable ATR the card shows no value instead of a percentage.
+	atrStats, err := LoadATRClosureStats(c.db)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to count action taken reports"})
+		return
 	}
-
-	actionPlanGap := actionPlanActual - actionPlanTarget
-	actionPlanTrendStr := fmt.Sprintf("%+.1f%% vs target", actionPlanGap)
-
-	var openATR int64
-	c.db.Model(&models.ActionTakenReport{}).Where("status NOT IN ?", []string{"Completed", "Closed", "completed", "closed"}).Count(&openATR)
+	actionPlanCard := actionPlanClosedCard(atrStats, actionPlanTarget, actionPlanUnit)
 
 	// -------------------------------------------------------------
 	// Build Unified Cards Response
@@ -291,8 +283,8 @@ func (c *PerformanceStatsController) GetDashboardSummary(ctx *gin.Context) {
 		{
 			Title:        "Audit Completion Rate",
 			Key:          "audit_completion_rate",
-			Value:        fmt.Sprintf("%.1f%s", completionActual, completionUnit),
-			Target:       fmt.Sprintf("%.0f%s", completionTarget, completionUnit),
+			Value:        formatWithUnit("%.1f", completionActual, completionUnit),
+			Target:       formatWithUnit("%.0f", completionTarget, completionUnit),
 			ActualNumber: completionActual,
 			TargetNumber: completionTarget,
 			Gap:          fmt.Sprintf("%+.1f%%", completionGap),
@@ -311,8 +303,8 @@ func (c *PerformanceStatsController) GetDashboardSummary(ctx *gin.Context) {
 		{
 			Title:        "Report Timeliness",
 			Key:          "report_timeliness",
-			Value:        fmt.Sprintf("%.0f%s", timelinessActual, timelinessUnit),
-			Target:       fmt.Sprintf("%.0f%s", timelinessTarget, timelinessUnit),
+			Value:        formatWithUnit("%.0f", timelinessActual, timelinessUnit),
+			Target:       formatWithUnit("%.0f", timelinessTarget, timelinessUnit),
 			ActualNumber: timelinessActual,
 			TargetNumber: timelinessTarget,
 			Gap:          fmt.Sprintf("%+.1f%%", timelinessGap),
@@ -348,26 +340,7 @@ func (c *PerformanceStatsController) GetDashboardSummary(ctx *gin.Context) {
 				},
 			},
 		},
-		{
-			Title:        "Action Plan Closed",
-			Key:          "action_plan_closed",
-			Value:        fmt.Sprintf("%.0f%s", actionPlanActual, actionPlanUnit),
-			Target:       fmt.Sprintf("%.0f%s", actionPlanTarget, actionPlanUnit),
-			ActualNumber: actionPlanActual,
-			TargetNumber: actionPlanTarget,
-			Gap:          fmt.Sprintf("%+.1f%%", actionPlanGap),
-			Trend:        actionPlanTrendStr,
-			TrendUp:      actionPlanActual >= actionPlanTarget,
-			Unit:         actionPlanUnit,
-			SubMetrics: []SubMetric{
-				{
-					Title:  "Open / Pending Action Plans",
-					Value:  fmt.Sprintf("%d open", openATR),
-					Target: "0 overdue",
-					Trend:  fmt.Sprintf("%d total recommendations registered", totalATR),
-				},
-			},
-		},
+		actionPlanCard,
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
@@ -380,10 +353,11 @@ func (c *PerformanceStatsController) GetDashboardSummary(ctx *gin.Context) {
 // GetCompletionAnalysis returns the full drill-down from the analyzer.
 // GET /api/v1/performance/completion-analysis?year=2026
 func (c *PerformanceStatsController) GetCompletionAnalysis(ctx *gin.Context) {
-	yearStr := ctx.DefaultQuery("year", "2026")
+	currentYear := time.Now().Year()
+	yearStr := ctx.DefaultQuery("year", strconv.Itoa(currentYear))
 	year, err := strconv.Atoi(yearStr)
 	if err != nil {
-		year = 2026
+		year = currentYear
 	}
 
 	// Try cache first
@@ -419,10 +393,11 @@ func (c *PerformanceStatsController) GetCompletionAnalysis(ctx *gin.Context) {
 // useful for populating the monthly completion trend chart.
 // GET /api/v1/performance/completion-history?year=2026
 func (c *PerformanceStatsController) GetCompletionHistory(ctx *gin.Context) {
-	yearStr := ctx.DefaultQuery("year", "2026")
+	currentYear := time.Now().Year()
+	yearStr := ctx.DefaultQuery("year", strconv.Itoa(currentYear))
 	year, err := strconv.Atoi(yearStr)
 	if err != nil {
-		year = 2026
+		year = currentYear
 	}
 
 	var snapshots []models.AuditCompletionSnapshot
@@ -480,10 +455,11 @@ func (c *PerformanceStatsController) GetCompletionHistory(ctx *gin.Context) {
 
 // GetMonthlyTrends returns 12-month aggregated trends for Bar and Line charts
 func (c *PerformanceStatsController) GetMonthlyTrends(ctx *gin.Context) {
-	yearStr := ctx.DefaultQuery("year", "2026")
+	currentYear := time.Now().Year()
+	yearStr := ctx.DefaultQuery("year", strconv.Itoa(currentYear))
 	year, err := strconv.Atoi(yearStr)
 	if err != nil {
-		year = 2026
+		year = currentYear
 	}
 
 	labels := []string{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"}
@@ -540,23 +516,15 @@ func (c *PerformanceStatsController) GetMonthlyTrends(ctx *gin.Context) {
 	})
 }
 
-// GetKpiBreakdown merges Strategic Plan objectives with live actual performance
-func (c *PerformanceStatsController) GetKpiBreakdown(ctx *gin.Context) {
-	var strategicPlans []models.StrategicPlan
-	c.db.Find(&strategicPlans)
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    strategicPlans,
-	})
-}
+// GetKpiBreakdown lives in performance_kpi_breakdown.go.
 
 // ExportPdfReport renders an executive PDF report matching the app design system
 func (c *PerformanceStatsController) ExportPdfReport(ctx *gin.Context) {
-	yearStr := ctx.DefaultQuery("year", "2026")
+	currentYear := time.Now().Year()
+	yearStr := ctx.DefaultQuery("year", strconv.Itoa(currentYear))
 	year, err := strconv.Atoi(yearStr)
 	if err != nil {
-		year = 2026
+		year = currentYear
 	}
 
 	nowStr := time.Now().Format("02 January 2006, 15:04 MST")
@@ -916,3 +884,14 @@ func (c *PerformanceStatsController) ExportPdfReport(ctx *gin.Context) {
 	ctx.String(http.StatusOK, htmlContent)
 }
 
+
+
+// formatWithUnit renders a KPI number with its unit. Symbol units ("%") stay attached
+// ("90%"), word units get a space ("14 Day") so they don't read as "14Day".
+func formatWithUnit(format string, value float64, unit string) string {
+	number := fmt.Sprintf(format, value)
+	if unit == "" || unit == "%" {
+		return number + unit
+	}
+	return number + " " + unit
+}

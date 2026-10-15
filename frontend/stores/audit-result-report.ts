@@ -6,14 +6,31 @@ import { useAuditFieldworkStore } from './audit-fieldwork'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
+import { useI18n } from '~/composables/useI18n'
+import { useGlobalModalStore } from '~/stores/global-modal'
+import { useActionTakenReportStore } from '~/stores/action-taken-report'
+import { isLhaApproved } from '~/utils/actionTakenReport'
+
+export type FindingCategory = 'Very Significant' | 'Significant' | 'Quite Significant' | 'Not Significant'
+
+export const FINDING_CATEGORIES: FindingCategory[] = ['Very Significant', 'Significant', 'Quite Significant', 'Not Significant']
 
 export interface FindingItem {
+  /** Stable id from the backend; ATRs are bound to it, so it must be sent back unchanged on save. */
+  id?: string
   title: string
-  category: 'Very Significant' | 'Significant' | 'Quite Significant' | 'Not Significant'
+  category: FindingCategory
   action?: string
   source?: string
   impact?: string
   criteria?: string
+}
+
+export interface MemberSignature {
+  name: string
+  role?: string
+  signature: string
+  signedAt?: string
 }
 
 export interface AuditResultReport {
@@ -28,122 +45,73 @@ export interface AuditResultReport {
   findingsCount: number
   category?: 'Very Significant' | 'Significant' | 'Quite Significant' | 'Not Significant'
   department?: string
+  companyId?: string
+  companyName?: string
+  signaturePlace?: string
+  signatureDate?: string
+  signatures?: MemberSignature[]
+}
+
+// GET /audit-result-reports/recent-findings item
+export interface RecentFinding {
+  title: string
+  category: FindingCategory
+  action: string
+  source: string
+  assignmentLetterId: string
+  reportId: string | null
+  date: string
+}
+
+export const normalizeReportNumber = (raw?: string | null): string => {
+  if (!raw) return ''
+  const trimmed = raw.trim()
+  if (!trimmed) return ''
+
+  // Already in target format: LHA-xxx/TEAM/yyyy
+  if (/^LHA-\d+\/[^\/]+\/\d{4}$/i.test(trimmed)) {
+    return trimmed
+  }
+
+  // Legacy full pattern: 021/LHA/01/KS IAD/2026
+  const fullLegacy = trimmed.match(/^(\d+)\/LHA\/\d+\/(?:KS\s*IAD|[^\/]+)\/(\d{4})$/i)
+  if (fullLegacy && fullLegacy[1] && fullLegacy[2]) {
+    const seq = fullLegacy[1].padStart(3, '0')
+    const year = fullLegacy[2]
+    return `LHA-${seq}/SKAI/${year}`
+  }
+
+  // Generic /LHA/ pattern: (\d+)/LHA/...
+  if (trimmed.includes('/LHA/')) {
+    const parts = trimmed.split('/')
+    if (parts.length >= 2) {
+      const seq = (parts[0] || '').replace(/\D/g, '').padStart(3, '0')
+      let year = new Date().getFullYear().toString()
+      const lastPart = parts[parts.length - 1]
+      if (lastPart && /^\d{4}$/.test(lastPart)) {
+        year = lastPart
+      }
+      return `LHA-${seq}/SKAI/${year}`
+    }
+  }
+
+  return trimmed
 }
 
 export const useAuditResultReportStore = defineStore('audit-result-report', () => {
   const assignmentLetterStore = useAssignmentLetterStore()
   const toast = useToastNotification()
+  const { t } = useI18n()
 
   // State
   const selectedAssignmentLetter = ref<string>('')
-  const reportList = ref<AuditResultReport[]>([
-    {
-      id: 'R-001',
-      reportNumber: '020/LHA/01/KS IAD/2023',
-      assignmentLetterId: '020/ST/01/KSIAD/2023',
-      reportTitle: 'Audit Operasional Pengelolaan Pembangkitan UPDK Kepulauan Riau',
-      executiveSummary: 'Audit Operasional Tahun 2023 di Unit Pelaksana Pengendalian Pembangkitan Kepulauan Riau meliputi ketersediaan pembangkit, K3LH, manajemen risiko, dan pengadaan barang/jasa.',
-      category: 'Significant',
-      reportDate: '2023-09-22',
-      status: 'Final',
-      findingsCount: 8,
-      findings: [
-        { title: 'Pengelolaan Manajemen Risiko Belum Sepenuhnya Sesuai Kebijakan Masa Transisi HSH', category: 'Very Significant', action: 'Perbaikan SOP' },
-        { title: 'Pelaksanaan Overhaul UPDK KEPRI Belum Optimal Terjadi PE 6 Hari pada ME+ PLTU TBK #1', category: 'Very Significant', action: 'Evaluasi jadwal' },
-        { title: 'Peralatan Lab Milik Perusahaan Belum Digunakan Secara Optimal Sebagai Pembanding Surveyor', category: 'Significant', action: 'Kalibrasi ulang' },
-        { title: 'Data Maturity Level Manajemen Aset Belum Lengkap Terbatalnya Fitur Maximo WPC', category: 'Significant', action: 'Update Maximo' },
-        { title: 'Terdapat Penyusunan HPS dan Pemanfaatan ERP Tidak Sesuai Ketentuan SCM', category: 'Significant', action: 'Review HPS' },
-        { title: 'Program Pemeliharaan Aset Tetap Belum Diakui Kepemilikannya Menggunakan Anggaran Operasi', category: 'Quite Significant', action: 'Inventarisasi aset' },
-        { title: 'Terdapat Kontrak Pekerjaan Sejenis Yang Tidak Digabungkan (Strategi Squeezing)', category: 'Quite Significant', action: 'Review kontrak' },
-        { title: 'Pengelolaan K3 dan Keamanan di UPDK KEPRI Belum Optimal (Fire Fighting & Lightning)', category: 'Significant', action: 'Audit K3' }
-      ]
-    },
-    {
-      id: 'R-002',
-      reportNumber: '021/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-001/SKAI/2026',
-      reportTitle: 'Laporan Hasil Audit Operasional Keuangan 2025',
-      executiveSummary: 'Audit dilakukan untuk mengevaluasi efektivitas ICOFR dan kepatuhan terhadap SOP pembayaran.',
-      category: 'Significant',
-      reportDate: '2026-04-15',
-      status: 'Draft',
-      findingsCount: 5,
-      findings: [
-        { title: 'Keterlambatan rekonsiliasi kas harian cabang utama', category: 'Very Significant', action: 'Perbaikan jadwal harian' },
-        { title: 'Kelemahan kontrol otorisasi transaksi di atas Rp 500jt', category: 'Very Significant', action: 'Review limit otorisasi' },
-        { title: 'Selisih pencatatan inventaris fisik vs buku besar', category: 'Very Significant', action: 'Stok opname ulang' },
-        { title: 'Dokumentasi bukti transfer eksternal tidak lengkap', category: 'Significant', action: 'Lengkapi berkas transfer' },
-        { title: 'Akses user kasir tidak di-nonaktifkan setelah mutasi', category: 'Significant', action: 'Nonaktifkan akun user' }
-      ]
-    },
-    {
-      id: 'R-003',
-      reportNumber: '022/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-002/SKAI/2026',
-      reportTitle: 'Laporan Hasil Audit Keamanan Sistem Informasi & ERP 2026',
-      executiveSummary: 'Audit mengevaluasi tata kelola akses pengguna dan keamanan database ERP serta backup data.',
-      category: 'Very Significant',
-      reportDate: '2026-05-02',
-      status: 'Final',
-      findingsCount: 4,
-      findings: [
-        { title: 'Keterlambatan patch keamanan server database ERP', category: 'Very Significant', action: 'Update patch rutin' },
-        { title: 'Akses Superadmin ERP belum menggunakan Multi-Factor Authentication', category: 'Very Significant', action: 'Implementasi MFA mandatory' },
-        { title: 'Prosedur Backup Data belum diuji pemulihannya secara berkala', category: 'Significant', action: 'Jadwalkan DRC drill' },
-        { title: 'Log audit aktivitas sistem informasi belum di-review mingguan', category: 'Quite Significant', action: 'Setup SOC log alert' }
-      ]
-    },
-    {
-      id: 'R-004',
-      reportNumber: '023/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-003/SKAI/2026',
-      reportTitle: 'Laporan Hasil Audit Operasional Gudang & Persediaan Logistik 2026',
-      executiveSummary: 'Audit mengevaluasi akurasi pencatatan stok gudang persediaan dan pengelolaan distribusi.',
-      category: 'Significant',
-      reportDate: '2026-08-10',
-      status: 'Draft',
-      findingsCount: 3,
-      findings: [
-        { title: 'Selisih fisik barang material persediaan gudang cabang', category: 'Significant', action: 'Investigasi selisih stok' },
-        { title: 'Suhu penyimpanan gudang bahan kimia belum terpantau 24/7', category: 'Quite Significant', action: 'Pasang IoT sensor suhu' },
-        { title: 'Pengeluaran material proyek tanpa Work Order yang disetujui', category: 'Significant', action: 'Kunci sistem release barang' }
-      ]
-    },
-    {
-      id: 'R-005',
-      reportNumber: '024/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-004/SKAI/2026',
-      reportTitle: 'Laporan Hasil Audit Kepatuhan Procurement & SCM 2026',
-      executiveSummary: 'Audit evaluasi pelaksanaan rekomendasi audit internal dan kepatuhan pengadaan SCM.',
-      category: 'Quite Significant',
-      reportDate: '2026-08-18',
-      status: 'Final',
-      findingsCount: 2,
-      findings: [
-        { title: 'Penyusunan HPS pengadaan komponen turbin belum melampirkan kertas kerja survei harga', category: 'Quite Significant', action: 'Lampirkan bukti survei HPS' },
-        { title: 'Monitoring pencairan jaminan bank vendor belum terintegrasi ERP', category: 'Not Significant', action: 'Fitur reminder otomatis ERP' }
-      ]
-    },
-    {
-      id: 'R-006',
-      reportNumber: '025/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-005/SKAI/2026',
-      reportTitle: 'Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit 2026',
-      executiveSummary: 'Executive Summary Individual DOC-EXSUM-Q1-2026 untuk Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit.',
-      category: 'Very Significant',
-      reportDate: '2026-09-15',
-      status: 'Final',
-      findingsCount: 3,
-      findings: [
-        { title: 'Inspeksi berkala sistem pemadam kebakaran hidran belum 100% terlaksana', category: 'Very Significant', action: 'Jadwalkan pemeliharaan hidran' },
-        { title: 'Sertifikasi K3LH teknisi pemeliharaan pembangkit belum di-renew', category: 'Significant', action: 'Daftarkan pelatihan sertifikasi' },
-        { title: 'APBD K3 belum memadai untuk instalasi area berisiko tinggi', category: 'Quite Significant', action: 'Pengadaan APD tambahan' }
-      ]
-    }
-  ])
+  const reportList = ref<AuditResultReport[]>([])
   const showModal = ref(false)
   const isEditing = ref(false)
   const editingId = ref<string | null>(null)
+
+  // Field validation errors for the ARR form, as i18n keys ('' = no error).
+  const formErrors = reactive({ assignmentLetterId: '' })
 
   const reportForm = reactive({
     reportNumber: '',
@@ -152,7 +120,12 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     reportDate: new Date().toISOString().split('T')[0] as string,
     status: 'Draft' as 'Draft' | 'Final',
     findingsCount: 0,
-    findings: [] as FindingItem[]
+    findings: [] as FindingItem[],
+    companyId: '',
+    companyName: '',
+    signaturePlace: 'Jakarta',
+    signatureDate: new Date().toISOString().split('T')[0] as string,
+    signatures: [] as MemberSignature[]
   })
 
   // Computed
@@ -169,116 +142,64 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
 
   const hasSelectedAssignmentLetter = computed(() => !!selectedAssignmentLetter.value && selectedAssignmentLetter.value !== '')
 
-
-
   const loading = ref(false)
   const errorMsg = ref('')
 
-  const mockReports: AuditResultReport[] = [
-    {
-      id: 'R-001',
-      reportNumber: '020/LHA/01/KS IAD/2023',
-      assignmentLetterId: '020/ST/01/KSIAD/2023',
-      reportTitle: 'Audit Operasional Pengelolaan Pembangkitan UPDK Kepulauan Riau',
-      executiveSummary: 'Audit Operasional Tahun 2023 di Unit Pelaksana Pengendalian Pembangkitan Kepulauan Riau meliputi ketersediaan pembangkit, K3LH, manajemen risiko, dan pengadaan barang/jasa.',
-      category: 'Significant',
-      reportDate: '2023-09-22',
-      status: 'Final',
-      findingsCount: 8,
-      findings: [
-        { title: 'Pengelolaan Manajemen Risiko Belum Sepenuhnya Sesuai Kebijakan Masa Transisi HSH', category: 'Very Significant', action: 'Perbaikan SOP' },
-        { title: 'Pelaksanaan Overhaul UPDK KEPRI Belum Optimal Terjadi PE 6 Hari pada ME+ PLTU TBK #1', category: 'Very Significant', action: 'Evaluasi jadwal' },
-        { title: 'Peralatan Lab Milik Perusahaan Belum Digunakan Secara Optimal Sebagai Pembanding Surveyor', category: 'Significant', action: 'Kalibrasi ulang' },
-        { title: 'Data Maturity Level Manajemen Aset Belum Lengkap Terbatalnya Fitur Maximo WPC', category: 'Significant', action: 'Update Maximo' },
-        { title: 'Terdapat Penyusunan HPS dan Pemanfaatan ERP Tidak Sesuai Ketentuan SCM', category: 'Significant', action: 'Review HPS' },
-        { title: 'Program Pemeliharaan Aset Tetap Belum Diakui Kepemilikannya Menggunakan Anggaran Operasi', category: 'Quite Significant', action: 'Inventarisasi aset' },
-        { title: 'Terdapat Kontrak Pekerjaan Sejenis Yang Tidak Digabungkan (Strategi Squeezing)', category: 'Quite Significant', action: 'Review kontrak' },
-        { title: 'Pengelolaan K3 dan Keamanan di UPDK KEPRI Belum Optimal (Fire Fighting & Lightning)', category: 'Significant', action: 'Audit K3' }
-      ]
-    },
-    {
-      id: 'R-002',
-      reportNumber: '021/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-001/SKAI/2026',
-      reportTitle: 'Laporan Hasil Audit Operasional Keuangan 2025',
-      executiveSummary: 'Audit dilakukan untuk mengevaluasi efektivitas ICOFR dan kepatuhan terhadap SOP pembayaran.',
-      category: 'Significant',
-      reportDate: '2026-04-15',
-      status: 'Draft',
-      findingsCount: 5,
-      findings: [
-        { title: 'Keterlambatan rekonsiliasi kas harian cabang utama', category: 'Very Significant', action: 'Perbaikan jadwal harian' },
-        { title: 'Kelemahan kontrol otorisasi transaksi di atas Rp 500jt', category: 'Very Significant', action: 'Review limit otorisasi' },
-        { title: 'Selisih pencatatan inventaris fisik vs buku besar', category: 'Very Significant', action: 'Stok opname ulang' },
-        { title: 'Dokumentasi bukti transfer eksternal tidak lengkap', category: 'Significant', action: 'Lengkapi berkas transfer' },
-        { title: 'Akses user kasir tidak di-nonaktifkan setelah mutasi', category: 'Significant', action: 'Nonaktifkan akun user' }
-      ]
-    },
-    {
-      id: 'R-003',
-      reportNumber: '022/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-002/SKAI/2026',
-      reportTitle: 'Laporan Hasil Audit Keamanan Sistem Informasi & ERP 2026',
-      executiveSummary: 'Audit mengevaluasi tata kelola akses pengguna dan keamanan database ERP serta backup data.',
-      category: 'Very Significant',
-      reportDate: '2026-05-02',
-      status: 'Final',
-      findingsCount: 4,
-      findings: [
-        { title: 'Keterlambatan patch keamanan server database ERP', category: 'Very Significant', action: 'Update patch rutin' },
-        { title: 'Akses Superadmin ERP belum menggunakan Multi-Factor Authentication', category: 'Very Significant', action: 'Implementasi MFA mandatory' },
-        { title: 'Prosedur Backup Data belum diuji pemulihannya secara berkala', category: 'Significant', action: 'Jadwalkan DRC drill' },
-        { title: 'Log audit aktivitas sistem informasi belum di-review mingguan', category: 'Quite Significant', action: 'Setup SOC log alert' }
-      ]
-    },
-    {
-      id: 'R-004',
-      reportNumber: '023/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-003/SKAI/2026',
-      reportTitle: 'Laporan Hasil Audit Operasional Gudang & Persediaan Logistik 2026',
-      executiveSummary: 'Audit mengevaluasi akurasi pencatatan stok gudang persediaan dan pengelolaan distribusi.',
-      category: 'Significant',
-      reportDate: '2026-08-10',
-      status: 'Draft',
-      findingsCount: 3,
-      findings: [
-        { title: 'Selisih fisik barang material persediaan gudang cabang', category: 'Significant', action: 'Investigasi selisih stok' },
-        { title: 'Suhu penyimpanan gudang bahan kimia belum terpantau 24/7', category: 'Quite Significant', action: 'Pasang IoT sensor suhu' },
-        { title: 'Pengeluaran material proyek tanpa Work Order yang disetujui', category: 'Significant', action: 'Kunci sistem release barang' }
-      ]
-    },
-    {
-      id: 'R-005',
-      reportNumber: '024/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-004/SKAI/2026',
-      reportTitle: 'Laporan Hasil Audit Kepatuhan Procurement & SCM 2026',
-      executiveSummary: 'Audit evaluasi pelaksanaan rekomendasi audit internal dan kepatuhan pengadaan SCM.',
-      category: 'Quite Significant',
-      reportDate: '2026-08-18',
-      status: 'Final',
-      findingsCount: 2,
-      findings: [
-        { title: 'Penyusunan HPS pengadaan komponen turbin belum melampirkan kertas kerja survei harga', category: 'Quite Significant', action: 'Lampirkan bukti survei HPS' },
-        { title: 'Monitoring pencairan jaminan bank vendor belum terintegrasi ERP', category: 'Not Significant', action: 'Fitur reminder otomatis ERP' }
-      ]
-    },
-    {
-      id: 'R-006',
-      reportNumber: '025/LHA/01/KS IAD/2026',
-      assignmentLetterId: 'ST-005/SKAI/2026',
-      reportTitle: 'Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit 2026',
-      executiveSummary: 'Executive Summary Individual DOC-EXSUM-Q1-2026 untuk Laporan Hasil Audit K3LH & Pemeliharaan Aset Pembangkit.',
-      category: 'Very Significant',
-      reportDate: '2026-09-15',
-      status: 'Final',
-      findingsCount: 3,
-      findings: [
-        { title: 'Inspeksi berkala sistem pemadam kebakaran hidran belum 100% terlaksana', category: 'Very Significant', action: 'Jadwalkan pemeliharaan hidran' },
-        { title: 'Sertifikasi K3LH teknisi pemeliharaan pembangkit belum di-renew', category: 'Significant', action: 'Daftarkan pelatihan sertifikasi' },
-        { title: 'APBD K3 belum memadai untuk instalasi area berisiko tinggi', category: 'Quite Significant', action: 'Pengadaan APD tambahan' }
-      ]
+  const normalizeFindingCategory = (raw: unknown): FindingCategory => {
+    if (raw === 'Moderately Significant') return 'Quite Significant'
+    if (raw === 'Insignificant') return 'Not Significant'
+    if (FINDING_CATEGORIES.includes(raw as FindingCategory)) return raw as FindingCategory
+    return 'Quite Significant'
+  }
+
+  const generateReportNumber = (dateStr?: string, auditTeam: string = 'SKAI'): string => {
+    let year = new Date().getFullYear().toString()
+    if (dateStr) {
+      const cleanDate = (dateStr.split('T')[0] || '').trim()
+      const parts = cleanDate.split('-')
+      if (parts.length === 3 && parts[0]) {
+        year = parts[0]
+      } else {
+        const d = new Date(dateStr)
+        if (!isNaN(d.getFullYear())) {
+          year = d.getFullYear().toString()
+        }
+      }
     }
-  ]
+
+    let team = auditTeam || 'SKAI'
+    if (team === 'SKAI') {
+      const letter = reportForm.assignmentLetterId || selectedAssignmentLetter.value
+      if (letter) {
+        const st = assignmentLetterStore.assignmentLetterList.find(
+          (s: any) => s.letterNumber === letter || s.id === letter
+        )
+        if (st && (st as any).auditTeam) {
+          team = (st as any).auditTeam
+        } else if (letter.includes('/')) {
+          const parts = letter.split('/')
+          if (parts[1]) team = parts[1]
+        }
+      }
+    }
+
+    let maxSeq = 0
+    const lhaRegex = /(?:LHA-|^)(\d+)/i
+    for (const r of reportList.value) {
+      const num = r.reportNumber || (r as any).report_number
+      if (num) {
+        const match = num.match(lhaRegex)
+        if (match && match[1]) {
+          const parsed = parseInt(match[1], 10)
+          if (!isNaN(parsed) && parsed > maxSeq) {
+            maxSeq = parsed
+          }
+        }
+      }
+    }
+    const nextSeq = (maxSeq + 1).toString().padStart(3, '0')
+    return `LHA-${nextSeq}/${team.toUpperCase()}/${year}`
+  }
 
   const mapReportItem = (item: any): AuditResultReport => {
     let dateVal = item.reportDate || item.report_date || item.created_at || ''
@@ -286,26 +207,33 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       dateVal = dateVal.split('T')[0]
     }
 
-    const findingsArr = item.findings || item.Findings || []
+    const rawFindings = item.findings || item.Findings
+    const hasFindingsArray = Array.isArray(rawFindings)
+    const findingsArr = hasFindingsArray ? rawFindings : []
 
     // Map legacy severity to category
-    const mappedFindings = findingsArr.map((f: any) => {
-      let cat = f.category || f.severity || 'Quite Significant'
-      if (cat === 'Moderately Significant') cat = 'Quite Significant'
-      if (cat === 'Insignificant') cat = 'Not Significant'
-      return {
-        ...f,
-        category: cat,
-        source: f.source || 'Audit Features'
-      }
-    })
+    const mappedFindings = findingsArr.map((f: any) => ({
+      ...f,
+      category: normalizeFindingCategory(f.category || f.severity),
+      source: f.source || 'Audit Features'
+    }))
+
+    const finalReportDate = dateVal || new Date().toISOString().split('T')[0]
+    const rawNum = item.reportNumber || item.report_number || ''
+    const normalizedNum = normalizeReportNumber(rawNum) || generateReportNumber(finalReportDate)
 
     return {
       ...item,
-      reportNumber: item.reportNumber || item.report_number || '020/LHA/01/KS IAD/2023',
-      findingsCount: item.findingsCount || item.findings_count || mappedFindings.length || 0,
+      reportNumber: normalizedNum,
+      report_number: normalizedNum,
+      findingsCount: hasFindingsArray ? mappedFindings.length : (item.findingsCount ?? item.findings_count ?? 0),
       findings: mappedFindings,
-      reportDate: dateVal || new Date().toISOString().split('T')[0]
+      reportDate: finalReportDate,
+      companyId: item.companyId || item.company_id || '',
+      companyName: item.companyName || item.company_name || '',
+      signaturePlace: item.signaturePlace || item.signature_place || 'Jakarta',
+      signatureDate: (item.signatureDate || item.signature_date || '').split('T')[0] || finalReportDate,
+      signatures: Array.isArray(item.signatures) ? item.signatures : (Array.isArray(item.Signatures) ? item.Signatures : [])
     }
   }
 
@@ -324,15 +252,11 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
         items = response
       }
 
-      if (items.length > 0) {
-        reportList.value = items.map(mapReportItem)
-      } else {
-        reportList.value = [...mockReports]
-      }
+      reportList.value = items.map(mapReportItem)
     } catch (error) {
-      console.error('Failed to fetch reports, falling back to mock data:', error)
+      console.error('Failed to fetch reports:', error)
       errorMsg.value = extractErrorMessage(error, 'Failed to load audit result reports.')
-      reportList.value = [...mockReports]
+      reportList.value = []
     } finally {
       loading.value = false
     }
@@ -340,6 +264,45 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
 
   // Fetch on initialization
   fetchReports()
+
+  // Dashboard "Recent Finding Issues": saved ARR findings merged server-side with
+  // live KKA / fieldwork findings, deduped and sorted newest first.
+  const recentFindings = ref<RecentFinding[]>([])
+  const recentFindingsLoading = ref(false)
+  const recentFindingsError = ref('')
+
+  const fetchRecentFindings = async (limit = 5) => {
+    recentFindingsLoading.value = true
+    recentFindingsError.value = ''
+    try {
+      const baseUrl = getAuditServiceBaseUrl()
+      const res = await $fetch<{ data?: { items?: Partial<RecentFinding>[] } }>(
+        `${baseUrl}/audit-result-reports/recent-findings?limit=${limit}`,
+        { method: 'GET' }
+      )
+      const items = Array.isArray(res?.data?.items) ? res.data.items : []
+      recentFindings.value = items
+        .map((f): RecentFinding => ({
+          title: f.title || '',
+          category: normalizeFindingCategory(f.category),
+          action: f.action || '',
+          source: f.source || '',
+          assignmentLetterId: f.assignmentLetterId || '',
+          reportId: f.reportId ?? null,
+          date: f.date || ''
+        }))
+        .filter(f => f.title)
+        // The backend already sorts; keep newest first even if it ever doesn't.
+        .sort((a, b) => (Date.parse(b.date) || 0) - (Date.parse(a.date) || 0))
+        .slice(0, limit)
+    } catch (error) {
+      console.error('Failed to fetch recent findings:', error)
+      recentFindingsError.value = extractErrorMessage(error, 'Failed to load recent findings.')
+      recentFindings.value = []
+    } finally {
+      recentFindingsLoading.value = false
+    }
+  }
 
   const isAutoDetecting = ref(false)
 
@@ -351,10 +314,10 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     const wpStore = useWorkingPaperStore()
     const fwStore = useAuditFieldworkStore()
 
-    // 1. Digital Working Paper (AOI & RCA F04 + Plan F05 + Risk F02)
-    const allCauses = (wpStore.dataF04 && wpStore.dataF04.length > 0) ? wpStore.dataF04 : (wpStore.mockF04 || [])
-    const allPlans = (wpStore.dataF05 && wpStore.dataF05.length > 0) ? wpStore.dataF05 : (wpStore.mockF05 || [])
-    const allRisks = (wpStore.dataF02 && wpStore.dataF02.length > 0) ? wpStore.dataF02 : (wpStore.mockF02 || [])
+    // 1. Digital Working Paper (AOI & RCA F04 + Plan F05 + Risk F02) — loaded data only
+    const allCauses: any[] = wpStore.dataF04 || []
+    const allPlans: any[] = wpStore.dataF05 || []
+    const allRisks: any[] = wpStore.dataF02 || []
 
     const stCauses = allCauses.filter((c: any) => (c.workingPaperId || c.assignmentLetterId) === targetLetter)
     const stPlans = allPlans.filter((p: any) => (p.workingPaperId || p.assignmentLetterId) === targetLetter)
@@ -403,13 +366,8 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       })
     })
 
-    // 2. Audit Fieldwork Test Controls
-    if (typeof (fwStore as any).ensureDataExists === 'function') {
-      (fwStore as any).ensureDataExists()
-    }
-    const testControlsList = (fwStore.fieldworkData && fwStore.fieldworkData[targetLetter]?.testControls?.length)
-      ? fwStore.fieldworkData[targetLetter].testControls
-      : ((fwStore.mockFieldwork && (fwStore.mockFieldwork as any)[targetLetter]?.testControls) || [])
+    // 2. Audit Fieldwork Test Controls — loaded data only
+    const testControlsList: any[] = fwStore.fieldworkData?.[targetLetter]?.testControls || []
 
     testControlsList.forEach((tc: any) => {
       const findingText = (tc.finding || '').trim()
@@ -490,6 +448,17 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       reportForm.findings = JSON.parse(JSON.stringify(autoFindings))
       reportForm.findingsCount = autoFindings.length
     }
+    const stData = assignmentLetterStore.assignmentLetterList.find(
+      (st: any) => st.letterNumber === targetLetter
+    )
+    if (stData) {
+      if (!reportForm.companyId && (stData as any).companyId) {
+        reportForm.companyId = (stData as any).companyId
+      }
+      if (!reportForm.companyName && (stData as any).companyName) {
+        reportForm.companyName = (stData as any).companyName
+      }
+    }
   }
 
   const runAutoDetectFindings = async (mode: 'replace' | 'merge' = 'replace') => {
@@ -508,7 +477,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       reportForm.findings = JSON.parse(JSON.stringify(detected))
     } else {
       const existing = new Set(reportForm.findings.map(f => f.title.toLowerCase().trim()))
-      detected.forEach(d => {
+      detected.forEach((d) => {
         if (!existing.has(d.title.toLowerCase().trim())) {
           reportForm.findings.push(JSON.parse(JSON.stringify(d)))
           existing.add(d.title.toLowerCase().trim())
@@ -531,10 +500,15 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       const stData = assignmentLetterStore.assignmentLetterList.find(
         (st: any) => st.letterNumber === selectedAssignmentLetter.value
       )
+      reportForm.reportNumber = generateReportNumber(reportForm.reportDate, stData?.auditTeam || 'SKAI')
       if (stData?.auditTitle) {
         reportForm.reportTitle = `Laporan Hasil Audit - ${stData.auditTitle}`
       } else {
         reportForm.reportTitle = `Laporan Hasil Audit - ${selectedAssignmentLetter.value}`
+      }
+      if (stData) {
+        reportForm.companyId = (stData as any).companyId || ''
+        reportForm.companyName = (stData as any).companyName || ''
       }
       await autoPopulateFindings(selectedAssignmentLetter.value)
     }
@@ -545,29 +519,71 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
   }
 
   const resetForm = () => {
+    const defaultDate = new Date().toISOString().split('T')[0] as string
+    formErrors.assignmentLetterId = ''
     Object.assign(reportForm, {
-      assignmentLetterId: selectedAssignmentLetter.value,
+      reportNumber: generateReportNumber(defaultDate),
+      // No default letter: without a selection the field stays empty and saveReport asks for one.
+      assignmentLetterId: selectedAssignmentLetter.value || '',
       reportTitle: '',
-      reportDate: new Date().toISOString().split('T')[0] as string,
+      reportDate: defaultDate,
       status: 'Draft',
       findingsCount: 0,
-      findings: []
+      findings: [],
+      companyId: '',
+      companyName: '',
+      signaturePlace: 'Jakarta',
+      signatureDate: defaultDate,
+      signatures: []
     })
   }
 
+  const getTeamMembersForLetter = (targetLetter?: string): { name: string; role: string }[] => {
+    const letter = targetLetter || reportForm.assignmentLetterId || selectedAssignmentLetter.value
+    if (!letter) return []
+    const st = assignmentLetterStore.assignmentLetterList.find(
+      (s: any) => s.letterNumber === letter || s.id === letter
+    )
+    if (!st) return []
+    const rawMembers = st.membersList || (st as any).members_list || []
+    if (Array.isArray(rawMembers) && rawMembers.length > 0) {
+      return rawMembers.map((m: any) => ({
+        name: m.name || '',
+        role: m.role || 'Member'
+      })).filter((m: any) => m.name)
+    }
+    if (st.leader) {
+      return [{ name: st.leader, role: 'Chairperson' }]
+    }
+    return []
+  }
+
   const saveReport = async () => {
+    // A report always belongs to an assignment letter. Editing keeps the report's
+    // own letter (the field is disabled); creating may fall back to the page filter.
+    const letter = String(reportForm.assignmentLetterId || (isEditing.value ? '' : selectedAssignmentLetter.value) || '').trim()
+    if (!letter) {
+      formErrors.assignmentLetterId = 'auditResultReport.form.assignmentLetterRequired'
+      return
+    }
+    formErrors.assignmentLetterId = ''
     loading.value = true
     errorMsg.value = ''
     try {
       const baseUrl = getAuditServiceBaseUrl()
+      if (!reportForm.reportNumber) {
+        reportForm.reportNumber = generateReportNumber(reportForm.reportDate)
+      }
       const payload: any = {
-        assignmentLetterId: reportForm.assignmentLetterId || selectedAssignmentLetter.value || 'ST-001/SKAI/2026',
+        assignmentLetterId: letter,
         reportTitle: reportForm.reportTitle,
         reportDate: reportForm.reportDate,
         report_date: reportForm.reportDate,
         reportNumber: reportForm.reportNumber,
         findingsCount: Number(reportForm.findings?.length || reportForm.findingsCount || 0),
         findings: (reportForm.findings || []).map(f => ({
+          // Keep the finding id: the ATRs created on approval point at it.
+          ...(f.id ? { id: f.id } : {}),
           title: f.title,
           category: f.category,
           action: f.action || '',
@@ -575,20 +591,52 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
         })),
         status: reportForm.status
       }
+      if (reportForm.companyId) {
+        payload.companyId = reportForm.companyId
+        payload.company_id = reportForm.companyId
+      }
+      if (reportForm.companyName) {
+        payload.companyName = reportForm.companyName
+        payload.company_name = reportForm.companyName
+      }
+      if (reportForm.signaturePlace) {
+        payload.signaturePlace = reportForm.signaturePlace
+        payload.signature_place = reportForm.signaturePlace
+      }
+      if (reportForm.signatureDate) {
+        payload.signatureDate = reportForm.signatureDate
+        payload.signature_date = reportForm.signatureDate
+      }
+      if (reportForm.signatures && reportForm.signatures.length > 0) {
+        payload.signatures = reportForm.signatures.map(s => ({
+          name: s.name,
+          role: s.role || 'Member',
+          signature: s.signature || '',
+          signedAt: s.signedAt || new Date().toISOString()
+        }))
+      }
+      // The backend creates one ATR per finding when the LHA becomes approved (Final).
+      const previousStatus = isEditing.value && editingId.value
+        ? reportList.value.find(r => r.id === editingId.value)?.status
+        : undefined
+      const becameApproved = isLhaApproved(reportForm.status) && !isLhaApproved(previousStatus)
+      let savedId = isEditing.value ? editingId.value : null
       if (isEditing.value && editingId.value) {
         await $fetch(`${baseUrl}/audit-result-reports/${editingId.value}`, {
           method: 'PUT',
           body: payload
         })
       } else {
-        await $fetch(`${baseUrl}/audit-result-reports`, {
+        const created: any = await $fetch(`${baseUrl}/audit-result-reports`, {
           method: 'POST',
           body: payload
         })
+        savedId = created?.data?.id ?? created?.id ?? null
       }
       closeModal()
       await fetchReports()
       toast.showSuccess('Report saved successfully')
+      if (becameApproved && savedId) await notifyAtrsCreated(savedId)
     } catch (error: any) {
       console.error('Failed to save report:', error)
       const detail = extractErrorMessage(error, 'Failed to save report.')
@@ -599,9 +647,41 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     }
   }
 
+  /** After approval: tell the user how many ATRs were created, with a link to the ATR list filtered by this LHA. */
+  const notifyAtrsCreated = async (reportId: string) => {
+    const count = await useActionTakenReportStore().countForLha(reportId)
+    if (count === null) {
+      toast.showInfo(t('auditResultReport.followUp.createdUnknownTitle'), t('auditResultReport.followUp.createdUnknown'))
+      return
+    }
+    if (count === 0) {
+      toast.showWarning(t('auditResultReport.followUp.noneTitle'), t('auditResultReport.followUp.none'))
+      return
+    }
+    toast.add({
+      title: t('auditResultReport.followUp.createdTitle', { count }),
+      description: t('auditResultReport.followUp.created'),
+      color: 'success',
+      icon: 'i-lucide-check-circle-2',
+      actions: [{
+        label: t('auditResultReport.followUp.view', { count }),
+        color: 'neutral',
+        variant: 'outline',
+        onClick: () => { navigateTo(`/action-taken-report?lha=${encodeURIComponent(reportId)}`) }
+      }]
+    })
+  }
+
   const editReport = (report: AuditResultReport) => {
+    formErrors.assignmentLetterId = ''
     Object.assign(reportForm, {
       ...report,
+      reportNumber: report.reportNumber || (report as any).report_number || generateReportNumber(report.reportDate),
+      companyId: report.companyId || '',
+      companyName: report.companyName || '',
+      signaturePlace: report.signaturePlace || (report as any).signature_place || 'Jakarta',
+      signatureDate: report.signatureDate || (report as any).signature_date || report.reportDate,
+      signatures: report.signatures ? JSON.parse(JSON.stringify(report.signatures)) : [],
       findings: report.findings ? JSON.parse(JSON.stringify(report.findings)) : []
     })
     isEditing.value = true
@@ -654,7 +734,11 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
   }
 
   const syncExecutiveSummaryField = async (reportNumber: string, narrative: string, findingsCount?: number) => {
-    const found = reportList.value.find(r => (r.reportNumber || (r as any).report_number) === reportNumber)
+    const normTarget = normalizeReportNumber(reportNumber)
+    const found = reportList.value.find(r => {
+      const num = r.reportNumber || (r as any).report_number
+      return num === reportNumber || normalizeReportNumber(num) === normTarget
+    })
     if (found) {
       found.executiveSummary = narrative
       if (typeof findingsCount === 'number' && findingsCount > 0) {
@@ -676,7 +760,11 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
   }
 
   const clearExecutiveSummaryField = async (reportNumber: string) => {
-    const found = reportList.value.find(r => (r.reportNumber || (r as any).report_number) === reportNumber)
+    const normTarget = normalizeReportNumber(reportNumber)
+    const found = reportList.value.find(r => {
+      const num = r.reportNumber || (r as any).report_number
+      return num === reportNumber || normalizeReportNumber(num) === normTarget
+    })
     if (found) {
       found.executiveSummary = ''
       try {
@@ -699,6 +787,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     showModal,
     isEditing,
     reportForm,
+    formErrors,
     publishedAssignmentLetters,
     filteredReports,
     hasSelectedAssignmentLetter,
@@ -710,12 +799,21 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     downloadDocx,
     syncExecutiveSummaryField,
     clearExecutiveSummaryField,
+    notifyAtrsCreated,
     loading,
     errorMsg,
     fetchReports,
+    recentFindings,
+    recentFindingsLoading,
+    recentFindingsError,
+    fetchRecentFindings,
     isAutoDetecting,
     fetchAutoFindings,
     runAutoDetectFindings,
-    autoPopulateFindings
+    autoPopulateFindings,
+    generateReportNumber,
+    normalizeReportNumber,
+    getTeamMembersForLetter,
+    resetForm
   }
 })

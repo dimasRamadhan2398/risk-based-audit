@@ -4,7 +4,14 @@
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
       <div>
         <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ t('workingPaper.index.title') }}</h1>
-        <p class="text-xs sm:text-sm text-gray-500">{{ t('workingPaper.index.subtitle') }}</p>
+        <p v-if="fieldworkStore.selectedAssignmentLetter" class="text-xs sm:text-sm text-gray-500">
+          {{ t('workingPaper.index.assignmentLetterLabel') }}:
+          <span class="font-semibold text-gray-700 dark:text-gray-300">{{ fieldworkStore.selectedAssignmentLetter }}</span>
+        </p>
+        <p v-else class="text-xs sm:text-sm text-gray-500">
+          {{ t('workingPaper.index.noAssignmentLetter') }}
+          <NuxtLink to="/audit-fieldwork" class="text-primary-600 hover:underline font-medium">{{ t('workingPaper.index.goToFieldwork') }}</NuxtLink>
+        </p>
       </div>
       <UButton
         :label="t('workingPaper.index.importButton')"
@@ -17,7 +24,7 @@
       />
     </div>
 
-    <UStepper v-model="activeStep" :items="stepItems" class="w-full" :ui="{ header: 'flex overflow-x-auto pb-2 min-w-0 sm:overflow-visible' }">
+    <UStepper v-model="activeStep" :items="stepItems" :linear="false" class="w-full" :ui="{ header: 'flex overflow-x-auto pb-2 min-w-0 sm:overflow-visible' }">
       
       <template #f01>
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-6">
@@ -140,11 +147,16 @@ import WorkingPaperRiskTable from '~/components/working-paper/WorkingPaperRiskTa
 import WorkingPaperSampleForm from '~/components/working-paper/WorkingPaperSampleForm.vue';
 import WorkingPaperSampleTable from '~/components/working-paper/WorkingPaperSampleTable.vue';
 import { useWorkingPaperStore } from '~/stores/working-paper'
+import { useAssignmentLetterStore } from '~/stores/assignment-letter'
+import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
+import { useLocationStore } from '~/stores/location'
+import { useRiskProfileStore } from '~/stores/risk-profile'
 
 const { t } = useI18n()
 
 // Panggil Store
 const store = useWorkingPaperStore()
+const fieldworkStore = useAuditFieldworkStore()
 const route = useRoute()
 
 const stepItems = computed<StepperItem[]>(() => [
@@ -202,6 +214,17 @@ watch(() => route.query.step, (step) => {
 
 onMounted(() => {
   store.fetchAllData()
+  const assignmentLetterStore = useAssignmentLetterStore()
+  assignmentLetterStore.fetchAssignmentLetters().catch(() => {})
+  const locationStore = useLocationStore()
+  if (locationStore.locations.length === 0) {
+    locationStore.fetchLocations().catch(() => {})
+  }
+  const riskProfileStore = useRiskProfileStore()
+  if (riskProfileStore.rawRisks.length === 0) {
+    riskProfileStore.fetchRisks().catch(() => {})
+    riskProfileStore.fetchBranches().catch(() => {})
+  }
   const { id, action } = route.query
   
   if (action === 'create') {

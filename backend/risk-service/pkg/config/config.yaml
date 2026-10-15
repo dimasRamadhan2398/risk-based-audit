@@ -1,3 +1,8 @@
+server:
+  port: 8004
+  mode: release
+  read_timeout: 60
+
 database:
   host: postgres
   port: 5432
@@ -6,3 +11,23 @@ database:
   name: rb_audit_risk_service
   sslmode: disable
 
+jwt:
+  secret: fec20f8c86f9c2657ef2423d6859c9b1355472e995d512753a710575fd4c3cd5
+  expiry_hour: 24
+
+kafka:
+  enabled: true
+  brokers:
+    - "kafka:29092"
+  topic: "service-logs"
+  service_name: "risk-service"
+
+# Location master lookups (branch filter on the Corporate Risk Profile).
+# Leave url empty to derive it per stack: http://master-service:8002 on the
+# shared stack, http://master-service-<slug>:8002 when KAFKA_SERVICE_NAME is
+# risk-service-<slug>. Override with MASTER_SERVICE_URL (e.g. local `go run`:
+# MASTER_SERVICE_URL=http://localhost:8003).
+master_service:
+  url: ""
+  timeout_seconds: 2
+  cache_ttl_seconds: 60

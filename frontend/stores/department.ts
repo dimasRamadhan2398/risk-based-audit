@@ -44,14 +44,15 @@ export const useDepartmentStore = defineStore('department', () => {
   })
 
   // Table Columns
-  const columns = computed<TableColumn<Department>[]>(() => [
-    { accessorKey: 'department_code', header: t('masterData.department.columns.code') },
-    { accessorKey: 'department_name', header: t('masterData.department.columns.name') },
-    { accessorKey: 'department_description', header: t('masterData.department.columns.description') },
-    { accessorKey: 'level', header: t('masterData.department.columns.level') },
-    { accessorKey: 'is_active', header: t('masterData.department.columns.status') },
-    { accessorKey: 'actions', header: t('masterData.department.columns.actions') }
-  ])
+  const columns: TableColumn<Department>[] = [
+    { accessorKey: 'department_code', header: 'Code' },
+    { accessorKey: 'department_name', header: 'Department Name' },
+    { accessorKey: 'company_id', header: 'Company' },
+    { accessorKey: 'department_description', header: 'Description' },
+    { accessorKey: 'level', header: 'Level' },
+    { accessorKey: 'is_active', header: 'Status' },
+    { accessorKey: 'actions', header: '' }
+  ]
 
   // ============= Getters =============
   const totalPages = computed(() => pagination.value.total_pages)
@@ -118,10 +119,10 @@ export const useDepartmentStore = defineStore('department', () => {
         department_code: form.department_code,
         department_name: form.department_name,
         department_description: form.department_description || '',
-        pic_id: form.pic_id,
+        pic_id: (form.pic_id && form.pic_id !== '__none__') ? form.pic_id : undefined,
         level: form.level,
         company_id: form.company_id,
-        business_unit_id: form.business_unit_id || undefined,
+        business_unit_id: (form.business_unit_id && form.business_unit_id !== '__none__') ? form.business_unit_id : undefined,
         is_active: form.is_active
       }
 
@@ -149,10 +150,10 @@ export const useDepartmentStore = defineStore('department', () => {
       const payload: UpdateDepartmentRequest = {
         department_name: form.department_name || undefined,
         department_description: form.department_description || undefined,
-        pic_id: form.pic_id || undefined,
+        pic_id: (form.pic_id && form.pic_id !== '__none__') ? form.pic_id : '',
         level: form.level || undefined,
         company_id: form.company_id || undefined,
-        business_unit_id: form.business_unit_id || undefined,
+        business_unit_id: (form.business_unit_id && form.business_unit_id !== '__none__') ? form.business_unit_id : '',
         is_active: form.is_active
       }
 
@@ -212,7 +213,7 @@ export const useDepartmentStore = defineStore('department', () => {
     form.department_code = department.department_code
     form.department_name = department.department_name
     form.department_description = department.department_description || ''
-    form.pic_id = department.pic_id
+    form.pic_id = department.pic_id || ''
     form.level = department.level
     form.company_id = department.company_id
     form.business_unit_id = department.business_unit_id || ''
@@ -260,11 +261,7 @@ export const useDepartmentStore = defineStore('department', () => {
       return
     }
     if (!form.company_id.trim()) {
-      errorMsg.value = t('masterData.validation.companyRequired')
-      return
-    }
-    if (!form.pic_id.trim()) {
-      errorMsg.value = t('masterData.validation.picRequired')
+      errorMsg.value = 'Company is required.'
       return
     }
 
@@ -291,13 +288,13 @@ export const useDepartmentStore = defineStore('department', () => {
    * Handle delete with confirmation
    */
   const handleDelete = async (department: Department) => {
-    if (!await useGlobalModalStore().confirmDelete({ description: t('masterData.department.deleteConfirm', { name: department.department_name }) })) {
+    if (!await useGlobalModalStore().confirmDelete({ description: `Are you sure you want to delete department "${department.department_name}"?` })) {
       return
     }
 
     const success = await deleteDepartment(department.id)
     if (success) {
-      alert(t('masterData.department.deleted'))
+      alert('Department berhasil dihapus!')
     }
   }
 

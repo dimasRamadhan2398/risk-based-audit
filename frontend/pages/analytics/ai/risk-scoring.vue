@@ -186,7 +186,7 @@ const featureBarOptions = computed(() => ({
                 <td class="text-center py-3 px-4 font-mono">{{ formatNum(row.actualScore, 1) }}</td>
                 <td class="text-center py-3 px-4">
                   <UBadge
-                    :style="{ backgroundColor: getRiskConfig(row.actualRiskLevel).color, color: 'white' }"
+                    :class="getRiskConfig(row.actualRiskLevel).badgeClass"
                     variant="solid"
                     size="md"
                     class="font-bold"
@@ -200,7 +200,7 @@ const featureBarOptions = computed(() => ({
                 <td class="text-center py-3 px-4 font-mono font-bold">{{ formatNum(row.predictedScore, 1) }}</td>
                 <td class="text-center py-3 px-4">
                   <UBadge
-                    :style="{ backgroundColor: getRiskConfig(row.predictedRiskLevel).color, color: 'white' }"
+                    :class="getRiskConfig(row.predictedRiskLevel).badgeClass"
                     variant="solid"
                     size="md"
                     class="font-bold"

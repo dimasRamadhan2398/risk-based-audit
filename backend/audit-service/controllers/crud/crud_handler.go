@@ -2,12 +2,14 @@ package crud
 
 import (
 	"encoding/json"
+	stderrors "errors"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
+	apperrors "audit-service/pkg/errors"
 	"audit-service/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -41,6 +43,17 @@ func NewCRUDHandler(db *gorm.DB, modelName string) *CRUDHandler {
 
 // List returns a paginated list of records
 func List(db *gorm.DB, modelName string, newSlice func() interface{}, preloads ...string) gin.HandlerFunc {
+	return ListWithItems(db, modelName, newSlice, nil, preloads...)
+}
+
+// ItemsDecorator maps the page fetched by ListWithItems to the response items,
+// for example to add fields derived from each row. items is the pointer to the
+// slice returned by newSlice.
+type ItemsDecorator func(c *gin.Context, items interface{}) (interface{}, error)
+
+// ListWithItems is List with an optional decorator (nil for none). The decorator
+// runs on the fetched page only, so per-row work is bounded by the page size.
+func ListWithItems(db *gorm.DB, modelName string, newSlice func() interface{}, decorate ItemsDecorator, preloads ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 		pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
@@ -70,6 +83,12 @@ func List(db *gorm.DB, modelName string, newSlice func() interface{}, preloads .
 			response.BadRequest(c, "Invalid order parameter")
 			return
 		}
+
+		// Sort keys such as created_at are not unique (a batch insert gives every
+		// row the same timestamp), and Postgres does not keep ties in a stable
+		// order across LIMIT/OFFSET queries, so pages could skip or repeat rows.
+		// Break ties on the primary key.
+		orderBy = withIDTiebreaker(orderBy, columns)
 
 		query := db.Model(items)
 
@@ -105,19 +124,32 @@ func List(db *gorm.DB, modelName string, newSlice func() interface{}, preloads .
 		}
 
 		var total int64
-		query.Count(&total)
+		if err := query.Count(&total).Error; err != nil {
+			response.InternalServerError(c, "Failed to fetch "+modelName)
+			return
+		}
 
 		if err := query.Order(orderBy).Offset(offset).Limit(pageSize).Find(items).Error; err != nil {
 			response.InternalServerError(c, "Failed to fetch "+modelName)
 			return
 		}
 
+		var out interface{} = items
+		if decorate != nil {
+			decorated, err := decorate(c, items)
+			if err != nil {
+				response.InternalServerError(c, "Failed to fetch "+modelName)
+				return
+			}
+			out = decorated
+		}
+
 		response.OK(c, modelName+" fetched successfully", gin.H{
-			"items": items,
+			"items": out,
 			"pagination": gin.H{
-				"page":       page,
-				"page_size":  pageSize,
-				"total":      total,
+				"page":        page,
+				"page_size":   pageSize,
+				"total":       total,
 				"total_pages": (total + int64(pageSize) - 1) / int64(pageSize),
 			},
 		})
@@ -166,6 +198,21 @@ func parseOrder(raw string, columns map[string]bool) (clause.OrderBy, bool) {
 		orderBy.Columns = append(orderBy.Columns, clause.OrderByColumn{Column: clause.Column{Name: col}, Desc: desc})
 	}
 	return orderBy, true
+}
+
+// withIDTiebreaker appends "id" to the ORDER BY when the model has an id column
+// that is not already part of the ordering, so the order is total
+func withIDTiebreaker(orderBy clause.OrderBy, columns map[string]bool) clause.OrderBy {
+	if !columns["id"] {
+		return orderBy
+	}
+	for _, col := range orderBy.Columns {
+		if col.Column.Name == "id" {
+			return orderBy
+		}
+	}
+	orderBy.Columns = append(orderBy.Columns, clause.OrderByColumn{Column: clause.Column{Name: "id"}})
+	return orderBy
 }
 
 // ilikeAny matches Value case-insensitively against any of Columns:
@@ -218,13 +265,70 @@ func GetByID(db *gorm.DB, modelName string, newEntity func() interface{}, preloa
 	}
 }
 
+// CreateHook runs inside the create transaction, after binding and before the
+// INSERT. It may change entity. Returning an *errors.AppError sends that status.
+type CreateHook func(tx *gorm.DB, entity interface{}) error
+
+// UpdateHook runs inside the update transaction, before the UPDATE. existing is
+// the stored record; columns are the snake_case column values about to be
+// written (JSON columns as []byte), and may be changed.
+type UpdateHook func(tx *gorm.DB, existing interface{}, columns map[string]interface{}) error
+
+func writeHookError(c *gin.Context, modelName, action string, err error) {
+	var appErr *apperrors.AppError
+	if stderrors.As(err, &appErr) {
+		response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
+		return
+	}
+	response.InternalServerError(c, "Failed to "+action+" "+modelName+": "+err.Error())
+}
+
+// AfterHook runs inside the write transaction, right after the INSERT or
+// UPDATE. entity is the written record (for updates: the stored record with
+// the written columns applied). Returning an *errors.AppError sends that
+// status; any error rolls the write back.
+type AfterHook func(tx *gorm.DB, entity interface{}) error
+
 // Create creates a new record
 func Create(db *gorm.DB, modelName string, newEntity func() interface{}) gin.HandlerFunc {
+	return CreateWithHooks(db, modelName, newEntity, nil, nil)
+}
+
+// CreateWithHook is Create with a hook run in the same transaction as the INSERT.
+func CreateWithHook(db *gorm.DB, modelName string, newEntity func() interface{}, hook CreateHook) gin.HandlerFunc {
+	return CreateWithHooks(db, modelName, newEntity, hook, nil)
+}
+
+// CreateWithHooks is Create with hooks run in the same transaction as the
+// INSERT: before (may change the entity) and after (sees the created row).
+func CreateWithHooks(db *gorm.DB, modelName string, newEntity func() interface{}, before CreateHook, after AfterHook) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		entity := newEntity()
 
 		if err := c.ShouldBindJSON(entity); err != nil {
 			response.BadRequest(c, err.Error())
+			return
+		}
+
+		if before != nil || after != nil {
+			if err := db.Transaction(func(tx *gorm.DB) error {
+				if before != nil {
+					if err := before(tx, entity); err != nil {
+						return err
+					}
+				}
+				if err := tx.Create(entity).Error; err != nil {
+					return err
+				}
+				if after != nil {
+					return after(tx, entity)
+				}
+				return nil
+			}); err != nil {
+				writeHookError(c, modelName, "create", err)
+				return
+			}
+			response.Created(c, modelName+" created successfully", entity)
 			return
 		}
 
@@ -239,6 +343,17 @@ func Create(db *gorm.DB, modelName string, newEntity func() interface{}) gin.Han
 
 // Update updates an existing record
 func Update(db *gorm.DB, modelName string, newEntity func() interface{}) gin.HandlerFunc {
+	return UpdateWithHooks(db, modelName, newEntity, nil, nil)
+}
+
+// UpdateWithHook is Update with a hook run in the same transaction as the UPDATE.
+func UpdateWithHook(db *gorm.DB, modelName string, newEntity func() interface{}, hook UpdateHook) gin.HandlerFunc {
+	return UpdateWithHooks(db, modelName, newEntity, hook, nil)
+}
+
+// UpdateWithHooks is Update with hooks run in the same transaction as the
+// UPDATE: before (may change the columns) and after (sees the updated record).
+func UpdateWithHooks(db *gorm.DB, modelName string, newEntity func() interface{}, before UpdateHook, after AfterHook) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		idParam := c.Param("id")
 		id, err := uuid.Parse(idParam)
@@ -319,7 +434,25 @@ func Update(db *gorm.DB, modelName string, newEntity func() interface{}) gin.Han
 			}
 		}
 
-		if err := db.Model(existing).Updates(snakeData).Error; err != nil {
+		if before != nil || after != nil {
+			if err := db.Transaction(func(tx *gorm.DB) error {
+				if before != nil {
+					if err := before(tx, existing, snakeData); err != nil {
+						return err
+					}
+				}
+				if err := tx.Model(existing).Updates(snakeData).Error; err != nil {
+					return err
+				}
+				if after != nil {
+					return after(tx, existing)
+				}
+				return nil
+			}); err != nil {
+				writeHookError(c, modelName, "update", err)
+				return
+			}
+		} else if err := db.Model(existing).Updates(snakeData).Error; err != nil {
 			response.InternalServerError(c, "Failed to update "+modelName+": "+err.Error())
 			return
 		}

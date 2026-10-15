@@ -52,7 +52,7 @@ func (f *fakeRepo) EmployeeBelongsToCompany(uuid.UUID, uuid.UUID) (bool, error) 
 
 func router(repo *fakeRepo) *gin.Engine {
 	gin.SetMode(gin.TestMode)
-	ctrl := NewDepartmentController(departmentSvc.NewDepartmentService(repo), validations.New())
+	ctrl := NewDepartmentController(departmentSvc.NewDepartmentService(repo, nil), validations.New())
 	r := gin.New()
 	r.GET("/departments/:id", ctrl.FindById)
 	r.POST("/departments", ctrl.Create)

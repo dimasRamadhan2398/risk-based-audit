@@ -176,6 +176,7 @@ services:
 
           # Documents
           - /api/v1/uploaded-plan-documents
+          - /api/v1/uploaded-strategic-plan-documents
           - /api/v1/uploaded-annual-plans
           - /api/v1/uploaded-assignment-letters
           - /api/v1/uploaded-audit-result-reports

@@ -2,11 +2,11 @@
   <UModal 
     v-model:open="store.isOpen"
     :ui="{
-      content: 'sm:max-w-lg w-[calc(100vw-2rem)] sm:w-full max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+      content: 'z-[10001] sm:max-w-lg w-[calc(100vw-2rem)] sm:w-full max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
       header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
       body: 'p-4 sm:p-6 space-y-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
       footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
-      overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      overlay: 'z-[10000] bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
     }"
   >
     <template #header>

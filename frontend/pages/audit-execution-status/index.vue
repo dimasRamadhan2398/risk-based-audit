@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { useAuditExecutionStore } from '~/stores/audit-execution'
+import { normalizeAuditStatus, useAuditExecutionStore } from '~/stores/audit-execution'
 import AuditExecutionDetailModal from '~/components/audit-execution/AuditExecutionDetailModal.vue'
-import { AuditCategory, AuditStatus, EXECUTION_PHASES, getExecutionPhase } from '~/types/audit'
+import { AuditCategory, AuditStatus, EXECUTION_PHASES, getExecutionPhase, type AuditExecution } from '~/types/audit'
+import { getProgressValue } from '~/utils/executionSources'
 import { useI18n } from '~/composables/useI18n'
 
 const { t, locale } = useI18n()
@@ -42,51 +43,10 @@ const columns = computed(() => [
   { accessorKey: 'actions', header: t('auditExecution.columns.actions') }
 ])
 
-const normalizeStatus = (val?: string | null): string => {
-  if (!val) return ''
-  const clean = String(val).toLowerCase().replace(/[\s_-]+/g, '')
-  if (clean.includes('completed') || clean.includes('selesai') || clean.includes('done')) return 'completed'
-  if (clean.includes('reporting') || clean.includes('report') || clean.includes('pelaporan')) return 'reporting'
-  if (clean.includes('draftfinding') || clean.includes('findings') || clean.includes('temuan')) return 'draftfindings'
-  if (clean.includes('fieldwork')) return 'fieldwork'
-  if (clean.includes('entrymeeting') || clean.includes('entry')) return 'entrymeeting'
-  if (clean.includes('planning') || clean.includes('planned') || clean.includes('perencanaan')) return 'planning'
-  if (clean === 'inprogress') return 'inprogress'
-  if (clean === 'canceled') return 'cancelled'
-  return clean
-}
-
-const isStatusMatch = (auditStatusVal?: string | null, filterStatusVal?: string, progress?: number): boolean => {
-  if (!filterStatusVal) return true
-  const fNorm = normalizeStatus(filterStatusVal)
-  let aNorm = normalizeStatus(auditStatusVal)
-
-  // Fallback to progress if status is empty
-  if (!aNorm && typeof progress === 'number') {
-    if (progress >= 100) aNorm = 'completed'
-    else if (progress >= 76) aNorm = 'reporting'
-    else if (progress >= 51) aNorm = 'draftfindings'
-    else if (progress >= 26) aNorm = 'fieldwork'
-    else if (progress >= 1) aNorm = 'entrymeeting'
-    else aNorm = 'planning'
-  }
-
-  if (aNorm === fNorm) return true
-
-  // If user selected generic "in progress", match any active execution stage
-  if (fNorm === 'inprogress' && (aNorm === 'entrymeeting' || aNorm === 'fieldwork' || aNorm === 'draftfindings' || aNorm === 'reporting')) {
-    return true
-  }
-
-  // If audit record has generic "inprogress", map against target stage by progress
-  if (aNorm === 'inprogress' && typeof progress === 'number') {
-    if (progress >= 76 && fNorm === 'reporting') return true
-    if (progress >= 51 && progress < 76 && fNorm === 'draftfindings') return true
-    if (progress >= 26 && progress < 51 && fNorm === 'fieldwork') return true
-    if (progress >= 1 && progress < 26 && fNorm === 'entrymeeting') return true
-  }
-
-  return false
+// Filter values are canonical stage statuses (see statusOptions); the row's status is normalised the same way as the store.
+const isStatusMatch = (audit: AuditExecution, filterStatus?: string): boolean => {
+  if (!filterStatus) return true
+  return normalizeAuditStatus(audit.status, getProgressValue(audit.progress)) === filterStatus
 }
 
 const getQuarterFromDate = (dateStr?: string): string => {
@@ -108,7 +68,7 @@ const filteredAudits = computed(() => {
                           (audit.ref && audit.ref.toLowerCase().includes(search.value.toLowerCase()))
     const matchesCategory = !category.value || 
                             (audit.category && audit.category.toLowerCase() === category.value.toLowerCase())
-    const matchesStatus = isStatusMatch(audit.status, status.value, audit.progress)
+    const matchesStatus = isStatusMatch(audit, status.value)
     const matchesQuarter = !quarter.value || 
                            getQuarterFromDate((audit as any).created_at || (audit as any).createdAt) === quarter.value
     return matchesSearch && matchesCategory && matchesStatus && matchesQuarter
@@ -124,13 +84,7 @@ const phaseBreakdown = computed(() => {
   return counts
 })
 
-const getProgressValue = (row: any): number => {
-  const item = row?.original || row
-  const val = item?.progress
-  if (typeof val === 'number') return val
-  if (typeof val === 'string') return parseFloat(val) || 0
-  return 0
-}
+const rowProgress = (row: any): number => getProgressValue((row?.original || row)?.progress)
 
 const getProgressColor = (val: number) => {
   if (val >= 100) return 'bg-secondary-600 shadow-sm shadow-secondary-600/40'
@@ -249,9 +203,9 @@ const handleRemind = (audit: any) => {
         </template>
 
         <template #phase-cell="{ row }">
-          <UBadge :class="getExecutionPhase(getProgressValue(row)).badgeClass" variant="subtle" size="md">
-            <UIcon :name="getExecutionPhase(getProgressValue(row)).icon" class="mr-1.5 inline-block text-md" />
-            {{ t(`auditExecution.phases.${getExecutionPhase(getProgressValue(row)).step}.shortLabel`) }}
+          <UBadge :class="getExecutionPhase(rowProgress(row)).badgeClass" variant="subtle" size="md">
+            <UIcon :name="getExecutionPhase(rowProgress(row)).icon" class="mr-1.5 inline-block text-md" />
+            {{ t(`auditExecution.phases.${getExecutionPhase(rowProgress(row)).step}.shortLabel`) }}
           </UBadge>
         </template>
 
@@ -260,12 +214,12 @@ const handleRemind = (audit: any) => {
             <div class="flex-1 h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden border border-gray-200 dark:border-gray-700 shadow-inner">
               <div
                 class="h-full rounded-full transition-all duration-500 ease-out"
-                :class="getProgressColor(getProgressValue(row))"
-                :style="{ width: `${Math.min(100, Math.max(0, getProgressValue(row)))}%` }"
+                :class="getProgressColor(rowProgress(row))"
+                :style="{ width: `${Math.min(100, Math.max(0, rowProgress(row)))}%` }"
               ></div>
             </div>
             <span class="text-md font-bold text-gray-700 dark:text-white w-10 text-right">
-              {{ getProgressValue(row) }}%
+              {{ rowProgress(row) }}%
             </span>
           </div>
         </template>

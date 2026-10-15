@@ -1,14 +1,20 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"risk-service/controllers"
+	"risk-service/middleware"
 	"risk-service/models"
 	"risk-service/pkg/database"
+	"risk-service/pkg/kafka"
+	"risk-service/pkg/masterclient"
 	"risk-service/repositories"
 	"risk-service/routes"
 	"risk-service/services"
@@ -58,6 +64,14 @@ func runServe(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// Built before anything listens: a missing secret must stop the service, not
+	// leave it serving the risk register unauthenticated the way it used to.
+	authMiddleware, err := middleware.NewAuthMiddleware(cfg.JWT.Secret)
+	if err != nil {
+		log.Printf("Refusing to start risk-service: %v", err)
+		return err
+	}
+
 	// Boot-time demo seeding.
 	//
 	// This used to run unconditionally, which made a clean-slate tenant
@@ -102,12 +116,16 @@ func runServe(cmd *cobra.Command, args []string) error {
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length, Cache-Control, ETag, Last-Modified, Expires")
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(http.StatusNoContent)
 			return
 		}
 		c.Next()
 	})
+
+	// Add response caching middleware for dashboard endpoints
+	r.Use(middleware.ResponseCache())
 
 	// Seed initial RCM matrix items if empty
 	if seedOnBoot() {
@@ -120,21 +138,50 @@ func runServe(cmd *cobra.Command, args []string) error {
 	riskRepo := repositories.NewRiskRepository(db)
 	mitigationRepo := repositories.NewMitigationRepository(db)
 
-	riskServ := services.NewRiskService(riskRepo)
+	// Branches on the Corporate Risk Profile come from this stack's Location
+	// master (master-service), never from a hardcoded list.
+	locationClient := masterclient.NewClient(
+		cfg.MasterService.BaseURL(),
+		time.Duration(cfg.MasterService.TimeoutSeconds)*time.Second,
+		time.Duration(cfg.MasterService.CacheTTLSeconds)*time.Second,
+	)
+	log.Printf("Location master: %s/api/v1/locations", locationClient.BaseURL())
+
+	riskServ := services.NewRiskService(riskRepo, locationClient)
 	mitigationServ := services.NewMitigationService(mitigationRepo)
 
 	riskCtrl := controllers.NewRiskController(riskServ)
 	mitigationCtrl := controllers.NewMitigationController(mitigationServ)
 	riskFactorCtrl := controllers.NewRiskFactorController(db)
-	auditUniverseCtrl := controllers.NewAuditUniverseController(db)
+	// Audit Universe events feed audit-service's annual plan sync. Best-effort:
+	// if the broker is unreachable at start-up the service still serves the
+	// universe, and POST /audit-universe/events/resync repairs the gap later.
+	var universeEvents *kafka.Publisher
+	if cfg.Kafka.Enabled {
+		// Events go to the transactional outbox and are published by the relay,
+		// so the broker being down at start-up delays events, it does not drop them.
+		if err := db.AutoMigrate(&models.KafkaOutboxEvent{}); err != nil {
+			return fmt.Errorf("migrate kafka outbox: %w", err)
+		}
+		universeEvents = kafka.NewPublisher(db, cfg.Kafka.ServiceName)
+		go kafka.NewRelay(db, cfg.Kafka.Brokers, kafka.TopicAuditUniverse).Run(context.Background())
+	}
+	auditUniverseCtrl := controllers.NewAuditUniverseController(db, universeEvents)
 	rcmCtrl := controllers.NewRCMController(db)
 
 	// Register Routes
-	riskRoute := routes.NewRiskRoute(riskCtrl, mitigationCtrl, riskFactorCtrl, auditUniverseCtrl, rcmCtrl, &r.RouterGroup)
+	riskRoute := routes.NewRiskRoute(riskCtrl, mitigationCtrl, riskFactorCtrl, auditUniverseCtrl, rcmCtrl, &r.RouterGroup, authMiddleware)
 	riskRoute.Run()
 
 	// Risk Appetite Handlers (Migrated to Gin)
-	r.GET("/api/v1/risk-appetite", func(c *gin.Context) {
+	//
+	// These hang off the engine rather than the authenticated group in
+	// routes.Run, so they need the middleware applied explicitly - otherwise
+	// the appetite thresholds stay anonymously writable.
+	riskAppetite := r.Group("/api/v1/risk-appetite")
+	riskAppetite.Use(authMiddleware.Authenticate())
+
+	riskAppetite.GET("", func(c *gin.Context) {
 		var appetites []models.RiskAppetite
 		if err := db.Order("created_at desc").Find(&appetites).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query risk appetites: " + err.Error()})
@@ -143,7 +190,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 		c.JSON(http.StatusOK, appetites)
 	})
 
-	r.POST("/api/v1/risk-appetite", func(c *gin.Context) {
+	riskAppetite.POST("", func(c *gin.Context) {
 		var req models.RiskAppetite
 		if err := c.ShouldBindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
@@ -160,7 +207,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 		c.JSON(http.StatusCreated, req)
 	})
 
-	r.PUT("/api/v1/risk-appetite/:id", func(c *gin.Context) {
+	riskAppetite.PUT("/:id", func(c *gin.Context) {
 		idStr := c.Param("id")
 		appID, err := uuid.Parse(idStr)
 		if err != nil {
@@ -192,7 +239,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 		c.JSON(http.StatusOK, appetite)
 	})
 
-	r.DELETE("/api/v1/risk-appetite/:id", func(c *gin.Context) {
+	riskAppetite.DELETE("/:id", func(c *gin.Context) {
 		idStr := c.Param("id")
 		appID, err := uuid.Parse(idStr)
 		if err != nil {

@@ -46,9 +46,9 @@
                 </div>
               </div>
               <div class="flex items-center gap-2">
-                <UBadge v-if="store.testControlForm.testResult" :color="getResultColor(store.testControlForm.testResult)" variant="solid" size="md" class="font-semibold">
+                <span v-if="store.testControlForm.testResult" class="inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold" :class="getControlEffectivenessColorClass(store.testControlForm.testResult)">
                   {{ store.testControlForm.testResult }}
-                </UBadge>
+                </span>
                 <UBadge color="warning" variant="subtle" size="md" class="font-semibold">
                   <UIcon name="i-heroicons-calendar" class="w-4 h-4 mr-1.5" />
                   {{ formatDate(store.testControlForm.dueDate) || '-' }}
@@ -76,6 +76,10 @@
                 <p class="text-base font-bold text-[var(--text-main)]">{{ store.testControlForm.controlName || '-' }}</p>
               </div>
               <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1">{{ t('auditFieldwork.testControls.unitDivision') }}</p>
+                <p class="text-sm font-bold text-[var(--text-main)]">{{ store.testControlForm.unitDivision || '-' }}</p>
+              </div>
+              <div>
                 <p class="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1">{{ t('auditFieldwork.testControls.description') }}</p>
                 <p class="text-sm text-[var(--text-main)] leading-relaxed bg-[var(--bg-main)] p-3 rounded-lg border border-[var(--border-main)] whitespace-pre-line">
                   {{ store.testControlForm.controlDescription || '-' }}
@@ -101,9 +105,9 @@
               </div>
               <div class="flex items-center gap-2 pt-1">
                 <span class="text-xs font-semibold text-[var(--text-muted)]">{{ t('auditFieldwork.testControls.result') }}:</span>
-                <UBadge :color="getResultColor(store.testControlForm.testResult)" variant="solid" size="sm" class="font-medium">
+                <span class="inline-flex items-center px-1.5 py-1 rounded-md text-[10px]/3 font-medium" :class="getControlEffectivenessColorClass(store.testControlForm.testResult)">
                   {{ store.testControlForm.testResult || '-' }}
-                </UBadge>
+                </span>
               </div>
             </div>
           </UCard>
@@ -169,12 +173,15 @@
             <!-- Control Information -->
             <div class="bg-[var(--bg-surface)] p-4 rounded-xl border border-[var(--border-main)] space-y-4">
               <h4 class="font-bold text-sm text-[var(--text-main)] uppercase tracking-wider">{{ t('auditFieldwork.testControls.sectionControl') }}</h4>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <UFormField :label="t('auditFieldwork.testControls.name')" required>
                   <UInput v-model="store.testControlForm.controlName" :placeholder="t('auditFieldwork.testControls.namePlaceholder')" class="w-full" required />
                 </UFormField>
                 <UFormField :label="t('auditFieldwork.testControls.type')" required>
                   <ReusableSelectMenu v-model="store.testControlForm.controlType" :items="store.options.controlTypes" :placeholder="t('auditFieldwork.testControls.typePlaceholder')" class="w-full" required />
+                </UFormField>
+                <UFormField :label="t('auditFieldwork.testControls.unitDivision')">
+                  <ReusableSelectMenu v-model="store.testControlForm.unitDivision" :items="store.options.divisionOptions" :placeholder="t('auditFieldwork.testControls.unitDivisionPlaceholder')" class="w-full" />
                 </UFormField>
               </div>
               <UFormField :label="t('auditFieldwork.testControls.description')" required>
@@ -249,6 +256,7 @@
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
 import { formatDate } from '~/utils/dateConverter'
+import { getControlEffectivenessColorClass } from '~/utils/riskLevelBadge'
 
 const store = useAuditFieldworkStore()
 const { t } = useI18n()
@@ -267,15 +275,5 @@ const getControlTypeColor = (type: string) => {
     'Automated': 'primary'
   }
   return colors[type] || 'neutral'
-}
-
-const getResultColor = (result: string) => {
-  const colors: Record<string, "success" | "error" | "warning" | "neutral"> = {
-    'Effective': 'success',
-    'Ineffective': 'error',
-    'Partially Effective': 'warning',
-    'Not Tested': 'neutral'
-  }
-  return colors[result] || 'neutral'
 }
 </script>

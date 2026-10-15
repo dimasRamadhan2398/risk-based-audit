@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -198,16 +199,15 @@ func (ctrl *UploadedPlanDocumentController) Download(c *gin.Context) {
 		return
 	}
 
-		if len(paper.FileContent) > 0 {
+	contentType := getDocumentContentType(paper.FileName, paper.FileType)
+	encodedFileName := url.PathEscape(paper.FileName)
+
+	if len(paper.FileContent) > 0 {
 		c.Header("Content-Description", "File Transfer")
 		c.Header("Content-Transfer-Encoding", "binary")
-		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", paper.FileName))
-		if paper.FileType != "" {
-			c.Header("Content-Type", paper.FileType)
-		} else {
-			c.Header("Content-Type", "application/octet-stream")
-		}
-		c.Data(http.StatusOK, paper.FileType, paper.FileContent)
+		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"; filename*=UTF-8''%s", paper.FileName, encodedFileName))
+		c.Header("Content-Type", contentType)
+		c.Data(http.StatusOK, contentType, paper.FileContent)
 		return
 	}
 
@@ -218,7 +218,44 @@ func (ctrl *UploadedPlanDocumentController) Download(c *gin.Context) {
 
 	c.Header("Content-Description", "File Transfer")
 	c.Header("Content-Transfer-Encoding", "binary")
-	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", paper.FileName))
-	c.Header("Content-Type", paper.FileType)
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"; filename*=UTF-8''%s", paper.FileName, encodedFileName))
+	c.Header("Content-Type", contentType)
+	c.File(paper.FilePath)
+}
+
+func (ctrl *UploadedPlanDocumentController) View(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := uuid.Parse(idParam)
+	if err != nil {
+		response.BadRequest(c, "Invalid plan document ID")
+		return
+	}
+
+	var paper models.UploadedPlanDocument
+	if err := ctrl.DB.First(&paper, "id = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			response.NotFound(c, "Uploaded plan document not found")
+			return
+		}
+		response.InternalServerError(c, "Failed to fetch uploaded plan document")
+		return
+	}
+
+	contentType := getDocumentContentType(paper.FileName, paper.FileType)
+	encodedFileName := url.PathEscape(paper.FileName)
+
+	c.Header("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"; filename*=UTF-8''%s", paper.FileName, encodedFileName))
+	c.Header("Content-Type", contentType)
+
+	if len(paper.FileContent) > 0 {
+		c.Data(http.StatusOK, contentType, paper.FileContent)
+		return
+	}
+
+	if _, err := os.Stat(paper.FilePath); os.IsNotExist(err) {
+		response.NotFound(c, "Physical file not found on server")
+		return
+	}
+
 	c.File(paper.FilePath)
 }

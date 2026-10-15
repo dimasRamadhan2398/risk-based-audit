@@ -4,7 +4,7 @@
         <TableEntities
           :data="store.filteredDataF05"
           :columns="store.columnsF05"
-          :empty-state="{ icon: 'i-heroicons-circle-stack', label: t('workingPaper.common.empty') }"
+          :empty-state="store.hasAssignmentLetter ? { icon: 'i-heroicons-circle-stack', label: 'Belum ada data tersimpan.' } : { icon: 'i-heroicons-document-magnifying-glass', label: t('workingPaper.index.selectLetterFirst') }"
           :ui="{ td: '!whitespace-normal' }"
         >
             <template #recommendation-cell="{ row }">
@@ -27,7 +27,7 @@
 
             <template #actions-cell="{ row }">
                 <div class="flex gap-2">
-                  <UTooltip :text="t('workingPaper.common.edit')">
+                  <UTooltip text="Edit">
                     <UButton 
                         size="md" 
                         color="warning" 
@@ -36,7 +36,7 @@
                         @click="store.handleEditF05(row.original)" 
                     />
                   </UTooltip>
-                  <UTooltip :text="t('workingPaper.common.delete')">
+                  <UTooltip text="Hapus">
                     <UButton 
                         size="md" 
                         color="error" 
@@ -54,8 +54,9 @@
 
 <script setup lang="ts">
 import { useWorkingPaperStore } from '~/stores/working-paper'
+import { useI18n } from '~/composables/useI18n'
 
 // Cukup inisialisasi store. Komponen akan otomatis membaca status showModal, data form, dan fungsi dari sini.
-const store = useWorkingPaperStore()
 const { t } = useI18n()
+const store = useWorkingPaperStore()
 </script>

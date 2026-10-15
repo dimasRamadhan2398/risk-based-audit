@@ -205,7 +205,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useUploadPlanDocumentStore } from '~/stores/upload-plan-document'
+import { useUploadStrategicPlanDocumentStore } from '~/stores/upload-strategic-plan-document'
 import { useI18n } from '~/composables/useI18n'
 import TableEntities from '~/components/shared/TableEntities.vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
@@ -215,7 +215,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
-const store = useUploadPlanDocumentStore()
+const store = useUploadStrategicPlanDocumentStore()
 const toast = useToastNotification()
 
 onMounted(() => {

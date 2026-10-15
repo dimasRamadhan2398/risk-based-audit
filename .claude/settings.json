@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(scp -r -i /Users/a/.ssh/id_rsa -o StrictHostKeyChecking=no /tmp/auditsphere-frontend-output/.output root@202.10.34.166:/tmp/auditsphere-frontend-output.tar)",
+      "Bash(ls -la /Users/a/.ssh/ 2>/dev/null | head -20)",
+      "Read(//Users/a/.ssh/**)",
+      "Bash(/Users/a/Projects/risk-based-audit/backend/deploy-prod.sh --ref staging --yes auth audit master risk analytics)",
+      "Bash(git -C /Users/a/Projects/risk-based-audit diff --stat)",
+      "Bash(git -C /Users/a/Projects/risk-based-audit diff -- frontend/pages/quality-assurance/import-saiv.vue)",
+      "Bash(bash -c ' *)",
+      "Bash(grep -n 'fetch\\\\|$fetch\\\\|normalize\\\\|map\\(')",
+      "Bash(cd /Users/a/Projects/risk-based-audit/frontend && sed -i \"s/auditor and manager can send a reminder on an open or completed follow-up/auditor and manager can send a reminder on an open follow-up/\" tests/unit/atrEditAndReminder.test.ts && npx vitest run tests/unit/atrEditAndReminder.test.ts tests/unit/atrRoleGatingUi.test.ts tests/unit/atrStore.test.ts 2>&1 | grep -E \"✓|×|FAIL|Tests  |AssertionError\" | grep -v \"✓\" | head -30)",
+      "Bash(sed -i 's|\\\\tfinding := lha\\\\[\"finding\"\\\\].\\(map\\\\[string\\\\]any\\)|\\\\tt.Logf\\(\"lha=%v\", lha\\)\\\\n\\\\tfinding := lha[\"finding\"].\\(map[string]any\\)|' controllers/action_taken_report/handler_test.go)",
+      "Bash(go test *)",
+      "Bash(npx eslint *)",
+      "Bash(echo \"ESLINT_EXIT=$?\")",
+      "Bash(echo \"TC_EXIT=$?\")",
+      "Bash(echo \"exit=$?\")",
+      "Bash(gofmt -l models/audit-fieldwork.go)",
+      "Bash(go build *)",
+      "Bash(go vet *)",
+      "Bash(gofmt -l pkg/activitycode controllers/annual_plan controllers/audit_activity routes/handler.go)",
+      "Bash(gofmt -l .)",
+      "Bash(python3 -c ' *)"
+    ]
+  }
+}

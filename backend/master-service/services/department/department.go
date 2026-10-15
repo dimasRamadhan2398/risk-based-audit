@@ -1,14 +1,23 @@
 package department
 
 import (
+	"context"
+	"log"
 	"master-service/models"
 	"master-service/pkg/base"
 	apperrors "master-service/pkg/errors"
+	"master-service/pkg/kafka"
 	repo "master-service/repositories/department"
 	"net/http"
 
 	"github.com/google/uuid"
 )
+
+// EventPublisher emits department business events. *kafka.DomainPublisher
+// satisfies it; a nil publisher disables events.
+type EventPublisher interface {
+	PublishDepartment(ctx context.Context, eventType string, dept *models.Department) error
+}
 
 type DepartmentServiceInterface interface {
 	FindAll(ctx *base.BaseService) (*[]models.Department, error)
@@ -21,6 +30,19 @@ type DepartmentServiceInterface interface {
 
 type DepartmentService struct {
 	departmentRepo repo.IDepartmentRepository
+	events         EventPublisher
+}
+
+// publish sends a department event after the write has committed. Failures are
+// logged, not returned: the write already happened and the HTTP call should
+// still succeed. Repair with the operator resync path if events were lost.
+func (d *DepartmentService) publish(eventType string, dept *models.Department) {
+	if d.events == nil {
+		return
+	}
+	if err := d.events.PublishDepartment(context.Background(), eventType, dept); err != nil {
+		log.Printf("department event %s for %s not published: %v", eventType, dept.ID, err)
+	}
 }
 
 var (
@@ -58,6 +80,7 @@ func (d *DepartmentService) Create(ctx *base.BaseService, department *models.Dep
 		return nil, apperrors.DB(err, apperrors.OpCreate, "Failed to create the department.")
 	}
 
+	d.publish(kafka.DomainEventDepartmentCreated, department)
 	return department, nil
 }
 
@@ -68,7 +91,8 @@ func (d *DepartmentService) Delete(ctx *base.BaseService, id string) error {
 		return apperrors.InvalidID(err)
 	}
 
-	if _, err := d.departmentRepo.FindByID(departmentID); err != nil {
+	existing, err := d.departmentRepo.FindByID(departmentID)
+	if err != nil {
 		if err == apperrors.ErrNotFound {
 			return apperrors.ErrDepartmentNotFound
 		}
@@ -79,6 +103,7 @@ func (d *DepartmentService) Delete(ctx *base.BaseService, id string) error {
 		return apperrors.DB(err, apperrors.OpDelete, "Failed to delete the department.")
 	}
 
+	d.publish(kafka.DomainEventDepartmentDeleted, existing)
 	return nil
 }
 
@@ -187,6 +212,7 @@ func (d *DepartmentService) Update(ctx *base.BaseService, id string, department 
 		return nil, apperrors.DB(err, apperrors.OpUpdate, "Failed to update the department.")
 	}
 
+	d.publish(kafka.DomainEventDepartmentUpdated, existingDepartment)
 	return existingDepartment, nil
 }
 
@@ -194,15 +220,6 @@ func (d *DepartmentService) validateReferences(department *models.Department) er
 	required := map[string]string{}
 	if department.CompanyID == uuid.Nil {
 		required["company_id"] = apperrors.FieldRequired
-	}
-	if department.BusinessUnitID == uuid.Nil {
-		required["business_unit_id"] = apperrors.FieldRequired
-	}
-	if department.PicID == uuid.Nil {
-		required["pic_id"] = apperrors.FieldRequired
-	}
-	if len(required) > 0 {
-		return apperrors.ValidationFailed("", required)
 	}
 
 	companyExists, err := d.departmentRepo.CompanyExists(department.CompanyID)
@@ -213,43 +230,48 @@ func (d *DepartmentService) validateReferences(department *models.Department) er
 		return fieldErr(apperrors.CodeCompanyNotFound, "The selected company does not exist.", http.StatusNotFound, "company_id", apperrors.FieldNotFound)
 	}
 
-	businessUnitExists, err := d.departmentRepo.BusinessUnitExists(department.BusinessUnitID)
-	if err != nil {
-		return apperrors.DB(err, apperrors.OpRead, "Failed to validate the business unit.")
-	}
-	if !businessUnitExists {
-		return fieldErr(apperrors.CodeBusinessUnitNotFound, "The selected business unit does not exist.", http.StatusNotFound, "business_unit_id", apperrors.FieldNotFound)
+	if department.BusinessUnitID != nil && *department.BusinessUnitID != uuid.Nil {
+		businessUnitExists, err := d.departmentRepo.BusinessUnitExists(*department.BusinessUnitID)
+		if err != nil {
+			return apperrors.Wrap("DATABASE_ERROR", "Failed to validate business unit", 500, err)
+		}
+		if !businessUnitExists {
+			return apperrors.Wrap("BUSINESS_UNIT_NOT_FOUND", "Business unit not found", 404, nil)
+		}
+
+		businessUnitBelongs, err := d.departmentRepo.BusinessUnitBelongsToCompany(*department.BusinessUnitID, department.CompanyID)
+		if err != nil {
+			return apperrors.Wrap("DATABASE_ERROR", "Failed to validate business unit company", 500, err)
+		}
+		if !businessUnitBelongs {
+			return apperrors.Wrap("BUSINESS_UNIT_COMPANY_MISMATCH", "Business unit does not belong to the selected company", 409, nil)
+		}
 	}
 
-	businessUnitBelongs, err := d.departmentRepo.BusinessUnitBelongsToCompany(department.BusinessUnitID, department.CompanyID)
-	if err != nil {
-		return apperrors.DB(err, apperrors.OpRead, "Failed to validate the business unit.")
-	}
-	if !businessUnitBelongs {
-		return fieldErr(apperrors.CodeBusinessUnitCompanyMismatch, "The selected business unit does not belong to the selected company.", http.StatusConflict, "business_unit_id", apperrors.FieldMismatch)
-	}
+	if department.PicID != nil && *department.PicID != uuid.Nil {
+		picExists, err := d.departmentRepo.EmployeeExists(*department.PicID)
+		if err != nil {
+			return apperrors.Wrap("DATABASE_ERROR", "Failed to validate PIC", 500, err)
+		}
+		if !picExists {
+			return apperrors.Wrap("PIC_NOT_FOUND", "PIC employee not found", 404, nil)
+		}
 
-	picExists, err := d.departmentRepo.EmployeeExists(department.PicID)
-	if err != nil {
-		return apperrors.DB(err, apperrors.OpRead, "Failed to validate the person in charge.")
-	}
-	if !picExists {
-		return fieldErr(apperrors.CodePICNotFound, "The selected person in charge does not exist.", http.StatusNotFound, "pic_id", apperrors.FieldNotFound)
-	}
-
-	picBelongs, err := d.departmentRepo.EmployeeBelongsToCompany(department.PicID, department.CompanyID)
-	if err != nil {
-		return apperrors.DB(err, apperrors.OpRead, "Failed to validate the person in charge.")
-	}
-	if !picBelongs {
-		return fieldErr(apperrors.CodePICCompanyMismatch, "The selected person in charge does not belong to the selected company.", http.StatusConflict, "pic_id", apperrors.FieldMismatch)
+		picBelongs, err := d.departmentRepo.EmployeeBelongsToCompany(*department.PicID, department.CompanyID)
+		if err != nil {
+			return apperrors.Wrap("DATABASE_ERROR", "Failed to validate PIC company", 500, err)
+		}
+		if !picBelongs {
+			return apperrors.Wrap("PIC_COMPANY_MISMATCH", "PIC employee does not belong to the selected company", 409, nil)
+		}
 	}
 
 	return nil
 }
 
-func NewDepartmentService(departmentRepo repo.IDepartmentRepository) DepartmentServiceInterface {
+func NewDepartmentService(departmentRepo repo.IDepartmentRepository, events EventPublisher) DepartmentServiceInterface {
 	return &DepartmentService{
 		departmentRepo: departmentRepo,
+		events:         events,
 	}
 }

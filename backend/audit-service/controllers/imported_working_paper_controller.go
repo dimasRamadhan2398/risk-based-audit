@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -175,16 +176,16 @@ func (ctrl *ImportedWorkingPaperController) Download(c *gin.Context) {
 		return
 	}
 
-		if len(paper.FileContent) > 0 {
-		c.Header("Content-Description", "File Transfer")
-		c.Header("Content-Transfer-Encoding", "binary")
-		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", paper.FileName))
-		if paper.FileType != "" {
-			c.Header("Content-Type", paper.FileType)
-		} else {
-			c.Header("Content-Type", "application/octet-stream")
-		}
-		c.Data(http.StatusOK, paper.FileType, paper.FileContent)
+	contentType := getDocumentContentType(paper.FileName, paper.FileType)
+	encodedFileName := url.PathEscape(paper.FileName)
+
+	c.Header("Content-Description", "File Transfer")
+	c.Header("Content-Transfer-Encoding", "binary")
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"; filename*=UTF-8''%s", paper.FileName, encodedFileName))
+	c.Header("Content-Type", contentType)
+
+	if len(paper.FileContent) > 0 {
+		c.Data(http.StatusOK, contentType, paper.FileContent)
 		return
 	}
 
@@ -193,9 +194,42 @@ func (ctrl *ImportedWorkingPaperController) Download(c *gin.Context) {
 		return
 	}
 
-	c.Header("Content-Description", "File Transfer")
-	c.Header("Content-Transfer-Encoding", "binary")
-	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", paper.FileName))
-	c.Header("Content-Type", paper.FileType)
+	c.File(paper.FilePath)
+}
+
+func (ctrl *ImportedWorkingPaperController) View(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := uuid.Parse(idParam)
+	if err != nil {
+		response.BadRequest(c, "Invalid imported working paper ID")
+		return
+	}
+
+	var paper models.ImportedWorkingPaper
+	if err := ctrl.DB.First(&paper, "id = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			response.NotFound(c, "Imported working paper not found")
+			return
+		}
+		response.InternalServerError(c, "Failed to fetch imported working paper")
+		return
+	}
+
+	contentType := getDocumentContentType(paper.FileName, paper.FileType)
+	encodedFileName := url.PathEscape(paper.FileName)
+
+	c.Header("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"; filename*=UTF-8''%s", paper.FileName, encodedFileName))
+	c.Header("Content-Type", contentType)
+
+	if len(paper.FileContent) > 0 {
+		c.Data(http.StatusOK, contentType, paper.FileContent)
+		return
+	}
+
+	if _, err := os.Stat(paper.FilePath); os.IsNotExist(err) {
+		response.NotFound(c, "Physical file not found on server")
+		return
+	}
+
 	c.File(paper.FilePath)
 }

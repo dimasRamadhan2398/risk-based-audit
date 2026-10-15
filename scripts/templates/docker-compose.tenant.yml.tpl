@@ -66,6 +66,15 @@ services:
       # is a control-plane privilege. The /api/v1/resend route is absent from
       # this tenant's Kong config; leaving the key empty is the second lock.
       RESEND_MASTER_API_KEY: ""
+      # Outbound email through the shared Resend sending domain, authenticated
+      # with this tenant's own sending-only key. Written to .env by
+      # scripts/provision-tenant-email.sh. Left unset, viper ignores the empty
+      # values and falls back to config.yaml (Mailtrap sandbox, no delivery).
+      SMTP_HOST: ${TENANT_SMTP_HOST:-}
+      SMTP_PORT: ${TENANT_SMTP_PORT:-}
+      SMTP_USERNAME: ${TENANT_SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${TENANT_SMTP_PASSWORD:-}
+      SMTP_FROM: ${TENANT_SMTP_FROM:-}
     # No `seed` here: onboard-tenant.sh already ran migrate + seed against this
     # tenant's database. Re-seeding on every container restart would resurrect
     # deleted rows and reset the admin password.
@@ -155,6 +164,10 @@ services:
     image: rb_audit_analytics_service:latest
     container_name: rb_audit___SLUG___analytics_service
     environment:
+      # analytics-service enforces the stack JWT too, so it needs the same
+      # per-tenant secret as its siblings - without the anchor it refuses to
+      # start (and previously served every aggregate unauthenticated).
+      <<: *tenant-env
       PYTHON_AI_URL: http://python-ai:8000
     networks:
       - rb_audit_network

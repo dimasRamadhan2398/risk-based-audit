@@ -1,19 +1,6 @@
 <template>
   <div class="space-y-4">
-    <!-- Goal Selection Tabs -->
-    <div v-if="vmgStore.activeVmg?.goals?.length" class="flex gap-2 border-b border-[var(--border-main)] pb-2 overflow-x-auto">
-      <UButton
-        v-for="tab in goalTabs"
-        :key="tab.value"
-        :label="tab.label"
-        :variant="selectedGoalId === tab.value ? 'solid' : 'ghost'"
-        :color="selectedGoalId === tab.value ? 'primary' : 'neutral'"
-        size="sm"
-        @click="() => { selectedGoalId = tab.value }"
-      />
-    </div>
-
-    <!-- Advanced Filter Controls Bar -->
+    <!-- Advanced Filter Controls Bar (no goal tabs: there is a single corporate goal, so all objectives are listed) -->
     <UCard variant="soft" class="p-4">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <!-- Search & Filter Options -->
@@ -94,6 +81,11 @@
           </div>
         </template>
 
+        <!-- Category: translated label of the raw value, "-" when not set -->
+        <template #category-cell="{ row }">
+          <span class="whitespace-nowrap text-gray-900 dark:text-white">{{ categoryLabel(row.original.category) }}</span>
+        </template>
+
         <!-- Action Buttons -->
         <template #actions-cell="{ row }">
           <div class="flex items-center gap-1">
@@ -148,15 +140,13 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
-import { useVisionMissionGoalsStore } from '~/stores/vision-mission-goals'
 import { useI18n } from '~/composables/useI18n'
 import type { StrategicAuditPlan } from '~/types/audit'
+import { kpiValueLabel } from '~/utils/kpiPerformanceLabels'
 
 const { t } = useI18n()
 const store = useStrategicPlanStore()
-const vmgStore = useVisionMissionGoalsStore()
 
-const selectedGoalId = ref('ALL')
 const searchQuery = ref('')
 const selectedPeriodType = ref('ALL')
 const selectedYear = ref('ALL')
@@ -173,6 +163,7 @@ watch(selectedPeriodType, (newType) => {
 const columns = computed(() => [
   { key: 'strategicObjective', accessorKey: 'strategicObjective', label: t('strategicPlan.columns.objective'), header: t('strategicPlan.columns.objective'), class: 'w-[130px] min-w-[130px] max-w-[130px] sm:w-[220px] sm:min-w-[220px] sm:max-w-[220px] whitespace-normal break-words font-medium sticky left-0', thClass: 'z-20 !bg-[var(--bg-surface)]', tdClass: 'z-10 bg-[var(--bg-main)]' },
   { key: 'kpi', accessorKey: 'kpi', label: t('strategicPlan.columns.kpi'), header: t('strategicPlan.columns.kpi'), class: 'w-[130px] min-w-[130px] max-w-[130px] sm:w-[220px] sm:min-w-[220px] sm:max-w-[220px] whitespace-normal break-words font-medium sticky left-[130px] sm:left-[220px] border-r border-[var(--border-main)] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]', thClass: 'z-20 !bg-[var(--bg-surface)]', tdClass: 'z-10 bg-[var(--bg-main)]' },
+  { key: 'category', accessorKey: 'category', label: t('strategicPlan.columns.category'), header: t('strategicPlan.columns.category'), class: 'w-28 whitespace-nowrap' },
   { key: 'unit', accessorKey: 'unit', label: t('strategicPlan.columns.unit'), header: t('strategicPlan.columns.unit'), class: 'w-20 text-center whitespace-nowrap' },
   { key: 'selectedPeriod', accessorKey: 'selectedPeriod', label: t('strategicPlan.columns.period'), header: t('strategicPlan.columns.period'), class: 'w-28 whitespace-nowrap' },
   { key: 'target', accessorKey: 'target', label: t('strategicPlan.columns.target'), header: t('strategicPlan.columns.target'), class: 'w-24 whitespace-nowrap' },
@@ -190,11 +181,7 @@ const periodTypeOptions = computed(() => [
 
 const yearFilterOptions = computed(() => [
   { label: t('strategicPlan.filters.allYears'), value: 'ALL' },
-  { label: '2024', value: '2024' },
-  { label: '2025', value: '2025' },
-  { label: '2026', value: '2026' },
-  { label: '2027', value: '2027' },
-  { label: '2028', value: '2028' },
+  ...getFiscalYears().map(y => ({ label: String(y), value: String(y) }))
 ])
 
 const quartalFilterOptions = computed(() => [
@@ -219,6 +206,8 @@ const resetFilters = () => {
   selectedQuartal.value = 'ALL'
 }
 
+const categoryLabel = (value?: string) => kpiValueLabel(t, 'categories', value) || '-'
+
 const formatStatus = (status: string) => {
   if (!status) return '-'
   const lower = status.toLowerCase()
@@ -228,35 +217,16 @@ const formatStatus = (status: string) => {
   return status
 }
 
-const goalTabs = computed(() => {
-  const tabs = [{ label: t('strategicPlan.filters.allObjectives'), value: 'ALL' }]
-  if (vmgStore.activeVmg?.goals) {
-    vmgStore.activeVmg.goals.forEach(g => {
-      tabs.push({
-        label: `${g.goal_code} - ${g.goal_name}`,
-        value: g.id || g.goal_code
-      })
-    })
-  }
-  return tabs
-})
-
 const filteredObjectives = computed(() => {
+  // All objectives, whatever their goalId (there is a single corporate goal)
   let list = store.strategicObjectives
 
-  // 1. Goal Filter
-  if (selectedGoalId.value !== 'ALL') {
-    const activeGoal = vmgStore.activeVmg?.goals?.find(g => g.id === selectedGoalId.value || g.goal_code === selectedGoalId.value)
-    const activeGoalCode = activeGoal?.goal_code
-    list = list.filter(item => item.goalId === selectedGoalId.value || (activeGoalCode && item.goalId === activeGoalCode))
-  }
-
-  // 2. Period Type Filter (Yearly vs Quartal)
+  // 1. Period Type Filter (Yearly vs Quartal)
   if (selectedPeriodType.value !== 'ALL') {
     list = list.filter(item => item.periodType === selectedPeriodType.value)
   }
 
-  // 3. Year Filter
+  // 2. Year Filter
   if (selectedYear.value !== 'ALL') {
     const yStr = selectedYear.value
     list = list.filter(item => {
@@ -270,12 +240,12 @@ const filteredObjectives = computed(() => {
     })
   }
 
-  // 4. Quartal Filter (Q1, Q2, Q3, Q4)
+  // 3. Quartal Filter (Q1, Q2, Q3, Q4)
   if (selectedQuartal.value !== 'ALL') {
     list = list.filter(item => item.selectedPeriod === selectedQuartal.value)
   }
 
-  // 5. Search Query
+  // 4. Search Query
   if (searchQuery.value.trim() !== '') {
     const q = searchQuery.value.toLowerCase()
     list = list.filter(item => {
