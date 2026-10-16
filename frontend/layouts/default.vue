@@ -97,7 +97,7 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
   {
     label: t('navigation.riskProfileUniverse'),
     icon: 'i-lucide-shield-alert',
-    to: '/risk-profile',
+    type: 'trigger',
     children: [
       {
         label: t('navigation.corporateRiskProfile'),
@@ -324,7 +324,7 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
   {
     label: t('navigation.consultingService'),
     icon: 'i-lucide-messages-square',
-    to: '/consulting-service',
+    type: 'trigger',
     children: [
       {
         label: t('navigation.consultingServiceDashboard'),
@@ -343,7 +343,7 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
   {
     label: t('navigation.qualityAssuranceReview'),
     icon: 'i-lucide-shield-check',
-    to: '/quality-assurance',
+    type: 'trigger',
     children: [
       {
         label: t('navigation.qualityAssuranceDashboard'),
@@ -377,11 +377,17 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
   {
     label: t('navigation.analytics'),
     icon: 'i-lucide-pie-chart',
-    to: '/analytics',
+    type: 'trigger',
     children: [
+      {
+        label: t('analytics.title'),
+        icon: 'i-lucide-layout-dashboard',
+        to: '/analytics'
+      },
       {
         label: 'AI Insights',
         icon: 'i-heroicons-cpu-chip',
+        type: 'trigger',
         children: [
           {
             label: t('navigation.riskScoringPrediction'),
@@ -408,6 +414,7 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
       {
         label: 'CAATT Insight',
         icon: 'i-heroicons-chart-bar',
+        type: 'trigger',
         children: [
           {
             label: t('navigation.caattFullPopulation'),
@@ -453,7 +460,7 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
   {
     label: t('navigation.masterData'),
     icon: 'i-lucide-database',
-    to: '/master/company',
+    type: 'trigger',
     children: [
       {
         label: t('navigation.company'),
@@ -688,7 +695,12 @@ const userDropdownItems = computed(() => [
           icon-only
           class="h-6 w-auto mx-auto"
         />
-        <UDashboardSidebarCollapse variant="subtle" />
+        <UTooltip
+          :text="collapsed ? (locale === 'id' ? 'Perluas sidebar' : 'Expand sidebar') : (locale === 'id' ? 'Ciutkan sidebar' : 'Collapse sidebar')"
+          :content="{ side: collapsed ? 'right' : 'bottom' }"
+        >
+          <UDashboardSidebarCollapse variant="subtle" />
+        </UTooltip>
       </template>
 
       <template #default="{ collapsed }">
@@ -706,18 +718,70 @@ const userDropdownItems = computed(() => [
           <UNavigationMenu
             :collapsed="collapsed"
             :items="items[0]"
+            :tooltip="true"
+            :popover="{ mode: 'click' }"
             orientation="vertical"
             class="w-full"
             :ui="{
               childList: 'ps-3 border-l border-[var(--border-main)] ml-2.5 my-0.5 space-y-0.5'
             }"
-          />
+          >
+            <template #item-content="{ item }">
+              <div class="p-2 min-w-[260px] max-w-[340px] max-h-[75vh] overflow-y-auto space-y-2">
+                <!-- Header: Feature Title -->
+                <div class="px-2 py-1.5 border-b border-[var(--border-main)] flex items-center gap-2">
+                  <UIcon v-if="item.icon" :name="item.icon" class="size-4.5 text-primary shrink-0" />
+                  <span class="font-bold text-xs uppercase tracking-wider text-[var(--text-main)] truncate">
+                    {{ item.label }}
+                  </span>
+                </div>
+
+                <!-- Sub-items list -->
+                <div class="space-y-1">
+                  <template v-for="(child, childIdx) in item.children" :key="childIdx">
+                    <!-- If child has subchildren (nested group, e.g. Strategic Audit Plan, Working Paper, AI Insights, CAATT Insight) -->
+                    <div v-if="child.children && child.children.length > 0" class="pt-1.5 first:pt-0">
+                      <div class="px-2 py-1 text-[11px] font-semibold text-[var(--text-muted)] flex items-center gap-1.5 uppercase tracking-wider">
+                        <UIcon v-if="child.icon" :name="child.icon" class="size-3.5 shrink-0" />
+                        <span class="truncate">{{ child.label }}</span>
+                      </div>
+                      <div class="ml-2 pl-2 border-l border-[var(--border-main)] space-y-0.5 mt-0.5">
+                        <NuxtLink
+                          v-for="(subChild, subIdx) in child.children"
+                          :key="subIdx"
+                          :to="subChild.to"
+                          class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-[var(--text-main)] hover:bg-[var(--bg-surface)] hover:text-primary transition-colors duration-150"
+                          :class="{ 'bg-primary/10 text-primary font-bold': isPathActive(subChild.to) }"
+                        >
+                          <UIcon v-if="subChild.icon" :name="subChild.icon" class="size-3.5 shrink-0 text-[var(--text-muted)]" />
+                          <span class="truncate">{{ subChild.label }}</span>
+                        </NuxtLink>
+                      </div>
+                    </div>
+
+                    <!-- If direct link (e.g. Corporate Risk Profile, Company, Data Analytics Center, etc.) -->
+                    <NuxtLink
+                      v-else-if="child.to"
+                      :to="child.to"
+                      class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium text-[var(--text-main)] hover:bg-[var(--bg-surface)] hover:text-primary transition-colors duration-150"
+                      :class="{ 'bg-primary/10 text-primary font-bold': isPathActive(child.to) }"
+                    >
+                      <UIcon v-if="child.icon" :name="child.icon" class="size-4 shrink-0 text-[var(--text-muted)]" />
+                      <span class="truncate">{{ child.label }}</span>
+                    </NuxtLink>
+                  </template>
+                </div>
+              </div>
+            </template>
+          </UNavigationMenu>
         </div>
 
         <UNavigationMenu
           v-if="items[1]"
           :collapsed="collapsed"
           :items="items[1]"
+          :tooltip="true"
+          :popover="{ mode: 'click' }"
           orientation="vertical"
           class="mt-auto pt-3 border-t border-[var(--border-main)]"
         />
