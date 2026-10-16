@@ -6,6 +6,53 @@ import type { AuditCharter, CharterFormState } from '~/types/audit'
 import { extractErrorMessage, getErrorStatus, getUserErrorMessage, parseBlobErrorBody } from '~/utils/error'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 import { useI18n } from '~/composables/useI18n'
+import { useAuthStore } from '~/stores/auth'
+
+export const ROLE_DEFAULT_FULL_NAMES: Record<string, string> = {
+  admin: 'System Administrator',
+  administrator: 'System Administrator',
+  auditor: 'John Auditor',
+  audit_manager: 'Audit Manager',
+  chief_audit_executive: 'Chief Audit Executive',
+  cae: 'Chief Audit Executive',
+  department_head: 'Alice Department Head',
+  auditee: 'Bob Auditee',
+  viewer: 'Carol Viewer',
+  audit_staff: 'Audit Staff',
+}
+
+export const getRoleFullName = (user?: any): string => {
+  const fullName = user?.fullName || user?.full_name
+  if (fullName && typeof fullName === 'string' && fullName.trim() !== '') {
+    return fullName.trim()
+  }
+
+  const roles: string[] = []
+  if (Array.isArray(user?.roles)) roles.push(...user.roles)
+  if (user?.role) roles.push(user.role)
+  if (user?.position) roles.push(user.position)
+
+  for (const r of roles) {
+    const key = String(r || '').toLowerCase().trim()
+    if (ROLE_DEFAULT_FULL_NAMES[key]) {
+      return ROLE_DEFAULT_FULL_NAMES[key]
+    }
+    const clean = key.replace(/[\s-]+/g, '_')
+    if (ROLE_DEFAULT_FULL_NAMES[clean]) {
+      return ROLE_DEFAULT_FULL_NAMES[clean]
+    }
+  }
+
+  if (user?.username) {
+    const un = String(user.username).toLowerCase().trim()
+    if (ROLE_DEFAULT_FULL_NAMES[un]) {
+      return ROLE_DEFAULT_FULL_NAMES[un]
+    }
+    return user.username
+  }
+
+  return 'System Administrator'
+}
 
 // GET /audit-charters pages its results: page_size defaults to 10 and is capped
 // at 100, and the response is
@@ -48,18 +95,53 @@ export const useCharterStore = defineStore('charter', () => {
     { accessorKey: 'actions', header: '', class: 'w-14 whitespace-nowrap text-center' },
   ]
 
+  const authStore = useAuthStore()
+
+  const currentUserFullName = computed(() => {
+    let u: any = authStore.user
+    if (!u) {
+      try {
+        const userCookie = useCookie<any>('auth-user')
+        if (userCookie.value) {
+          u = typeof userCookie.value === 'string' ? JSON.parse(userCookie.value) : userCookie.value
+        }
+      } catch {}
+      if (!u && typeof window !== 'undefined') {
+        try {
+          const stored = localStorage.getItem('auth-user') || localStorage.getItem('user')
+          if (stored) u = JSON.parse(stored)
+        } catch {}
+      }
+    }
+    return getRoleFullName(u)
+  })
+
   // Form State
   const form = reactive<CharterFormState>({
     title: '',
     version: '', // Tidak perlu diisi user
     content: '',
     date: new Date().toISOString().split('T')[0] || '',
-    uploadedBy: 'Dimas (HIA)',
+    uploadedBy: currentUserFullName.value,
     approvedBy: '',
     isActive: true,
     file: null,
     fileName: '',
   })
+
+  // Keep form.uploadedBy in sync with Account Settings Full Name for current role
+  watch(currentUserFullName, (newName, oldName) => {
+    if (!isEditing.value && newName) {
+      form.uploadedBy = newName
+    }
+    if (newName && oldName && charters.value.length > 0) {
+      for (const c of charters.value) {
+        if (!c.uploadedBy || c.uploadedBy === oldName || c.uploadedBy === 'Dimas (HIA)') {
+          c.uploadedBy = newName
+        }
+      }
+    }
+  }, { immediate: true })
 
 
 
@@ -104,9 +186,11 @@ export const useCharterStore = defineStore('charter', () => {
         : '-')
 
     const uploadedBy =
-      item.uploaded_by ||
-      item.uploadedBy ||
-      'Dimas (HIA)'
+      (item.uploaded_by && item.uploaded_by !== 'Dimas (HIA)' && item.uploaded_by !== '-')
+        ? item.uploaded_by
+        : (item.uploadedBy && item.uploadedBy !== 'Dimas (HIA)' && item.uploadedBy !== '-')
+          ? item.uploadedBy
+          : currentUserFullName.value
 
     return {
       id: String(item.id),
@@ -319,8 +403,9 @@ export const useCharterStore = defineStore('charter', () => {
       formData.append('content', form.approvedBy || form.content || '')
       formData.append('approvedBy', form.approvedBy || '')
       formData.append('approved_by', form.approvedBy || '')
-      formData.append('uploadedBy', form.uploadedBy || 'Dimas (HIA)')
-      formData.append('uploaded_by', form.uploadedBy || 'Dimas (HIA)')
+      const uploader = form.uploadedBy || currentUserFullName.value
+      formData.append('uploadedBy', uploader)
+      formData.append('uploaded_by', uploader)
       formData.append('isActive', String(form.isActive))
       formData.append('date', form.date)
 
@@ -369,8 +454,9 @@ export const useCharterStore = defineStore('charter', () => {
       formData.append('content', form.approvedBy || form.content || '')
       formData.append('approvedBy', form.approvedBy || '')
       formData.append('approved_by', form.approvedBy || '')
-      formData.append('uploadedBy', form.uploadedBy || 'Dimas (HIA)')
-      formData.append('uploaded_by', form.uploadedBy || 'Dimas (HIA)')
+      const uploader = form.uploadedBy || currentUserFullName.value
+      formData.append('uploadedBy', uploader)
+      formData.append('uploaded_by', uploader)
       formData.append('isActive', String(form.isActive))
       formData.append('date', form.date)
 
@@ -508,7 +594,7 @@ export const useCharterStore = defineStore('charter', () => {
     form.version = ''
     form.content = ''
     form.date = new Date().toISOString().split('T')[0] || ''
-    form.uploadedBy = 'Dimas (HIA)'
+    form.uploadedBy = currentUserFullName.value
     form.approvedBy = ''
     form.isActive = false
     form.file = null
@@ -525,7 +611,7 @@ export const useCharterStore = defineStore('charter', () => {
     form.version = charter.version
     form.content = charter.content && charter.content !== '-' ? charter.content : ''
     form.date = charter.date
-    form.uploadedBy = charter.uploadedBy && charter.uploadedBy !== '-' ? charter.uploadedBy : 'Dimas (HIA)'
+    form.uploadedBy = charter.uploadedBy && charter.uploadedBy !== '-' && charter.uploadedBy !== 'Dimas (HIA)' ? charter.uploadedBy : currentUserFullName.value
     form.approvedBy = charter.approvedBy && charter.approvedBy !== '-' ? charter.approvedBy : ''
     form.isActive = charter.isActive
     form.file = null // Reset file input karena file tidak wajib diisi saat edit
@@ -563,6 +649,8 @@ export const useCharterStore = defineStore('charter', () => {
     form,
     isEditing,
     errorMsg,
+    currentUserFullName,
+    getRoleFullName,
 
     fetchCharters,
     addCharter,

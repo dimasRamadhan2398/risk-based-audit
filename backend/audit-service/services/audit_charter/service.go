@@ -52,7 +52,7 @@ func (s *AuditCharterService) CreateCharter(ctx context.Context, req *models.Cre
 	}
 	uploadedBy := req.UploadedBy
 	if uploadedBy == "" {
-		uploadedBy = "Dimas (HIA)"
+		uploadedBy = "System Administrator"
 	}
 
 	charter := &models.AuditCharter{
@@ -259,8 +259,8 @@ func (s *AuditCharterService) toResponse(charter *models.AuditCharter) *models.A
 		approvedBy = "Komite Audit"
 	}
 	uploadedBy := charter.UploadedBy
-	if uploadedBy == "" {
-		uploadedBy = "Dimas (HIA)"
+	if uploadedBy == "" || uploadedBy == "Dimas (HIA)" {
+		uploadedBy = "System Administrator"
 	}
 
 	return &models.AuditCharterResponse{

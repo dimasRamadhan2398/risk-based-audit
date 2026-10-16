@@ -70,7 +70,7 @@
                 :label="t('auditCharter.form.uploadedBy')"
               >
                 <div class="block w-full rounded-md border border-secondary-200 dark:border-gray-700 text-primary-900 dark:text-gray-100 p-2 sm:text-sm font-bold bg-gray-50 dark:bg-black">
-                  <span>{{ store.form.uploadedBy }}</span>
+                  <span>{{ store.form.uploadedBy || store.currentUserFullName }}</span>
                 </div>
               </ReusableFormField>
 
@@ -159,10 +159,17 @@
 </template>
 
 <script setup lang="ts">
+import { watch } from 'vue'
 import { useCharterStore } from '~/stores/charter'
 import { useI18n } from '~/composables/useI18n'
 import ReusableFormField from '~/components/shared/ReusableFormField.vue'
 
 const { t } = useI18n()
 const store = useCharterStore()
+
+watch(() => store.showModal, (isOpen) => {
+  if (isOpen && !store.isEditing) {
+    store.form.uploadedBy = store.currentUserFullName
+  }
+})
 </script>

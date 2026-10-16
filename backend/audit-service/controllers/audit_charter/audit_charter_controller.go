@@ -74,7 +74,7 @@ func (ctrl *AuditCharterController) CreateCharter(c *gin.Context) {
 			uploadedBy = c.PostForm("uploaded_by")
 		}
 		if uploadedBy == "" {
-			uploadedBy = "Dimas (HIA)"
+			uploadedBy = "System Administrator"
 		}
 		date := c.PostForm("date")
 		content := c.PostForm("content")
