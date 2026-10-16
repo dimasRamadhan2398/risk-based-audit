@@ -1457,7 +1457,7 @@ func seedAnnualPlans(db *gorm.DB) error {
 		{
 			Code:                 "PKAT-2026-001",
 			Version:              "v1.0",
-			Status:               "APPROVED",
+			Status:               models.AnnualPlanStatusApproved,
 			SelectedMonths:       []int{1, 2, 3},
 			Quarters:             []string{"Q1"},
 			AuditorCount:         3,
@@ -1481,7 +1481,7 @@ func seedAnnualPlans(db *gorm.DB) error {
 		{
 			Code:                 "PKAT-2025-001",
 			Version:              "v1.0",
-			Status:               "APPROVED",
+			Status:               models.AnnualPlanStatusApproved,
 			SelectedMonths:       []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12},
 			Quarters:             []string{"Q1", "Q2", "Q3", "Q4"},
 			AuditorCount:         4,

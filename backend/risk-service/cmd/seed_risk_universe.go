@@ -65,10 +65,8 @@ func seedRiskFactorsAndUniverse(db *gorm.DB) error {
 		}
 	}
 
-	if err := CleanupDummyAuditUniverseSubEntities(db); err != nil {
-		log.Printf("Warning: Failed to cleanup dummy audit universe sub-entities: %v", err)
-	}
-
+	// The legacy dummy-node cleanup used to run here on every boot. It is now an
+	// explicit operator command (cleanup-dummy-universe); see cleanup_dummy_universe.go.
 	return nil
 }
 
@@ -858,72 +856,5 @@ func seedCorporateAuditUniverseAndScores(db *gorm.DB) error {
 	}
 
 	return nil
-}
-
-// CleanupDummyAuditUniverseSubEntities removes any legacy dummy sub-entities
-// (e.g. PT A, PT B, Jakarta, Surabaya, Product/Service A-C) but preserves
-// synced Master Data (companies & branches) and user-added entities.
-func CleanupDummyAuditUniverseSubEntities(db *gorm.DB) error {
-	legacyDummyNames := []string{
-		"PT A", "PT B", "PT C", "Jakarta", "Surabaya",
-		"Product/Service A", "Product/Service B", "Product/Service C",
-	}
-
-	return db.Transaction(func(tx *gorm.DB) error {
-		// Delete any scores, years, and nodes that match old dummy names
-		if err := tx.Exec(`
-			DELETE FROM audit_universe_risk_scores 
-			WHERE audit_universe_year_id IN (
-				SELECT id FROM audit_universe_years 
-				WHERE corporate_audit_universe_id IN (
-					SELECT id FROM corporate_audit_universe WHERE name IN ?
-				)
-			)
-		`, legacyDummyNames).Error; err != nil {
-			return err
-		}
-
-		if err := tx.Exec(`
-			DELETE FROM audit_universe_years 
-			WHERE corporate_audit_universe_id IN (
-				SELECT id FROM corporate_audit_universe WHERE name IN ?
-			)
-		`, legacyDummyNames).Error; err != nil {
-			return err
-		}
-
-		// Delete children of dummy nodes first (if any)
-		if err := tx.Exec(`
-			DELETE FROM corporate_audit_universe 
-			WHERE parent_id IN (
-				SELECT id FROM corporate_audit_universe WHERE name IN ?
-			)
-		`, legacyDummyNames).Error; err != nil {
-			return err
-		}
-
-		if err := tx.Exec(`
-			DELETE FROM corporate_audit_universe WHERE name IN ?
-		`, legacyDummyNames).Error; err != nil {
-			return err
-		}
-
-		if err := tx.Exec(`
-			DELETE FROM standard_audit_universe 
-			WHERE parent_id IN (
-				SELECT id FROM standard_audit_universe WHERE name IN ?
-			)
-		`, legacyDummyNames).Error; err != nil {
-			return err
-		}
-
-		if err := tx.Exec(`
-			DELETE FROM standard_audit_universe WHERE name IN ?
-		`, legacyDummyNames).Error; err != nil {
-			return err
-		}
-
-		return nil
-	})
 }
 

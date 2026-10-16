@@ -18,8 +18,10 @@
       
       <USelectMenu 
         v-model="store.selectedStatus" 
-        :items="store.statusOptions" 
-        placeholder="Semua Status" 
+        :items="store.statusOptions"
+        value-key="value"
+        label-key="label"
+        placeholder="Semua Status"
         class="w-full md:w-60"
         clearable
       />

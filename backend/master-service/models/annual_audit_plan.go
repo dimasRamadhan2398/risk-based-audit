@@ -10,12 +10,15 @@ import (
 type AuditPlanStatus string
 type AuditPlanPriority string
 
+// Annual plan status vocabulary, shared with audit-service
+// (models/annual_plan_status.go) and the frontend. Stored as these exact strings.
+// Legacy values are mapped by cmd/migrate.go normalizeAnnualPlanStatuses.
 const (
-	AuditPlanStatusDraft      AuditPlanStatus = "DRAFT"
-	AuditPlanStatusSubmitted  AuditPlanStatus = "SUBMITTED"
-	AuditPlanStatusApproved  AuditPlanStatus = "APPROVED"
-	AuditPlanStatusRejected  AuditPlanStatus = "REJECTED"
-	AuditPlanStatusRevised   AuditPlanStatus = "REVISED"
+	AuditPlanStatusDraft           AuditPlanStatus = "Draft"
+	AuditPlanStatusPendingReview   AuditPlanStatus = "Pending Review"
+	AuditPlanStatusPendingApproval AuditPlanStatus = "Pending Approval"
+	AuditPlanStatusApproved        AuditPlanStatus = "Approved"
+	AuditPlanStatusRevised         AuditPlanStatus = "Revised"
 
 	AuditPlanPriorityCritical AuditPlanPriority = "CRITICAL"
 	AuditPlanPriorityHigh     AuditPlanPriority = "HIGH"
@@ -46,7 +49,7 @@ type AnnualAuditPlan struct {
 
 	// Planning details
 	Priority        AuditPlanPriority   `gorm:"type:varchar(20);not null" json:"priority"`
-	Status          AuditPlanStatus     `gorm:"type:varchar(20);default:'DRAFT'" json:"status"`
+	Status          AuditPlanStatus     `gorm:"type:varchar(20);default:'Draft'" json:"status"`
 	EstimatedDays   int                 `gorm:"type:int;default:0" json:"estimated_days"`
 
 	PlannedStartDate time.Time          `json:"planned_start_date"`

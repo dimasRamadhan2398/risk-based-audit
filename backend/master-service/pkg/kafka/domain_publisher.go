@@ -8,8 +8,8 @@ import (
 
 	"master-service/models"
 
-	"github.com/IBM/sarama"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 // Department business events. Consumed by audit-service (services/annual_plan_sync
@@ -21,6 +21,9 @@ import (
 //	envelope   {"version":1,"event_id","event_type","occurred_at","producer","data"}
 //	event_type department.created | department.updated | department.deleted
 //	data       {"id","department_code","department_name","is_active","company_id","business_unit_id"|null}
+//
+// Events are written to the transactional outbox (models.KafkaOutboxEvent) and
+// published by the Relay, so a broker outage delays events but does not lose them.
 const (
 	TopicDepartments = "department.events"
 
@@ -51,57 +54,34 @@ type DepartmentData struct {
 	BusinessUnitID *string `json:"business_unit_id"`
 }
 
-// DomainPublisher sends business events. A nil *DomainPublisher is valid and
-// publishes nothing.
+// DomainPublisher records department events in the outbox. A nil
+// *DomainPublisher is valid and records nothing.
 type DomainPublisher struct {
-	producer    sarama.SyncProducer
+	db          *gorm.DB
 	serviceName string
 	now         func() time.Time
 }
 
-// NewDomainPublisher connects a synchronous producer with WaitForAll acks.
-func NewDomainPublisher(brokers []string, serviceName string) (*DomainPublisher, error) {
-	cfg := sarama.NewConfig()
-	cfg.Producer.RequiredAcks = sarama.WaitForAll
-	cfg.Producer.Retry.Max = 3
-	cfg.Producer.Return.Successes = true
-	cfg.Producer.Compression = sarama.CompressionSnappy
-
-	producer, err := sarama.NewSyncProducer(brokers, cfg)
-	if err != nil {
-		return nil, fmt.Errorf("kafka: create domain producer: %w", err)
-	}
-	return &DomainPublisher{producer: producer, serviceName: serviceName, now: time.Now}, nil
+// NewDomainPublisher returns a publisher that writes to the outbox of db.
+func NewDomainPublisher(db *gorm.DB, serviceName string) *DomainPublisher {
+	return &DomainPublisher{db: db, serviceName: serviceName, now: time.Now}
 }
 
-// Close releases the broker connection.
-func (p *DomainPublisher) Close() error {
-	if p == nil || p.producer == nil {
-		return nil
-	}
-	return p.producer.Close()
-}
+// Close is kept for callers that closed the broker connection. The outbox holds
+// no connection, so it does nothing.
+func (p *DomainPublisher) Close() error { return nil }
 
-// PublishDepartment emits one department event for dept.
+// PublishDepartment records one department event for dept.
 func (p *DomainPublisher) PublishDepartment(ctx context.Context, eventType string, dept *models.Department) error {
-	if p == nil || p.producer == nil || dept == nil {
+	if p == nil || p.db == nil || dept == nil {
 		return nil
 	}
-	_ = ctx // sarama's SyncProducer has no context hook
 	env, key := p.departmentEnvelope(eventType, dept)
 	body, err := json.Marshal(env)
 	if err != nil {
 		return fmt.Errorf("kafka: marshal %s: %w", eventType, err)
 	}
-	_, _, err = p.producer.SendMessage(&sarama.ProducerMessage{
-		Topic: TopicDepartments,
-		Key:   sarama.StringEncoder(key),
-		Value: sarama.ByteEncoder(body),
-	})
-	if err != nil {
-		return fmt.Errorf("kafka: send %s: %w", eventType, err)
-	}
-	return nil
+	return Enqueue(p.db.WithContext(ctx), TopicDepartments, key, eventType, body)
 }
 
 // departmentEnvelope builds the wire envelope and the partition key (the
@@ -123,6 +103,37 @@ func (p *DomainPublisher) departmentEnvelope(eventType string, dept *models.Depa
 		Producer:   p.serviceName,
 		Data:       data,
 	}, data.ID
+}
+
+// Enqueue appends one message to the outbox. Use it with the handle that
+// performed the write, after that write has committed.
+func Enqueue(db *gorm.DB, topic, key, eventType string, body []byte) error {
+	row := models.KafkaOutboxEvent{
+		Topic:      topic,
+		MessageKey: key,
+		EventType:  eventType,
+		Payload:    string(body),
+	}
+	if err := db.Create(&row).Error; err != nil {
+		return fmt.Errorf("kafka: outbox insert %s: %w", eventType, err)
+	}
+	return nil
+}
+
+// ResyncDepartments queues a department.updated event for every live
+// department and returns how many were queued. Consumers apply events
+// idempotently, so this repairs links that were never published.
+func ResyncDepartments(ctx context.Context, db *gorm.DB, p *DomainPublisher) (int, error) {
+	var depts []models.Department
+	if err := db.WithContext(ctx).Order("created_at ASC").Find(&depts).Error; err != nil {
+		return 0, fmt.Errorf("kafka: load departments: %w", err)
+	}
+	for i := range depts {
+		if err := p.PublishDepartment(ctx, DomainEventDepartmentUpdated, &depts[i]); err != nil {
+			return i, err
+		}
+	}
+	return len(depts), nil
 }
 
 func uuidPtrString(id *uuid.UUID) *string {

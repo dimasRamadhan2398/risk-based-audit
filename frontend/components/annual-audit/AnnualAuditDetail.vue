@@ -20,7 +20,7 @@
                   </UBadge>
                   <div class="flex items-center gap-2">
                     <span class="w-4 h-4 rounded-full" :class="store.getStatusColor(store.selectedPlan.status)"></span>
-                    <span class="font-bold text-lg text-gray-800 dark:text-white">{{ store.selectedPlan.status }}</span>
+                    <span class="font-bold text-lg text-gray-800 dark:text-white">{{ store.getStatusLabel(store.selectedPlan.status) }}</span>
                   </div>
                 </div>
 
@@ -33,19 +33,6 @@
 
             <div class="space-y-6 pt-6">
 
-
-              <UCard class="border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-                <template #header>
-                  <h3 class="text-lg font-bold text-gray-800 dark:text-white">{{ t('annualAudit.detail.activityStatus') }}</h3>
-                </template>
-                <div class="flex items-center gap-8">
-                  <span class="font-bold text-gray-700 dark:text-gray-300 w-32">{{ t('annualAudit.detail.progress') }}</span>
-                  <div class="flex-1 max-w-xl">
-                    <UProgress v-model="store.progressAudit" color="secondary" class="h-3" />
-                  </div>
-                  <span class="text-secondary-600 dark:text-secondary-400 font-bold">50 %</span>
-                </div>
-              </UCard>
 
               <UCard class="border border-gray-200 dark:border-gray-800 rounded-lg p-6">
                 <template #header>
@@ -158,18 +145,14 @@
                 <div class="space-y-4">
                   <div class="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100 dark:border-gray-800/60">
                     <span class="font-bold text-gray-600 dark:text-gray-400 w-full sm:w-48 text-sm shrink-0 mb-1 sm:mb-0">{{ t('annualAudit.detail.supervisor') }}</span>
-                    <span class="font-semibold text-gray-800 dark:text-gray-200">{{ store.selectedPlan?.supervisorName || store.getSupervisorName(store.selectedPlan?.supervisorId) }}</span>
+                    <span class="font-semibold text-gray-800 dark:text-gray-200">{{ teamLeadNames || '-' }}</span>
                   </div>
                   <div class="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100 dark:border-gray-800/60">
                     <span class="font-bold text-gray-600 dark:text-gray-400 w-full sm:w-48 text-sm shrink-0 mb-1 sm:mb-0">{{ t('annualAudit.detail.timeAllocation') }}</span>
                     <div class="flex flex-wrap items-center gap-2">
                       <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-md text-sm font-medium">
                         <UIcon name="i-heroicons-user-group" class="w-4 h-4 text-primary-500" />
-                        {{ t('annualAudit.detail.auditorsCount', { count: store.selectedPlan.auditorCount }) }}
-                      </span>
-                      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-md text-sm font-medium">
-                        <UIcon name="i-heroicons-clock" class="w-4 h-4 text-amber-500" />
-                        {{ t('annualAudit.detail.daysDuration', { count: store.selectedPlan.daysPerAuditor }) }}
+                        {{ t('annualAudit.detail.auditorsCount', { count: teamSize }) }}
                       </span>
                     </div>
                   </div>
@@ -177,7 +160,7 @@
                     <span class="font-bold text-gray-600 dark:text-gray-400 w-full sm:w-48 text-sm shrink-0 mb-1 sm:mb-0">{{ t('annualAudit.detail.totalMandays') }}</span>
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 font-bold rounded-md text-sm border border-primary-200 dark:border-primary-800">
                       <UIcon name="i-heroicons-bolt" class="w-4 h-4 text-primary-500" />
-                      {{ t('annualAudit.detail.mandaysValue', { count: (store.selectedPlan.auditorCount || 0) * (store.selectedPlan.daysPerAuditor || 0) }) }}
+                      {{ t('annualAudit.detail.mandaysValue', { count: teamMandays }) }}
                     </span>
                   </div>
                   <div class="flex flex-col sm:flex-row sm:items-center py-2">
@@ -228,7 +211,7 @@
                   <div class="flex items-center justify-between">
                     <h3 class="text-lg font-bold text-gray-800 dark:text-white">{{ t('annualAudit.detail.revisionHistory') }}</h3>
                     <UButton 
-                      v-if="store.selectedPlan.status === 'Done' && !isCreatingRevision"
+                      v-if="isApproved && !isCreatingRevision"
                       color="primary" 
                       variant="soft" 
                       icon="i-heroicons-document-duplicate" 
@@ -274,7 +257,7 @@
                 </template>
 
                 <UStepper 
-                  :model-value="store.selectedPlan.status === 'Done' ? 'approved' : store.selectedPlan.status === 'Pending Approval' ? 'approval' : store.selectedPlan.status === 'Work In Progress' ? 'review' : 'draft'" 
+                  :model-value="approvalStep"
                   :items="store.approvalStepperItems" 
                   class="w-full"
                 >
@@ -330,20 +313,38 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from '~/composables/useI18n'
 import { useAnnualPlanStore } from '~/stores/annual-audit'
 import { getRiskLevelColorClass } from '~/utils/riskLevelBadge'
 import { useAuthStore } from '~/stores/auth'
 import { UserRole } from '~/types/auth'
+import { AnnualAuditPlanStatus } from '~/types/audit'
 
 // Cukup inisialisasi store. Komponen akan otomatis membaca status showModal, data form, dan fungsi dari sini.
 const store = useAnnualPlanStore()
 const authStore = useAuthStore()
 const { t } = useI18n()
 
+// Team figures are the sum of the activity rows: the plan has no team-level totals.
+const teamSize = computed(() => (store.selectedPlan?.activities || []).reduce((sum: number, a: { auditorCount?: number }) => sum + (Number(a.auditorCount) || 0), 0))
+const teamMandays = computed(() => (store.selectedPlan?.activities || []).reduce((sum: number, a: { totalMandays?: number }) => sum + (Number(a.totalMandays) || 0), 0))
+const teamLeadNames = computed(() => [...new Set((store.selectedPlan?.activities || []).map((a: { supervisorName?: string }) => a.supervisorName).filter(Boolean))].join(', '))
+
 const isCreatingRevision = ref(false)
 const revisionNote = ref('')
+
+const isApproved = computed(() => store.selectedPlan?.status === AnnualAuditPlanStatus.APPROVED)
+
+// Stepper slot for the current status. Draft and Revised both sit with Audit Staff (draft slot).
+const approvalStep = computed(() => {
+  switch (store.selectedPlan?.status) {
+    case AnnualAuditPlanStatus.APPROVED: return 'approved'
+    case AnnualAuditPlanStatus.PENDING_APPROVAL: return 'approval'
+    case AnnualAuditPlanStatus.PENDING_REVIEW: return 'review'
+    default: return 'draft'
+  }
+})
 
 const submitRevision = () => {
   if (!revisionNote.value) return

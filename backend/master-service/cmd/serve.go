@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 
 	"master-service/controllers"
 	"master-service/pkg/database"
+	"master-service/models"
 	"master-service/pkg/kafka"
 	"master-service/pkg/logger"
 	"master-service/pkg/middleware"
@@ -63,13 +65,13 @@ func runServe(cmd *cobra.Command, args []string) error {
 	// service runs without them if the broker is unreachable at start-up.
 	var domainEvents *kafka.DomainPublisher
 	if cfg.Kafka.Enabled {
-		publisher, kafkaErr := kafka.NewDomainPublisher(cfg.Kafka.Brokers, cfg.Kafka.ServiceName)
-		if kafkaErr != nil {
-			logger.Warn("Department events disabled", zap.Error(kafkaErr))
-		} else {
-			domainEvents = publisher
-			defer publisher.Close()
+		// Events go to the transactional outbox and are published by the relay, so
+		// a broker that is down at start-up delays department events, it does not drop them.
+		if err := db.AutoMigrate(&models.KafkaOutboxEvent{}); err != nil {
+			return fmt.Errorf("migrate kafka outbox: %w", err)
 		}
+		domainEvents = kafka.NewDomainPublisher(db, cfg.Kafka.ServiceName)
+		go kafka.NewRelay(db, cfg.Kafka.Brokers, kafka.TopicDepartments).Run(context.Background())
 	}
 	serviceRegistry := services.NewServiceRegistry(db, domainEvents)
 	controllerRegistry := controllers.NewControllerRegistry(serviceRegistry, validator)
@@ -89,7 +91,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 		middleware.CORSMiddleware(),
 		middleware.ResponseCache(),
 	)
-	routes.RegisterRoutes(router, controllerRegistry, db, authMiddleware)
+	routes.RegisterRoutes(router, controllerRegistry, db, authMiddleware, domainEvents)
 
 	addr := fmt.Sprintf(":%d", cfg.Server.Port)
 	logger.Info("Starting master-service server", zap.String("addr", addr))

@@ -16,6 +16,7 @@ import (
 
 	"master-service/controllers"
 	"master-service/models"
+	"master-service/pkg/kafka"
 	"master-service/pkg/middleware"
 	"master-service/services"
 
@@ -25,7 +26,7 @@ import (
 )
 
 // RegisterRoutes wires all HTTP routes for the master-service.
-func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegistry, db *gorm.DB, authMiddleware *middleware.AuthMiddleware) {
+func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegistry, db *gorm.DB, authMiddleware *middleware.AuthMiddleware, domainEvents *kafka.DomainPublisher) {
 	// Unauthenticated on purpose, and before the API group: Kong's active
 	// healthcheck sends no token.
 	router.GET("/health", func(c *gin.Context) {
@@ -64,6 +65,9 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 		departments.POST("", controller.GetDepartment().Create)
 		departments.PUT("/:id", controller.GetDepartment().Update)
 		departments.DELETE("/:id", controller.GetDepartment().Delete)
+		// Queues department.updated for every live department (repairs audit-service
+		// links after an outage). Consumers apply events idempotently.
+		departments.POST("/events/resync", resyncDepartmentEvents(db, domainEvents))
 	}
 
 	employees := api.Group("/employees")
@@ -1255,5 +1259,22 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			}
 			c.JSON(http.StatusOK, gin.H{"success": true, "data": status})
 		})
+	}
+}
+
+// resyncDepartmentEvents queues department.updated for every live department.
+// The relay publishes them in the background, so the response is 202.
+func resyncDepartmentEvents(db *gorm.DB, events *kafka.DomainPublisher) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if events == nil {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"success": false, "message": "Kafka event publishing is disabled for this service"})
+			return
+		}
+		queued, err := kafka.ResyncDepartments(c.Request.Context(), db, events)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "queued": queued, "message": err.Error()})
+			return
+		}
+		c.JSON(http.StatusAccepted, gin.H{"success": true, "queued": queued})
 	}
 }

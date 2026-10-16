@@ -227,30 +227,30 @@
               <UFormField label="Risiko Tinggi (High)">
                 <UInput
                   type="number"
-                  v-model.number="store.form.risikoTinggi"
-                  class="w-full border-l-4 border-error-500 font-bold"
-                  :disabled="isLocked"
-                  min="0"
+                  :model-value="riskBuckets.high"
+                  class="w-full border-l-4 border-error-500 font-bold bg-gray-50 dark:bg-gray-800"
+                  disabled
+                  title="Dihitung otomatis dari breakdown lima tingkat risiko (High, Moderate to High)"
                 />
               </UFormField>
 
               <UFormField label="Risiko Sedang (Medium)">
                 <UInput
                   type="number"
-                  v-model.number="store.form.risikoSedang"
-                  class="w-full border-l-4 border-warning-500 font-bold"
-                  :disabled="isLocked"
-                  min="0"
+                  :model-value="riskBuckets.medium"
+                  class="w-full border-l-4 border-warning-500 font-bold bg-gray-50 dark:bg-gray-800"
+                  disabled
+                  title="Dihitung otomatis dari breakdown lima tingkat risiko (Moderate)"
                 />
               </UFormField>
 
               <UFormField label="Risiko Rendah (Low)">
                 <UInput
                   type="number"
-                  v-model.number="store.form.risikoRendah"
-                  class="w-full border-l-4 border-success-500 font-bold"
-                  :disabled="isLocked"
-                  min="0"
+                  :model-value="riskBuckets.low"
+                  class="w-full border-l-4 border-success-500 font-bold bg-gray-50 dark:bg-gray-800"
+                  disabled
+                  title="Dihitung otomatis dari breakdown lima tingkat risiko (Low to Moderate, Low)"
                 />
               </UFormField>
             </div>
@@ -811,6 +811,7 @@ import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useExecutiveSummaryStore } from '~/stores/executive-summary'
 import { useAuthStore } from '~/stores/auth'
 import { UserRole } from '~/types/auth'
+import { riskBucketBreakdown, riskBucketTotal, riskFieldsToBreakdown } from '~/utils/executiveSummaryCompilation'
 import { Doughnut, Bar, Line } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -871,10 +872,11 @@ const isLocked = computed(() => {
   return store.form.status === 'Approved'
 })
 
+// Section II display buckets, derived from the five stored risk levels
+const riskBuckets = computed(() => riskBucketBreakdown(riskFieldsToBreakdown(store.form)))
+
 // Section II computed auto-sum
-const totalTemuanSummary = computed(() => {
-  return (store.form.risikoTinggi || 0) + (store.form.risikoSedang || 0) + (store.form.risikoRendah || 0)
-})
+const totalTemuanSummary = computed(() => riskBucketTotal(riskBuckets.value))
 
 // Section III computed auto-sums
 const totalFollowUpCount = computed(() => {
@@ -887,11 +889,9 @@ const isSyncWarning = computed(() => {
   const matrimdedang = store.form.matriksKompilasi.filter(r => r.nilaiRisiko === 'Sedang').length
   const matrixRendah = store.form.matriksKompilasi.filter(r => r.nilaiRisiko === 'Rendah').length
 
-  const sumTinggi = store.form.risikoTinggi || 0
-  const sumSedang = store.form.risikoSedang || 0
-  const sumRendah = store.form.risikoRendah || 0
+  const buckets = riskBuckets.value
 
-  return sumTinggi !== matrixTinggi || sumSedang !== matrimdedang || sumRendah !== matrixRendah
+  return buckets.high !== matrixTinggi || buckets.medium !== matrimdedang || buckets.low !== matrixRendah
 })
 
 // Force recalculate Section III percentages
@@ -900,17 +900,6 @@ const recalculatePercentages = () => {
   store.form.followUpTable.forEach(row => {
     row.persentase = total > 0 ? (row.jumlah / total) * 100 : 0
   })
-}
-
-// Recalculate stats counts automatically from matrix when simulated excel imports or updates
-const syncStatsFromMatrix = () => {
-  const high = store.form.matriksKompilasi.filter(r => r.nilaiRisiko === 'Tinggi').length
-  const med = store.form.matriksKompilasi.filter(r => r.nilaiRisiko === 'Sedang').length
-  const low = store.form.matriksKompilasi.filter(r => r.nilaiRisiko === 'Rendah').length
-  
-  store.form.risikoTinggi = high
-  store.form.risikoSedang = med
-  store.form.risikoRendah = low
 }
 
 // Watch matrix changes to sync status counts

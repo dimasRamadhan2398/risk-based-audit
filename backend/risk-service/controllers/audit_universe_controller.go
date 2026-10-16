@@ -698,10 +698,11 @@ func yearScoreData(auYear models.AuditUniverseYear) kafka.YearScoreData {
 	}
 }
 
-// ResyncEvents re-emits the current Audit Universe state: every corporate node
-// first, then every yearly score. Consumers apply events idempotently, so a
-// resync is safe to repeat. Use it after the first deploy of the event stream,
-// or after a broker outage, to repair links that were never published.
+// ResyncEvents queues the current Audit Universe state for publication: every
+// corporate node (as entity.updated) and every yearly score. The relay publishes
+// the queued events in the background. Consumers apply events idempotently, so
+// a resync is safe to repeat. Use it after the first deploy of the event stream,
+// or after a long broker outage, to repair links that were never published.
 func (ctrl *AuditUniverseController) ResyncEvents(c *gin.Context) {
 	if ctrl.events == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -735,9 +736,10 @@ func (ctrl *AuditUniverseController) ResyncEvents(c *gin.Context) {
 		}
 	}
 
-	status := http.StatusOK
+	// 202: the events are queued in kafka_outbox_events, not yet on the broker.
+	status := http.StatusAccepted
 	if failed > 0 {
-		status = http.StatusBadGateway
+		status = http.StatusInternalServerError
 	}
 	c.JSON(status, gin.H{
 		"success":     failed == 0,

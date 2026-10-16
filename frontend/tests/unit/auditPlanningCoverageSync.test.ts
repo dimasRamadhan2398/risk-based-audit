@@ -39,12 +39,12 @@ const plan = (i: number, status: string) => ({
   activities: []
 })
 
-// 25 plans: 10 Done, 6 WIP, 4 Pending Approval, 5 Not Available.
+// 25 plans: 10 Approved, 6 Pending Review, 4 Pending Approval, 5 Draft.
 const backendPlans = [
-  ...Array.from({ length: 10 }, (_, i) => plan(i + 1, S.DONE)),
-  ...Array.from({ length: 6 }, (_, i) => plan(i + 11, S.WORK_IN_PROGRESS)),
+  ...Array.from({ length: 10 }, (_, i) => plan(i + 1, S.APPROVED)),
+  ...Array.from({ length: 6 }, (_, i) => plan(i + 11, S.PENDING_REVIEW)),
   ...Array.from({ length: 4 }, (_, i) => plan(i + 17, S.PENDING_APPROVAL)),
-  ...Array.from({ length: 5 }, (_, i) => plan(i + 21, S.NOT_AVAILABLE))
+  ...Array.from({ length: 5 }, (_, i) => plan(i + 21, S.DRAFT))
 ]
 
 // Mimics backend/audit-service/controllers/crud/crud_handler.go List:
@@ -77,13 +77,13 @@ function mockApi(all: any[]) {
 
 // --- Dashboard formulas, replicated from pages/dashboard/index.vue (SFC not importable) ---
 //  auditPlansCount      = plans.length                                     (~line 1265)
-//  completedAuditsCount = plans.filter(status === "Done")                  (~line 1266)
+//  completedAuditsCount = plans.filter(status === "Approved")              (~line 1281)
 //  auditCoverage        = { planned: auditPlansCount, completed,
 //                           remaining: planned - completed }               (~line 1475)
 //  progressModel        = round(completed / planned * 100)                 (~line 1485)
 const dashboardCoverage = (plans: any[]) => {
   const planned = plans.length
-  const completed = plans.filter(p => p.status === 'Done').length
+  const completed = plans.filter(p => p.status === 'Approved').length
   return {
     planned,
     completed,
@@ -94,7 +94,7 @@ const dashboardCoverage = (plans: any[]) => {
 
 // What the Annual Audit Plan data says the card should show.
 const expectedCoverage = (plans: any[]) => {
-  const completed = plans.filter(p => p.status === S.DONE).length
+  const completed = plans.filter(p => p.status === S.APPROVED).length
   return {
     planned: plans.length,
     completed,
@@ -141,7 +141,7 @@ describe('Dashboard Audit Planning Coverage vs Annual Audit Plan', () => {
   })
 
   it('loads every page when there are more plans than the max page_size (100)', async () => {
-    const many = Array.from({ length: 250 }, (_, i) => plan(i + 1, i % 5 === 0 ? S.DONE : 'DRAFT'))
+    const many = Array.from({ length: 250 }, (_, i) => plan(i + 1, i % 5 === 0 ? S.APPROVED : 'DRAFT'))
     mockApi(many)
     const store = useAnnualPlanStore()
     await store.fetchPlans()
@@ -168,7 +168,7 @@ describe('Dashboard Audit Planning Coverage vs Annual Audit Plan', () => {
   })
 
   it('BUG: Pending Approval plans are counted as remaining', () => {
-    const plans = [plan(1, S.DONE), plan(2, S.PENDING_APPROVAL)]
+    const plans = [plan(1, S.APPROVED), plan(2, S.PENDING_APPROVAL)]
     expect(dashboardCoverage(plans).remaining).toBe(1)
   })
 })

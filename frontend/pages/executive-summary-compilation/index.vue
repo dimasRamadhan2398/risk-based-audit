@@ -188,12 +188,16 @@
             <div class="pt-4 md:pt-0">
               <span class="block text-md font-semibold text-gray-400 uppercase tracking-wider mb-1">{{ t('executiveSummary.cardStats.totalFindings') }}</span>
               <span class="block text-2xl font-bold text-gray-800 dark:text-white">
-                {{ Number(item.risikoTinggi) + Number(item.risikoSedang) + Number(item.risikoRendah) }}
+                {{ riskBreakdownTotal(riskFieldsToBreakdown(item)) }}
               </span>
-              <div class="flex justify-center gap-2 mt-1.5 text-md">
-                <span class="text-error-600 font-semibold bg-error-50 dark:bg-error-950/50 px-1.5 rounded">{{ item.risikoTinggi }} H</span>
-                <span class="text-warning-600 font-semibold bg-warning-50 dark:bg-warning-950/50 px-1.5 rounded">{{ item.risikoSedang }} M</span>
-                <span class="text-success-600 font-semibold bg-success-50 dark:bg-success-950/50 px-1.5 rounded">{{ item.risikoRendah }} L</span>
+              <div class="flex flex-wrap justify-center gap-1.5 mt-1.5 text-md">
+                <span
+                  v-for="level in RISK_LEVELS"
+                  :key="level"
+                  class="font-semibold px-1.5 rounded"
+                  :class="RISK_LEVEL_STYLE[level].chip"
+                  :title="t(riskLevelI18nKey(level))"
+                >{{ riskFieldsToBreakdown(item)[level] }} {{ t(riskLevelI18nKey(level, true)) }}</span>
               </div>
             </div>
             <div class="pt-4 md:pt-0">
@@ -291,6 +295,7 @@ import { UserRole } from '~/types/auth'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import ExecutiveSummaryCompilationForm from '~/components/audit-result-report/ExecutiveSummaryCompilationForm.vue'
+import { RISK_LEVELS, RISK_LEVEL_STYLE, riskFieldsToBreakdown, riskBreakdownTotal, riskLevelI18nKey } from '~/utils/executiveSummaryCompilation'
 
 definePageMeta({
   middleware: 'auth'

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -156,13 +158,13 @@ func runServe(cmd *cobra.Command, args []string) error {
 	// universe, and POST /audit-universe/events/resync repairs the gap later.
 	var universeEvents *kafka.Publisher
 	if cfg.Kafka.Enabled {
-		publisher, kafkaErr := kafka.NewPublisher(cfg.Kafka.Brokers, cfg.Kafka.ServiceName)
-		if kafkaErr != nil {
-			log.Printf("Warning: Audit Universe events disabled: %v", kafkaErr)
-		} else {
-			universeEvents = publisher
-			defer publisher.Close()
+		// Events go to the transactional outbox and are published by the relay,
+		// so the broker being down at start-up delays events, it does not drop them.
+		if err := db.AutoMigrate(&models.KafkaOutboxEvent{}); err != nil {
+			return fmt.Errorf("migrate kafka outbox: %w", err)
 		}
+		universeEvents = kafka.NewPublisher(db, cfg.Kafka.ServiceName)
+		go kafka.NewRelay(db, cfg.Kafka.Brokers, kafka.TopicAuditUniverse).Run(context.Background())
 	}
 	auditUniverseCtrl := controllers.NewAuditUniverseController(db, universeEvents)
 	rcmCtrl := controllers.NewRCMController(db)

@@ -146,7 +146,7 @@ describe('Features render risk level and effectiveness badges through the shared
     ['components/annual-audit/AnnualAuditDetail.vue', ['getRiskLevelColorClass(activity.riskLevel)']],
     ['components/annual-audit/AnnualAuditForm.vue', ['getRiskLevelColorClass(activity.riskLevel)', 'getRiskLevelDotClass(item.riskLevel)']],
     ['components/audit-activity-plan/ActivityPlanTable.vue', ['getRiskLevelColorClass(act.riskLevel)']],
-    ['components/audit-activity-plan/ActivityPlanForm.vue', ['getRiskLevelDotClass(item.riskLevel)']],
+    ['components/audit-activity-plan/ActivityPlanForm.vue', ['getRiskLevelColorClass(activity.riskLevel)']],
     ['components/audit-fieldwork/AuditFieldworkTestControls.vue', ['getControlEffectivenessColorClass(row.original.testResult)']],
     ['components/audit-fieldwork/AuditFieldworkTestControlsModal.vue', ['getControlEffectivenessColorClass(store.testControlForm.testResult)']],
     ['components/working-paper/WorkingPaperSampleTable.vue', ['getControlEffectivenessColorClass(']],

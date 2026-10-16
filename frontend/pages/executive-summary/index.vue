@@ -201,7 +201,7 @@
               <div class="grid grid-cols-2 gap-2 text-center">
                 <div class="bg-white dark:bg-gray-800 p-2 rounded border">
                   <div class="text-md text-gray-400">{{ t('executiveSummaryIndividual.card.highRisk') }}</div>
-                  <div class="text-lg font-bold text-error-600">{{ item.risikoTinggi || 0 }}</div>
+                  <div class="text-lg font-bold text-error-600">{{ item.risikoHigh || 0 }}</div>
                 </div>
                 <div class="bg-white dark:bg-gray-800 p-2 rounded border">
                   <div class="text-md text-gray-400">{{ t('executiveSummaryIndividual.card.totalRecommendations') }}</div>
@@ -454,9 +454,11 @@ const syncedSummaries = computed(() => {
           executiveNote: itemNote,
           narrative: lha.executiveSummary || `Executive Summary untuk ${lha.reportTitle} (${lhaNum}).`,
           jumlahLaporan: 1,
-          risikoTinggi: (lha.findings || []).filter(f => ['Very Significant', 'Significant'].includes(f.category)).length || 0,
-          risikoSedang: (lha.findings || []).filter(f => f.category === 'Quite Significant').length || 0,
-          risikoRendah: (lha.findings || []).filter(f => f.category === 'Not Significant').length || 0,
+          risikoHigh: (lha.findings || []).filter(f => ['Very Significant', 'Significant'].includes(f.category)).length || 0,
+          risikoModerateHigh: 0,
+          risikoModerate: (lha.findings || []).filter(f => f.category === 'Quite Significant').length || 0,
+          risikoLowModerate: 0,
+          risikoLow: (lha.findings || []).filter(f => f.category === 'Not Significant').length || 0,
           jumlahRekomendasi: lha.findingsCount || (lha.findings?.length || 0),
           followUpTable: [],
           topFindings: (lha.findings || []).map(f => ({
