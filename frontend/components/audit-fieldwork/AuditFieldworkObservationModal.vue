@@ -35,7 +35,7 @@
                   <UIcon name="i-heroicons-document-text" class="w-6 h-6 text-primary-500" />
                 </div>
                 <div>
-                  <p class="text-xs font-semibold tracking-wider text-[var(--text-muted)]">Surat Tugas</p>
+                  <p class="text-xs font-semibold tracking-wider text-[var(--text-muted)]">{{ t('auditExecution.detailModal.sources.assignment_letter.label') }}</p>
                   <p class="text-sm font-bold text-[var(--text-main)]">{{ store.selectedAssignmentLetter || '-' }}</p>
                 </div>
               </div>
@@ -105,7 +105,7 @@
                   color="neutral"
                   variant="ghost"
                   size="xs"
-                  label="Lihat"
+                  :label="t('common.view')"
                   @click="store.previewInterviewFile(store.observationForm)"
                 />
                 <UButton
@@ -113,12 +113,12 @@
                   color="primary"
                   variant="solid"
                   size="xs"
-                  label="Download"
+                  :label="t('common.actions.download')"
                   @click="store.downloadInterviewFile(store.observationForm)"
                 />
               </div>
             </div>
-            <p v-else class="text-sm text-[var(--text-muted)] italic">Tidak ada berkas terlampir</p>
+            <p v-else class="text-sm text-[var(--text-muted)] italic">{{ t('auditFieldwork.extra.noAttachment') }}</p>
           </UCard>
         </div>
 

@@ -18,7 +18,7 @@
           <img
             v-if="preview"
             :src="preview"
-            alt="Avatar"
+            :alt="t('settings.profile.avatarAlt')"
             class="w-full h-full object-cover"
           >
           <span
@@ -92,7 +92,7 @@
           <UInput
             v-model="form.email"
             type="email"
-            placeholder="Enter your email"
+            :placeholder="t('settings.profile.emailPlaceholder')"
             disabled
             size="lg"
             class="w-full bg-gray-50 dark:bg-gray-900"

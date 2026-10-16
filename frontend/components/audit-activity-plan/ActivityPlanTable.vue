@@ -83,7 +83,7 @@
 
       <template #actions-cell="{ row }">
         <div class="flex items-center justify-center gap-2">
-          <UTooltip text="View Plan">
+          <UTooltip :text="t('auditActivityPlan.extra.viewPlan')">
             <UButton
               icon="i-lucide-eye"
               color="neutral"
@@ -92,7 +92,7 @@
               @click="store.openViewModal(getOriginal(row))"
             />
           </UTooltip>
-          <UTooltip text="Edit Plan">
+          <UTooltip :text="t('auditActivityPlan.extra.editPlan')">
             <UButton
               icon="i-lucide-edit"
               color="warning"
@@ -101,7 +101,7 @@
               @click="store.handleEdit(getOriginal(row))"
             />
           </UTooltip>
-          <UTooltip text="Delete Plan">
+          <UTooltip :text="t('auditActivityPlan.extra.deletePlan')">
             <UButton
               icon="i-lucide-trash-2"
               color="error"

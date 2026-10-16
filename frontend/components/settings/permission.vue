@@ -9,16 +9,12 @@
               <UIcon
                 name="i-lucide-shield-check"
                 class="w-6 h-6 text-primary-600 dark:text-primary-400"
-              />
-              AuditSphere Role-Based Access Control (RBAC) Matrix
-            </h3>
-            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Official permission matrix defining access rights and operational authority across system modules.
-            </p>
+              /> {{ t('settings.permission.matrix.title') }} </h3>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1"> {{ t('settings.permission.matrix.description') }} </p>
           </div>
           <div class="flex items-center gap-2">
             <UButton
-              label="Export Matrix"
+              :label="t('settings.permission.matrix.export')"
               icon="i-lucide-download"
               color="neutral"
               variant="outline"
@@ -33,33 +29,23 @@
       <div class="space-y-6 mb-6">
         <!-- Legend Pill Container -->
         <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800">
-          <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">
-            Access Level Legend
-          </h4>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3"> {{ t('settings.permission.matrix.legend') }} </h4>
           <div class="flex flex-wrap items-center gap-4 text-xs">
             <div class="flex items-center gap-2">
-              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-bold text-xs leading-none transition-colors bg-emerald-600 text-white shadow-xs">
-                FULL
-              </span>
-              <span class="text-gray-600 dark:text-gray-300">Full Access (Create, Read, Update, Delete, Approval)</span>
+              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-bold text-xs leading-none transition-colors bg-emerald-600 text-white shadow-xs"> {{ t('settings.permission.matrix.full') }} </span>
+              <span class="text-gray-600 dark:text-gray-300">{{ t('settings.permission.matrix.fullDescription') }}</span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-bold text-xs leading-none transition-colors bg-amber-500 text-white shadow-xs">
-                LIMITED / ACTION
-              </span>
-              <span class="text-gray-600 dark:text-gray-300">Restricted operational action (Draft, Edit, Respond, Review, etc.)</span>
+              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-bold text-xs leading-none transition-colors bg-amber-500 text-white shadow-xs"> {{ t('settings.permission.matrix.limited') }} </span>
+              <span class="text-gray-600 dark:text-gray-300">{{ t('settings.permission.matrix.limitedDescription') }}</span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-bold text-xs leading-none transition-colors bg-sky-600 text-white shadow-xs">
-                READ
-              </span>
-              <span class="text-gray-600 dark:text-gray-300">Read-Only access</span>
+              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-bold text-xs leading-none transition-colors bg-sky-600 text-white shadow-xs"> {{ t('settings.permission.matrix.read') }} </span>
+              <span class="text-gray-600 dark:text-gray-300">{{ t('settings.permission.matrix.readDescription') }}</span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-bold text-xs leading-none transition-colors bg-slate-500 text-white shadow-xs">
-                NONE
-              </span>
-              <span class="text-gray-600 dark:text-gray-300">No access / Hidden from navigation</span>
+              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-bold text-xs leading-none transition-colors bg-slate-500 text-white shadow-xs"> {{ t('settings.permission.matrix.none') }} </span>
+              <span class="text-gray-600 dark:text-gray-300">{{ t('settings.permission.matrix.noneDescription') }}</span>
             </div>
           </div>
         </div>
@@ -70,12 +56,11 @@
             <UInput
               v-model="searchQuery"
               icon="i-lucide-search"
-              placeholder="Search module or feature..."
+              :placeholder="t('settings.permission.matrix.searchPlaceholder')"
               class="w-full"
             />
           </div>
-          <div class="flex items-center gap-2 w-full sm:w-auto text-xs text-gray-500 dark:text-gray-400 font-medium">
-            Showing {{ filteredMatrix.length }} of {{ matrixData.length }} module features
+          <div class="flex items-center gap-2 w-full sm:w-auto text-xs text-gray-500 dark:text-gray-400 font-medium"> {{ t('executiveSummaryIndividual.filters.showingPrefix') }} {{ filteredMatrix.length }} {{ t('settings.permission.matrix.of') }} {{ matrixData.length }} {{ t('settings.permission.matrix.features') }}
           </div>
         </div>
       </div>
@@ -88,24 +73,12 @@
               <th class="py-3.5 px-4 font-bold w-12 text-center">
                 #
               </th>
-              <th class="py-3.5 px-4 font-bold min-w-[240px]">
-                Sidebar Module / Feature
-              </th>
-              <th class="py-3.5 px-4 font-bold text-center min-w-[130px] bg-emerald-50/50 dark:bg-emerald-950/20">
-                Admin / CAE
-              </th>
-              <th class="py-3.5 px-4 font-bold text-center min-w-[130px]">
-                Audit Manager
-              </th>
-              <th class="py-3.5 px-4 font-bold text-center min-w-[130px]">
-                Auditor
-              </th>
-              <th class="py-3.5 px-4 font-bold text-center min-w-[150px]">
-                Auditee / Dept. Head
-              </th>
-              <th class="py-3.5 px-4 font-bold text-center min-w-[120px]">
-                Viewer
-              </th>
+              <th class="py-3.5 px-4 font-bold min-w-[240px]"> {{ t('settings.permission.matrix.module') }} </th>
+              <th class="py-3.5 px-4 font-bold text-center min-w-[130px] bg-emerald-50/50 dark:bg-emerald-950/20"> {{ t('settings.permission.matrix.admin') }} </th>
+              <th class="py-3.5 px-4 font-bold text-center min-w-[130px]"> {{ t('annualAudit.approvalRole.manager') }} </th>
+              <th class="py-3.5 px-4 font-bold text-center min-w-[130px]"> {{ t('settings.permission.matrix.auditor') }} </th>
+              <th class="py-3.5 px-4 font-bold text-center min-w-[150px]"> {{ t('settings.permission.matrix.auditee') }} </th>
+              <th class="py-3.5 px-4 font-bold text-center min-w-[120px]"> {{ t('settings.permission.matrix.viewer') }} </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
@@ -186,7 +159,7 @@
                 colspan="7"
                 class="py-8 text-center text-gray-500 dark:text-gray-400"
               >
-                No matching features found for "{{ searchQuery }}".
+                {{ t('settings.permission.matrix.emptySearch', { query: searchQuery }) }}
               </td>
             </tr>
           </tbody>
@@ -197,6 +170,7 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 import { ref, computed } from 'vue'
 
 interface MatrixItem {

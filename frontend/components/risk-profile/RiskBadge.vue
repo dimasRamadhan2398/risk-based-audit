@@ -19,11 +19,11 @@
 
         <div class="grid grid-cols-2 gap-y-3 gap-x-4">
           <div class="space-y-1">
-            <div class="text-[10px] font-bold uppercase tracking-wider">Category</div>
+            <div class="text-[10px] font-bold uppercase tracking-wider">{{ t('riskProfile.addModal.category') }}</div>
             <div class="text-md font-medium">{{ risk.category }}</div>
           </div>
           <div class="space-y-1">
-            <div class="text-[10px] font-bold uppercase tracking-wider">Status</div>
+            <div class="text-[10px] font-bold uppercase tracking-wider">{{ t('strategicPlan.columns.status') }}</div>
             <div>
               <UBadge 
                 :color="isPriority ? 'error' : 'success'" 
@@ -36,11 +36,11 @@
             </div>
           </div>
           <div class="space-y-1">
-            <div class="text-[10px] font-bold uppercase tracking-wider">Impact</div>
+            <div class="text-[10px] font-bold uppercase tracking-wider">{{ t('riskProfile.addModal.impact') }}</div>
             <div class="text-md">{{ impactLabels[risk.impact] }} ({{ risk.impact }})</div>
           </div>
           <div class="space-y-1">
-            <div class="text-[10px] font-bold uppercase tracking-wider">Likelihood</div>
+            <div class="text-[10px] font-bold uppercase tracking-wider">{{ t('riskProfile.addModal.likelihood') }}</div>
             <div class="text-md">{{ likelihoodLabels[risk.likelihood] }} ({{ risk.likelihood }})</div>
           </div>
         </div>
@@ -74,6 +74,7 @@
 </template>
 
 <script setup>
+const { t } = useI18n()
 import { ref, computed } from 'vue'
 import { useRiskProfileStore, riskLevelConfig, categoryIcons, impactLabels, likelihoodLabels } from '~/stores/risk-profile'
 

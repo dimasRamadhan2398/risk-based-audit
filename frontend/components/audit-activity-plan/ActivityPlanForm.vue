@@ -102,7 +102,7 @@
                   <UFormField :label="t('auditActivityPlan.form.planTitle')" required>
                     <UInput 
                       v-model="store.formState.planTitle" 
-                      placeholder="Audit of the Year 2026" 
+                      :placeholder="t('auditActivityPlan.extra.yearExample')"
                       class="w-full"
                       required
                       maxlength="100"
@@ -186,7 +186,7 @@
                       <UFormField :label="t('auditActivityPlan.form.activityTitle')" required>
                         <UInput 
                           v-model="activity.auditName" 
-                          placeholder="Audit IT Q1" 
+                          :placeholder="t('auditActivityPlan.extra.auditExample')"
                           class="w-full"
                           :required="true"
                           maxlength="100"
@@ -200,7 +200,7 @@
                       <UFormField :label="t('auditActivityPlan.form.auditee')" required>
                         <UInput 
                           v-model="activity.auditee" 
-                          placeholder="Jamil" 
+                          :placeholder="t('auditActivityPlan.extra.nameExample')"
                           class="w-full"
                           :required="true"
                           maxlength="100"
@@ -338,16 +338,16 @@
                     </h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <UFormField :label="t('auditActivityPlan.form.name')">
-                        <UInput v-model="auditor.name" placeholder="Jamil" class="w-full"/>
+                        <UInput v-model="auditor.name" :placeholder="t('auditActivityPlan.extra.nameExample')" class="w-full"/>
                       </UFormField>
                       <UFormField :label="t('auditActivityPlan.form.position')">
-                        <UInput v-model="auditor.position" placeholder="IT Auditor" class="w-full"/>
+                        <UInput v-model="auditor.position" :placeholder="t('auditActivityPlan.extra.auditorExample')" class="w-full"/>
                       </UFormField>
                       <UFormField :label="t('auditActivityPlan.form.competence')">
                         <UInput v-model="auditor.competence" class="w-full"/>
                       </UFormField>
                       <UFormField :label="t('auditActivityPlan.form.availability')">
-                        <UInput v-model="auditor.availability" placeholder="Available" class="w-full"/>
+                        <UInput v-model="auditor.availability" :placeholder="t('auditActivityPlan.extra.available')" class="w-full"/>
                       </UFormField>
                     </div>
                   </div>
@@ -381,7 +381,7 @@
                           <div class="absolute right-1.5 flex items-center gap-0.5 z-10">
                             <button
                               type="button"
-                              title="Kurangi"
+                              :title="t('auditActivityPlan.extra.decrease')"
                               class="size-6 flex items-center justify-center rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                               @click="store.formState.budget.totalAllocatedBudget = Math.max(0, (Number(store.formState.budget.totalAllocatedBudget) || 0) - 1)"
                             >
@@ -389,7 +389,7 @@
                             </button>
                             <button
                               type="button"
-                              title="Tambah"
+                              :title="t('auditActivityPlan.extra.increase')"
                               class="size-6 flex items-center justify-center rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                               @click="store.formState.budget.totalAllocatedBudget = (Number(store.formState.budget.totalAllocatedBudget) || 0) + 1"
                             >

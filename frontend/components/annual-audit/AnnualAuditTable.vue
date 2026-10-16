@@ -59,33 +59,33 @@
 
         <template #actions-cell="{ row }">
           <div class="flex items-center">
-            <UTooltip text="View Annual Audit">
+            <UTooltip :text="t('annualAudit.extra.view')">
               <UButton
               icon="i-lucide-eye"
               color="neutral"
               variant="ghost"
               size="md"
-              title="View"
+              :title="t('common.view')"
               @click="store.openViewModal(row.original || row)"
             />
             </UTooltip>
-            <UTooltip text="Edit Annual Audit">
+            <UTooltip :text="t('annualAudit.extra.edit')">
             <UButton
               icon="i-lucide-edit"
               color="warning"
               variant="ghost"
               size="md"
-              title="Edit"
+              :title="t('common.edit')"
               @click="store.handleEdit(row.original || row)"
             />
             </UTooltip>
-            <UTooltip text="Delete Annual Audit">
+            <UTooltip :text="t('annualAudit.extra.delete')">
               <UButton
                 icon="i-lucide-trash-2"
                 color="error"
                 variant="ghost"
                 size="md"
-                title="Hapus"
+                :title="t('annualAudit.extra.delete')"
                 @click="store.handleDelete((row.original || row)?.id)"
               />
             </UTooltip>
@@ -98,6 +98,7 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 import { useAnnualPlanStore } from '~/stores/annual-audit'
 import { getRiskLevelColorClass } from '~/utils/riskLevelBadge'
 

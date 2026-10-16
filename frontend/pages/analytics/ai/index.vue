@@ -22,7 +22,7 @@ onMounted(() => {
 <template>
   <div class="max-w-full mx-auto py-8 px-4 sm:px-6 lg:px-8">
     <AiInsightHeader
-      title="AI Insights Suite"
+      :title="t('analytics.aiHome.title')"
       :subtitle="t('analytics.subtitle')"
       icon="i-heroicons-cpu-chip"
       currentSubModule="overview"
@@ -42,8 +42,8 @@ onMounted(() => {
         icon="i-heroicons-sparkles"
         color="primary"
         variant="subtle"
-        title="Modul Kecerdasan Buatan Terintegrasi (AI Insights)"
-        description="Fitur Analitik AI menyediakan 4 engine prediktif audit internal: XGBoost Risk Scoring, Isolation Forest Anomaly Detection, IndoBERT NLP Analysis, dan PyTorch LSTM KPI Forecast. Pilih salah satu modul di bawah atau gunakan kartu navigasi di atas."
+        :title="t('analytics.aiHome.introTitle')"
+        :description="t('analytics.aiHome.introDescription')"
       />
 
       <!-- Grid of 4 Module Quick-Access Cards -->
@@ -60,21 +60,21 @@ onMounted(() => {
                   <h3 class="font-bold text-lg text-gray-900 dark:text-white">
                     {{ t('navigation.riskScoringPrediction') }}
                   </h3>
-                  <p class="text-xs text-gray-500">XGBoost Regressor • 8 Fitur Matriks Risiko</p>
+                  <p class="text-xs text-gray-500">{{ t('analytics.aiHome.xgboostBadge') }}</p>
                 </div>
               </div>
-              <UBadge color="primary" variant="subtle">ML Model</UBadge>
+              <UBadge color="primary" variant="subtle">{{ t('analytics.aiHome.modelBadge') }}</UBadge>
             </div>
           </template>
           <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
-            Prediksi skor risiko kuantitatif cabang & departemen secara proaktif berdasarkan data historis audit, deviasi KPI, dan insiden operasional.
+            {{ t('analytics.aiHome.xgboostDescription') }}
           </p>
           <div class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
             <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
-              {{ xgboostState.predictions.length }} Entitas Dinilai
+              {{ xgboostState.predictions.length }} {{ t('analytics.summary.entitiesScored') }}
             </span>
             <UButton to="/analytics/ai/risk-scoring" color="primary" variant="solid" size="sm" icon="i-heroicons-arrow-right" trailing>
-              Buka Analitik
+              {{ t('analytics.aiHome.openAnalytics') }}
             </UButton>
           </div>
         </UCard>
@@ -91,21 +91,21 @@ onMounted(() => {
                   <h3 class="font-bold text-lg text-gray-900 dark:text-white">
                     {{ t('navigation.anomalyDetection') }}
                   </h3>
-                  <p class="text-xs text-gray-500">Isolation Forest • Multi-Variate Clustering</p>
+                  <p class="text-xs text-gray-500">{{ t('analytics.aiHome.isolationBadge') }}</p>
                 </div>
               </div>
-              <UBadge color="error" variant="subtle">Unsupervised</UBadge>
+              <UBadge color="error" variant="subtle">{{ t('analytics.aiHome.unsupervisedBadge') }}</UBadge>
             </div>
           </template>
           <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
-            Mendeteksi anomali operasional perbankan (Funding, Lending, Treasury, KYC, IT Control) tanpa rule statis untuk mitigasi fraud dini.
+            {{ t('analytics.aiHome.isolationDescription') }}
           </p>
           <div class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
             <span class="text-xs font-semibold text-rose-600 dark:text-rose-400">
-              {{ isolationState.anomalies.length }} Anomali Terdeteksi
+              {{ isolationState.anomalies.length }} {{ t('analytics.summary.anomaliesDetected') }}
             </span>
             <UButton to="/analytics/ai/anomaly-detection" color="error" variant="solid" size="sm" icon="i-heroicons-arrow-right" trailing>
-              Buka Analitik
+              {{ t('analytics.aiHome.openAnalytics') }}
             </UButton>
           </div>
         </UCard>
@@ -122,21 +122,21 @@ onMounted(() => {
                   <h3 class="font-bold text-lg text-gray-900 dark:text-white">
                     {{ t('navigation.nlpAnalysis') }}
                   </h3>
-                  <p class="text-xs text-gray-500">IndoBERT Fine-Tuned • Klasifikasi Teks Audit</p>
+                  <p class="text-xs text-gray-500">{{ t('analytics.aiHome.nlpBadge') }}</p>
                 </div>
               </div>
-              <UBadge color="warning" variant="subtle">NLP Deep Learning</UBadge>
+              <UBadge color="warning" variant="subtle">{{ t('analytics.aiHome.nlpModelBadge') }}</UBadge>
             </div>
           </template>
           <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
-            Analisis sentimen dan kategorisasi otomatis temuan kertas kerja audit (Warkat, Memo, Working Paper) ke dalam taksonomi risiko baku.
+            {{ t('analytics.aiHome.nlpDescription') }}
           </p>
           <div class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
             <span class="text-xs font-semibold text-amber-600 dark:text-amber-400">
-              {{ nlpState.documents.length }} Dokumen Dianalisis
+              {{ nlpState.documents.length }} {{ t('analytics.aiHome.documentsAnalyzed') }}
             </span>
             <UButton to="/analytics/ai/nlp" color="warning" variant="solid" size="sm" icon="i-heroicons-arrow-right" trailing>
-              Buka Analitik
+              {{ t('analytics.aiHome.openAnalytics') }}
             </UButton>
           </div>
         </UCard>
@@ -153,21 +153,21 @@ onMounted(() => {
                   <h3 class="font-bold text-lg text-gray-900 dark:text-white">
                     {{ t('navigation.kpiForecast') }}
                   </h3>
-                  <p class="text-xs text-gray-500">PyTorch LSTM • Time-Series Horizon</p>
+                  <p class="text-xs text-gray-500">{{ t('analytics.aiHome.forecastBadge') }}</p>
                 </div>
               </div>
-              <UBadge color="info" variant="subtle">Predictive Horizon</UBadge>
+              <UBadge color="info" variant="subtle">{{ t('analytics.aiHome.predictiveBadge') }}</UBadge>
             </div>
           </template>
           <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
-            Prakiraan lintasan KPI audit kuartal mendatang disertai batas keyakinan (Upper/Lower Bound) dan rekomendasi perbaikan proaktif.
+            {{ t('analytics.aiHome.forecastDescription') }}
           </p>
           <div class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
             <span class="text-xs font-semibold text-violet-600 dark:text-violet-400">
-              {{ timeseriesState.kpiForecasts.length }} Prakiraan KPI Aktif
+              {{ timeseriesState.kpiForecasts.length }} {{ t('analytics.aiHome.activeForecasts') }}
             </span>
             <UButton to="/analytics/ai/kpi-forecast" color="primary" variant="solid" size="sm" icon="i-heroicons-arrow-right" trailing>
-              Buka Analitik
+              {{ t('analytics.aiHome.openAnalytics') }}
             </UButton>
           </div>
         </UCard>
