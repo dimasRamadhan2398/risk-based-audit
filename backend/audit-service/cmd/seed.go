@@ -298,11 +298,12 @@ func seedAuditCharters(db *gorm.DB) error {
 
 	// Create sample audit charter
 	charter := &models.AuditCharter{
-		Filename: "Audit_Charter_v1.0.pdf",
-		Version:  "1.0",
-		Title:    "Internal Audit Charter",
-		Content:  "This charter establishes the authority and responsibilities of the internal audit function.",
-		IsActive: true,
+		Filename:   "Audit_Charter_v1.0.pdf",
+		Version:    "1.0",
+		Title:      "Internal Audit Charter",
+		Content:    "This charter establishes the authority and responsibilities of the internal audit function.",
+		UploadedBy: "System Administrator",
+		IsActive:   true,
 	}
 
 	result := db.Create(charter)
