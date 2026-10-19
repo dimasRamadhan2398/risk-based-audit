@@ -105,9 +105,13 @@
               >
                 <USelectMenu
                   v-model="store.reportForm.status"
-                  :items="['Draft', 'Final']"
+                  :items="availableStatuses"
                   class="w-full"
+                  :disabled="!canPublishLha"
                 />
+                <p v-if="!canPublishLha" class="text-[11px] text-amber-600 dark:text-amber-400 mt-1">
+                  Status terkunci pada Draft. Otorisasi Final LHA merupakan wewenang Manager/CAE.
+                </p>
               </UFormField>
 
               <UFormField
@@ -377,11 +381,17 @@ import { ref, computed, watch } from 'vue'
 import { useAuditResultReportStore, type MemberSignature } from '~/stores/audit-result-report'
 import { useMasterOptionsStore } from '~/stores/master-options'
 import { useI18n } from '~/composables/useI18n'
+import { useRbac } from '~/composables/useRbac'
 import ResultReportSignatureModal from './ResultReportSignatureModal.vue'
 
 const { t } = useI18n()
 const store = useAuditResultReportStore()
 const masterOptions = useMasterOptionsStore()
+const { canPublishLha } = useRbac()
+
+const availableStatuses = computed(() => {
+  return canPublishLha.value ? ['Draft', 'Final'] : ['Draft']
+})
 
 const showSignatureModal = ref(false)
 

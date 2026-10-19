@@ -340,8 +340,8 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   const riskForm = reactive<WorkingPaperRiskForm>({
     risk: '',
-    taxonomy: '',
-    riskLevel: '',
+    taxonomy: '' as any,
+    riskLevel: '' as any,
     controlDescription: ''
   })
 
@@ -504,10 +504,10 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     }
 
     // 2. Location ID matching via locationStore or riskProfileStore
-    const locId = risk.location_id || (riskProfileStore.riskLocationId && riskProfileStore.riskLocationId(risk))
+    const locId = risk.location_id || ((riskProfileStore as any).riskLocationId && (riskProfileStore as any).riskLocationId(risk))
     if (locId) {
       const locObj = locationStore.locations.find((l: any) => String(l.id) === String(locId))
-        || riskProfileStore.masterLocations?.find((l: any) => String(l.id) === String(locId))
+        || (riskProfileStore as any).masterLocations?.find((l: any) => String(l.id) === String(locId))
       if (locObj && locObj.name?.trim().toLowerCase() === targetLoc) {
         return true
       }
@@ -515,7 +515,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
     // 3. Check if targetLoc corresponds to a master location ID
     const targetMasterLoc = locationStore.locations.find((l: any) => l.name?.trim().toLowerCase() === targetLoc)
-      || riskProfileStore.masterLocations?.find((l: any) => l.name?.trim().toLowerCase() === targetLoc)
+      || (riskProfileStore as any).masterLocations?.find((l: any) => l.name?.trim().toLowerCase() === targetLoc)
     if (targetMasterLoc && locId && String(targetMasterLoc.id) === String(locId)) {
       return true
     }
@@ -555,7 +555,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       if (matched.category) {
         riskForm.taxonomy = matched.category
       }
-      riskForm.riskLevel = resolveRiskLevel(matched)
+      riskForm.riskLevel = resolveRiskLevel(matched) as RiskLevel
     }
   }
 

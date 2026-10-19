@@ -1,34 +1,41 @@
 <template>
-  <div class="p-4 sm:p-6 space-y-6 sm:space-y-8 min-h-screen overflow-x-hidden">
-    <!-- Header Section -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <div class="min-w-0">
-        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight dark:text-white">Dashboard</h1>
-        <p class="text-sm text-slate-500 mt-1.5 dark:text-slate-400">
-          Welcome back, {{ authStore.getUser?.fullName || "Andi" }}. Here's your risk &
-          audit performance overview.
-        </p>
-      </div>
-      <div class="shrink-0">
-        <UButton
-          variant="outline"
-          color="neutral"
-          block
-          class="cursor-pointer border border-slate-200 text-slate-700 shadow-sm font-medium sm:w-auto sm:inline-flex dark:border-slate-700 dark:text-slate-200"
-          :loading="isSyncing"
-          @click="handleSync"
-        >
-          <template #leading>
-            <UIcon
-              name="i-lucide-rotate-cw"
-              :class="{ 'animate-spin': isSyncing }"
-              class="size-4"
-            />
-          </template>
-          Sync
-        </UButton>
-      </div>
+  <div class="p-4 sm:p-6 min-h-screen overflow-x-hidden">
+    <!-- Auditor Specific View (Khusus Pelaksana Audit) -->
+    <div v-if="isAuditorView" key="auditor-dashboard-container" class="space-y-6 sm:space-y-8">
+      <AuditorDashboard />
     </div>
+
+    <!-- General / Admin / Macro View -->
+    <div v-else key="macro-dashboard-container" class="space-y-6 sm:space-y-8">
+      <!-- Header Section -->
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="min-w-0">
+          <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight dark:text-white">Dashboard</h1>
+          <p class="text-sm text-slate-500 mt-1.5 dark:text-slate-400">
+            Welcome back, {{ authStore.getUser?.fullName || "Andi" }}. Here's your risk &
+            audit performance overview.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <UButton
+            variant="outline"
+            color="neutral"
+            block
+            class="cursor-pointer border border-slate-200 text-slate-700 shadow-sm font-medium sm:w-auto sm:inline-flex dark:border-slate-700 dark:text-slate-200"
+            :loading="isSyncing"
+            @click="handleSync"
+          >
+            <template #leading>
+              <UIcon
+                name="i-lucide-rotate-cw"
+                :class="{ 'animate-spin': isSyncing }"
+                class="size-4"
+              />
+            </template>
+            Sync
+          </UButton>
+        </div>
+      </div>
 
     <!-- Main Metrics Cards Section (First Row) -->
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -896,11 +903,14 @@
         </div>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
+import AuditorDashboard from "~/components/dashboard/AuditorDashboard.vue";
+import { useRbac } from "~/composables/useRbac";
 import { Line, Scatter } from "vue-chartjs";
 import {
   Chart as ChartJS,
@@ -961,6 +971,8 @@ const auditExecutionStore = useAuditExecutionStore();
 const auditResultStore = useAuditResultReportStore();
 const authStore = useAuthStore();
 const rcmStore = useRCMStore();
+const { isAuditorView, setRoleView, isAdmin, canManageAudits } = useRbac();
+const canToggleRoleView = computed(() => isAdmin.value || canManageAudits.value);
 
 // ─── Internal Control Effectiveness (COSO 2013) ─────────────
 const getDimAverage = (dimKey: string) => {
@@ -1015,6 +1027,9 @@ const filteredAnomalies = computed(() =>
 );
 
 onMounted(() => {
+  // If viewing Auditor role dashboard, operational data is handled by AuditorDashboard component
+  if (isAuditorView.value) return;
+
   fetchAiAnalytics();
   // Load the real annual audit plans (all pages) for the Audit Planning Coverage card.
   annualPlanStore.fetchPlans();
@@ -1262,7 +1277,7 @@ const handleSync = async () => {
       riskProfileStore.fetchRisks(),
       annualPlanStore.fetchPlans(),
       auditExecutionStore.fetchAuditExecutions(),
-      atrStore.fetchAtrList()
+      atrStore.fetchSummary()
     ]);
   } finally {
     isSyncing.value = false;

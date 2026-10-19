@@ -511,7 +511,7 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
 ]])
 
 const searchQuery = ref('')
-const { isAdmin, canManageAudits } = useRbac()
+const { isAdmin, canManageAudits, isAuditorView } = useRbac()
 
 // Pre-collected set of all explicit menu paths to avoid prefix matching when navigating to a registered menu route
 // A nav item's `to` may be a path string or a route-location object; both must
@@ -601,6 +601,18 @@ const processMenuItem = (item: NavigationMenuItem, q: string): NavigationMenuIte
   // Master data permission check
   if (item.to === '/master/employee' && !isAdmin.value && !canManageAudits.value) {
     return null
+  }
+
+  // Auditor role restrictions based on ROLE_BASED_UI_DESIGN_GUIDE.md & permission.vue matrix:
+  if (isAuditorView.value) {
+    // Row 5-2: Import Annual Audit Plan = NONE
+    if (item.to === '/annual-audit/upload') return null
+    // Row 6-2: Import Audit Activity Plan = NONE
+    if (item.to === '/audit-activity-plan/upload') return null
+    // Row 7-2: Import Assignment Letter = NONE
+    if (item.to === '/assignment-letter/upload') return null
+    // Row 15: Settings & User Management = NONE
+    if (typeof item.to === 'string' && item.to.startsWith('/settings')) return null
   }
 
   let processedChildren: NavigationMenuItem[] | undefined = undefined

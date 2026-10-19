@@ -809,6 +809,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     fetchRecentFindings,
     isAutoDetecting,
     fetchAutoFindings,
+    getLocalAutoFindings,
     runAutoDetectFindings,
     autoPopulateFindings,
     generateReportNumber,
