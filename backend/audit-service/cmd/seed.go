@@ -1503,6 +1503,7 @@ func seedAnnualPlans(db *gorm.DB) error {
 			},
 		},
 	}
+	seeds = append(seeds, getAdditionalAnnualPlanSeeds()...)
 	for i := range seeds {
 		var existing models.AuditAnnual
 		err := db.Unscoped().Where("code = ?", seeds[i].Code).First(&existing).Error
