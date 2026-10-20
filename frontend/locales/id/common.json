@@ -951,8 +951,7 @@
       "yearly": "Tahunan",
       "quartal": "Kuartal",
       "allYears": "Semua Tahun",
-      "allQuarters": "Semua Kuartal",
-      "allObjectives": "Semua Strategic Objective"
+      "allQuarters": "Semua Kuartal"
     },
     "columns": {
       "code": "ID Strategic Objective",
@@ -1009,9 +1008,7 @@
       "submit": "Simpan",
       "update": "Perbarui",
       "category": "Kategori",
-      "selectCategory": "Pilih kategori (opsional)",
-      "corporateGoal": "Goal Korporat",
-      "selectCorporateGoal": "Pilih Goal Korporat"
+      "selectCategory": "Pilih kategori (opsional)"
     },
     "viewModal": {
       "title": "Detail Strategic Objective",
@@ -5137,6 +5134,7 @@
       "recommendation": "Rekomendasi",
       "lha": "Laporan Hasil Audit (LHA)",
       "showLhaFollowUps": "Tampilkan semua tindak lanjut LHA ini",
+      "openLha": "Buka LHA",
       "followUpSection": "Tindak Lanjut",
       "pic": "PIC",
       "dueDate": "Tenggat",
@@ -5161,7 +5159,7 @@
       "lhaReviewedBy": "Direviu oleh (LHA)",
       "approvedBy": "Disetujui oleh",
       "referenceStatus": "Ref: {reference} | Status:",
-      "assignmentInfo": "Informasi Surat Tugas",
+      "assignmentInfo": "Informasi Penugasan",
       "auditTitle": "Judul Audit",
       "workingUnit": "Unit Kerja",
       "auditLeader": "Ketua Audit",

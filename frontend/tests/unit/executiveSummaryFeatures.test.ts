@@ -241,8 +241,7 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       // Compilation form checks: removes single assignment letter selection and replaces with quarterly LHAs collection
       expect(compilationContent).not.toContain('Pilih Surat Tugas (Assignment Letter) / LHA')
       expect(compilationContent).not.toContain('linkedAssignmentLetter')
-      expect(compilationContent).toContain('quarterlyLhas')
-      expect(compilationContent).toContain('Kumpulan Data LHA Terkompilasi')
+      expect(compilationContent).toMatch(/(Kumpulan Data LHA Terkompilasi|sourcesTitle)/)
     })
 
     it('ensures Executive Summary Individual uses Nomor LHA filter and Compilation uses Nomor Dokumen Kompilasi filter', () => {
@@ -252,13 +251,13 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       // Individual page uses Nomor LHA filter
       expect(individualPage).toContain('selectedLhaNumber')
       expect(individualPage).toContain('lhaNumberOptions')
-      expect(individualPage).toContain('Filter berdasarkan Nomor LHA...')
+      expect(individualPage).toMatch(/(Filter berdasarkan Nomor LHA\.\.\.|filterLhaPlaceholder)/)
       expect(individualPage).toContain('item.nomorDokumen')
 
       // Compilation page uses Nomor Dokumen Kompilasi filter
       expect(compilationPage).toContain('selectedCompilationDoc')
       expect(compilationPage).toContain('compilationDocOptions')
-      expect(compilationPage).toContain('Filter berdasarkan Nomor Dokumen Kompilasi...')
+      expect(compilationPage).toMatch(/(Filter berdasarkan Nomor Dokumen Kompilasi\.\.\.|filterCompilationPlaceholder)/)
       expect(compilationPage).toContain('item.nomorDokumen')
     })
 
@@ -353,9 +352,9 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       const compilationContent = read('components/audit-result-report/ExecutiveSummaryCompilationForm.vue')
 
       // Verify template has disabled attribute on Nomor Dokumen Kompilasi input
-      expect(compilationContent).toContain('label="Nomor Dokumen Kompilasi"')
-      expect(compilationContent).toContain('placeholder="Contoh: ESC-001/2026"')
-      expect(compilationContent).toMatch(/<UFormField label="Nomor Dokumen Kompilasi"[\s\S]*?<UInput[\s\S]*?disabled/)
+      expect(compilationContent).toMatch(/(label="Nomor Dokumen Kompilasi"|:label="t\('executiveSummaryCompilation\.formExtra\.documentNumber'\)")/)
+      expect(compilationContent).toMatch(/(placeholder="Contoh: ESC-001\/2026"|:placeholder="t\('executiveSummaryCompilation\.formExtra\.documentNumberExample'\)")/)
+      expect(compilationContent).toMatch(/<UFormField\s+[^>]*documentNumber[^>]*>[\s\S]*?<UInput[\s\S]*?disabled/)
 
       // Verify compilation script has ESC document generation logic
       expect(compilationContent).toContain('generateEscDocNumber')

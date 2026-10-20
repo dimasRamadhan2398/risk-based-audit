@@ -951,8 +951,7 @@
       "yearly": "Yearly",
       "quartal": "Quartal",
       "allYears": "All Years",
-      "allQuarters": "All Quarters",
-      "allObjectives": "All Strategic Objectives"
+      "allQuarters": "All Quarters"
     },
     "columns": {
       "code": "Objective ID",
@@ -1009,9 +1008,7 @@
       "submit": "Submit",
       "update": "Update",
       "category": "Category",
-      "selectCategory": "Select a category (optional)",
-      "corporateGoal": "Corporate Goal",
-      "selectCorporateGoal": "Select Corporate Goal"
+      "selectCategory": "Select a category (optional)"
     },
     "viewModal": {
       "title": "Strategic Objective Details",
@@ -5137,6 +5134,7 @@
       "recommendation": "Recommendation",
       "lha": "Audit Result Report (LHA)",
       "showLhaFollowUps": "Show all follow-ups of this LHA",
+      "openLha": "Open LHA",
       "followUpSection": "Follow-up",
       "pic": "PIC",
       "dueDate": "Due date",
@@ -5161,7 +5159,7 @@
       "lhaReviewedBy": "Reviewed by (LHA)",
       "approvedBy": "Approved by",
       "referenceStatus": "Ref: {reference} | Status:",
-      "assignmentInfo": "Assignment Letter Information",
+      "assignmentInfo": "Assignment Information",
       "auditTitle": "Audit Title",
       "workingUnit": "Working Unit",
       "auditLeader": "Audit Leader",

@@ -37,16 +37,28 @@
     <template v-else>
       <AtrFindingSummary :item="item">
         <template #lha-actions>
-          <UButton
-            v-if="item.audit_result_report_id"
-            :label="t('actionTakenReport.detail.showLhaFollowUps')"
-            icon="i-lucide-list-filter"
-            color="primary"
-            variant="link"
-            size="sm"
-            class="px-0"
-            @click="emit('filter-lha', item.audit_result_report_id)"
-          />
+          <div class="flex flex-wrap items-center gap-2">
+            <UButton
+              v-if="item.audit_result_report_id"
+              :label="t('actionTakenReport.detail.showLhaFollowUps')"
+              icon="i-lucide-list-filter"
+              color="primary"
+              variant="link"
+              size="sm"
+              class="px-0"
+              @click="emit('filter-lha', item.audit_result_report_id)"
+            />
+            <UButton
+              v-if="item.audit_result_report_id && canViewRisks"
+              :label="t('actionTakenReport.detail.openLha')"
+              icon="i-lucide-external-link"
+              color="primary"
+              variant="link"
+              size="sm"
+              class="px-0"
+              :to="`/audit-result-report?report=${item.audit_result_report_id}`"
+            />
+          </div>
         </template>
       </AtrFindingSummary>
 
@@ -274,6 +286,7 @@ import { computed } from 'vue'
 import { useActionTakenReportStore } from '~/stores/action-taken-report'
 import { useI18n } from '~/composables/useI18n'
 import { useAtrActions } from '~/composables/useAtrActions'
+import { useRbac } from '~/composables/useRbac'
 import { useGlobalModalStore } from '~/stores/global-modal'
 import { formatAtrDate, formatAtrDateTime, normalizeAtrStatus } from '~/utils/actionTakenReport'
 import AtrModalShell from '~/components/action-taken-report/AtrModalShell.vue'
@@ -286,6 +299,7 @@ const emit = defineEmits<{ (e: 'filter-lha', lhaId: string): void }>()
 const store = useActionTakenReportStore()
 const { t, locale } = useI18n()
 const { availableActions, canEdit: canEditItem, canRemind: canRemindItem } = useAtrActions()
+const { canViewRisks } = useRbac()
 
 const item = computed(() => store.current)
 const actions = computed(() => availableActions(item.value))
