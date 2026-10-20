@@ -429,7 +429,7 @@
           
           <div v-if="detailFactor" class="p-6 overflow-y-auto space-y-4 flex-1">
             <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200/60 dark:border-slate-800 text-md text-slate-600 dark:text-slate-300 leading-relaxed">
-              <span class="font-semibold text-slate-800 dark:text-slate-200 block mb-0.5">Deskripsi Faktor:</span>
+              <span class="font-semibold text-slate-800 dark:text-slate-200 block mb-0.5">{{ t('riskFactors.detailDescription') }}</span>
               {{ detailFactor.description || '-' }}
             </div>
             <div class="space-y-2.5">

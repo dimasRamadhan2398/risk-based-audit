@@ -493,16 +493,14 @@
                 :loading="isReconcilingDeletes"
                 class="rounded-xl font-semibold text-xs shrink-0"
                 @click="triggerDeleteReconciliation"
-              >
-                Deteksi Deletion (Reconcile)
-              </UButton>
+              > {{ t('settings.dataSource.mapping.deletionDetection') }} </UButton>
             </div>
           </div>
 
           <!-- Loading State -->
           <div v-if="isLoadingSchema" class="text-center py-12 space-y-3">
             <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-primary-500 mx-auto" />
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Introspecting database catalog & schemas...</p>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('settings.dataSource.mapping.introspecting') }}</p>
           </div>
 
           <!-- Discovered Tables & Mappings Accordion / List -->
@@ -519,19 +517,16 @@
                     <UIcon name="i-lucide-table" class="w-4 h-4 text-blue-500" />
                     <span class="font-mono font-bold text-gray-900 dark:text-white text-base">{{ table.tableName }}</span>
                     <UBadge color="neutral" variant="subtle" size="sm" class="rounded-md font-mono text-[11px]">
-                      {{ table.rowCount.toLocaleString() }} rows
-                    </UBadge>
+                      {{ table.rowCount.toLocaleString() }} {{ t('settings.dataSource.mapping.rows') }} </UBadge>
                     <UBadge color="neutral" variant="outline" size="sm" class="rounded-md font-mono text-[11px]">
-                      {{ table.columns.length }} cols
-                    </UBadge>
+                      {{ table.columns.length }} {{ t('settings.dataSource.mapping.columnsShort') }} </UBadge>
                     <UBadge
                       v-if="getTableMapping(table.tableName)?.isActive"
                       color="success"
                       variant="subtle"
                       size="sm"
                       class="rounded-md font-semibold text-[11px]"
-                    >
-                      Mapped → {{ getScopeLabel(getTableMapping(table.tableName)?.targetScope) }}
+                    > {{ t('settings.dataSource.mapping.mapped') }} {{ getScopeLabel(getTableMapping(table.tableName)?.targetScope) }}
                     </UBadge>
                   </div>
                   <p v-if="table.description" class="text-xs text-gray-500 dark:text-gray-400">
@@ -566,7 +561,7 @@
 
               <!-- Columns Chips preview -->
               <div class="pt-2 border-t border-gray-100 dark:border-gray-800 flex items-center gap-1.5 flex-wrap">
-                <span class="text-[11px] font-semibold text-gray-400 mr-1">Columns:</span>
+                <span class="text-[11px] font-semibold text-gray-400 mr-1">{{ t('settings.dataSource.mapping.columns') }}</span>
                 <span
                   v-for="col in table.columns"
                   :key="col.name"
@@ -596,11 +591,9 @@
                       icon="i-lucide-sparkles"
                       class="rounded-lg text-[10px] font-bold"
                       @click="autoSuggestMapping(table)"
-                    >
-                      AI Auto-Suggest Canonical
-                    </UButton>
+                    > {{ t('settings.dataSource.mapping.autoSuggest') }} </UButton>
                   </div>
-                  <span class="text-[11px] font-mono text-primary-700 dark:text-primary-400">Target Schema: {{ selectedConnForSchema.database }}</span>
+                  <span class="text-[11px] font-mono text-primary-700 dark:text-primary-400">{{ t('settings.dataSource.mapping.targetSchema') }} {{ selectedConnForSchema.database }}</span>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -628,7 +621,7 @@
                     </label>
                     <UInput
                       :model-value="getTableMapping(table.tableName)?.targetModule"
-                      placeholder="e.g. Risk Profile / RCM"
+                      :placeholder="t('settings.dataSource.mapping.riskExample')"
                       size="sm"
                       class="w-full text-xs font-medium"
                       @update:model-value="(val) => updateMappingField(table.tableName, 'targetModule', val)"
@@ -636,9 +629,7 @@
                   </div>
 
                   <div>
-                    <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1">
-                      Canonical Entity (Lakehouse)
-                    </label>
+                    <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1"> {{ t('settings.dataSource.mapping.canonicalEntity') }} </label>
                     <USelect
                       :model-value="getTableMapping(table.tableName)?.canonicalEntity || 'generic'"
                       :items="[
@@ -669,13 +660,11 @@
                   </div>
 
                   <div>
-                    <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1">
-                      Watermark (Incremental Stream)
-                    </label>
+                    <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1"> {{ t('settings.dataSource.mapping.watermark') }} </label>
                     <USelect
                       :model-value="getTableMapping(table.tableName)?.watermarkColumn || ''"
                       :items="['', ...table.columns.map(c => c.name)]"
-                      placeholder="Pilih kolom tanggal/update"
+                      :placeholder="t('settings.dataSource.mapping.datePlaceholder')"
                       size="sm"
                       class="w-full font-mono text-xs"
                       @update:model-value="(val) => updateMappingField(table.tableName, 'watermarkColumn', val)"
@@ -683,13 +672,11 @@
                   </div>
 
                   <div>
-                    <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1">
-                      Soft-Delete Column (Reconcile)
-                    </label>
+                    <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1"> {{ t('settings.dataSource.mapping.softDelete') }} </label>
                     <USelect
                       :model-value="getTableMapping(table.tableName)?.softDeleteColumn || ''"
                       :items="['', ...table.columns.map(c => c.name)]"
-                      placeholder="e.g. is_deleted, deleted_at"
+                      :placeholder="t('settings.dataSource.mapping.deleteExample')"
                       size="sm"
                       class="w-full font-mono text-xs"
                       @update:model-value="(val) => updateMappingField(table.tableName, 'softDeleteColumn', val)"
@@ -770,7 +757,7 @@
       <template #body>
         <div v-if="isLoadingPreview" class="text-center py-12 space-y-3">
           <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-primary-500 mx-auto" />
-          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Fetching sample rows from database...</p>
+          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('settings.dataSource.mapping.fetchingRows') }}</p>
         </div>
         <div v-else-if="previewRows.length > 0 && previewRows[0]" class="overflow-x-auto border border-gray-200 dark:border-gray-800 rounded-xl">
           <table class="w-full text-xs text-left">

@@ -99,7 +99,7 @@
             <h3 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mt-1">
               {{ yearlyUniverse.length }}
             </h3>
-            <p class="text-xs text-slate-400 mt-0.5">Year {{ selectedYear }}</p>
+            <p class="text-xs text-slate-400 mt-0.5">{{ t('strategicPlan.vmg.year') }} {{ selectedYear }}</p>
           </div>
           <div class="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-600 dark:text-slate-300">
             <UIcon name="i-lucide-layers" class="w-6 h-6" />
@@ -162,8 +162,7 @@
               class="w-full sm:w-44"
             />
             <UBadge color="success" variant="subtle" class="font-bold">
-              {{ prioritizedCount }} Prioritized
-            </UBadge>
+              {{ prioritizedCount }} {{ t('auditPriority.prioritizedEntities') }} </UBadge>
           </div>
         </div>
       </template>
@@ -203,14 +202,14 @@
         <template #loading>
           <div class="text-center py-12 text-slate-400 text-sm">
             <UIcon name="i-lucide-loader-2" class="w-8 h-8 mx-auto text-primary-500 animate-spin mb-2" />
-            <p>Loading audit priority data for year {{ selectedYear }}...</p>
+            <p>{{ t('auditPriority.loadingYear', { year: selectedYear }) }}</p>
           </div>
         </template>
 
         <template #empty>
           <div v-if="yearlyUniverse.length > 0" class="text-center py-10 text-slate-400 text-sm">
             <UIcon name="i-lucide-filter-x" class="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
-            <p>No auditable entities match your filter criteria.</p>
+            <p>{{ t('auditPriority.emptyFiltered') }}</p>
           </div>
           <div v-else class="text-center py-12 text-slate-400 text-sm">
             <UIcon name="i-lucide-inbox" class="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
@@ -218,7 +217,7 @@
               {{ t('riskFactors.priority.noEntities', { year: selectedYear }) }}
             </p>
             <p class="text-xs text-slate-400 mt-1 mb-4">
-              Please establish active entities in the Yearly Establishment tab of Audit Universe first.
+              {{ t('auditPriority.establishFirst') }}
             </p>
             <UButton
               to="/risk-profile/audit-universe?tab=establish"
@@ -227,7 +226,7 @@
               variant="subtle"
               size="sm"
             >
-              Establish Universe for {{ selectedYear }}
+              {{ t('auditPriority.establishYear', { year: selectedYear }) }}
             </UButton>
           </div>
         </template>
@@ -236,7 +235,7 @@
       <template #footer>
         <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
           <span>{{ t('riskFactors.priority.sortedNote') }}</span>
-          <span>Showing {{ filteredYearlyUniverse.length }} of {{ yearlyUniverse.length }} entities</span>
+          <span>{{ t('executiveSummaryIndividual.filters.showingPrefix') }} {{ filteredYearlyUniverse.length }} {{ t('auditPriority.ofEntities', { total: yearlyUniverse.length }) }}</span>
         </div>
       </template>
     </UCard>

@@ -107,7 +107,7 @@
                   v-model="store.form.yearStart"
                   :items="store.yearOptions"
                   value-key="value"
-                  placeholder="Year"
+                  :placeholder="t('strategicPlan.vmg.year')"
                   class="w-28"
                 />
                 <span class="text-sm font-bold text-gray-800 dark:text-white">{{ t('strategicPlan.form.to') }}</span>
@@ -115,7 +115,7 @@
                   v-model="store.form.yearEnd"
                   :items="store.yearOptions"
                   value-key="value"
-                  placeholder="Year"
+                  :placeholder="t('strategicPlan.vmg.year')"
                   class="w-28"
                 />
               </div>

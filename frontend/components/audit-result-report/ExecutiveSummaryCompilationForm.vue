@@ -53,7 +53,7 @@
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <UFormField label="Tahun Laporan" required>
+            <UFormField :label="t('executiveSummaryCompilation.reportYear')" required>
               <USelectMenu
                 v-model="store.form.tahun"
                 :items="[2026, 2025, 2024, 2023]"
@@ -73,10 +73,10 @@
               />
             </UFormField>
 
-            <UFormField label="Nomor Dokumen Kompilasi" required>
+            <UFormField :label="t('executiveSummaryCompilation.formExtra.documentNumber')" required>
               <UInput
                 v-model="store.form.nomorDokumen"
-                placeholder="Contoh: ESC-001/2026"
+                :placeholder="t('executiveSummaryCompilation.formExtra.documentNumberExample')"
                 class="w-full font-bold bg-gray-50 dark:bg-gray-800"
                 disabled
               />
@@ -92,26 +92,22 @@
                 </div>
                 <div>
                   <div class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <span>Kumpulan Data LHA Terkompilasi</span>
+                    <span>{{ t('executiveSummaryCompilation.formExtra.sourcesTitle') }}</span>
                     <UBadge color="primary" variant="subtle" size="xs">
                       {{ reportingQuarter }} {{ store.form.tahun }}
                     </UBadge>
                   </div>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                    Daftar seluruh LHA pada tahun dan kuartal yang dipilih, yang otomatis dirangkum ke dalam laporan kompilasi ini.
-                  </p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"> {{ t('executiveSummaryCompilation.formExtra.sourcesDescription') }} </p>
                 </div>
               </div>
               <div class="flex items-center gap-2 shrink-0">
-                <UBadge color="neutral" variant="outline" size="sm" class="font-mono">
-                  Total: {{ quarterlyLhas.length }} LHA
-                </UBadge>
+                <UBadge color="neutral" variant="outline" size="sm" class="font-mono"> {{ t('executiveSummaryCompilation.formExtra.total') }} {{ quarterlyLhas.length }} {{ t('executiveSummaryCompilation.formExtra.lha') }} </UBadge>
                 <UButton
                   v-if="!isLocked"
                   color="primary"
                   variant="ghost"
                   icon="i-lucide-refresh-cw"
-                  label="Segarkan Data"
+                  :label="t('executiveSummaryCompilation.formExtra.refresh')"
                   size="xs"
                   @click="syncFromIndividualLha"
                 />
@@ -123,13 +119,13 @@
               <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800 text-xs">
                 <thead class="bg-gray-50 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 font-bold uppercase tracking-wider">
                   <tr>
-                    <th class="px-4 py-2.5 text-left">No. Dokumen LHA</th>
-                    <th class="px-4 py-2.5 text-left">Surat Tugas (ST)</th>
-                    <th class="px-4 py-2.5 text-left">Judul / Objek Audit</th>
-                    <th class="px-4 py-2.5 text-left">Divisi</th>
-                    <th class="px-4 py-2.5 text-left">Tanggal LHA</th>
-                    <th class="px-4 py-2.5 text-center">Temuan</th>
-                    <th class="px-4 py-2.5 text-center">Status</th>
+                    <th class="px-4 py-2.5 text-left">{{ t('executiveSummaryCompilation.matrix.columns.docNumber') }}</th>
+                    <th class="px-4 py-2.5 text-left">{{ t('executiveSummaryCompilation.formExtra.assignmentLetter') }}</th>
+                    <th class="px-4 py-2.5 text-left">{{ t('executiveSummaryCompilation.matrix.columns.title') }}</th>
+                    <th class="px-4 py-2.5 text-left">{{ t('executiveSummaryForm.placeholders.division') }}</th>
+                    <th class="px-4 py-2.5 text-left">{{ t('executiveSummaryCompilation.formExtra.reportDate') }}</th>
+                    <th class="px-4 py-2.5 text-center">{{ t('executiveSummaryCompilation.findingsUnit') }}</th>
+                    <th class="px-4 py-2.5 text-center">{{ t('strategicPlan.columns.status') }}</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800 font-medium">
@@ -157,7 +153,7 @@
                     </td>
                     <td class="px-4 py-2.5 text-center whitespace-nowrap">
                       <UBadge color="warning" variant="subtle" size="xs" class="font-bold">
-                        {{ lha.findingsCount || (lha.findings ? lha.findings.length : 0) }} Temuan
+                        {{ lha.findingsCount || (lha.findings ? lha.findings.length : 0) }} {{ t('executiveSummaryCompilation.findingsUnit') }}
                       </UBadge>
                     </td>
                     <td class="px-4 py-2.5 text-center whitespace-nowrap">
@@ -173,12 +169,9 @@
             <!-- Empty State when no LHAs for the selected quarter & year -->
             <div v-else class="text-center py-6 px-4 bg-white dark:bg-gray-900 rounded-lg border border-dashed border-gray-300 dark:border-gray-700 space-y-1">
               <UIcon name="i-lucide-file-x" class="size-8 text-gray-400 mx-auto" />
-              <div class="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                Tidak ada dokumen LHA untuk {{ reportingQuarter }} {{ store.form.tahun }}
+              <div class="text-xs font-semibold text-gray-700 dark:text-gray-300"> {{ t('executiveSummaryCompilation.formExtra.noDocumentsFor') }} {{ reportingQuarter }} {{ store.form.tahun }}
               </div>
-              <p class="text-[11px] text-gray-400">
-                Belum ada LHA yang terbit atau sesuai pada periode ini. Data kompilasi akan otomatis terisi setelah LHA diterbitkan.
-              </p>
+              <p class="text-[11px] text-gray-400"> {{ t('executiveSummaryCompilation.formExtra.emptyDescription') }} </p>
             </div>
           </div>
 

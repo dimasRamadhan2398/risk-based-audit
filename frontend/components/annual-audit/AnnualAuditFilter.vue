@@ -3,7 +3,7 @@
       <UInput 
         v-model="store.searchCode" 
         icon="i-heroicons-magnifying-glass" 
-        placeholder="Cari Code / Nama Aktivitas..." 
+        :placeholder="t('annualAudit.extra.searchActivity')"
         class="flex-1"
         clearable
       />
@@ -11,7 +11,7 @@
       <USelectMenu 
         v-model="store.selectedDepartment" 
         :items="store.departmentOptions" 
-        placeholder="Semua Departemen" 
+        :placeholder="t('annualAudit.extra.allDepartments')"
         class="w-full md:w-60"
         clearable
       />
@@ -21,7 +21,7 @@
         :items="store.statusOptions"
         value-key="value"
         label-key="label"
-        placeholder="Semua Status"
+        :placeholder="t('settings.dataSource.allStatuses')"
         class="w-full md:w-60"
         clearable
       />
@@ -32,12 +32,13 @@
         color="neutral" 
         variant="ghost" 
         @click="store.clearFilters" 
-        title="Reset Filters"
+        :title="t('strategicPlan.filters.reset')"
       />
     </div>
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 import { useAnnualPlanStore } from '~/stores/annual-audit'
 
 // Cukup inisialisasi store. Komponen akan otomatis membaca status showModal, data form, dan fungsi dari sini.

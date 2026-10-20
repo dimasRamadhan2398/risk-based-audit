@@ -7,14 +7,14 @@
           <UIcon name="i-heroicons-shield-check" class="text-primary-600 dark:text-primary-400 text-xl font-bold" />
         </div>
         <div>
-          <h3 class="text-md font-extrabold text-gray-800 dark:text-gray-200">Risk Mitigation Plans & Controls</h3>
-          <p class="text-md text-gray-400">Expand a row to monitor weekly/monthly checks and update realization notes.</p>
+          <h3 class="text-md font-extrabold text-gray-800 dark:text-gray-200">{{ t('riskMitigation.listTitle') }}</h3>
+          <p class="text-md text-gray-400">{{ t('riskMitigation.listSubtitle') }}</p>
         </div>
       </div>
-      <UButton 
-        label="Add Mitigation Plan" 
-        icon="i-heroicons-plus" 
-        color="primary" 
+      <UButton
+        :label="t('riskMitigation.add')"
+        icon="i-heroicons-plus"
+        color="primary"
         class="font-black shadow-md shadow-primary/20"
         @click="store.openForm()"
       />
@@ -26,27 +26,27 @@
         <table class="w-full text-left border-collapse text-md">
           <thead>
             <tr class="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800 font-bold uppercase tracking-wider text-[10px] text-gray-400 text-center">
-              <th class="py-4 px-4 text-left w-12">No</th>
-              <th class="py-4 px-4 text-left min-w-[280px]">Rencana Mitigasi & Kontrol</th>
-              <th class="py-4 px-4 text-left">Timeline</th>
-              <th class="py-4 px-4 text-left">Unit in Charge</th>
-              <th class="py-4 px-4 text-left">Person in Charge</th>
-              <th class="py-4 px-4 text-left">Supervisi</th>
-              <th class="py-4 px-4">Monitoring Progress</th>
-              <th class="py-4 px-4">Actions</th>
+              <th class="py-4 px-4 text-left w-12">{{ t('riskMitigation.columns.number') }}</th>
+              <th class="py-4 px-4 text-left min-w-[280px]">{{ t('riskMitigation.columns.plan') }}</th>
+              <th class="py-4 px-4 text-left">{{ t('riskMitigation.columns.timeline') }}</th>
+              <th class="py-4 px-4 text-left">{{ t('riskMitigation.columns.unit') }}</th>
+              <th class="py-4 px-4 text-left">{{ t('riskMitigation.columns.pic') }}</th>
+              <th class="py-4 px-4 text-left">{{ t('riskMitigation.columns.supervisor') }}</th>
+              <th class="py-4 px-4">{{ t('riskMitigation.columns.progress') }}</th>
+              <th class="py-4 px-4">{{ t('riskMitigation.columns.actions') }}</th>
             </tr>
           </thead>
           <tbody>
             <template v-if="filteredMitigations.length > 0">
               <template v-for="(row, idx) in filteredMitigations" :key="row.id">
                 <!-- Parent Row -->
-                <tr 
+                <tr
                   class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50/50 dark:hover:bg-gray-800/20 cursor-pointer transition-colors duration-200"
                   @click="toggleRow(row.id)"
                 >
                   <!-- No -->
                   <td class="py-4 px-4 font-bold text-gray-400">{{ idx + 1 }}</td>
-                  
+
                   <!-- Plan -->
                   <td class="py-4 px-4 w-[320px] min-w-[280px] max-w-[320px] align-top font-bold text-gray-800 dark:text-gray-200 leading-relaxed">
                     <div class="flex items-start gap-2 min-w-0">
@@ -61,7 +61,7 @@
                       </div>
                     </div>
                   </td>
-                  
+
                   <!-- Timeline -->
                   <td class="py-4 px-4 whitespace-nowrap">
                     <div class="flex flex-col">
@@ -69,20 +69,20 @@
                         {{ formatDate(row.start_date) }} - {{ formatDate(row.end_date) }}
                       </span>
                       <span class="text-[9px] uppercase font-black text-primary-500 mt-0.5">
-                        {{ getMonitoringUnit(row) }} Monitoring
+                        {{ t('riskMitigation.monitoring.label', { unit: getMonitoringUnit(row) }) }}
                       </span>
                     </div>
                   </td>
-                  
+
                   <!-- Unit -->
                   <td class="py-4 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ row.unitInCharge }}</td>
-                  
+
                   <!-- PIC -->
                   <td class="py-4 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ row.pic }}</td>
-                  
+
                   <!-- Supervisor -->
                   <td class="py-4 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ row.supervisor }}</td>
-                  
+
                   <!-- Progress Bar -->
                   <td class="py-4 px-4 text-center whitespace-nowrap" @click.stop>
                     <div class="flex flex-col items-center justify-center gap-1.5 min-w-[120px]">
@@ -91,30 +91,30 @@
                         <span class="text-primary-500">{{ getProgressPercent(row) }}%</span>
                       </div>
                       <div class="w-full h-1.5 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
-                        <div 
+                        <div
                           class="h-full bg-gradient-to-r from-success-500 to-primary-500 transition-all duration-300"
                           :style="{ width: `${getProgressPercent(row)}%` }"
                         ></div>
                       </div>
                     </div>
                   </td>
-                  
+
                   <!-- Actions -->
                   <td class="py-4 px-4 text-center" @click.stop>
                     <div class="flex gap-2 justify-center">
-                      <UButton 
-                        icon="i-heroicons-pencil-square" 
-                        size="sm" 
-                        color="warning" 
-                        variant="ghost" 
-                        @click="store.openForm(row)" 
+                      <UButton
+                        icon="i-heroicons-pencil-square"
+                        size="sm"
+                        color="warning"
+                        variant="ghost"
+                        @click="store.openForm(row)"
                       />
-                      <UButton 
-                        icon="i-heroicons-trash" 
-                        size="sm" 
-                        color="error" 
-                        variant="ghost" 
-                        @click="store.deleteMitigation(row.id, props.currentRiskId)" 
+                      <UButton
+                        icon="i-heroicons-trash"
+                        size="sm"
+                        color="error"
+                        variant="ghost"
+                        @click="store.deleteMitigation(row.id, props.currentRiskId)"
                       />
                     </div>
                   </td>
@@ -129,24 +129,24 @@
                         <div>
                           <h4 class="text-md font-black uppercase tracking-wider text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
                             <UIcon name="i-heroicons-clipboard-document-check" />
-                            Monitoring Control Checklist
+                            {{ t('riskMitigation.monitoring.checklistTitle') }}
                           </h4>
                           <p class="text-[10px] text-gray-400 mt-0.5">
-                            Realization progress calculation is based on current date (today).
+                            {{ t('riskMitigation.monitoring.checklistDesc') }}
                           </p>
                         </div>
-                        
+
                         <!-- Progress Summary Stats -->
                         <div class="flex items-center gap-4 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm shrink-0">
                           <div class="text-[10px]">
-                            <span class="block text-gray-400 font-black uppercase tracking-widest text-[8px] leading-none mb-1">Realization</span>
+                            <span class="block text-gray-400 font-black uppercase tracking-widest text-[8px] leading-none mb-1">{{ t('riskMitigation.monitoring.realization') }}</span>
                             <span class="font-black text-md text-gray-700 dark:text-gray-200">
-                              {{ getActualCount(row) }} / {{ getTargetCount(row) }} {{ getMonitoringUnit(row) }} Monitored
+                              {{ t('riskMitigation.monitoring.monitored', { actual: getActualCount(row), target: getTargetCount(row), unit: getMonitoringUnit(row) }) }}
                             </span>
                           </div>
                           <div class="w-24 h-2 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
-                            <div 
-                              class="h-full bg-gradient-to-r from-success-500 to-primary-500" 
+                            <div
+                              class="h-full bg-gradient-to-r from-success-500 to-primary-500"
                               :style="{ width: `${getProgressPercent(row)}%` }"
                             ></div>
                           </div>
@@ -156,8 +156,8 @@
 
                       <!-- Checklist Grid -->
                       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-                        <div 
-                          v-for="check in row.monitoring" 
+                        <div
+                          v-for="check in row.monitoring"
                           :key="check.id"
                           class="p-3 bg-white dark:bg-gray-800 rounded-xl border flex flex-col justify-between gap-3 shadow-2md hover:shadow-md transition-shadow duration-200"
                           :class="[
@@ -167,15 +167,15 @@
                           ]"
                         >
                           <div class="flex items-start justify-between gap-3">
-                            <UCheckbox 
-                              v-model="check.checked" 
+                            <UCheckbox
+                              v-model="check.checked"
                               :label="check.label"
                               class="font-bold text-md text-gray-700 dark:text-gray-200"
                               color="success"
                               :disabled="!isCheckable(check)"
                               @change="saveMonitoring(row.id, row.monitoring || [])"
                             />
-                            <UBadge 
+                            <UBadge
                               :color="getCheckStatusColor(check)"
                               variant="subtle"
                               size="md"
@@ -184,14 +184,14 @@
                               {{ getCheckStatus(check) }}
                             </UBadge>
                           </div>
-                          
+
                           <!-- Notes input -->
                           <div class="space-y-1">
-                            <UInput 
-                              v-model="check.notes" 
-                              placeholder="Tambah catatan monitoring..." 
-                              size="sm" 
-                              class="w-full text-md" 
+                            <UInput
+                              v-model="check.notes"
+                              :placeholder="t('riskMitigation.monitoring.notesPlaceholder')"
+                              size="sm"
+                              class="w-full text-md"
                               icon="i-heroicons-chat-bubble-bottom-center-text"
                               :disabled="!isCheckable(check)"
                               @change="saveMonitoring(row.id, row.monitoring || [])"
@@ -211,7 +211,7 @@
                 <td colspan="8" class="py-12 text-center text-gray-400 dark:text-gray-600">
                   <div class="flex flex-col items-center justify-center gap-2">
                     <UIcon name="i-heroicons-inbox" class="text-4xl" />
-                    <p class="font-bold">No risk mitigation plans found for this risk.</p>
+                    <p class="font-bold">{{ t('riskMitigation.empty') }}</p>
                   </div>
                 </td>
               </tr>
@@ -229,6 +229,7 @@ import { useMitigationStore } from '~/stores/mitigation-risk'
 
 const store = useMitigationStore()
 const toast = useToast()
+const { t, locale } = useI18n()
 
 const props = defineProps<{
   currentRiskId: string
@@ -259,12 +260,12 @@ function toggleRow(id: string) {
 const formatDate = (dateStr: string) => {
   if (!dateStr) return '-'
   const date = new Date(dateStr)
-  return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
+  return date.toLocaleDateString(locale.value === 'id' ? 'id-ID' : 'en-US', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 const getMonitoringUnit = (row: any) => {
-  if (!row.monitoring || row.monitoring.length === 0) return 'Weeks'
-  return row.monitoring[0].id.startsWith('M') ? 'Months' : 'Weeks'
+  if (!row.monitoring || row.monitoring.length === 0) return t('riskMitigation.monitoring.weeks')
+  return row.monitoring[0].id.startsWith('M') ? t('riskMitigation.monitoring.months') : t('riskMitigation.monitoring.weeks')
 }
 
 const getTargetCount = (row: any) => {
@@ -287,9 +288,9 @@ const getProgressPercent = (row: any) => {
 
 const getCheckStatus = (check: any) => {
   const now = new Date()
-  if (check.checked) return 'Completed'
-  if (new Date(check.endDate) < now) return 'Overdue'
-  return 'Scheduled'
+  if (check.checked) return t('riskMitigation.monitoring.completed')
+  if (new Date(check.endDate) < now) return t('riskMitigation.monitoring.overdue')
+  return t('riskMitigation.monitoring.scheduled')
 }
 
 const getCheckStatusColor = (check: any) => {
@@ -313,16 +314,16 @@ async function saveMonitoring(id: string, monitoring: any[]) {
   try {
     await store.updateMitigationMonitoring(id, monitoring, props.currentRiskId)
     toast.add({
-      title: 'Success',
-      description: 'Monitoring controls updated successfully.',
+      title: t('riskMitigation.monitoring.updateSuccessTitle'),
+      description: t('riskMitigation.monitoring.updateSuccessDesc'),
       color: 'success',
       icon: 'i-heroicons-check-circle'
     })
   } catch (err) {
     console.error('Failed to save monitoring:', err)
     toast.add({
-      title: 'Error',
-      description: 'Failed to update monitoring controls.',
+      title: t('riskMitigation.monitoring.updateErrorTitle'),
+      description: t('riskMitigation.monitoring.updateErrorDesc'),
       color: 'error',
       icon: 'i-heroicons-exclamation-triangle'
     })

@@ -14,14 +14,14 @@
             <div class="flex items-center gap-3">
               <UIcon name="i-heroicons-building-office-2" class="text-primary-500 text-2xl" />
               <h3 class="text-lg font-bold text-[var(--text-main)]">
-                {{ store.isEditing ? 'Edit Company' : 'Add New Company' }}
+                {{ store.isEditing ? t('masterData.company.edit') : t('masterData.company.addNew') }}
               </h3>
             </div>
             <button
               type="button"
               @click="store.closeModal"
               class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-1 rounded-lg focus:outline-none"
-              aria-label="Close modal"
+              :aria-label="t('masterData.company.close')"
             >
               <UIcon name="i-heroicons-x-mark" class="text-2xl" />
             </button>
@@ -42,70 +42,70 @@
             <!-- Basic Info -->
             <div class="space-y-4">
               <h4 class="text-sm uppercase tracking-wide text-primary-500 font-bold border-b border-[var(--border-main)] pb-2">
-                Company Details
+                {{ t('masterData.company.details') }}
               </h4>
 
               <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField label="Company Code *" size="lg">
+                <UFormField :label="t('masterData.company.code')" size="lg">
                   <UInput
                     v-model="store.form.company_code"
                     type="text"
-                    placeholder="e.g. AIFL-HQ, SUB-001"
+                    :placeholder="t('masterData.company.codePlaceholder')"
                     :disabled="store.isEditing"
                     required
                   />
-                  <p class="text-xs text-gray-500 mt-1">Unique company code identifier</p>
+                  <p class="text-xs text-gray-500 mt-1">{{ t('masterData.company.codeHint') }}</p>
                 </UFormField>
 
-                <UFormField label="Company Name *" size="lg">
+                <UFormField :label="t('masterData.company.name')" size="lg">
                   <UInput
                     v-model="store.form.company_name"
                     type="text"
-                    placeholder="e.g. PT AIFL Indonesia"
+                    :placeholder="t('masterData.company.namePlaceholder')"
                     required
                   />
-                  <p class="text-xs text-gray-500 mt-1">Common operational name</p>
+                  <p class="text-xs text-gray-500 mt-1">{{ t('masterData.company.nameHint') }}</p>
                 </UFormField>
 
-                <UFormField label="Legal Name" size="lg" class="md:col-span-2">
+                <UFormField :label="t('masterData.company.legalName')" size="lg" class="md:col-span-2">
                   <UInput
                     v-model="store.form.legal_name"
                     type="text"
-                    placeholder="e.g. PT Astra International Financial Logistics Tbk"
+                    :placeholder="t('masterData.company.legalNamePlaceholder')"
                   />
-                  <p class="text-xs text-gray-500 mt-1">Official registered entity name (optional)</p>
+                  <p class="text-xs text-gray-500 mt-1">{{ t('masterData.company.legalNameHint') }}</p>
                 </UFormField>
 
-                <UFormField label="Company Type *" size="lg">
+                <UFormField :label="t('masterData.company.type')" size="lg">
                   <USelectMenu
                     v-model="store.form.company_type"
                     :items="companyTypeOptions"
                     value-key="value"
-                    placeholder="Select company type"
+                    :placeholder="t('masterData.company.typePlaceholder')"
                     class="w-full"
                     required
                   />
                 </UFormField>
 
-                <UFormField label="Tax ID (NPWP)" size="lg">
+                <UFormField :label="t('masterData.company.taxId')" size="lg">
                   <UInput
                     v-model="store.form.tax_id"
                     type="text"
-                    placeholder="e.g. 01.234.567.8-901.000"
+                    :placeholder="t('masterData.company.taxIdPlaceholder')"
                   />
                 </UFormField>
 
-                <UFormField label="Parent Company (Optional)" size="lg" class="md:col-span-2">
+                <UFormField :label="t('masterData.company.parent')" size="lg" class="md:col-span-2">
                   <USelectMenu
                     v-model="store.form.parent_id"
                     :items="parentCompanyOptions"
                     value-key="value"
                     :clear="true"
-                    placeholder="Select parent company (if subsidiary / branch)"
+                    :placeholder="t('masterData.company.parentPlaceholder')"
                     class="w-full"
                     @update:model-value="onParentCompanyChange"
                   />
-                  <p class="text-xs text-gray-500 mt-1">Select holding company if this entity is a subsidiary or branch</p>
+                  <p class="text-xs text-gray-500 mt-1">{{ t('masterData.company.parentHint') }}</p>
                 </UFormField>
               </div>
             </div>
@@ -113,11 +113,11 @@
             <!-- Contact Information -->
             <div class="space-y-4 pt-2">
               <h4 class="text-sm uppercase tracking-wide text-primary-500 font-bold border-b border-[var(--border-main)] pb-2">
-                Contact & Online Presence
+                {{ t('masterData.company.contact') }}
               </h4>
 
               <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <UFormField label="Phone" size="lg">
+                <UFormField :label="t('masterData.company.phone')" size="lg">
                   <UInput
                     v-model="store.form.phone"
                     type="tel"
@@ -125,7 +125,7 @@
                   />
                 </UFormField>
 
-                <UFormField label="Email" size="lg">
+                <UFormField :label="t('masterData.company.email')" size="lg">
                   <UInput
                     v-model="store.form.email"
                     type="email"
@@ -133,7 +133,7 @@
                   />
                 </UFormField>
 
-                <UFormField label="Website" size="lg">
+                <UFormField :label="t('masterData.company.website')" size="lg">
                   <UInput
                     v-model="store.form.website"
                     type="url"
@@ -145,7 +145,7 @@
 
             <!-- Status -->
             <div class="pt-2">
-              <UFormField label="Status" size="lg">
+              <UFormField :label="t('masterData.company.status')" size="lg">
                 <div class="flex items-center gap-6 mt-1">
                   <label class="flex items-center gap-2 cursor-pointer text-sm font-medium">
                     <input
@@ -154,7 +154,7 @@
                       @change="store.form.is_active = true"
                       class="w-4 h-4 text-primary-600 focus:ring-primary-500"
                     />
-                    <span>Active</span>
+                    <span>{{ t('masterData.company.active') }}</span>
                   </label>
                   <label class="flex items-center gap-2 cursor-pointer text-sm font-medium">
                     <input
@@ -163,7 +163,7 @@
                       @change="store.form.is_active = false"
                       class="w-4 h-4 text-error-600 focus:ring-error-500"
                     />
-                    <span>Inactive</span>
+                    <span>{{ t('masterData.company.inactive') }}</span>
                   </label>
                 </div>
               </UFormField>
@@ -173,7 +173,7 @@
           <!-- Footer -->
           <div class="px-4 sm:px-6 py-4 bg-[var(--bg-surface)] border-t border-[var(--border-main)] rounded-b-xl flex flex-col-reverse sm:flex-row justify-end gap-3">
             <UButton
-              label="Cancel"
+              :label="t('masterData.company.cancel')"
               color="neutral"
               variant="soft"
               class="w-full sm:w-auto"
@@ -181,7 +181,7 @@
               @click="store.closeModal"
             />
             <UButton
-              :label="store.isEditing ? 'Update Company' : 'Create Company'"
+              :label="store.isEditing ? t('masterData.company.update') : t('masterData.company.create')"
               color="primary"
               :loading="store.loading"
               class="w-full sm:w-auto font-bold"
@@ -200,14 +200,15 @@ import { useMasterOptionsStore } from '~/stores/master-options'
 
 const store = useCompanyStore()
 const masterOptions = useMasterOptionsStore()
+const { t } = useI18n()
 
-const companyTypeOptions = [
-  { label: 'Holding Company', value: 'HOLDING' },
-  { label: 'Subsidiary Entity', value: 'SUBSIDIARY' },
-  { label: 'Branch Office', value: 'BRANCH' }
-]
+const companyTypeOptions = computed(() => [
+  { label: t('masterData.company.types.HOLDING'), value: 'HOLDING' },
+  { label: t('masterData.company.types.SUBSIDIARY'), value: 'SUBSIDIARY' },
+  { label: t('masterData.company.types.BRANCH'), value: 'BRANCH' }
+])
 
-const noneOption = { label: '— None (Top Level Holding) —', value: '__none__' }
+const noneOption = computed(() => ({ label: t('masterData.company.none'), value: '__none__' }))
 
 const onParentCompanyChange = (val: any) => {
   if (!val || val === '__none__') {
@@ -220,7 +221,7 @@ const parentCompanyOptions = computed(() => {
   // Exclude current company from being its own parent
   const list = masterOptions.companies.filter((c: any) => c.id !== currentId)
   return [
-    noneOption,
+    noneOption.value,
     ...list.map((c: any) => ({
       label: c.company_name || c.name || c.company_code || c.code,
       value: c.id

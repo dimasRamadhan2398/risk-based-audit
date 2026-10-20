@@ -198,9 +198,9 @@
           <div class="space-y-1 text-gray-500 dark:text-gray-400">
             <p><strong>{{ t('satisfactionSurvey.guide.csat.dimensionsTitle') }}</strong></p>
             <ul class="list-disc pl-4 space-y-0.5">
-              <li><strong>Clarity:</strong> {{ t('satisfactionSurvey.guide.csat.clarity') }}</li>
-              <li><strong>Professionalism:</strong> {{ t('satisfactionSurvey.guide.csat.professionalism') }}</li>
-              <li><strong>Timeliness:</strong> {{ t('satisfactionSurvey.guide.csat.timeliness') }}</li>
+              <li><strong>{{ t('satisfactionSurvey.metricLabels.clarity') }}</strong> {{ t('satisfactionSurvey.guide.csat.clarity') }}</li>
+              <li><strong>{{ t('satisfactionSurvey.metricLabels.professionalism') }}</strong> {{ t('satisfactionSurvey.guide.csat.professionalism') }}</li>
+              <li><strong>{{ t('satisfactionSurvey.metricLabels.timeliness') }}</strong> {{ t('satisfactionSurvey.guide.csat.timeliness') }}</li>
             </ul>
           </div>
           <div class="pt-2 text-[11px] text-primary-600 dark:text-primary-400 font-semibold border-t border-gray-100 dark:border-gray-800 flex items-center gap-1.5">

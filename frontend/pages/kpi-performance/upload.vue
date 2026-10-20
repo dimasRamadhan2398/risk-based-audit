@@ -458,7 +458,7 @@ const columns = computed(() => [
 
             <template #actions-cell="{ row }">
               <div class="flex items-center gap-1">
-                <UTooltip text="Lihat Dokumen">
+                <UTooltip :text="t('strategicPlan.upload.actions.view')">
                   <UButton 
                     icon="i-lucide-eye" 
                     color="info" 
@@ -468,7 +468,7 @@ const columns = computed(() => [
                     @click="store.viewDocument(row.original.id, row.original.fileName)" 
                   />
                 </UTooltip>
-                <UTooltip text="Unduh Dokumen">
+                <UTooltip :text="t('strategicPlan.upload.actions.download')">
                 <UButton 
                   icon="i-lucide-download"
                   color="neutral"
@@ -478,7 +478,7 @@ const columns = computed(() => [
                   :title="t('kpiPerformance.upload.actions.download')"
                 />
                 </UTooltip>
-                <UTooltip text="Hapus Dokumen">
+                <UTooltip :text="t('strategicPlan.upload.actions.delete')">
                 <UButton
                   icon="i-lucide-trash-2"
                   color="error"

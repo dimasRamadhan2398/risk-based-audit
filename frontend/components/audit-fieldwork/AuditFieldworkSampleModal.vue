@@ -41,7 +41,7 @@
                   <UIcon name="i-heroicons-table-cells" class="w-6 h-6 text-primary-500" />
                 </div>
                 <div>
-                  <p class="text-xs font-semibold tracking-wider text-[var(--text-muted)]">Surat Tugas</p>
+                  <p class="text-xs font-semibold tracking-wider text-[var(--text-muted)]">{{ t('auditExecution.detailModal.sources.assignment_letter.label') }}</p>
                   <p class="text-sm font-bold text-[var(--text-main)]">{{ store.selectedAssignmentLetter || '-' }}</p>
                 </div>
               </div>
@@ -117,12 +117,12 @@
                   color="primary"
                   variant="solid"
                   size="xs"
-                  label="Download"
+                  :label="t('common.actions.download')"
                   @click="store.downloadSampleFile(store.sampleForm)"
                 />
               </div>
             </div>
-            <p v-else class="text-sm text-[var(--text-muted)] italic">Tidak ada berkas terlampir</p>
+            <p v-else class="text-sm text-[var(--text-muted)] italic">{{ t('auditFieldwork.extra.noAttachment') }}</p>
           </UCard>
         </div>
 

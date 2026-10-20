@@ -38,7 +38,7 @@
                     <div v-for="rca in row.original.rootCause" :key="rca.id" class="text-[11px] leading-tight border-l-2 border-orange-400 pl-2">
                         <div class="font-bold text-lg text-gray-700">{{ rca.method }}</div>
                     <div class="text-gray-500 text-sm italic">
-                        Why: {{ rca.w1 || '-' }} <br>
+                        {{ t('workingPaper.common.why') }}: {{ rca.w1 || '-' }} <br>
                     </div>
                     </div>
                 </div>
@@ -46,7 +46,7 @@
 
             <template #actions-cell="{ row }">
                 <div class="flex gap-2">
-                <UTooltip text="Edit">
+                <UTooltip :text="t('workingPaper.common.edit')">
                 <UButton 
                     size="md" 
                     color="warning" 
@@ -55,7 +55,7 @@
                     @click="store.handleEditF04(row.original)" 
                 />
                 </UTooltip>
-                <UTooltip text="Hapus">
+                <UTooltip :text="t('workingPaper.common.delete')">
                 <UButton 
                     size="md" 
                     color="error" 

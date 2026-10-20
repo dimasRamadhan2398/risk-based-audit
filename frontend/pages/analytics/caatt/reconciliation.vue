@@ -27,7 +27,7 @@ const reconChartData = computed(() => ({
   labels: reconState.value.records.map((r: any) => `${r.systemA.split(' ')[0]} ↔ ${r.systemB.split(' ')[0]}`),
   datasets: [
     {
-      label: 'Tingkat Kesesuaian / Match Rate (%)',
+      label: t('analytics.caattUi.reconciliation.matchRateAxis'),
       backgroundColor: reconState.value.records.map((r: any) => r.matchRatePct >= 99.9 ? 'rgba(16,185,129,0.85)' : 'rgba(245,158,11,0.85)'),
       borderRadius: 4,
       data: reconState.value.records.map((r: any) => r.matchRatePct),
@@ -47,7 +47,7 @@ const reconChartOptions = computed(() => ({
     }
   },
   scales: {
-    y: { min: 95, max: 100, title: { display: true, text: 'Match Rate (%)' } }
+    y: { min: 95, max: 100, title: { display: true, text: t('analytics.caattUi.reconciliation.matchRateAxis') } }
   }
 }))
 </script>
@@ -56,9 +56,9 @@ const reconChartOptions = computed(() => ({
   <div class="max-w-full mx-auto py-8 px-4 sm:px-6 lg:px-8">
     <CaattHeader
       :title="t('navigation.caattReconciliation')"
-      subtitle="Memvalidasi integritas data perbankan dengan membandingkan mutasi dan saldo antara Core Banking (CBS), GL, LOS, dan Switch."
+      :subtitle="t('analytics.caattUi.reconciliation.subtitle')"
       icon="i-lucide-git-compare"
-      badgeText="3-Way Automated Reconciliation"
+      :badgeText="t('analytics.caattUi.reconciliation.badge')"
       badgeColor="success"
     />
 
@@ -76,26 +76,26 @@ const reconChartOptions = computed(() => ({
         icon="i-heroicons-arrows-right-left"
         color="primary"
         variant="subtle"
-        title="CAATT: Rekonsiliasi Otomatis Lintas Sistem (3-Way Reconciliation)"
-        description="Memvalidasi integritas data perbankan dengan membandingkan mutasi dan saldo transaksi antara Core Banking System (CBS), General Ledger (GL), Loan Origination System (LOS), dan ATM Switch."
+        :title="t('analytics.caattUi.reconciliation.title')"
+        :description="t('analytics.caattUi.reconciliation.description')"
       />
 
       <!-- Summary Cards -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <UCard class="border border-emerald-100 dark:border-emerald-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Rata-Rata Tingkat Kesesuaian</div>
+          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.reconciliation.averageMatch') }}</div>
           <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{{ reconState.summary.avgMatchRate }}%</div>
-          <div class="text-[10px] text-emerald-500 mt-0.5">Standar SLA: 99.5%</div>
+          <div class="text-[10px] text-emerald-500 mt-0.5">{{ t('analytics.caattUi.reconciliation.sla') }}</div>
         </UCard>
         <UCard class="border border-rose-100 dark:border-rose-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Total Transaksi Unmatched</div>
-          <div class="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">{{ reconState.summary.totalUnmatched }} Trx</div>
-          <div class="text-[10px] text-rose-400 mt-0.5">Memerlukan penyesuaian jurnal</div>
+          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.reconciliation.unmatched') }}</div>
+          <div class="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">{{ reconState.summary.totalUnmatched }} {{ t('analytics.caattUi.common.transactions') }}</div>
+          <div class="text-[10px] text-rose-400 mt-0.5">{{ t('analytics.caattUi.reconciliation.journalAdjustment') }}</div>
         </UCard>
         <UCard class="border border-amber-100 dark:border-amber-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Total Selisih Nominal</div>
+          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.reconciliation.difference') }}</div>
           <div class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">{{ formatIDR(reconState.summary.totalDifference) }}</div>
-          <div class="text-[10px] text-amber-400 mt-0.5">Discrepancy dalam proses kliring</div>
+          <div class="text-[10px] text-amber-400 mt-0.5">{{ t('analytics.caattUi.reconciliation.clearing') }}</div>
         </UCard>
       </div>
 
@@ -106,7 +106,7 @@ const reconChartOptions = computed(() => ({
           <template #header>
             <div class="flex items-center gap-2">
               <UIcon name="i-heroicons-chart-bar" class="text-indigo-500" />
-              <h3 class="font-bold">Match Rate Per Jalur Integrasi</h3>
+              <h3 class="font-bold">{{ t('analytics.caattUi.reconciliation.integrationMatch') }}</h3>
             </div>
           </template>
           <div class="h-80">
@@ -119,21 +119,21 @@ const reconChartOptions = computed(() => ({
           <template #header>
             <div class="flex items-center gap-2">
               <UIcon name="i-heroicons-table-cells" class="text-indigo-500" />
-              <h3 class="font-bold">Status Rekonsiliasi Buku Besar & Sistem Operasional</h3>
+              <h3 class="font-bold">{{ t('analytics.caattUi.reconciliation.status') }}</h3>
             </div>
           </template>
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="border-b border-gray-200 dark:border-gray-700">
-                  <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Sistem A ↔ Sistem B</th>
-                  <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Modul</th>
-                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Trx A</th>
-                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Trx B</th>
-                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Cocok</th>
-                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Match %</th>
-                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Selisih (Rp)</th>
-                  <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Status</th>
+                  <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.reconciliation.systems') }}</th>
+                  <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('settings.permission.tableModule') }}</th>
+                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.reconciliation.transactionsA') }}</th>
+                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.reconciliation.transactionsB') }}</th>
+                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.reconciliation.matched') }}</th>
+                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.reconciliation.matchPercent') }}</th>
+                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.reconciliation.differenceCurrency') }}</th>
+                  <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('strategicPlan.columns.status') }}</th>
                 </tr>
               </thead>
               <tbody>

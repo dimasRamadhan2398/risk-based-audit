@@ -26,8 +26,7 @@
                 />
                 {{ store.editingId ? 'Edit Assignment Letter' : 'Add Assignment Letter' }}
               </h2>
-              <p class="text-xs text-gray-500 mt-1">
-                Nomor Surat Tugas: <span class="font-mono font-semibold text-orange-600 dark:text-orange-400">{{ store.editingId ? (store.assignmentLetterList.find(l => l.id === store.editingId)?.letterNumber || store.generateNomorSurat(store.form.auditTeam, store.form.auditYear)) : store.generateNomorSurat(store.form.auditTeam, store.form.auditYear) }}</span>
+              <p class="text-xs text-gray-500 mt-1"> {{ t('assignmentLetter.formExtra.number') }} <span class="font-mono font-semibold text-orange-600 dark:text-orange-400">{{ store.editingId ? (store.assignmentLetterList.find(l => l.id === store.editingId)?.letterNumber || store.generateNomorSurat(store.form.auditTeam, store.form.auditYear)) : store.generateNomorSurat(store.form.auditTeam, store.form.auditYear) }}</span>
               </p>
             </div>
             <UIcon
@@ -41,13 +40,13 @@
           <div class="p-4 sm:p-6 md:p-8 overflow-y-auto space-y-6 flex-1">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
               <UFormField
-                label="Audit Title"
+                :label="t('actionTakenReport.detail.auditTitle')"
                 class="md:col-span-4"
                 required
               >
                 <UInput
                   v-model="store.form.auditTitle"
-                  placeholder="Example: Financial Operational Audit"
+                  :placeholder="t('assignmentLetter.formExtra.titleExample')"
                   size="lg"
                   class="w-full"
                   required
@@ -63,7 +62,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
               <UFormField
-                label="Audit Category"
+                :label="t('assignmentLetter.formExtra.category')"
                 class="md:col-span-4"
                 required
               >
@@ -78,13 +77,13 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-              <UFormField label="Audit Year" class="md:col-span-4" required>
+              <UFormField :label="t('auditPriority.selectYear')" class="md:col-span-4" required>
                 <USelectMenu v-model="store.form.auditYear" :items="yearOptions" size="lg" class="w-full" required />
               </UFormField>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center border-y border-gray-100  py-4 my-6">
-              <label class="font-bold text-gray-700 ">Audit Team</label>
+              <label class="font-bold text-gray-700 ">{{ t('assignmentLetter.formExtra.team') }}</label>
               <UFormField class="md:col-span-3">
                 <div class="flex flex-col gap-2">
                   <label
@@ -107,7 +106,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
               <UFormField
-                label="Audit Period"
+                :label="t('workingPaper.headerForm.auditPeriod')"
                 class="md:col-span-4"
                 required
               >
@@ -118,7 +117,7 @@
                     class="flex-1"
                     :class="{ 'ring-red-500': store.dateError }"
                   />
-                  <span class="font-bold text-gray-500 text-center">to</span>
+                  <span class="font-bold text-gray-500 text-center">{{ t('assignmentLetter.formExtra.to') }}</span>
                   <AppDatePicker
                     v-model="store.form.finishPeriod"
                     size="lg"
@@ -137,14 +136,14 @@
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
               <UFormField
-                label="Work Unit"
+                :label="t('assignmentLetter.formExtra.workUnit')"
                 class="md:col-span-4"
                 required
               >
                 <USelectMenu
                   v-model="store.form.workingUnit"
                   :items="store.options.workingUnit"
-                  placeholder="Select Work Unit (Required)"
+                  :placeholder="t('assignmentLetter.formExtra.workUnitPlaceholder')"
                   size="lg"
                   class="w-full"
                   :popper="{ strategy: 'absolute' }"
@@ -155,14 +154,14 @@
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
               <UFormField
-                label="Company / Entity"
+                :label="t('assignmentLetter.formExtra.company')"
                 class="md:col-span-4"
               >
                 <USelectMenu
                   v-model="store.form.companyId"
                   :items="companySelectItems"
                   value-key="value"
-                  placeholder="Select Company / Entity (Optional)"
+                  :placeholder="t('assignmentLetter.formExtra.companyPlaceholder')"
                   size="lg"
                   class="w-full"
                   :clear="true"
@@ -174,7 +173,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
               <UFormField
-                label="Team Members"
+                :label="t('assignmentLetter.formExtra.members')"
                 class="md:col-span-4 space-y-3"
                 required
               >
@@ -186,7 +185,7 @@
                   <div class="flex-1">
                     <UInput
                       v-model="member.name"
-                      placeholder="Member Name"
+                      :placeholder="t('assignmentLetter.formExtra.memberName')"
                       class="w-full"
                       required
                       maxlength="100"
@@ -201,7 +200,7 @@
                     <USelectMenu
                       v-model="member.role"
                       :items="store.options.role"
-                      placeholder="Role"
+                      :placeholder="t('assignmentLetter.formExtra.role')"
                       class="w-full sm:w-44"
                       required
                     />
@@ -218,18 +217,16 @@
                   color="primary"
                   variant="soft"
                   icon="i-heroicons-plus"
-                  label="Add Member"
+                  :label="t('workingPaper.headerForm.addMember')"
                   @click="store.addItem(store.form.membersList, { name: '', role: 'Member' })"
                 />
-                <p class="text-md text-orange-600  font-semibold">
-                  * According to template, minimum 3 team members is recommended.
-                </p>
+                <p class="text-md text-orange-600  font-semibold"> {{ t('assignmentLetter.formExtra.memberHint') }} </p>
               </UFormField>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
               <UFormField
-                label="Audit Purpose"
+                :label="t('workingPaper.headerForm.auditPurpose')"
                 class="md:col-span-4 space-y-3"
               >
                 <div
@@ -240,7 +237,7 @@
                   <span class="mt-2 font-bold text-gray-400">{{ index + 1 }}.</span>
                   <UTextarea
                     v-model="store.form.purposeList[index]"
-                    placeholder="Type audit purpose..."
+                    :placeholder="t('assignmentLetter.formExtra.purposePlaceholder')"
                     class="flex-1"
                     :rows="2"
                   />
@@ -257,7 +254,7 @@
                   color="primary"
                   variant="soft"
                   icon="i-heroicons-plus"
-                  label="Add Purpose"
+                  :label="t('assignmentLetter.formExtra.addPurpose')"
                   @click="store.addItem(store.form.purposeList, '')"
                 />
               </UFormField>
@@ -265,7 +262,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
               <UFormField
-                label="Scope"
+                :label="t('actionTakenReport.detail.scope')"
                 class="md:col-span-4 space-y-3"
               >
                 <div
@@ -275,7 +272,7 @@
                 >
                   <UInput
                     v-model="store.form.scopeList[index]"
-                    placeholder="Type scope..."
+                    :placeholder="t('assignmentLetter.formExtra.scopePlaceholder')"
                     class="flex-1"
                   />
                   <UButton
@@ -290,7 +287,7 @@
                   color="primary"
                   variant="soft"
                   icon="i-heroicons-plus"
-                  label="Add Scope"
+                  :label="t('assignmentLetter.formExtra.addScope')"
                   @click="store.addItem(store.form.scopeList, '')"
                 />
               </UFormField>
@@ -298,7 +295,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
               <UFormField
-                label="CC (Carbon Copy)"
+                :label="t('assignmentLetter.formExtra.cc')"
                 class="md:col-span-4 space-y-3"
               >
                 <div
@@ -308,7 +305,7 @@
                 >
                   <UInput
                     v-model="store.form.ccList[index]"
-                    placeholder="CC Position (Example: President Director)"
+                    :placeholder="t('assignmentLetter.formExtra.ccPosition')"
                     class="flex-1"
                     required
                     maxlength="100"
@@ -330,7 +327,7 @@
                   color="primary"
                   variant="soft"
                   icon="i-heroicons-plus"
-                  label="Add CC"
+                  :label="t('assignmentLetter.formExtra.addCc')"
                   @click="store.addItem(store.form.ccList, '')"
                 />
               </UFormField>
@@ -363,6 +360,7 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import { useMasterOptionsStore } from '~/stores/master-options'
 import { getFiscalYearStrings } from '~/composables/useFiscalYear'

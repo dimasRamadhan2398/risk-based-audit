@@ -2,9 +2,9 @@
   <UCard class="rounded-xl shadow overflow-hidden" variant="soft" color="primary">
     <template #header>
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <h2 class="text-lg font-bold">Department List</h2>
+        <h2 class="text-lg font-bold">{{ t('masterData.department.listTitle') }}</h2>
         <UButton
-          label="Add Department"
+          :label="t('masterData.department.add')"
           icon="i-heroicons-plus"
           color="primary"
           class="w-full sm:w-auto"
@@ -17,19 +17,19 @@
     <div class="mb-4 flex flex-wrap gap-2 sm:gap-4 items-center">
       <UInput
         v-model="searchInput"
-        placeholder="Search department..."
+        :placeholder="t('masterData.department.searchPlaceholder')"
         icon="i-heroicons-magnifying-glass"
         class="w-full sm:w-64"
         @keyup.enter="handleSearch"
       />
       <UButton
-        label="Search"
+        :label="t('masterData.department.search')"
         color="primary"
         variant="soft"
         @click="handleSearch"
       />
       <UButton
-        label="Reset"
+        :label="t('masterData.department.reset')"
         color="neutral"
         variant="ghost"
         @click="resetSearch"
@@ -54,7 +54,7 @@
     <!-- Empty State -->
     <div v-else-if="store.departments.length === 0" class="py-8 text-center">
       <UIcon name="i-heroicons-building-office" class="text-4xl text-gray-400 mb-2" />
-      <p class="text-gray-500">No departments found.</p>
+      <p class="text-gray-500">{{ t('masterData.department.empty') }}</p>
     </div>
 
     <!-- Table & Pagination via TableEntities -->
@@ -92,7 +92,7 @@
 
       <template #level-cell="{ row }">
         <UBadge color="neutral" variant="soft">
-          Level {{ row.original.level }}
+          {{ t('masterData.department.level', { level: row.original.level }) }}
         </UBadge>
       </template>
 
@@ -101,7 +101,7 @@
           :color="row.original.is_active ? 'success' : 'error'"
           variant="subtle"
         >
-          {{ row.original.is_active ? 'Active' : 'Inactive' }}
+          {{ row.original.is_active ? t('masterData.department.active') : t('masterData.department.inactive') }}
         </UBadge>
       </template>
 
@@ -133,6 +133,7 @@ import { useMasterOptionsStore } from '~/stores/master-options'
 
 const store = useDepartmentStore()
 const options = useMasterOptionsStore()
+const { t } = useI18n()
 
 // Local search state
 const searchInput = ref(store.search)
