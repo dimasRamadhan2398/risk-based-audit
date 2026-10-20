@@ -71,11 +71,24 @@ func CanTransitionAnnualPlanStatus(from, to string) bool {
 	return annualPlanTransitions[from][to]
 }
 
-// AnnualPlanActivityTypes is the closed list for AuditAnnual.ActivityType (the
-// Jenis Kegiatan Audit choices of the Formulir Rencana Kegiatan Audit template).
-var AnnualPlanActivityTypes = []string{
-	"Assurance",
-	"Audit Khusus",
-	"Audit Tujuan Tertentu",
-	"Audit Investigasi",
+// Jenis Kegiatan Audit values of the Formulir Rencana Kegiatan Audit.
+const (
+	ActivityTypeAssurance     = "Assurance"
+	ActivityTypeSpecialAudit  = "Audit Khusus"
+	ActivityTypeSpecificAudit = "Audit Tujuan Tertentu"
+	ActivityTypeInvestigation = "Audit Investigasi"
+)
+
+// ActivityPlanActivityTypes is the closed list for ActivityPlan.ActivityType
+// (the Jenis Kegiatan Audit choices of the Formulir Rencana Kegiatan Audit).
+var ActivityPlanActivityTypes = []string{
+	ActivityTypeAssurance,
+	ActivityTypeSpecialAudit,
+	ActivityTypeSpecificAudit,
+	ActivityTypeInvestigation,
 }
+
+// AnnualPlanActivityTypes is the same list, still accepted for the deprecated
+// AuditAnnual.ActivityType so old clients keep working. Kept as an alias until
+// the PKAT validator stops using it.
+var AnnualPlanActivityTypes = ActivityPlanActivityTypes

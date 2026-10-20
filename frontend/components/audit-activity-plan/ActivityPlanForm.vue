@@ -1,24 +1,22 @@
 <template>
-  <UModal 
-    v-model:open="store.isModalOpen" 
+  <UModal
+    :open="store.isModalOpen"
     :ui="{
-        content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
-        header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
-        body: 'p-4 sm:p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
-        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
-        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-6xl max-h-[92vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+      overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
     }"
+    @update:open="(open: boolean) => { if (!open) store.closeModal() }"
   >
     <template #content>
-      <div class="relative flex flex-col max-h-[90vh] transition-colors duration-300">
+      <div class="relative flex max-h-[92vh] flex-col transition-colors duration-300">
         <!-- Header -->
-        <div class="flex items-center justify-between p-4 sm:p-5 border-b border-[var(--border-main)] bg-[var(--bg-surface)]">
+        <div class="flex items-center justify-between border-b border-[var(--border-main)] bg-[var(--bg-surface)] p-4 sm:p-5">
           <div>
             <h3 class="text-lg sm:text-xl font-bold text-[var(--text-main)]">
-              {{ store.isEditMode ? t('auditActivityPlan.editPlan') : t('auditActivityPlan.form.createPlanTitle') }}
+              {{ store.isEditMode ? t('auditActivityPlan.editPlan') : t('auditActivityPlan.createPlanTitle') }}
             </h3>
-            <p class="text-xs text-[var(--text-muted)] mt-0.5">
-              {{ steps[currentStep]?.label }} — {{ t('auditActivityPlan.form.stepNum', { current: currentStep + 1, total: steps.length }) }}
+            <p class="mt-0.5 text-xs text-[var(--text-muted)]">
+              {{ t('auditActivityPlan.formTitle') }} — {{ steps[currentStep]?.label }} ({{ t('auditActivityPlan.form.stepNum', { current: currentStep + 1, total: steps.length }) }})
             </p>
           </div>
           <UButton
@@ -26,483 +24,358 @@
             variant="ghost"
             icon="i-heroicons-x-mark-20-solid"
             class="-my-1"
+            :aria-label="t('auditActivityPlan.form.cancel')"
             @click="store.closeModal"
           />
         </div>
 
-        <!-- Stepper Navigation Header (Full Width with horizontal scroll) -->
-        <div class="w-full px-4 sm:px-6 py-3 sm:py-4 border-b border-[var(--border-main)] bg-[var(--bg-surface)] overflow-x-auto scrollbar-thin">
-          <div class="flex items-center min-w-max gap-3 sm:gap-4 px-1">
-            <template v-for="(step, idx) in steps" :key="step.key">
-              <div 
-                class="flex items-center gap-2 sm:gap-2.5 cursor-pointer group select-none shrink-0"
+        <!-- Stepper -->
+        <div class="w-full overflow-x-auto border-b border-[var(--border-main)] bg-[var(--bg-surface)] px-4 py-3 sm:px-6 sm:py-4 scrollbar-thin">
+          <div class="flex min-w-max items-center gap-3 px-1 sm:gap-4">
+            <template
+              v-for="(step, idx) in steps"
+              :key="step.key"
+            >
+              <div
+                class="group flex shrink-0 cursor-pointer select-none items-center gap-2 sm:gap-2.5"
+                data-testid="form-step"
                 @click="goToStep(idx)"
               >
-                <div 
-                  class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 shrink-0"
-                  :class="currentStep === idx 
-                    ? 'bg-primary text-white shadow-md ring-4 ring-primary/20 scale-105' 
-                    : currentStep > idx 
-                      ? 'bg-secondary text-white shadow-sm' 
+                <div
+                  class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all duration-300 sm:h-8 sm:w-8"
+                  :class="currentStep === idx
+                    ? 'bg-primary text-white shadow-md ring-4 ring-primary/20 scale-105'
+                    : currentStep > idx
+                      ? 'bg-secondary text-white shadow-sm'
                       : 'bg-gray-100 dark:bg-gray-800 text-gray-400 group-hover:bg-gray-200 dark:group-hover:bg-gray-700'"
                 >
-                  <UIcon v-if="currentStep > idx" name="i-heroicons-check" class="w-3.5 h-3.5 stroke-[3]" />
+                  <UIcon
+                    v-if="currentStep > idx"
+                    name="i-heroicons-check"
+                    class="h-3.5 w-3.5 stroke-[3]"
+                  />
                   <span v-else>{{ idx + 1 }}</span>
                 </div>
-                <span 
-                  class="text-xs font-semibold whitespace-nowrap transition-colors"
-                  :class="currentStep === idx 
-                    ? 'text-primary font-bold' 
-                    : currentStep > idx 
-                      ? 'text-secondary font-semibold' 
+                <span
+                  class="whitespace-nowrap text-xs font-semibold transition-colors"
+                  :class="currentStep === idx
+                    ? 'text-primary font-bold'
+                    : currentStep > idx
+                      ? 'text-secondary font-semibold'
                       : 'text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300'"
                 >
                   {{ step.label }}
                 </span>
               </div>
-              <div 
-                v-if="idx < steps.length - 1" 
-                class="w-5 sm:w-8 h-0.5 rounded transition-all duration-300 shrink-0"
+              <div
+                v-if="idx < steps.length - 1"
+                class="h-0.5 w-5 shrink-0 rounded transition-all duration-300 sm:w-8"
                 :class="currentStep > idx ? 'bg-secondary' : 'bg-gray-200 dark:bg-gray-800'"
-              ></div>
+              />
             </template>
           </div>
         </div>
 
-        <!-- Form Body -->
-        <div class="flex-1 overflow-y-auto p-6 space-y-6">
-          <!-- Step Error Alert Banner -->
-          <Transition name="fade">
+        <!-- Body -->
+        <div
+          ref="bodyRef"
+          class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6"
+        >
+          <!-- Loading the saved plan -->
+          <div
+            v-if="store.formLoading"
+            class="flex h-40 items-center justify-center gap-2 text-[var(--text-muted)]"
+          >
+            <UIcon
+              name="i-heroicons-arrow-path"
+              class="h-5 w-5 animate-spin"
+            />
+            {{ t('auditActivityPlan.view.loading') }}
+          </div>
+
+          <UAlert
+            v-else-if="store.formLoadError"
+            color="error"
+            variant="subtle"
+            icon="i-heroicons-exclamation-triangle"
+            :description="store.formLoadError"
+            :actions="[{ label: t('auditActivityPlan.retry'), color: 'error', variant: 'outline', onClick: () => store.loadEditing() }]"
+          />
+
+          <template v-else>
+            <!-- Blocking errors of the step / server -->
             <UAlert
-              v-if="stepError"
+              v-if="store.formError?.messages.length"
               color="error"
-              variant="solid"
+              variant="subtle"
               icon="i-heroicons-exclamation-triangle"
               :title="t('common.error')"
-              :description="stepError"
-              closable
-              class="mb-2 shadow-md"
-              @close="stepError = ''"
-            />
-          </Transition>
+              :actions="store.formError.code === 'ACTIVITY_PLAN_STALE'
+                ? [{ label: t('auditActivityPlan.reload'), color: 'error', variant: 'outline', onClick: () => store.loadEditing() }]
+                : []"
+              close
+              class="shadow-sm"
+              data-testid="form-error"
+              @update:open="(open: boolean) => { if (!open) store.formError = null }"
+            >
+              <template #description>
+                <ul class="list-disc space-y-0.5 pl-4">
+                  <li
+                    v-for="(message, i) in store.formError.messages"
+                    :key="i"
+                  >
+                    {{ message }}
+                  </li>
+                </ul>
+              </template>
+            </UAlert>
 
-          <UForm :state="store.formState" @submit="handleFormSubmit" class="space-y-6">
-            
-            <!-- Step 1: Basic Information -->
-            <div v-if="currentStep === 0" class="space-y-6">
-              <UCard :ui="{ body: 'p-6' }" class="border border-[var(--border-main)]">
+            <!-- Step 1: header of the form -->
+            <div
+              v-if="currentStep === 0"
+              class="space-y-5"
+            >
+              <UCard
+                :ui="{ body: 'p-4 sm:p-6' }"
+                class="border border-[var(--border-main)]"
+              >
                 <template #header>
                   <div class="flex items-center gap-2">
-                    <UIcon name="i-heroicons-information-circle" class="w-5 h-5 text-amber-500" />
-                    <h3 class="text-lg font-bold text-[var(--text-main)]">{{ t('auditActivityPlan.form.basicInfo') }}</h3>
+                    <UIcon
+                      name="i-heroicons-document-text"
+                      class="h-5 w-5 text-amber-500"
+                    />
+                    <h3 class="text-lg font-bold text-[var(--text-main)]">
+                      {{ t('auditActivityPlan.stepper.header') }}
+                    </h3>
                   </div>
                 </template>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <UFormField :label="t('auditActivityPlan.form.planTitle')" required>
-                    <UInput 
-                      v-model="store.formState.planTitle" 
-                      :placeholder="t('auditActivityPlan.extra.yearExample')"
+                <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
+                  <UFormField
+                    :label="t('auditActivityPlan.header.annualPlan')"
+                    required
+                    class="md:col-span-2"
+                    :help="store.isEditMode ? t('auditActivityPlan.header.annualPlanLocked') : undefined"
+                  >
+                    <UInput
+                      v-if="store.isEditMode"
+                      :model-value="annualPlanLabel"
+                      disabled
                       class="w-full"
-                      required
-                      maxlength="100"
-                      @invalid="($event.target as any)?.setCustomValidity('Nama aktivitas maksimal 100 karakter dan wajib diisi')"
-                      @input="($event.target as any)?.setCustomValidity('')"
+                      data-testid="annual-plan-readonly"
+                    />
+                    <USelectMenu
+                      v-else
+                      :model-value="store.formState.annualPlanId || undefined"
+                      :items="store.annualPlanOptions"
+                      value-key="value"
+                      label-key="label"
+                      :loading="store.annualPlansLoading"
+                      :placeholder="t('auditActivityPlan.header.annualPlanPlaceholder')"
+                      class="w-full"
+                      data-testid="annual-plan-select"
+                      @update:model-value="(value: string | undefined) => store.setAnnualPlan(value)"
+                    >
+                      <template #empty>
+                        {{ store.annualPlansLoading ? t('common.loading') : t('auditActivityPlan.header.annualPlanEmpty') }}
+                      </template>
+                    </USelectMenu>
+                  </UFormField>
+
+                  <UFormField
+                    :label="t('auditActivityPlan.header.year')"
+                    :hint="t('auditActivityPlan.form.derivedFromAnnual')"
+                  >
+                    <UInput
+                      :model-value="store.formYear ? String(store.formYear) : ''"
+                      disabled
+                      class="w-full"
+                      data-testid="header-year"
+                    />
+                  </UFormField>
+
+                  <UAlert
+                    v-if="store.annualPlanNotApproved"
+                    color="warning"
+                    variant="subtle"
+                    icon="i-heroicons-information-circle"
+                    :description="t('auditActivityPlan.header.annualPlanNotApproved', { status: annualPlanStatusLabel })"
+                    class="md:col-span-3"
+                    data-testid="annual-plan-not-approved"
+                  />
+
+                  <UFormField
+                    :label="t('auditActivityPlan.header.activityType')"
+                    required
+                  >
+                    <USelectMenu
+                      :model-value="store.formState.activityType || undefined"
+                      :items="store.activityTypeOptions"
+                      value-key="value"
+                      label-key="label"
+                      :placeholder="t('auditActivityPlan.header.activityTypePlaceholder')"
+                      class="w-full"
+                      data-testid="activity-type-select"
+                      @update:model-value="(value: ActivityPlanActivityType | undefined) => store.setActivityType(value)"
+                    />
+                  </UFormField>
+
+                  <UFormField
+                    :label="t('auditActivityPlan.header.title')"
+                    required
+                    class="md:col-span-2"
+                  >
+                    <UInput
+                      v-model="store.formState.title"
+                      :placeholder="t('auditActivityPlan.header.titlePlaceholder')"
+                      :maxlength="ACTIVITY_PLAN_TITLE_MAX"
+                      class="w-full"
+                      data-testid="header-title"
                     />
                     <div class="flex justify-end">
-                      <span class="text-xs text-gray-500 dark:text-gray-400">{{ store.formState.planTitle.length }}/100</span>
+                      <span class="text-xs text-gray-500 dark:text-gray-400">{{ store.formState.title.length }}/{{ ACTIVITY_PLAN_TITLE_MAX }}</span>
                     </div>
                   </UFormField>
-                  <UFormField :label="t('auditActivityPlan.form.planYear')" :hint="t('auditActivityPlan.form.derivedFromAnnual')">
-                    <UInput :model-value="store.formState.planYear" disabled class="w-full" />
-                  </UFormField>
-                  <UFormField :label="t('auditActivityPlan.form.planPeriod')" required class="col-span-1 md:col-span-2 w-full">
-                    <div class="flex items-center gap-3">
-                      <AppDatePicker v-model="store.formState.planPeriodStart" class="flex-1 w-full" />
-                      <span class="text-xs font-bold text-gray-400 uppercase">{{ t('auditActivityPlan.form.to') }}</span>
-                      <AppDatePicker v-model="store.formState.planPeriodEnd" class="flex-1 w-full" />
-                    </div>
-                  </UFormField>
-                  <UFormField :label="t('auditActivityPlan.form.department')" :hint="t('auditActivityPlan.form.derivedFromAnnual')">
-                    <UInput :model-value="store.formState.department" disabled class="w-full" />
-                  </UFormField>
-                  <UFormField :label="t('auditActivityPlan.form.createdBy')" :hint="store.isEditMode ? undefined : t('auditActivityPlan.form.autoFilledFromAccount')">
-                    <UInput v-model="store.formState.createdBy" class="w-full" disabled />
-                  </UFormField>
-                </div>
-                <UFormField :label="t('auditActivityPlan.form.creationDate')" class="pt-5">
-                  <AppDatePicker v-model="store.formState.creationDate" class="w-full" disabled />
-                </UFormField>
-              </UCard>
-            </div>
-
-            <!-- Step 2: Planned Audit Activities -->
-            <div v-else-if="currentStep === 1" class="space-y-6">
-              <UCard :ui="{ body: 'p-6' }" class="border border-[var(--border-main)]">
-                <template #header>
-                  <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-2">
-                      <UIcon name="i-heroicons-clipboard-document-check" class="w-5 h-5 text-amber-500" />
-                      <h3 class="text-lg font-bold text-[var(--text-main)]">{{ t('auditActivityPlan.form.plannedActivities') }}</h3>
-                    </div>
-                    <ReusableButton 
-                      color="primary" 
-                      variant="fill" 
-                      icon="i-heroicons-plus" 
-                      :label="t('auditActivityPlan.form.addAuditActivity')" 
-                      @click="store.addPlannedActivity" 
-                    />
-                  </div>
-                </template>
-
-                <div class="space-y-6">
-                  <div 
-                    v-for="(activity, index) in store.formState.plannedActivities" 
-                    :key="activity.id" 
-                    class="border border-[var(--border-main)] rounded-xl p-5 relative bg-[var(--bg-surface)] shadow-sm space-y-4"
-                  >
-                    <UButton
-                      color="error"
-                      variant="ghost"
-                      icon="i-heroicons-trash"
-                      class="absolute top-3 right-3"
-                      @click="store.removePlannedActivity(index)"
-                    />
-                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-gray-100 dark:border-gray-800 pb-2 pr-10">
-                      <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200">
-                        {{ t('auditActivityPlan.form.activityNum', { num: index + 1 }) }}
-                      </h4>
-                      <!-- Activity ID: assigned by the backend on save, read-only here. -->
-                      <div class="flex items-center gap-1.5 text-xs" data-testid="planned-activity-code">
-                        <span class="text-gray-500 dark:text-gray-400">{{ t('auditActivityPlan.form.activityId') }}:</span>
-                        <span
-                          v-if="activity.activityCode"
-                          class="font-mono font-semibold px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 select-all"
-                        >{{ activity.activityCode }}</span>
-                        <span v-else class="italic text-gray-400 dark:text-gray-500">{{ t('auditActivityPlan.form.activityIdPending') }}</span>
-                      </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <UFormField :label="t('auditActivityPlan.form.activityTitle')" required>
-                        <UInput 
-                          v-model="activity.auditName" 
-                          :placeholder="t('auditActivityPlan.extra.auditExample')"
-                          class="w-full"
-                          :required="true"
-                          maxlength="100"
-                          @invalid="($event.target as any)?.setCustomValidity('Nama aktivitas maksimal 100 karakter dan wajib diisi')"
-                          @input="($event.target as any)?.setCustomValidity('')"
-                        />
-                        <div class="flex justify-end">
-                          <span class="text-xs text-gray-500 dark:text-gray-400">{{ activity.auditName.length }}/100</span>
-                        </div>
-                      </UFormField>
-                      <UFormField :label="t('auditActivityPlan.form.auditee')" required>
-                        <UInput 
-                          v-model="activity.auditee" 
-                          :placeholder="t('auditActivityPlan.extra.nameExample')"
-                          class="w-full"
-                          :required="true"
-                          maxlength="100"
-                          @invalid="($event.target as any)?.setCustomValidity('Auditee maksimal 100 karakter dan wajib diisi')"
-                          @input="($event.target as any)?.setCustomValidity('')"
-                        />
-                        <div class="flex justify-end">
-                          <span class="text-xs text-gray-500 dark:text-gray-400">{{ activity.auditee.length }}/100</span>
-                        </div>
-                      </UFormField>
-                      <UFormField :label="t('auditActivityPlan.form.annualActivity')" required class="col-span-1 md:col-span-2" :hint="t('auditActivityPlan.form.annualActivityHint')">
-                        <USelectMenu
-                          :model-value="activity.annualActivityId || undefined"
-                          :items="store.annualActivityOptions"
-                          value-key="value"
-                          label-key="label"
-                          :placeholder="t('auditActivityPlan.form.selectAnnualActivity')"
-                          class="w-full"
-                          @update:model-value="(val: string | undefined) => store.linkAnnualActivity(index, val)"
-                        >
-                          <template #empty>
-                            {{ t('auditActivityPlan.form.noAnnualActivities') }}
-                          </template>
-                        </USelectMenu>
-                      </UFormField>
-
-                      <!-- Copied from the linked annual activity: read-only here, edited in the Annual Audit Plan. -->
-                      <div class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 rounded-lg border border-dashed border-[var(--border-main)] p-3 bg-gray-50 dark:bg-gray-900/40">
-                        <p class="md:col-span-2 text-xs text-gray-500 dark:text-gray-400">{{ t('auditActivityPlan.form.copiedFromAnnual') }}</p>
-                        <UFormField :label="t('auditActivityPlan.form.category')">
-                          <UInput :model-value="activity.category" disabled class="w-full" />
-                        </UFormField>
-                        <UFormField :label="t('auditActivityPlan.form.associatedRisk')">
-                          <UInput :model-value="activity.riskName || '-'" disabled class="w-full" />
-                        </UFormField>
-                        <UFormField :label="t('auditActivityPlan.form.riskLevel')">
-                          <span
-                            class="inline-flex items-center px-2 py-1 rounded-md text-sm font-semibold"
-                            :class="getRiskLevelColorClass(activity.riskLevel)"
-                          >{{ riskLevelLabel(activity.riskLevel) }}</span>
-                        </UFormField>
-                        <UFormField :label="t('auditActivityPlan.form.duration')">
-                          <UInput :model-value="activity.duration" disabled class="w-full" />
-                        </UFormField>
-                        <UFormField :label="t('auditActivityPlan.form.auditorsNum')">
-                          <UInput :model-value="activity.numberOfAuditors" disabled class="w-full" />
-                        </UFormField>
-                      </div>
-
-                      <UFormField :label="t('auditActivityPlan.form.priority')">
-                        <USelectMenu 
-                          v-model="activity.priority" 
-                          :items="store.priorityOptions" 
-                          value-key="value" 
-                          label-key="label" 
-                          :placeholder="t('auditActivityPlan.form.selectPriority')" 
-                          class="w-full"
-                        />
-                      </UFormField>
-                      <UFormField :label="t('auditActivityPlan.form.estimatedSchedule')">
-                        <AppDatePicker v-model="activity.estimatedSchedule" class="w-full"/>
-                      </UFormField>
-                      <UFormField :label="t('auditActivityPlan.form.budgetEstimation')">
-                        <UInput v-model="activity.budgetEstimation" type="number" min="0" class="w-full [&::-webkit-outer-spin-button]:hidden [&::-webkit-inner-spin-button]:hidden [&[type=number]]:appearance-none">
-                          <template #trailing>
-                            <span class="text-xs text-gray-400 dark:text-gray-500 font-medium select-none pr-1">
-                              {{ t('auditActivityPlan.form.rupiah') }}
-                            </span>
-                          </template>
-                        </UInput>
-                      </UFormField>
-                    </div>
-                  </div>
-                  
-                  <div v-if="store.formState.plannedActivities.length === 0" class="text-center text-gray-400 py-8 italic border border-dashed rounded-xl">
-                    {{ t('auditActivityPlan.form.noActivitiesAdded') }}
-                  </div>
-
-                  <div class="mt-6 border-t border-[var(--border-main)] pt-5">
-                    <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200 mb-3">{{ t('auditActivityPlan.form.summaryOfActivities') }}</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <UCard :ui="{ body: 'p-4 text-center' }" class="bg-red-600 dark:bg-red-700 text-white shadow-md border-0 rounded-xl">
-                        <div class="text-xs font-extrabold uppercase tracking-wider opacity-90">{{ t('auditActivityPlan.form.highRisk') }}</div>
-                        <div class="text-2xl font-black mt-1">{{ highRiskCount }}</div>
-                      </UCard>
-                      <UCard :ui="{ body: 'p-4 text-center' }" class="bg-primary-400 dark:bg-primary-400 text-white shadow-md border-0 rounded-xl">
-                        <div class="text-xs font-extrabold uppercase tracking-wider opacity-90">{{ t('auditActivityPlan.form.mediumRisk') }}</div>
-                        <div class="text-2xl font-black mt-1">{{ mediumRiskCount }}</div>
-                      </UCard>
-                      <UCard :ui="{ body: 'p-4 text-center' }" class="bg-green-600 dark:bg-green-700 text-white shadow-md border-0 rounded-xl">
-                        <div class="text-xs font-extrabold uppercase tracking-wider opacity-90">{{ t('auditActivityPlan.form.lowRisk') }}</div>
-                        <div class="text-2xl font-black mt-1">{{ lowRiskCount }}</div>
-                      </UCard>
-                    </div>
-                  </div>
                 </div>
               </UCard>
             </div>
 
-            <!-- Step 3: Resources & Budget -->
-            <div v-else-if="currentStep === 2" class="space-y-6">
-              <UCard :ui="{ body: 'p-6' }" class="border border-[var(--border-main)]">
-                <template #header>
-                  <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-2">
-                      <UIcon name="i-heroicons-user-group" class="w-5 h-5 text-amber-500" />
-                      <h3 class="text-lg font-bold text-[var(--text-main)]">{{ t('auditActivityPlan.form.resourcesAndBudget') }}</h3>
-                    </div>
-                    <UButton 
-                      color="warning" 
-                      variant="solid" 
-                      icon="i-heroicons-plus" 
-                      :label="t('auditActivityPlan.form.addAuditor')" 
-                      class="font-bold shadow-sm"
-                      @click="store.addResourceAuditor" 
-                    />
-                  </div>
-                </template>
-                
-                <div class="space-y-6">
-                  <div 
-                    v-for="(auditor, index) in store.formState.resourceAuditors" 
-                    :key="auditor.id" 
-                    class="border border-[var(--border-main)] rounded-xl p-5 relative bg-[var(--bg-surface)] shadow-sm space-y-4"
-                  >
-                    <UButton
-                      color="error"
-                      variant="ghost"
-                      icon="i-heroicons-trash"
-                      class="absolute top-3 right-3"
-                      @click="store.removeResourceAuditor(index)"
-                    />
-                    <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200 border-b border-gray-100 dark:border-gray-800 pb-2">
-                      {{ t('auditActivityPlan.form.auditorNum', { num: index + 1 }) }}
-                    </h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <UFormField :label="t('auditActivityPlan.form.name')">
-                        <UInput v-model="auditor.name" :placeholder="t('auditActivityPlan.extra.nameExample')" class="w-full"/>
-                      </UFormField>
-                      <UFormField :label="t('auditActivityPlan.form.position')">
-                        <UInput v-model="auditor.position" :placeholder="t('auditActivityPlan.extra.auditorExample')" class="w-full"/>
-                      </UFormField>
-                      <UFormField :label="t('auditActivityPlan.form.competence')">
-                        <UInput v-model="auditor.competence" class="w-full"/>
-                      </UFormField>
-                      <UFormField :label="t('auditActivityPlan.form.availability')">
-                        <UInput v-model="auditor.availability" :placeholder="t('auditActivityPlan.extra.available')" class="w-full"/>
-                      </UFormField>
-                    </div>
-                  </div>
-
-                  <div class="mt-6 border-t border-[var(--border-main)] pt-5">
-                    <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
-                      <UIcon name="i-heroicons-banknotes" class="w-5 h-5 text-amber-500" />
-                      {{ t('auditActivityPlan.form.budgetPlanning') }}
-                    </h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <UFormField
-                        :label="`${t('auditActivityPlan.form.totalEstimatedCost')} (${t('auditActivityPlan.form.rupiah')})`"
-                        :hint="t('auditActivityPlan.form.autoCalculated')"
-                      >
-                        <UInput :model-value="formatRupiah(store.totalEstimatedCost)" class="w-full" disabled />
-                      </UFormField>
-                      <UFormField
-                        :label="`${t('auditActivityPlan.form.totalAllocatedBudget')} (${t('auditActivityPlan.form.rupiah')})`"
-                        :help="allocatedBelowEstimate ? t('auditActivityPlan.form.allocatedBelowEstimate') : undefined"
-                        :ui="{ help: 'text-amber-600 dark:text-amber-400' }"
-                      >
-                        <div class="relative flex items-center w-full">
-                          <UInput 
-                            v-model.number="store.formState.budget.totalAllocatedBudget" 
-                            type="number" 
-                            min="0"
-                            step="1"
-                            class="w-full"
-                            :ui="{ base: 'pr-14' }"
-                          />
-                          <div class="absolute right-1.5 flex items-center gap-0.5 z-10">
-                            <button
-                              type="button"
-                              :title="t('auditActivityPlan.extra.decrease')"
-                              class="size-6 flex items-center justify-center rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                              @click="store.formState.budget.totalAllocatedBudget = Math.max(0, (Number(store.formState.budget.totalAllocatedBudget) || 0) - 1)"
-                            >
-                              <UIcon name="i-heroicons-chevron-down" class="size-4" />
-                            </button>
-                            <button
-                              type="button"
-                              :title="t('auditActivityPlan.extra.increase')"
-                              class="size-6 flex items-center justify-center rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                              @click="store.formState.budget.totalAllocatedBudget = (Number(store.formState.budget.totalAllocatedBudget) || 0) + 1"
-                            >
-                              <UIcon name="i-heroicons-chevron-up" class="size-4" />
-                            </button>
-                          </div>
-                        </div>
-                      </UFormField>
-                      <UFormField :label="t('auditActivityPlan.form.budgetNotes')" class="col-span-1 md:col-span-2">
-                        <UTextarea v-model="store.formState.budget.budgetNotes" class="w-full" :rows="3"/>
-                      </UFormField>
-                    </div>
-                  </div>
+            <!-- Step 2: assignments -->
+            <div
+              v-else-if="currentStep === 1"
+              class="space-y-5"
+            >
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex items-center gap-2">
+                  <UIcon
+                    name="i-heroicons-clipboard-document-check"
+                    class="h-5 w-5 text-amber-500"
+                  />
+                  <h3 class="text-lg font-bold text-[var(--text-main)]">
+                    {{ t('auditActivityPlan.stepper.rows') }}
+                  </h3>
                 </div>
-              </UCard>
+                <UTooltip
+                  :text="canPick ? t('auditActivityPlan.rows.addFromPkat') : t('auditActivityPlan.rows.pickHeaderFirst')"
+                >
+                  <UButton
+                    icon="i-heroicons-plus"
+                    color="primary"
+                    :label="t('auditActivityPlan.rows.addFromPkat')"
+                    :disabled="!canPick"
+                    data-testid="add-from-pkat"
+                    @click="pickerOpen = true"
+                  />
+                </UTooltip>
+              </div>
+
+              <div
+                v-if="!store.formState.rows.length"
+                class="rounded-xl border border-dashed border-[var(--border-main)] py-10 text-center text-sm italic text-gray-400"
+                data-testid="rows-empty"
+              >
+                {{ t('auditActivityPlan.rows.empty') }}
+              </div>
+
+              <ActivityPlanRowCard
+                v-for="(row, index) in store.formState.rows"
+                :key="row.key"
+                :index="index"
+                :total="store.formState.rows.length"
+                :highlighted="highlightedRow === index + 1"
+              />
+
+              <!-- Totals -->
+              <div
+                v-if="store.formState.rows.length"
+                class="grid grid-cols-1 gap-3 rounded-xl border border-[var(--border-main)] bg-[var(--bg-surface)] p-4 sm:grid-cols-3"
+                data-testid="rows-totals"
+              >
+                <div class="text-center">
+                  <p class="text-xs font-semibold uppercase text-[var(--text-muted)]">
+                    {{ t('auditActivityPlan.totals.rows') }}
+                  </p>
+                  <p class="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                    {{ store.formTotals.rowCount }}
+                  </p>
+                </div>
+                <div class="text-center">
+                  <p class="text-xs font-semibold uppercase text-[var(--text-muted)]">
+                    {{ t('auditActivityPlan.totals.teamSize') }}
+                  </p>
+                  <p class="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                    {{ store.formTotals.teamSize }}
+                  </p>
+                </div>
+                <div class="text-center">
+                  <p class="text-xs font-semibold uppercase text-[var(--text-muted)]">
+                    {{ t('auditActivityPlan.totals.mandays') }}
+                  </p>
+                  <p class="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                    {{ store.formTotals.totalMandays }}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <!-- Step 4: Review & Approval -->
-            <div v-else-if="currentStep === 3" class="space-y-6">
-              <UCard :ui="{ body: 'p-6' }" class="border border-[var(--border-main)]">
+            <!-- Step 3: attachments -->
+            <div
+              v-else-if="currentStep === 2"
+              class="space-y-6"
+            >
+              <UCard
+                :ui="{ body: 'p-4 sm:p-6' }"
+                class="border border-[var(--border-main)]"
+              >
                 <template #header>
                   <div class="flex items-center gap-2">
-                    <UIcon name="i-heroicons-check-badge" class="w-5 h-5 text-amber-500" />
-                    <h3 class="text-lg font-bold text-[var(--text-main)]">{{ t('auditActivityPlan.form.reviewAndApproval') }}</h3>
-                  </div>
-                </template>
-                <div class="space-y-6">
-                  <div>
-                    <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200 mb-3">{{ t('auditActivityPlan.view.creator') }}</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <UFormField :label="t('auditActivityPlan.form.creatorName')" required>
-                        <UInput v-model="store.formState.review.creatorName" class="w-full"/>
-                      </UFormField>
-                      <UFormField :label="t('auditActivityPlan.form.creatorPosition')" required>
-                        <UInput v-model="store.formState.review.creatorPosition" class="w-full"/>
-                      </UFormField>
-                    </div>
-                  </div>
-
-                  <div class="border-t border-[var(--border-main)] pt-5">
-                    <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200 mb-3">{{ t('auditActivityPlan.form.approvedBy') }}</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <UFormField :label="t('auditActivityPlan.form.approverName')" required>
-                        <UInput 
-                          v-model="store.formState.review.approverName" 
-                          class="w-full"
-                          required
-                          maxlength="100"
-                          @invalid="($event.target as any)?.setCustomValidity('Nama approval maksimal 100 karakter dan wajib diisi')"
-                          @input="($event.target as any)?.setCustomValidity('')"
-                        />
-                        <div class="text-xs text-gray-500 mt-1 text-right">
-                          {{ store.formState.review.approverName ? store.formState.review.approverName.length : 0 }}/100
-                        </div>
-                      </UFormField>
-                      <UFormField :label="t('auditActivityPlan.form.approverPosition')" required>
-                        <UInput 
-                          v-model="store.formState.review.approverPosition" 
-                          class="w-full"
-                          required
-                          maxlength="100"
-                          @invalid="($event.target as any)?.setCustomValidity('Jabatan approval maksimal 100 karakter dan wajib diisi')"
-                          @input="($event.target as any)?.setCustomValidity('')"
-                        />
-                        <div class="text-xs text-gray-500 mt-1 text-right">
-                          {{ store.formState.review.approverPosition ? store.formState.review.approverPosition.length : 0 }}/100
-                        </div>
-                      </UFormField>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-                      <UFormField :label="t('auditActivityPlan.form.approvalDate')">
-                        <AppDatePicker v-model="store.formState.review.approvalDate" class="w-full"/>
-                      </UFormField>
-                    </div>
-                    <UFormField :label="t('auditActivityPlan.form.additionalNotes')" class="pt-4">
-                      <UTextarea v-model="store.formState.review.additionalNotes" class="w-full" :rows="3"/>
-                    </UFormField>
-                  </div>
-                </div>
-              </UCard>
-            </div>
-
-            <!-- Step 5: Attachments -->
-            <div v-else-if="currentStep === 4" class="space-y-6">
-              <UCard :ui="{ body: 'p-6' }" class="border border-[var(--border-main)]">
-                <template #header>
-                  <div class="flex items-center gap-2">
-                    <UIcon name="i-heroicons-paper-clip" class="w-5 h-5 text-amber-500" />
-                    <h3 class="text-lg font-bold text-[var(--text-main)]">{{ t('auditActivityPlan.form.attachment') }}</h3>
+                    <UIcon
+                      name="i-heroicons-paper-clip"
+                      class="h-5 w-5 text-amber-500"
+                    />
+                    <h3 class="text-lg font-bold text-[var(--text-main)]">
+                      {{ t('auditActivityPlan.form.attachment') }}
+                    </h3>
                   </div>
                 </template>
                 <div class="space-y-4">
-                  <!-- Uploaded by / upload date are set from the signed-in user when files are saved. -->
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <UFormField :label="t('auditActivityPlan.form.attachmentCategory')">
-                      <USelectMenu v-model="store.formState.attachmentCategory" :items="store.attachmentCategoryOptions" class="w-full"/>
+                      <USelectMenu
+                        v-model="store.formState.attachmentCategory"
+                        :items="store.attachmentCategoryOptions"
+                        class="w-full"
+                      />
                     </UFormField>
                   </div>
-                  <div v-if="store.formState.attachments?.length" class="space-y-2">
-                    <p class="text-sm font-semibold text-[var(--text-main)]">{{ t('auditActivityPlan.form.attachedFiles') }}</p>
+                  <div
+                    v-if="store.formState.attachments.length"
+                    class="space-y-2"
+                  >
+                    <p class="text-sm font-semibold text-[var(--text-main)]">
+                      {{ t('auditActivityPlan.form.attachedFiles') }}
+                    </p>
                     <ul class="space-y-1">
                       <li
                         v-for="(file, index) in store.formState.attachments"
                         :key="`${file.url}-${index}`"
                         class="flex items-center gap-2 text-sm text-[var(--text-muted)]"
                       >
-                        <UIcon name="i-heroicons-document-text" class="w-4 h-4 shrink-0" />
+                        <UIcon
+                          name="i-heroicons-document-text"
+                          class="h-4 w-4 shrink-0"
+                        />
                         <span class="truncate">{{ file.name }}</span>
-                        <span class="text-xs shrink-0">{{ file.size }}</span>
+                        <span class="shrink-0 text-xs">{{ file.size }}</span>
                       </li>
                     </ul>
                   </div>
-                  <UFormField :label="t('auditActivityPlan.form.uploadAttachmentHere')" size="lg" class="pt-2">
+                  <UFormField
+                    :label="t('auditActivityPlan.form.uploadAttachmentHere')"
+                    size="lg"
+                    class="pt-2"
+                  >
                     <UFileUpload
                       v-model="store.formState.file"
                       layout="list"
@@ -516,225 +389,190 @@
                 </div>
               </UCard>
             </div>
-
-          </UForm>
+          </template>
         </div>
 
-        <!-- Stepper Navigation Footer -->
-        <div class="p-4 border-t border-[var(--border-main)] bg-[var(--bg-surface)] flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center gap-3">
-          <UButton 
-            :label="t('auditActivityPlan.form.cancel')" 
-            color="neutral" 
-            variant="ghost" 
-            class="w-full sm:w-auto"
-            @click="store.closeModal" 
-          />
+        <!-- Footer -->
+        <div class="flex flex-col-reverse items-stretch justify-between gap-3 border-t border-[var(--border-main)] bg-[var(--bg-surface)] p-4 sm:flex-row sm:items-center">
+          <div class="flex flex-col-reverse gap-2 sm:flex-row">
+            <UButton
+              :label="t('auditActivityPlan.form.cancel')"
+              color="neutral"
+              variant="ghost"
+              class="w-full sm:w-auto"
+              @click="store.closeModal"
+            />
+            <UButton
+              icon="i-heroicons-eye"
+              :label="t('auditActivityPlan.preview')"
+              color="neutral"
+              variant="outline"
+              class="w-full sm:w-auto"
+              :disabled="store.formLoading || !!store.formLoadError"
+              data-testid="open-preview"
+              @click="previewOpen = true"
+            />
+          </div>
 
-          <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
-            <UButton 
+          <div class="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-3">
+            <UButton
               v-if="currentStep > 0"
               icon="i-heroicons-arrow-left"
-              :label="t('auditActivityPlan.stepper.previous')" 
-              color="neutral" 
+              :label="t('auditActivityPlan.stepper.previous')"
+              color="neutral"
               variant="outline"
               class="flex-1 sm:flex-none"
               @click="() => { currentStep-- }"
             />
-
-            <UButton 
+            <UButton
               v-if="currentStep < steps.length - 1"
               trailing-icon="i-heroicons-arrow-right"
-              :label="t('auditActivityPlan.stepper.next')" 
-              color="primary" 
+              :label="t('auditActivityPlan.stepper.next')"
+              color="primary"
               class="flex-1 sm:flex-none font-bold shadow-md shadow-primary/20"
+              :disabled="store.formLoading || !!store.formLoadError"
               @click="handleNext"
             />
-
-            <UButton 
+            <UButton
               v-else
               icon="i-heroicons-check"
-              :label="store.isEditMode ? t('auditActivityPlan.form.update') : t('auditActivityPlan.form.create')" 
-              color="primary" 
+              :label="store.isEditMode ? t('auditActivityPlan.form.update') : t('auditActivityPlan.form.create')"
+              color="primary"
               class="flex-1 sm:flex-none font-bold shadow-md shadow-primary/20"
+              :loading="store.saving"
+              :disabled="store.formLoading || !!store.formLoadError"
+              data-testid="form-submit"
               @click="handleFormSubmit"
             />
           </div>
         </div>
-
       </div>
+
+      <AnnualActivityPicker v-model:open="pickerOpen" />
+
+      <!-- Preview of the paper form -->
+      <UModal
+        v-model:open="previewOpen"
+        :ui="{
+          content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-7xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+          overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-sm'
+        }"
+      >
+        <template #content>
+          <div class="flex max-h-[90vh] flex-col">
+            <div class="flex items-center justify-between border-b border-[var(--border-main)] bg-[var(--bg-surface)] p-4">
+              <h3 class="text-lg font-bold text-[var(--text-main)]">
+                {{ t('auditActivityPlan.preview') }}
+              </h3>
+              <UButton
+                color="neutral"
+                variant="ghost"
+                icon="i-heroicons-x-mark-20-solid"
+                :aria-label="t('auditActivityPlan.view.close')"
+                @click="previewOpen = false"
+              />
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6">
+              <ActivityPlanFormSheet :sheet="previewSheet" />
+            </div>
+          </div>
+        </template>
+      </UModal>
     </template>
   </UModal>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { useActivityPlanStore } from '~/stores/activity-plan'
-import { getRiskLevelColorClass } from '~/utils/riskLevelBadge'
+import { useAnnualPlanStore } from '~/stores/annual-audit'
 import { useI18n } from '~/composables/useI18n'
-import ReusableButton from '~/components/shared/ReusableButton.vue'
-import { formatNumber } from '~/utils/numberFormatter'
+import type { ActivityPlanActivityType } from '~/types/audit'
+import { ACTIVITY_PLAN_TITLE_MAX, sheetFromForm } from '~/utils/activityPlanForm'
+import ActivityPlanRowCard from '~/components/audit-activity-plan/ActivityPlanRowCard.vue'
+import AnnualActivityPicker from '~/components/audit-activity-plan/AnnualActivityPicker.vue'
+import ActivityPlanFormSheet from '~/components/audit-activity-plan/ActivityPlanFormSheet.vue'
 
+/**
+ * Formulir Rencana Kegiatan Audit: 1) header (PKAT, Jenis Kegiatan Audit, Judul), 2) assignments
+ * picked from the PKAT, 3) attachments; plus a preview of the paper layout.
+ */
 const { t } = useI18n()
 const store = useActivityPlanStore()
+const annualPlanStore = useAnnualPlanStore()
 
 const currentStep = ref(0)
-const stepError = ref('')
-
+const pickerOpen = ref(false)
+const previewOpen = ref(false)
+const highlightedRow = ref<number | null>(null)
+const bodyRef = ref<HTMLElement | null>(null)
 
 const steps = computed(() => [
-  { key: 'basic', label: t('auditActivityPlan.stepper.step1'), icon: 'i-heroicons-information-circle' },
-  { key: 'activities', label: t('auditActivityPlan.stepper.step2'), icon: 'i-heroicons-clipboard-document-check' },
-  { key: 'resources', label: t('auditActivityPlan.stepper.step3'), icon: 'i-heroicons-user-group' },
-  { key: 'review', label: t('auditActivityPlan.stepper.step4'), icon: 'i-heroicons-check-badge' },
-  { key: 'attachment', label: t('auditActivityPlan.stepper.step5'), icon: 'i-heroicons-paper-clip' }
+  { key: 'header', label: t('auditActivityPlan.stepper.header') },
+  { key: 'rows', label: t('auditActivityPlan.stepper.rows') },
+  { key: 'attachments', label: t('auditActivityPlan.stepper.attachments') }
 ])
+
+const canPick = computed(() => !!store.formState.annualPlanId && !!store.formState.activityType)
+
+const annualPlanStatusLabel = computed(() => annualPlanStore.getStatusLabel(store.selectedAnnualPlan?.status))
+
+const annualPlanLabel = computed(() => {
+  const plan = store.selectedAnnualPlan
+  if (!plan) return ''
+  return [plan.year || '', plan.code, plan.title, annualPlanStatusLabel.value].filter(Boolean).join(' · ')
+})
+
+const previewSheet = computed(() => sheetFromForm(store.formState, store.formYear))
 
 watch(() => store.isModalOpen, (isOpen) => {
   if (isOpen) {
     currentStep.value = 0
-    stepError.value = ''
-    // Departments and risks are reloaded on every open so the dropdowns follow the master data.
-    store.fetchFormOptions()
+    highlightedRow.value = null
+    pickerOpen.value = false
+    previewOpen.value = false
   }
 })
 
-const riskLevelLabel = (level?: string) =>
-  store.riskLevelOptions.find(o => o.value === level)?.label || level || 'N/A'
-
-const isHighRisk = (level?: string) => {
-  if (!level) return false
-  const l = String(level).toLowerCase().trim()
-  return l === 'high' || l === 'critical' || l === 'moderate-high' || l === 'moderate to high' || l.includes('high')
-}
-
-const isMediumRisk = (level?: string) => {
-  if (!level) return false
-  const l = String(level).toLowerCase().trim()
-  if (isHighRisk(l)) return false
-  return l === 'medium' || l === 'moderate' || l === 'low-moderate' || l === 'low to moderate' || l.includes('moderate') || l.includes('medium')
-}
-
-const isLowRisk = (level?: string) => {
-  if (!level) return false
-  const l = String(level).toLowerCase().trim()
-  if (isHighRisk(l) || isMediumRisk(l)) return false
-  return l === 'low' || l.includes('low')
-}
-
-const highRiskCount = computed(() => {
-  return (store.formState.plannedActivities || []).filter((a: any) => isHighRisk(a.riskLevel)).length
+// A blocking error (client or server) brings its step forward and scrolls to its row.
+watch(() => store.formError, async (error) => {
+  highlightedRow.value = null
+  if (!error) return
+  if (error.step !== undefined) currentStep.value = error.step
+  if (error.row && error.step === 1) {
+    highlightedRow.value = error.row
+    await nextTick()
+    bodyRef.value?.querySelector(`#activity-plan-row-${error.row}`)?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })
+  } else {
+    bodyRef.value?.scrollTo?.({ top: 0, behavior: 'smooth' })
+  }
 })
 
-const mediumRiskCount = computed(() => {
-  return (store.formState.plannedActivities || []).filter((a: any) => isMediumRisk(a.riskLevel)).length
-})
-
-const lowRiskCount = computed(() => {
-  return (store.formState.plannedActivities || []).filter((a: any) => isLowRisk(a.riskLevel)).length
-})
-
-const formatRupiah = (value: number) => formatNumber(value, 0, 'id-ID')
-
-const allocatedBelowEstimate = computed(() =>
-  Number(store.formState.budget.totalAllocatedBudget) < store.totalEstimatedCost
-)
-
-const isNegative = (value: unknown) => Number(value) < 0
-
-const validateStep = (stepIdx: number): boolean => {
-  stepError.value = ''
-
-  // Step 0: Basic Planning Information
-  if (stepIdx === 0) {
-    const s = store.formState
-    if (!s.planTitle?.trim() || !s.planPeriodStart || !s.planPeriodEnd) {
-      stepError.value = t('auditActivityPlan.validation.basicInfo')
-      return false
-    }
-    // Dates are ISO yyyy-mm-dd strings, so they compare correctly as text.
-    if (s.planPeriodEnd < s.planPeriodStart) {
-      stepError.value = t('auditActivityPlan.validation.periodOrder')
+const validateUpTo = (targetIdx: number): boolean => {
+  for (let i = 0; i < targetIdx; i++) {
+    const error = store.validateStep(i)
+    if (error) {
+      store.formError = error
       return false
     }
   }
-
-  // Step 1: Planned Audit Activities
-  if (stepIdx === 1) {
-    const acts = store.formState.plannedActivities
-    if (!acts || acts.length === 0) {
-      stepError.value = t('auditActivityPlan.validation.plannedActivities')
-      return false
-    }
-    // Category, risk, year, department and team are copied from the annual activity: each row needs one.
-    if (store.unlinkedActivityCount > 0) {
-      stepError.value = t('auditActivityPlan.form.annualActivityRequired');
-      return false
-    }
-    if (!store.formState.planYear || !store.formState.department) {
-      stepError.value = t('auditActivityPlan.validation.annualDepartmentMissing');
-      return false
-    }
-    const { planPeriodStart, planPeriodEnd } = store.formState
-    for (const [index, act] of acts.entries()) {
-      const num = index + 1
-      if (!act.auditName?.trim() || !act.auditee?.trim()) {
-        stepError.value = t('auditActivityPlan.validation.plannedActivities')
-        return false
-      }
-      if (isNegative(act.duration) || isNegative(act.numberOfAuditors) || isNegative(act.budgetEstimation)) {
-        stepError.value = t('auditActivityPlan.validation.negativeNumber', { num })
-        return false
-      }
-      const schedule = act.estimatedSchedule?.slice(0, 10)
-      if (schedule && (schedule < planPeriodStart || schedule > planPeriodEnd)) {
-        stepError.value = t('auditActivityPlan.validation.scheduleOutsidePeriod', { num })
-        return false
-      }
-    }
-  }
-
-  // Step 3: Review & Approval. The approval date stays optional: approval
-  // usually happens after the plan is submitted.
-  if (stepIdx === 3) {
-    const rev = store.formState.review
-    if (!rev.creatorName?.trim() || !rev.creatorPosition?.trim() || !rev.approverName?.trim() || !rev.approverPosition?.trim()) {
-      stepError.value = t('auditActivityPlan.validation.reviewAndApproval')
-      return false
-    }
-  }
-
   return true
 }
 
 const goToStep = (targetIdx: number) => {
-  stepError.value = ''
+  if (store.formLoading || store.formLoadError) return
   if (targetIdx <= currentStep.value) {
     currentStep.value = targetIdx
     return
   }
-
-  for (let i = currentStep.value; i < targetIdx; i++) {
-    if (!validateStep(i)) {
-      currentStep.value = i
-      return
-    }
-  }
+  if (!validateUpTo(targetIdx)) return
+  store.formError = null
   currentStep.value = targetIdx
 }
 
-const handleNext = () => {
-  if (validateStep(currentStep.value)) {
-    currentStep.value++
-  }
-}
+const handleNext = () => goToStep(currentStep.value + 1)
 
 const handleFormSubmit = () => {
-  for (let i = 0; i < steps.value.length; i++) {
-    if (!validateStep(i)) {
-      currentStep.value = i
-      return
-    }
-  }
   store.savePlan()
 }
 </script>

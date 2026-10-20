@@ -15,28 +15,28 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
   })
 
   describe('RBAC permissions for Executive Summary', () => {
-    it('allows Admin, CAE, and Audit Manager to review, write notes, and approve', () => {
+    it('allows Admin and EXECUTIVE (CAE) to review, write notes, and approve', () => {
       const auth = useAuthStore()
 
       // 1. Admin
       auth.user = { id: '1', username: 'admin', email: 'admin@test.com', fullName: 'Admin', roles: [UserRole.ADMIN] }
       expect(useRbac().canReviewExecutiveSummary.value).toBe(true)
 
-      // 2. Chief Audit Executive (lowercase)
-      auth.user = { id: '2', username: 'cae', email: 'cae@test.com', fullName: 'CAE', roles: [UserRole.CHIEF_AUDIT_EXECUTIVE] }
+      // 2. EXECUTIVE (acts as the Chief Audit Executive)
+      auth.user = { id: '2', username: 'cae', email: 'cae@test.com', fullName: 'CAE', roles: [UserRole.EXECUTIVE] }
       expect(useRbac().canReviewExecutiveSummary.value).toBe(true)
 
       // 3. CAE alias / uppercase
       auth.user = { id: '3', username: 'cae2', email: 'cae2@test.com', fullName: 'CAE 2', roles: ['CAE'] }
       expect(useRbac().canReviewExecutiveSummary.value).toBe(true)
 
-      // 4. Audit Manager
-      auth.user = { id: '4', username: 'manager', email: 'manager@test.com', fullName: 'Audit Manager', roles: [UserRole.AUDIT_MANAGER] }
+      // 4. EXECUTIVE in lowercase (role checks are case-insensitive)
+      auth.user = { id: '4', username: 'exec-lower', email: 'exec-lower@test.com', fullName: 'Executive', roles: ['executive'] }
       expect(useRbac().canReviewExecutiveSummary.value).toBe(true)
 
-      // 5. Audit Manager uppercase
+      // 5. Audit Manager has no seeded backend role, so it no longer gets the review action
       auth.user = { id: '5', username: 'manager2', email: 'manager2@test.com', fullName: 'Audit Manager 2', roles: ['AUDIT_MANAGER'] }
-      expect(useRbac().canReviewExecutiveSummary.value).toBe(true)
+      expect(useRbac().canReviewExecutiveSummary.value).toBe(false)
     })
 
     it('denies Auditor, Auditee, and Viewer from writing notes and approving', () => {
@@ -44,10 +44,6 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
 
       // Auditor
       auth.user = { id: '6', username: 'auditor', email: 'auditor@test.com', fullName: 'Auditor', roles: [UserRole.AUDITOR] }
-      expect(useRbac().canReviewExecutiveSummary.value).toBe(false)
-
-      // Audit Staff
-      auth.user = { id: '7', username: 'staff', email: 'staff@test.com', fullName: 'Staff', roles: [UserRole.AUDIT_STAFF] }
       expect(useRbac().canReviewExecutiveSummary.value).toBe(false)
 
       // Auditee
@@ -345,7 +341,7 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       expect(useRbac().canReviewExecutiveSummary.value).toBe(true)
 
       // Spaced role name
-      auth.user = { id: 'p2', username: 'mgr_space', email: 'mgr@test.com', fullName: 'Manager', roles: ['Audit Manager'] }
+      auth.user = { id: 'p2', username: 'cae_space', email: 'cae2@test.com', fullName: 'CAE', roles: ['Chief Audit Executive'] }
       expect(useRbac().canReviewExecutiveSummary.value).toBe(true)
 
       // Executive alias

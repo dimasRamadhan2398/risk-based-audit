@@ -1,6 +1,7 @@
 <template>
-  <UModal 
-    v-model:open="store.isOpen"
+  <UModal
+    :open="store.isOpen"
+    @update:open="onOpenChange"
     :ui="{
       content: 'z-[10001] sm:max-w-lg w-[calc(100vw-2rem)] sm:w-full max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
       header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
@@ -10,15 +11,16 @@
     }"
   >
     <template #header>
-      <div class="flex items-center justify-between w-full">
-        <div class="flex items-center gap-3 min-w-0">
+      <div class="flex items-start justify-between gap-3 w-full">
+        <div class="flex items-start gap-3 min-w-0">
           <div v-if="store.options?.type === 'submit'" class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center text-primary-500 font-black text-lg leading-none">
             ?
           </div>
           <div v-else class="flex-shrink-0 w-8 h-8 rounded-full bg-error-50 dark:bg-error-900/20 flex items-center justify-center text-error-500 font-black text-lg leading-none">
             !
           </div>
-          <h3 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate">
+          <!-- Wraps instead of truncating: the header is the whole question, so it must stay readable. -->
+          <h3 class="min-w-0 pt-0.5 text-base sm:text-lg font-bold leading-snug text-gray-900 dark:text-white break-words">
             {{ description }}
           </h3>
         </div>
@@ -44,7 +46,7 @@
       <div class="flex justify-end gap-3 w-full">
         <UButton :label="t('common.cancel')" color="neutral" variant="ghost" @click="store.resolve(false)" />
         <UButton v-if="store.options?.type === 'submit'" :label="store.options?.confirmLabel || t('globalConfirmation.submit.confirmButton')" color="primary" @click="store.resolve(true)" />
-        <UButton v-else :label="t('globalConfirmation.delete.confirmButton')" color="error" @click="store.resolve(true)" />
+        <UButton v-else :label="store.options?.confirmLabel || t('globalConfirmation.delete.confirmButton')" color="error" @click="store.resolve(true)" />
       </div>
     </template>
   </UModal>
@@ -57,6 +59,11 @@ import { useI18n } from '~/composables/useI18n'
 
 const store = useGlobalModalStore()
 const { t } = useI18n()
+
+// Closing from outside the buttons (overlay click, Escape) counts as Cancel, so the caller is never left waiting.
+const onOpenChange = (open: boolean) => {
+  if (!open) store.resolve(false)
+}
 
 const title = computed(() => {
   if (store.options?.title) return store.options.title

@@ -62,19 +62,8 @@ func (h *RouteHandler) SetRegistry(registry *RouteRegistry) {
 
 // RegisterRoutes registers all API routes
 func (h *RouteHandler) RegisterRoutes() {
-	// Debug route to list all registered routes
-	h.engine.GET("/debug/routes", func(c *gin.Context) {
-		routes := []gin.H{}
-		for _, route := range h.engine.Routes() {
-			routes = append(routes, gin.H{
-				"method": route.Method,
-				"path":   route.Path,
-			})
-		}
-		c.JSON(200, gin.H{
-			"routes": routes,
-		})
-	})
+	// Debug route to list all registered routes. Off unless ENABLE_DEBUG_ROUTES=true.
+	registerDebugRoutes(h.engine)
 
 	// Every API route requires a valid JWT. Kong does not check tokens for
 	// this service, so without this the whole API was reachable anonymously.
@@ -155,25 +144,24 @@ func (h *RouteHandler) RegisterRoutes() {
 	// 1. Annual Audit Plan
 	annualPlans := apiV1.Group("/annual-audit-plans")
 	{
-		annualPlans.GET("", crud.List(h.db, "AuditAnnual", func() interface{} { return &[]models.AuditAnnual{} }))
-		annualPlans.GET("/:id", crud.GetByID(h.db, "AuditAnnual", func() interface{} { return &models.AuditAnnual{} }))
+		// Reads add isUsed and activities[].activityPlanRef (the Audit Activity
+		// Plan holding each row), see controllers/annual_plan/annual_plan_usage.go.
+		annualPlans.GET("", crud.ListWithItems(h.db, "AuditAnnual", func() interface{} { return &[]models.AuditAnnual{} }, ctrlAnnualPlan.DecorateList(h.db)))
+		annualPlans.GET("/:id", ctrlAnnualPlan.GetByID(h.db))
 		// The server assigns the plan code (PKAT-{year}-{seq}) and checks status
 		// transitions, see controllers/annual_plan.
 		annualPlans.POST("", crud.CreateWithHook(h.db, "AuditAnnual", func() interface{} { return &models.AuditAnnual{} }, ctrlAnnualPlan.PrepareOnCreate))
-		annualPlans.PUT("/:id", crud.UpdateWithHook(h.db, "AuditAnnual", func() interface{} { return &models.AuditAnnual{} }, ctrlAnnualPlan.PrepareOnUpdate))
-		annualPlans.DELETE("/:id", crud.Delete(h.db, "AuditAnnual", func() interface{} { return &models.AuditAnnual{} }))
+		// Rows held by an Audit Activity Plan cannot be removed or retyped; the
+		// after hook refreshes the plan rows' PKAT snapshots in the same transaction.
+		annualPlans.PUT("/:id", crud.UpdateWithHooks(h.db, "AuditAnnual", func() interface{} { return &models.AuditAnnual{} }, ctrlAnnualPlan.PrepareOnUpdate, ctrlAnnualPlan.RefreshSnapshotsAfterUpdate))
+		// 409 ANNUAL_PLAN_IN_USE when an activity plan or audit activity uses it.
+		annualPlans.DELETE("/:id", ctrlAnnualPlan.Delete(h.db))
 	}
 
-	// 2. Activity Plan
-	activityPlans := apiV1.Group("/activity-plans")
-	{
-		activityPlans.GET("", crud.List(h.db, "ActivityPlan", func() interface{} { return &[]models.ActivityPlan{} }))
-		activityPlans.GET("/:id", crud.GetByID(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }))
-		// The server assigns each planned activity's Activity ID (activityCode), see controllers/activity_plan.
-		activityPlans.POST("", crud.CreateWithHook(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }, ctrlActivityPlan.AssignCodesOnCreate))
-		activityPlans.PUT("/:id", crud.UpdateWithHook(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }, ctrlActivityPlan.AssignCodesOnUpdate))
-		activityPlans.DELETE("/:id", crud.Delete(h.db, "ActivityPlan", func() interface{} { return &models.ActivityPlan{} }))
-	}
+	// 2. Activity Plan: the Formulir Rencana Kegiatan Audit (header + one
+	// audit_activities row per assignment), see services/activity_plan_form.
+	// /annual-activity-options is registered before /:id.
+	ctrlActivityPlan.NewFormController(h.db).Register(apiV1.Group("/activity-plans"))
 
 	// 3. Strategic Audit Plan
 	strategicPlans := apiV1.Group("/strategic-plans")
@@ -498,8 +486,9 @@ func (h *RouteHandler) RegisterRoutes() {
 	media := apiV1.Group("/media")
 	{
 		media.POST("/upload", h.registry.Media.Upload)
+		// Under apiV1, so it requires a valid token like the rest of the API.
+		media.GET("/download/:id", h.registry.Media.Download)
 	}
-	h.engine.GET("/api/v1/media/download/:id", h.registry.Media.Download)
 
 	// 20. Performance routes
 	perfStatsCtrl := controllers.NewPerformanceStatsController(h.db, h.redisClient)

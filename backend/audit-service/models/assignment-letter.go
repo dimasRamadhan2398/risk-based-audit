@@ -161,7 +161,10 @@ func FindAssignmentLetter(tx *gorm.DB, ref string) (*AssignmentLetter, bool) {
 	return nil, false
 }
 
-// NextLetterNumber generates the next sequence letter number for the given team and year among active letters.
+// NextLetterNumber generates the next sequence letter number for the given team and year.
+// Soft-deleted letters are included: the letter_number unique index still covers
+// their rows in databases created before the index was made partial, so a number
+// they hold must not be handed out again.
 func NextLetterNumber(tx *gorm.DB, team, year string) string {
 	year = strings.TrimSpace(year)
 	if len(year) > 4 {
@@ -176,7 +179,7 @@ func NextLetterNumber(tx *gorm.DB, team, year string) string {
 	}
 
 	var letters []AssignmentLetter
-	tx.Model(&AssignmentLetter{}).Select("letter_number").Find(&letters)
+	tx.Unscoped().Model(&AssignmentLetter{}).Select("letter_number").Find(&letters)
 
 	maxSeq := 0
 	prefix := "ST-"
@@ -203,9 +206,9 @@ func (a *AssignmentLetter) BeforeCreate(tx *gorm.DB) error {
 		return nil
 	}
 
-	// If a letter number was provided, ensure it doesn't collide with an existing active letter
+	// If a letter number was provided, ensure it doesn't collide with any letter, soft-deleted ones included
 	var count int64
-	if err := tx.Model(&AssignmentLetter{}).Where("letter_number = ?", a.LetterNumber).Count(&count).Error; err == nil && count > 0 {
+	if err := tx.Unscoped().Model(&AssignmentLetter{}).Where("letter_number = ?", a.LetterNumber).Count(&count).Error; err == nil && count > 0 {
 		a.LetterNumber = NextLetterNumber(tx, a.AuditTeam, a.AuditYear)
 	}
 

@@ -850,11 +850,11 @@ const monthOptions = computed(() => quarterMonths.value.map(value => ({ label: l
 
 // Role computed checks
 const isChiefAuditExecutive = computed(() => {
-  return authStore.user?.roles.includes(UserRole.CHIEF_AUDIT_EXECUTIVE) || authStore.user?.roles.includes(UserRole.ADMIN)
+  return authStore.user?.roles.includes(UserRole.EXECUTIVE) || authStore.user?.roles.includes(UserRole.ADMIN)
 })
 
 const isHigherAuthority = computed(() => {
-  return authStore.user?.roles.includes(UserRole.ADMIN) || authStore.user?.roles.includes('audit_committee')
+  return authStore.user?.roles.includes(UserRole.ADMIN)
 })
 
 const isLocked = computed(() => {

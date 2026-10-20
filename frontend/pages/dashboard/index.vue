@@ -510,7 +510,33 @@
             >
           </div>
           <div class="w-full relative flex items-center justify-center" :style="{ height: `${donutChartHeight}px` }">
+            <p
+              v-if="atrStore.summaryLoading && atrStore.stats.total === 0"
+              class="text-sm text-slate-500 dark:text-slate-400"
+            >
+              {{ t("common.loading") }}
+            </p>
+            <div
+              v-else-if="atrStore.summaryError"
+              class="flex flex-col items-center gap-1 text-center px-4"
+            >
+              <UIcon name="i-heroicons-exclamation-triangle" class="size-6 text-error-500" />
+              <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                {{ t("actionTakenReport.dashboard.error") }}
+              </p>
+              <p class="text-xs text-slate-500 dark:text-slate-400">{{ atrStore.summaryError }}</p>
+            </div>
+            <div
+              v-else-if="atrStore.stats.total === 0"
+              class="flex flex-col items-center gap-1 text-center px-4"
+            >
+              <UIcon name="i-heroicons-circle-stack-20-solid" class="size-6 text-slate-400" />
+              <p class="text-sm text-slate-500 dark:text-slate-400">
+                {{ t("actionTakenReport.dashboard.empty") }}
+              </p>
+            </div>
             <DonutChart
+              v-else
               :data="atrDonutData.map((item) => item.value)"
               :categories="atrCategories"
               :radius="8"
@@ -531,6 +557,7 @@
         </div>
         <!-- Custom Legend -->
         <div
+          v-if="atrStore.stats.total > 0"
           class="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4 px-2 border-t border-slate-50 pt-4 dark:border-slate-800"
         >
           <div v-for="slice in atrDonutData" :key="slice.key" class="flex items-center gap-1.5">
@@ -697,7 +724,32 @@
             </h3>
             <UBadge color="primary" :label="executionPeriodLabel" variant="soft"></UBadge>
           </div>
-          <div class="space-y-5 max-h-80 overflow-y-auto pr-1">
+          <p
+            v-if="auditExecutionStore.loading && dashboardExecutionStatus.length === 0"
+            class="text-sm text-slate-500 dark:text-slate-400 py-6 text-center"
+          >
+            {{ t("common.loading") }}
+          </p>
+          <div
+            v-else-if="auditExecutionStore.error"
+            class="flex flex-col items-center gap-1 py-6 text-center"
+          >
+            <UIcon name="i-heroicons-exclamation-triangle" class="size-6 text-error-500" />
+            <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+              {{ t("dashboard.planningExecution.executionError") }}
+            </p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">{{ auditExecutionStore.error }}</p>
+          </div>
+          <div
+            v-else-if="dashboardExecutionStatus.length === 0"
+            class="flex flex-col items-center gap-1 py-6 text-center"
+          >
+            <UIcon name="i-heroicons-circle-stack-20-solid" class="size-6 text-slate-400" />
+            <p class="text-sm text-slate-500 dark:text-slate-400">
+              {{ t("dashboard.planningExecution.executionEmpty") }}
+            </p>
+          </div>
+          <div v-else class="space-y-5 max-h-80 overflow-y-auto pr-1">
             <div
               v-for="(item, index) in dashboardExecutionStatus"
               :key="index"
@@ -736,9 +788,10 @@
           <TableEntities
             :data="atrTableData"
             :columns="tableColumns"
+            :loading="atrStore.summaryLoading"
             :empty-state="{
               icon: 'i-heroicons-circle-stack-20-solid',
-              label: 'Belum ada data rencana audit.',
+              label: t('actionTakenReport.dashboard.empty'),
             }"
             class="w-full"
           />
@@ -988,6 +1041,8 @@ onMounted(() => {
   rcmStore.fetchRCMList();
   // ATR donut, compliance, Open Findings and the ATR table: every ATR the user can see.
   atrStore.fetchSummary();
+  // Audit Execution Status card and the Execution Status tile (same list as /audit-execution-status).
+  auditExecutionStore.fetchAuditExecutions();
 });
 
 // ─── KPI Forecasting Line Chart Config ─────────────────────
@@ -1226,7 +1281,7 @@ const handleSync = async () => {
       riskProfileStore.fetchRisks(),
       annualPlanStore.fetchPlans(),
       auditExecutionStore.fetchAuditExecutions(),
-      atrStore.fetchAtrList()
+      atrStore.fetchSummary()
     ]);
   } finally {
     isSyncing.value = false;

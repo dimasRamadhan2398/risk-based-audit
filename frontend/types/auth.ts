@@ -15,15 +15,14 @@ export interface User {
   updatedAt?: string
 }
 
+/** Role names as seeded by the backend (auth-service/pkg/database/seeders/seeder.go). */
 export enum UserRole {
-  ADMIN = 'admin',
-  AUDITOR = 'auditor',
-  DEPARTMENT_HEAD = 'department_head',
-  AUDITEE = 'auditee',
-  VIEWER = 'viewer',
-  AUDIT_STAFF = 'audit_staff',
-  AUDIT_MANAGER = 'audit_manager',
-  CHIEF_AUDIT_EXECUTIVE = 'chief_audit_executive',
+  ADMIN = 'ADMIN',
+  AUDITOR = 'AUDITOR',
+  EXECUTIVE = 'EXECUTIVE',
+  AUDITEE = 'AUDITEE',
+  VIEWER = 'VIEWER',
+  DEPARTMENT_HEAD = 'DEPARTMENT_HEAD',
 }
 
 export interface LoginCredentials {

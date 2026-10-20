@@ -58,7 +58,6 @@ func (r *Registry) auth() {
 	{
 		auth.POST("/login", r.controller.GetAuth().Login)
 		auth.POST("/verify-mfa-login", r.controller.GetAuth().VerifyMFALogin)
-		auth.POST("/register", r.controller.GetAuth().Register)
 
 		// Protected routes
 		protected := auth.Group("")

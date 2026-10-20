@@ -1,0 +1,29 @@
+# Hand-maintained input for the website-usage scan in docs/api/tools/apidocs.py.
+#
+# manual_calls  calls the scanner cannot evaluate (URL built at runtime) but whose target is known
+# ignore        call sites that are not API calls, or whose target is covered by another entry
+# known_issues  website calls that hit an unregistered/unrouted endpoint and are accepted for now.
+#               `apidocs.py check` fails on any such call NOT listed here, and warns when a listed
+#               one disappears (remove it then). Keys are printed by `check` and in inventory.json.
+
+manual_calls:
+  # useAiAnalytics.safeApiFetch falls back to python-ai when the analytics-service call fails,
+  # mapping '/risk-score/batch' -> '/predict/risk-score/batch' etc. (composables/useAiAnalytics.ts:121-134)
+  - { file: composables/useAiAnalytics.ts, line: 134, method: GET, path: /api/python-ai/predict/risk-score/batch, note: fallback for /api/analytics/risk-score/batch }
+  - { file: composables/useAiAnalytics.ts, line: 134, method: GET, path: /api/python-ai/predict/anomaly/batch, note: fallback for /api/analytics/anomaly/batch }
+  - { file: composables/useAiAnalytics.ts, line: 134, method: GET, path: /api/python-ai/predict/text-analysis/batch, note: fallback for /api/analytics/text-analysis/batch }
+  - { file: composables/useAiAnalytics.ts, line: 134, method: GET, path: /api/python-ai/predict/performance-trend/batch, note: fallback for /api/analytics/performance-trend/batch }
+  - { file: composables/useAiAnalytics.ts, line: 134, method: POST, path: /api/python-ai/retrain/auto, note: fallback for /api/analytics/retrain/auto }
+  # stores/audit-fieldwork.ts previews/downloads: media download by file name, else the stored /uploads path
+  - { file: stores/audit-fieldwork.ts, line: 610, method: GET, path: "/api/v1/media/download/{*}", note: getFilePreviewUrl() }
+  - { file: stores/audit-fieldwork.ts, line: 673, method: GET, path: "/api/v1/media/download/{*}", note: download candidates }
+  - { file: stores/audit-fieldwork.ts, line: 673, method: GET, path: "/uploads/{*}", note: download candidates (stored filePath) }
+  - { file: stores/audit-fieldwork.ts, line: 1515, method: GET, path: "/api/v1/media/download/{*}", note: viewUrl }
+
+ignore:
+  # the python-ai fallback inside safeApiFetch; covered by manual_calls above
+  - { file: composables/useAiAnalytics.ts, line: 134 }
+  # fetch() of a blob: URL created in the browser, not an API call
+  - { file: stores/quality-assurance.ts, line: 340 }
+
+known_issues: []

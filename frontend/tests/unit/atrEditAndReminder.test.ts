@@ -54,9 +54,8 @@ const raw = (extra = {}) => ({
 const item = (extra = {}) => normalizeAtrItem(raw(extra))
 
 const USERS = {
-  pic: { id: 'pic-1', roles: ['auditee'] },
-  auditor: { id: 'aud-1', roles: ['auditor'] },
-  manager: { id: 'mgr-1', roles: ['audit_manager'] }
+  pic: { id: 'pic-1', roles: ['AUDITEE'] },
+  auditor: { id: 'aud-1', roles: ['AUDITOR'] }
 }
 
 const loginAs = (who: keyof typeof USERS) => {
@@ -104,17 +103,14 @@ describe('reminder and edit rules (useAtrActions)', () => {
     setActivePinia(createPinia())
   })
 
-  it('auditor and manager can send a reminder on an open follow-up', () => {
+  it('auditor can send a reminder on an open follow-up', () => {
     loginAs('auditor')
     expect(useAtrActions().canRemind(item({ status: 'IN_PROGRESS' }))).toBe(true)
-    loginAs('manager')
     expect(useAtrActions().canRemind(item({ status: 'PENDING_REVIEW' }))).toBe(true)
   })
 
   it('a cancelled follow-up never gets a reminder, for anyone', () => {
     expect(atrCanRemindStatus('CANCELLED')).toBe(false)
-    loginAs('manager')
-    expect(useAtrActions().canRemind(item({ status: 'CANCELLED' }))).toBe(false)
     loginAs('auditor')
     expect(useAtrActions().canRemind(item({ status: 'CANCELLED' }))).toBe(false)
   })
@@ -149,7 +145,7 @@ describe('reminder and edit rules (useAtrActions)', () => {
   })
 
   it('nothing is editable on a completed or cancelled follow-up', () => {
-    loginAs('manager')
+    loginAs('auditor')
     const { editableFields, canEdit } = useAtrActions()
     expect(canEdit(item({ status: 'COMPLETED' }))).toBe(false)
     expect(canEdit(item({ status: 'CANCELLED' }))).toBe(false)

@@ -1,247 +1,416 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
-import type { TableColumn } from '@nuxt/ui'
-import { type ActivityPlan, type ActivityPlanFormState, type AnnualAuditAttachment, AuditCategory } from '~/types/audit';
+import { ref, computed, reactive } from 'vue';
+import {
+  ACTIVITY_PLAN_ACTIVITY_TYPES,
+  AnnualAuditPlanStatus,
+  type ActivityPlanActivityType,
+  type ActivityPlanDetail,
+  type ActivityPlanFormState,
+  type ActivityPlanSummary,
+  type AnnualActivityOption,
+  type AnnualAuditAttachment,
+  type AnnualAuditPlan
+} from '~/types/audit';
+import type { Employee } from '~/types/master';
 import { useAuthStore } from '~/stores/auth';
-import { RiskLevel } from '~/types/risk';
-import { useToastNotification } from '~/components/shared/ToastNotification.vue';
-import { formatPeriod } from '~/utils/dateConverter';
-import { useI18n } from '~/composables/useI18n';
-import { extractErrorMessage } from '~/utils/error';
-import { getAuditServiceBaseUrl, getRiskServiceBaseUrl } from '~/composables/useApiUrl';
-import { useDepartmentApi } from '~/composables/useDepartmentApi';
-import { useRiskProfileStore } from '~/stores/risk-profile';
 import { useAnnualPlanStore } from '~/stores/annual-audit';
+import { useGlobalModalStore } from '~/stores/global-modal';
+import { useToastNotification } from '~/components/shared/ToastNotification.vue';
+import { useI18n } from '~/composables/useI18n';
+import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
+import { useEmployeeApi } from '~/composables/useEmployeeApi';
+import { extractErrorMessage, getUserErrorMessage } from '~/utils/error';
+import { viewDocumentInNewTab } from '~/utils/documentViewer';
+import {
+  ACTIVITY_TYPE_LABEL_KEYS,
+  AUDIT_KIND_SUGGESTIONS,
+  buildActivityPlanPayload,
+  categoryMatchesActivityType,
+  emptyActivityPlanForm,
+  formFromDetail,
+  normalizeActivityPlanDetail,
+  normalizeActivityPlanSummary,
+  normalizeAnnualActivityOption,
+  parseApiError,
+  rowFromOption,
+  stepForApiError,
+  sumFormTotals,
+  translateApiError,
+  validateActivityPlanHeader,
+  validateActivityPlanRows,
+  type ActivityPlanIssue
+} from '~/utils/activityPlanForm';
 
-/** An entry of the "Associated Risk" dropdown, built from GET /risks. */
-export interface RiskOption {
-  name: string;
-  category: string;
-  riskLevel: RiskLevel;
-}
-
-// The generic list endpoint caps page_size at 100.
+// The list endpoint caps page_size at 100.
 const PLAN_PAGE_SIZE = 100;
 
-/** Number input value → number; "", null and unparseable values become 0. */
-const toNumber = (value: unknown): number => {
-  const n = typeof value === 'number' ? value : parseFloat(String(value ?? '').replace(/[,\s]/g, ''));
-  return Number.isFinite(n) ? n : 0;
-};
+/** i18n prefix of the /activity-plans error codes (section 6.7). */
+const ERROR_PREFIX = 'auditActivityPlan.errors';
 
-/** Annual activity risk level text (e.g. "High", "Moderate") → the RiskLevel enum; undefined when not mapped. */
-const toRiskLevel = (level?: string): RiskLevel | undefined => {
-  const lvl = (level || '').toLowerCase();
-  if (lvl.includes('low-moderate') || lvl.includes('low moderate')) return RiskLevel.LOW_MODERATE;
-  if (lvl.includes('moderate-high') || lvl.includes('moderate high')) return RiskLevel.MODERATE_HIGH;
-  if (lvl.includes('high')) return RiskLevel.HIGH;
-  if (lvl.includes('mod') || lvl.includes('medium')) return RiskLevel.MODERATE;
-  if (lvl.includes('low')) return RiskLevel.LOW;
-  return undefined;
-};
+/** A blocking error of the form: shown in the step alert, with the step (and row) to focus. */
+export interface ActivityPlanFormError {
+  messages: string[];
+  step?: number;
+  row?: number;
+  code?: string;
+}
 
+/**
+ * Audit Activity Plan (Formulir Rencana Kegiatan Audit). Talks to audit-service /activity-plans
+ * (docs/audit-activity-plan-rework.md, section 6). Fields owned by the Annual Audit Plan (PKAT)
+ * are shown read-only and never sent.
+ */
 export const useActivityPlanStore = defineStore('activity-plan', () => {
-  const { t, locale } = useI18n();
+  const { t } = useI18n();
   const annualPlanStore = useAnnualPlanStore();
-  const isModalOpen = ref(false);
-  const isViewModalOpen = ref(false);
-  const isEditMode = ref(false);
+  const toast = useToastNotification();
+
+  // ── List ──────────────────────────────────────────────────────
+  const plans = ref<ActivityPlanSummary[]>([]);
   const loading = ref(false);
   const errorMsg = ref('');
-  const toast = useToastNotification()
+  const filters = reactive<{ year?: number, activityType?: ActivityPlanActivityType }>({});
 
-  const executionStatusOptions = [
-    { label: "Planned", value: "planned" },
-    { label: "In Progress", value: "in_progress" },
-    { label: "Completed", value: "completed" }
-  ];
+  const activityTypeLabel = (type?: string | null) =>
+    type && ACTIVITY_TYPE_LABEL_KEYS[type as ActivityPlanActivityType] ? t(ACTIVITY_TYPE_LABEL_KEYS[type as ActivityPlanActivityType]) : (type || '');
 
-  const formatEnumKey = (key: string) => {
-    return key
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
-  };
-
-  const riskLevelOptions = Object.entries(RiskLevel).map(([key, value]) => ({
-    label: formatEnumKey(key),
-    value: value,
-  }));
-
-  const priorityOptions = [
-    { label: "P1", value: "p1" },
-    { label: "P2", value: "p2" },
-    { label: "P3", value: "p3" }
-  ];
-
-  // ── Dropdown data from the APIs ───────────────────────────────
-  // Departments come from master-service and risks from risk-service. There is
-  // no mock fallback: an empty or failed response leaves the dropdown empty.
-  const departmentNames = ref<string[]>([]);
-  const riskOptions = ref<RiskOption[]>([]);
-  const optionsLoading = ref(false);
-
-  // A plan saved with an older value (e.g. "IT" from the former fixed list)
-  // keeps it selectable while it is being edited.
-  const departmentOptions = computed(() => {
-    const current = formState.value.department;
-    return current && !departmentNames.value.includes(current)
-      ? [current, ...departmentNames.value]
-      : departmentNames.value;
-  });
-
-  const fetchRiskOptions = async (): Promise<RiskOption[]> => {
-    try {
-      const response: any = await $fetch(`${getRiskServiceBaseUrl()}/risks`);
-      const items: any[] = Array.isArray(response?.data) ? response.data : [];
-      const { getRiskLevel } = useRiskProfileStore();
-      return items
-        .filter(r => r?.name)
-        .map(r => ({
-          name: r.name,
-          category: r.category || '',
-          // /risks has no stored level; derive it from the risk's own likelihood × impact.
-          riskLevel: getRiskLevel(Number(r.likelihood), Number(r.impact))
-        }));
-    } catch (error) {
-      console.error('Failed to fetch risks for the activity plan form:', error);
-      return [];
-    }
-  };
-
-  // Activities of the Annual Audit Plan. A planned activity links to one of them.
-  const annualActivityOptions = computed(() =>
-    annualPlanStore.plans
-      .filter(plan => plan.isActive !== false)
-      .flatMap(plan => (plan.activities || [])
-        .filter(activity => activity.id)
-        .map(activity => ({
-          value: activity.id as string,
-          label: `${plan.code} · ${activity.activityCode ? `${activity.activityCode} · ` : ''}${activity.name}`,
-          plan,
-          activity
-        })))
+  const activityTypeOptions = computed(() =>
+    ACTIVITY_PLAN_ACTIVITY_TYPES.map(value => ({ value, label: activityTypeLabel(value) }))
   );
 
-  const fetchFormOptions = async () => {
-    optionsLoading.value = true;
-    try {
-      const [departments, risks] = await Promise.all([
-        useDepartmentApi().getAllDepartments(),
-        fetchRiskOptions(),
-        annualPlanStore.fetchPlans()
-      ]);
-      departmentNames.value = departments
-        .filter(d => d.is_active !== false && d.department_name)
-        .map(d => d.department_name)
-        .sort((a, b) => a.localeCompare(b));
-      riskOptions.value = risks;
-    } finally {
-      optionsLoading.value = false;
-    }
-  };
-
-  const getInitialFormState = (): ActivityPlanFormState => ({
-    planTitle: '',
-    // Read-only in the form: taken from the linked annual activities.
-    planYear: new Date().getFullYear().toString(),
-    planPeriodStart: '',
-    planPeriodEnd: '',
-    department: '',
-    createdBy: '',
-    creationDate: new Date().toISOString().split('T')[0]!,
-    plannedActivities: [],
-    resourceAuditors: [],
-    budget: {
-      totalEstimatedCost: 0,
-      totalAllocatedBudget: 0,
-      budgetNotes: ''
-    },
-    review: {
-      creatorName: '',
-      creatorPosition: '',
-      approverName: '',
-      approverPosition: '',
-      approvalDate: '',
-      additionalNotes: ''
-    },
-    attachmentCategory: '',
-    attachmentUploadedBy: '',
-    attachmentUploadDate: '',
-    attachments: [],
-    file: []
-  });
-
-  const formState = ref<ActivityPlanFormState>(getInitialFormState());
-
-  const plans = ref<ActivityPlan[]>([]);
-  const selectedPlan = ref<ActivityPlan | null>(null);
-
-
-
-  const filteredPlans = computed(() => {
-    return plans.value.map(plan => ({
-      ...plan,
-      period: formatPeriod(plan.planPeriodStart, plan.planPeriodEnd, locale.value),
-      totalActivity: (plan.plannedActivities || []).length,
-      totalAuditor: (plan.resourceAuditors || []).length,
-      budgetEstimation: plan.budget?.totalEstimatedCost || 0,
-      budgetAllocated: plan.budget?.totalAllocatedBudget || 0,
-    }));
-  });
-
-  const columns: (TableColumn<ActivityPlan> & { class?: string })[] = [
-    { accessorKey: 'planTitle', header: 'Title', class: 'max-w-[280px] whitespace-normal break-words font-medium' },
-    { accessorKey: 'period', header: 'Period', class: 'min-w-[220px] whitespace-nowrap' },
-    { accessorKey: 'department', header: 'Department/Unit', class: 'w-36' },
-    { accessorKey: 'riskName', header: 'Risk Name', class: 'w-48' },
-    { accessorKey: 'riskLevel', header: 'Risk Level', class: 'w-28 whitespace-nowrap' },
-    { accessorKey: 'attachments', header: 'Attachment', class: 'w-28 whitespace-nowrap text-center' },
-    { accessorKey: 'actions', header: 'Actions', class: 'w-28 whitespace-nowrap text-center' }
-  ]
-
+  /**
+   * Loads every page of GET /activity-plans with the current filters. The first page tells the
+   * total_pages; the rest are fetched in parallel.
+   */
   const fetchPlans = async () => {
     loading.value = true;
     errorMsg.value = '';
     try {
       const baseUrl = getAuditServiceBaseUrl();
-      // Without page/page_size the endpoint returns only the first 20 plans.
+      const query = {
+        page_size: PLAN_PAGE_SIZE,
+        year: filters.year || undefined,
+        activity_type: filters.activityType || undefined
+      };
       const fetchPage = (page: number): Promise<any> => $fetch(`${baseUrl}/activity-plans`, {
         method: 'GET',
-        query: { page, page_size: PLAN_PAGE_SIZE }
+        query: { ...query, page }
       });
       const first = await fetchPage(1);
       const totalPages = Number(first?.data?.pagination?.total_pages) || 1;
       const rest = totalPages > 1
         ? await Promise.all(Array.from({ length: totalPages - 1 }, (_, i) => fetchPage(i + 2)))
         : [];
-      plans.value = [first, ...rest].flatMap((res: any) =>
-        Array.isArray(res?.data?.items) ? res.data.items : Array.isArray(res?.items) ? res.items : []
-      );
-    } catch (error: any) {
+      plans.value = [first, ...rest]
+        .flatMap((res: any) => (Array.isArray(res?.data?.items) ? res.data.items : []))
+        .map(normalizeActivityPlanSummary);
+    } catch (error) {
       console.error('Failed to fetch activity plans:', error);
-      errorMsg.value = extractErrorMessage(error, 'Failed to load activity plans.');
+      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'auditActivityPlan.loadError' });
     } finally {
       loading.value = false;
     }
+  };
+
+  const clearFilters = () => {
+    filters.year = undefined;
+    filters.activityType = undefined;
+  };
+
+  const fetchDetail = async (id: string): Promise<ActivityPlanDetail> => {
+    const res: any = await $fetch(`${getAuditServiceBaseUrl()}/activity-plans/${id}`, { method: 'GET' });
+    return normalizeActivityPlanDetail(res?.data ?? {});
+  };
+
+  // ── View ──────────────────────────────────────────────────────
+  const isViewModalOpen = ref(false);
+  const selectedPlan = ref<ActivityPlanDetail | null>(null);
+  const viewingId = ref<string | null>(null);
+  const viewLoading = ref(false);
+  const viewError = ref('');
+
+  const loadView = async () => {
+    const id = viewingId.value;
+    if (!id) return;
+    viewLoading.value = true;
+    viewError.value = '';
+    try {
+      const detail = await fetchDetail(id);
+      // The user may have opened another plan meanwhile.
+      if (viewingId.value === id) selectedPlan.value = detail;
+    } catch (error) {
+      console.error('Failed to load activity plan:', error);
+      if (viewingId.value === id) viewError.value = getUserErrorMessage(error, t, { fallbackKey: 'auditActivityPlan.loadError' });
+    } finally {
+      if (viewingId.value === id) viewLoading.value = false;
+    }
+  };
+
+  function openViewModal(plan: Pick<ActivityPlanSummary, 'id'>) {
+    viewingId.value = plan.id;
+    selectedPlan.value = null;
+    isViewModalOpen.value = true;
+    loadView();
   }
+
+  function closeViewModal() {
+    isViewModalOpen.value = false;
+    viewingId.value = null;
+    selectedPlan.value = null;
+    viewError.value = '';
+  }
+
+  // ── Form ──────────────────────────────────────────────────────
+  const isModalOpen = ref(false);
+  const isEditMode = ref(false);
+  const formState = ref<ActivityPlanFormState>(emptyActivityPlanForm());
+  const formLoading = ref(false);
+  const formLoadError = ref('');
+  const editingId = ref<string | null>(null);
+  const saving = ref(false);
+  const formError = ref<ActivityPlanFormError | null>(null);
+
+  const formTotals = computed(() => sumFormTotals(formState.value.rows));
+
+  // PKAT rows that can be added (GET /activity-plans/annual-activity-options).
+  const annualActivityOptions = ref<AnnualActivityOption[]>([]);
+  const optionsLoading = ref(false);
+  const optionsError = ref('');
+
+  // PKAT choices for a new plan: deactivated PKATs cannot get a new Audit Activity Plan.
+  const annualPlansLoading = ref(false);
+  const annualPlanOptions = computed(() =>
+    annualPlanStore.plans
+      .filter((plan: AnnualAuditPlan) => plan.id && plan.isActive !== false)
+      .map((plan: AnnualAuditPlan) => ({
+        value: plan.id as string,
+        label: [plan.year, plan.code, plan.title, annualPlanStore.getStatusLabel(plan.status)].filter(Boolean).join(' · '),
+        plan
+      }))
+  );
+
+  /** The PKAT of the form, for Tahun and the status warning. */
+  const selectedAnnualPlan = computed(() => {
+    const form = formState.value;
+    if (!form.annualPlanId) return null;
+    const fromList = annualPlanStore.plans.find((p: AnnualAuditPlan) => p.id === form.annualPlanId);
+    if (fromList) {
+      return { id: fromList.id as string, code: fromList.code, title: fromList.title || '', year: Number(fromList.year) || 0, status: fromList.status, isActive: fromList.isActive !== false };
+    }
+    return form.annualPlan;
+  });
+
+  const formYear = computed(() => selectedAnnualPlan.value?.year || 0);
+
+  /** Non-blocking: the PKAT is not approved yet (drafting is still allowed). */
+  const annualPlanNotApproved = computed(() =>
+    !!selectedAnnualPlan.value && selectedAnnualPlan.value.status !== AnnualAuditPlanStatus.APPROVED
+  );
+
+  const loadAnnualPlans = async () => {
+    annualPlansLoading.value = true;
+    try {
+      await annualPlanStore.fetchPlans();
+    } finally {
+      annualPlansLoading.value = false;
+    }
+  };
+
+  // Ketua Tim picker (master-service employees).
+  const employees = ref<Employee[]>([]);
+  const employeesLoading = ref(false);
+  const employeesError = ref('');
+
+  const loadEmployees = async () => {
+    employeesLoading.value = true;
+    employeesError.value = '';
+    try {
+      const list = await useEmployeeApi().getAllEmployees();
+      employees.value = (Array.isArray(list) ? list : [])
+        .filter(e => e?.id && e.full_name && e.is_active !== false)
+        .sort((a, b) => a.full_name.localeCompare(b.full_name));
+    } catch (error) {
+      console.error('Failed to load employees for the Ketua Tim picker:', error);
+      employeesError.value = getUserErrorMessage(error, t, { fallbackKey: 'auditActivityPlan.rows.teamLeaderLoadError' });
+    } finally {
+      employeesLoading.value = false;
+    }
+  };
+
+  const auditKindItems = computed(() =>
+    AUDIT_KIND_SUGGESTIONS.map(s => ({ value: s.value, label: t(s.labelKey) }))
+  );
+
+  const resetForm = () => {
+    formState.value = emptyActivityPlanForm();
+    formError.value = null;
+    formLoadError.value = '';
+    annualActivityOptions.value = [];
+    optionsError.value = '';
+  };
 
   function openModal() {
     isEditMode.value = false;
-    const form = getInitialFormState();
-    // The creator is whoever is signed in, not a free-text name.
-    const user = useAuthStore().user;
-    form.createdBy = user?.fullName || '';
-    form.review.creatorName = user?.fullName || '';
-    form.review.creatorPosition = user?.position || '';
-    formState.value = form;
+    editingId.value = null;
+    resetForm();
     isModalOpen.value = true;
+    loadAnnualPlans();
+    loadEmployees();
   }
 
-  // Derived from the activities so it can never disagree with them.
-  const totalEstimatedCost = computed(() =>
-    formState.value.plannedActivities.reduce((sum, activity) => sum + toNumber(activity.budgetEstimation), 0)
-  );
+  /** Loads the saved plan into the form. Legacy plans cannot be edited. */
+  const loadEditing = async () => {
+    const id = editingId.value;
+    if (!id) return;
+    formLoading.value = true;
+    formLoadError.value = '';
+    formError.value = null;
+    try {
+      const detail = await fetchDetail(id);
+      if (editingId.value !== id) return;
+      if (detail.isLegacy) {
+        formLoadError.value = t('auditActivityPlan.errors.ACTIVITY_PLAN_LEGACY_READONLY');
+        return;
+      }
+      formState.value = formFromDetail(detail);
+    } catch (error) {
+      console.error('Failed to load activity plan for editing:', error);
+      if (editingId.value === id) formLoadError.value = getUserErrorMessage(error, t, { fallbackKey: 'auditActivityPlan.loadError' });
+    } finally {
+      if (editingId.value === id) formLoading.value = false;
+    }
+  };
+
+  function handleEdit(plan: Pick<ActivityPlanSummary, 'id' | 'isLegacy'>) {
+    if (plan.isLegacy) {
+      toast.showWarning(t('auditActivityPlan.errors.ACTIVITY_PLAN_LEGACY_READONLY'), t('auditActivityPlan.legacy.notice'));
+      return;
+    }
+    isEditMode.value = true;
+    editingId.value = plan.id;
+    resetForm();
+    isModalOpen.value = true;
+    loadEditing();
+    loadAnnualPlans();
+    loadEmployees();
+  }
+
+  function closeModal() {
+    isModalOpen.value = false;
+    isEditMode.value = false;
+    editingId.value = null;
+  }
+
+  /**
+   * Changes the PKAT of a new plan. Rows belong to the PKAT, so they are cleared after a
+   * confirmation. The PKAT of a saved plan cannot change.
+   */
+  const setAnnualPlan = async (annualPlanId: string | undefined) => {
+    const form = formState.value;
+    const next = annualPlanId || '';
+    if (isEditMode.value || next === form.annualPlanId) return;
+    if (form.rows.length) {
+      const confirmed = await useGlobalModalStore().confirmSubmit({
+        description: t('auditActivityPlan.header.changeAnnualPlanConfirm'),
+        confirmLabel: t('auditActivityPlan.header.changeAnnualPlanConfirmLabel')
+      });
+      if (!confirmed) return;
+    }
+    form.annualPlanId = next;
+    form.annualPlan = null;
+    form.rows = [];
+    annualActivityOptions.value = [];
+  };
+
+  /**
+   * Changes the Jenis Kegiatan Audit. Allowed only while every row's PKAT category still matches
+   * the new type (the server rejects it otherwise). Returns whether it changed.
+   */
+  const setActivityType = (activityType: ActivityPlanActivityType | undefined): boolean => {
+    const form = formState.value;
+    const next = activityType || '';
+    if (next === form.activityType) return true;
+    if (next && form.rows.some(row => !categoryMatchesActivityType(row.pkat.auditCategory, next))) {
+      formError.value = { messages: [t('auditActivityPlan.validation.activityTypeRowsMismatch')], step: 0 };
+      return false;
+    }
+    if (!next && form.rows.length) {
+      formError.value = { messages: [t('auditActivityPlan.validation.activityTypeRowsMismatch')], step: 0 };
+      return false;
+    }
+    form.activityType = next;
+    annualActivityOptions.value = [];
+    if (formError.value?.step === 0) formError.value = null;
+    return true;
+  };
+
+  const fetchAnnualActivityOptions = async () => {
+    const form = formState.value;
+    if (!form.annualPlanId || !form.activityType) {
+      annualActivityOptions.value = [];
+      return;
+    }
+    optionsLoading.value = true;
+    optionsError.value = '';
+    try {
+      const res: any = await $fetch(`${getAuditServiceBaseUrl()}/activity-plans/annual-activity-options`, {
+        method: 'GET',
+        query: {
+          annual_plan_id: form.annualPlanId,
+          activity_type: form.activityType,
+          exclude_plan_id: form.id || undefined
+        }
+      });
+      const items = Array.isArray(res?.data?.items) ? res.data.items : [];
+      annualActivityOptions.value = items.map(normalizeAnnualActivityOption);
+    } catch (error) {
+      console.error('Failed to load PKAT activities:', error);
+      annualActivityOptions.value = [];
+      optionsError.value = translateApiError(error, t, ERROR_PREFIX, 'auditActivityPlan.picker.loadError');
+    } finally {
+      optionsLoading.value = false;
+    }
+  };
+
+  /** Adds the picked PKAT rows (in PKAT order), skipping ones already in the form or taken. */
+  const addRowsFromOptions = (options: AnnualActivityOption[]) => {
+    const present = new Set(formState.value.rows.map(r => r.annualActivityId));
+    for (const option of options) {
+      if (!option.available || present.has(option.annualActivityId)) continue;
+      formState.value.rows.push(rowFromOption(option));
+      present.add(option.annualActivityId);
+    }
+  };
+
+  const removeRow = (index: number) => {
+    const row = formState.value.rows[index];
+    if (!row || row.inUse) return;
+    formState.value.rows.splice(index, 1);
+  };
+
+  const moveRow = (index: number, direction: -1 | 1) => {
+    const rows = formState.value.rows;
+    const target = index + direction;
+    if (index < 0 || index >= rows.length || target < 0 || target >= rows.length) return;
+    const [row] = rows.splice(index, 1);
+    rows.splice(target, 0, row!);
+  };
+
+  /** Blocking issues of a step (0 header, 1 rows, 2 attachments) as translated messages. */
+  const validateStep = (step: number): ActivityPlanFormError | null => {
+    let issues: ActivityPlanIssue[] = [];
+    if (step === 0) issues = validateActivityPlanHeader(formState.value);
+    else if (step === 1) issues = validateActivityPlanRows(formState.value, t);
+    if (!issues.length) return null;
+    return {
+      messages: issues.map(issue => t(issue.key, issue.params)),
+      step,
+      row: issues.find(issue => issue.row)?.row
+    };
+  };
+
+  // ── Attachments ───────────────────────────────────────────────
+  const attachmentCategoryOptions = ['Plan', 'Evidence', 'Charter', 'Other'];
 
   // Stores the files with the audit-service media endpoint. The local provider
   // returns a /uploads/... path that the frontend proxies; Google Drive returns
@@ -271,249 +440,105 @@ export const useActivityPlanStore = defineStore('activity-plan', () => {
     return uploaded;
   };
 
-  function closeModal() {
-    isModalOpen.value = false;
-    isEditMode.value = false;
-  }
-
-  function openViewModal(plan: ActivityPlan) {
-    selectedPlan.value = plan;
-    isViewModalOpen.value = true;
-  }
-
-  function closeViewModal() {
-    isViewModalOpen.value = false;
-    selectedPlan.value = null;
-  }
-
-  function handleEdit(plan: ActivityPlan) {
-    isEditMode.value = true;
-    formState.value = JSON.parse(JSON.stringify(plan));
-    isModalOpen.value = true;
-  }
-
-  const handleDelete = async (id: string) => {
-    const { t } = useI18n();
-    if (!await useGlobalModalStore().confirmDelete({ description: t("auditActivityPlan.deleteConfirm") })) return;
-    loading.value = true;
-    errorMsg.value = '';
+  /** Opens an attachment in a new tab, fetched as a blob so the request carries the token. */
+  const openAttachment = async (file: AnnualAuditAttachment) => {
     try {
-      const baseUrl = getAuditServiceBaseUrl();
-      await $fetch(`${baseUrl}/activity-plans/${id}`, {
-        method: 'DELETE'
-      });
-      await fetchPlans();
-      toast.showSuccess('Activity plan deleted successfully.');
-    } catch (error: any) {
-      console.error('Failed to delete activity plan:', error);
-      const detail = extractErrorMessage(error, 'Failed to delete activity plan.');
-      errorMsg.value = detail;
-      toast.showError('Failed to delete activity plan.', detail);
-    } finally {
-      loading.value = false;
+      await viewDocumentInNewTab(() => $fetch(file.url, { responseType: 'blob' }), file.name, file.name);
+    } catch (error) {
+      console.error('Failed to open attachment:', error);
+      toast.showError(t('auditActivityPlan.view.openAttachmentError'), getUserErrorMessage(error, t));
     }
   };
 
-  const savePlan = async () => {
-    loading.value = true;
-    errorMsg.value = '';
-    try {
-      const baseUrl = getAuditServiceBaseUrl();
-
-      const newFiles = formState.value.file || [];
-      const fileList = newFiles.length > 0 ? await uploadAttachments(newFiles) : [];
-      if (fileList.length > 0) {
-        formState.value.attachmentUploadedBy = useAuthStore().user?.fullName || '';
-        formState.value.attachmentUploadDate = new Date().toISOString().split('T')[0]!;
-      }
-
-      // Only the fields of the backend ActivityPlan model. Numbers are sent as
-      // numbers: a cleared number input yields "", which the create endpoint
-      // rejects and the update endpoint would store, breaking the plan list.
-      const form = formState.value;
-      const payload = {
-        planTitle: form.planTitle,
-        planYear: form.planYear,
-        planPeriodStart: form.planPeriodStart,
-        planPeriodEnd: form.planPeriodEnd,
-        department: form.department,
-        createdBy: form.createdBy,
-        creationDate: form.creationDate,
-        // `id` is sent as is: on update the backend matches it to keep each
-        // activity's Activity ID. `activityCode` is assigned by the backend, so
-        // only a code loaded with the plan is sent back (edit), never one made
-        // up here; new rows go without it and get a code on save.
-        plannedActivities: form.plannedActivities.map(({ activityCode, ...activity }) => ({
-          ...activity,
-          ...(isEditMode.value && activityCode ? { activityCode } : {}),
-          duration: toNumber(activity.duration),
-          numberOfAuditors: toNumber(activity.numberOfAuditors),
-          budgetEstimation: toNumber(activity.budgetEstimation)
-        })),
-        resourceAuditors: form.resourceAuditors,
-        budget: {
-          ...form.budget,
-          totalEstimatedCost: totalEstimatedCost.value,
-          totalAllocatedBudget: toNumber(form.budget.totalAllocatedBudget)
-        },
-        review: form.review,
-        attachmentCategory: form.attachmentCategory,
-        attachmentUploadedBy: form.attachmentUploadedBy,
-        attachmentUploadDate: form.attachmentUploadDate,
-        attachments: isEditMode.value ? (form.attachments || []).concat(fileList) : fileList
-      };
-
-      if (isEditMode.value) {
-        const planId = (formState.value as ActivityPlan).id;
-        await $fetch(`${baseUrl}/activity-plans/${planId}`, {
-          method: 'PUT',
-          body: payload
-        });
-      } else {
-        // Planned activities are stored inside the plan itself. /audit-activities is a
-        // different resource (annual plan, target unit, project code, dates) this
-        // form does not collect, so it is not written from here.
-        await $fetch(`${baseUrl}/activity-plans`, {
-          method: 'POST',
-          body: payload
-        });
-      }
-      closeModal();
-      toast.showSuccess('Activity plan saved successfully.');
-      await fetchPlans();
-    } catch (error: any) {
-      console.error('Failed to save activity plan:', error);
-      const detail = extractErrorMessage(error, 'Failed to save activity plan.');
-      errorMsg.value = detail;
-      toast.showError('Failed to save activity plan.', detail);
-    } finally {
-      loading.value = false;
-    }
-  }
-
-  function addPlannedActivity() {
-    // No activityCode: the backend assigns the Activity ID when the plan is saved.
-    formState.value.plannedActivities.push({
-      id: Date.now().toString(),
-      annualPlanId: '',
-      annualActivityId: '',
-      auditName: '',
-      auditee: '',
-      category: AuditCategory.ASSURANCE,
-      riskLevel: RiskLevel.LOW,
-      duration: 0,
-      priority: '',
-      numberOfAuditors: 1,
-      estimatedSchedule: '',
-      budgetEstimation: 0
-    });
-  }
-
-  function removePlannedActivity(index: number) {
-    formState.value.plannedActivities.splice(index, 1);
-    syncPlanHeader();
-  }
-
-  // Plan year and department are not entered again: they follow the first linked annual activity.
-  function syncPlanHeader() {
-    const first = formState.value.plannedActivities.find(a => a.annualActivityId);
-    const option = first ? annualActivityOptions.value.find(o => o.value === first.annualActivityId) : undefined;
-    if (!option) return;
-    formState.value.planYear = String(option.plan.year ?? formState.value.planYear);
-    formState.value.department = option.activity.department || formState.value.department;
-  }
+  // ── Save / delete ─────────────────────────────────────────────
 
   /**
-   * Links a planned activity to an annual activity and copies its values (category, risk,
-   * risk level, team size, mandays) into the row. The copied fields are read-only in the form.
+   * Validates every step, uploads new files and sends the section 6.4 payload. A server error is
+   * mapped by its code to a message, with the step and row to focus. Resolves true when saved.
    */
-  function linkAnnualActivity(index: number, annualActivityId: string | undefined) {
-    const row = formState.value.plannedActivities[index];
-    if (!row) return;
-    const option = annualActivityOptions.value.find(o => o.value === annualActivityId);
-    if (!option) {
-      row.annualPlanId = '';
-      row.annualActivityId = '';
-      syncPlanHeader();
-      return;
+  const savePlan = async (): Promise<boolean> => {
+    for (const step of [0, 1]) {
+      const error = validateStep(step);
+      if (error) {
+        formError.value = error;
+        return false;
+      }
     }
-    const { plan, activity } = option;
-    row.annualPlanId = plan.id || '';
-    row.annualActivityId = activity.id || '';
-    row.category = (activity.category as AuditCategory) || row.category;
-    row.riskName = activity.riskName || '';
-    row.riskLevel = toRiskLevel(activity.riskLevel) ?? row.riskLevel;
-    row.numberOfAuditors = toNumber(activity.auditorCount);
-    row.duration = toNumber(activity.totalMandays);
-    syncPlanHeader();
-  }
-
-  // Rows that still need a link to an annual activity before the plan can be saved.
-  const unlinkedActivityCount = computed(() =>
-    formState.value.plannedActivities.filter(a => !a.annualActivityId).length
-  );
-
-  function addResourceAuditor() {
-    formState.value.resourceAuditors.push({
-      id: Date.now().toString(),
-      name: '',
-      position: '',
-      competence: '',
-      availability: ''
-    });
-  }
-
-  function removeResourceAuditor(index: number) {
-    formState.value.resourceAuditors.splice(index, 1);
-  }
-
-  const attachmentCategoryOptions = ['Plan', 'Evidence', 'Charter', 'Other'];
-
-  const handleFileChange = (event: Event) => {
-    const target = event.target as HTMLInputElement;
-    const file = target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 5 * 1024 * 1024) {
-      errorMsg.value = "File terlalu besar! Maksimal 5MB.";
-      formState.value.file = null;
-      target.value = "";
-      return;
+    saving.value = true;
+    formError.value = null;
+    try {
+      const form = formState.value;
+      const newFiles = form.file || [];
+      let uploaded: AnnualAuditAttachment[] = [];
+      try {
+        uploaded = newFiles.length ? await uploadAttachments(newFiles) : [];
+      } catch (error) {
+        formError.value = { messages: [(error as Error).message], step: 2 };
+        return false;
+      }
+      const payload = buildActivityPlanPayload(form, [...form.attachments, ...uploaded]);
+      const baseUrl = getAuditServiceBaseUrl();
+      if (isEditMode.value && form.id) {
+        await $fetch(`${baseUrl}/activity-plans/${form.id}`, { method: 'PUT', body: payload });
+      } else {
+        await $fetch(`${baseUrl}/activity-plans`, { method: 'POST', body: payload });
+      }
+      closeModal();
+      toast.showSuccess(t('auditActivityPlan.saveSuccess'));
+      await fetchPlans();
+      return true;
+    } catch (error) {
+      console.error('Failed to save activity plan:', error);
+      const parsed = parseApiError(error);
+      formError.value = {
+        messages: [translateApiError(error, t, ERROR_PREFIX, 'auditActivityPlan.saveError')],
+        step: stepForApiError(parsed),
+        row: parsed.details.row,
+        code: parsed.code
+      };
+      return false;
+    } finally {
+      saving.value = false;
     }
-
-    const allowedTypes = [
-      "application/pdf",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "application/msword",
-    ];
-
-    if (!allowedTypes.includes(file.type)) {
-      errorMsg.value = "Format file tidak valid. Gunakan PDF atau DOCX.";
-      formState.value.file = null;
-      target.value = "";
-      return;
-    }
-
-    errorMsg.value = "";
-    formState.value.file = [file];
   };
 
-  const getRiskLevelColor = (level?: string) => {
-    if (!level) return 'neutral'
-    const lvl = level.toLowerCase()
-    if (lvl.includes('high')) return 'error'
-    if (lvl.includes('mod') || lvl.includes('medium')) return 'warning'
-    if (lvl.includes('low')) return 'success'
-    return 'neutral'
-  }
+  /** Deletes a plan after confirmation. Legacy plans can always be deleted. */
+  const handleDelete = async (plan: Pick<ActivityPlanSummary, 'id' | 'title'>) => {
+    const confirmed = await useGlobalModalStore().confirmDelete({
+      description: t('auditActivityPlan.deleteConfirm'),
+      body: plan.title ? [plan.title] : undefined
+    });
+    if (!confirmed) return;
+    loading.value = true;
+    try {
+      await $fetch(`${getAuditServiceBaseUrl()}/activity-plans/${plan.id}`, { method: 'DELETE' });
+      if (viewingId.value === plan.id) closeViewModal();
+      toast.showSuccess(t('auditActivityPlan.deleteSuccess'));
+      await fetchPlans();
+    } catch (error) {
+      console.error('Failed to delete activity plan:', error);
+      toast.showError(t('auditActivityPlan.deleteError'), translateApiError(error, t, ERROR_PREFIX, 'auditActivityPlan.deleteError'));
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  /** The signed-in user (the server sets createdBy from the token; shown on a new plan). */
+  const currentUserName = computed(() => useAuthStore().user?.fullName || '');
 
   return {
-    isModalOpen, isViewModalOpen, isEditMode, priorityOptions, riskLevelOptions,
-    formState, plans, selectedPlan, columns, filteredPlans,
-    openModal, closeModal, openViewModal, closeViewModal, handleEdit, handleDelete, savePlan, totalEstimatedCost,
-    addPlannedActivity, removePlannedActivity, addResourceAuditor, removeResourceAuditor,
-    fetchPlans, loading, errorMsg, getRiskLevelColor, attachmentCategoryOptions, handleFileChange,
-    departmentOptions, riskOptions, optionsLoading, fetchFormOptions,
-    annualActivityOptions, linkAnnualActivity, unlinkedActivityCount
+    // list
+    plans, loading, errorMsg, filters, fetchPlans, clearFilters, activityTypeOptions, activityTypeLabel,
+    // view
+    isViewModalOpen, selectedPlan, viewLoading, viewError, openViewModal, closeViewModal, loadView,
+    // form
+    isModalOpen, isEditMode, formState, formLoading, formLoadError, saving, formError, formTotals,
+    annualPlanOptions, annualPlansLoading, selectedAnnualPlan, formYear, annualPlanNotApproved,
+    employees, employeesLoading, employeesError, auditKindItems, currentUserName,
+    openModal, closeModal, handleEdit, loadEditing, setAnnualPlan, setActivityType,
+    annualActivityOptions, optionsLoading, optionsError, fetchAnnualActivityOptions,
+    addRowsFromOptions, removeRow, moveRow, validateStep, savePlan, handleDelete,
+    // attachments
+    attachmentCategoryOptions, uploadAttachments, openAttachment
   };
 });

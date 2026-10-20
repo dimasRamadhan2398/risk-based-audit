@@ -1,0 +1,145 @@
+# Hand-maintained parts of docs/api/openapi.yaml that apply to the whole API.
+# Per-service enrichment lives in overlays/<service>.yaml.
+
+info:
+  title: AuditSphere API
+  version: "1.0.0"
+  description: |
+    Every endpoint the AuditSphere backend registers and Kong routes, generated from the Gin route
+    registrations (`docs/api/tools/apidocs.py`), python-ai's FastAPI app and the Nuxt server routes,
+    plus hand-written overlays in `docs/api/overlays/`.
+
+    **Paths are the public paths** as the browser sees them on https://auditsphere.app (Kong
+    routes `/api/v1/**`, `/api/analytics/**`, `/api/python-ai/**` and `/uploads/**`). Kong only
+    routes, rate-limits, caches and applies CORS; **it does not check tokens**: each service validates
+    the JWT itself.
+
+    ### Authentication
+    1. `POST /api/v1/auth/login` with `{username, password}`. The response's `data.token` is a JWT
+       (HS256, signed with the stack's shared `jwt.secret`); `data.expires_at` is its Unix expiry.
+    2. If `data.mfa_required` is true there is no token yet: call `POST /api/v1/auth/verify-mfa-login`
+       with `data.mfa_token` and the TOTP/email `code`; that response carries the token.
+    3. Send `Authorization: Bearer <token>` on every other call. Roles come from the token's
+       `roles` claim; role checks noted on an operation are enforced by that service's middleware
+       or handler (`x-auditsphere.requiredRoles` / `requiredPermissions`).
+
+    audit-service also accepts the token as a `?token=` query parameter (used for file
+    view/download links opened in a new tab) or an `auth_token` / `auth-token` / `token`
+    cookie; risk-service and analytics-service accept the `auth_token` / `token` cookie but
+    deliberately not `?token=`. auth-service and master-service accept only the header.
+
+    python-ai checks **no JWT**. It only checks an `X-API-Key` header when its `API_KEY` env var
+    is set, and neither the local nor the production compose file sets it, so its endpoints are
+    anonymous today. `/uploads/**` (audit-service static files) is anonymous by design except for
+    `uploads/action-taken-reports/**`, which answers 404.
+
+    ### Envelopes
+    Go services answer `{success, message, data}` (see `common.Envelope`) and errors as
+    `{success:false, error:{code, message, details}}` (`common.ErrorEnvelope`). Generic CRUD list
+    endpoints of audit-service put `{items, pagination}` in `data`. analytics-service answers
+    `{status:"success", data, ...}` instead.
+
+    ### Rate limits (production Kong)
+    Global 100 req/min and 5000 req/h per IP; audit-service routes 60/min, 1000/h; analytics
+    120/min (retrain 10/min). Kong also caches JSON GET responses for 5-10 minutes keyed by
+    `Authorization`, so a write may take that long to show up in a list fetched with the same token.
+
+    Operation extension `x-auditsphere` records the Go handler and source location, the internal
+    path, the Kong route, whether the website calls it (with call sites) and how complete the
+    generated docs are (`docLevel`).
+
+servers:
+  - url: https://auditsphere.app
+    description: Production. Read-only browsing; CORS only allows https://auditsphere.app, so "Try it out" from this page will not work against it (by design).
+  - url: /
+    description: Local stack through the docs container's proxy (http://localhost:8090 -> Kong on localhost:8080)
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT from `POST /api/v1/auth/login` (or `/api/v1/auth/verify-mfa-login` when MFA is on), field `data.token`.
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: auth_token
+      description: The same JWT in a cookie. Accepted by audit-service (also `auth-token`, `token`), risk-service and analytics-service (also `token`).
+    tokenQuery:
+      type: apiKey
+      in: query
+      name: token
+      description: The same JWT as a query parameter. audit-service only (file view/download links). Tokens in URLs end up in access logs; prefer the header.
+    pythonAiApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Only enforced when python-ai's `API_KEY` env var is set (it is not set in any compose file today). `/health`, `/docs` and `/openapi.json` are always open.
+
+  responses:
+    Unauthorized:
+      description: Missing, malformed or expired token
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/common.ErrorEnvelope"
+    RateLimited:
+      description: Rejected by Kong's rate-limiting plugin
+      headers:
+        Retry-After:
+          schema: { type: integer }
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message: { type: string, example: "API rate limit exceeded" }
+
+  schemas:
+    common.Envelope:
+      type: object
+      description: Success envelope used by auth-, audit-, master- and risk-service (`pkg/response`).
+      properties:
+        success: { type: boolean, example: true }
+        message: { type: string }
+        data:
+          description: Payload; shape depends on the operation
+    common.ErrorEnvelope:
+      type: object
+      properties:
+        success: { type: boolean, example: false }
+        code:
+          type: string
+          description: master-service mirrors error.code here
+        error:
+          type: object
+          properties:
+            code: { type: string, example: BAD_REQUEST }
+            message: { type: string }
+            details: { type: string }
+            fields:
+              type: object
+              additionalProperties: { type: string }
+              description: master-service validation errors, field name -> code (REQUIRED, INVALID_FORMAT, ALREADY_EXISTS)
+        message:
+          type: string
+          description: Some audit-service handlers answer `{success:false, message}` instead of `error`
+    common.Message:
+      type: object
+      properties:
+        success: { type: boolean, example: true }
+        message: { type: string }
+    common.Pagination:
+      type: object
+      properties:
+        page: { type: integer, example: 1 }
+        page_size: { type: integer, example: 20 }
+        total: { type: integer, example: 57 }
+        total_pages: { type: integer, example: 3 }
+    common.AnalyticsEnvelope:
+      type: object
+      description: analytics-service success shape
+      properties:
+        status: { type: string, example: success }
+        data: {}

@@ -8,7 +8,7 @@ const user = {
   username: 'executive.e2e',
   email: 'executive@example.test',
   fullName: 'Executive E2E',
-  roles: ['admin', 'chief_audit_executive']
+  roles: ['ADMIN', 'EXECUTIVE']
 }
 
 const summaryFixture = {

@@ -38,6 +38,10 @@ func runServe(cmd *cobra.Command, args []string) error {
 	if err := initConfig(); err != nil {
 		return err
 	}
+	// Checked before the logger exists, so the error is returned rather than logged.
+	if err := cfg.ValidateJWT(); err != nil {
+		return fmt.Errorf("refusing to start: %w", err)
+	}
 	if err := initLogger(); err != nil {
 		return err
 	}
@@ -86,7 +90,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 
 	router := gin.New()
 	router.Use(
-		gin.Logger(),
+		middleware.RedactingLogger(),
 		middleware.RecoveryMiddleware(),
 		middleware.CORSMiddleware(),
 		middleware.ResponseCache(),

@@ -4,6 +4,7 @@ import { useAssignmentLetterStore } from './assignment-letter'
 import { useAppToast } from '~/composables/useAppToast'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
+import { openProtectedFile } from '~/utils/authedFile'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 
 export interface InterviewItem {
@@ -597,26 +598,18 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       return
     }
 
-    // Blob URLs and external links open directly; our API needs the auth
+    // Blob URLs and external links open directly; our API and uploads need the auth
     // token, which a plain window.open cannot send
-    if (!previewUrl.startsWith(getAuditServiceBaseUrl())) {
+    if (previewUrl.startsWith('blob:') || previewUrl.startsWith('http://') || previewUrl.startsWith('https://')) {
       window.open(previewUrl, '_blank')
       return
     }
 
-    // Open the tab synchronously so the popup blocker allows it
+    // Open the tab synchronously so the popup blocker allows it, then fetch with the token
     const tab = window.open('', '_blank')
     try {
-      const blob = await $fetch<Blob>(previewUrl, { responseType: 'blob' })
-      const url = window.URL.createObjectURL(blob)
-      if (tab) {
-        tab.location.href = url
-      } else {
-        window.open(url, '_blank')
-      }
-      setTimeout(() => window.URL.revokeObjectURL(url), 60000)
+      await openProtectedFile(previewUrl, tab)
     } catch (err) {
-      tab?.close()
       toast.error(extractErrorMessage(err, 'Gagal membuka berkas.'))
     }
   }
@@ -1501,32 +1494,12 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
       return
     }
 
+    // Uploads and media downloads need the token, so fetch the file and open it from a blob URL
     const tab = window.open('', '_blank')
     try {
-      if (viewUrl.startsWith('/uploads') || !viewUrl.startsWith('http')) {
-        if (tab) {
-          tab.location.href = viewUrl
-        } else {
-          window.open(viewUrl, '_blank')
-        }
-        return
-      }
-
-      const blob = await $fetch<Blob>(viewUrl, { responseType: 'blob' })
-      const blobUrl = window.URL.createObjectURL(blob)
-      if (tab) {
-        tab.location.href = blobUrl
-      } else {
-        window.open(blobUrl, '_blank')
-      }
-      setTimeout(() => window.URL.revokeObjectURL(blobUrl), 60000)
+      await openProtectedFile(viewUrl, tab)
     } catch {
-      if (tab && viewUrl) {
-        tab.location.href = viewUrl
-      } else {
-        tab?.close()
-        toast.showError('Gagal membuka dokumen.')
-      }
+      toast.showError('Gagal membuka dokumen.')
     }
   }
 

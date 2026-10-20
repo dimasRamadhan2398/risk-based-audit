@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"errors"
 	"net/http"
 	"strings"
 
@@ -31,8 +30,8 @@ type AuthMiddleware struct {
 // authenticate anything. An empty secret would make every token signed with ""
 // valid, which is worse than an obvious startup crash.
 func NewAuthMiddleware(secret string) (*AuthMiddleware, error) {
-	if strings.TrimSpace(secret) == "" {
-		return nil, errors.New("jwt secret is empty: set JWT_SECRET (or jwt.secret in config.yaml)")
+	if err := ValidateJWTSecret(secret); err != nil {
+		return nil, err
 	}
 	return &AuthMiddleware{secret: secret}, nil
 }
@@ -88,19 +87,13 @@ func (m *AuthMiddleware) Authenticate() gin.HandlerFunc {
 	}
 }
 
-// bearerToken reads the token from the Authorization header, falling back to
-// the session cookies auth-service sets. The ?token= query parameter other
-// services accept is deliberately not supported: gin.Logger writes the full
-// URI, which would put live tokens in Loki.
+// bearerToken reads the token from the Authorization header only. Query-string
+// and cookie tokens are refused: the request URI is written to access logs, and
+// cookies would make the API open to cross-site requests.
 func bearerToken(c *gin.Context) string {
 	if authHeader := c.GetHeader("Authorization"); authHeader != "" {
 		if parts := strings.Fields(authHeader); len(parts) == 2 && strings.EqualFold(parts[0], "Bearer") {
 			return parts[1]
-		}
-	}
-	for _, name := range []string{"auth_token", "token"} {
-		if cookie, err := c.Cookie(name); err == nil && cookie != "" {
-			return cookie
 		}
 	}
 	return ""

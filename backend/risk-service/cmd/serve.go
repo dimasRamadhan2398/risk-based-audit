@@ -54,6 +54,9 @@ func runServe(cmd *cobra.Command, args []string) error {
 	if err := initConfig(); err != nil {
 		return err
 	}
+	if err := cfg.ValidateJWT(); err != nil {
+		log.Fatalf("refusing to start: %v", err)
+	}
 	if err := initLogger(); err != nil {
 		return err
 	}
@@ -102,7 +105,8 @@ func runServe(cmd *cobra.Command, args []string) error {
 		log.Println("SEED_ON_BOOT=false: skipping demo risk seeding (clean slate)")
 	}
 
-	r := gin.Default()
+	r := gin.New()
+	r.Use(gin.Recovery(), middleware.RedactingLogger())
 
 	r.Use(func(c *gin.Context) {
 		origin := c.GetHeader("Origin")

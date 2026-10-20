@@ -89,6 +89,13 @@
                       </span>
                       <span v-else class="text-gray-400 dark:text-gray-500 text-sm">-</span>
                     </div>
+
+                    <div v-if="activity.activityPlanRef" class="flex items-start" data-testid="detail-used-in-activity-plan">
+                      <span class="font-bold text-gray-600 dark:text-gray-400 w-44 text-sm shrink-0">{{ t('annualAudit.detail.activityPlan') }}</span>
+                      <span class="font-semibold text-primary-700 dark:text-primary-300 flex-1">
+                        {{ t('annualAudit.form.usedInActivityPlan', { title: activity.activityPlanRef.activityPlanTitle || '-', code: activity.activityPlanRef.assignmentCode || '-' }) }}
+                      </span>
+                    </div>
                   </UCard>
 
                   <UCard v-if="!store.selectedPlan.activities?.length" class="text-center py-4 text-gray-400 dark:text-gray-500 italic">
@@ -262,7 +269,7 @@
                   class="w-full"
                 >
                   <template #draft>
-                    <UFormField v-if="authStore.user?.roles?.includes(UserRole.AUDIT_STAFF)" :label="t('annualAudit.detail.staffNoteLabel')" class="p-4 mt-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg text-center border dark:border-gray-700">
+                    <UFormField v-if="authStore.user?.roles?.includes(UserRole.AUDITOR)" :label="t('annualAudit.detail.staffNoteLabel')" class="p-4 mt-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg text-center border dark:border-gray-700">
                       <UTextarea v-model="store.selectedPlan.staffApprovalNote" :placeholder="t('annualAudit.detail.approvalNotePlaceholder')" class="w-full"/>
                       <div class="mt-4 flex gap-2">
                         <UButton color="primary" icon="i-heroicons-check" @click="store.handleStaffApprove()">{{ t('annualAudit.detail.approve') }}</UButton>
@@ -275,7 +282,8 @@
                   </template>
 
                   <template #review>
-                    <UFormField v-if="authStore.user?.roles?.includes(UserRole.AUDIT_MANAGER)" :label="t('annualAudit.detail.managerNoteLabel')" class="p-4 mt-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg text-center border dark:border-gray-700">
+                    <!-- No manager role is seeded by the backend, so this approval step stays on the waiting message. -->
+                    <UFormField v-if="false" :label="t('annualAudit.detail.managerNoteLabel')" class="p-4 mt-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg text-center border dark:border-gray-700">
                       <UTextarea v-model="store.selectedPlan.managerApprovalNote" :placeholder="t('annualAudit.detail.approvalNotePlaceholder')" class="w-full"/>
                       <div class="mt-4 flex gap-2">
                         <UButton color="primary" icon="i-heroicons-check" @click="store.handleManagerApprove()">{{ t('annualAudit.detail.approve') }}</UButton>
@@ -288,7 +296,7 @@
                   </template>
 
                   <template #approval>
-                    <UFormField v-if="authStore.user?.roles?.includes(UserRole.CHIEF_AUDIT_EXECUTIVE)" :label="t('annualAudit.detail.chiefNoteLabel')" class="p-4 mt-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg text-center border dark:border-gray-700">
+                    <UFormField v-if="authStore.user?.roles?.includes(UserRole.EXECUTIVE)" :label="t('annualAudit.detail.chiefNoteLabel')" class="p-4 mt-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg text-center border dark:border-gray-700">
                       <UTextarea v-model="store.selectedPlan.chiefApprovalNote" :placeholder="t('annualAudit.detail.approvalNotePlaceholder')" class="w-full"/>
                       <div class="mt-4 flex gap-2">
                         <UButton color="primary" icon="i-heroicons-check" @click="store.handleChiefApprove()">{{ t('annualAudit.detail.approve') }}</UButton>

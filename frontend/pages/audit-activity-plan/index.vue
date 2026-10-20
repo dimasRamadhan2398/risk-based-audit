@@ -40,6 +40,9 @@
     <!-- Modals (These must be in the template to be shown) -->
     <ActivityPlanForm />
     
+    <!-- Filters (applied by the server) -->
+    <ActivityPlanFilter />
+
     <!-- Data Table -->
     <ActivityPlanTable />
   </div>
@@ -49,6 +52,7 @@
 <script setup lang="ts">
 import ActivityPlanForm from '~/components/audit-activity-plan/ActivityPlanForm.vue'
 import ActivityPlanTable from '~/components/audit-activity-plan/ActivityPlanTable.vue'
+import ActivityPlanFilter from '~/components/audit-activity-plan/ActivityPlanFilter.vue'
 import { useActivityPlanStore } from '~/stores/activity-plan'
 import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'

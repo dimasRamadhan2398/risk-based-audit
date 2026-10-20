@@ -11,6 +11,9 @@ type AppError struct {
 	Message    string
 	StatusCode int
 	Err        error
+	// Details is sent as error.details in the response envelope (optional;
+	// some endpoints put a JSON-encoded object here for the client to parse).
+	Details string
 }
 
 // Error implements the error interface
