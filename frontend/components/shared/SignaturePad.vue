@@ -10,7 +10,7 @@
           @click="setMode('draw')"
         >
           <UIcon name="i-heroicons-pencil" class="size-3.5 inline mr-1" />
-          Gambar
+          {{ t('common.signaturePad.draw') }}
         </button>
         <button
           type="button"
@@ -18,9 +18,7 @@
           :class="mode === 'upload' ? 'bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-400 shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'"
           @click="setMode('upload')"
         >
-          <UIcon name="i-heroicons-arrow-up-tray" class="size-3.5 inline mr-1" />
-          Upload
-        </button>
+          <UIcon name="i-heroicons-arrow-up-tray" class="size-3.5 inline mr-1" /> {{ t('common.actions.upload') }} </button>
       </div>
 
       <div class="flex items-center gap-1.5">
@@ -32,7 +30,7 @@
           class="flex items-center gap-1"
         >
           <UIcon name="i-heroicons-check-circle" class="size-3" />
-          Ditandatangani
+          {{ t('common.signaturePad.signed') }}
         </UBadge>
         <UButton
           v-if="hasSignature"
@@ -40,7 +38,7 @@
           color="neutral"
           variant="ghost"
           icon="i-heroicons-trash"
-          label="Hapus"
+          :label="t('common.signaturePad.clear')"
           @click="clearSignature"
         />
       </div>
@@ -62,12 +60,12 @@
         />
         <!-- Signature line guide -->
         <div class="absolute bottom-6 left-6 right-6 border-b border-gray-200 dark:border-gray-800 pointer-events-none flex justify-between items-center text-[10px] text-gray-400">
-          <span>Tanda tangan di atas garis</span>
+          <span>{{ t('common.signaturePad.signAboveLine') }}</span>
           <UIcon name="i-heroicons-pencil" class="size-3 opacity-40" />
         </div>
       </div>
       <p class="text-[11px] text-gray-400 mt-1 italic">
-        Gunakan mouse atau sentuhan jari / stylus untuk menggambar tanda tangan.
+        {{ t('common.signaturePad.drawHint') }}
       </p>
     </div>
 
@@ -86,22 +84,23 @@
           color="neutral"
           variant="outline"
           icon="i-heroicons-arrow-up-tray"
-          label="Pilih File Gambar (.png, .jpg)"
+          :label="t('common.signaturePad.chooseImage')"
           @click="fileInputRef?.click()"
         />
-        <span class="text-xs text-gray-400">Maksimal 2MB, format transparan direkomendasikan</span>
+        <span class="text-xs text-gray-400">{{ t('common.signaturePad.uploadHint') }}</span>
       </div>
       <div
         v-if="modelValue"
         class="border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-white dark:bg-gray-900 flex items-center justify-center min-h-[90px]"
       >
-        <img :src="modelValue" alt="Preview Tanda Tangan" class="max-h-20 max-w-full object-contain" />
+        <img :src="modelValue" :alt="t('common.signaturePad.previewAlt')" class="max-h-20 max-w-full object-contain" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 import { ref, onMounted, watch, nextTick } from 'vue'
 
 const props = withDefaults(

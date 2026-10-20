@@ -516,7 +516,7 @@
                       </UModal>
 
                       <!-- Edit Risk Button -->
-                      <UTooltip text="Edit Risk">
+                      <UTooltip :text="t('riskProfile.editModal.titleDefault')">
                         <UButton
                           icon="i-lucide-edit"
                           color="warning"
@@ -526,7 +526,7 @@
                         />
                       </UTooltip>
 
-                      <UTooltip text="Delete Risk">
+                      <UTooltip :text="t('workingPaper.common.deleteRisk')">
                         <UButton
                           icon="i-heroicons-trash"
                           color="error"
@@ -657,15 +657,13 @@
 
       <template #body>
         <p class="text-md text-gray-600 dark:text-gray-400 mt-1 mb-1">
-          Apakah Anda yakin ingin menghapus data risiko ini?<br />
-          Tindakan ini permanen dan tidak dapat dibatalkan.
-        </p>
+          Apakah Anda yakin ingin menghapus data risiko ini?<br /> {{ t('globalConfirmation.delete.note') }} </p>
       </template>
 
       <template #footer>
         <div class="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 w-full">
-          <UButton label="Batal" color="neutral" variant="ghost" class="w-full sm:w-auto" @click="isDeleteModalOpen = false" />
-          <UButton label="Ya, Hapus Data" color="error" class="w-full sm:w-auto" @click="confirmDeleteRisk" />
+          <UButton :label="t('riskFactors.weighting.cancel')" color="neutral" variant="ghost" class="w-full sm:w-auto" @click="isDeleteModalOpen = false" />
+          <UButton :label="t('globalConfirmation.delete.confirmButton')" color="error" class="w-full sm:w-auto" @click="confirmDeleteRisk" />
         </div>
       </template>
     </UModal>

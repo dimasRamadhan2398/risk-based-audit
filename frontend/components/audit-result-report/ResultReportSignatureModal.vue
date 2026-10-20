@@ -20,13 +20,11 @@
               <UIcon name="i-heroicons-pencil-square" class="size-6" />
             </div>
             <div>
-              <h3 class="text-lg font-bold text-gray-900 dark:text-white">
-                Tanda Tangan & Pengesahan Laporan Hasil Audit
-              </h3>
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white"> {{ t('auditResultReport.editor.signature.title') }} </h3>
               <p class="text-xs text-gray-500 flex items-center gap-2 mt-0.5">
-                <span>Surat Tugas: <strong class="text-primary-600">{{ assignmentLetterId || '-' }}</strong></span>
+                <span>{{ t('auditResultReport.editor.signature.assignmentLetter') }} <strong class="text-primary-600">{{ assignmentLetterId || '-' }}</strong></span>
                 <span>•</span>
-                <span>No. LHA: <strong class="font-mono text-gray-700 dark:text-gray-300">{{ reportNumber || '-' }}</strong></span>
+                <span>{{ t('auditResultReport.editor.signature.reportNumber') }} <strong class="font-mono text-gray-700 dark:text-gray-300">{{ reportNumber || '-' }}</strong></span>
               </p>
             </div>
           </div>
@@ -44,28 +42,26 @@
           <div class="p-4 bg-primary-50/70 dark:bg-primary-950/30 rounded-xl border border-primary-200 dark:border-primary-800/50 flex items-start gap-3">
             <UIcon name="i-heroicons-information-circle" class="size-5 text-primary-600 shrink-0 mt-0.5" />
             <div class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-              Silakan lengkapi tanda tangan untuk <strong>Team Member</strong> yang terdaftar pada Surat Tugas <strong>{{ assignmentLetterId }}</strong>.
-              Tanda tangan ini akan dicetak pada <strong>halaman paling akhir</strong> Laporan Hasil Audit (LHA) bersama informasi tempat, tanggal, dan nama perusahaan.
+              {{ t('auditResultReport.editor.signature.introPrefix') }} <strong>{{ t('auditResultReport.editor.signature.member') }}</strong> {{ t('auditResultReport.editor.signature.introMiddle') }} <strong>{{ assignmentLetterId }}</strong>.
+              {{ t('auditResultReport.editor.signature.introAfterLetter') }} <strong>{{ t('auditResultReport.editor.signature.lastPage') }}</strong> {{ t('auditResultReport.editor.signature.introSuffix') }}
             </div>
           </div>
 
           <!-- Metadata Pengesahan: Tempat, Tanggal, Perusahaan -->
           <div class="p-5 bg-slate-50 dark:bg-slate-850/60 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4">
             <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 flex items-center gap-2">
-              <UIcon name="i-heroicons-map-pin" class="size-4 text-primary-600" />
-              Informasi Pengesahan Laporan
-            </h4>
+              <UIcon name="i-heroicons-map-pin" class="size-4 text-primary-600" /> {{ t('auditResultReport.editor.signature.approvalInfo') }} </h4>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <UFormField label="Tempat TTD" required>
+              <UFormField :label="t('executiveSummaryForm.signature.place')" required>
                 <UInput
                   v-model="localPlace"
-                  placeholder="Contoh: Jakarta"
+                  :placeholder="t('executiveSummaryForm.signature.placePlaceholder')"
                   class="w-full"
                   required
                 />
               </UFormField>
 
-              <UFormField label="Tanggal TTD" required>
+              <UFormField :label="t('executiveSummaryForm.signature.date')" required>
                 <AppDatePicker
                   v-model="localDate"
                   class="w-full"
@@ -73,10 +69,10 @@
                 />
               </UFormField>
 
-              <UFormField label="Nama Perusahaan" required>
+              <UFormField :label="t('masterData.company.columns.name')" required>
                 <UInput
                   v-model="localCompanyName"
-                  placeholder="Contoh: PT AIFL Indonesia"
+                  :placeholder="t('auditResultReport.editor.signature.companyExample')"
                   class="w-full"
                   required
                 />
@@ -89,15 +85,10 @@
             <div class="flex justify-between items-center">
               <div>
                 <h4 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide flex items-center gap-2">
-                  <UIcon name="i-heroicons-user-group" class="text-primary-600" />
-                  Tanda Tangan Team Member
-                  <UBadge color="primary" variant="subtle" size="sm">
-                    {{ memberSignatures.length }} Anggota
-                  </UBadge>
+                  <UIcon name="i-heroicons-user-group" class="text-primary-600" /> {{ t('auditResultReport.editor.signature.memberSignatures') }} <UBadge color="primary" variant="subtle" size="sm">
+                    {{ memberSignatures.length }} {{ t('workingPaper.headerForm.member') }} </UBadge>
                 </h4>
-                <p class="text-xs text-gray-500 mt-0.5">
-                  Daftar anggota tim diambil otomatis dari fitur Assignment Letter.
-                </p>
+                <p class="text-xs text-gray-500 mt-0.5"> {{ t('auditResultReport.editor.signature.automaticList') }} </p>
               </div>
             </div>
 
@@ -121,7 +112,7 @@
                           {{ member.role || 'Team Member' }}
                         </UBadge>
                       </div>
-                      <span class="text-[11px] text-gray-400">Team Member #{{ idx + 1 }}</span>
+                      <span class="text-[11px] text-gray-400">{{ t('auditResultReport.editor.signature.memberNumber') }}{{ idx + 1 }}</span>
                     </div>
                   </div>
                 </div>
@@ -140,12 +131,8 @@
                 class="text-center py-8 bg-slate-50 dark:bg-slate-850/50 rounded-xl border border-dashed border-slate-300 dark:border-slate-800 space-y-2"
               >
                 <UIcon name="i-heroicons-user-group" class="size-8 text-gray-400 mx-auto" />
-                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Tidak ada Team Member yang terdaftar pada Surat Tugas ini
-                </p>
-                <p class="text-xs text-gray-500 max-w-sm mx-auto">
-                  Team member hanya dapat ditambahkan di dalam fitur Assignment Letter. Pastikan Surat Tugas telah memiliki daftar anggota tim.
-                </p>
+                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300"> {{ t('auditResultReport.editor.signature.empty') }} </p>
+                <p class="text-xs text-gray-500 max-w-sm mx-auto"> {{ t('auditResultReport.editor.signature.emptyDescription') }} </p>
               </div>
             </div>
           </div>
@@ -154,18 +141,17 @@
         <!-- Footer -->
         <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center bg-slate-50/50 dark:bg-gray-850">
           <span class="text-xs text-gray-500 mr-2 hidden sm:inline">
-            {{ signedCount }} dari {{ memberSignatures.length }} tanda tangan terisi
-          </span>
+            {{ signedCount }} {{ t('auditResultReport.editor.signature.of') }} {{ memberSignatures.length }} {{ t('auditResultReport.editor.signature.completed') }} </span>
 
           <div class="flex items-center gap-2">
             <UButton
-              label="Kembali ke Form"
+              :label="t('auditResultReport.editor.signature.back')"
               color="neutral"
               variant="ghost"
               @click="emit('update:open', false)"
             />
             <UButton
-              label="Konfirmasi & Simpan Laporan"
+              :label="t('auditResultReport.editor.signature.confirm')"
               color="primary"
               icon="i-heroicons-check"
               :loading="loading"
@@ -179,6 +165,7 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 import { ref, computed, watch } from 'vue'
 import SignaturePad from '~/components/shared/SignaturePad.vue'
 import type { MemberSignature } from '~/stores/audit-result-report'

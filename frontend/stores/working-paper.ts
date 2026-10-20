@@ -20,6 +20,7 @@ import { extractErrorMessage } from '~/utils/error'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 import { toTestResult, toTestResultBoolean } from '~/utils/sampleTestResult'
 import type { StepperItem } from '@nuxt/ui'
+import { useI18n } from '~/composables/useI18n'
 
 import { z } from 'zod'
 
@@ -59,6 +60,7 @@ export const planSchema = z.object({
 })
 
 export const useWorkingPaperStore = defineStore('working-paper', () => {
+  const { t } = useI18n()
   const fieldworkStore = useAuditFieldworkStore()
   const assignmentLetterStore = useAssignmentLetterStore()
   const locationStore = useLocationStore()
@@ -82,7 +84,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
       // Validasi Ukuran (Contoh: 10MB)
       if (file.size > 10 * 1024 * 1024) {
-        toast.error('File size too large! Maximum 10MB.')
+        toast.error(t('workingPaper.common.fileTooLarge'))
         return
       }
 
@@ -125,136 +127,136 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   // Opsional: Pesan error dinamis
   const dateErrorMessage = computed(() => {
-    return isDateError.value ? 'The end date cannot be before the start date.' : false
+    return isDateError.value ? t('workingPaper.common.dateError') : false
   })
 
   // Tabs Configuration
-  const tabs = [
-    { label: 'Header', slot: 'f01', icon: 'i-heroicons-document-text' },
-    { label: 'Risk Profile', slot: 'f02', icon: 'i-heroicons-shield-exclamation' },
-    { label: 'Test Sample', slot: 'f03', icon: 'i-heroicons-table-cells' },
-    { label: 'AOI & RCA', slot: 'f04', icon: 'i-heroicons-magnifying-glass-circle' },
-    { label: 'Action Plan', slot: 'f05', icon: 'i-heroicons-check-badge' }
-  ]
+  const tabs = computed(() => [
+    { label: t('workingPaper.index.steps.header.title'), slot: 'f01', icon: 'i-heroicons-document-text' },
+    { label: t('workingPaper.index.steps.riskProfile.title'), slot: 'f02', icon: 'i-heroicons-shield-exclamation' },
+    { label: t('workingPaper.index.steps.testSample.title'), slot: 'f03', icon: 'i-heroicons-table-cells' },
+    { label: t('workingPaper.index.steps.aoiRca.title'), slot: 'f04', icon: 'i-heroicons-magnifying-glass-circle' },
+    { label: t('workingPaper.index.steps.actionPlan.title'), slot: 'f05', icon: 'i-heroicons-check-badge' }
+  ])
 
-  const workingItems = [
+  const workingItems = computed(() => [
     {
       slot: 'f01' as const,
-      title: 'Header',
-      description: 'Add your header',
+      title: t('workingPaper.index.steps.header.title'),
+      description: t('workingPaper.index.steps.header.description'),
       icon: 'i-lucide-house'
     }, {
       slot: 'f02' as const,
-      title: 'Risk Profile',
-      description: 'Add your risk profile',
+      title: t('workingPaper.index.steps.riskProfile.title'),
+      description: t('workingPaper.index.steps.riskProfile.description'),
       icon: 'i-lucide-shield'
     }, {
       slot: 'f03' as const,
-      title: 'Test Sample',
-      description: 'Add your test sample',
+      title: t('workingPaper.index.steps.testSample.title'),
+      description: t('workingPaper.index.steps.testSample.description'),
       icon: 'i-lucide-table'
     }, {
       slot: 'f04' as const,
-      title: 'AOI & RCA',
-      description: 'Add your AOI & RCA',
+      title: t('workingPaper.index.steps.aoiRca.title'),
+      description: t('workingPaper.index.steps.aoiRca.description'),
       icon: 'i-lucide-file-search'
     }, {
       slot: 'f05' as const,
-      title: 'Action Plan',
-      description: 'Add your action plan',
+      title: t('workingPaper.index.steps.actionPlan.title'),
+      description: t('workingPaper.index.steps.actionPlan.description'),
       icon: 'i-lucide-check'
     }
-  ] satisfies StepperItem[]
+  ] satisfies StepperItem[])
 
-  const columnsF01 = [
+  const columnsF01 = computed(() => [
     {
       key: 'businessProcess',
       accessorKey: 'businessProcess',
-      header: 'Business Process',
+      header: t('workingPaper.columns.businessProcess'),
       class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
       tdClass: '!whitespace-normal break-words'
     },
-    { key: 'period', accessorKey: 'period', header: 'Period', class: 'w-40 min-w-[130px] whitespace-nowrap' },
-    { key: 'location', accessorKey: 'location', header: 'Location', class: 'w-44 min-w-[140px]' },
-    { key: 'teamMembers', accessorKey: 'teamMembers', header: 'Team', class: 'w-48 min-w-[160px]' },
-    { key: 'actions', accessorKey: 'actions', header: 'Action', class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
-  ]
+    { key: 'period', accessorKey: 'period', header: t('workingPaper.columns.period'), class: 'w-40 min-w-[130px] whitespace-nowrap' },
+    { key: 'location', accessorKey: 'location', header: t('workingPaper.columns.location'), class: 'w-44 min-w-[140px]' },
+    { key: 'teamMembers', accessorKey: 'teamMembers', header: t('workingPaper.columns.team'), class: 'w-48 min-w-[160px]' },
+    { key: 'actions', accessorKey: 'actions', header: t('workingPaper.columns.actions'), class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
+  ])
 
-  const columnsF02 = [
+  const columnsF02 = computed(() => [
     {
       key: 'risk',
       accessorKey: 'risk',
-      header: 'Risk',
+      header: t('workingPaper.columns.risk'),
       class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
       tdClass: '!whitespace-normal break-words'
     },
-    { key: 'taxonomy', accessorKey: 'taxonomy', header: 'Risk Category', class: 'w-44 min-w-[140px]' },
-    { key: 'riskLevel', accessorKey: 'riskLevel', header: 'Risk Level', class: 'w-36 min-w-[120px]' },
+    { key: 'taxonomy', accessorKey: 'taxonomy', header: t('workingPaper.columns.riskCategory'), class: 'w-44 min-w-[140px]' },
+    { key: 'riskLevel', accessorKey: 'riskLevel', header: t('workingPaper.columns.riskLevel'), class: 'w-36 min-w-[120px]' },
     {
       key: 'controlDescription',
       accessorKey: 'controlDescription',
-      header: 'Control Description',
+      header: t('workingPaper.columns.controlDescription'),
       class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
       tdClass: '!whitespace-normal break-words'
     },
-    { key: 'actions', accessorKey: 'actions', header: 'Action', class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
-  ]
+    { key: 'actions', accessorKey: 'actions', header: t('workingPaper.columns.actions'), class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
+  ])
 
-  const columnsF03 = [
-    { key: 'population', accessorKey: 'population', header: 'Total Populasi', class: 'w-48 min-w-[140px] whitespace-normal break-words', tdClass: '!whitespace-normal break-words' },
-    { key: 'sampleSize', accessorKey: 'sampleSize', header: 'Sample Size', class: 'w-36 min-w-[120px]' },
-    { key: 'samples', accessorKey: 'samples', header: 'Sample List', class: 'min-w-[260px]' },
+  const columnsF03 = computed(() => [
+    { key: 'population', accessorKey: 'population', header: t('workingPaper.columns.population'), class: 'w-48 min-w-[140px] whitespace-normal break-words', tdClass: '!whitespace-normal break-words' },
+    { key: 'sampleSize', accessorKey: 'sampleSize', header: t('workingPaper.columns.sampleSize'), class: 'w-36 min-w-[120px]' },
+    { key: 'samples', accessorKey: 'samples', header: t('workingPaper.columns.sampleList'), class: 'min-w-[260px]' },
     {
       key: 'conclusion',
       accessorKey: 'conclusion',
-      header: 'Conclusion',
+      header: t('workingPaper.columns.conclusion'),
       class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
       tdClass: '!whitespace-normal break-words'
     },
-    { key: 'actions', accessorKey: 'actions', header: 'Action', class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
-  ]
+    { key: 'actions', accessorKey: 'actions', header: t('workingPaper.columns.actions'), class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
+  ])
 
-  const columnsF04 = [
+  const columnsF04 = computed(() => [
     {
       key: 'condition',
       accessorKey: 'condition',
-      header: 'Condition',
+      header: t('workingPaper.columns.condition'),
       class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
       tdClass: '!whitespace-normal break-words'
     },
     {
       key: 'criteria',
       accessorKey: 'criteria',
-      header: 'Criteria',
+      header: t('workingPaper.columns.criteria'),
       class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
       tdClass: '!whitespace-normal break-words'
     },
-    { key: 'impact', accessorKey: 'impact', header: 'Impact', class: 'w-56 min-w-[180px]' },
-    { key: 'rootCause', accessorKey: 'rootCause', header: 'Root Cause', class: 'min-w-[220px]' },
-    { key: 'evidenceFile', accessorKey: 'evidenceFile', header: 'Evidence Document', class: 'w-48 min-w-[160px]' },
-    { key: 'actions', accessorKey: 'actions', header: 'Action', class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
-  ]
+    { key: 'impact', accessorKey: 'impact', header: t('workingPaper.columns.impact'), class: 'w-56 min-w-[180px]' },
+    { key: 'rootCause', accessorKey: 'rootCause', header: t('workingPaper.columns.rootCause'), class: 'min-w-[220px]' },
+    { key: 'evidenceFile', accessorKey: 'evidenceFile', header: t('workingPaper.columns.evidenceDocument'), class: 'w-48 min-w-[160px]' },
+    { key: 'actions', accessorKey: 'actions', header: t('workingPaper.columns.actions'), class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
+  ])
 
-  const columnsF05 = [
+  const columnsF05 = computed(() => [
     {
       key: 'recommendation',
       accessorKey: 'recommendation',
-      header: 'Recommendation',
+      header: t('workingPaper.columns.recommendation'),
       class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
       tdClass: '!whitespace-normal break-words'
     },
     {
       key: 'response',
       accessorKey: 'response',
-      header: 'Auditee Response',
+      header: t('workingPaper.columns.auditeeResponse'),
       class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
       tdClass: '!whitespace-normal break-words'
     },
-    { key: 'actionDescription', accessorKey: 'actionDescription', header: 'Description', class: 'w-56 min-w-[180px]' },
-    { key: 'pic', accessorKey: 'pic', header: 'PIC', class: 'w-40 min-w-[130px]' },
-    { key: 'periodAction', accessorKey: 'periodAction', header: 'Target Selesai', class: 'w-40 min-w-[130px] whitespace-nowrap' },
-    { key: 'actions', accessorKey: 'actions', header: 'Actions', class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
-  ]
+    { key: 'actionDescription', accessorKey: 'actionDescription', header: t('workingPaper.columns.description'), class: 'w-56 min-w-[180px]' },
+    { key: 'pic', accessorKey: 'pic', header: t('workingPaper.columns.pic'), class: 'w-40 min-w-[130px]' },
+    { key: 'periodAction', accessorKey: 'periodAction', header: t('workingPaper.columns.completionTarget'), class: 'w-40 min-w-[130px] whitespace-nowrap' },
+    { key: 'actions', accessorKey: 'actions', header: t('workingPaper.columns.actions'), class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
+  ])
   // --- STATE ---
   const headerForm = reactive<WorkingPaperHeaderForm>({
     assignmentLetterId: '',
@@ -431,7 +433,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       dataF05.value = extractItems(resF05)
     } catch (error) {
       console.error('Failed to fetch working papers:', error)
-      errorMsg.value = extractErrorMessage(error, 'Failed to load working papers.')
+      errorMsg.value = extractErrorMessage(error, t('workingPaper.messages.loadFailed'))
     } finally {
       loading.value = false
     }
@@ -622,17 +624,17 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   }
 
   const deleteF01 = async (id: string) => {
-    if (await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete permanently?' })) {
+    if (await useGlobalModalStore().confirmDelete({ description: t('workingPaper.messages.deleteConfirm') })) {
       try {
         const baseUrl = getAuditServiceBaseUrl()
         await $fetch(`${baseUrl}/working-papers/headers/${id}`, {
           method: 'DELETE'
         })
         await fetchAllData()
-        toast.showSuccess('Header Data Successfully Deleted!')
+        toast.showSuccess(t('workingPaper.messages.headerDeleted'))
       } catch (error: any) {
-        const detail = extractErrorMessage(error, 'Failed to delete data.')
-        toast.showError('Failed to delete data', detail)
+        const detail = extractErrorMessage(error, t('workingPaper.messages.deleteFailed'))
+        toast.showError(t('workingPaper.messages.deleteFailed'), detail)
       }
     }
   }
@@ -650,7 +652,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     // nothing to attach it to, so refuse rather than guess.
     const initialLetter = fieldworkStore.selectedAssignmentLetter
     if (!initialLetter) {
-      toast.showWarning('No assignment letter selected', 'Select an assignment letter in Audit Fieldwork before creating a working paper.')
+      toast.showWarning(t('workingPaper.index.noAssignmentLetter'), t('workingPaper.index.selectLetterFirst'))
       return
     }
 
@@ -677,15 +679,15 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     try {
       if (isEditingF01.value && editingIdF01.value) {
         await updateF01(editingIdF01.value, { ...headerForm })
-        toast.success('Header Data Updated Successfully!')
+        toast.success(t('workingPaper.messages.headerUpdated'))
       } else {
         await addF01({ ...headerForm })
-        toast.showSuccess('Header Data Successfully Saved!')
+        toast.showSuccess(t('workingPaper.messages.headerSaved'))
       }
       closeModalF01()
     } catch (error: any) {
-      const detail = extractErrorMessage(error, 'Failed to save data.')
-      toast.showError('Failed to save data', detail)
+      const detail = extractErrorMessage(error, t('workingPaper.messages.saveFailed'))
+      toast.showError(t('workingPaper.messages.saveFailed'), detail)
     }
   }
 
@@ -724,7 +726,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     try {
       await deleteF01(id)
     } catch (error: any) {
-      toast.error('Failed to delete data: ' + (error?.message || error))
+      toast.showError(t('workingPaper.messages.deleteFailed'), error?.message || String(error))
     }
   }
 
@@ -769,17 +771,17 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   }
 
   const deleteF02 = async (id: string) => {
-    if (await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete permanently?' })) {
+    if (await useGlobalModalStore().confirmDelete({ description: t('workingPaper.messages.deleteConfirm') })) {
       try {
         const baseUrl = getAuditServiceBaseUrl()
         await $fetch(`${baseUrl}/working-papers/risks/${id}`, {
           method: 'DELETE'
         })
         await fetchAllData()
-        toast.showSuccess('Risk Data Successfully Deleted!')
+        toast.showSuccess(t('workingPaper.messages.riskDeleted'))
       } catch (error: any) {
-        const detail = extractErrorMessage(error, 'Failed to delete data.')
-        toast.showError('Failed to delete data', detail)
+        const detail = extractErrorMessage(error, t('workingPaper.messages.deleteFailed'))
+        toast.showError(t('workingPaper.messages.deleteFailed'), detail)
       }
     }
   }
@@ -807,15 +809,15 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     try {
       if (isEditingF02.value && editingIdF02.value) {
         await updateF02(editingIdF02.value, { ...riskForm })
-        toast.success('Risk Data Updated Successfully!')
+        toast.success(t('workingPaper.messages.riskUpdated'))
       } else {
         await addF02({ ...riskForm })
-        toast.showSuccess('Risk Data Successfully Saved!')
+        toast.showSuccess(t('workingPaper.messages.riskSaved'))
       }
       closeModalF02()
     } catch (error: any) {
-      const detail = extractErrorMessage(error, 'Failed to save data.')
-      toast.showError('Failed to save data', detail)
+      const detail = extractErrorMessage(error, t('workingPaper.messages.saveFailed'))
+      toast.showError(t('workingPaper.messages.saveFailed'), detail)
     }
   }
 
@@ -845,7 +847,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     try {
       await deleteF02(id)
     } catch (error: any) {
-      toast.error('Failed to delete data: ' + (error?.message || error))
+      toast.showError(t('workingPaper.messages.deleteFailed'), error?.message || String(error))
     }
   }
 
@@ -902,17 +904,17 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   }
 
   const deleteF03 = async (id: string) => {
-    if (await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete permanently?' })) {
+    if (await useGlobalModalStore().confirmDelete({ description: t('workingPaper.messages.deleteConfirm') })) {
       try {
         const baseUrl = getAuditServiceBaseUrl()
         await $fetch(`${baseUrl}/working-papers/samples/${id}`, {
           method: 'DELETE'
         })
         await fetchAllData()
-        toast.showSuccess('Sample Data Successfully Deleted!')
+        toast.showSuccess(t('workingPaper.messages.sampleDeleted'))
       } catch (error: any) {
-        const detail = extractErrorMessage(error, 'Failed to delete data.')
-        toast.showError('Failed to delete data', detail)
+        const detail = extractErrorMessage(error, t('workingPaper.messages.deleteFailed'))
+        toast.showError(t('workingPaper.messages.deleteFailed'), detail)
       }
     }
   }
@@ -955,15 +957,15 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     try {
       if (isEditingF03.value && editingIdF03.value) {
         await updateF03(editingIdF03.value, { ...sampleForm })
-        toast.success('Sample Data Successfully Updated!')
+        toast.success(t('workingPaper.messages.sampleUpdated'))
       } else {
         await addF03({ ...sampleForm })
-        toast.showSuccess('Sample Data Successfully Saved!')
+        toast.showSuccess(t('workingPaper.messages.sampleSaved'))
       }
       closeModalF03()
     } catch (error: any) {
-      const detail = extractErrorMessage(error, 'Failed to save data.')
-      toast.showError('Failed to save data', detail)
+      const detail = extractErrorMessage(error, t('workingPaper.messages.saveFailed'))
+      toast.showError(t('workingPaper.messages.saveFailed'), detail)
     }
   }
 
@@ -1016,7 +1018,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     try {
       await deleteF03(id)
     } catch (error: any) {
-      toast.error('Failed to delete data: ' + (error?.message || error))
+      toast.showError(t('workingPaper.messages.deleteFailed'), error?.message || String(error))
     }
   }
 
@@ -1055,17 +1057,17 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   }
 
   const deleteF04 = async (id: string) => {
-    if (await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete permanently?' })) {
+    if (await useGlobalModalStore().confirmDelete({ description: t('workingPaper.messages.deleteConfirm') })) {
       try {
         const baseUrl = getAuditServiceBaseUrl()
         await $fetch(`${baseUrl}/working-papers/causes/${id}`, {
           method: 'DELETE'
         })
         await fetchAllData()
-        toast.showSuccess('Root Cause Data Successfully Deleted!')
+        toast.showSuccess(t('workingPaper.messages.causeDeleted'))
       } catch (error: any) {
-        const detail = extractErrorMessage(error, 'Failed to delete data.')
-        toast.showError('Failed to delete data', detail)
+        const detail = extractErrorMessage(error, t('workingPaper.messages.deleteFailed'))
+        toast.showError(t('workingPaper.messages.deleteFailed'), detail)
       }
     }
   }
@@ -1126,15 +1128,15 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     try {
       if (isEditingF04.value && editingIdF04.value) {
         await updateF04(editingIdF04.value, { ...causeForm })
-        toast.success('Root Cause Data Successfully Updated!')
+        toast.success(t('workingPaper.messages.causeUpdated'))
       } else {
         await addF04({ ...causeForm })
-        toast.showSuccess('Root Cause Data Successfully Saved!')
+        toast.showSuccess(t('workingPaper.messages.causeSaved'))
       }
       closeModalF04()
     } catch (error: any) {
-      const detail = extractErrorMessage(error, 'Failed to save data.')
-      toast.showError('Failed to save data', detail)
+      const detail = extractErrorMessage(error, t('workingPaper.messages.saveFailed'))
+      toast.showError(t('workingPaper.messages.saveFailed'), detail)
     }
   }
 
@@ -1157,8 +1159,8 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     try {
       await deleteF04(id)
     } catch (error: any) {
-      const detail = extractErrorMessage(error, 'Failed to delete data.')
-      toast.showError('Failed to delete data', detail)
+      const detail = extractErrorMessage(error, t('workingPaper.messages.deleteFailed'))
+      toast.showError(t('workingPaper.messages.deleteFailed'), detail)
     }
   }
 
@@ -1197,17 +1199,17 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   }
 
   const deleteF05 = async (id: string) => {
-    if (await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to delete permanently?' })) {
+    if (await useGlobalModalStore().confirmDelete({ description: t('workingPaper.messages.deleteConfirm') })) {
       try {
         const baseUrl = getAuditServiceBaseUrl()
         await $fetch(`${baseUrl}/working-papers/plans/${id}`, {
           method: 'DELETE'
         })
         await fetchAllData()
-        toast.showSuccess('Action Plan Data Successfully Deleted!')
+        toast.showSuccess(t('workingPaper.messages.planDeleted'))
       } catch (error: any) {
-        const detail = extractErrorMessage(error, 'Failed to delete data.')
-        toast.showError('Failed to delete data', detail)
+        const detail = extractErrorMessage(error, t('workingPaper.messages.deleteFailed'))
+        toast.showError(t('workingPaper.messages.deleteFailed'), detail)
       }
     }
   }
@@ -1231,15 +1233,15 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     try {
       if (isEditingF05.value && editingIdF05.value) {
         await updateF05(editingIdF05.value, { ...planForm })
-        toast.success('Action Plan Data Successfully Updated!')
+        toast.success(t('workingPaper.messages.planUpdated'))
       } else {
         await addF05({ ...planForm })
-        toast.showSuccess('Action Plan Data Successfully Saved!')
+        toast.showSuccess(t('workingPaper.messages.planSaved'))
       }
       closeModalF05()
     } catch (error: any) {
-      const detail = extractErrorMessage(error, 'Failed to save data.')
-      toast.showError('Failed to save data', detail)
+      const detail = extractErrorMessage(error, t('workingPaper.messages.saveFailed'))
+      toast.showError(t('workingPaper.messages.saveFailed'), detail)
     }
   }
 
@@ -1261,7 +1263,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     try {
       await deleteF05(id)
     } catch (error: any) {
-      toast.error('Failed to delete data: ' + (error?.message || error))
+      toast.showError(t('workingPaper.messages.deleteFailed'), error?.message || String(error))
     }
   }
 

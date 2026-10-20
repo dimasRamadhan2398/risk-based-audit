@@ -3,14 +3,14 @@
 
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Risk Mitigation Plan</h1>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1"><strong>Risk ID:</strong> {{ riskProfileStore.getFormattedId(currentRisk) }} - {{ currentRiskName }}</p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ t('riskMitigation.title') }}</h1>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1"><strong>{{ t('riskMitigation.riskId') }}</strong> {{ riskProfileStore.getFormattedId(currentRisk) }} - {{ currentRiskName }}</p>
       </div>
       <UButton
         icon="i-heroicons-arrow-left"
         variant="ghost"
         color="neutral"
-        label="Back to Detail"
+        :label="t('riskMitigation.backToDetail')"
         class="w-full sm:w-auto"
         @click="goBack"
       />
@@ -33,6 +33,7 @@ import MitigationForm from '~/components/risk-mitigation/MitigationForm.vue'
 const route = useRoute()
 const router = useRouter()
 const riskProfileStore = useRiskProfileStore()
+const { t } = useI18n()
 
 // Mengambil ID risiko dari query parameter URL (?id=...)
 const currentRiskId = computed(() => route.query.id as string)

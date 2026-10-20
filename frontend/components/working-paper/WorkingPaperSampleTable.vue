@@ -43,15 +43,15 @@
               <div v-if="s.step1 || s.step2 || s.step3" class="space-y-1 text-xs text-gray-600 dark:text-gray-300">
                 <div v-if="s.step1" class="flex justify-between gap-2">
                   <span class="truncate">L1: {{ s.step1 }}</span>
-                  <span class="font-semibold shrink-0" :class="formatResult(s.l1) === 'Fail' ? 'text-red-500' : (formatResult(s.l1) === 'Pass' ? 'text-green-600 dark:text-green-400' : 'text-gray-400')">{{ formatResult(s.l1) }}</span>
+                  <span class="font-semibold shrink-0" :class="formatTestResult(s.l1) === 'Fail' ? 'text-red-500' : (formatTestResult(s.l1) === 'Pass' ? 'text-green-600 dark:text-green-400' : 'text-gray-400')">{{ formatResult(s.l1) }}</span>
                 </div>
                 <div v-if="s.step2" class="flex justify-between gap-2">
                   <span class="truncate">L2: {{ s.step2 }}</span>
-                  <span class="font-semibold shrink-0" :class="formatResult(s.l2) === 'Fail' ? 'text-red-500' : (formatResult(s.l2) === 'Pass' ? 'text-green-600 dark:text-green-400' : 'text-gray-400')">{{ formatResult(s.l2) }}</span>
+                  <span class="font-semibold shrink-0" :class="formatTestResult(s.l2) === 'Fail' ? 'text-red-500' : (formatTestResult(s.l2) === 'Pass' ? 'text-green-600 dark:text-green-400' : 'text-gray-400')">{{ formatResult(s.l2) }}</span>
                 </div>
                 <div v-if="s.step3" class="flex justify-between gap-2">
                   <span class="truncate">L3: {{ s.step3 }}</span>
-                  <span class="font-semibold shrink-0" :class="formatResult(s.l3) === 'Fail' ? 'text-red-500' : (formatResult(s.l3) === 'Pass' ? 'text-green-600 dark:text-green-400' : 'text-gray-400')">{{ formatResult(s.l3) }}</span>
+                  <span class="font-semibold shrink-0" :class="formatTestResult(s.l3) === 'Fail' ? 'text-red-500' : (formatTestResult(s.l3) === 'Pass' ? 'text-green-600 dark:text-green-400' : 'text-gray-400')">{{ formatResult(s.l3) }}</span>
                 </div>
               </div>
               <div v-else class="text-xs text-gray-500 dark:text-gray-400 italic">
@@ -127,7 +127,13 @@ const columns = computed(() => [
 
 // l1/l2/l3 are booleans from the API (true = Pass, false = Fail, null = not tested); older rows hold
 // 'Pass' / 'Fail' / 'N/A' strings. Both show as Pass / Fail / N/A, and no result as '-'.
-const formatResult = (val: unknown) => formatTestResult(val)
+const formatResult = (val: unknown) => {
+  const result = formatTestResult(val)
+  if (result === 'Pass') return t('workingPaper.sampleTable.pass')
+  if (result === 'Fail') return t('workingPaper.sampleTable.fail')
+  if (result === 'N/A') return t('workingPaper.sampleTable.notApplicable')
+  return result
+}
 
 const getSamples = (rowOriginal: any): any[] => {
   if (!rowOriginal?.samples) return []

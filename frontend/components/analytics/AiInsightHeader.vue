@@ -33,7 +33,7 @@ const {
             {{ t('navigation.analytics') }}
           </NuxtLink>
           <UIcon name="i-heroicons-chevron-right" class="w-3.5 h-3.5 text-gray-400" />
-          <span class="font-medium text-gray-600 dark:text-gray-300">AI Insights</span>
+          <span class="font-medium text-gray-600 dark:text-gray-300">{{ t('analytics.hub.aiTitle') }}</span>
           <template v-if="props.title">
             <UIcon name="i-heroicons-chevron-right" class="w-3.5 h-3.5 text-gray-400" />
             <span class="text-indigo-600 dark:text-indigo-400 font-bold">{{ props.title }}</span>

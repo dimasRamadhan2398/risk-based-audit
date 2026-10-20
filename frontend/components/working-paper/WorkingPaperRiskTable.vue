@@ -28,7 +28,7 @@
 
             <template #actions-cell="{ row }">
                 <div class="flex gap-2">
-                  <UTooltip text="Edit Risk">
+                  <UTooltip :text="t('workingPaper.common.editRisk')">
                     <UButton 
                         size="md" 
                         color="warning" 
@@ -37,7 +37,7 @@
                         @click="store.handleEditF02(row.original)" 
                     />
                   </UTooltip>
-                  <UTooltip text="Delete Risk">
+                  <UTooltip :text="t('workingPaper.common.deleteRisk')">
                     <UButton 
                         size="md" 
                         color="error" 

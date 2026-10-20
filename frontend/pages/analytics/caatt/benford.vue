@@ -27,7 +27,7 @@ const benfordChartData = computed(() => ({
   labels: benfordState.value.records.map((r: any) => `Digit ${r.digit}`),
   datasets: [
     {
-      label: 'Frekuensi Aktual (%)',
+      label: t('analytics.caattUi.benford.actualFrequency'),
       backgroundColor: benfordState.value.records.map((r: any) => r.isSignificant ? 'rgba(239,68,68,0.85)' : 'rgba(99,102,241,0.75)'),
       borderColor: benfordState.value.records.map((r: any) => r.isSignificant ? 'rgb(239,68,68)' : 'rgb(99,102,241)'),
       borderWidth: 1.5,
@@ -35,7 +35,7 @@ const benfordChartData = computed(() => ({
       data: benfordState.value.records.map((r: any) => r.actualPct),
     },
     {
-      label: 'Kurva Benford (%)',
+      label: t('analytics.caattUi.benford.benfordCurve'),
       backgroundColor: 'rgba(16,185,129,0.75)',
       borderColor: 'rgb(16,185,129)',
       borderWidth: 1.5,
@@ -57,7 +57,7 @@ const benfordChartOptions = computed(() => ({
     }
   },
   scales: {
-    y: { beginAtZero: true, max: 35, title: { display: true, text: 'Distribusi Frekuensi (%)' } }
+    y: { beginAtZero: true, max: 35, title: { display: true, text: t('analytics.caattUi.benford.frequencyDistribution') } }
   }
 }))
 </script>
@@ -66,9 +66,9 @@ const benfordChartOptions = computed(() => ({
   <div class="max-w-full mx-auto py-8 px-4 sm:px-6 lg:px-8">
     <CaattHeader
       :title="t('navigation.caattBenford')"
-      subtitle="Menguji sebaran frekuensi angka pertama dari seluruh transaksi perbankan untuk mendeteksi indikasi rekayasa data."
+      :subtitle="t('analytics.caattUi.benford.subtitle')"
       icon="i-lucide-calculator"
-      badgeText="Uji Forensik Benford"
+      :badgeText="t('analytics.caattUi.benford.badge')"
       badgeColor="info"
     />
 
@@ -86,8 +86,8 @@ const benfordChartOptions = computed(() => ({
         icon="i-heroicons-variable"
         color="primary"
         variant="subtle"
-        title="CAATT: Analisis Hukum Benford (First-Digit Frequency Distribution)"
-        description="Menguji sebaran frekuensi angka pertama dari seluruh transaksi perbankan. Deviasi signifikan mengindikasikan kemungkinan rekayasa data atau transaksi terstruktur (structuring) di bawah threshold pelaporan."
+        :title="t('analytics.caattUi.benford.title')"
+        :description="t('analytics.caattUi.benford.description')"
       />
 
       <!-- Conclusion Alert -->
@@ -106,7 +106,7 @@ const benfordChartOptions = computed(() => ({
           <template #header>
             <div class="flex items-center gap-2">
               <UIcon name="i-heroicons-chart-bar" class="text-indigo-500" />
-              <h3 class="font-bold">Perbandingan Distribusi Digit: Aktual vs Hukum Benford</h3>
+              <h3 class="font-bold">{{ t('analytics.caattUi.benford.comparison') }}</h3>
             </div>
           </template>
           <div class="h-80">
@@ -119,19 +119,19 @@ const benfordChartOptions = computed(() => ({
           <template #header>
             <div class="flex items-center gap-2">
               <UIcon name="i-heroicons-table-cells" class="text-indigo-500" />
-              <h3 class="font-bold">Uji Deviasi Chi-Square Per Digit (1 - 9)</h3>
+              <h3 class="font-bold">{{ t('analytics.caattUi.benford.chiSquare') }}</h3>
             </div>
           </template>
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="border-b border-gray-200 dark:border-gray-700">
-                  <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Digit</th>
-                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Jumlah Trx</th>
-                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">% Aktual</th>
-                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">% Benford</th>
-                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Deviasi</th>
-                  <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Status</th>
+                  <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.benford.digit') }}</th>
+                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.common.transactionCount') }}</th>
+                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.benford.actualPercent') }}</th>
+                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.benford.benfordPercent') }}</th>
+                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.benford.deviation') }}</th>
+                  <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('strategicPlan.columns.status') }}</th>
                 </tr>
               </thead>
               <tbody>

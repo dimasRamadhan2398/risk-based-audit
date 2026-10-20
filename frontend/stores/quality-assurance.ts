@@ -5,27 +5,29 @@ import { QAStatus, QAType, type QAReport } from '~/types/quality-assurance'
 import { extractErrorMessage } from '~/utils/error'
 import { getFiscalYearStrings } from '~/composables/useFiscalYear'
 import { viewDocumentInNewTab, openDocumentTab, renderDocumentInTab } from '~/utils/documentViewer'
+import { useI18n } from '~/composables/useI18n'
 
 export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const loading = ref(false)
   const errorMsg = ref('')
   const toast = useToastNotification()
+  const { t } = useI18n()
 
   const getMasterServiceBaseUrl = () => {
     const config = useRuntimeConfig()
     return config.public.masterServiceBaseUrl || config.public.apiBase || '/api/v1'
   }
 
-  const columns = [
-    { accessorKey: 'type', header: 'QA Type', sortable: true },
-    { accessorKey: 'period', header: 'Period', sortable: true },
-    { accessorKey: 'reportName', header: 'Report Name', sortable: true },
-    { accessorKey: 'result', header: 'Result/Score', sortable: true },
-    { accessorKey: 'status', header: 'Status', sortable: true },
-    { accessorKey: 'conductedBy', header: 'Conducted By', sortable: true },
-    { accessorKey: 'viewReport', header: 'View Report' },
-    { accessorKey: 'actions', header: 'Action' }
-  ]
+  const columns = computed(() => [
+    { accessorKey: 'type', header: t('qualityAssurance.dashboard.table.columns.type'), sortable: true },
+    { accessorKey: 'period', header: t('qualityAssurance.dashboard.table.columns.period'), sortable: true },
+    { accessorKey: 'reportName', header: t('qualityAssurance.dashboard.table.columns.reportName'), sortable: true },
+    { accessorKey: 'result', header: t('qualityAssurance.dashboard.table.columns.result'), sortable: true },
+    { accessorKey: 'status', header: t('qualityAssurance.dashboard.table.columns.status'), sortable: true },
+    { accessorKey: 'conductedBy', header: t('qualityAssurance.dashboard.table.columns.conductedBy'), sortable: true },
+    { accessorKey: 'viewReport', header: t('qualityAssurance.dashboard.table.columns.viewReport') },
+    { accessorKey: 'actions', header: t('qualityAssurance.dashboard.table.columns.actions') }
+  ])
 
   const getStatusColor = (status: QAStatus) => {
     switch (status) {
@@ -210,13 +212,13 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
           method: 'PUT',
           body: reportData
         })
-        toast.showSuccess('Berhasil mengubah data laporan QA')
+        toast.showSuccess(t('qualityAssurance.dashboard.updateSuccess'))
       } else {
         await $fetch(`${baseUrl}/quality-assurance`, {
           method: 'POST',
           body: reportData
         })
-        toast.showSuccess('Berhasil menambahkan data laporan QA')
+        toast.showSuccess(t('qualityAssurance.dashboard.createSuccess'))
       }
       resetForm()
       isEditing.value = false
@@ -224,8 +226,8 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       await fetchReports()
     } catch (error: any) {
       console.error('Failed to save QA report:', error)
-      errorMsg.value = extractErrorMessage(error, 'Failed to save QA report.')
-      toast.showError('Gagal menyimpan data laporan QA')
+      errorMsg.value = extractErrorMessage(error, t('qualityAssurance.dashboard.saveFailed'))
+      toast.showError(t('qualityAssurance.dashboard.saveFailed'))
     } finally {
       loading.value = false
     }
@@ -291,11 +293,11 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       })
       await fetchReports()
       closeImportModal()
-      toast.showSuccess('Berhasil mengimpor data laporan QA')
+      toast.showSuccess(t('qualityAssurance.dashboard.importSuccess'))
       return response
     } catch (error: any) {
       console.error('Failed to import QAR report:', error)
-      errorMsg.value = extractErrorMessage(error, 'Failed to import QAR report.')
+      errorMsg.value = extractErrorMessage(error, t('qualityAssurance.dashboard.importFailed'))
       throw error
     } finally {
       loading.value = false
@@ -518,7 +520,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       }
 
       await fetchReports()
-      toast.showSuccess('Berhasil menghapus data laporan QA')
+      toast.showSuccess(t('qualityAssurance.dashboard.deleteSuccess'))
     } catch (error: any) {
       console.error('Failed to delete QA report:', error)
       errorMsg.value = extractErrorMessage(error, 'Failed to delete Quality Assurance report.')
