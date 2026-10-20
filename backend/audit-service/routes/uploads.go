@@ -2,43 +2,35 @@ package routes
 
 import (
 	"net/http"
-	"path"
-	"strings"
+	"path/filepath"
+
+	"audit-service/pkg/safefile"
 
 	"github.com/gin-gonic/gin"
 )
 
-// PrivateUploadDirs are subdirectories of ./uploads that must never be served
-// by the public static /uploads route. Files there are only reachable through
-// authenticated endpoints (e.g. ATR evidence via
-// GET /api/v1/action-taken-reports/:id/evidence/:evidenceId).
-var PrivateUploadDirs = []string{"action-taken-reports"}
-
-// RegisterUploads serves root at /uploads like engine.Static did, except for
-// PrivateUploadDirs, which answer 404. Directory listings are disabled.
-func RegisterUploads(engine *gin.Engine, root string) {
-	fs := gin.Dir(root, false)
-	fileServer := http.StripPrefix("/uploads", http.FileServer(fs))
+// RegisterUploads serves files under root at /uploads. Every request must pass
+// authenticate, so the files are no longer public. Private subdirectories
+// answer 404, directory listings are not served, and files go through
+// safefile: confined paths, an allowlisted Content-Type, and an attachment for
+// anything that is not safe to show inline.
+func RegisterUploads(engine *gin.Engine, root string, authenticate gin.HandlerFunc) {
 	handler := func(c *gin.Context) {
-		if IsPrivateUploadPath(c.Param("filepath")) {
+		rel := c.Param("filepath")
+		if safefile.IsPrivatePath(rel) {
 			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
-		fileServer.ServeHTTP(c.Writer, c.Request)
-	}
-	engine.GET("/uploads/*filepath", handler)
-	engine.HEAD("/uploads/*filepath", handler)
-}
-
-// IsPrivateUploadPath reports whether a /uploads sub-path falls in one of
-// PrivateUploadDirs (case-insensitive, after cleaning "..", "//" and the like)
-func IsPrivateUploadPath(p string) bool {
-	cleaned := strings.ToLower(path.Clean("/" + strings.ReplaceAll(p, `\`, "/")))
-	for _, dir := range PrivateUploadDirs {
-		d := "/" + strings.ToLower(dir)
-		if cleaned == d || strings.HasPrefix(cleaned, d+"/") {
-			return true
+		full, err := safefile.ResolveUnder(root, rel)
+		if err != nil {
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+		download := c.Query("download") == "true"
+		if err := safefile.ServeFile(c, full, filepath.Base(full), download); err != nil {
+			c.AbortWithStatus(http.StatusNotFound)
 		}
 	}
-	return false
+	engine.GET("/uploads/*filepath", authenticate, handler)
+	engine.HEAD("/uploads/*filepath", authenticate, handler)
 }

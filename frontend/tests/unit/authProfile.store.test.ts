@@ -22,7 +22,7 @@ describe('Auth store profile updates', () => {
   const loggedIn = () => {
     const store = useAuthStore()
     store.token = 'tok'
-    store.user = { id: 'u1', username: 'a', email: 'a@x.id', fullName: 'Old', roles: ['admin'], avatarUrl: 'data:image/png;base64,OLD' }
+    store.user = { id: 'u1', username: 'a', email: 'a@x.id', fullName: 'Old', roles: ['ADMIN'], avatarUrl: 'data:image/png;base64,OLD' }
     return store
   }
   const base = { fullName: 'New', phone: '1', department: 'Finance', position: 'Mgr' }

@@ -318,6 +318,7 @@
 
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
+import { UserRole } from '~/types/auth'
 
 definePageMeta({
   layout: 'auth',
@@ -614,10 +615,10 @@ const getPermissionsForRoles = (roles: string[]): string[] => {
 
   const perms = new Set<string>()
   for (const role of roles) {
-    const roleLower = role.toLowerCase()
-    if (roleLower === 'admin') adminPerms.forEach(p => perms.add(p))
-    else if (roleLower === 'auditor') auditorPerms.forEach(p => perms.add(p))
-    else if (roleLower === 'viewer') viewerPerms.forEach(p => perms.add(p))
+    const roleName = role.toUpperCase()
+    if (roleName === UserRole.ADMIN) adminPerms.forEach(p => perms.add(p))
+    else if (roleName === UserRole.AUDITOR) auditorPerms.forEach(p => perms.add(p))
+    else if (roleName === UserRole.VIEWER) viewerPerms.forEach(p => perms.add(p))
   }
   return Array.from(perms)
 }

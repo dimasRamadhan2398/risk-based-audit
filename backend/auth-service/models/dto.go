@@ -15,15 +15,6 @@ type LoginRequest struct {
 	DeviceType        string `json:"device_type"`
 }
 
-// RegisterRequest represents a register request
-type RegisterRequest struct {
-	Username  string `json:"username" binding:"required" validate:"required,min=3,max=50"`
-	Email     string `json:"email" binding:"required" validate:"required,email"`
-	Password  string `json:"password" binding:"required" validate:"required,min=6"`
-	FullName  string `json:"full_name" validate:"max=100"`
-	Phone     string `json:"phone" validate:"max=20"`
-	Department string `json:"department" validate:"max=100"`
-}
 
 // LoginResponse represents a login response
 type LoginResponse struct {

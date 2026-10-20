@@ -13,6 +13,7 @@ import (
 
 	"audit-service/models"
 	"audit-service/pkg/response"
+	"audit-service/pkg/safefile"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -168,31 +169,11 @@ func (ctrl *UploadedPerformanceReportController) Delete(c *gin.Context) {
 	response.OK(c, "Uploaded performance report document deleted successfully", nil)
 }
 
+// getDocumentContentType returns the Content-Type for a stored upload. fileType
+// is client-supplied, so it is ignored: the extension decides, and HTML, SVG,
+// XML and script types are never returned (see safefile.ContentTypeFor).
 func getDocumentContentType(fileName, fileType string) string {
-	if fileType != "" && fileType != "application/octet-stream" {
-		return fileType
-	}
-	ext := strings.ToLower(filepath.Ext(fileName))
-	switch ext {
-	case ".pdf":
-		return "application/pdf"
-	case ".png":
-		return "image/png"
-	case ".jpg", ".jpeg":
-		return "image/jpeg"
-	case ".txt":
-		return "text/plain"
-	case ".doc":
-		return "application/msword"
-	case ".docx":
-		return "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-	case ".xls":
-		return "application/vnd.ms-excel"
-	case ".xlsx":
-		return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-	default:
-		return "application/octet-stream"
-	}
+	return safefile.ContentTypeFor(fileName)
 }
 
 func (ctrl *UploadedPerformanceReportController) Download(c *gin.Context) {

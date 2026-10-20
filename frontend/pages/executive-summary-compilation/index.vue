@@ -354,8 +354,7 @@ const quarters = computed(() => [
 ])
 
 const isHigherAuthority = computed(() => {
-  // Komite audit mapped as admin or explicit audit_committee role
-  return authStore.user?.roles.includes(UserRole.ADMIN) || authStore.user?.roles.includes('audit_committee')
+  return authStore.user?.roles.includes(UserRole.ADMIN)
 })
 
 const getStatusColor = (status: string) => {

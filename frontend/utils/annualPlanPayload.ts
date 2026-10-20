@@ -14,18 +14,17 @@ export const toCount = (value: unknown, fallback = 0): number => {
  * would overwrite the refreshed value. The row is identified by its id (kept on
  * edit) and its Audit Universe entity by auditUniverseId.
  *
+ * Kode Penugasan (activityCode), Justifikasi, Tujuan and Fokus moved to the Audit
+ * Activity Plan: they are not sent, and the server keeps any stored value.
+ *
  * departmentId and auditUniverseId are only sent when set, so a row loaded from the
  * server without them (status change, revision) does not blank them out.
  */
 export const buildAnnualActivityPayload = (activity: AuditActivities, index: number) => {
   const payload: Record<string, unknown> = {
     itemNumber: String(index + 1),
-    activityCode: activity.activityCode || '',
     name: activity.name || '',
     category: activity.category,
-    justification: activity.justification || '',
-    auditObjective: activity.auditObjective || '',
-    auditFocus: activity.auditFocus || '',
     timelineText: activity.timelineText || '',
     auditorCount: toCount(activity.auditorCount, 1),
     totalMandays: toCount(activity.totalMandays, 0),
@@ -47,13 +46,13 @@ export interface AnnualPlanPayloadExtras {
 }
 
 /**
- * Body for POST/PUT /annual-audit-plans, with the Formulir Rencana Kegiatan Audit fields.
- * Plan header: title, activityType, year. Rows: activities[]. Plan-level auditor, days,
- * supervisor and total mandays are not sent: the rows are the only entry point.
+ * Body for POST/PUT /annual-audit-plans. Plan header: title (Judul PKAT), year. Rows:
+ * activities[]. Plan-level auditor, days, supervisor and total mandays are not sent: the
+ * rows are the only entry point. Jenis Kegiatan Audit (activityType) belongs to the Audit
+ * Activity Plan and is not sent; PUT is partial, so the stored value is untouched.
  */
 export const buildAnnualPlanPayload = (form: AnnualPlanForm, extras: AnnualPlanPayloadExtras) => ({
   title: (form.title || '').trim(),
-  activityType: form.activityType || '',
   version: form.version || 'v1.0',
   revisionHistory: form.revisionHistory || [],
   activities: form.activities.map((activity, index) => buildAnnualActivityPayload(activity, index)),

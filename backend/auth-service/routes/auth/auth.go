@@ -29,7 +29,6 @@ func NewAuthRoute(controller controllers.IControllerRegistry, group *gin.RouterG
 func (a *AuthRoute) Run() {
 	group := a.group.Group("/auth")
 	group.POST("/login", a.controller.GetAuth().Login)
-	group.POST("/register", a.controller.GetAuth().Register)
 	group.POST("/logout", a.controller.GetAuth().Logout)
 	group.POST("/change-password", a.controller.GetAuth().ChangePassword)
 	group.GET("/me", a.controller.GetAuth().Me)

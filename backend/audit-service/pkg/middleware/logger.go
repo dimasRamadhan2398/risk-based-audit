@@ -13,7 +13,7 @@ func LoggerMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		path := c.Request.URL.Path
-		query := c.Request.URL.RawQuery
+		query := RedactQuery(c.Request.URL.RawQuery)
 
 		c.Next()
 

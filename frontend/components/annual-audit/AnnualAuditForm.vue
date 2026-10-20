@@ -47,18 +47,6 @@
                 </UFormField>
 
                 <UFormField
-                  :label="t('annualAudit.form.activityType')"
-                  size="lg"
-                >
-                  <USelectMenu
-                    v-model="(store.form.activityType as AnnualActivityType | undefined)"
-                    :items="activityTypeOptions"
-                    :placeholder="t('annualAudit.form.activityTypePlaceholder')"
-                    class="w-full"
-                  />
-                </UFormField>
-
-                <UFormField
                   :label="t('annualAudit.form.planTitle')"
                   size="lg"
                   class="md:col-span-2"
@@ -129,30 +117,36 @@
                     <h5 class="font-bold text-gray-700 ">
                       {{ t('annualAudit.form.subActivity', { number: index + 1 }) }}
                     </h5>
-                    <UButton
+                    <UTooltip
                       v-if="store.form.activities.length > 1"
-                      icon="i-heroicons-trash"
-                      color="error"
-                      variant="ghost"
-                      size="sm"
-                      @click="store.removeActivity(index)"
+                      :text="activity.activityPlanRef ? t('annualAudit.form.rowInUseTooltip') : t('common.delete')"
+                    >
+                      <UButton
+                        icon="i-heroicons-trash"
+                        color="error"
+                        variant="ghost"
+                        size="sm"
+                        :disabled="!!activity.activityPlanRef"
+                        :aria-label="t('common.delete')"
+                        @click="store.removeActivity(index)"
+                      />
+                    </UTooltip>
+                  </div>
+
+                  <!-- The Audit Activity Plan that uses this row: remove it there before removing it here. -->
+                  <div
+                    v-if="activity.activityPlanRef"
+                    class="mb-4 flex items-start gap-2 rounded-lg border border-primary-200 dark:border-primary-800 bg-primary-50 dark:bg-primary-950/40 p-2 text-sm text-primary-700 dark:text-primary-300"
+                    data-testid="used-in-activity-plan"
+                  >
+                    <UIcon
+                      name="i-heroicons-link"
+                      class="mt-0.5 shrink-0"
                     />
+                    <span>{{ t('annualAudit.form.usedInActivityPlan', { title: activity.activityPlanRef.activityPlanTitle || '-', code: activity.activityPlanRef.assignmentCode || '-' }) }}</span>
                   </div>
 
                   <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <UFormField
-                      :label="t('annualAudit.form.assignmentCode')"
-                      size="lg"
-                    >
-                      <UInput
-                        v-model="activity.activityCode"
-                        type="text"
-                        :placeholder="t('annualAudit.form.assignmentCodePlaceholder')"
-                        maxlength="50"
-                        class="w-full"
-                      />
-                    </UFormField>
-
                     <UFormField
                       :label="t('annualAudit.form.objectName')"
                       size="lg"
@@ -270,43 +264,6 @@
                           {{ t('annualAudit.form.auditPriorityBadge') }}
                         </UBadge>
                       </div>
-                    </UFormField>
-
-                    <UFormField
-                      :label="t('annualAudit.form.justification')"
-                      size="lg"
-                      class="md:col-span-2"
-                    >
-                      <UTextarea
-                        v-model="activity.justification"
-                        :rows="2"
-                        autoresize
-                        class="w-full"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      :label="t('annualAudit.form.auditObjective')"
-                      size="lg"
-                    >
-                      <UTextarea
-                        v-model="activity.auditObjective"
-                        :rows="2"
-                        autoresize
-                        class="w-full"
-                      />
-                    </UFormField>
-
-                    <UFormField
-                      :label="t('annualAudit.form.auditFocus')"
-                      size="lg"
-                    >
-                      <UTextarea
-                        v-model="activity.auditFocus"
-                        :rows="2"
-                        autoresize
-                        class="w-full"
-                      />
                     </UFormField>
 
                     <UFormField
@@ -587,7 +544,7 @@ import { useAnnualPlanStore } from '~/stores/annual-audit'
 import { useRiskProfileStore } from '~/stores/risk-profile'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
 import { useAuthStore } from '~/stores/auth'
-import { ANNUAL_ACTIVITY_TYPE_OPTIONS, AnnualAuditPlanStatus, AuditCategory, AuditDepartment, type AnnualActivityType, type AuditActivities } from '~/types/audit'
+import { AnnualAuditPlanStatus, AuditCategory, AuditDepartment, type AuditActivities } from '~/types/audit'
 import { getRiskLevelColorClass, getRiskLevelDotClass } from '~/utils/riskLevelBadge'
 import { buildAuditableEntityOptions, type AuditableEntityOption } from '~/utils/auditableEntityOptions'
 
@@ -598,14 +555,12 @@ const authStore = useAuthStore()
 const { t } = useI18n()
 
 const roleLabels: Record<string, string> = {
-  admin: 'System Administrator',
-  auditor: 'Auditor',
-  department_head: 'Department Head',
-  auditee: 'Auditee',
-  viewer: 'Viewer',
-  audit_staff: 'Audit Staff',
-  audit_manager: 'Audit Manager',
-  chief_audit_executive: 'Chief Audit Executive'
+  ADMIN: 'System Administrator',
+  AUDITOR: 'Auditor',
+  DEPARTMENT_HEAD: 'Department Head',
+  AUDITEE: 'Auditee',
+  VIEWER: 'Viewer',
+  EXECUTIVE: 'Chief Audit Executive'
 }
 
 const signedInRoleLabel = computed(() => {
@@ -626,7 +581,6 @@ const activityCodePreview = computed(() => {
 
 const statusOptions = Object.values(AnnualAuditPlanStatus) as AnnualAuditPlanStatus[]
 const categoryOptions = Object.values(AuditCategory) as AuditCategory[]
-const activityTypeOptions = [...ANNUAL_ACTIVITY_TYPE_OPTIONS]
 
 riskStore.fetchRisks()
 

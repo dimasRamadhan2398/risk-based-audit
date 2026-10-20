@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"strings"
 
 	"auth-service/pkg/response"
@@ -16,15 +17,28 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
+// SessionChecker reports whether a token still has a live server-side session.
+// Login creates the session and logout ends it. An error must be treated as "not
+// active" by the caller.
+type SessionChecker func(ctx context.Context, token string) (bool, error)
+
 // AuthMiddleware validates JWT tokens
 type AuthMiddleware struct {
-	secret string
+	secret       string
+	sessionCheck SessionChecker
 }
 
 func NewAuthMiddleware(secret string) *AuthMiddleware {
 	return &AuthMiddleware{
 		secret: secret,
 	}
+}
+
+// WithSessionCheck makes Authenticate also require a live session, so a token
+// whose session was ended by logout is refused before it expires.
+func (m *AuthMiddleware) WithSessionCheck(check SessionChecker) *AuthMiddleware {
+	m.sessionCheck = check
+	return m
 }
 
 // Authenticate validates the JWT token
@@ -62,6 +76,17 @@ func (m *AuthMiddleware) Authenticate() gin.HandlerFunc {
 			response.Unauthorized(c, "Invalid or expired token")
 			c.Abort()
 			return
+		}
+
+		// Fail closed: a session that cannot be confirmed (logged out, or Redis
+		// unavailable) is not authenticated.
+		if m.sessionCheck != nil {
+			active, checkErr := m.sessionCheck(c.Request.Context(), tokenString)
+			if checkErr != nil || !active {
+				response.Unauthorized(c, "Session has ended, please sign in again")
+				c.Abort()
+				return
+			}
 		}
 
 		// Extract claims

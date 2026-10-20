@@ -22,15 +22,10 @@ export const useGlobalModalStore = defineStore('globalModal', {
       if (typeof options === 'string') {
         opts.itemName = options
       } else if (options) {
-        opts = options
+        opts = { ...opts, ...options }
       }
-      
-      this.options = opts
-      this.isOpen = true
-      
-      return new Promise((resolve) => {
-        this.resolvePromise = resolve
-      })
+
+      return this.open(opts)
     },
     confirmSubmit(options?: GlobalModalOptions | string): Promise<boolean> {
       let opts: GlobalModalOptions = { type: 'submit' }
@@ -39,10 +34,19 @@ export const useGlobalModalStore = defineStore('globalModal', {
       } else if (options) {
         opts = { ...opts, ...options }
       }
-      
+
+      return this.open(opts)
+    },
+    open(opts: GlobalModalOptions): Promise<boolean> {
+      // A confirmation still waiting is answered "no" so its caller does not hang.
+      if (this.resolvePromise) {
+        this.resolvePromise(false)
+        this.resolvePromise = null
+      }
+
       this.options = opts
       this.isOpen = true
-      
+
       return new Promise((resolve) => {
         this.resolvePromise = resolve
       })

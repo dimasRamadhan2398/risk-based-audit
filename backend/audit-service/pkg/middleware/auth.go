@@ -39,19 +39,9 @@ func (m *AuthMiddleware) Authenticate() gin.HandlerFunc {
 			}
 		}
 
-		if tokenString == "" {
-			tokenString = c.Query("token")
-		}
-
-		if tokenString == "" {
-			if cookie, err := c.Cookie("auth_token"); err == nil && cookie != "" {
-				tokenString = cookie
-			} else if cookie, err := c.Cookie("auth-token"); err == nil && cookie != "" {
-				tokenString = cookie
-			} else if cookie, err := c.Cookie("token"); err == nil && cookie != "" {
-				tokenString = cookie
-			}
-		}
+		// Only the Authorization header is accepted. Tokens in the query string
+		// or in cookies are refused: query strings reach access logs and
+		// browser history.
 
 		if tokenString == "" {
 			response.Unauthorized(c, "Missing authorization header")
