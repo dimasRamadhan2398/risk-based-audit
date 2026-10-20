@@ -116,6 +116,8 @@ func Load(configPath string) (*Config, error) {
 	// which made per-tenant onboarding migrate the shared database instead.
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
+	// jwt.secret is bound explicitly so JWT_SECRET overrides the file even when the file has no secret key.
+	_ = viper.BindEnv("jwt.secret", JWTSecretEnv)
 
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("failed to read config: %w", err)

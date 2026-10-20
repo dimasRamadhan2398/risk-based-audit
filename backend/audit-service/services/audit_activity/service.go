@@ -8,6 +8,7 @@ import (
 	"audit-service/repositories"
 	"audit-service/services/base"
 	"context"
+	"net/http"
 	"strings"
 
 	"github.com/google/uuid"
@@ -58,9 +59,10 @@ func (s *AuditActivityService) CreateActivity(ctx context.Context, req *models.C
 		status = "PLANNED"
 	}
 
+	targetUnitID := req.TargetUnitID
 	activity := &models.AuditActivity{
 		AnnualPlanID: req.AnnualPlanID,
-		TargetUnitID: req.TargetUnitID,
+		TargetUnitID: &targetUnitID,
 		AuditType:    strings.TrimSpace(req.AuditType),
 		Title:        req.Title,
 		Objective:    req.Objective,
@@ -79,6 +81,33 @@ func (s *AuditActivityService) CreateActivity(ctx context.Context, req *models.C
 	return s.toResponse(activity), nil
 }
 
+// ErrCodeManagedByPlan is returned when a change to a row that belongs to an
+// Audit Activity Plan (RKA) touches a field the plan or its PKAT owns.
+const ErrCodeManagedByPlan = "ACTIVITY_ROW_MANAGED_BY_PLAN"
+
+// planManagedChange names the first field of req that would change a row
+// managed by an RKA (title, target unit, planned dates), or "" if none. Those
+// values follow the PKAT and the RKA form; status stays writable because the
+// execution sync and the audit lifecycle drive it.
+func planManagedChange(activity *models.AuditActivity, req *models.UpdateActivityPlanRequest) string {
+	if activity.ActivityPlanID == nil || *activity.ActivityPlanID == uuid.Nil {
+		return ""
+	}
+	if req.Title != nil && *req.Title != activity.Title {
+		return "title"
+	}
+	if req.TargetUnitID != nil && (activity.TargetUnitID == nil || *req.TargetUnitID != *activity.TargetUnitID) {
+		return "target_unit_id"
+	}
+	if req.PlannedStart != nil && !req.PlannedStart.Equal(activity.PlannedStart) {
+		return "planned_start"
+	}
+	if req.PlannedEnd != nil && !req.PlannedEnd.Equal(activity.PlannedEnd) {
+		return "planned_end"
+	}
+	return ""
+}
+
 // UpdateActivity updates an audit activity
 func (s *AuditActivityService) UpdateActivity(ctx context.Context, id uuid.UUID, req *models.UpdateActivityPlanRequest) (*models.ActivityPlanResponse, error) {
 	activity, err := s.repo.FindByID(id)
@@ -86,8 +115,15 @@ func (s *AuditActivityService) UpdateActivity(ctx context.Context, id uuid.UUID,
 		return nil, err
 	}
 
+	if field := planManagedChange(activity, req); field != "" {
+		return nil, errors.New(ErrCodeManagedByPlan,
+			field+" of this activity is managed by its Audit Activity Plan and the PKAT; change it there",
+			http.StatusConflict)
+	}
+
 	if req.TargetUnitID != nil {
-		activity.TargetUnitID = *req.TargetUnitID
+		targetUnitID := *req.TargetUnitID
+		activity.TargetUnitID = &targetUnitID
 	}
 	if req.Title != nil {
 		activity.Title = *req.Title
@@ -173,12 +209,20 @@ func (s *AuditActivityService) ListActivities(ctx context.Context, req *models.L
 	return responses, paginationResp, nil
 }
 
+// uuidText is the id as text, "" for nil or the zero UUID.
+func uuidText(id *uuid.UUID) string {
+	if id == nil || *id == uuid.Nil {
+		return ""
+	}
+	return id.String()
+}
+
 // toResponse converts an audit activity model to a response DTO
 func (s *AuditActivityService) toResponse(activity *models.AuditActivity) *models.ActivityPlanResponse {
 	return &models.ActivityPlanResponse{
 		ID:           activity.ID.String(),
 		AnnualPlanID: activity.AnnualPlanID.String(),
-		TargetUnitID: activity.TargetUnitID.String(),
+		TargetUnitID: uuidText(activity.TargetUnitID),
 		ProjectCode:  activity.ProjectCode,
 		AuditType:    activity.AuditType,
 		Title:        activity.Title,

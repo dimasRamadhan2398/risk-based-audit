@@ -78,7 +78,7 @@
             <UIcon name="i-lucide-list-checks" class="size-6" />
           </div>
           <div>
-            <div class="text-md text-gray-500 dark:text-gray-400">Jumlah Penanganan / Handling</div>
+            <div class="text-md text-gray-500 dark:text-gray-400">{{ t('executiveSummaryIndividual.stats.handling') }}</div>
             <div class="text-2xl font-bold text-gray-800 dark:text-white">
               {{ totalHandling }}
             </div>
@@ -114,7 +114,7 @@
             <USelectMenu
               v-model="selectedCompilationDoc"
               :items="compilationDocOptions"
-              placeholder="Filter berdasarkan Nomor Dokumen Kompilasi..."
+              :placeholder="t('executiveSummary.filterCompilationPlaceholder')"
               class="w-full"
             >
               <template #leading>
@@ -153,15 +153,14 @@
                 <div class="flex items-center gap-2 flex-wrap">
                   <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ item.nomorDokumen || t('executiveSummary.draftReport') }}</h3>
                   <UBadge :color="getStatusColor(item.status)" variant="soft" class="font-semibold uppercase tracking-wider text-[10px]">
-                    Status: {{ item.status }}
+                    {{ t('executiveSummary.statusLabel') }} {{ item.status }}
                   </UBadge>
                   <UBadge v-if="item.assignmentLetterId" color="info" variant="subtle" class="font-mono text-[11px]">
                     <UIcon name="i-lucide-file-signature" class="size-3 mr-1" />
                     {{ item.assignmentLetterId }}
                   </UBadge>
                 </div>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  Periode: <span class="font-semibold text-gray-700 dark:text-gray-300">Kuartal {{ item.quarter }} {{ item.tahun }}</span>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1"> {{ t('executiveSummaryForm.upload.period') }} <span class="font-semibold text-gray-700 dark:text-gray-300">{{ t('executiveSummary.quarterLabel') }} {{ item.quarter }} {{ item.tahun }}</span>
                   <span v-if="item.dokumenPath" class="mx-2">•</span>
                   <span v-if="item.dokumenPath" class="inline-flex items-center gap-1 text-primary-600 dark:text-primary-400">
                     <UIcon name="i-lucide-paperclip" class="size-3" />
@@ -234,7 +233,7 @@
               </div>
               <div class="flex-1 min-w-0">
                 <div class="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 mb-1 flex items-center gap-1.5">
-                  <span>Noted dari Executive untuk Auditor</span>
+                  <span>{{ t('executiveSummaryForm.notes.title') }}</span>
                 </div>
                 <p class="text-sm text-amber-900 dark:text-amber-200/90 whitespace-pre-line leading-relaxed">
                   {{ item.executiveNote }}
@@ -271,7 +270,7 @@
                 <UIcon name="i-lucide-presentation" class="size-5 text-primary-500" />
                 {{ store.isViewing ? t('executiveSummary.modal.viewTitle') : (store.isEditing ? t('executiveSummary.modal.editTitle') : t('executiveSummary.modal.createTitle')) }}
                 <UBadge :color="getStatusColor(store.form.status)" variant="soft" class="ml-2 font-bold uppercase">
-                  Status: {{ store.form.status }}
+                  {{ t('executiveSummary.statusLabel') }} {{ store.form.status }}
                 </UBadge>
               </h3>
               <UButton color="neutral" variant="ghost" icon="i-lucide-x" @click="() => { store.showModal = false }" />
@@ -354,8 +353,7 @@ const quarters = computed(() => [
 ])
 
 const isHigherAuthority = computed(() => {
-  // Komite audit mapped as admin or explicit audit_committee role
-  return authStore.user?.roles.includes(UserRole.ADMIN) || authStore.user?.roles.includes('audit_committee')
+  return authStore.user?.roles.includes(UserRole.ADMIN)
 })
 
 const getStatusColor = (status: string) => {

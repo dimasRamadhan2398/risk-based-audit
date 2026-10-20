@@ -21,15 +21,13 @@
             </div>
             <div>
               <div class="flex items-center gap-2">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white">
-                  Detail Laporan Hasil Audit (LHA)
-                </h3>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white"> {{ t('auditResultReport.editor.detail.title') }} </h3>
                 <UBadge :color="report?.status === 'Final' ? 'success' : 'neutral'" variant="subtle" size="xs">
                   {{ (report?.status || 'Draft').toUpperCase() }}
                 </UBadge>
               </div>
               <p class="text-xs text-gray-500 font-mono mt-0.5">
-                {{ report?.reportNumber || '-' }} • Surat Tugas: <span class="font-semibold text-primary-600">{{ report?.assignmentLetterId || '-' }}</span>
+                {{ report?.reportNumber || '-' }} {{ t('auditResultReport.editor.detail.assignmentLetter') }} <span class="font-semibold text-primary-600">{{ report?.assignmentLetterId || '-' }}</span>
               </p>
             </div>
           </div>
@@ -46,37 +44,36 @@
           <!-- Overview Cards -->
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <div class="p-4 rounded-xl bg-slate-50 dark:bg-gray-850 border border-slate-200 dark:border-slate-800">
-              <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">No. LHA</span>
+              <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">{{ t('auditResultReport.editor.detail.reportNumber') }}</span>
               <span class="text-sm font-mono font-bold text-primary-600 dark:text-primary-400 mt-1 block truncate">
                 {{ report?.reportNumber || '-' }}
               </span>
             </div>
 
             <div class="p-4 rounded-xl bg-slate-50 dark:bg-gray-850 border border-slate-200 dark:border-slate-800">
-              <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">Tanggal Laporan</span>
+              <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">{{ t('auditResultReport.editor.detail.reportDate') }}</span>
               <span class="text-sm font-semibold text-gray-900 dark:text-gray-100 mt-1 block">
                 {{ formatDate(report?.reportDate) }}
               </span>
             </div>
 
             <div class="p-4 rounded-xl bg-slate-50 dark:bg-gray-850 border border-slate-200 dark:border-slate-800">
-              <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">Perusahaan / Entitas</span>
+              <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">{{ t('auditResultReport.editor.detail.company') }}</span>
               <span class="text-sm font-semibold text-gray-900 dark:text-gray-100 mt-1 block truncate" :title="report?.companyName">
                 {{ report?.companyName || 'PT AIFL Indonesia' }}
               </span>
             </div>
 
             <div class="p-4 rounded-xl bg-slate-50 dark:bg-gray-850 border border-slate-200 dark:border-slate-800">
-              <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">Total Temuan</span>
+              <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">{{ t('executiveSummary.cardStats.totalFindings') }}</span>
               <span class="text-sm font-bold text-primary-600 dark:text-primary-400 mt-1 block">
-                {{ report?.findingsCount || report?.findings?.length || 0 }} Temuan
-              </span>
+                {{ report?.findingsCount || report?.findings?.length || 0 }} {{ t('auditResultReport.editor.detail.findings') }} </span>
             </div>
           </div>
 
           <!-- Report Title Card -->
           <div class="p-5 rounded-xl bg-slate-50 dark:bg-gray-850 border border-slate-200 dark:border-slate-800 space-y-1">
-            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Judul Laporan</span>
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">{{ t('auditResultReport.dashboard.columns.reportTitle') }}</span>
             <h4 class="text-base font-bold text-gray-900 dark:text-white">
               {{ report?.reportTitle || '-' }}
             </h4>
@@ -85,9 +82,7 @@
           <!-- Executive Summary Section -->
           <div class="space-y-2">
             <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
-              <UIcon name="i-heroicons-document-text" class="size-4 text-primary-600" />
-              Ringkasan Eksekutif (Executive Summary)
-            </h4>
+              <UIcon name="i-heroicons-document-text" class="size-4 text-primary-600" /> {{ t('auditResultReport.editor.detail.executiveSummary') }} </h4>
             <div class="p-4 rounded-xl bg-slate-50/70 dark:bg-gray-850/60 border border-slate-200 dark:border-slate-800 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">
               {{ report?.executiveSummary || 'Berdasarkan hasil penugasan audit yang telah diselesaikan sesuai dengan Surat Tugas, ruang lingkup evaluasi pengendalian internal telah dirangkum dalam temuan dan rekomendasi tindak lanjut di bawah ini.' }}
             </div>
@@ -97,12 +92,9 @@
           <div class="space-y-3">
             <div class="flex justify-between items-center border-b border-gray-100 dark:border-gray-800 pb-2">
               <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                <UIcon name="i-heroicons-list-bullet" class="size-4 text-primary-600" />
-                Daftar Temuan Audit & Rekomendasi
-              </h4>
+                <UIcon name="i-heroicons-list-bullet" class="size-4 text-primary-600" /> {{ t('auditResultReport.editor.detail.findingsList') }} </h4>
               <UBadge color="primary" variant="subtle" size="xs">
-                {{ report?.findings?.length || 0 }} Temuan
-              </UBadge>
+                {{ report?.findings?.length || 0 }} {{ t('auditResultReport.editor.detail.findings') }} </UBadge>
             </div>
 
             <!-- Findings List Cards -->
@@ -128,11 +120,10 @@
 
                 <div class="pl-8 text-xs space-y-1.5">
                   <div class="p-3 bg-slate-50 dark:bg-gray-900 rounded-lg border border-slate-100 dark:border-gray-800">
-                    <span class="font-semibold text-gray-700 dark:text-gray-300 block mb-0.5">Rekomendasi / Tindak Lanjut:</span>
+                    <span class="font-semibold text-gray-700 dark:text-gray-300 block mb-0.5">{{ t('auditResultReport.editor.detail.recommendation') }}</span>
                     <span class="text-gray-600 dark:text-gray-400">{{ finding.action || 'Tidak ada tindakan yang dicatat.' }}</span>
                   </div>
-                  <span v-if="finding.source" class="text-[11px] text-gray-400 italic block">
-                    Sumber: {{ finding.source }}
+                  <span v-if="finding.source" class="text-[11px] text-gray-400 italic block"> {{ t('auditResultReport.editor.detail.source') }} {{ finding.source }}
                   </span>
                 </div>
               </div>
@@ -142,16 +133,14 @@
             <div
               v-else
               class="p-6 bg-slate-50 dark:bg-slate-850/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 text-center text-xs text-gray-500 italic"
-            >
-              Tidak ada rincian temuan audit pada laporan ini.
-            </div>
+            > {{ t('auditResultReport.editor.detail.empty') }} </div>
           </div>
         </div>
 
         <!-- Footer -->
         <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center bg-slate-50/70 dark:bg-gray-850">
           <UButton
-            label="Tutup"
+            :label="t('executiveSummaryForm.actions.close')"
             color="neutral"
             variant="ghost"
             @click="emit('update:open', false)"
@@ -160,7 +149,7 @@
           <div class="flex items-center gap-2">
             <UButton
               v-if="report?.id"
-              label="Download Docx"
+              :label="t('auditResultReport.editor.detail.downloadDocx')"
               color="success"
               variant="outline"
               icon="i-heroicons-arrow-down-tray"
@@ -168,7 +157,7 @@
               @click="store.downloadDocx(report.id, report.reportNumber)"
             />
             <UButton
-              label="Cetak Dokumen LHA"
+              :label="t('auditResultReport.editor.detail.print')"
               color="primary"
               icon="i-lucide-printer"
               size="sm"
@@ -182,6 +171,7 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 import { useAuditResultReportStore, type AuditResultReport } from '~/stores/audit-result-report'
 
 const props = defineProps<{

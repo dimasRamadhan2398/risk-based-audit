@@ -140,7 +140,7 @@ func TestRollbackReturnsNumber(t *testing.T) {
 
 func insertActivity(t *testing.T, db *gorm.DB, code string) *models.AuditActivity {
 	t.Helper()
-	a := &models.AuditActivity{AnnualPlanID: uuid.New(), TargetUnitID: uuid.New(), ProjectCode: code, Title: code}
+	a := &models.AuditActivity{AnnualPlanID: uuid.New(), ProjectCode: code, Title: code}
 	if err := db.Create(a).Error; err != nil {
 		t.Fatal(err)
 	}
@@ -236,7 +236,7 @@ func assertConcurrentCodes(t *testing.T, db *gorm.DB, n int) {
 					return err
 				}
 				codes[i] = code
-				return tx.Create(&models.AuditActivity{AnnualPlanID: uuid.New(), TargetUnitID: uuid.New(), ProjectCode: code, Title: code}).Error
+				return tx.Create(&models.AuditActivity{AnnualPlanID: uuid.New(), ProjectCode: code, Title: code}).Error
 			})
 		}(i)
 	}
@@ -333,7 +333,7 @@ func TestReserveOnPostgres(t *testing.T) {
 					return err
 				}
 				codes[i] = code
-				return tx.Create(&models.AuditActivity{AnnualPlanID: ann.ID, TargetUnitID: uuid.New(), ProjectCode: code, Title: code}).Error
+				return tx.Create(&models.AuditActivity{AnnualPlanID: ann.ID, ProjectCode: code, Title: code}).Error
 			})
 		}(i)
 	}

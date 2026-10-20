@@ -66,7 +66,7 @@ describe('ATR store: list', () => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
     vi.spyOn(console, 'error').mockImplementation(() => {})
-    useAuthStore().user = { id: 'me', roles: ['auditee'] }
+    useAuthStore().user = { id: 'me', roles: ['AUDITEE'] }
   })
   afterEach(() => {
     vi.useRealTimers()
@@ -232,7 +232,7 @@ describe('ATR store: actions call the right endpoint with the right payload', ()
     setActivePinia(createPinia())
     vi.clearAllMocks()
     vi.spyOn(console, 'error').mockImplementation(() => {})
-    useAuthStore().user = { id: 'me', roles: ['auditee'] }
+    useAuthStore().user = { id: 'me', roles: ['AUDITEE'] }
     global.$fetch = backend()
     store = useActionTakenReportStore()
   })

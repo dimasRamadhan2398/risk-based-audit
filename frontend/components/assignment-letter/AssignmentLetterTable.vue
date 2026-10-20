@@ -30,7 +30,7 @@
 
         <template #auditTeam-cell="{ row }">
           <div class="flex flex-col">
-            <span class="font-bold text-gray-800 dark:text-white">{{ row.original.leader }} (PIC)</span>
+            <span class="font-bold text-gray-800 dark:text-white">{{ row.original.leader }} {{ t('assignmentLetter.formExtra.pic') }}</span>
             <span class="text-md text-gray-500">{{ row.original.auditTeam }}</span>
           </div>
         </template>
@@ -43,7 +43,7 @@
 
         <template #actions-cell="{ row }">
           <div class="flex items-center justify-center gap-1">
-            <UTooltip v-if="canManageAssignmentLetter && row.original.status === 'Draft'" text="Publish Assignment Letter">
+            <UTooltip v-if="canManageAssignmentLetter && row.original.status === 'Draft'" :text="t('assignmentLetter.formExtra.publish')">
               <UButton
                 size="md"
                 color="success"
@@ -53,7 +53,7 @@
                 @click="store.publishLetter(row.original)"
               />
             </UTooltip>
-            <UTooltip text="Edit Assignment Letter">
+            <UTooltip :text="t('assignmentLetter.formExtra.edit')">
               <UButton
                 size="md"
                 color="warning"
@@ -62,7 +62,7 @@
                 @click="store.openEditModal(row.original)"
               />
             </UTooltip>
-            <UTooltip text="Delete Assignment Letter">
+            <UTooltip :text="t('assignmentLetter.formExtra.delete')">
               <UButton
                 size="md"
                 color="error"
@@ -79,6 +79,7 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 
 const store = useAssignmentLetterStore()

@@ -3,7 +3,7 @@
       <TableEntities
         :data="store.filteredPlans"    
         :columns="store.columns"
-        :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'Belum ada data rencana audit.' }"
+        :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: t('annualAudit.table.empty') }"
         class="w-full text-sm text-left"
         :pagination="store.pagination"
       >
@@ -59,33 +59,33 @@
 
         <template #actions-cell="{ row }">
           <div class="flex items-center">
-            <UTooltip text="View Annual Audit">
+            <UTooltip :text="t('annualAudit.table.viewTooltip')">
               <UButton
               icon="i-lucide-eye"
               color="neutral"
               variant="ghost"
               size="md"
-              title="View"
+              :title="t('common.view')"
               @click="store.openViewModal(row.original || row)"
             />
             </UTooltip>
-            <UTooltip text="Edit Annual Audit">
+            <UTooltip :text="t('annualAudit.table.editTooltip')">
             <UButton
               icon="i-lucide-edit"
               color="warning"
               variant="ghost"
               size="md"
-              title="Edit"
+              :title="t('common.edit')"
               @click="store.handleEdit(row.original || row)"
             />
             </UTooltip>
-            <UTooltip text="Delete Annual Audit">
+            <UTooltip :text="t('annualAudit.table.deleteTooltip')">
               <UButton
                 icon="i-lucide-trash-2"
                 color="error"
                 variant="ghost"
                 size="md"
-                title="Hapus"
+                :title="t('common.delete')"
                 @click="store.handleDelete((row.original || row)?.id)"
               />
             </UTooltip>
@@ -98,11 +98,14 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 import { useAnnualPlanStore } from '~/stores/annual-audit'
+import { useI18n } from '~/composables/useI18n'
 import { getRiskLevelColorClass } from '~/utils/riskLevelBadge'
 
 // Cukup inisialisasi store. Komponen akan otomatis membaca status showModal, data form, dan fungsi dari sini.
 const store = useAnnualPlanStore()
+const { t } = useI18n()
 
 const getRowDepartments = (plan: any): string[] => {
   const depts = new Set<string>()

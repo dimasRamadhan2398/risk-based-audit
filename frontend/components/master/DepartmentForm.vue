@@ -14,14 +14,14 @@
             <div class="flex items-center gap-3">
               <UIcon name="i-heroicons-building-office" class="text-primary-500 text-2xl" />
               <h3 class="text-lg font-bold text-[var(--text-main)]">
-                {{ store.isEditing ? 'Edit Department' : 'Add New Department' }}
+                {{ store.isEditing ? t('masterData.department.editTitle') : t('masterData.department.createTitle') }}
               </h3>
             </div>
             <button
               type="button"
               @click="store.closeModal"
               class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-1 rounded-lg focus:outline-none"
-              aria-label="Close modal"
+              :aria-label="t('common.close')"
             >
               <UIcon name="i-heroicons-x-mark" class="text-2xl" />
             </button>
@@ -42,50 +42,50 @@
             <!-- Basic Info -->
             <div class="space-y-4">
               <h4 class="text-sm uppercase tracking-wide text-primary-500 font-bold border-b border-[var(--border-main)] pb-2">
-                Department Information
+                {{ t('masterData.department.sectionInfo') }}
               </h4>
 
               <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField label="Department Code *" size="lg">
+                <UFormField :label="t('masterData.department.fieldCode')" size="lg">
                   <UInput
                     v-model="store.form.department_code"
                     type="text"
-                    placeholder="e.g. DEPT-001"
+                    :placeholder="t('masterData.department.fieldCodePlaceholder')"
                     :disabled="store.isEditing"
                     required
                   />
                 </UFormField>
 
-                <UFormField label="Department Name *" size="lg">
+                <UFormField :label="t('masterData.department.fieldName')" size="lg">
                   <UInput
                     v-model="store.form.department_name"
                     type="text"
-                    placeholder="Enter department name"
+                    :placeholder="t('masterData.department.fieldNamePlaceholder')"
                     required
                   />
                 </UFormField>
 
-                <UFormField label="Level *" size="lg" class="md:col-span-2">
+                <UFormField :label="t('masterData.department.fieldLevel')" size="lg" class="md:col-span-2">
                   <UInput
                     v-model.number="store.form.level"
                     type="number"
                     min="1"
                     required
                   />
-                  <p class="text-md text-gray-500 mt-1">Department hierarchy level</p>
+                  <p class="text-md text-gray-500 mt-1">{{ t('masterData.department.fieldLevelHelp') }}</p>
                 </UFormField>
 
-                <UFormField label="Description" size="lg" class="md:col-span-2">
+                <UFormField :label="t('masterData.department.fieldDescription')" size="lg" class="md:col-span-2">
                   <UTextarea
                     v-model="store.form.department_description"
-                    placeholder="Department description (optional)"
+                    :placeholder="t('masterData.department.fieldDescriptionPlaceholder')"
                     :rows="3"
                     autoresize
                   />
                 </UFormField>
               </div>
 
-              <UFormField label="Status" size="lg">
+              <UFormField :label="t('masterData.department.status')" size="lg">
                 <div class="flex items-center gap-4">
                   <label class="flex items-center gap-2 cursor-pointer">
                     <input
@@ -94,7 +94,7 @@
                       @change="store.form.is_active = true"
                       class="w-4 h-4 text-primary-600"
                     />
-                    <span>Active</span>
+                    <span>{{ t('masterData.department.active') }}</span>
                   </label>
                   <label class="flex items-center gap-2 cursor-pointer">
                     <input
@@ -103,7 +103,7 @@
                       @change="store.form.is_active = false"
                       class="w-4 h-4 text-error-600"
                     />
-                    <span>Inactive</span>
+                    <span>{{ t('masterData.department.inactive') }}</span>
                   </label>
                 </div>
               </UFormField>
@@ -112,49 +112,49 @@
             <!-- Organization -->
             <div class="space-y-4 pt-4">
               <h4 class="text-sm uppercase tracking-wide text-primary-500 font-bold border-b border-[var(--border-main)] pb-2">
-                Organization Link
+                {{ t('masterData.department.organizationLink') }}
               </h4>
 
               <div class="grid grid-cols-1 gap-4">
-                <UFormField label="Company *" size="lg">
+                <UFormField :label="t('masterData.department.companyId')" size="lg">
                   <USelectMenu
                     v-model="store.form.company_id"
                     :items="options.companyOptions"
                     value-key="value"
                     :loading="options.loading"
-                    placeholder="Select company"
+                    :placeholder="t('masterData.department.companyIdPlaceholder')"
                     class="w-full"
                     required
                   />
-                  <p class="text-xs text-gray-500 mt-1">Select the company this department belongs to</p>
+                  <p class="text-xs text-gray-500 mt-1">{{ t('masterData.department.companyIdHelp') }}</p>
                 </UFormField>
 
-                <UFormField label="Person In Charge (PIC)" size="lg">
+                <UFormField :label="t('masterData.department.picId')" size="lg">
                   <USelectMenu
                     v-model="store.form.pic_id"
                     :items="picItems"
                     value-key="value"
                     :loading="options.loading"
                     :clear="true"
-                    placeholder="Select PIC employee (optional)"
+                    :placeholder="t('masterData.department.picIdPlaceholder')"
                     class="w-full"
                     @update:model-value="onPicChange"
                   />
-                  <p class="text-xs text-gray-500 mt-1">Select employee who leads this department</p>
+                  <p class="text-xs text-gray-500 mt-1">{{ t('masterData.department.picIdHelp') }}</p>
                 </UFormField>
 
-                <UFormField label="Business Unit" size="lg">
+                <UFormField :label="t('masterData.department.businessUnitId')" size="lg">
                   <USelectMenu
                     v-model="store.form.business_unit_id"
                     :items="businessUnitItems"
                     value-key="value"
                     :loading="options.loading"
                     :clear="true"
-                    placeholder="Select business unit (optional)"
+                    :placeholder="t('masterData.department.businessUnitIdPlaceholder')"
                     class="w-full"
                     @update:model-value="onBusinessUnitChange"
                   />
-                  <p class="text-xs text-gray-500 mt-1">Select business unit if applicable</p>
+                  <p class="text-xs text-gray-500 mt-1">{{ t('masterData.department.businessUnitIdHelp') }}</p>
                 </UFormField>
               </div>
             </div>
@@ -163,7 +163,7 @@
           <!-- Footer -->
           <div class="px-4 sm:px-6 py-4 bg-[var(--bg-surface)] border-t border-[var(--border-main)] rounded-b-xl flex flex-col-reverse sm:flex-row justify-end gap-3">
             <UButton
-              label="Cancel"
+              :label="t('common.cancel')"
               color="neutral"
               variant="soft"
               class="w-full sm:w-auto"
@@ -171,7 +171,7 @@
               @click="store.closeModal"
             />
             <UButton
-              :label="store.isEditing ? 'Update' : 'Create'"
+              :label="store.isEditing ? t('common.update') : t('common.create')"
               color="primary"
               :loading="store.loading"
               class="w-full sm:w-auto font-bold"
@@ -190,6 +190,7 @@ import { useMasterOptionsStore } from '~/stores/master-options'
 
 const store = useDepartmentStore()
 const options = useMasterOptionsStore()
+const { t } = useI18n()
 
 const noneOption = { label: '— None —', value: '__none__' }
 

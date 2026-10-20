@@ -3,10 +3,9 @@
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div class="min-w-0">
-        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight dark:text-white">Dashboard</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight dark:text-white">{{ t('dashboard.overview.dashboard') }}</h1>
         <p class="text-sm text-slate-500 mt-1.5 dark:text-slate-400">
-          Welcome back, {{ authStore.getUser?.fullName || "Andi" }}. Here's your risk &
-          audit performance overview.
+          {{ t('dashboard.overview.welcome', { name: authStore.getUser?.fullName || 'Andi' }) }}
         </p>
       </div>
       <div class="shrink-0">
@@ -24,9 +23,7 @@
               :class="{ 'animate-spin': isSyncing }"
               class="size-4"
             />
-          </template>
-          Sync
-        </UButton>
+          </template> {{ t('auditResultReport.dashboard.actions.sync') }} </UButton>
       </div>
     </div>
 
@@ -37,7 +34,7 @@
         class="p-5 sm:p-6 flex flex-col justify-between min-h-[135px] dashboard-card"
       >
         <div class="flex justify-between items-start">
-          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Total Risks</p>
+          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">{{ t('riskAppetite.kpi.totalRisks') }}</p>
           <div class="rounded-xl bg-indigo-50 p-2.5 flex items-center justify-center dark:bg-indigo-500/10">
             <UIcon name="i-lucide-shield" class="text-indigo-600 size-5 dark:text-indigo-400" />
           </div>
@@ -50,7 +47,7 @@
             class="flex flex-wrap items-center gap-1 text-md font-semibold text-emerald-500 mt-1"
           >
             <span>↑ 12%</span>
-            <span class="text-slate-400 font-normal">from last month</span>
+            <span class="text-slate-400 font-normal">{{ t('dashboard.overview.fromLastMonth') }}</span>
           </div>
         </div>
       </div>
@@ -60,7 +57,7 @@
         class="p-5 sm:p-6 flex flex-col justify-between min-h-[135px] dashboard-card"
       >
         <div class="flex justify-between items-start">
-          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">High Risk</p>
+          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">{{ t('auditActivityPlan.form.highRisk') }}</p>
           <div class="rounded-xl bg-red-50 p-2.5 flex items-center justify-center dark:bg-red-500/10">
             <UIcon name="i-lucide-alert-triangle" class="text-red-600 size-5" />
           </div>
@@ -69,7 +66,7 @@
           <h3 class="text-2xl sm:text-3xl font-bold text-red-600 tracking-tight">{{ highRisks }}</h3>
           <div class="flex flex-wrap items-center gap-1 text-md font-semibold text-red-500 mt-1">
             <span>↑ 3</span>
-            <span class="text-slate-400 font-normal">requires attention</span>
+            <span class="text-slate-400 font-normal">{{ t('dashboard.overview.requiresAttention') }}</span>
           </div>
         </div>
       </div>
@@ -79,7 +76,7 @@
         class="p-5 sm:p-6 flex flex-col justify-between min-h-[135px] dashboard-card"
       >
         <div class="flex justify-between items-start">
-          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Audit Plans</p>
+          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">{{ t('dashboard.overview.auditPlans') }}</p>
           <div class="rounded-xl bg-sky-50 p-2.5 flex items-center justify-center dark:bg-sky-500/10">
             <UIcon name="i-lucide-calendar" class="text-sky-600 size-5" />
           </div>
@@ -89,8 +86,8 @@
             {{ auditPlansCount }}
           </h3>
           <div class="flex items-center gap-1 text-md font-semibold text-sky-500 mt-1">
-            <span>Active</span>
-            <span class="text-slate-400 font-normal">this quarter</span>
+            <span>{{ t('auditCharter.form.active') }}</span>
+            <span class="text-slate-400 font-normal">{{ t('dashboard.overview.thisQuarter') }}</span>
           </div>
         </div>
       </div>
@@ -100,7 +97,7 @@
         class="p-5 sm:p-6 flex flex-col justify-between min-h-[135px] dashboard-card"
       >
         <div class="flex justify-between items-start">
-          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Completed</p>
+          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">{{ t('auditExecution.phases.6.shortLabel') }}</p>
           <div class="rounded-xl bg-emerald-50 p-2.5 flex items-center justify-center dark:bg-emerald-500/10">
             <UIcon name="i-lucide-check-circle" class="text-emerald-600 size-5 dark:text-emerald-400" />
           </div>
@@ -112,8 +109,8 @@
           <div
             class="flex flex-wrap items-center gap-1 text-md font-semibold text-emerald-500 mt-1"
           >
-            <span>Updated</span>
-            <span class="text-slate-400 font-normal">this month</span>
+            <span>{{ t('dashboard.overview.updated') }}</span>
+            <span class="text-slate-400 font-normal">{{ t('dashboard.overview.thisMonth') }}</span>
           </div>
         </div>
       </div>
@@ -122,7 +119,7 @@
     <!-- Audit Statistics Section (Second Row) -->
     <div class="p-4 sm:p-6 space-y-6 dashboard-card">
       <div class="flex items-center justify-between">
-        <h3 class="text-lg font-bold text-slate-800 dark:text-white">Audit Statistics</h3>
+        <h3 class="text-lg font-bold text-slate-800 dark:text-white">{{ t('dashboard.overview.auditStatistics') }}</h3>
       </div>
       <div class="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <!-- Planned Audits -->
@@ -130,7 +127,7 @@
           class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard"
         >
           <div class="flex justify-between items-start">
-            <span class="text-md font-semibold text-slate-500 dark:text-slate-200">Planned Audits</span>
+            <span class="text-md font-semibold text-slate-500 dark:text-slate-200">{{ t('dashboard.overview.plannedAudits') }}</span>
             <div class="rounded-lg bg-indigo-50 p-1.5 flex items-center justify-center dark:bg-indigo-500/10">
               <UIcon name="i-lucide-info" class="text-indigo-600 size-4 dark:text-indigo-400" />
             </div>
@@ -141,7 +138,7 @@
             </h4>
             <p class="text-[11px] mt-1" :class="plannedAuditTrend.color">
               {{ plannedAuditTrend.icon }} {{ plannedAuditTrend.value }}
-              <span class="text-slate-400 dark:text-slate-300 font-normal">from last month</span>
+              <span class="text-slate-400 dark:text-slate-300 font-normal">{{ t('dashboard.overview.fromLastMonth') }}</span>
             </p>
           </div>
         </div>
@@ -151,7 +148,7 @@
           class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard"
         >
           <div class="flex justify-between items-start">
-            <span class="text-md font-semibold text-slate-500 dark:text-slate-200">Open Findings</span>
+            <span class="text-md font-semibold text-slate-500 dark:text-slate-200">{{ t('dashboard.overview.openFindings') }}</span>
             <div class="rounded-lg bg-amber-50 p-1.5 flex items-center justify-center dark:bg-amber-500/10">
               <UIcon name="i-lucide-alert-triangle" class="text-amber-600 size-4" />
             </div>
@@ -162,7 +159,7 @@
             </h4>
             <p class="text-[11px] mt-1" :class="openFindingTrend.color">
               {{ openFindingTrend.icon }} {{ openFindingTrend.value }}
-              <span class="text-slate-400 dark:text-slate-300 font-normal">from last month</span>
+              <span class="text-slate-400 dark:text-slate-300 font-normal">{{ t('dashboard.overview.fromLastMonth') }}</span>
             </p>
           </div>
         </div>
@@ -172,7 +169,7 @@
           class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard"
         >
           <div class="flex justify-between items-start">
-            <span class="text-md font-semibold text-slate-500 dark:text-slate-200">Execution Status</span>
+            <span class="text-md font-semibold text-slate-500 dark:text-slate-200">{{ t('dashboard.overview.executionStatus') }}</span>
             <div class="rounded-lg bg-sky-50 p-1.5 flex items-center justify-center dark:bg-sky-500/10">
               <UIcon name="i-lucide-play" class="text-sky-600 size-4" />
             </div>
@@ -183,7 +180,7 @@
             </h4>
             <p class="text-[11px] mt-1" :class="executionStatusTrend.color">
               {{ executionStatusTrend.icon }} {{ executionStatusTrend.value }}
-              <span class="text-slate-400 dark:text-slate-300 font-normal">from last month</span>
+              <span class="text-slate-400 dark:text-slate-300 font-normal">{{ t('dashboard.overview.fromLastMonth') }}</span>
             </p>
           </div>
         </div>
@@ -193,7 +190,7 @@
           class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard"
         >
           <div class="flex justify-between items-start">
-            <span class="text-md font-semibold text-slate-500 dark:text-slate-200">ATR Compliance</span>
+            <span class="text-md font-semibold text-slate-500 dark:text-slate-200">{{ t('dashboard.overview.atrCompliance') }}</span>
             <div class="rounded-lg bg-emerald-50 p-1.5 flex items-center justify-center dark:bg-emerald-500/10">
               <UIcon name="i-lucide-check-square" class="text-emerald-600 size-4 dark:text-emerald-400" />
             </div>
@@ -204,7 +201,7 @@
             </h4>
             <p class="text-[11px] mt-1" :class="atrComplianceTrend.color">
               {{ atrComplianceTrend.icon }} {{ atrComplianceTrend.value }}
-              <span class="text-slate-400 dark:text-slate-300 font-normal">from last month</span>
+              <span class="text-slate-400 dark:text-slate-300 font-normal">{{ t('dashboard.overview.fromLastMonth') }}</span>
             </p>
           </div>
         </div>
@@ -217,20 +214,16 @@
         <div>
           <div class="flex items-center gap-2">
             <UIcon name="i-heroicons-sparkles" class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-            <h2 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
-              Predictive Intelligence & Anomaly Analytics
-            </h2>
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight"> {{ t('dashboard.overview.predictiveTitle') }} </h2>
           </div>
-          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Analisis proyeksi masa depan KPI dan deteksi anomali finansial/operasional.
-          </p>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1"> {{ t('dashboard.overview.predictiveDescription') }} </p>
         </div>
 
         <NuxtLink
           to="/analytics"
           class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 flex items-center gap-1 self-start sm:self-auto"
         >
-          <span>Buka Deep Analytics Center</span>
+          <span>{{ t('dashboard.overview.openAnalytics') }}</span>
           <span>&rarr;</span>
         </NuxtLink>
       </div>
@@ -244,18 +237,12 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
               <div class="min-w-0">
                 <div class="flex items-center gap-2">
-                  <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
-                    KPI Performance Forecasting
-                  </h3>
+                  <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white"> {{ t('dashboard.overview.kpiForecasting') }} </h3>
                 </div>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Proyeksi tren historis vs estimasi Q3 2026 - Q1 2027 (Interval Kepercayaan 95%)
-                </p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5"> {{ t('dashboard.overview.forecastPeriod') }} </p>
               </div>
 
-              <NuxtLink to="/analytics/kpi-forecast" class="text-xs font-semibold text-violet-600 hover:underline shrink-0 self-start sm:self-auto">
-                Rincian
-              </NuxtLink>
+              <NuxtLink to="/analytics/kpi-forecast" class="text-xs font-semibold text-violet-600 hover:underline shrink-0 self-start sm:self-auto"> {{ t('dashboard.overview.details') }} </NuxtLink>
             </div>
 
             <!-- Line Chart Component -->
@@ -265,9 +252,7 @@
 
             <!-- Forecast Highlights Table / Cards -->
             <div class="mt-6 space-y-3">
-              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-                At-Risk KPI Projections & Audit Recommendations
-              </h4>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2"> {{ t('dashboard.overview.atRiskKpi') }} </h4>
 
               <div
                 v-for="kpi in (timeseriesState.kpiForecasts || []).slice(0, 3)"
@@ -288,7 +273,7 @@
                 </div>
 
                 <div class="text-right shrink-0 flex sm:flex-col items-center sm:items-end justify-between gap-2 sm:gap-0">
-                  <span class="text-xs text-slate-400">Proyeksi</span>
+                  <span class="text-xs text-slate-400">{{ t('dashboard.overview.projection') }}</span>
                   <span class="text-sm font-extrabold font-mono text-violet-600 dark:text-violet-400">
                     {{ kpi.forecastedValue }}{{ kpi.unit === "%" ? "%" : "" }}
                   </span>
@@ -301,9 +286,9 @@
           <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-500">
             <span class="flex items-center gap-1.5">
               <UIcon name="i-heroicons-information-circle" class="w-4 h-4 text-violet-500" />
-              Interval Prediksi ±4.8% MAPE
+              {{ t('dashboard.overview.predictionInterval') }}
             </span>
-            <span class="font-medium text-slate-700 dark:text-slate-300">Target Horizon: Q3 2026</span>
+            <span class="font-medium text-slate-700 dark:text-slate-300">{{ t('dashboard.overview.targetHorizon') }}</span>
           </div>
         </div>
 
@@ -314,13 +299,9 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <div>
                 <div class="flex items-center gap-2">
-                  <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
-                    Transaction Anomaly Detection
-                  </h3>
+                  <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white"> {{ t('dashboard.overview.transactionAnomalies') }} </h3>
                 </div>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Deteksi pencilan transaksi & pola tak wajar berbasis machine learning yang tidak terawasi
-                </p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5"> {{ t('dashboard.overview.transactionAnomaliesDescription') }} </p>
               </div>
             </div>
 
@@ -331,9 +312,7 @@
 
             <!-- Top Detected Anomaly List -->
             <div class="mt-6 space-y-3">
-              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-                Critical Anomaly Alerts Requiring Investigation
-              </h4>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2"> {{ t('dashboard.overview.criticalAnomalies') }} </h4>
 
               <div
                 v-for="anm in filteredAnomalies.slice(0, 3)"
@@ -354,8 +333,7 @@
                 </div>
 
                 <div class="text-right shrink-0 flex sm:flex-col items-center sm:items-end justify-between gap-2 sm:gap-0">
-                  <span class="text-xs font-mono text-rose-600 dark:text-rose-400 font-bold">
-                    Score: {{ anm.anomalyScore }}
+                  <span class="text-xs font-mono text-rose-600 dark:text-rose-400 font-bold"> {{ t('dashboard.overview.score') }} {{ anm.anomalyScore }}
                   </span>
                   <span v-if="anm.amount" class="text-xs font-bold text-slate-800 dark:text-slate-200">
                     Rp {{ (anm.amount / 1000000).toLocaleString() }}M
@@ -368,11 +346,9 @@
           <!-- Bottom Footer Info -->
           <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-500">
             <span class="flex items-center gap-1.5">
-              <UIcon name="i-heroicons-shield-exclamation" class="w-4 h-4 text-rose-500" />
-              Tingkat Kontaminasi: {{ ((isolationState.summary?.contaminationRate || 0) * 100).toFixed(1) }}%
+              <UIcon name="i-heroicons-shield-exclamation" class="w-4 h-4 text-rose-500" /> {{ t('dashboard.overview.contaminationRate') }} {{ ((isolationState.summary?.contaminationRate || 0) * 100).toFixed(1) }}%
             </span>
-            <NuxtLink to="/analytics" class="font-semibold text-rose-600 dark:text-rose-400 hover:underline">
-              Kelola Semua {{ (isolationState.anomalies || []).length }} Anomali &rarr;
+            <NuxtLink to="/analytics" class="font-semibold text-rose-600 dark:text-rose-400 hover:underline"> {{ t('dashboard.overview.manageAll') }} {{ (isolationState.anomalies || []).length }} {{ t('dashboard.overview.anomalies') }}
             </NuxtLink>
           </div>
         </div>
@@ -387,24 +363,23 @@
         <div>
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div class="flex items-center gap-2 min-w-0">
-              <span class="text-sm font-semibold tracking-wider text-slate-400 dark:text-slate-400">Pengukuran Tutup Buku Akhir Tahun</span>
+              <span class="text-sm font-semibold tracking-wider text-slate-400 dark:text-slate-400">{{ t('rcm.cards.effectiveness.badge') }}</span>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-              <span class="text-sm font-medium text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md border border-transparent dark:border-slate-700">
-                Tahun: {{ rcmStore.selectedYear }} | {{ rcmStore.selectedDepartment }}
+              <span class="text-sm font-medium text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md border border-transparent dark:border-slate-700"> {{ t('riskFactors.scoring.yearLabel') }} {{ rcmStore.selectedYear }} | {{ rcmStore.selectedDepartment }}
               </span>
               <UButton to="/risk-profile/risk-control-matrix" variant="outline" color="neutral" size="sm" class="font-medium">
-                Risk Control Matrix &rarr;
+                {{ t('dashboard.overview.riskControlMatrix') }}
               </UButton>
             </div>
           </div>
-          <h2 class="text-xl font-bold text-slate-900 dark:text-white mt-1">Internal Control Effectiveness</h2>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white mt-1">{{ t('dashboard.overview.controlEffectiveness') }}</h2>
         </div>
 
         <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-4 border border-slate-100 dark:border-slate-700/60">
           <!-- Big Score % -->
           <div class="flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 pb-3 md:pb-0 md:pr-4">
-            <span class="text-sm text-slate-500 dark:text-slate-400 font-medium">Real Effectiveness Score</span>
+            <span class="text-sm text-slate-500 dark:text-slate-400 font-medium">{{ t('rcm.cards.effectiveness.realScore') }}</span>
             <div class="flex items-baseline gap-2 mt-1">
               <span class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                 {{ rcmStore.internalControlEffectiveness }}%
@@ -420,16 +395,14 @@
           <!-- Synchronized Risk Counts & Interpretation -->
           <div class="md:col-span-2 flex flex-col justify-center space-y-2 min-w-0">
             <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm">
-              <span class="text-slate-600 dark:text-slate-300 font-medium">Inherent Risk (Risiko Prioritas Awal Tahun):</span>
+              <span class="text-slate-600 dark:text-slate-300 font-medium">{{ t('rcm.cards.effectiveness.inherentRiskLabel') }}</span>
               <span class="font-bold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 whitespace-nowrap">
-                {{ rcmStore.totalInherentRisk }} Risiko
-              </span>
+                {{ rcmStore.totalInherentRisk }} {{ t('settings.faq.categories.Risk') }} </span>
             </div>
             <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm">
-              <span class="text-slate-600 dark:text-slate-300 font-medium">Residual Risk (Sisa Risiko Tutup Buku):</span>
+              <span class="text-slate-600 dark:text-slate-300 font-medium">{{ t('rcm.cards.effectiveness.residualRiskLabel') }}</span>
               <span class="font-bold text-red-600 dark:text-red-400 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 whitespace-nowrap">
-                {{ rcmStore.totalResidualRisk }} Risiko
-              </span>
+                {{ rcmStore.totalResidualRisk }} {{ t('settings.faq.categories.Risk') }} </span>
             </div>
             <UAlert
               :color="(rcmStore.effectivenessRating.alertColor as any) || 'info'"
@@ -444,7 +417,7 @@
 
         <div class="mt-3 text-sm text-slate-400 dark:text-slate-400 flex items-center gap-3 sm:gap-4">
           <UIcon name="i-lucide-check-circle-2" class="size-8 sm:size-10 shrink-0 text-emerald-500" />
-          <span>Data Inherent & Residual Risk terintegrasi langsung secara otomatis dari Corporate Risk Profile.</span>
+          <span>{{ t('rcm.cards.effectiveness.syncNote') }}</span>
         </div>
       </div>
 
@@ -452,7 +425,7 @@
       <div class="p-4 sm:p-6 flex flex-col justify-between dashboard-card">
         <div>
           <div class="flex items-center justify-between gap-2">
-            <h3 class="text-base font-bold text-slate-900 dark:text-white">Rata-Rata COSO 2013</h3>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">{{ t('rcm.cards.coso.title') }}</h3>
             <span class="text-md font-bold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/60 px-2.5 py-1 rounded-full border border-primary-100 dark:border-primary-800 whitespace-nowrap shrink-0">
               {{ rcmStore.cosoAverages.totalWeighted }}%
             </span>
@@ -475,8 +448,8 @@
         </div>
 
         <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-md text-slate-500 dark:text-slate-400">
-          <span>Total Kontrol Dievaluasi:</span>
-          <span class="font-bold text-slate-900 dark:text-white">{{ rcmStore.filteredRCMList.length }} Item</span>
+          <span>{{ t('rcm.cards.coso.totalControls') }}</span>
+          <span class="font-bold text-slate-900 dark:text-white">{{ rcmStore.filteredRCMList.length }} {{ t('dashboard.overview.item') }}</span>
         </div>
       </div>
     </div>
@@ -489,9 +462,7 @@
       >
         <div>
           <div class="flex items-center justify-between mb-6">
-            <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
-              Inherent vs Residual Risk by Department
-            </h3>
+            <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white"> {{ t('dashboard.overview.departmentRisk') }} </h3>
           </div>
           <div class="w-full" :style="{ height: `${barChartHeight}px` }">
             <BarChart
@@ -518,11 +489,11 @@
         <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-4 border-t border-slate-50 pt-4 dark:border-slate-800">
           <div class="flex items-center gap-2">
             <span class="w-3 h-3 rounded-full bg-[#ff5c02]"></span>
-            <span class="text-md font-semibold text-slate-600 dark:text-slate-300">Inherent Risk</span>
+            <span class="text-md font-semibold text-slate-600 dark:text-slate-300">{{ t('dashboard.overview.inherentRisk') }}</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="w-3 h-3 rounded-full bg-[#4d00ff]"></span>
-            <span class="text-md font-semibold text-slate-600 dark:text-slate-300">Residual Risk</span>
+            <span class="text-md font-semibold text-slate-600 dark:text-slate-300">{{ t('dashboard.overview.residualRisk') }}</span>
           </div>
         </div>
       </div>
@@ -533,13 +504,39 @@
       >
         <div>
           <div class="flex items-center justify-between gap-2 mb-6">
-            <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white">Action Taken Report</h3>
+            <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white">{{ t('actionTakenReport.title') }}</h3>
             <UButton to="/action-taken-report" variant="ghost" color="neutral" size="sm"
-              >Details</UButton
+              >{{ t('dashboard.overview.details') }}</UButton
             >
           </div>
           <div class="w-full relative flex items-center justify-center" :style="{ height: `${donutChartHeight}px` }">
+            <p
+              v-if="atrStore.summaryLoading && atrStore.stats.total === 0"
+              class="text-sm text-slate-500 dark:text-slate-400"
+            >
+              {{ t("common.loading") }}
+            </p>
+            <div
+              v-else-if="atrStore.summaryError"
+              class="flex flex-col items-center gap-1 text-center px-4"
+            >
+              <UIcon name="i-heroicons-exclamation-triangle" class="size-6 text-error-500" />
+              <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                {{ t("actionTakenReport.dashboard.error") }}
+              </p>
+              <p class="text-xs text-slate-500 dark:text-slate-400">{{ atrStore.summaryError }}</p>
+            </div>
+            <div
+              v-else-if="atrStore.stats.total === 0"
+              class="flex flex-col items-center gap-1 text-center px-4"
+            >
+              <UIcon name="i-heroicons-circle-stack-20-solid" class="size-6 text-slate-400" />
+              <p class="text-sm text-slate-500 dark:text-slate-400">
+                {{ t("actionTakenReport.dashboard.empty") }}
+              </p>
+            </div>
             <DonutChart
+              v-else
               :data="atrDonutData.map((item) => item.value)"
               :categories="atrCategories"
               :radius="8"
@@ -560,6 +557,7 @@
         </div>
         <!-- Custom Legend -->
         <div
+          v-if="atrStore.stats.total > 0"
           class="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4 px-2 border-t border-slate-50 pt-4 dark:border-slate-800"
         >
           <div v-for="slice in atrDonutData" :key="slice.key" class="flex items-center gap-1.5">
@@ -578,9 +576,9 @@
     <!-- Risk Heat Map & Registered Risk (Fourth Row) -->
     <div class="p-4 sm:p-6 space-y-6 dashboard-card">
       <div class="flex items-center justify-between gap-2">
-        <h2 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight dark:text-white">Risk Profiles</h2>
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight dark:text-white">{{ t('dashboard.overview.riskProfiles') }}</h2>
         <UButton to="/risk-profile" variant="ghost" color="neutral" size="sm"
-          >Configure</UButton
+          >{{ t('dashboard.planningExecution.configure') }}</UButton
         >
       </div>
 
@@ -589,17 +587,13 @@
         <div
           class="lg:col-span-5 min-w-0 h-full flex flex-col items-center rounded-2xl p-4 sm:p-6 dashboard-subcard"
         >
-          <h4 class="text-sm font-semibold text-slate-700 mb-6 w-full text-left dark:text-slate-200">
-            Risk Heat Map
-          </h4>
+          <h4 class="text-sm font-semibold text-slate-700 mb-6 w-full text-left dark:text-slate-200"> {{ t('dashboard.overview.riskHeatMap') }} </h4>
           <div class="flex-1 flex flex-row gap-2 sm:gap-4 items-center w-full justify-center">
             <!-- Y-axis label (narrow box: the rotated text would otherwise reserve its unrotated width) -->
             <div class="flex flex-col items-center justify-center shrink-0 w-5">
               <span
                 class="text-md font-semibold text-slate-500 uppercase tracking-wider origin-center -rotate-90 whitespace-nowrap dark:text-slate-400"
-              >
-                Probability
-              </span>
+              > {{ t('dashboard.overview.probability') }} </span>
             </div>
             <!-- Heat map grid -->
             <div class="flex flex-col gap-2">
@@ -620,7 +614,7 @@
               <div class="flex justify-center mt-1">
                 <span
                   class="text-md font-semibold text-slate-500 uppercase tracking-wider dark:text-slate-400"
-                  >Impact</span
+                  >{{ t('riskProfile.addModal.impact') }}</span
                 >
               </div>
             </div>
@@ -629,30 +623,30 @@
           <div class="flex flex-wrap justify-center gap-x-3 gap-y-1.5 mt-6 max-w-[320px]">
             <div class="flex items-center gap-1.5">
               <div class="w-3 h-3 rounded bg-green-400"></div>
-              <span class="text-[11px] font-medium text-slate-600 dark:text-slate-300">Low</span>
+              <span class="text-[11px] font-medium text-slate-600 dark:text-slate-300">{{ t('dashboard.overview.low') }}</span>
             </div>
             <div class="flex items-center gap-1.5">
               <div class="w-3 h-3 rounded bg-green-600"></div>
-              <span class="text-[11px] font-medium text-slate-600 dark:text-slate-300">Low-Mod</span>
+              <span class="text-[11px] font-medium text-slate-600 dark:text-slate-300">{{ t('dashboard.overview.lowModerate') }}</span>
             </div>
             <div class="flex items-center gap-1.5">
               <div class="w-3 h-3 rounded bg-yellow-500"></div>
-              <span class="text-[11px] font-medium text-slate-600 dark:text-slate-300">Moderate</span>
+              <span class="text-[11px] font-medium text-slate-600 dark:text-slate-300">{{ t('dashboard.overview.moderate') }}</span>
             </div>
             <div class="flex items-center gap-1.5">
               <div class="w-3 h-3 rounded bg-orange-500"></div>
-              <span class="text-[11px] font-medium text-slate-600 dark:text-slate-300">Mod-High</span>
+              <span class="text-[11px] font-medium text-slate-600 dark:text-slate-300">{{ t('dashboard.overview.moderateHigh') }}</span>
             </div>
             <div class="flex items-center gap-1.5">
               <div class="w-3 h-3 rounded bg-red-500"></div>
-              <span class="text-[11px] font-medium text-slate-600 dark:text-slate-300">High</span>
+              <span class="text-[11px] font-medium text-slate-600 dark:text-slate-300">{{ t('dashboard.overview.high') }}</span>
             </div>
           </div>
         </div>
 
         <!-- Registered Risks Table on the right -->
         <div class="lg:col-span-7 min-w-0 rounded-2xl p-4 sm:p-6 dashboard-subcard">
-          <h4 class="text-sm font-semibold text-slate-700 mb-4 dark:text-slate-200">Registered Risks</h4>
+          <h4 class="text-sm font-semibold text-slate-700 mb-4 dark:text-slate-200">{{ t('dashboard.overview.registeredRisks') }}</h4>
           <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ body: 'p-0' }">
             <TableEntities
               :data="registeredRiskHeatMap"
@@ -687,10 +681,9 @@
             </div>
             <div class="space-y-4">
               <div class="flex flex-wrap justify-between items-center gap-x-3 gap-y-1">
-                <span class="text-md font-semibold text-slate-500 dark:text-slate-400">Overall Progress</span>
+                <span class="text-md font-semibold text-slate-500 dark:text-slate-400">{{ t('dashboard.overview.overallProgress') }}</span>
                 <h5 class="text-base font-bold text-indigo-600 whitespace-nowrap dark:text-indigo-400">
-                  {{ progressModel }}% Completed
-                </h5>
+                  {{ progressModel }}{{ t('dashboard.overview.completedPercent') }} </h5>
               </div>
               <UProgress
                 :model-value="progressModel"
@@ -703,19 +696,19 @@
             class="grid grid-cols-3 gap-2 border-t border-slate-50 pt-6 mt-6 text-center dark:border-slate-800"
           >
             <div>
-              <p class="text-[11px] text-slate-400 font-semibold uppercase">Planned</p>
+              <p class="text-[11px] text-slate-400 font-semibold uppercase">{{ t('strategicPlan.status.planned') }}</p>
               <h4 class="text-lg font-bold text-slate-800 mt-1 dark:text-white">
                 {{ auditCoverage.plannedAudits }}
               </h4>
             </div>
             <div>
-              <p class="text-[11px] text-slate-400 font-semibold uppercase">Completed</p>
+              <p class="text-[11px] text-slate-400 font-semibold uppercase">{{ t('auditExecution.phases.6.shortLabel') }}</p>
               <h4 class="text-lg font-bold text-slate-800 mt-1 dark:text-white">
                 {{ auditCoverage.completedAudits }}
               </h4>
             </div>
             <div>
-              <p class="text-[11px] text-slate-400 font-semibold uppercase">Remaining</p>
+              <p class="text-[11px] text-slate-400 font-semibold uppercase">{{ t('dashboard.overview.remaining') }}</p>
               <h4 class="text-lg font-bold text-slate-800 mt-1 dark:text-white">
                 {{ auditCoverage.remainingAudits }}
               </h4>
@@ -731,7 +724,32 @@
             </h3>
             <UBadge color="primary" :label="executionPeriodLabel" variant="soft"></UBadge>
           </div>
-          <div class="space-y-5 max-h-80 overflow-y-auto pr-1">
+          <p
+            v-if="auditExecutionStore.loading && dashboardExecutionStatus.length === 0"
+            class="text-sm text-slate-500 dark:text-slate-400 py-6 text-center"
+          >
+            {{ t("common.loading") }}
+          </p>
+          <div
+            v-else-if="auditExecutionStore.error"
+            class="flex flex-col items-center gap-1 py-6 text-center"
+          >
+            <UIcon name="i-heroicons-exclamation-triangle" class="size-6 text-error-500" />
+            <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+              {{ t("dashboard.planningExecution.executionError") }}
+            </p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">{{ auditExecutionStore.error }}</p>
+          </div>
+          <div
+            v-else-if="dashboardExecutionStatus.length === 0"
+            class="flex flex-col items-center gap-1 py-6 text-center"
+          >
+            <UIcon name="i-heroicons-circle-stack-20-solid" class="size-6 text-slate-400" />
+            <p class="text-sm text-slate-500 dark:text-slate-400">
+              {{ t("dashboard.planningExecution.executionEmpty") }}
+            </p>
+          </div>
+          <div v-else class="space-y-5 max-h-80 overflow-y-auto pr-1">
             <div
               v-for="(item, index) in dashboardExecutionStatus"
               :key="index"
@@ -761,18 +779,19 @@
         class="lg:col-span-12 min-w-0 p-4 sm:p-6 dashboard-card"
       >
         <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-          <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white">Action Taken Reports (ATR)</h3>
+          <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white">{{ t('dashboard.overview.actionTakenReports') }}</h3>
           <UButton to="/action-taken-report" variant="ghost" color="neutral" size="sm"
-            >View Full Report</UButton
+            >{{ t('dashboard.overview.viewFullReport') }}</UButton
           >
         </div>
         <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ body: 'p-0' }">
           <TableEntities
             :data="atrTableData"
             :columns="tableColumns"
+            :loading="atrStore.summaryLoading"
             :empty-state="{
               icon: 'i-heroicons-circle-stack-20-solid',
-              label: 'Belum ada data rencana audit.',
+              label: t('actionTakenReport.dashboard.empty'),
             }"
             class="w-full"
           />
@@ -807,10 +826,10 @@
       <div class="min-w-0 p-4 sm:p-6 space-y-6 dashboard-card">
         <div class="flex items-center justify-between gap-2">
           <div class="min-w-0">
-            <h3 class="text-lg font-bold text-slate-800 dark:text-white">Recent Risk Profiles</h3>
-            <p class="text-md text-slate-400 mt-1">Latest risk assessments</p>
+            <h3 class="text-lg font-bold text-slate-800 dark:text-white">{{ t('dashboard.overview.recentRiskProfiles') }}</h3>
+            <p class="text-md text-slate-400 mt-1">{{ t('dashboard.overview.latestRiskAssessments') }}</p>
           </div>
-          <UTooltip text="View all Risk Profiles">
+          <UTooltip :text="t('dashboard.overview.viewAllRiskProfiles')">
             <UButton
               icon="i-lucide-chevron-right"
               variant="ghost"
@@ -855,10 +874,10 @@
       <div class="min-w-0 p-4 sm:p-6 space-y-6 dashboard-card">
         <div class="flex items-center justify-between gap-2">
           <div class="min-w-0">
-            <h3 class="text-lg font-bold text-slate-800 dark:text-white">Upcoming Audits</h3>
-            <p class="text-md text-slate-400 mt-1">Scheduled audit activities</p>
+            <h3 class="text-lg font-bold text-slate-800 dark:text-white">{{ t('dashboard.overview.upcomingAudits') }}</h3>
+            <p class="text-md text-slate-400 mt-1">{{ t('dashboard.overview.scheduledActivities') }}</p>
           </div>
-          <UTooltip text="View all Annual Audits">
+          <UTooltip :text="t('dashboard.overview.viewAllAnnualAudits')">
             <UButton
               icon="i-lucide-chevron-right"
               variant="ghost"
@@ -880,19 +899,17 @@
               </div>
               <div class="min-w-0">
                 <p class="text-sm font-bold text-slate-800 truncate dark:text-white">{{ plan.code }}</p>
-                <p class="text-md text-slate-400 mt-0.5 truncate">Status: {{ plan.status }}</p>
+                <p class="text-md text-slate-400 mt-0.5 truncate">{{ t('dashboard.overview.status') }} {{ plan.status }}</p>
               </div>
             </div>
             <UBadge color="info" variant="soft" size="sm" class="font-semibold shrink-0"
-              >Scheduled</UBadge
+              >{{ t('riskMitigation.monitoring.scheduled') }}</UBadge
             >
           </div>
           <div
             v-if="annualPlanStore.plans.length === 0"
             class="text-center py-6 text-slate-400 text-sm"
-          >
-            No upcoming audits scheduled.
-          </div>
+          > {{ t('dashboard.overview.noUpcomingAudits') }} </div>
         </div>
       </div>
     </div>
@@ -1024,6 +1041,8 @@ onMounted(() => {
   rcmStore.fetchRCMList();
   // ATR donut, compliance, Open Findings and the ATR table: every ATR the user can see.
   atrStore.fetchSummary();
+  // Audit Execution Status card and the Execution Status tile (same list as /audit-execution-status).
+  auditExecutionStore.fetchAuditExecutions();
 });
 
 // ─── KPI Forecasting Line Chart Config ─────────────────────
@@ -1262,7 +1281,7 @@ const handleSync = async () => {
       riskProfileStore.fetchRisks(),
       annualPlanStore.fetchPlans(),
       auditExecutionStore.fetchAuditExecutions(),
-      atrStore.fetchAtrList()
+      atrStore.fetchSummary()
     ]);
   } finally {
     isSyncing.value = false;

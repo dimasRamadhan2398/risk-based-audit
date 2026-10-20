@@ -141,7 +141,7 @@ services:
       SEED_ON_BOOT: "false"
   analytics-service:
     environment:
-      JWT_SECRET: fec20f8c86f9c2657ef2423d6859c9b1355472e995d512753a710575fd4c3cd5
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET missing - every service in the stack must share one signing secret; set it in the deploy env}
 YAML
 }
 

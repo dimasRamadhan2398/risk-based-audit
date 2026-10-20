@@ -16,9 +16,9 @@ onMounted(() => {
   <div class="max-w-full mx-auto py-8 px-4 sm:px-6 lg:px-8">
     <CaattHeader
       :title="t('navigation.caattPolicy')"
-      subtitle="Menguji secara otomatis seluruh data operasional terhadap regulasi OJK/BI dan SOP internal (Suku Bunga LPS, BMPK, otorisasi dual control)."
+      :subtitle="t('analytics.caattUi.policy.subtitle')"
       icon="i-lucide-alert-triangle"
-      badgeText="Compliance Automated Testing"
+      :badgeText="t('analytics.caattUi.policy.badge')"
       badgeColor="warning"
     />
 
@@ -36,31 +36,31 @@ onMounted(() => {
         icon="i-heroicons-shield-check"
         color="primary"
         variant="subtle"
-        title="CAATT: Kepatuhan Aturan & Kebijakan Produk Perbankan"
-        description="Menguji secara otomatis seluruh data operasional terhadap regulasi OJK/BI dan SOP internal (Suku Bunga LPS, BMPK, otorisasi dual control, dan verifikasi rekening dormant)."
+        :title="t('analytics.caattUi.policy.title')"
+        :description="t('analytics.caattUi.policy.description')"
       />
 
       <!-- Summary Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <UCard class="border border-indigo-100 dark:border-indigo-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Total Pelanggaran</div>
-          <div class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ policyState.summary.totalViolations }} Kasus</div>
-          <div class="text-[10px] text-gray-400 mt-0.5">Aturan terdeteksi dilanggar</div>
+          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.common.violationCount') }}</div>
+          <div class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ policyState.summary.totalViolations }} {{ t('analytics.caattUi.common.cases') }}</div>
+          <div class="text-[10px] text-gray-400 mt-0.5">{{ t('analytics.caattUi.policy.violatedRules') }}</div>
         </UCard>
         <UCard class="border border-rose-100 dark:border-rose-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Tingkat Critical</div>
-          <div class="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">{{ policyState.summary.critical }} Kasus</div>
-          <div class="text-[10px] text-rose-400 mt-0.5">Pelanggaran BMPK & LPS</div>
+          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.policy.criticalLevel') }}</div>
+          <div class="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">{{ policyState.summary.critical }} {{ t('analytics.caattUi.common.cases') }}</div>
+          <div class="text-[10px] text-rose-400 mt-0.5">{{ t('analytics.caattUi.policy.criticalHint') }}</div>
         </UCard>
         <UCard class="border border-amber-100 dark:border-amber-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Tingkat High</div>
-          <div class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">{{ policyState.summary.high }} Kasus</div>
-          <div class="text-[10px] text-amber-400 mt-0.5">Dual Control & Limit Kas</div>
+          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.policy.highLevel') }}</div>
+          <div class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">{{ policyState.summary.high }} {{ t('analytics.caattUi.common.cases') }}</div>
+          <div class="text-[10px] text-amber-400 mt-0.5">{{ t('analytics.caattUi.policy.highHint') }}</div>
         </UCard>
         <UCard class="border border-emerald-100 dark:border-emerald-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Cabang Terdampak</div>
-          <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{{ policyState.summary.branchesAffected }} Cabang</div>
-          <div class="text-[10px] text-gray-400 mt-0.5">Perlu perbaikan kontrol internal</div>
+          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.common.affectedBranches') }}</div>
+          <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{{ policyState.summary.branchesAffected }} {{ t('analytics.caattUi.common.branches') }}</div>
+          <div class="text-[10px] text-gray-400 mt-0.5">{{ t('analytics.caattUi.policy.branchHint') }}</div>
         </UCard>
       </div>
 
@@ -69,7 +69,7 @@ onMounted(() => {
         <template #header>
           <div class="flex items-center gap-2">
             <UIcon name="i-heroicons-table-cells" class="text-indigo-500" />
-            <h3 class="font-bold">Daftar Pelanggaran Kebijakan & Regulasi Produk</h3>
+            <h3 class="font-bold">{{ t('analytics.caattUi.policy.findings') }}</h3>
           </div>
         </template>
         <div class="overflow-x-auto">
@@ -77,13 +77,13 @@ onMounted(() => {
             <thead>
               <tr class="border-b border-gray-200 dark:border-gray-700">
                 <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">ID</th>
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Tanggal</th>
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Nama Kebijakan / SOP</th>
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Cabang</th>
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Nasabah / Entitas</th>
-                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Severity</th>
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400 min-w-[260px]">Uraian Pelanggaran</th>
-                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Status</th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.colDate') }}</th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.policy.policyName') }}</th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.common.branch') }}</th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.policy.customerEntity') }}</th>
+                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.policy.severity') }}</th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400 min-w-[260px]">{{ t('analytics.caattUi.policy.violationDescription') }}</th>
+                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('strategicPlan.columns.status') }}</th>
               </tr>
             </thead>
             <tbody>

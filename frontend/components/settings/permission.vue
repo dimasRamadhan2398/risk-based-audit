@@ -92,19 +92,22 @@
                 {{ t('settings.permission.thModule') }}
               </th>
               <th class="py-3.5 px-4 font-bold text-center min-w-[130px] bg-emerald-50/50 dark:bg-emerald-950/20">
-                {{ t('settings.permission.thAdmin') }}
+                ADMIN
               </th>
               <th class="py-3.5 px-4 font-bold text-center min-w-[130px]">
-                {{ t('settings.permission.thManager') }}
+                EXECUTIVE
               </th>
               <th class="py-3.5 px-4 font-bold text-center min-w-[130px]">
-                {{ t('settings.permission.thAuditor') }}
+                AUDITOR
+              </th>
+              <th class="py-3.5 px-4 font-bold text-center min-w-[130px]">
+                AUDITEE
               </th>
               <th class="py-3.5 px-4 font-bold text-center min-w-[150px]">
-                {{ t('settings.permission.thAuditee') }}
+                DEPARTMENT_HEAD
               </th>
               <th class="py-3.5 px-4 font-bold text-center min-w-[120px]">
-                {{ t('settings.permission.thViewer') }}
+                VIEWER
               </th>
             </tr>
           </thead>
@@ -145,35 +148,42 @@
                 </div>
               </td>
 
-              <!-- Admin / CAE Column -->
+              <!-- ADMIN Column -->
               <td class="py-3 px-4 text-center bg-emerald-50/20 dark:bg-emerald-950/10">
                 <span :class="getBadgeClass(item.admin)">
                   {{ item.admin }}
                 </span>
               </td>
 
-              <!-- Audit Manager Column -->
+              <!-- EXECUTIVE Column -->
               <td class="py-3 px-4 text-center">
-                <span :class="getBadgeClass(item.manager)">
-                  {{ item.manager }}
+                <span :class="getBadgeClass(item.executive)">
+                  {{ item.executive }}
                 </span>
               </td>
 
-              <!-- Auditor Column -->
+              <!-- AUDITOR Column -->
               <td class="py-3 px-4 text-center">
                 <span :class="getBadgeClass(item.auditor)">
                   {{ item.auditor }}
                 </span>
               </td>
 
-              <!-- Auditee / Dept Head Column -->
+              <!-- AUDITEE Column -->
               <td class="py-3 px-4 text-center">
                 <span :class="getBadgeClass(item.auditee)">
                   {{ item.auditee }}
                 </span>
               </td>
 
-              <!-- Viewer Column -->
+              <!-- DEPARTMENT_HEAD Column -->
+              <td class="py-3 px-4 text-center">
+                <span :class="getBadgeClass(item.departmentHead)">
+                  {{ item.departmentHead }}
+                </span>
+              </td>
+
+              <!-- VIEWER Column -->
               <td class="py-3 px-4 text-center">
                 <span :class="getBadgeClass(item.viewer)">
                   {{ item.viewer }}
@@ -208,42 +218,47 @@ interface MatrixItem {
   submodule: string
   isSubmodule: boolean
   admin: string
-  manager: string
+  executive: string
   auditor: string
   auditee: string
+  departmentHead: string
   viewer: string
 }
 
+// Role columns use the backend role names (auth-service seeder). The values are the static
+// matrix as previously published; EXECUTIVE and DEPARTMENT_HEAD reuse the former merged columns
+// ("Admin / CAE" and "Auditee / Dept. Head"). The backend role/permission endpoints (GET /roles/all)
+// list permissions per resource, not this FULL/READ grid, so the grid is still static.
 const searchQuery = ref('')
 
 const matrixData = ref<MatrixItem[]>([
-  { id: '1', num: 1, module: 'Dashboard', submodule: '', isSubmodule: false, admin: 'FULL', manager: 'FULL', auditor: 'READ', auditee: 'READ', viewer: 'READ' },
-  { id: '2', num: 2, module: 'Audit Charter', submodule: '', isSubmodule: false, admin: 'FULL', manager: 'READ', auditor: 'READ', auditee: 'READ', viewer: 'READ' },
-  { id: '3-1', num: 3, module: 'Risk Profile', submodule: 'Corporate Risk Profile', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'FULL', auditee: 'EDIT — Own Dept.', viewer: 'READ' },
-  { id: '3-2', num: 3, module: 'Risk Profile', submodule: 'Risk Appetite Statement', isSubmodule: true, admin: 'FULL', manager: 'READ', auditor: 'READ', auditee: 'READ', viewer: 'READ' },
-  { id: '3-3', num: 3, module: 'Risk Profile', submodule: 'Risk Factors & Scoring', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'READ', auditee: 'NONE', viewer: 'READ' },
-  { id: '3-4', num: 3, module: 'Risk Profile', submodule: 'Audit Universe', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'READ', auditee: 'NONE', viewer: 'READ' },
-  { id: '3-5', num: 3, module: 'Risk Profile', submodule: 'Risk Control Matrix (RCM)', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'FULL', auditee: 'READ', viewer: 'READ' },
-  { id: '4', num: 4, module: 'Strategic Audit Plan', submodule: '', isSubmodule: false, admin: 'FULL', manager: 'EDIT', auditor: 'READ', auditee: 'NONE', viewer: 'READ' },
-  { id: '5-1', num: 5, module: 'Annual Audit Plan', submodule: 'Create / Manage Plan', isSubmodule: true, admin: 'FULL', manager: 'DRAFT', auditor: 'READ', auditee: 'NONE', viewer: 'READ' },
-  { id: '5-2', num: 5, module: 'Annual Audit Plan', submodule: 'Import Plan Document', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'NONE', auditee: 'NONE', viewer: 'NONE' },
-  { id: '5-3', num: 5, module: 'Annual Audit Plan', submodule: 'Execution Status', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'READ', auditee: 'READ', viewer: 'READ' },
-  { id: '6-1', num: 6, module: 'Audit Activity Plan', submodule: 'Create Activity Plan', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'DRAFT', auditee: 'NONE', viewer: 'READ' },
-  { id: '6-2', num: 6, module: 'Audit Activity Plan', submodule: 'Import Activity Plan', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'NONE', auditee: 'NONE', viewer: 'NONE' },
-  { id: '7-1', num: 7, module: 'Assignment Letter', submodule: 'Create / Publish Letter', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'READ', auditee: 'READ', viewer: 'READ' },
-  { id: '7-2', num: 7, module: 'Assignment Letter', submodule: 'Import Letter', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'NONE', auditee: 'NONE', viewer: 'NONE' },
-  { id: '8-1', num: 8, module: 'Audit Fieldwork', submodule: 'Fieldwork — Interviews, Sampling, Testing, etc.', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'FULL', auditee: 'RESPOND', viewer: 'READ' },
-  { id: '8-2', num: 8, module: 'Audit Fieldwork', submodule: 'Working Papers — F-01 to F-05', isSubmodule: true, admin: 'FULL', manager: 'REVIEW', auditor: 'CREATE', auditee: 'NONE', viewer: 'READ' },
-  { id: '8-3', num: 8, module: 'Audit Fieldwork', submodule: 'Import Working Papers', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'UPLOAD', auditee: 'NONE', viewer: 'NONE' },
-  { id: '9-1', num: 9, module: 'Audit Result Report', submodule: 'Result Report / LHA', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'DRAFT', auditee: 'READ', viewer: 'READ' },
-  { id: '9-2', num: 9, module: 'Audit Result Report', submodule: 'Executive Summary', isSubmodule: true, admin: 'FULL', manager: 'FULL', auditor: 'READ', auditee: 'READ', viewer: 'READ' },
-  { id: '9-3', num: 9, module: 'Audit Result Report', submodule: 'Client Satisfaction Survey', isSubmodule: true, admin: 'FULL', manager: 'READ', auditor: 'READ', auditee: 'FILL SURVEY', viewer: 'READ' },
-  { id: '10', num: 10, module: 'Action Taken Report (ATR)', submodule: '', isSubmodule: false, admin: 'FULL', manager: 'REVIEW', auditor: 'READ', auditee: 'UPDATE CAPA', viewer: 'READ' },
-  { id: '11', num: 11, module: 'KPI Performance', submodule: '', isSubmodule: false, admin: 'FULL', manager: 'FULL', auditor: 'READ', auditee: 'NONE', viewer: 'READ' },
-  { id: '12', num: 12, module: 'Consulting Service', submodule: '', isSubmodule: false, admin: 'FULL', manager: 'FULL', auditor: 'FULL', auditee: 'REQUEST', viewer: 'READ' },
-  { id: '13', num: 13, module: 'Quality Assurance (QA)', submodule: '', isSubmodule: false, admin: 'FULL', manager: 'FULL', auditor: 'READ', auditee: 'NONE', viewer: 'READ' },
-  { id: '14', num: 14, module: 'Analytics', submodule: '', isSubmodule: false, admin: 'FULL', manager: 'FULL', auditor: 'READ', auditee: 'READ', viewer: 'READ' },
-  { id: '15', num: 15, module: 'Settings & User Management', submodule: '', isSubmodule: false, admin: 'FULL', manager: 'NONE', auditor: 'NONE', auditee: 'NONE', viewer: 'NONE' }
+  { id: '1', num: 1, module: 'Dashboard', submodule: '', isSubmodule: false, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'READ', departmentHead: 'READ', viewer: 'READ' },
+  { id: '2', num: 2, module: 'Audit Charter', submodule: '', isSubmodule: false, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'READ', departmentHead: 'READ', viewer: 'READ' },
+  { id: '3-1', num: 3, module: 'Risk Profile', submodule: 'Corporate Risk Profile', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'FULL', auditee: 'EDIT — Own Dept.', departmentHead: 'EDIT — Own Dept.', viewer: 'READ' },
+  { id: '3-2', num: 3, module: 'Risk Profile', submodule: 'Risk Appetite Statement', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'READ', departmentHead: 'READ', viewer: 'READ' },
+  { id: '3-3', num: 3, module: 'Risk Profile', submodule: 'Risk Factors & Scoring', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'NONE', departmentHead: 'NONE', viewer: 'READ' },
+  { id: '3-4', num: 3, module: 'Risk Profile', submodule: 'Audit Universe', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'NONE', departmentHead: 'NONE', viewer: 'READ' },
+  { id: '3-5', num: 3, module: 'Risk Profile', submodule: 'Risk Control Matrix (RCM)', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'FULL', auditee: 'READ', departmentHead: 'READ', viewer: 'READ' },
+  { id: '4', num: 4, module: 'Strategic Audit Plan', submodule: '', isSubmodule: false, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'NONE', departmentHead: 'NONE', viewer: 'READ' },
+  { id: '5-1', num: 5, module: 'Annual Audit Plan', submodule: 'Create / Manage Plan', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'NONE', departmentHead: 'NONE', viewer: 'READ' },
+  { id: '5-2', num: 5, module: 'Annual Audit Plan', submodule: 'Import Plan Document', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'NONE', auditee: 'NONE', departmentHead: 'NONE', viewer: 'NONE' },
+  { id: '5-3', num: 5, module: 'Annual Audit Plan', submodule: 'Execution Status', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'READ', departmentHead: 'READ', viewer: 'READ' },
+  { id: '6-1', num: 6, module: 'Audit Activity Plan', submodule: 'Create Activity Plan', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'DRAFT', auditee: 'NONE', departmentHead: 'NONE', viewer: 'READ' },
+  { id: '6-2', num: 6, module: 'Audit Activity Plan', submodule: 'Import Activity Plan', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'NONE', auditee: 'NONE', departmentHead: 'NONE', viewer: 'NONE' },
+  { id: '7-1', num: 7, module: 'Assignment Letter', submodule: 'Create / Publish Letter', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'READ', departmentHead: 'READ', viewer: 'READ' },
+  { id: '7-2', num: 7, module: 'Assignment Letter', submodule: 'Import Letter', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'NONE', auditee: 'NONE', departmentHead: 'NONE', viewer: 'NONE' },
+  { id: '8-1', num: 8, module: 'Audit Fieldwork', submodule: 'Fieldwork — Interviews, Sampling, Testing, etc.', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'FULL', auditee: 'RESPOND', departmentHead: 'RESPOND', viewer: 'READ' },
+  { id: '8-2', num: 8, module: 'Audit Fieldwork', submodule: 'Working Papers — F-01 to F-05', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'CREATE', auditee: 'NONE', departmentHead: 'NONE', viewer: 'READ' },
+  { id: '8-3', num: 8, module: 'Audit Fieldwork', submodule: 'Import Working Papers', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'UPLOAD', auditee: 'NONE', departmentHead: 'NONE', viewer: 'NONE' },
+  { id: '9-1', num: 9, module: 'Audit Result Report', submodule: 'Result Report / LHA', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'DRAFT', auditee: 'READ', departmentHead: 'READ', viewer: 'READ' },
+  { id: '9-2', num: 9, module: 'Audit Result Report', submodule: 'Executive Summary', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'READ', departmentHead: 'READ', viewer: 'READ' },
+  { id: '9-3', num: 9, module: 'Audit Result Report', submodule: 'Client Satisfaction Survey', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'FILL SURVEY', departmentHead: 'FILL SURVEY', viewer: 'READ' },
+  { id: '10', num: 10, module: 'Action Taken Report (ATR)', submodule: '', isSubmodule: false, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'UPDATE CAPA', departmentHead: 'UPDATE CAPA', viewer: 'READ' },
+  { id: '11', num: 11, module: 'KPI Performance', submodule: '', isSubmodule: false, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'NONE', departmentHead: 'NONE', viewer: 'READ' },
+  { id: '12', num: 12, module: 'Consulting Service', submodule: '', isSubmodule: false, admin: 'FULL', executive: 'FULL', auditor: 'FULL', auditee: 'REQUEST', departmentHead: 'REQUEST', viewer: 'READ' },
+  { id: '13', num: 13, module: 'Quality Assurance (QA)', submodule: '', isSubmodule: false, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'NONE', departmentHead: 'NONE', viewer: 'READ' },
+  { id: '14', num: 14, module: 'Analytics', submodule: '', isSubmodule: false, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'READ', departmentHead: 'READ', viewer: 'READ' },
+  { id: '15', num: 15, module: 'Settings & User Management', submodule: '', isSubmodule: false, admin: 'FULL', executive: 'FULL', auditor: 'NONE', auditee: 'NONE', departmentHead: 'NONE', viewer: 'NONE' }
 ])
 
 const filteredMatrix = computed(() => {

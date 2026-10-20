@@ -1,0 +1,96 @@
+# Inputs for docs/api/tools/apidocs.py. Paths are relative to the repo root.
+#
+# When a service gains a new file that registers Gin routes, add it here; the
+# `check` command fails if a Go file under a service registers routes on a
+# known router variable but is not listed (see `route_file_globs`).
+
+kong:
+  # The spec documents the production routing. Dev routing is compared against it.
+  prod: backend/kong-gateway/kong/prod/kong.yml
+  dev: backend/kong-gateway/kong/dev/kong-dev.yml
+
+services:
+  auth-service:
+    title: Auth service
+    dir: backend/auth-service
+    tag_prefix: Auth
+    route_files:
+      - file: cmd/auth/serve.go
+        roots: { engine: "" }
+      - file: routes/registry.go
+        # serve.go passes engine.Group("/api/v1") in as r.group
+        roots: { r.group: "/api/v1" }
+    # routes/auth, routes/mfa and routes/trusted-devices define older route
+    # sets that nothing calls (NewAuthRoute & co. are unused); they are not
+    # registered and are deliberately not parsed.
+    ignore_files: [routes/auth/auth.go, routes/mfa/mfa.go, routes/trusted-devices/trusted-devices.go]
+
+  audit-service:
+    title: Audit service
+    dir: backend/audit-service
+    tag_prefix: Audit
+    route_files:
+      - file: cmd/serve.go
+        roots: { engine: "" }
+      - file: routes/uploads.go
+        roots: { engine: "" }
+      - file: routes/debug.go
+        # /debug/routes, only when ENABLE_DEBUG_ROUTES=true; never routed by Kong
+        roots: { engine: "" }
+      - file: routes/handler.go
+        roots: { h.engine: "" }
+      - file: controllers/action_taken_report/handler.go
+        # handler.go calls Register(apiV1.Group("/action-taken-reports")),
+        # apiV1 being the authenticated /api/v1 group
+        roots: { g: { prefix: "/api/v1/action-taken-reports", middleware: ["h.authMiddleware.Authenticate()"] } }
+
+  master-service:
+    title: Master data service
+    dir: backend/master-service
+    tag_prefix: Master
+    route_files:
+      - file: routes/routes.go
+        roots: { router: "" }
+
+  risk-service:
+    title: Risk service
+    dir: backend/risk-service
+    tag_prefix: Risk
+    route_files:
+      - file: routes/routes.go
+        roots: { r.group: "" }
+      - file: cmd/serve.go
+        roots: { r: "" }
+
+  analytics-service:
+    title: Analytics service
+    dir: backend/analytics-service
+    tag_prefix: Analytics
+    route_files:
+      - file: cmd/main.go
+        roots: { r: "" }
+      - file: routes/routes.go
+        roots: { r: "" }
+
+  python-ai:
+    title: Python AI service (FastAPI)
+    dir: backend/python-ai
+    tag_prefix: Python AI
+    fastapi:
+      source: main.py
+      # Snapshot of the service's own /openapi.json, refreshed with
+      # `apidocs.py refresh-python-ai` while the local stack runs
+      snapshot: docs/api/sources/python-ai.openapi.json
+    kong_service: python-ai-service
+
+  nuxt:
+    title: Nuxt server routes
+    dir: frontend
+    tag_prefix: Nuxt
+    nitro_dir: frontend/server/api
+
+frontend:
+  dir: frontend
+  scan_dirs: [stores, composables, pages, components, utils, plugins, layouts, middleware, app]
+  extensions: [.ts, .js, .vue]
+  exclude: ["**/*.test.ts", "**/*.spec.ts", "**/tests/**"]

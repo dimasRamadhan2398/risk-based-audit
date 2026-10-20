@@ -16,9 +16,9 @@ onMounted(() => {
   <div class="max-w-full mx-auto py-8 px-4 sm:px-6 lg:px-8">
     <CaattHeader
       :title="t('navigation.caattFullPopulation')"
-      subtitle="Menguji 100% populasi transaksi kredit, penarikan tunai, dan transaksi valas perbankan tanpa sampling risk."
+      :subtitle="t('analytics.caattUi.fullPopulation.subtitle')"
       icon="i-lucide-check-check"
-      badgeText="100% Populasi Teruji"
+      :badgeText="t('analytics.caattUi.fullPopulation.badge')"
       badgeColor="primary"
     />
 
@@ -36,36 +36,36 @@ onMounted(() => {
         icon="i-heroicons-clipboard-document-check"
         color="primary"
         variant="subtle"
-        title="CAATT: Full Population Testing (Pengujian 100% Populasi Transaksi)"
-        description="Menguji 100% populasi transaksi kredit, penarikan tunai, dan transaksi valas perbankan tanpa sampling untuk menghilangkan sampling risk dan mendeteksi seluruh pelanggaran batas plafon."
+        :title="t('analytics.caattUi.fullPopulation.title')"
+        :description="t('analytics.caattUi.fullPopulation.description')"
       />
 
       <!-- Summary Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <UCard class="border border-indigo-100 dark:border-indigo-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Total Transaksi Diuji</div>
+          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.fullPopulation.tested') }}</div>
           <div class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ Number(fptState.summary.totalTested).toLocaleString('id-ID') }}</div>
-          <div class="text-[10px] text-gray-400 mt-0.5">100% Populasi CBS</div>
+          <div class="text-[10px] text-gray-400 mt-0.5">{{ t('analytics.caattUi.fullPopulation.cbsPopulation') }}</div>
         </UCard>
         <UCard class="border border-rose-100 dark:border-rose-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Total Pelanggaran</div>
+          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.common.violationCount') }}</div>
           <div class="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">{{ fptState.summary.totalViolations }}</div>
-          <div class="text-[10px] text-rose-400 mt-0.5">Memerlukan follow-up</div>
+          <div class="text-[10px] text-rose-400 mt-0.5">{{ t('analytics.caattUi.fullPopulation.followUp') }}</div>
         </UCard>
         <UCard class="border border-amber-100 dark:border-amber-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Rasio Pelanggaran</div>
+          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.fullPopulation.violationRatio') }}</div>
           <div class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">{{ fptState.summary.avgViolationRate }}%</div>
-          <div class="text-[10px] text-amber-400 mt-0.5">Batas toleransi: 2.0%</div>
+          <div class="text-[10px] text-amber-400 mt-0.5">{{ t('analytics.caattUi.fullPopulation.tolerance') }}</div>
         </UCard>
         <UCard class="border border-emerald-100 dark:border-emerald-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Cabang Diuji</div>
+          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.fullPopulation.branchesTested') }}</div>
           <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{{ fptState.summary.branchesTested }}</div>
-          <div class="text-[10px] text-gray-400 mt-0.5">Seluruh unit cabang</div>
+          <div class="text-[10px] text-gray-400 mt-0.5">{{ t('analytics.caattUi.fullPopulation.allBranches') }}</div>
         </UCard>
         <UCard class="border border-violet-100 dark:border-violet-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Kategori Diuji</div>
+          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.fullPopulation.categoriesTested') }}</div>
           <div class="text-2xl font-black text-violet-600 dark:text-violet-400 mt-1">{{ fptState.summary.categoriesTested }}</div>
-          <div class="text-[10px] text-gray-400 mt-0.5">Lending, Cash, FX, Rate</div>
+          <div class="text-[10px] text-gray-400 mt-0.5">{{ t('analytics.caattUi.fullPopulation.categories') }}</div>
         </UCard>
       </div>
 
@@ -75,9 +75,9 @@ onMounted(() => {
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <UIcon name="i-heroicons-table-cells" class="text-indigo-500" />
-              <h3 class="font-bold">Daftar Transaksi Melebihi Batas Plafon & Ambang Batas</h3>
+              <h3 class="font-bold">{{ t('analytics.caattUi.fullPopulation.findings') }}</h3>
             </div>
-            <UBadge color="primary" variant="subtle" size="sm">100% Populasi Teruji</UBadge>
+            <UBadge color="primary" variant="subtle" size="sm">{{ t('analytics.caattUi.fullPopulation.badge') }}</UBadge>
           </div>
         </template>
         <div class="overflow-x-auto">
@@ -85,16 +85,16 @@ onMounted(() => {
             <thead>
               <tr class="border-b border-gray-200 dark:border-gray-700">
                 <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">ID</th>
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Tanggal</th>
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Cabang</th>
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">No. Akun</th>
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Nama Nasabah</th>
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Kategori</th>
-                <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Nilai Transaksi</th>
-                <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Batas Plafon</th>
-                <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Kelebihan (Excess)</th>
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400 min-w-[200px]">Jenis Pelanggaran</th>
-                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Status</th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.colDate') }}</th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.common.branch') }}</th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.common.accountNumber') }}</th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.common.customerName') }}</th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.nlp.colCategory') }}</th>
+                <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.fullPopulation.amount') }}</th>
+                <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.fullPopulation.limit') }}</th>
+                <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.fullPopulation.excess') }}</th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400 min-w-[200px]">{{ t('analytics.caattUi.fullPopulation.violationType') }}</th>
+                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('strategicPlan.columns.status') }}</th>
               </tr>
             </thead>
             <tbody>

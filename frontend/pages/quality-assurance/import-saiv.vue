@@ -166,7 +166,7 @@
 
             <template #actions-cell="{ row }">
               <div class="flex items-center gap-1">
-                <UTooltip text="View Document">
+                <UTooltip :text="t('qualityAssurance.importQar.actions.view')">
                 <UButton 
                   icon="i-lucide-eye" 
                   color="info" 
@@ -176,7 +176,7 @@
                   @click="store.viewDocument(row.original.id, row.original.attachment ? row.original.attachment.name : (row.original.fileName || 'SAIV_Document.pdf'))" 
                 />
                 </UTooltip>
-                <UTooltip text="Download Document">
+                <UTooltip :text="t('qualityAssurance.importQar.actions.download')">
                 <UButton 
                   icon="i-lucide-download" 
                   color="primary" 
@@ -186,7 +186,7 @@
                   @click="store.downloadAttachment(row.original.id, row.original.attachment ? row.original.attachment.name : 'document.pdf')" 
                 />
                 </UTooltip>
-                <UTooltip text="Delete Document">
+                <UTooltip :text="t('qualityAssurance.importQar.actions.delete')">
                 <UButton 
                   icon="i-lucide-trash-2" 
                   color="error" 

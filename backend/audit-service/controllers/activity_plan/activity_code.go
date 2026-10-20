@@ -1,6 +1,10 @@
-// Package activityplan holds request handling specific to /activity-plans that
-// the generic crud handlers do not cover: assigning the Activity ID
-// (PlannedActivity.ActivityCode) of each planned activity.
+// Package activityplan serves /activity-plans (form_controller.go, the
+// Formulir Rencana Kegiatan Audit contract).
+//
+// AssignCodesOnCreate/AssignCodesOnUpdate below assigned the Activity ID
+// (PlannedActivity.ActivityCode) of each planned activity of the legacy plan
+// form through the generic crud handlers. They are no longer routed (legacy
+// plans are read-only); KeepCodes and its tests stay until legacy data is gone.
 package activityplan
 
 import (

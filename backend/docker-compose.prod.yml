@@ -119,6 +119,11 @@ services:
       - PYTHON_AI_API_KEY=${PYTHON_AI_API_KEY:-auditsphere_ai_key_2026_k33f01}
       - DATA_HUB_URL=${DATA_HUB_URL:-http://10.0.0.1:8100}
       - DATA_HUB_API_KEY=${DATA_HUB_API_KEY:-auditsphere_dh_key_2026_x87a9b}
+      # Caches the dashboard's AI batch results and throttles /retrain/auto.
+      # Tenant stacks get REDIS_HOST/REDIS_DB from their tenant-env anchor.
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
     depends_on:
       postgres:
         condition: service_started

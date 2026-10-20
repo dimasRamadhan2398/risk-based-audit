@@ -53,7 +53,7 @@
         <span
           v-if="required"
           class="text-red-500 font-bold text-sm leading-none shrink-0 select-none"
-          title="Field is required"
+          :title="t('common.formField.required')"
           aria-hidden="true"
         >
           *
@@ -64,7 +64,7 @@
           v-else-if="optional"
           class="text-[10px] font-normal tracking-wide px-1.5 py-0.5 rounded text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800/80 shrink-0 select-none"
         >
-          {{ typeof optional === 'string' ? optional : 'Optional' }}
+          {{ typeof optional === 'string' ? optional : t('common.formField.optional') }}
         </span>
 
         <!-- Info Tooltip with highest z-index & fixed popper strategy -->
@@ -85,7 +85,7 @@
                   tabindex="-1"
                   class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors focus:outline-none flex items-center p-0.5 rounded"
                   :title="tooltip || info"
-                  aria-label="More information"
+                  :aria-label="t('common.formField.moreInformation')"
                 >
                   <UIcon
                     name="i-lucide-info"
@@ -101,9 +101,9 @@
         <span
           v-if="showTitleWarning && isTitleOverLimit"
           class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200 dark:border-amber-800/50 shrink-0"
-          :title="`Title is ${rawTitle.length} characters (maximum is ${maxTitleLength})`"
+          :title="t('common.formField.titleLength', { count: rawTitle.length, max: maxTitleLength })"
         >
-          {{ rawTitle.length }}/{{ maxTitleLength }} max
+          {{ rawTitle.length }}/{{ maxTitleLength }} {{ t('common.formField.max') }}
         </span>
       </div>
 
@@ -127,7 +127,7 @@
             counterColorClass,
             uiClasses.counter
           ]"
-          :title="`Characters: ${currentCount} of ${maxCount}`"
+          :title="t('common.formField.characterCount', { count: currentCount, max: maxCount })"
         >
           <span class="font-medium">{{ currentCount }}</span>
           <span class="opacity-60">/{{ maxCount }}</span>
@@ -235,6 +235,8 @@
 
 <script setup lang="ts">
 import { computed, useId } from 'vue'
+
+const { t } = useI18n()
 
 export interface AppFormFieldProps {
   /**

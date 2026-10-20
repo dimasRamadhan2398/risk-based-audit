@@ -149,14 +149,13 @@
               {{ t('strategicPlan.viewModal.quarterlyBreakdownTitle') }}
             </h3>
             <span class="text-xs font-semibold text-gray-500 dark:text-gray-400">
-              {{ quarterlyYears.length * 4 }} Quartals ({{ objective.yearStart }} - {{ objective.yearEnd }})
+              {{ t('strategicPlan.extra.quarterRange', { count: quarterlyYears.length * 4, start: objective.yearStart ?? '', end: objective.yearEnd ?? '' }) }}
             </span>
           </div>
 
           <div v-for="yr in quarterlyYears" :key="yr" class="space-y-2">
             <div class="flex items-center gap-2">
-              <span class="text-xs font-extrabold uppercase tracking-wider text-gray-600 dark:text-gray-400">
-                Tahun {{ yr }}
+              <span class="text-xs font-extrabold uppercase tracking-wider text-gray-600 dark:text-gray-400"> {{ t('strategicPlan.extra.year') }} {{ yr }}
               </span>
               <span v-if="String(yr) === String(currentYear)" class="px-1.5 py-0.5 text-[10px] bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 rounded font-semibold">
                 {{ t('strategicPlan.viewModal.current') }}

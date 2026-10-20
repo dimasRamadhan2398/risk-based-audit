@@ -2,11 +2,12 @@ package media
 
 import (
 	"audit-service/pkg/response"
+	"audit-service/pkg/safefile"
 	"audit-service/services/media"
 	"fmt"
+	"io/fs"
 	"net/http"
 	"net/url"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -61,6 +62,13 @@ func (ctrl *MediaController) Upload(c *gin.Context) {
 	response.Success(c, http.StatusOK, "File uploaded successfully", attachment)
 }
 
+// uploadsRoot is the only directory media downloads are read from.
+var uploadsRoot = "uploads"
+
+// Download serves an uploaded file. The route is under the /api/v1 group, so a
+// valid token is required. Files are resolved inside uploadsRoot, private
+// subdirectories are never served here, and the response uses safefile
+// (allowlisted Content-Type, attachment unless the file is safe to show inline).
 func (ctrl *MediaController) Download(c *gin.Context) {
 	id := c.Param("id")
 	if unescaped, err := url.QueryUnescape(id); err == nil {
@@ -72,56 +80,65 @@ func (ctrl *MediaController) Download(c *gin.Context) {
 	if reqPath == "" {
 		reqPath = c.Query("filepath")
 	}
+	if unescaped, err := url.QueryUnescape(reqPath); err == nil {
+		reqPath = unescaped
+	}
+
+	rel := id
 	if reqPath != "" {
-		if unescaped, err := url.QueryUnescape(reqPath); err == nil {
-			reqPath = unescaped
-		}
+		rel = strings.TrimPrefix(strings.TrimPrefix(filepath.ToSlash(reqPath), "/"), "uploads/")
 	}
 
-	targetFile := filepath.Join("uploads", id)
-	if reqPath != "" {
-		clean := strings.TrimPrefix(reqPath, "/")
-		if strings.HasPrefix(clean, "uploads/") {
-			targetFile = filepath.FromSlash(clean)
-		} else {
-			targetFile = filepath.Join("uploads", filepath.FromSlash(clean))
+	found := ""
+	if !safefile.IsPrivatePath(rel) {
+		if full, err := safefile.ResolveUnder(uploadsRoot, rel); err == nil {
+			found = full
 		}
 	}
-
-	if _, err := os.Stat(targetFile); err != nil {
-		// Search recursively in uploads directory for matching file by name or suffix
-		var foundPath string
-		cleanID := filepath.Base(id)
-		_ = filepath.Walk("uploads", func(path string, info os.FileInfo, err error) error {
-			if err == nil && !info.IsDir() {
-				if info.Name() == cleanID || strings.HasSuffix(filepath.ToSlash(path), cleanID) {
-					foundPath = path
-					return filepath.SkipAll
-				}
-			}
-			return nil
-		})
-		if foundPath != "" {
-			targetFile = foundPath
-		}
+	if found == "" {
+		found = findUploadByName(uploadsRoot, id)
 	}
-
-	if _, err := os.Stat(targetFile); err != nil {
-		response.Error(c, http.StatusNotFound, "NOT_FOUND", "File not found", err.Error())
+	if found == "" {
+		response.Error(c, http.StatusNotFound, "NOT_FOUND", "File not found", "")
 		return
 	}
 
-	filename := filepath.Base(targetFile)
-	disposition := "inline"
-	if c.Query("download") == "true" {
-		disposition = "attachment"
+	download := c.Query("download") == "true"
+	if err := safefile.ServeFile(c, found, filepath.Base(found), download); err != nil {
+		response.Error(c, http.StatusNotFound, "NOT_FOUND", "File not found", "")
 	}
-	c.Header("Content-Disposition", fmt.Sprintf("%s; filename=\"%s\"", disposition, filename))
-	c.Header("Accept-Ranges", "bytes")
-	// Audit evidence is tenant-scoped and access-controlled: it must never land
-	// in a shared cache (Kong proxy-cache, a CDN, a corporate proxy).
-	c.Header("Cache-Control", "private, max-age=300")
-	c.Header("Vary", "Authorization")
+}
 
-	c.File(targetFile)
+// findUploadByName looks for a file called name (or ending in /name) under root.
+// Private subdirectories are skipped, and symlinks are not followed.
+func findUploadByName(root, name string) string {
+	name = filepath.Base(filepath.FromSlash(name))
+	if name == "" || name == "." || name == string(filepath.Separator) {
+		return ""
+	}
+	var found string
+	_ = filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return nil
+		}
+		rel, relErr := filepath.Rel(root, p)
+		if relErr != nil {
+			return nil
+		}
+		if d.IsDir() {
+			if rel != "." && safefile.IsPrivatePath(rel) {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if d.Type()&fs.ModeSymlink != 0 {
+			return nil
+		}
+		if d.Name() == name || strings.HasSuffix(filepath.ToSlash(p), "/"+name) {
+			found = p
+			return filepath.SkipAll
+		}
+		return nil
+	})
+	return found
 }

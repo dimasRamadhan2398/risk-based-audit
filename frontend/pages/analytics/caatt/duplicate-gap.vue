@@ -16,9 +16,9 @@ onMounted(() => {
   <div class="max-w-full mx-auto py-8 px-4 sm:px-6 lg:px-8">
     <CaattHeader
       :title="t('navigation.caattDuplicateGap')"
-      subtitle="Menemukan transaksi bernilai identik yang diproses berulang serta mendeteksi celah nomor warkat/voucher yang hilang (gap)."
+      :subtitle="t('analytics.caattUi.duplicateGap.subtitle')"
       icon="i-lucide-copy-x"
-      badgeText="Audit Integritas Data"
+      :badgeText="t('analytics.caattUi.duplicateGap.badge')"
       badgeColor="warning"
     />
 
@@ -36,26 +36,26 @@ onMounted(() => {
         icon="i-heroicons-document-duplicate"
         color="primary"
         variant="subtle"
-        title="CAATT: Integritas Data — Deteksi Duplikasi & Celah Nomor Dokumen"
-        description="Menemukan transaksi bernilai identik yang diproses berulang dalam selang waktu mencurigakan serta mengidentifikasi nomor warkat/voucher General Ledger yang hilang berurutan (gap detection)."
+        :title="t('analytics.caattUi.duplicateGap.title')"
+        :description="t('analytics.caattUi.duplicateGap.description')"
       />
 
       <!-- Summary Cards -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <UCard class="border border-rose-100 dark:border-rose-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Total Transaksi Duplikat</div>
-          <div class="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">{{ dupGapState.summary.totalDuplicates }} Kasus</div>
-          <div class="text-[10px] text-rose-400 mt-0.5">Potensi transaksi ganda / split bill</div>
+          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.duplicateGap.duplicates') }}</div>
+          <div class="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">{{ dupGapState.summary.totalDuplicates }} {{ t('analytics.caattUi.common.cases') }}</div>
+          <div class="text-[10px] text-rose-400 mt-0.5">{{ t('analytics.caattUi.duplicateGap.duplicateHint') }}</div>
         </UCard>
         <UCard class="border border-amber-100 dark:border-amber-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Celah Nomor Dokumen (Gap)</div>
-          <div class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">{{ dupGapState.summary.totalGaps }} Nomor Hilang</div>
-          <div class="text-[10px] text-amber-400 mt-0.5">Voucher GL & Warkat Kliring tidak urut</div>
+          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.duplicateGap.gaps') }}</div>
+          <div class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">{{ dupGapState.summary.totalGaps }} {{ t('analytics.caattUi.duplicateGap.missingNumbers') }}</div>
+          <div class="text-[10px] text-amber-400 mt-0.5">{{ t('analytics.caattUi.duplicateGap.gapHint') }}</div>
         </UCard>
         <UCard class="border border-indigo-100 dark:border-indigo-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Cabang Terdampak</div>
-          <div class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ dupGapState.summary.branchesAffected }} Cabang</div>
-          <div class="text-[10px] text-gray-400 mt-0.5">Perlu investigasi operasional</div>
+          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.common.affectedBranches') }}</div>
+          <div class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ dupGapState.summary.branchesAffected }} {{ t('analytics.caattUi.common.branches') }}</div>
+          <div class="text-[10px] text-gray-400 mt-0.5">{{ t('analytics.caattUi.duplicateGap.branchHint') }}</div>
         </UCard>
       </div>
 
@@ -65,7 +65,7 @@ onMounted(() => {
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <UIcon name="i-heroicons-table-cells" class="text-indigo-500" />
-              <h3 class="font-bold">Daftar Temuan Duplikasi & Celah Nomor Urut (Gap)</h3>
+              <h3 class="font-bold">{{ t('analytics.caattUi.duplicateGap.findings') }}</h3>
             </div>
           </div>
         </template>
@@ -74,14 +74,14 @@ onMounted(() => {
             <thead>
               <tr class="border-b border-gray-200 dark:border-gray-700">
                 <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">ID</th>
-                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Tipe</th>
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Cabang</th>
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">No. Referensi / Voucher</th>
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">No. Akun</th>
-                <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Nominal</th>
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400 min-w-[260px]">Uraian Temuan</th>
-                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Frekuensi</th>
-                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Status</th>
+                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colType') }}</th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.common.branch') }}</th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.duplicateGap.reference') }}</th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.common.accountNumber') }}</th>
+                <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.duplicateGap.amount') }}</th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400 min-w-[260px]">{{ t('analytics.caattUi.duplicateGap.findingDescription') }}</th>
+                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.duplicateGap.frequency') }}</th>
+                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('strategicPlan.columns.status') }}</th>
               </tr>
             </thead>
             <tbody>

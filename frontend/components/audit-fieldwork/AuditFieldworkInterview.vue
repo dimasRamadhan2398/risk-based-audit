@@ -6,7 +6,7 @@
         <p class="text-sm text-gray-500">{{ t('auditFieldwork.interview.subtitle') }}</p>
         <h2 class="text-lg font-semibold">{{ t('auditFieldwork.interview.title') }}</h2>
       </div>
-      <UButton color="primary" icon="i-heroicons-plus" label="Add Interview" @click="store.openInterviewModal()" />
+      <UButton color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.extra.addInterview')" @click="store.openInterviewModal()" />
     </div>
 
     <!-- Interview List via TableEntities -->
@@ -57,7 +57,7 @@
           >
             <span class="truncate">{{ row.original.fileName || row.original.file?.name }}</span>
           </UButton>
-          <UTooltip text="Unduh Berkas">
+          <UTooltip :text="t('auditFieldwork.extra.downloadFile')">
             <UButton
               icon="i-heroicons-arrow-down-tray"
               color="primary"

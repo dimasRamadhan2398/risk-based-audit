@@ -1,76 +1,76 @@
 <template>
   <UModal v-model:open="store.isFormOpen" :dismissible="false" :ui="{ content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl overflow-hidden' }">
-    
+
     <div></div>
 
     <template #content>
       <UForm :state="store.form" @submit.prevent="() => store.handleSubmit(props.currentRiskId)">
         <div class="relative rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
-          
+
           <div class="px-4 sm:px-6 py-4 rounded-t-xl flex justify-between items-center border-b border-[var(--border-main)]">
             <h3 class="text-lg font-bold text-[var(--text-main)]">
-              {{ store.isEditing ? 'Edit Mitigation & Control Plan' : 'Tambah Mitigation & Control Plan' }}
+              {{ store.isEditing ? t('riskMitigation.form.editTitle') : t('riskMitigation.form.addTitle') }}
             </h3>
             <UIcon name="close" @click="store.closeForm" class="text-[var(--text-muted)] hover:text-[var(--text-main)] text-2xl cursor-pointer">&times;</UIcon>
           </div>
 
           <div class="p-4 sm:p-6 overflow-y-auto space-y-5">
-            
 
-            <UFormField label="Mitigation Plan & Controls" required>
-              <UTextarea v-model="store.form.mitigationPlan" :rows="4" autoresize placeholder="Explain the mitigation plan and controls in detail..." class="w-full" required />
+
+            <UFormField :label="t('riskMitigation.form.plan')" required>
+              <UTextarea v-model="store.form.mitigationPlan" :rows="4" autoresize :placeholder="t('riskMitigation.form.planPlaceholder')" class="w-full" required />
             </UFormField>
 
-            <UFormField label="Supervisor" required>
-              <USelectMenu 
-              :items="store.supervisorOptions" 
-              v-model="store.form.supervisor" 
-              placeholder="Enter supervisor's name..." 
-              class="w-full" 
-              required />
-            </UFormField>
-            
-            <UFormField label="PIC" required>
-              <USelectMenu 
-              :items="store.picOptions" 
-              v-model="store.form.pic" 
-              placeholder="Enter PIC's name..." 
-              class="w-full" 
+            <UFormField :label="t('riskMitigation.form.supervisor')" required>
+              <USelectMenu
+              :items="store.supervisorOptions"
+              v-model="store.form.supervisor"
+              :placeholder="t('riskMitigation.form.supervisorPlaceholder')"
+              class="w-full"
               required />
             </UFormField>
 
-            <UFormField label="Unit In Charge" required>
-              <USelectMenu 
-              :items="store.unitInChargeOptions" 
-              v-model="store.form.unitInCharge" 
-              placeholder="Enter unit in charge..." 
-              class="w-full" 
+            <UFormField :label="t('riskMitigation.form.pic')" required>
+              <USelectMenu
+              :items="store.picOptions"
+              v-model="store.form.pic"
+              :placeholder="t('riskMitigation.form.picPlaceholder')"
+              class="w-full"
+              required />
+            </UFormField>
+
+            <UFormField :label="t('riskMitigation.form.unit')" required>
+              <USelectMenu
+              :items="store.unitInChargeOptions"
+              v-model="store.form.unitInCharge"
+              :placeholder="t('riskMitigation.form.unitPlaceholder')"
+              class="w-full"
               required />
             </UFormField>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <UFormField label="Start Date" required>
+                <UFormField :label="t('riskMitigation.form.startDate')" required>
                     <AppDatePicker v-model="store.form.start_date" :min-date="todayDate" required />
                 </UFormField>
 
-                <UFormField label="End Date" required>
+                <UFormField :label="t('riskMitigation.form.endDate')" required>
                     <AppDatePicker v-model="store.form.end_date" :min-date="minEndDate" required />
                 </UFormField>
             </div>
 
-            <UFormField label="Additional Notes">
-              <UTextarea v-model="store.form.notes" :rows="2" placeholder="Optional notes..." class="w-full" />
+            <UFormField :label="t('riskMitigation.form.notes')">
+              <UTextarea v-model="store.form.notes" :rows="2" :placeholder="t('riskMitigation.form.notesPlaceholder')" class="w-full" />
             </UFormField>
 
           </div>
-      
+
           <div class="px-4 sm:px-6 py-4 rounded-b-xl border-t border-[var(--border-main)] flex flex-col-reverse sm:flex-row justify-end gap-3">
-            <UButton label="Cancel" color="neutral" variant="outline" class="w-full sm:w-auto" @click="store.closeForm" />
-            <UButton :label="store.isEditing ? 'Save Changes' : 'Save Mitigation'" color="primary" class="w-full sm:w-auto font-bold" type="submit" />
+            <UButton :label="t('common.cancel')" color="neutral" variant="outline" class="w-full sm:w-auto" @click="store.closeForm" />
+            <UButton :label="store.isEditing ? t('riskMitigation.form.saveChanges') : t('riskMitigation.form.save')" color="primary" class="w-full sm:w-auto font-bold" type="submit" />
           </div>
-      
+
         </div>
-      </UForm>  
+      </UForm>
     </template>
   </UModal>
 </template>
@@ -85,6 +85,7 @@ const props = defineProps<{
 }>()
 
 const store = useMitigationStore()
+const { t } = useI18n()
 
 // Mendapatkan tanggal hari ini dalam format YYYY-MM-DD untuk batas minimum pemilihan tanggal
 const todayDate = computed(() => {

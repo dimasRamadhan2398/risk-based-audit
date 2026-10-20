@@ -31,7 +31,7 @@
         <template #status-cell="{ row }: { row: any }">
           <div class="flex items-center space-x-2">
             <div :class="['w-4 h-4 rounded-full', store.getStatusColor(row.original.status)]"></div>
-            <span class="text-sm font-medium">{{ row.original.status }}</span>
+            <span class="text-sm font-medium">{{ formatStatus(row.original.status) }}</span>
           </div>
         </template>
 
@@ -43,19 +43,19 @@
           <UButton
             v-if="row.original.attachment?.filePath"
             icon="i-lucide-file-text"
-            label="View"
+            :label="t('qualityAssurance.dashboard.table.view')"
             color="neutral"
             variant="subtle"
             size="sm"
             class="font-bold border border-gray-200 dark:border-gray-700"
             @click="openReportFile(row.original)"
           />
-          <span v-else class="text-md text-gray-400 font-medium italic">No File</span>
+          <span v-else class="text-md text-gray-400 font-medium italic">{{ t('qualityAssurance.dashboard.table.noFile') }}</span>
         </template>
 
         <template #actions-cell="{ row }">
           <div class="flex items-center gap-1">
-            <UTooltip text="View Detail">
+            <UTooltip :text="t('qualityAssurance.dashboard.table.viewDetail')">
             <UButton
               icon="i-lucide-eye"
               color="neutral"
@@ -64,7 +64,7 @@
               @click="store.openDetail(row.original)"
             />
             </UTooltip>
-            <UTooltip text="Edit Report">
+            <UTooltip :text="t('qualityAssurance.dashboard.table.editReport')">
             <UButton
               icon="i-lucide-edit"
               color="warning"
@@ -73,7 +73,7 @@
               @click="store.editReport(row.original)"
             />
             </UTooltip>
-            <UTooltip text="Delete Report">
+            <UTooltip :text="t('qualityAssurance.dashboard.table.deleteReport')">
             <UButton
               icon="i-lucide-trash-2"
               color="error"
@@ -89,13 +89,22 @@
 </template>
 
 <script setup lang="ts">
-import { useQualityAssuranceStore, QAType } from '~/stores/quality-assurance'
+import { useQualityAssuranceStore, QAStatus, QAType } from '~/stores/quality-assurance'
 
 const store = useQualityAssuranceStore()
+const { t } = useI18n()
+
+const formatStatus = (status: string) => {
+  if (status === QAStatus.COMPLETED) return t('qualityAssurance.statuses.completed')
+  if (status === QAStatus.VERIFIED) return t('qualityAssurance.statuses.verified')
+  if (status === QAStatus.IN_PROGRESS) return t('qualityAssurance.statuses.inProgress')
+  if (status === QAStatus.PLANNED) return t('qualityAssurance.statuses.planned')
+  return status
+}
 
 const formatTypeLabel = (type: string) => {
   if (!type) return '-'
-  if (store.matchQAType(type, QAType.REGULAR)) return 'Regular'
+  if (store.matchQAType(type, QAType.REGULAR)) return t('qualityAssurance.types.regular')
   if (store.matchQAType(type, QAType.SAIV)) return 'SAIV'
   if (store.matchQAType(type, QAType.IACM)) return 'BUMN IACM'
   if (store.matchQAType(type, QAType.QAR)) return 'QAR'
@@ -113,16 +122,16 @@ const formatOverallConclusion = (result: string) => {
   if (!result) return '-'
   const res = result.trim().toLowerCase()
   if (res === 'g/c*' || res === 'gc' || res.includes('generally')) {
-    return 'Generally Conformed'
+    return t('qualityAssurance.conformance.generallyConformed')
   }
   if (res === 'fc' || res.includes('fully') || res.includes('conformance')) {
-    return 'Fully Conformance'
+    return t('qualityAssurance.conformance.fullyConformance')
   }
   if (res === 'pc' || res.includes('partially')) {
-    return 'Partially Conform'
+    return t('qualityAssurance.conformance.partiallyConform')
   }
   if (res === 'dnc' || res.includes('does not') || res.includes('doesnot')) {
-    return 'Does not Conform'
+    return t('qualityAssurance.conformance.doesNotConform')
   }
   return result
 }

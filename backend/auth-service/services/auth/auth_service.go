@@ -25,7 +25,6 @@ import (
 type AuthServiceInterface interface {
 	Login(ctx context.Context, req *models.LoginRequest, ipAddress, userAgent string) (*models.LoginResponse, error)
 	VerifyMFALogin(ctx context.Context, req *models.VerifyMFALoginRequest, ipAddress, userAgent string) (*models.LoginResponse, error)
-	Register(ctx context.Context, req *models.RegisterRequest, ipAddress string) error
 	Logout(ctx context.Context, token, userID, username, ipAddress, userAgent string) error
 	ValidateToken(token string) (*utils.Claims, error)
 	ChangePassword(ctx context.Context, userID uuid.UUID, req *models.ChangePasswordRequest, ipAddress string) error
@@ -298,56 +297,6 @@ func (s *AuthService) generateHOTP(secret []byte, counter int64) string {
 
 	code := truncated % 1000000
 	return fmt.Sprintf("%06d", code)
-}
-
-// Register creates a new user
-func (s *AuthService) Register(ctx context.Context, req *models.RegisterRequest, ipAddress string) error {
-	// Check if username exists
-	if _, err := s.userRepo.FindByUsername(req.Username); err == nil {
-		return errors.Wrap(errors.ErrDuplicateEntry.Code, "Username already exists", errors.ErrDuplicateEntry.StatusCode, nil)
-	}
-
-	// Check if email exists
-	if _, err := s.userRepo.FindByEmail(req.Email); err == nil {
-		return errors.Wrap(errors.ErrDuplicateEntry.Code, "Email already exists", errors.ErrDuplicateEntry.StatusCode, nil)
-	}
-
-	// Hash password
-	hashedPassword, err := utils.HashPassword(req.Password)
-	if err != nil {
-		s.LogError("Failed to hash password", utils.LogField("error", err))
-		return errors.ErrInternalServer
-	}
-
-	// Create user
-	user := &models.User{
-		Username:   req.Username,
-		Email:      req.Email,
-		PasswordHash:   hashedPassword,
-		FullName:   req.FullName,
-		Phone:      req.Phone,
-		Department: req.Department,
-		IsActive:   true,
-	}
-
-	if err := s.userRepo.Create(user); err != nil {
-		s.LogError("Failed to create user", utils.LogField("error", err))
-		return errors.ErrInternalServer
-	}
-
-	s.LogInfo("User registered successfully", utils.LogField("user_id", user.ID))
-
-	// Send to Kafka for centralized logging
-	if s.kafkaProducer != nil && s.kafkaProducer.IsEnabled() {
-		s.kafkaProducer.Info(ctx, "User registered", map[string]interface{}{
-			"user_id":    user.ID.String(),
-			"username":  user.Username,
-			"email":     user.Email,
-			"ip_address": ipAddress,
-		})
-	}
-
-	return nil
 }
 
 // Logout invalidates a token

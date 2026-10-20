@@ -43,7 +43,7 @@
             @click.stop="clearDate"
             class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-0.5 rounded focus:outline-none cursor-pointer pointer-events-auto flex items-center justify-center"
             tabindex="-1"
-            title="Clear date"
+            :title="t('common.datePicker.clearDate')"
           >
             <UIcon name="i-lucide-x" class="w-3.5 h-3.5" />
           </button>
@@ -53,8 +53,8 @@
             @click.stop="toggleCalendar"
             class="text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 p-0.5 rounded focus:outline-none disabled:cursor-not-allowed cursor-pointer pointer-events-auto flex items-center justify-center transition-colors"
             tabindex="-1"
-            title="Open calendar"
-            aria-label="Open calendar"
+            :title="t('common.datePicker.openCalendar')"
+            :aria-label="t('common.datePicker.openCalendar')"
           >
             <UIcon name="i-lucide-calendar" class="w-4 h-4" />
           </button>
@@ -89,7 +89,7 @@
                 type="button"
                 @click.stop="prevMonth"
                 class="p-1 rounded-md text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
-                title="Previous month"
+                :title="t('common.datePicker.previousMonth')"
               >
                 <UIcon name="i-lucide-chevron-left" class="w-4 h-4" />
               </button>
@@ -97,7 +97,7 @@
                 type="button"
                 @click.stop="nextMonth"
                 class="p-1 rounded-md text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
-                title="Next month"
+                :title="t('common.datePicker.nextMonth')"
               >
                 <UIcon name="i-lucide-chevron-right" class="w-4 h-4" />
               </button>
@@ -145,7 +145,7 @@
               @click.stop="selectToday"
               class="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:underline cursor-pointer"
             >
-              Hari Ini
+              {{ t('common.datePicker.today') }}
             </button>
             <button
               v-if="modelValue"
@@ -153,7 +153,7 @@
               @click.stop="clearDate"
               class="text-xs text-gray-400 hover:text-error-600 dark:hover:text-error-400 cursor-pointer"
             >
-              Hapus
+              {{ t('common.datePicker.clear') }}
             </button>
           </div>
         </div>
@@ -182,6 +182,8 @@ import {
   setYear,
   parse
 } from 'date-fns'
+
+const { t } = useI18n()
 
 const props = withDefaults(
   defineProps<{
@@ -275,11 +277,8 @@ const sizeClasses = computed(() => {
 })
 
 // Localization & Calendar constants
-const monthNames = [
-  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-]
-const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
+const monthNames = computed(() => Array.from({ length: 12 }, (_, index) => t(`common.datePicker.months.${index}`)))
+const dayNames = computed(() => Array.from({ length: 7 }, (_, index) => t(`common.datePicker.weekdays.${index}`)))
 
 // Year options (-50 to +20 years)
 const yearOptions = computed(() => {

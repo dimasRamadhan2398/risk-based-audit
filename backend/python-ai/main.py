@@ -8,11 +8,12 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Dict, Optional, Any
 from retrain_engine import AutoRetrainEngine, reload_fastapi_models
+from security import install_api_key_middleware, internal_call_allowed, unauthorized
 
 app = FastAPI(title="Risk Audit AI Microservice", version="2.0.0")
 
@@ -46,18 +47,12 @@ def resolve_ai_training_dir() -> str:
 AI_TRAINING_DIR = resolve_ai_training_dir()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+# Fail closed: with API_KEY unset no request carries a valid key, so every route
+# except /health refuses the call. See security.py.
 API_KEY = os.getenv("API_KEY", "")
+INTERNAL_RETRAIN_TOKEN = os.getenv("INTERNAL_RETRAIN_TOKEN", "")
 
-@app.middleware("http")
-async def verify_api_key_middleware(request, call_next):
-    if request.url.path in ("/health", "/docs", "/openapi.json"):
-        return await call_next(request)
-    if API_KEY:
-        header_key = request.headers.get("X-API-Key")
-        if header_key != API_KEY:
-            from fastapi.responses import JSONResponse
-            return JSONResponse(status_code=401, content={"detail": "Invalid or missing API key"})
-    return await call_next(request)
+install_api_key_middleware(app, lambda: API_KEY)
 
 # --- Load Model Bundles ---
 anomaly_bundle = None
@@ -1272,7 +1267,11 @@ def background_self_learning_task():
         print(f"Background self-learning failed: {e}")
 
 @app.post("/retrain/auto")
-def trigger_auto_retrain(background_tasks: BackgroundTasks):
+def trigger_auto_retrain(request: Request, background_tasks: BackgroundTasks):
+    # Internal only: needs a separate token on top of the API key. Refused while
+    # INTERNAL_RETRAIN_TOKEN is unset.
+    if not internal_call_allowed(request, lambda: INTERNAL_RETRAIN_TOKEN):
+        return unauthorized("Internal token required")
     background_tasks.add_task(background_self_learning_task)
     return {"status": "scheduled", "message": "Self-learning auto-retrain task scheduled silently in background."}
 

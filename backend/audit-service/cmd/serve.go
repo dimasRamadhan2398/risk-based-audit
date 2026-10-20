@@ -62,6 +62,9 @@ func runServe(cmd *cobra.Command, args []string) error {
 	defer logger.Sync()
 
 	logger.Info("Starting Audit Service", logger.LogField("port", cfg.Server.Port))
+	if err := cfg.ValidateJWT(); err != nil {
+		logger.Fatal("Refusing to start: invalid JWT_SECRET", logger.LogField("error", err.Error()))
+	}
 	fmt.Printf("GDrive Enabled Config Value: %v\n", cfg.GDrive.Enabled)
 
 	// Set Gin mode
@@ -237,7 +240,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 
 	// Serve static uploads, except private subdirectories such as ATR evidence
 	// (./uploads/action-taken-reports), which only the authenticated API serves
-	routes.RegisterUploads(engine, "./uploads")
+	routes.RegisterUploads(engine, "./uploads", authMiddleware.Authenticate())
 
 	// Health check endpoint
 	engine.GET("/health", func(c *gin.Context) {
@@ -255,7 +258,10 @@ func runServe(cmd *cobra.Command, args []string) error {
 	docs.SwaggerInfo.Schemes = []string{"http"}
 
 	// Swagger UI endpoint
-	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	// Swagger UI is off unless ENABLE_SWAGGER=true.
+	if routes.SwaggerEnabled() {
+		engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	}
 
 	startAnnualPlanSync(db)
 

@@ -27,7 +27,7 @@ const stratChartData = computed(() => ({
   labels: stratState.value.records.map((r: any) => r.stratumLabel),
   datasets: [
     {
-      label: 'Total Nilai Akumulasi (Rp Miliar)',
+      label: t('analytics.caattUi.stratification.totalAccumulatedBillions'),
       backgroundColor: 'rgba(139,92,246,0.75)',
       borderColor: 'rgb(139,92,246)',
       borderWidth: 1.5,
@@ -50,7 +50,7 @@ const stratChartOptions = computed(() => ({
     }
   },
   scales: {
-    x: { beginAtZero: true, title: { display: true, text: 'Akumulasi Nilai (Miliar Rupiah)' } }
+    x: { beginAtZero: true, title: { display: true, text: t('analytics.caattUi.stratification.accumulatedAxis') } }
   }
 }))
 </script>
@@ -59,9 +59,9 @@ const stratChartOptions = computed(() => ({
   <div class="max-w-full mx-auto py-8 px-4 sm:px-6 lg:px-8">
     <CaattHeader
       :title="t('navigation.caattStratification')"
-      subtitle="Membagi populasi transaksi dan portofolio ke dalam tingkatan nominal (strata) untuk mengidentifikasi konsentrasi eksposur risiko."
+      :subtitle="t('analytics.caattUi.stratification.subtitle')"
       icon="i-lucide-layers"
-      badgeText="Monetary Unit Sampling"
+      :badgeText="t('analytics.caattUi.stratification.badge')"
       badgeColor="neutral"
     />
 
@@ -79,26 +79,26 @@ const stratChartOptions = computed(() => ({
         icon="i-heroicons-bars-3-bottom-left"
         color="primary"
         variant="subtle"
-        title="CAATT: Stratifikasi Transaksi & Portofolio Kredit"
-        description="Membagi populasi transaksi dan portofolio ke dalam tingkatan nominal (strata) untuk mengidentifikasi konsentrasi eksposur risiko dan memilih sampel bernilai tinggi (Monetary Unit Sampling)."
+        :title="t('analytics.caattUi.stratification.title')"
+        :description="t('analytics.caattUi.stratification.description')"
       />
 
       <!-- Summary Cards -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <UCard class="border border-indigo-100 dark:border-indigo-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Total Transaksi Terstratifikasi</div>
-          <div class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ Number(stratState.summary.totalTransactions).toLocaleString('id-ID') }} Trx</div>
-          <div class="text-[10px] text-gray-400 mt-0.5">Seluruh kategori nasabah</div>
+          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.stratification.transactions') }}</div>
+          <div class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ Number(stratState.summary.totalTransactions).toLocaleString('id-ID') }} {{ t('analytics.caattUi.common.transactions') }}</div>
+          <div class="text-[10px] text-gray-400 mt-0.5">{{ t('analytics.caattUi.stratification.allCustomers') }}</div>
         </UCard>
         <UCard class="border border-violet-100 dark:border-violet-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Total Nilai Portofolio</div>
+          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.stratification.portfolioValue') }}</div>
           <div class="text-2xl font-black text-violet-600 dark:text-violet-400 mt-1">{{ formatIDR(stratState.summary.totalAmount) }}</div>
-          <div class="text-[10px] text-violet-400 mt-0.5">Eksposur nominal penuh</div>
+          <div class="text-[10px] text-violet-400 mt-0.5">{{ t('analytics.caattUi.stratification.fullExposure') }}</div>
         </UCard>
         <UCard class="border border-emerald-100 dark:border-emerald-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Jumlah Lapisan Strata</div>
-          <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{{ stratState.summary.totalStrata }} Strata</div>
-          <div class="text-[10px] text-gray-400 mt-0.5">Retail s/d High Value Wholesale</div>
+          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.stratification.strataCount') }}</div>
+          <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{{ stratState.summary.totalStrata }} {{ t('analytics.caattUi.stratification.strataUnit') }}</div>
+          <div class="text-[10px] text-gray-400 mt-0.5">{{ t('analytics.caattUi.stratification.segmentRange') }}</div>
         </UCard>
       </div>
 
@@ -110,9 +110,9 @@ const stratChartOptions = computed(() => ({
             <div>
               <div class="flex items-center gap-2">
                 <UIcon name="i-heroicons-chart-bar" class="text-indigo-500" />
-                <h3 class="font-bold">Konsentrasi Nilai Per Strata</h3>
+                <h3 class="font-bold">{{ t('analytics.caattUi.stratification.valueConcentration') }}</h3>
               </div>
-              <p class="text-xs text-gray-400 mt-1">Akumulasi eksposur nilai (Rp Miliar) per rentang strata</p>
+              <p class="text-xs text-gray-400 mt-1">{{ t('analytics.caattUi.stratification.valueDescription') }}</p>
             </div>
           </template>
           <div class="h-80">
@@ -126,21 +126,21 @@ const stratChartOptions = computed(() => ({
             <div>
               <div class="flex items-center gap-2">
                 <UIcon name="i-heroicons-table-cells" class="text-indigo-500" />
-                <h3 class="font-bold">Tabel Distribusi Strata Nominal Transaksi</h3>
+                <h3 class="font-bold">{{ t('analytics.caattUi.stratification.distribution') }}</h3>
               </div>
-              <p class="text-xs text-gray-400 mt-1">Distribusi jumlah transaksi dan akumulasi nominal per lapisan rentang</p>
+              <p class="text-xs text-gray-400 mt-1">{{ t('analytics.caattUi.stratification.distributionDescription') }}</p>
             </div>
           </template>
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="border-b border-gray-200 dark:border-gray-700">
-                  <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Strata (Rentang Nilai Trx)</th>
-                  <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Segmen</th>
-                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Jumlah Trx</th>
-                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">Total Akumulasi Nominal</th>
-                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">% Trx</th>
-                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">% Nilai</th>
+                  <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.stratification.range') }}</th>
+                  <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.stratification.segment') }}</th>
+                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.common.transactionCount') }}</th>
+                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.stratification.accumulated') }}</th>
+                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.stratification.transactionPercent') }}</th>
+                  <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.stratification.valuePercent') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -160,13 +160,13 @@ const stratChartOptions = computed(() => ({
           <div class="mt-4 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-700/60 text-xs text-gray-500 dark:text-gray-400 space-y-1.5">
             <div class="flex items-center gap-1.5 font-semibold text-gray-700 dark:text-gray-300">
               <UIcon name="i-heroicons-information-circle" class="w-4 h-4 text-indigo-500" />
-              <span>Panduan Interpretasi Kolom:</span>
+              <span>{{ t('analytics.caattUi.stratification.guide') }}</span>
             </div>
             <p>
-              &bull; <strong class="text-gray-700 dark:text-gray-300">Strata (Rentang Nilai Trx):</strong> Merupakan batasan nominal per 1 lembar transaksi individu (contoh: transaksi ritel bernilai &lt; Rp 10 Juta hingga wholesale &gt; Rp 500 Juta).
+              &bull; <strong class="text-gray-700 dark:text-gray-300">{{ t('analytics.caattUi.stratification.range') }}:</strong> {{ t('analytics.caattUi.stratification.rangeGuide') }}
             </p>
             <p>
-              &bull; <strong class="text-gray-700 dark:text-gray-300">Total Akumulasi Nominal:</strong> Merupakan total kumulatif dari seluruh transaksi dalam strata tersebut (contoh: 8.420 transaksi bernilai &lt; Rp 10 Juta memiliki akumulasi total Rp 32,5 Miliar).
+              &bull; <strong class="text-gray-700 dark:text-gray-300">{{ t('analytics.caattUi.stratification.accumulated') }}:</strong> {{ t('analytics.caattUi.stratification.accumulatedGuide') }}
             </p>
           </div>
         </UCard>

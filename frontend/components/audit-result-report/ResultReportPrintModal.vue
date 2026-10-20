@@ -20,9 +20,7 @@
               <UIcon name="i-lucide-printer" class="size-5" />
             </div>
             <div>
-              <h3 class="text-base font-bold text-gray-900 dark:text-white">
-                Dokumen Laporan Hasil Audit (LHA)
-              </h3>
+              <h3 class="text-base font-bold text-gray-900 dark:text-white"> {{ t('auditResultReport.editor.print.title') }} </h3>
               <p class="text-xs text-gray-500 font-mono">
                 {{ report?.reportNumber || '-' }}
               </p>
@@ -32,7 +30,7 @@
             <UButton
               color="primary"
               icon="i-lucide-printer"
-              label="Cetak / Simpan PDF"
+              :label="t('auditResultReport.editor.print.printPdf')"
               @click="handlePrint"
             />
             <UButton
@@ -53,13 +51,10 @@
                 <h2 class="text-xl font-extrabold uppercase tracking-wider text-slate-900">
                   {{ report?.companyName || 'PT AIFL INDONESIA' }}
                 </h2>
-                <p class="text-xs font-semibold text-slate-600 tracking-widest uppercase">
-                  Satuan Kerja Audit Internal (SKAI)
-                </p>
+                <p class="text-xs font-semibold text-slate-600 tracking-widest uppercase"> {{ t('auditResultReport.editor.print.department') }} </p>
               </div>
               <div class="text-right">
-                <UBadge :color="report?.status === 'Final' ? 'success' : 'neutral'" variant="subtle" size="sm">
-                  STATUS: {{ (report?.status || 'DRAFT').toUpperCase() }}
+                <UBadge :color="report?.status === 'Final' ? 'success' : 'neutral'" variant="subtle" size="sm"> {{ t('auditResultReport.editor.print.status') }} {{ (report?.status || 'DRAFT').toUpperCase() }}
                 </UBadge>
               </div>
             </div>
@@ -67,11 +62,8 @@
 
           <!-- Document Title & Numbers -->
           <div class="text-center my-6 space-y-1">
-            <h1 class="text-lg sm:text-xl font-black uppercase tracking-wide text-slate-900">
-              LAPORAN HASIL AUDIT (LHA)
-            </h1>
-            <p class="text-sm font-mono font-bold text-slate-700">
-              Nomor: {{ report?.reportNumber || '-' }}
+            <h1 class="text-lg sm:text-xl font-black uppercase tracking-wide text-slate-900"> {{ t('auditResultReport.editor.print.reportTitle') }} </h1>
+            <p class="text-sm font-mono font-bold text-slate-700"> {{ t('auditResultReport.editor.print.number') }} {{ report?.reportNumber || '-' }}
             </p>
           </div>
 
@@ -80,29 +72,29 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-slate-200">
               <div class="p-3 space-y-1.5 bg-slate-50/50">
                 <div class="flex">
-                  <span class="w-32 font-semibold text-slate-600">Surat Tugas:</span>
+                  <span class="w-32 font-semibold text-slate-600">{{ t('auditResultReport.editor.print.assignmentLetter') }}</span>
                   <span class="font-bold text-slate-900">{{ report?.assignmentLetterId || '-' }}</span>
                 </div>
                 <div class="flex">
-                  <span class="w-32 font-semibold text-slate-600">Tanggal Laporan:</span>
+                  <span class="w-32 font-semibold text-slate-600">{{ t('auditResultReport.editor.print.reportDate') }}</span>
                   <span class="text-slate-900">{{ formatDate(report?.reportDate) }}</span>
                 </div>
                 <div class="flex">
-                  <span class="w-32 font-semibold text-slate-600">Entitas / Perusahaan:</span>
+                  <span class="w-32 font-semibold text-slate-600">{{ t('auditResultReport.editor.print.company') }}</span>
                   <span class="font-semibold text-slate-900">{{ report?.companyName || 'PT AIFL Indonesia' }}</span>
                 </div>
               </div>
               <div class="p-3 space-y-1.5">
                 <div class="flex">
-                  <span class="w-32 font-semibold text-slate-600">Judul Audit:</span>
+                  <span class="w-32 font-semibold text-slate-600">{{ t('auditResultReport.editor.print.auditTitle') }}</span>
                   <span class="font-bold text-slate-900">{{ report?.reportTitle || '-' }}</span>
                 </div>
                 <div class="flex">
-                  <span class="w-32 font-semibold text-slate-600">Jumlah Temuan:</span>
-                  <span class="font-bold text-primary-700">{{ report?.findingsCount || report?.findings?.length || 0 }} Temuan</span>
+                  <span class="w-32 font-semibold text-slate-600">{{ t('auditResultReport.editor.print.findingCount') }}</span>
+                  <span class="font-bold text-primary-700">{{ report?.findingsCount || report?.findings?.length || 0 }} {{ t('auditResultReport.editor.print.findings') }}</span>
                 </div>
                 <div class="flex">
-                  <span class="w-32 font-semibold text-slate-600">Objek Audit:</span>
+                  <span class="w-32 font-semibold text-slate-600">{{ t('auditResultReport.editor.print.auditObject') }}</span>
                   <span class="text-slate-900">{{ report?.department || 'Divisi Keuangan & Operasional' }}</span>
                 </div>
               </div>
@@ -111,9 +103,7 @@
 
           <!-- Section: Ringkasan Eksekutif -->
           <div class="mb-6 space-y-2">
-            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1">
-              I. Ringkasan Eksekutif
-            </h3>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1"> {{ t('auditResultReport.editor.print.summarySection') }} </h3>
             <p class="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">
               {{ report?.executiveSummary || 'Berdasarkan hasil penugasan audit yang telah dilaksanakan sesuai dengan Surat Tugas, seluruh ruang lingkup pekerjaan pemeriksaan pengendalian internal telah diselesaikan dengan rincian temuan dan rekomendasi tindak lanjut sebagaimana diuraikan di bawah ini.' }}
             </p>
@@ -121,18 +111,16 @@
 
           <!-- Section: Temuan Hasil Audit -->
           <div class="mb-8 space-y-3">
-            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1">
-              II. Daftar Temuan & Rekomendasi Audit
-            </h3>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1"> {{ t('auditResultReport.editor.print.findingsSection') }} </h3>
 
             <div v-if="report?.findings && report.findings.length > 0" class="overflow-x-auto">
               <table class="w-full text-left border-collapse border border-slate-300 text-xs sm:text-sm">
                 <thead>
                   <tr class="bg-slate-100 text-slate-800 font-bold">
-                    <th class="border border-slate-300 p-2.5 w-10 text-center">No</th>
-                    <th class="border border-slate-300 p-2.5 w-32">Kategori / Tingkat</th>
-                    <th class="border border-slate-300 p-2.5">Deskripsi Temuan</th>
-                    <th class="border border-slate-300 p-2.5">Tindak Lanjut / Rekomendasi</th>
+                    <th class="border border-slate-300 p-2.5 w-10 text-center">{{ t('common.no') }}</th>
+                    <th class="border border-slate-300 p-2.5 w-32">{{ t('auditResultReport.editor.print.category') }}</th>
+                    <th class="border border-slate-300 p-2.5">{{ t('auditResultReport.editor.print.findingDescription') }}</th>
+                    <th class="border border-slate-300 p-2.5">{{ t('auditResultReport.editor.print.recommendation') }}</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200">
@@ -147,8 +135,7 @@
                     </td>
                     <td class="border border-slate-300 p-2.5 font-medium text-slate-900">
                       {{ f.title }}
-                      <span v-if="f.source" class="block text-[10px] text-slate-400 italic mt-0.5">
-                        Sumber: {{ f.source }}
+                      <span v-if="f.source" class="block text-[10px] text-slate-400 italic mt-0.5"> {{ t('auditResultReport.editor.print.source') }} {{ f.source }}
                       </span>
                     </td>
                     <td class="border border-slate-300 p-2.5 text-slate-700">
@@ -159,9 +146,7 @@
               </table>
             </div>
 
-            <div v-else class="p-4 bg-slate-50 border border-slate-200 rounded text-center text-xs text-slate-500 italic">
-              Tidak ada temuan yang dilaporkan pada periode ini.
-            </div>
+            <div v-else class="p-4 bg-slate-50 border border-slate-200 rounded text-center text-xs text-slate-500 italic"> {{ t('auditResultReport.editor.print.empty') }} </div>
           </div>
 
           <!-- ============================================================ -->
@@ -173,16 +158,13 @@
               <p class="text-sm font-semibold text-slate-800">
                 {{ report?.signaturePlace || 'Jakarta' }}, {{ formatDate(report?.signatureDate || report?.reportDate) }}
               </p>
-              <p class="text-base font-extrabold uppercase tracking-wide text-slate-900">
-                AUDIT INTERNAL {{ (report?.companyName || 'PT AIFL INDONESIA').toUpperCase() }}
+              <p class="text-base font-extrabold uppercase tracking-wide text-slate-900"> {{ t('auditResultReport.editor.print.internalAudit') }} {{ (report?.companyName || 'PT AIFL INDONESIA').toUpperCase() }}
               </p>
             </div>
 
             <!-- Tanda Tangan Team Member (Grid) -->
             <div class="space-y-4">
-              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-600 border-b border-slate-200 pb-1 mb-4 text-center">
-                LEMBAR PENGESAHAN TIM AUDIT
-              </h4>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-600 border-b border-slate-200 pb-1 mb-4 text-center"> {{ t('auditResultReport.editor.print.approvalSheet') }} </h4>
 
               <div
                 v-if="displaySignatures && displaySignatures.length > 0"
@@ -203,12 +185,10 @@
                     <img
                       v-if="sig.signature"
                       :src="sig.signature"
-                      alt="Tanda Tangan"
+                      :alt="t('auditResultReport.editor.print.signatureAlt')"
                       class="max-h-20 max-w-full object-contain"
                     />
-                    <span v-else class="text-[11px] text-slate-400 italic">
-                      (Tanda Tangan)
-                    </span>
+                    <span v-else class="text-[11px] text-slate-400 italic"> {{ t('auditResultReport.editor.print.signature') }} </span>
                   </div>
 
                   <!-- Nama Team Member -->
@@ -224,18 +204,14 @@
                 class="grid grid-cols-2 sm:grid-cols-3 gap-6 justify-center"
               >
                 <div class="flex flex-col items-center p-3 border border-slate-200 rounded-lg text-center">
-                  <div class="text-xs font-bold text-slate-600 uppercase mb-2">Ketua Tim Audit</div>
-                  <div class="h-20 w-full flex items-center justify-center border-b border-slate-400 mb-2 text-xs text-slate-400 italic">
-                    (Belum Ditandatangani)
-                  </div>
-                  <div class="font-bold text-sm text-slate-900 underline">Ketua Tim</div>
+                  <div class="text-xs font-bold text-slate-600 uppercase mb-2">{{ t('auditResultReport.editor.print.teamLead') }}</div>
+                  <div class="h-20 w-full flex items-center justify-center border-b border-slate-400 mb-2 text-xs text-slate-400 italic"> {{ t('auditResultReport.editor.print.notSigned') }} </div>
+                  <div class="font-bold text-sm text-slate-900 underline">{{ t('annualAudit.form.teamLead') }}</div>
                 </div>
                 <div class="flex flex-col items-center p-3 border border-slate-200 rounded-lg text-center">
-                  <div class="text-xs font-bold text-slate-600 uppercase mb-2">Anggota Tim Audit</div>
-                  <div class="h-20 w-full flex items-center justify-center border-b border-slate-400 mb-2 text-xs text-slate-400 italic">
-                    (Belum Ditandatangani)
-                  </div>
-                  <div class="font-bold text-sm text-slate-900 underline">Team Member</div>
+                  <div class="text-xs font-bold text-slate-600 uppercase mb-2">{{ t('auditResultReport.editor.print.teamMember') }}</div>
+                  <div class="h-20 w-full flex items-center justify-center border-b border-slate-400 mb-2 text-xs text-slate-400 italic"> {{ t('auditResultReport.editor.print.notSigned') }} </div>
+                  <div class="font-bold text-sm text-slate-900 underline">{{ t('auditResultReport.editor.print.member') }}</div>
                 </div>
               </div>
             </div>
@@ -244,18 +220,16 @@
 
         <!-- Footer Actions (Hidden during print) -->
         <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center bg-slate-50/70 dark:bg-gray-850 print:hidden">
-          <span class="text-xs text-gray-500">
-            Pastikan opsi background graphics diaktifkan pada jendela cetak browser.
-          </span>
+          <span class="text-xs text-gray-500"> {{ t('auditResultReport.editor.print.backgroundTip') }} </span>
           <div class="flex items-center gap-2">
             <UButton
-              label="Tutup"
+              :label="t('executiveSummaryForm.actions.close')"
               color="neutral"
               variant="ghost"
               @click="emit('update:open', false)"
             />
             <UButton
-              label="Cetak Dokumen"
+              :label="t('auditResultReport.editor.print.printDocument')"
               color="primary"
               icon="i-lucide-printer"
               @click="handlePrint"
@@ -268,6 +242,7 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 import { computed } from 'vue'
 import { useAuditResultReportStore, type AuditResultReport, type MemberSignature } from '~/stores/audit-result-report'
 

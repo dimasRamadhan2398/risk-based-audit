@@ -41,7 +41,7 @@
                   <UIcon name="i-heroicons-document-text" class="w-6 h-6 text-primary-500" />
                 </div>
                 <div>
-                  <p class="text-xs font-semibold tracking-wider text-[var(--text-muted)]">Surat Tugas</p>
+                  <p class="text-xs font-semibold tracking-wider text-[var(--text-muted)]">{{ t('auditExecution.detailModal.sources.assignment_letter.label') }}</p>
                   <p class="text-sm font-bold text-[var(--text-main)]">{{ store.selectedAssignmentLetter || '-' }}</p>
                 </div>
               </div>
@@ -151,7 +151,7 @@
                 </div>
                 <div v-if="store.testControlForm.pic" class="flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
                   <UIcon name="i-heroicons-user-circle" class="w-4 h-4" />
-                  <span class="font-medium text-[var(--text-main)]">PIC: {{ store.testControlForm.pic }}</span>
+                  <span class="font-medium text-[var(--text-main)]">{{ t('auditFieldwork.extra.pic') }} {{ store.testControlForm.pic }}</span>
                 </div>
               </div>
             </template>
@@ -160,8 +160,8 @@
                 {{ store.testControlForm.mitigationPlan || '-' }}
               </p>
               <div class="flex items-center gap-4 text-xs text-[var(--text-muted)] pt-1">
-                <span>PIC: <strong class="text-[var(--text-main)]">{{ store.testControlForm.pic || '-' }}</strong></span>
-                <span>Due Date: <strong class="text-[var(--text-main)]">{{ formatDate(store.testControlForm.dueDate) || '-' }}</strong></span>
+                <span>{{ t('auditFieldwork.extra.pic') }} <strong class="text-[var(--text-main)]">{{ store.testControlForm.pic || '-' }}</strong></span>
+                <span>{{ t('auditFieldwork.extra.dueDate') }} <strong class="text-[var(--text-main)]">{{ formatDate(store.testControlForm.dueDate) || '-' }}</strong></span>
               </div>
             </div>
           </UCard>

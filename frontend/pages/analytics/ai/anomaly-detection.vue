@@ -244,14 +244,14 @@ const scatterOptions = computed(() => {
             </div>
             <!-- Filter Kategori Tabel -->
             <div class="flex flex-wrap items-center gap-1.5">
-              <span class="text-xs text-gray-400 font-medium mr-1">Filter:</span>
+              <span class="text-xs text-gray-400 font-medium mr-1">{{ t('analytics.anomalyFilter') }}</span>
               <UButton
                 size="xs"
                 :color="tableCategoryFilter === 'All' ? 'primary' : 'neutral'"
                 :variant="tableCategoryFilter === 'All' ? 'solid' : 'ghost'"
                 @click="() => { tableCategoryFilter = 'All' }"
               >
-                Semua ({{ isolationState.anomalies.length }})
+                {{ t('analytics.all') }} ({{ isolationState.anomalies.length }})
               </UButton>
               <UButton
                 v-for="cat in availableAnomalyTypes"

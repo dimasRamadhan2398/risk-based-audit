@@ -310,7 +310,7 @@
                         @click="openEditModal(stmt)"
                       />
                     </UTooltip>
-                    <UTooltip text="Delete Appetite Statement">
+                    <UTooltip :text="t('riskAppetite.deleteStatement')">
                       <UButton 
                         icon="i-heroicons-trash" 
                         color="error" 

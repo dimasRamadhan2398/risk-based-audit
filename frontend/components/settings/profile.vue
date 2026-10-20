@@ -18,7 +18,7 @@
           <img
             v-if="preview"
             :src="preview"
-            alt="Avatar"
+            :alt="t('settings.profile.avatarAlt')"
             class="w-full h-full object-cover"
           >
           <span

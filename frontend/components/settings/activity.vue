@@ -74,7 +74,7 @@
               </div>
               <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 flex items-center gap-1.5 truncate">
                 <UIcon name="i-lucide-fingerprint" class="size-3.5 text-gray-400 shrink-0" />
-                <span class="truncate">Fingerprint: {{ currentDevice.deviceFingerprint }}</span>
+                <span class="truncate">{{ t('settings.activity.fingerprintLabel') }} {{ currentDevice.deviceFingerprint }}</span>
               </p>
               <p class="text-xs text-gray-500 mt-1 flex items-center gap-1.5">
                 <UIcon name="i-lucide-clock" class="size-3.5 shrink-0" />
@@ -101,7 +101,7 @@
                 </div>
                 <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 flex items-center gap-1.5 truncate">
                   <UIcon name="i-lucide-globe" class="size-3.5 text-gray-400 shrink-0" />
-                  <span class="truncate">IP: {{ device.ipAddress }} · Fingerprint: {{ device.deviceFingerprint }}</span>
+                  <span class="truncate">{{ t('settings.activity.ipLabel') }} {{ device.ipAddress }} · {{ t('settings.activity.fingerprintLabel') }} {{ device.deviceFingerprint }}</span>
                 </p>
                 <p class="text-xs text-gray-500 mt-1 flex items-center gap-1.5">
                   <UIcon name="i-lucide-clock" class="size-3.5 shrink-0" />

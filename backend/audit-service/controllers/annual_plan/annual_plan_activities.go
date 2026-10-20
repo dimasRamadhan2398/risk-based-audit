@@ -8,6 +8,7 @@ import (
 
 	"audit-service/models"
 	apperrors "audit-service/pkg/errors"
+	form "audit-service/services/activity_plan_form"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -42,7 +43,12 @@ func PrepareOnCreate(tx *gorm.DB, entity interface{}) error {
 // check, then validates the header columns and rewrites the activities column:
 // rows are decoded into AnnualAuditActivity (so only documented fields are
 // stored) and each row keeps its id, or gets a new one when it has none or a
-// duplicate.
+// duplicate. Then the RKA rules apply (form.PrepareAnnualPlanRows): the
+// deprecated activityCode/justification/auditObjective/auditFocus of a kept
+// row are preserved when sent empty, and removing a row an Audit Activity Plan
+// holds (409 ANNUAL_PLAN_ACTIVITY_IN_USE) or changing its category so that it
+// no longer fits that plan (409 ANNUAL_PLAN_ACTIVITY_TYPE_CONFLICT) is refused.
+// The header activityType is deprecated; it is still validated for old clients.
 func PrepareOnUpdate(tx *gorm.DB, existing interface{}, columns map[string]interface{}) error {
 	if err := ValidateStatusOnUpdate(tx, existing, columns); err != nil {
 		return err
@@ -68,6 +74,15 @@ func PrepareOnUpdate(tx *gorm.DB, existing interface{}, columns map[string]inter
 		return err
 	}
 	assignActivityIDs(rows)
+	// Keep the deprecated RKA fields the PKAT form no longer sends, and refuse
+	// to drop or retype a row an Audit Activity Plan holds.
+	plan, ok := existing.(*models.AuditAnnual)
+	if !ok {
+		return fmt.Errorf("annualplan: unexpected entity %T", existing)
+	}
+	if err := form.PrepareAnnualPlanRows(tx, plan.ID, rows); err != nil {
+		return err
+	}
 	out, err := json.Marshal(rows)
 	if err != nil {
 		return err

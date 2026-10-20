@@ -14,24 +14,29 @@ type RevisionHistoryEntry struct {
 	User    string `json:"user"`
 }
 
-// AnnualAuditActivity is one row of the Rencana Kegiatan Audit (the activity
-// table of an annual plan). It is stored as JSON inside audit_annuals.activities,
-// so new fields need no SQL migration.
+// AnnualAuditActivity is one row of the PKAT (Program Kerja Audit Tahunan, the
+// activity table of an annual plan). It is stored as JSON inside
+// audit_annuals.activities, so new fields need no SQL migration.
 //
-// Every field is entered once. The template columns map as follows:
+// The PKAT owns what is audited and with how many resources:
 //
-//	No                          itemNumber
-//	Kode Penugasan              activityCode
-//	Objek Penugasan Audit       name
-//	Jenis Audit                 category
-//	Audit Universe              auditUniverseId (picked; corporate id)
-//	Justifikasi Pemilihan Objek justification
-//	Tujuan Audit                auditObjective
-//	Fokus Audit                 auditFocus
-//	Jadwal Penugasan            timelineText
-//	Jumlah Tim (Orang)          auditorCount
-//	Total Mandays               totalMandays
-//	Ketua Tim                   supervisorName
+//	No                 itemNumber
+//	Objek              name
+//	Kategori           category (Assurance, Special Audit, ...)
+//	Audit Universe     auditUniverseId (picked; corporate id)
+//	Department         departmentId
+//	Jadwal             timelineText
+//	Jumlah Tim         auditorCount
+//	Total Mandays      totalMandays
+//	Supervisor         supervisorName (Pengendali Teknis)
+//
+// The Formulir Rencana Kegiatan Audit (RKA) columns Kode Penugasan, Jenis
+// Audit, Justifikasi, Tujuan, Fokus and Ketua Tim live on the RKA rows
+// (audit_activities with activity_plan_id, see services/activity_plan_form),
+// which link back to this row by ID. ActivityCode, Justification,
+// AuditObjective and AuditFocus are deprecated: the PKAT form no longer sends
+// them, a PKAT update keeps the stored values (controllers/annual_plan), and
+// they prefill the RKA row once when the row is first added to an RKA.
 //
 // ID is a server-assigned UUID that stays with the row across updates (see
 // controllers/annual_plan). RiskName, RiskLevel and Department are display
@@ -84,9 +89,10 @@ type AuditAnnual struct {
 	SupervisorID         string                   `gorm:"type:varchar(50)" json:"supervisorId"`
 	SupervisorName       string                   `gorm:"type:varchar(255)" json:"supervisorName"`
 	Year                 int                      `gorm:"type:int;not null" json:"year"`
-	// Title is the Judul Kegiatan Audit (plan header).
+	// Title is the PKAT's own name ("Judul PKAT"), not the RKA Judul.
 	Title                string                   `gorm:"type:varchar(255)" json:"title"`
-	// ActivityType is the Jenis Kegiatan Audit (plan header). When set it must be
+	// ActivityType is deprecated (the Jenis Kegiatan Audit moved to the RKA
+	// header, ActivityPlan.ActivityType). When an old client sends it, it must be
 	// one of AnnualPlanActivityTypes (see controllers/annual_plan).
 	ActivityType         string                   `gorm:"type:varchar(100)" json:"activityType"`
 	Notes                string                   `gorm:"type:text" json:"notes"`

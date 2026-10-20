@@ -81,7 +81,7 @@
           <div class="flex flex-col lg:flex-row gap-8 items-start">
             <!-- QR Code Box -->
             <div class="flex flex-col items-center gap-2 bg-white dark:bg-slate-800 p-4 rounded-2xl border border-amber-200 dark:border-amber-900/40 shadow-sm shrink-0">
-              <img v-if="qrCodeDataURL" :src="qrCodeDataURL" alt="MFA QR Code" class="w-44 h-44 rounded-lg border border-gray-200 dark:border-gray-700" />
+              <img v-if="qrCodeDataURL" :src="qrCodeDataURL" :alt="t('settings.mfa.qrAlt')" class="w-44 h-44 rounded-lg border border-gray-200 dark:border-gray-700" />
               <div v-else class="w-44 h-44 flex items-center justify-center text-gray-400 text-sm animate-pulse">
                 {{ t('settings.mfa.generatingQr') }}
               </div>

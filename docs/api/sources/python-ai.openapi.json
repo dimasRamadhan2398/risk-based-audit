@@ -1,0 +1,598 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Risk Audit AI Microservice",
+    "version": "2.0.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predict/risk-score": {
+      "post": {
+        "summary": "Predict Department Risk",
+        "operationId": "predict_department_risk_predict_risk_score_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DepartmentRiskRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predict/risk-score/batch": {
+      "get": {
+        "summary": "Get Department Risk Batch",
+        "operationId": "get_department_risk_batch_predict_risk_score_batch_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predict/anomaly": {
+      "post": {
+        "summary": "Predict Anomaly",
+        "operationId": "predict_anomaly_predict_anomaly_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnomalyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predict/anomaly/batch": {
+      "get": {
+        "summary": "Get Anomaly Batch",
+        "operationId": "get_anomaly_batch_predict_anomaly_batch_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predict/text-analysis": {
+      "post": {
+        "summary": "Predict Text Analysis",
+        "operationId": "predict_text_analysis_predict_text_analysis_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextAnalysisRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predict/text-analysis/batch": {
+      "get": {
+        "summary": "Get Text Analysis Batch",
+        "operationId": "get_text_analysis_batch_predict_text_analysis_batch_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predict/performance-trend": {
+      "post": {
+        "summary": "Predict Performance Trend",
+        "operationId": "predict_performance_trend_predict_performance_trend_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PerformanceTrendRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/predict/performance-trend/batch": {
+      "get": {
+        "summary": "Get Performance Trend Batch",
+        "operationId": "get_performance_trend_batch_predict_performance_trend_batch_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/retrain/auto": {
+      "post": {
+        "summary": "Trigger Auto Retrain",
+        "operationId": "trigger_auto_retrain_retrain_auto_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AnomalyRequest": {
+        "properties": {
+          "entity": {
+            "type": "string",
+            "title": "Entity",
+            "description": "Entity name",
+            "default": "Jakarta Branch"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "description": "Transaction description",
+            "default": "Pembayaran vendor"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount",
+            "description": "Amount in million IDR",
+            "default": 15.5
+          },
+          "hour_of_day": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 23.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hour Of Day",
+            "default": 14
+          },
+          "day_of_week": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 7.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Day Of Week",
+            "default": 3
+          },
+          "is_new_beneficiary": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is New Beneficiary",
+            "default": 0
+          },
+          "is_round_amount": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Round Amount",
+            "default": 0
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category",
+            "description": "Bank category: Funding, Lending, Treasury, Payment, KYC, IT Control"
+          },
+          "channel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Channel",
+            "description": "Transaction channel",
+            "default": "Cabang / Teller"
+          },
+          "interest_margin": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interest Margin",
+            "description": "Bunga/Margin (%)",
+            "default": 0.0
+          },
+          "document_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Status",
+            "description": "Status Dokumen: Lengkap / Tidak Lengkap",
+            "default": "Lengkap"
+          },
+          "failed_logins": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failed Logins",
+            "description": "Jumlah Gagal Login",
+            "default": 0
+          },
+          "customer_risk_profile": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Risk Profile",
+            "description": "Tingkat Risiko Nasabah: Low Risk, Medium Risk, High Risk, PEP / High Risk Watchlist",
+            "default": "Low Risk"
+          },
+          "authorization_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authorization Status",
+            "description": "Status Otorisasi",
+            "default": "Terverifikasi Dual Control (Maker-Checker)"
+          },
+          "historical_dev_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Historical Dev Pct",
+            "description": "Deviasi terhadap Profil Historis (%)",
+            "default": 5.0
+          }
+        },
+        "type": "object",
+        "title": "AnomalyRequest"
+      },
+      "DepartmentRiskRequest": {
+        "properties": {
+          "entity": {
+            "type": "string",
+            "title": "Entity",
+            "description": "Entity name",
+            "default": "Jakarta Branch"
+          },
+          "risk_category": {
+            "type": "string",
+            "title": "Risk Category",
+            "description": "Risk category",
+            "default": "Financial"
+          },
+          "inherent_likelihood": {
+            "type": "number",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Inherent Likelihood",
+            "default": 3.0
+          },
+          "inherent_impact": {
+            "type": "number",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Inherent Impact",
+            "default": 4.0
+          },
+          "audit_findings_count": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Audit Findings Count",
+            "default": 5.0
+          },
+          "kpi_below_target_count": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Kpi Below Target Count",
+            "default": 2.0
+          },
+          "kpi_volatility": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Kpi Volatility",
+            "default": 0.15
+          },
+          "previous_risk_score": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Previous Risk Score",
+            "default": 12.0
+          },
+          "assessment_month": {
+            "type": "integer",
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Assessment Month",
+            "default": 6
+          }
+        },
+        "type": "object",
+        "title": "DepartmentRiskRequest"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "PerformanceTrendRequest": {
+        "properties": {
+          "kpi_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kpi Name",
+            "description": "KPI Name",
+            "default": "NPL Ratio"
+          },
+          "historical_data": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Historical Data"
+          }
+        },
+        "type": "object",
+        "title": "PerformanceTrendRequest"
+      },
+      "TextAnalysisRequest": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text",
+            "description": "Audit finding text",
+            "default": "Ditemukan indikasi ketidaksesuaian prosedur dalam otorisasi transaksi kas besar."
+          }
+        },
+        "type": "object",
+        "title": "TextAnalysisRequest"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

@@ -9,12 +9,14 @@ import (
 type AnalyticsService struct {
 	aiClient      *PythonAIClient
 	dataHubClient *DataHubClient
+	cache         *AnalyticsCache
 }
 
 func NewAnalyticsService() *AnalyticsService {
 	return &AnalyticsService{
 		aiClient:      NewPythonAIClient(),
 		dataHubClient: NewDataHubClient(),
+		cache:         NewAnalyticsCacheFromEnv(),
 	}
 }
 
@@ -62,7 +64,7 @@ func (s *AnalyticsService) GetRiskScore(req DepartmentRiskRequest) (*DepartmentR
 }
 
 func (s *AnalyticsService) GetRiskScoreBatch() (interface{}, error) {
-	raw, err := s.aiClient.GetRiskScoreBatch()
+	raw, err := s.cache.GetOrLoad("risk-score", s.aiClient.GetRiskScoreBatch)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +111,7 @@ func (s *AnalyticsService) GetAnomaly(req AnomalyRequest) (*AnomalyResponse, err
 }
 
 func (s *AnalyticsService) GetAnomalyBatch() (interface{}, error) {
-	raw, err := s.aiClient.GetAnomalyBatch()
+	raw, err := s.cache.GetOrLoad("anomaly", s.aiClient.GetAnomalyBatch)
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +146,7 @@ func (s *AnalyticsService) GetTextAnalysis(text string) (*IndoBERTResponse, erro
 }
 
 func (s *AnalyticsService) GetTextAnalysisBatch() (interface{}, error) {
-	raw, err := s.aiClient.GetTextAnalysisBatch()
+	raw, err := s.cache.GetOrLoad("text-analysis", s.aiClient.GetTextAnalysisBatch)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +182,7 @@ func (s *AnalyticsService) GetPerformanceTrend(req PerformanceTrendRequest) (*LS
 }
 
 func (s *AnalyticsService) GetPerformanceTrendBatch() (interface{}, error) {
-	raw, err := s.aiClient.GetPerformanceTrendBatch()
+	raw, err := s.cache.GetOrLoad("performance-trend", s.aiClient.GetPerformanceTrendBatch)
 	if err != nil {
 		return nil, err
 	}
@@ -190,6 +192,12 @@ func (s *AnalyticsService) GetPerformanceTrendBatch() (interface{}, error) {
 }
 
 func (s *AnalyticsService) TriggerAutoRetrain() (interface{}, error) {
+	if !s.cache.AllowRetrain() {
+		return map[string]string{
+			"status":  "skipped",
+			"message": "Auto-retrain already ran recently; skipped until the throttle window passes.",
+		}, nil
+	}
 	raw, err := s.aiClient.TriggerAutoRetrain()
 	if err != nil {
 		return nil, err

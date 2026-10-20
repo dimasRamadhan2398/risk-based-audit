@@ -81,11 +81,10 @@ const item = (extra = {}) => normalizeAtrItem({
 })
 
 const USERS = {
-  pic: { id: 'pic-1', roles: ['auditee'] },
-  auditor: { id: 'aud-1', roles: ['auditor'] },
-  manager: { id: 'mgr-1', roles: ['audit_manager'] },
-  cae: { id: 'cae-1', roles: ['chief_audit_executive'] },
-  admin: { id: 'adm-1', roles: ['admin'] }
+  pic: { id: 'pic-1', roles: ['AUDITEE'] },
+  auditor: { id: 'aud-1', roles: ['AUDITOR'] },
+  cae: { id: 'cae-1', roles: ['EXECUTIVE'] },
+  admin: { id: 'adm-1', roles: ['ADMIN'] }
 }
 
 const loginAs = (who) => {
@@ -116,8 +115,7 @@ describe('role gating (useAtrActions)', () => {
     expect(actionsFor('auditor', { status: 'COMPLETED' })).toEqual({ actionPlan: false, assign: false, review: false, cancel: false })
   })
 
-  it('audit manager: assign, review and cancel; CAE: review and cancel only', () => {
-    expect(actionsFor('manager', { status: 'PENDING_REVIEW' })).toEqual({ actionPlan: false, assign: true, review: true, cancel: true })
+  it('EXECUTIVE (CAE): review and cancel only, no assign', () => {
     expect(actionsFor('cae', { status: 'PENDING_REVIEW' })).toEqual({ actionPlan: false, assign: false, review: true, cancel: true })
     expect(actionsFor('cae', { status: 'CANCELLED' }).cancel).toBe(false)
   })
@@ -132,7 +130,7 @@ describe('role gating (useAtrActions)', () => {
   })
 
   it('the server\'s allowed_actions can only narrow what the role allows', () => {
-    expect(actionsFor('manager', { status: 'PENDING_REVIEW', allowed_actions: ['review'] }))
+    expect(actionsFor('cae', { status: 'PENDING_REVIEW', allowed_actions: ['review'] }))
       .toEqual({ actionPlan: false, assign: false, review: true, cancel: false })
     // the server never widens: a PIC is not given review because the list says so
     expect(actionsFor('pic', { status: 'PENDING_REVIEW', allowed_actions: ['review', 'cancel'] }))

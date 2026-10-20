@@ -23,7 +23,8 @@ func main() {
 		log.Fatalf("Refusing to start analytics-service: %v", err)
 	}
 
-	r := gin.Default()
+	r := gin.New()
+	r.Use(gin.Recovery(), middleware.RedactingLogger())
 
 	// Configure CORS
 	r.Use(cors.New(cors.Config{
