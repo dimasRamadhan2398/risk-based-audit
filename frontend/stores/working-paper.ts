@@ -334,6 +334,13 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     { flush: 'sync' }
   )
 
+  const selectedAssignmentLetter = computed({
+    get: () => headerForm.assignmentLetterId,
+    set: (val: string) => {
+      headerForm.assignmentLetterId = val
+    }
+  })
+
   const riskForm = reactive<WorkingPaperRiskForm>({
     risk: '',
     taxonomy: '' as any,
@@ -1409,6 +1416,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     dataF01, dataF02, dataF03, dataF04, dataF05,
     filteredDataF01, filteredDataF02, filteredDataF03, filteredDataF04, filteredDataF05,
     hasAssignmentLetter,
+    selectedAssignmentLetter,
     addF03,
     updateF01, updateF02, updateF03, updateF04, updateF05,
     deleteF01, deleteF02, deleteF03, deleteF04, deleteF05,

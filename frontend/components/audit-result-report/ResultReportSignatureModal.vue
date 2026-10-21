@@ -3,7 +3,7 @@
     :open="open"
     dismissible
     :ui="{
-      content: 'sm:max-w-4xl max-h-[92vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl overflow-hidden',
+      content: 'sm:max-w-4xl max-h-[92vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl overflow-hidden',
       header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
       body: 'p-6 space-y-6 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(92vh-140px)] flex-1',
       footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
@@ -12,18 +12,18 @@
     @update:open="emit('update:open', $event)"
   >
     <template #content>
-      <div class="flex flex-col h-full max-h-[92vh]">
+      <div class="flex flex-col h-full max-h-[92vh] bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         <!-- Header -->
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-slate-50/50 dark:bg-gray-850">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-slate-50/70 dark:bg-gray-900">
           <div class="flex items-center gap-3">
             <div class="p-2.5 rounded-xl bg-primary-100 dark:bg-primary-950/60 text-primary-600 dark:text-primary-400">
               <UIcon name="i-heroicons-pencil-square" class="size-6" />
             </div>
             <div>
               <h3 class="text-lg font-bold text-gray-900 dark:text-white"> {{ t('auditResultReport.editor.signature.title') }} </h3>
-              <p class="text-xs text-gray-500 flex items-center gap-2 mt-0.5">
-                <span>{{ t('auditResultReport.editor.signature.assignmentLetter') }} <strong class="text-primary-600">{{ assignmentLetterId || '-' }}</strong></span>
-                <span>•</span>
+              <p class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2 mt-0.5">
+                <span>{{ t('auditResultReport.editor.signature.assignmentLetter') }} <strong class="text-primary-600 dark:text-primary-400">{{ assignmentLetterId || '-' }}</strong></span>
+                <span class="text-gray-300 dark:text-gray-600">•</span>
                 <span>{{ t('auditResultReport.editor.signature.reportNumber') }} <strong class="font-mono text-gray-700 dark:text-gray-300">{{ reportNumber || '-' }}</strong></span>
               </p>
             </div>
@@ -37,20 +37,20 @@
         </div>
 
         <!-- Body -->
-        <div class="p-6 overflow-y-auto flex-1 space-y-6">
+        <div class="p-6 overflow-y-auto flex-1 space-y-6 bg-white dark:bg-gray-900">
           <!-- Notice Banner -->
-          <div class="p-4 bg-primary-50/70 dark:bg-primary-950/30 rounded-xl border border-primary-200 dark:border-primary-800/50 flex items-start gap-3">
-            <UIcon name="i-heroicons-information-circle" class="size-5 text-primary-600 shrink-0 mt-0.5" />
+          <div class="p-4 bg-primary-50/70 dark:bg-primary-950/40 rounded-xl border border-primary-200 dark:border-primary-900/60 flex items-start gap-3">
+            <UIcon name="i-heroicons-information-circle" class="size-5 text-primary-600 dark:text-primary-400 shrink-0 mt-0.5" />
             <div class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-              {{ t('auditResultReport.editor.signature.introPrefix') }} <strong>{{ t('auditResultReport.editor.signature.member') }}</strong> {{ t('auditResultReport.editor.signature.introMiddle') }} <strong>{{ assignmentLetterId }}</strong>.
-              {{ t('auditResultReport.editor.signature.introAfterLetter') }} <strong>{{ t('auditResultReport.editor.signature.lastPage') }}</strong> {{ t('auditResultReport.editor.signature.introSuffix') }}
+              {{ t('auditResultReport.editor.signature.introPrefix') }} <strong class="text-slate-900 dark:text-white">{{ t('auditResultReport.editor.signature.member') }}</strong> {{ t('auditResultReport.editor.signature.introMiddle') }} <strong class="text-primary-700 dark:text-primary-300">{{ assignmentLetterId }}</strong>.
+              {{ t('auditResultReport.editor.signature.introAfterLetter') }} <strong class="text-slate-900 dark:text-white">{{ t('auditResultReport.editor.signature.lastPage') }}</strong> {{ t('auditResultReport.editor.signature.introSuffix') }}
             </div>
           </div>
 
           <!-- Metadata Pengesahan: Tempat, Tanggal, Perusahaan -->
-          <div class="p-5 bg-slate-50 dark:bg-slate-850/60 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4">
-            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 flex items-center gap-2">
-              <UIcon name="i-heroicons-map-pin" class="size-4 text-primary-600" /> {{ t('auditResultReport.editor.signature.approvalInfo') }} </h4>
+          <div class="p-5 bg-slate-50/80 dark:bg-gray-800/60 rounded-xl border border-slate-200 dark:border-gray-800 space-y-4">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 flex items-center gap-2">
+              <UIcon name="i-heroicons-map-pin" class="size-4 text-primary-600 dark:text-primary-400" /> {{ t('auditResultReport.editor.signature.approvalInfo') }} </h4>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <UFormField :label="t('executiveSummaryForm.signature.place')" required>
                 <UInput
@@ -85,10 +85,10 @@
             <div class="flex justify-between items-center">
               <div>
                 <h4 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide flex items-center gap-2">
-                  <UIcon name="i-heroicons-user-group" class="text-primary-600" /> {{ t('auditResultReport.editor.signature.memberSignatures') }} <UBadge color="primary" variant="subtle" size="sm">
+                  <UIcon name="i-heroicons-user-group" class="text-primary-600 dark:text-primary-400" /> {{ t('auditResultReport.editor.signature.memberSignatures') }} <UBadge color="primary" variant="subtle" size="sm">
                     {{ memberSignatures.length }} {{ t('workingPaper.headerForm.member') }} </UBadge>
                 </h4>
-                <p class="text-xs text-gray-500 mt-0.5"> {{ t('auditResultReport.editor.signature.automaticList') }} </p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"> {{ t('auditResultReport.editor.signature.automaticList') }} </p>
               </div>
             </div>
 
@@ -97,12 +97,12 @@
               <div
                 v-for="(member, idx) in memberSignatures"
                 :key="idx"
-                class="p-5 bg-white dark:bg-gray-850 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3 hover:border-primary-300 dark:hover:border-primary-700 transition"
+                class="p-5 bg-white dark:bg-gray-800/60 rounded-xl border border-slate-200 dark:border-gray-700/70 shadow-sm space-y-3 hover:border-primary-300 dark:hover:border-primary-500/60 transition"
               >
                 <!-- Member Header Info -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-gray-100 dark:border-gray-800">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-gray-100 dark:border-gray-700/60">
                   <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-950 flex items-center justify-center text-primary-600 font-bold text-xs">
+                    <div class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-950/80 border border-primary-200 dark:border-primary-800/80 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold text-xs">
                       {{ idx + 1 }}
                     </div>
                     <div>
@@ -112,7 +112,7 @@
                           {{ member.role || 'Team Member' }}
                         </UBadge>
                       </div>
-                      <span class="text-[11px] text-gray-400">{{ t('auditResultReport.editor.signature.memberNumber') }}{{ idx + 1 }}</span>
+                      <span class="text-[11px] text-gray-400 dark:text-gray-500">{{ t('auditResultReport.editor.signature.memberNumber') }}{{ idx + 1 }}</span>
                     </div>
                   </div>
                 </div>
@@ -128,19 +128,19 @@
               <!-- Empty State if no team members -->
               <div
                 v-if="memberSignatures.length === 0"
-                class="text-center py-8 bg-slate-50 dark:bg-slate-850/50 rounded-xl border border-dashed border-slate-300 dark:border-slate-800 space-y-2"
+                class="text-center py-8 bg-slate-50/80 dark:bg-gray-800/40 rounded-xl border border-dashed border-slate-300 dark:border-gray-700/60 space-y-2"
               >
-                <UIcon name="i-heroicons-user-group" class="size-8 text-gray-400 mx-auto" />
+                <UIcon name="i-heroicons-user-group" class="size-8 text-gray-400 dark:text-gray-500 mx-auto" />
                 <p class="text-sm font-semibold text-gray-700 dark:text-gray-300"> {{ t('auditResultReport.editor.signature.empty') }} </p>
-                <p class="text-xs text-gray-500 max-w-sm mx-auto"> {{ t('auditResultReport.editor.signature.emptyDescription') }} </p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 max-w-sm mx-auto"> {{ t('auditResultReport.editor.signature.emptyDescription') }} </p>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Footer -->
-        <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center bg-slate-50/50 dark:bg-gray-850">
-          <span class="text-xs text-gray-500 mr-2 hidden sm:inline">
+        <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center bg-slate-50/70 dark:bg-gray-900">
+          <span class="text-xs text-gray-500 dark:text-gray-400 mr-2 hidden sm:inline">
             {{ signedCount }} {{ t('auditResultReport.editor.signature.of') }} {{ memberSignatures.length }} {{ t('auditResultReport.editor.signature.completed') }} </span>
 
           <div class="flex items-center gap-2">

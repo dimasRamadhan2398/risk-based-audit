@@ -1935,7 +1935,62 @@
         "duplicates": "Duplicates",
         "completenessDataset": "Completeness (%)",
         "accuracyDataset": "Accuracy (%)",
-        "qualityAxis": "Quality Score (%)"
+        "qualityAxis": "Quality Score (%)",
+        "technicalTable": "Technical Table",
+        "tables": {
+          "gold": {
+            "fact_transactions": "Financial Transactions",
+            "fact_loans": "Loans & Credit",
+            "dim_accounts": "Customer Accounts",
+            "fact_gl_entries": "General Ledger (GL)",
+            "dim_branches": "Branch Directory",
+            "dim_products": "Product Catalog"
+          },
+          "silver": {
+            "cbs_transactions": "Core Banking Transactions",
+            "cbs_customers": "Customer Profiles",
+            "cbs_branches": "Core Banking Branches",
+            "cbs_loans": "Core Banking Loans"
+          },
+          "bronze": {
+            "cbs_daily_transactions": "Daily Raw Transactions",
+            "cb_transactions": "Raw Transactions (CBS)",
+            "cb_accounts": "Raw Accounts (CBS)",
+            "cb_customers": "Raw Customers (CBS)",
+            "cb_loans": "Raw Loans (CBS)",
+            "cb_gl": "Raw General Ledger (CBS)",
+            "cb_products": "Raw Products (CBS)",
+            "cb_branches": "Raw Branches (CBS)",
+            "cb_failed_logins": "Failed Login Logs"
+          }
+        },
+        "chartTables": {
+          "gold": {
+            "fact_transactions": "Financial Trx",
+            "fact_loans": "Loans & Credit",
+            "dim_accounts": "Accounts",
+            "fact_gl_entries": "GL Entries",
+            "dim_branches": "Branches",
+            "dim_products": "Products"
+          },
+          "silver": {
+            "cbs_transactions": "CBS Trx",
+            "cbs_customers": "Profiles",
+            "cbs_branches": "CBS Branches",
+            "cbs_loans": "CBS Loans"
+          },
+          "bronze": {
+            "cbs_daily_transactions": "Daily Raw Trx",
+            "cb_transactions": "Raw Trx",
+            "cb_accounts": "Raw Accounts",
+            "cb_customers": "Raw Customers",
+            "cb_loans": "Raw Loans",
+            "cb_gl": "Raw GL",
+            "cb_products": "Raw Products",
+            "cb_branches": "Raw Branches",
+            "cb_failed_logins": "Failed Logins"
+          }
+        }
       }
     },
     "anomalyFilter": "Filter:",

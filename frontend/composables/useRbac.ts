@@ -2,6 +2,9 @@ import { ref, computed } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 import { UserRole } from '~/types/auth'
 
+// Module-level singleton to share active preview role across all components and pages
+const activeRoleView = ref<string | null>(null)
+
 /**
  * Role-Based Access Control composable.
  * F-04: Provides helpers to check user roles and permissions.
@@ -21,12 +24,12 @@ export const useRbac = () => {
         if (userCookie.value) {
           u = typeof userCookie.value === 'string' ? JSON.parse(userCookie.value) : userCookie.value
         }
-      } catch {}
+      } catch { }
       if (!u && typeof window !== 'undefined') {
         try {
           const stored = localStorage.getItem('auth-user') || localStorage.getItem('user')
           if (stored) u = JSON.parse(stored)
-        } catch {}
+        } catch { }
       }
     }
     return u || null
@@ -43,9 +46,24 @@ export const useRbac = () => {
     if (!u) return []
 
     const roles: string[] = []
-    if (Array.isArray(u.roles)) roles.push(...u.roles)
-    if (u.role) roles.push(u.role)
-    if (u.position) roles.push(u.position)
+    const addRole = (val: any) => {
+      if (!val) return
+      if (typeof val === 'string') {
+        roles.push(val)
+      } else if (typeof val === 'object') {
+        if (val.name) roles.push(String(val.name))
+        if (val.role) roles.push(String(val.role))
+        if (val.code) roles.push(String(val.code))
+        if (val.title) roles.push(String(val.title))
+        if (val.position) roles.push(String(val.position))
+      }
+    }
+
+    if (Array.isArray(u.roles)) {
+      u.roles.forEach(addRole)
+    }
+    addRole(u.role)
+    addRole(u.position)
     return roles
   }
 
@@ -59,9 +77,12 @@ export const useRbac = () => {
     const executiveAliases = ['executive', 'chiefauditexecutive', 'cae']
     if (executiveAliases.includes(t) && executiveAliases.includes(u)) return true
 
-    // Admin
-    const adminAliases = ['admin', 'superadmin', 'administrator']
-    if (adminAliases.includes(t) && adminAliases.includes(u)) return true
+    // Target is CAE / Executive / Viewer
+    if (t === 'chiefauditexecutive' || t === 'cae' || t === 'executive' || t === 'viewer' || t === 'direksi' || t === 'komiteaudit' || t === 'kepalaspi' || t === 'headofskai') {
+      if (u.includes('admin')) return false
+      const execKeywords = ['chiefauditexecutive', 'cae', 'executive', 'kepalaspi', 'headofskai', 'viewer', 'komiteaudit', 'direksi', 'board', 'boc', 'bod', 'komisaris']
+      return execKeywords.some(kw => u === kw || u.includes(kw))
+    }
 
     // Auditor (backend alias AUDITSTAFF -> AUDITOR)
     const auditorAliases = ['auditor', 'auditstaff']
@@ -120,6 +141,33 @@ export const useRbac = () => {
   ]))
 
   /**
+   * Check if the user is an auditee / PIC unit kerja.
+   */
+  const isAuditee = computed(() => hasAnyRole([
+    UserRole.AUDITEE,
+    UserRole.DEPARTMENT_HEAD,
+    'auditee',
+    'pic',
+    'picunit',
+    'departmenthead',
+    'unitkerja'
+  ]))
+
+  /**
+   * Check if the user is an executive (CAE, Viewer, Direksi, Komite Audit).
+   */
+  const isExecutive = computed(() => hasAnyRole([
+    UserRole.CHIEF_AUDIT_EXECUTIVE,
+    UserRole.VIEWER,
+    UserRole.AUDIT_MANAGER,
+    'cae',
+    'viewer',
+    'executive',
+    'direksi',
+    'komite_audit'
+  ]) && !isAdmin.value)
+
+  /**
    * Check if user can access audit management features.
    */
   const canManageAudits = computed(() => hasAnyRole([
@@ -152,7 +200,7 @@ export const useRbac = () => {
       UserRole.VIEWER,
     ].map(normalize)
     for (const role of priority) {
-      if (roles.includes(role)) return role
+      if (roles.some(r => matchesRole(r, role))) return role
     }
     return roles[0] ?? 'user'
   })

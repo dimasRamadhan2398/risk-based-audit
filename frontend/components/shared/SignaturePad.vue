@@ -52,19 +52,19 @@
       >
         <canvas
           ref="canvasRef"
-          class="w-full h-full cursor-crosshair block"
+          class="w-full h-full cursor-crosshair block dark:invert"
           @pointerdown="handlePointerDown"
           @pointermove="handlePointerMove"
           @pointerup="handlePointerUp"
           @pointercancel="handlePointerUp"
         />
         <!-- Signature line guide -->
-        <div class="absolute bottom-6 left-6 right-6 border-b border-gray-200 dark:border-gray-800 pointer-events-none flex justify-between items-center text-[10px] text-gray-400">
+        <div class="absolute bottom-6 left-6 right-6 border-b border-gray-200 dark:border-gray-800 pointer-events-none flex justify-between items-center text-[10px] text-gray-400 dark:text-gray-500">
           <span>{{ t('common.signaturePad.signAboveLine') }}</span>
           <UIcon name="i-heroicons-pencil" class="size-3 opacity-40" />
         </div>
       </div>
-      <p class="text-[11px] text-gray-400 mt-1 italic">
+      <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-1 italic">
         {{ t('common.signaturePad.drawHint') }}
       </p>
     </div>
@@ -87,13 +87,13 @@
           :label="t('common.signaturePad.chooseImage')"
           @click="fileInputRef?.click()"
         />
-        <span class="text-xs text-gray-400">{{ t('common.signaturePad.uploadHint') }}</span>
+        <span class="text-xs text-gray-400 dark:text-gray-500">{{ t('common.signaturePad.uploadHint') }}</span>
       </div>
       <div
         v-if="modelValue"
         class="border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-white dark:bg-gray-900 flex items-center justify-center min-h-[90px]"
       >
-        <img :src="modelValue" :alt="t('common.signaturePad.previewAlt')" class="max-h-20 max-w-full object-contain" />
+        <img :src="modelValue" :alt="t('common.signaturePad.previewAlt')" class="max-h-20 max-w-full object-contain dark:invert" />
       </div>
     </div>
   </div>

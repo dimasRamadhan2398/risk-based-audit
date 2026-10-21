@@ -1935,7 +1935,62 @@
         "duplicates": "Duplikat",
         "completenessDataset": "Kelengkapan (%)",
         "accuracyDataset": "Akurasi (%)",
-        "qualityAxis": "Skor Mutu (%)"
+        "qualityAxis": "Skor Mutu (%)",
+        "technicalTable": "Tabel Teknis",
+        "tables": {
+          "gold": {
+            "fact_transactions": "Transaksi Finansial",
+            "fact_loans": "Pinjaman & Kredit",
+            "dim_accounts": "Rekening Nasabah",
+            "fact_gl_entries": "Jurnal Buku Besar (GL)",
+            "dim_branches": "Data Kantor Cabang",
+            "dim_products": "Katalog Produk"
+          },
+          "silver": {
+            "cbs_transactions": "Transaksi Core Banking",
+            "cbs_customers": "Profil Nasabah",
+            "cbs_branches": "Cabang Core Banking",
+            "cbs_loans": "Kredit Core Banking"
+          },
+          "bronze": {
+            "cbs_daily_transactions": "Log Transaksi Harian",
+            "cb_transactions": "Transaksi Mentah (CBS)",
+            "cb_accounts": "Rekening Mentah (CBS)",
+            "cb_customers": "Nasabah Mentah (CBS)",
+            "cb_loans": "Pinjaman Mentah (CBS)",
+            "cb_gl": "Buku Besar Mentah (CBS)",
+            "cb_products": "Produk Mentah (CBS)",
+            "cb_branches": "Cabang Mentah (CBS)",
+            "cb_failed_logins": "Log Percobaan Login"
+          }
+        },
+        "chartTables": {
+          "gold": {
+            "fact_transactions": "Transaksi Finansial",
+            "fact_loans": "Pinjaman & Kredit",
+            "dim_accounts": "Rekening Nasabah",
+            "fact_gl_entries": "Jurnal GL",
+            "dim_branches": "Kantor Cabang",
+            "dim_products": "Produk Bank"
+          },
+          "silver": {
+            "cbs_transactions": "Transaksi CBS",
+            "cbs_customers": "Profil Nasabah",
+            "cbs_branches": "Cabang CBS",
+            "cbs_loans": "Kredit CBS"
+          },
+          "bronze": {
+            "cbs_daily_transactions": "Log Harian Mentah",
+            "cb_transactions": "Trx Mentah",
+            "cb_accounts": "Rekening Mentah",
+            "cb_customers": "Nasabah Mentah",
+            "cb_loans": "Pinjaman Mentah",
+            "cb_gl": "GL Mentah",
+            "cb_products": "Produk Mentah",
+            "cb_branches": "Cabang Mentah",
+            "cb_failed_logins": "Log Login"
+          }
+        }
       }
     },
     "anomalyFilter": "Filter:",

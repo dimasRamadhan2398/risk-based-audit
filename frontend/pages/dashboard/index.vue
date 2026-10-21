@@ -352,7 +352,7 @@
             <span class="flex items-center gap-1.5">
               <UIcon name="i-heroicons-shield-exclamation" class="w-4 h-4 text-rose-500" /> {{ t('dashboard.overview.contaminationRate') }} {{ ((isolationState.summary?.contaminationRate || 0) * 100).toFixed(1) }}%
             </span>
-            <NuxtLink to="/analytics" class="font-semibold text-rose-600 dark:text-rose-400 hover:underline"> {{ t('dashboard.overview.manageAll') }} {{ (isolationState.anomalies || []).length }} {{ t('dashboard.overview.anomalies') }}
+            <NuxtLink to="/analytics/ai/anomaly-detection" class="font-semibold text-rose-600 dark:text-rose-400 hover:underline"> {{ t('dashboard.overview.manageAll') }} {{ (isolationState.anomalies || []).length }} {{ t('dashboard.overview.anomalies') }}
             </NuxtLink>
           </div>
         </div>

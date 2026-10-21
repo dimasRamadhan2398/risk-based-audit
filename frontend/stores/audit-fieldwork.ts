@@ -1846,6 +1846,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     documentForm,
     showDocumentModal,
     isEditingDocument,
+    editingDocumentId,
     isReadOnlyDocument,
     openDocumentModal,
     editDocument,
