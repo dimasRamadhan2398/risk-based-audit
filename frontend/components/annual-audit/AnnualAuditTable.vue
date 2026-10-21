@@ -98,7 +98,6 @@
 </template>
 
 <script setup lang="ts">
-const { t } = useI18n()
 import { useAnnualPlanStore } from '~/stores/annual-audit'
 import { useI18n } from '~/composables/useI18n'
 import { getRiskLevelColorClass } from '~/utils/riskLevelBadge'
