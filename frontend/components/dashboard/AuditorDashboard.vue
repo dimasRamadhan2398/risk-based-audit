@@ -4,157 +4,253 @@
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-5 sm:p-6 bg-gradient-to-r from-emerald-900/10 via-primary-500/5 to-transparent border border-emerald-500/20 rounded-2xl shadow-xs">
       <div class="flex items-start sm:items-center gap-4">
         <div class="size-14 rounded-2xl bg-emerald-600/10 dark:bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-xs">
-          <UIcon name="i-lucide-clipboard-check" class="size-7" />
+          <UIcon
+            name="i-lucide-clipboard-check"
+            class="size-7"
+          />
         </div>
         <div>
           <div class="flex flex-wrap items-center gap-2">
             <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
-              Dashboard Pelaksana Audit (Fieldwork Auditor)
+              {{ t('dashboard.auditor.title') }}
             </h1>
-            <UBadge color="success" variant="subtle" size="sm" class="font-bold uppercase tracking-wider">
-              Role: Auditor
-            </UBadge>
+            <!-- <UBadge
+              color="success"
+              variant="subtle"
+              size="sm"
+              class="font-bold uppercase tracking-wider"
+            >
+              {{ t('dashboard.auditor.roleBadge') }}
+            </UBadge> -->
           </div>
           <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 max-w-3xl">
-            Selamat datang, <strong class="text-gray-900 dark:text-gray-200">{{ currentUserFullName }}</strong>. 
-            Layar kerja khusus eksekusi penugasan audit lapangan, penyusunan Kertas Kerja Audit dan perumusan draft temuan audit (LHA).
+            {{ t('dashboard.auditor.welcome', { name: currentUserFullName }) }}
           </p>
         </div>
       </div>
+
+      <!-- Quick Action Controls & Role Switcher -->
+      <div class="flex flex-wrap items-center gap-2 self-start lg:self-center shrink-0">
+        <!-- Role Preview Pill (Visible for admins / reviewers to test/toggle) -->
+        <div
+          v-if="canToggleRoleView"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs font-medium"
+        >
+          <UIcon
+            name="i-lucide-eye"
+            class="size-4 text-emerald-500"
+          />
+          <span class="text-gray-600 dark:text-gray-300">{{ t('dashboard.auditor.previewMode') }}</span>
+          <span class="font-bold text-emerald-600 dark:text-emerald-400">{{ t('dashboard.auditor.previewAuditor') }}</span>
+          <button
+            type="button"
+            class="ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 underline text-[11px]"
+            :title="t('dashboard.auditor.previewResetTitle')"
+            @click="switchDashboardView(null)"
+          >
+            {{ t('dashboard.auditor.previewReset') }}
+          </button>
+        </div>
+
+        <UButton
+          variant="outline"
+          color="neutral"
+          size="sm"
+          class="font-medium cursor-pointer"
+          :loading="isSyncing"
+          @click="manualSyncAuditorData"
+        >
+          <template #leading>
+            <UIcon
+              name="i-lucide-rotate-cw"
+              :class="{ 'animate-spin': isSyncing }"
+              class="size-4"
+            />
+          </template>
+          {{ t('dashboard.auditor.sync') }}
+        </UButton>
+      </div>
     </div>
 
-    <!-- Notice Card: Fokus Operasional Lapangan (Sesuai Panduan RBAC) -->
-    <div class="flex items-center justify-between gap-4 p-4 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-900 dark:text-sky-200 text-xs sm:text-sm">
-      <div class="flex items-center gap-3">
-        <UIcon name="i-lucide-info" class="size-5 text-sky-600 dark:text-sky-400 shrink-0" />
-        <div>
-          <span class="font-bold">Prinsip Tampilan Auditor:</span>
-          <span class="ml-1 text-sky-800 dark:text-sky-300">
-            Metrik risiko makro korporasi disederhanakan agar workspace berfokus penuh pada penugasan aktif, kertas kerja, dan dokumen bukti (PBC).
-          </span>
-        </div>
-      </div>
-      <div class="hidden md:flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-md bg-sky-600/10 text-sky-700 dark:text-sky-300 shrink-0">
-        <UIcon name="i-lucide-shield-check" class="size-3.5" />
-        <span>Matriks RBAC Baris 8 & 9</span>
+    <!-- Notice -->
+    <div class="flex items-start gap-3 p-4 rounded-xl bg-secondary-500/10 border border-secondary-500/20 text-secondary-900 dark:text-secondary-200 text-xs sm:text-sm">
+      <UIcon
+        name="i-lucide-info"
+        class="size-5 text-secondary-600 dark:text-secondary-400 shrink-0"
+      />
+      <div>
+        <span class="font-bold">{{ t('dashboard.auditor.notice.label') }}</span>
+        <span class="ml-1 text-secondary-800 dark:text-secondary-300">{{ t('dashboard.auditor.notice.text') }}</span>
       </div>
     </div>
 
-    <!-- 4 Focused Operational Stat Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-      <!-- Card 1: Active Fieldwork Assignments -->
-      <div class="p-5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 shadow-xs flex flex-col justify-between hover:border-emerald-500/40 transition-all">
-        <div class="flex items-start justify-between">
-          <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-              Audit Lapangan Aktif
-            </p>
-            <h3 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mt-1">
-              {{ activeAssignmentsCount }}
-            </h3>
-          </div>
-          <div class="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-            <UIcon name="i-lucide-briefcase" class="size-5" />
-          </div>
-        </div>
-        <div class="mt-3 flex items-center justify-between text-xs border-t border-gray-100 dark:border-gray-800/80 pt-2.5">
-          <span class="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
-            <UIcon name="i-lucide-activity" class="size-3.5" />
-            {{ inProgressAssignmentsCount }} Dalam Pelaksanaan
-          </span>
-          <span class="text-gray-400">Tahun {{ currentYear }}</span>
-        </div>
+    <!-- 1. Audit statistics -->
+    <section
+      class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-5"
+      aria-labelledby="auditor-stats-title"
+    >
+      <div>
+        <h2
+          id="auditor-stats-title"
+          class="text-lg font-bold text-gray-900 dark:text-white"
+        >
+          {{ t('dashboard.auditor.stats.title') }}
+        </h2>
+        <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
+          {{ t('dashboard.auditor.stats.scope') }}
+        </p>
       </div>
-
-      <!-- Card 2: Working Papers (KKA) Progress -->
-      <div class="p-5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 shadow-xs flex flex-col justify-between hover:border-primary-500/40 transition-all">
-        <div class="flex items-start justify-between">
-          <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-              Kertas Kerja
-            </p>
-            <h3 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mt-1">
-              {{ totalWorkingPapersCount }}
-            </h3>
-          </div>
-          <div class="p-2.5 rounded-xl bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400">
-            <UIcon name="i-lucide-file-signature" class="size-5" />
-          </div>
-        </div>
-        <div class="mt-3 flex items-center justify-between text-xs border-t border-gray-100 dark:border-gray-800/80 pt-2.5">
-          <div class="flex items-center gap-1.5">
-            <div class="w-16 bg-gray-200 dark:bg-gray-800 h-2 rounded-full overflow-hidden">
-              <div class="bg-primary-500 h-full rounded-full" :style="{ width: `${kkaCompletionRate}%` }" />
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div
+          v-for="card in statCards"
+          :key="card.key"
+          class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] border border-gray-200/80 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30"
+        >
+          <div class="flex items-start justify-between gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ card.label }}</span>
+            <div
+              class="p-2 rounded-lg shrink-0"
+              :class="card.iconBg"
+            >
+              <UIcon
+                :name="card.icon"
+                class="size-4"
+                :class="card.iconClass"
+              />
             </div>
-            <span class="font-bold text-primary-600 dark:text-primary-400">{{ kkaCompletionRate }}% Selesai</span>
           </div>
-          <NuxtLink to="/working-paper" class="text-primary-600 dark:text-primary-400 hover:underline font-semibold">
-            Kelola &rarr;
-          </NuxtLink>
+          <AuditorWidgetState
+            :state="card.state === 'empty' ? 'ready' : card.state"
+            :error-text="t('dashboard.auditor.states.loadError')"
+            :retry-label="t('dashboard.auditor.states.retry')"
+            @retry="card.retry"
+          >
+            <div class="mt-2">
+              <h4 class="text-2xl font-extrabold text-gray-900 dark:text-white">
+                {{ card.value }}
+              </h4>
+              <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                {{ card.hint }}
+              </p>
+              <p
+                v-if="card.state === 'empty'"
+                class="text-[11px] text-gray-400 mt-1"
+              >
+                {{ t('dashboard.auditor.states.noData') }}
+              </p>
+            </div>
+          </AuditorWidgetState>
         </div>
       </div>
+    </section>
 
-      <!-- Card 3: Draft Findings (LHA) -->
-      <div class="p-5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 shadow-xs flex flex-col justify-between hover:border-amber-500/40 transition-all">
-        <div class="flex items-start justify-between">
+    <!-- 2. Audit planning & coverage -->
+    <section
+      class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-5"
+      aria-labelledby="auditor-coverage-title"
+    >
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <h2
+            id="auditor-coverage-title"
+            class="text-lg font-bold text-gray-900 dark:text-white"
+          >
+            {{ t('dashboard.auditor.coverage.title') }}
+          </h2>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            {{ t('dashboard.auditor.coverage.description') }}
+          </p>
+          <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
+            {{ t('dashboard.auditor.coverage.scope') }}
+          </p>
+        </div>
+        <UButton
+          to="/annual-audit"
+          variant="ghost"
+          color="neutral"
+          size="sm"
+          class="self-start sm:self-auto"
+        >
+          {{ t('dashboard.auditor.coverage.openPlan') }}
+        </UButton>
+      </div>
+
+      <AuditorWidgetState
+        :state="planState === 'empty' ? 'ready' : planState"
+        :error-text="t('dashboard.auditor.states.loadError')"
+        :retry-label="t('dashboard.auditor.states.retry')"
+        @retry="reloadPlans"
+      >
+        <p
+          v-if="planState === 'empty'"
+          class="text-xs text-gray-500 dark:text-gray-400"
+        >
+          {{ t('dashboard.auditor.coverage.empty') }}
+        </p>
+        <div class="space-y-4">
+          <div class="flex flex-wrap justify-between items-center gap-x-3 gap-y-1">
+            <span class="text-sm font-semibold text-gray-500 dark:text-gray-400">{{ t('dashboard.auditor.coverage.overallProgress') }}</span>
+            <h5 class="text-base font-bold text-indigo-600 dark:text-indigo-400 whitespace-nowrap">
+              {{ coveragePercent }}%
+            </h5>
+          </div>
+          <UProgress
+            :model-value="coveragePercent"
+            color="secondary"
+            class="h-2 rounded"
+          />
+        </div>
+        <div class="grid grid-cols-3 gap-2 border-t border-gray-100 dark:border-gray-800 pt-5 mt-5 text-center">
           <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-              Draft Temuan Sementara
+            <p class="text-[11px] text-gray-400 font-semibold uppercase">
+              {{ t('dashboard.auditor.coverage.planned') }}
             </p>
-            <h3 class="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400 mt-1">
-              {{ draftFindingsList.length }}
-            </h3>
+            <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-1">
+              {{ auditCoverage.plannedAudits }}
+            </h4>
           </div>
-          <div class="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400">
-            <UIcon name="i-lucide-alert-triangle" class="size-5" />
-          </div>
-        </div>
-        <div class="mt-3 flex items-center justify-between text-xs border-t border-gray-100 dark:border-gray-800/80 pt-2.5">
-          <div class="flex items-center gap-1 text-[11px]">
-            <span class="px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-300 font-semibold">{{ highFindingsCount }} High</span>
-            <span class="px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 font-semibold">{{ mediumFindingsCount }} Med</span>
-            <span class="px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-semibold">{{ lowFindingsCount }} Low</span>
-          </div>
-          <span class="text-gray-400 text-[11px]">Draft LHA</span>
-        </div>
-      </div>
-
-      <!-- Card 4: PBC & Evidence Tracker -->
-      <div class="p-5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 shadow-xs flex flex-col justify-between hover:border-sky-500/40 transition-all">
-        <div class="flex items-start justify-between">
           <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-              Bukti Klien (PBC Tracker)
+            <p class="text-[11px] text-gray-400 font-semibold uppercase">
+              {{ t('dashboard.auditor.coverage.approved') }}
             </p>
-            <h3 class="text-2xl sm:text-3xl font-extrabold text-sky-600 dark:text-sky-400 mt-1">
-              {{ pbcStats.collected }}/{{ pbcStats.total }}
-            </h3>
+            <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-1">
+              {{ auditCoverage.completedAudits }}
+            </h4>
           </div>
-          <div class="p-2.5 rounded-xl bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400">
-            <UIcon name="i-lucide-folder-input" class="size-5" />
+          <div>
+            <p class="text-[11px] text-gray-400 font-semibold uppercase">
+              {{ t('dashboard.auditor.coverage.remaining') }}
+            </p>
+            <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-1">
+              {{ auditCoverage.remainingAudits }}
+            </h4>
           </div>
         </div>
-        <div class="mt-3 flex items-center justify-between text-xs border-t border-gray-100 dark:border-gray-800/80 pt-2.5">
-          <span class="text-sky-600 dark:text-sky-400 font-semibold">
-            {{ pbcStats.pending }} Dokumen Menunggu Respon
-          </span>
-          <NuxtLink to="/audit-fieldwork" class="text-sky-600 dark:text-sky-400 hover:underline font-semibold">
-            Lihat &rarr;
-          </NuxtLink>
-        </div>
-      </div>
-    </div>
+      </AuditorWidgetState>
+    </section>
 
-    <!-- KOMPONEN UTAMA 1: TABEL DAFTAR AUDIT BERJALAN (ACTIVE FIELDWORK) -->
-    <div class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-5">
+    <!-- 3. Audit status and progress (active fieldwork) -->
+    <section
+      class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-5"
+      aria-labelledby="auditor-status-title"
+    >
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <UIcon name="i-lucide-briefcase" class="size-5 text-emerald-600 dark:text-emerald-400" />
-            1. Tabel Utama: Daftar Audit Berjalan (Active Fieldwork)
+          <h2
+            id="auditor-status-title"
+            class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2"
+          >
+            <UIcon
+              name="i-lucide-briefcase"
+              class="size-5 text-emerald-600 dark:text-emerald-400"
+            />
+            {{ t('dashboard.auditor.status.title') }}
           </h2>
           <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-            Daftar penugasan audit yang sedang dipegang, timeline tahapan lapangan, dan status progres Kertas Kerja.
+            {{ t('dashboard.auditor.status.description') }}
+          </p>
+          <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
+            {{ t('dashboard.auditor.status.scope') }}
           </p>
         </div>
 
@@ -1896,5 +1992,5 @@ onMounted(async () => {
     opacity: 1;
     transform: translateY(0);
   }
-}
+}  
 </style>
