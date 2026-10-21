@@ -356,7 +356,7 @@
               <UIcon name="i-heroicons-shield-exclamation" class="w-4 h-4 text-rose-500" />
               Tingkat Kontaminasi: {{ ((isolationState.summary?.contaminationRate || 0) * 100).toFixed(1) }}%
             </span>
-            <NuxtLink to="/analytics" class="font-semibold text-rose-600 dark:text-rose-400 hover:underline">
+            <NuxtLink to="/analytics/ai/anomaly-detection" class="font-semibold text-rose-600 dark:text-rose-400 hover:underline">
               Kelola Semua {{ (isolationState.anomalies || []).length }} Anomali &rarr;
             </NuxtLink>
           </div>

@@ -137,6 +137,16 @@ func runServe(cmd *cobra.Command, args []string) error {
 		ALTER TABLE audit_result_reports ADD COLUMN IF NOT EXISTS signatures text;
 	`)
 
+	// Executive summary approval signature (POST /executive-summaries/:id/approve)
+	db.Exec(`
+		ALTER TABLE executive_summaries ADD COLUMN IF NOT EXISTS signature_image text;
+		ALTER TABLE executive_summaries ADD COLUMN IF NOT EXISTS signature_name varchar(200);
+		ALTER TABLE executive_summaries ADD COLUMN IF NOT EXISTS signature_role varchar(100);
+		ALTER TABLE executive_summaries ADD COLUMN IF NOT EXISTS approved_by varchar(200);
+		ALTER TABLE executive_summaries ADD COLUMN IF NOT EXISTS approved_by_role varchar(100);
+		ALTER TABLE executive_summaries ADD COLUMN IF NOT EXISTS approved_at timestamp with time zone;
+	`)
+
 	// Ensure assignment_letters letter_number unique index is a partial index on active records only
 	db.Exec(`
 		DROP INDEX IF EXISTS idx_assignment_letters_letter_number;
