@@ -21,38 +21,6 @@
           </p>
         </div>
       </div>
-
-      <!-- Quick Action Controls & Role Switcher -->
-      <div class="flex flex-wrap items-center gap-2 self-start lg:self-center shrink-0">
-        <!-- Role Preview Pill (Visible for admins / reviewers to test/toggle) -->
-        <div v-if="canToggleRoleView" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs font-medium">
-          <UIcon name="i-lucide-eye" class="size-4 text-emerald-500" />
-          <span class="text-gray-600 dark:text-gray-300">Mode:</span>
-          <span class="font-bold text-emerald-600 dark:text-emerald-400">Auditor</span>
-          <button
-            type="button"
-            class="ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 underline text-[11px]"
-            title="Kembali ke tampilan penuh dashboard"
-            @click="switchDashboardView(null)"
-          >
-            (Reset)
-          </button>
-        </div>
-
-        <UButton
-          variant="outline"
-          color="neutral"
-          size="sm"
-          class="font-medium cursor-pointer"
-          :loading="isSyncing"
-          @click="manualSyncAuditorData"
-        >
-          <template #leading>
-            <UIcon name="i-lucide-rotate-cw" :class="{ 'animate-spin': isSyncing }" class="size-4" />
-          </template>
-          Sinkronisasi Data
-        </UButton>
-      </div>
     </div>
 
     <!-- Notice Card: Fokus Operasional Lapangan (Sesuai Panduan RBAC) -->
@@ -859,7 +827,7 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 const router = useRouter()
 const toast = useToastNotification()
 const authStore = useAuthStore()
-const { isAdmin, canManageAudits, setRoleView } = useRbac()
+const { isAdmin, canManageAudits } = useRbac()
 
 const assignmentLetterStore = useAssignmentLetterStore()
 const fieldworkStore = useAuditFieldworkStore()
@@ -876,15 +844,7 @@ const currentUserFullName = computed(() => {
   return authStore.user?.fullName || authStore.user?.username || 'Auditor SKAI'
 })
 
-// Can the current user toggle role views (Admin or Manager testing)
-const canToggleRoleView = computed(() => {
-  return isAdmin.value || canManageAudits.value
-})
 
-const switchDashboardView = (view: string | null) => {
-  setRoleView(view)
-  toast.info(view ? `Beralih ke mode pratinjau: ${view}` : 'Tampilan dashboard dikembalikan ke default')
-}
 
 const currentYear = computed(() => new Date().getFullYear())
 

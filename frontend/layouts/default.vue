@@ -511,7 +511,7 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
 ]])
 
 const searchQuery = ref('')
-const { isAdmin, canManageAudits, isAuditorView } = useRbac()
+const { isAdmin, canManageAudits, isAuditorView, isAuditeeView, isExecutiveView } = useRbac()
 
 // Pre-collected set of all explicit menu paths to avoid prefix matching when navigating to a registered menu route
 // A nav item's `to` may be a path string or a route-location object; both must
@@ -613,6 +613,34 @@ const processMenuItem = (item: NavigationMenuItem, q: string): NavigationMenuIte
     if (item.to === '/assignment-letter/upload') return null
     // Row 15: Settings & User Management = NONE
     if (typeof item.to === 'string' && item.to.startsWith('/settings')) return null
+  }
+
+  // Auditee role restrictions based on ROLE_BASED_UI_DESIGN_GUIDE.md & permission.vue matrix:
+  if (isAuditeeView.value) {
+    // Row 8-2: Working Papers F-01 to F-05 = NONE
+    if (typeof item.to === 'string' && item.to.startsWith('/working-paper')) return null
+    // Row 4: Strategic Audit Plan & KPI = NONE
+    if (typeof item.to === 'string' && item.to.startsWith('/strategic-audit-plan')) return null
+    if (typeof item.to === 'string' && item.to.startsWith('/kpi-performance')) return null
+    // Row 5 & 6: Annual Plan & Activity Plan = NONE
+    if (typeof item.to === 'string' && item.to.startsWith('/annual-audit')) return null
+    if (typeof item.to === 'string' && item.to.startsWith('/audit-activity-plan')) return null
+    // Row 7: Assignment Letter = NONE
+    if (typeof item.to === 'string' && item.to.startsWith('/assignment-letter')) return null
+    // Row 3: Audit Universe, Priority & Risk Appetite = NONE
+    if (typeof item.to === 'string' && (item.to.startsWith('/risk-profile/audit-universe') || item.to.startsWith('/risk-profile/audit-priority') || item.to.startsWith('/risk-appetite'))) return null
+    // Row 1: Audit Charter = NONE
+    if (typeof item.to === 'string' && item.to.startsWith('/audit-charter')) return null
+    // Row 15: Settings & User Management = NONE
+    if (typeof item.to === 'string' && item.to.startsWith('/settings')) return null
+  }
+
+  // Executive / Viewer role restrictions based on ROLE_BASED_UI_DESIGN_GUIDE.md:
+  if (isExecutiveView.value) {
+    // Row 15: Settings & User Management = NONE for non-admin
+    if (typeof item.to === 'string' && item.to.startsWith('/settings')) return null
+    // Upload/Import pages = NONE
+    if (typeof item.to === 'string' && item.to.endsWith('/upload')) return null
   }
 
   let processedChildren: NavigationMenuItem[] | undefined = undefined

@@ -108,17 +108,33 @@ export const createAnomalyTypeConfigs = (t: Translate): Record<string, AnomalyTy
 })
 
 /** Used when a category has no entry of its own (and as the typed fallback). */
-export const getAnomalyTypeConfig = (t: Translate, type: string): AnomalyTypeConfig => {
-  const configs = createAnomalyTypeConfigs(t)
-  return (
-    configs[type] ??
-    configs['Funding'] ?? {
-      xAxisTitle: t('analytics.isolation.anomalyTypes.fundingXAxis'),
-      unit: t('analytics.isolation.anomalyTypes.fundingUnit'),
-      formatX: (val: number) => `Rp ${val}M`,
-      colors: { bg: 'rgba(16,185,129,0.85)', border: 'rgba(16,185,129,1)', style: 'circle' }
-    }
-  )
+export const getAnomalyTypeConfig = (tOrType: Translate | string, typeOrConfigs?: any): AnomalyTypeConfig => {
+  if (typeof tOrType === 'function') {
+    const t = tOrType
+    const type = typeof typeOrConfigs === 'string' ? typeOrConfigs : 'Funding'
+    const configs = createAnomalyTypeConfigs(t)
+    return (
+      configs[type] ??
+      configs['Funding'] ?? {
+        xAxisTitle: t('analytics.isolation.anomalyTypes.fundingXAxis'),
+        unit: t('analytics.isolation.anomalyTypes.fundingUnit'),
+        formatX: (val: number) => `Rp ${val}M`,
+        colors: { bg: 'rgba(16,185,129,0.85)', border: 'rgba(16,185,129,1)', style: 'circle' }
+      }
+    )
+  } else {
+    const type = String(tOrType || 'Funding')
+    const configs = (typeOrConfigs && typeof typeOrConfigs === 'object') ? typeOrConfigs : {}
+    return (
+      configs[type] ??
+      configs['Funding'] ?? {
+        xAxisTitle: 'Amount (Rp M)',
+        unit: 'Rp M',
+        formatX: (val: number) => `Rp ${val}M`,
+        colors: { bg: 'rgba(16,185,129,0.85)', border: 'rgba(16,185,129,1)', style: 'circle' }
+      }
+    )
+  }
 }
 
 export interface AnomalyScatterPoint {
@@ -174,7 +190,21 @@ export const listAnomalyTypes = (
 }
 
 /** Keep `preferred` when the data has it, otherwise fall back to the first tab. */
-export const resolveAnomalyType = (available: string[] = [], preferred = 'Transaction'): string => {
+export const resolveAnomalyType = (
+  availableOrPreferred: string[] | string = [],
+  preferredOrAvailable?: string[] | string
+): string => {
+  let available: string[] = []
+  let preferred = 'Transaction'
+
+  if (Array.isArray(availableOrPreferred)) {
+    available = availableOrPreferred
+    if (typeof preferredOrAvailable === 'string') preferred = preferredOrAvailable
+  } else if (typeof availableOrPreferred === 'string') {
+    preferred = availableOrPreferred
+    if (Array.isArray(preferredOrAvailable)) available = preferredOrAvailable
+  }
+
   if (available.includes(preferred)) return preferred
   return available[0] || preferred
 }
