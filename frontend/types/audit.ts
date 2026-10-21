@@ -163,21 +163,36 @@ export interface CharterFormState {
   fileName?: string;
 }
 
-/** Jenis Kegiatan Audit (plan header). Values are the backend strings. */
-export const ANNUAL_ACTIVITY_TYPE_OPTIONS = ['Assurance', 'Audit Khusus', 'Audit Tujuan Tertentu', 'Audit Investigasi'] as const;
-export type AnnualActivityType = typeof ANNUAL_ACTIVITY_TYPE_OPTIONS[number];
+/**
+ * Jenis Kegiatan Audit: the header of an Audit Activity Plan (Formulir Rencana Kegiatan Audit).
+ * Values are the backend strings.
+ */
+export const ACTIVITY_PLAN_ACTIVITY_TYPES = ['Assurance', 'Audit Khusus', 'Audit Tujuan Tertentu', 'Audit Investigasi'] as const;
+export type ActivityPlanActivityType = typeof ACTIVITY_PLAN_ACTIVITY_TYPES[number];
 
-/** One row of the Formulir Rencana Kegiatan Audit (annual plan activities[] item). */
+/** The Audit Activity Plan row that uses an annual plan row (server-computed, read-only). */
+export interface AnnualActivityPlanRef {
+  activityPlanId: string;
+  activityPlanTitle: string;
+  auditActivityId: string;
+  assignmentCode: string;
+}
+
+/**
+ * One row of the Annual Audit Plan (PKAT activities[] item): what is audited and with how many
+ * resources. The why and how (Kode Penugasan, Justifikasi, Tujuan, Fokus, Ketua Tim) live on the
+ * Audit Activity Plan row.
+ */
 export interface AuditActivities {
   /** Server-assigned UUID. Kept on edit and sent back on PUT. */
   id?: string;
   /** No. */
   itemNumber?: string;
-  /** Kode Penugasan. */
+  /** @deprecated Moved to the Audit Activity Plan. Read-only legacy value, never sent; the server keeps it. */
   activityCode?: string;
   /** Objek Penugasan Audit. */
   name: string;
-  /** Jenis Audit. */
+  /** Audit category (Assurance, Special Audit, ...). Decides which Jenis Kegiatan Audit can use the row. */
   category: AuditCategory | string;
   /** Department id from the master list (GET /departments). */
   departmentId?: string;
@@ -188,11 +203,11 @@ export interface AuditActivities {
   /** Snapshots refreshed by the server from the Audit Universe. Read-only, never sent. */
   riskName?: string;
   riskLevel?: string;
-  /** Justifikasi Pemilihan Objek. */
+  /** @deprecated Moved to the Audit Activity Plan. Read-only legacy value, never sent. */
   justification?: string;
-  /** Tujuan Audit. */
+  /** @deprecated Moved to the Audit Activity Plan. Read-only legacy value, never sent. */
   auditObjective?: string;
-  /** Fokus Audit. */
+  /** @deprecated Moved to the Audit Activity Plan. Read-only legacy value, never sent. */
   auditFocus?: string;
   /** Jadwal Penugasan. */
   timelineText?: string;
@@ -200,8 +215,10 @@ export interface AuditActivities {
   auditorCount?: number;
   /** Total Mandays. */
   totalMandays?: number;
-  /** Ketua Tim. */
+  /** Supervisor (Pengendali Teknis). Not the Ketua Tim, which is chosen on the Audit Activity Plan. */
   supervisorName?: string;
+  /** Set by the server when an Audit Activity Plan uses this row. Read-only, never sent. */
+  activityPlanRef?: AnnualActivityPlanRef | null;
 }
 
 export interface RevisionHistory {
@@ -215,8 +232,8 @@ export interface AnnualAuditPlan {
   id?: string;
   code: string;
   title?: string;
-  /** Jenis Kegiatan Audit; "" allowed for now. */
-  activityType?: AnnualActivityType | '';
+  /** @deprecated Jenis Kegiatan Audit moved to the Audit Activity Plan. Read-only legacy value, never sent. */
+  activityType?: string;
   version?: string;
   parentPlanId?: string;
   revisionHistory?: RevisionHistory[];
@@ -231,6 +248,7 @@ export interface AnnualAuditPlan {
   attachmentUploadDate: string;
   attachments?: AnnualAuditAttachment[];
   isActive: boolean;
+  /** Set by the server: an Audit Activity Plan or audit activity uses this plan, so it can only be deactivated. */
   isUsed?: boolean;
 }
 
@@ -244,7 +262,6 @@ export interface AnnualPlanForm {
   id?: string;
   code: string;
   title: string;
-  activityType: AnnualActivityType | '';
   version?: string;
   parentPlanId?: string;
   revisionHistory?: RevisionHistory[];
@@ -488,36 +505,235 @@ export interface AssignmentLetter extends AssignmentLetterForm {
 }
 
 // --- Audit Activity Plan Types ---
+// The Audit Activity Plan is the Formulir Rencana Kegiatan Audit (RKA): one header (Tahun,
+// Jenis Kegiatan Audit, Judul) plus one row per assignment. Fields owned by the Annual Audit
+// Plan (PKAT) are read-only here and resolved live by the server. API: audit-service
+// /activity-plans (docs/audit-activity-plan-rework.md, section 6).
 
-export interface PlannedAuditActivity {
-  /** Client-side row key. The backend matches it on update to keep activityCode. */
+/** formVersion of plans saved with the RKA form. Older plans (1) are legacy: view and delete only. */
+export const ACTIVITY_PLAN_FORM_VERSION = 2;
+
+export interface ActivityPlanNamedRef {
+  id: string;
+  name: string;
+}
+
+/** Audit Universe of a row: name and risk level only (it has no code). */
+export interface ActivityPlanAuditUniverse {
+  id: string;
+  name: string;
+  riskLevel: string;
+}
+
+/** The PKAT an Audit Activity Plan belongs to. */
+export interface ActivityPlanAnnualPlan {
+  id: string;
+  code: string;
+  title: string;
+  year: number;
+  status: string;
+  isActive: boolean;
+}
+
+export interface ActivityPlanTotals {
+  rowCount: number;
+  teamSize: number;
+  totalMandays: number;
+}
+
+/** GET /activity-plans item. */
+export interface ActivityPlanSummary {
+  id: string;
+  formVersion: number;
+  /** Client-derived: formVersion is not the RKA form, so the plan is view/delete only. */
+  isLegacy: boolean;
+  /** 0 when a legacy plan has no year. */
+  year: number;
+  /** "" for legacy plans. */
+  activityType: ActivityPlanActivityType | '';
+  title: string;
+  /** null for legacy plans. */
+  annualPlan: ActivityPlanAnnualPlan | null;
+  totals: ActivityPlanTotals;
+  status: string;
+  attachmentCount: number;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ActivityPlanTeamLeader {
+  /** master-service employee UUID. */
+  employeeId: string;
+  name: string;
+}
+
+/** Fields of a row that come from the PKAT row. Read-only in the Audit Activity Plan. */
+export interface ActivityPlanPkatFields {
+  itemNumber: string;
+  auditObject: string;
+  auditCategory: string;
+  auditUniverse: ActivityPlanAuditUniverse | null;
+  department: ActivityPlanNamedRef | null;
+  schedule: string;
+  teamSize: number;
+  totalMandays: number;
+  pkatSupervisorName: string;
+}
+
+/** One row of GET /activity-plans/:id (an audit_activities row). */
+export interface ActivityPlanRow extends Omit<ActivityPlanPkatFields, 'itemNumber'> {
+  id: string;
+  no: number;
+  annualActivityId: string;
+  assignmentCode: string;
+  /** false once the engagement has started: the code is locked. */
+  assignmentCodeEditable: boolean;
+  auditKind: string;
+  justification: string[];
+  objectives: string[];
+  focus: string[];
+  teamLeader: ActivityPlanTeamLeader | null;
+  /** Execution-driven status of the audit activity (PLANNED, ...). */
+  status: string;
+  /** The engagement has started: the row cannot be removed and its code is locked. */
+  inUse: boolean;
+  /** "snapshot" when the PKAT row no longer exists and saved values are shown. */
+  source: 'pkat' | 'snapshot';
+}
+
+/** GET /activity-plans/:id. */
+export interface ActivityPlanDetail {
+  id: string;
+  formVersion: number;
+  isLegacy: boolean;
+  annualPlanId: string | null;
+  annualPlan: ActivityPlanAnnualPlan | null;
+  year: number;
+  activityType: ActivityPlanActivityType | '';
+  title: string;
+  status: string;
+  rows: ActivityPlanRow[];
+  totals: ActivityPlanTotals;
+  attachmentCategory: string;
+  attachments: AnnualAuditAttachment[];
+  attachmentUploadedBy: string;
+  attachmentUploadDate: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  /** Stored data of a legacy (formVersion 1) plan, as-is; null for RKA plans. */
+  legacy: LegacyActivityPlan | null;
+}
+
+/** A row in the POST/PUT /activity-plans body. PKAT-owned fields are never sent. */
+export interface ActivityPlanRowInput {
+  /** Present for rows already saved; omitted for new rows. */
   id?: string;
-  /**
-   * Activity ID, e.g. "ASR-2026-003" (audit type code, plan year, sequence).
-   * Assigned by audit-service on save; never generated by the frontend.
-   */
+  annualActivityId: string;
+  /** "" = the server generates one (new row) or keeps the stored one (existing row). */
+  assignmentCode: string;
+  auditKind: string;
+  justification: string[];
+  objectives: string[];
+  focus: string[];
+  teamLeaderEmployeeId: string | null;
+  /** Display snapshot of the picked employee; "" when none. */
+  teamLeaderName: string;
+}
+
+/** POST/PUT /activity-plans body. */
+export interface ActivityPlanInput {
+  annualPlanId: string;
+  activityType: ActivityPlanActivityType;
+  title: string;
+  /** Echoed on PUT for the optimistic lock. */
+  updatedAt?: string;
+  rows: ActivityPlanRowInput[];
+  attachmentCategory: string;
+  attachments: AnnualAuditAttachment[];
+}
+
+/** GET /activity-plans/annual-activity-options item: a PKAT row that can be added. */
+export interface AnnualActivityOption extends ActivityPlanPkatFields {
+  annualActivityId: string;
+  /** false when another Audit Activity Plan already uses the row. */
+  available: boolean;
+  usedBy: { activityPlanId: string; activityPlanTitle: string; assignmentCode: string } | null;
+  /** Legacy PKAT values, applied once when the row is added. */
+  prefill: { assignmentCode: string; justification: string[]; objectives: string[]; focus: string[] };
+  /** A legacy audit activity linked to this PKAT row; the server adopts it on save. */
+  existingRow: { id: string; assignmentCode: string; status: string } | null;
+}
+
+/** error.details of a 400/409 from /activity-plans (sent as a JSON string). `row` is 1-based. */
+export interface ActivityPlanErrorDetails {
+  field?: string;
+  row?: number;
+  activityPlanId?: string;
+  activityPlanTitle?: string;
+  assignmentCode?: string;
+  [key: string]: unknown;
+}
+
+/** One row as edited in the form. */
+export interface ActivityPlanRowForm {
+  /** Client-side key for v-for; not sent. */
+  key: string;
+  /** audit_activities id of a saved row. */
+  id?: string;
+  annualActivityId: string;
+  assignmentCode: string;
+  assignmentCodeEditable: boolean;
+  auditKind: string;
+  justification: string[];
+  objectives: string[];
+  focus: string[];
+  teamLeaderEmployeeId: string | null;
+  teamLeaderName: string;
+  inUse: boolean;
+  source: 'pkat' | 'snapshot';
+  status: string;
+  /** Read-only, shown from the PKAT row. */
+  pkat: ActivityPlanPkatFields;
+}
+
+export interface ActivityPlanFormState {
+  /** Set when editing. */
+  id?: string;
+  annualPlanId: string;
+  /** The PKAT as the server returned it with the plan (edit), for display. */
+  annualPlan: ActivityPlanAnnualPlan | null;
+  activityType: ActivityPlanActivityType | '';
+  title: string;
+  updatedAt?: string;
+  rows: ActivityPlanRowForm[];
+  attachmentCategory: string;
+  attachments: AnnualAuditAttachment[];
+  /** New files, uploaded on save. */
+  file: File[] | null;
+}
+
+// --- Legacy Audit Activity Plan (formVersion 1), shown read-only ---
+
+export interface LegacyPlannedAuditActivity {
+  id?: string;
   activityCode?: string;
-  /** Link to the Annual Audit Plan activity this row carries out (set by picking it in the form). */
   annualPlanId?: string;
   annualActivityId?: string;
   auditName: string;
   auditee: string;
-  /** Copied from the linked annual activity (read-only in the form). */
-  category: AuditCategory;
-  /** Copied from the linked annual activity (read-only in the form). */
+  category: string;
   riskName?: string;
-  /** Copied from the linked annual activity (read-only in the form). */
-  riskLevel: RiskLevel;
-  /** Copied from the linked annual activity Total Mandays (read-only in the form). */
+  riskLevel?: string;
   duration: number;
   priority: string;
-  /** Copied from the linked annual activity Jumlah Tim (read-only in the form). */
   numberOfAuditors: number;
   estimatedSchedule: string;
   budgetEstimation: number;
 }
 
-export interface ResourceAuditor {
+export interface LegacyResourceAuditor {
   id?: string;
   name: string;
   position: string;
@@ -525,13 +741,13 @@ export interface ResourceAuditor {
   availability: string;
 }
 
-export interface ActivityPlanBudget {
+export interface LegacyActivityPlanBudget {
   totalEstimatedCost: number;
   totalAllocatedBudget: number;
   budgetNotes: string;
 }
 
-export interface ActivityPlanReview {
+export interface LegacyActivityPlanReview {
   creatorName: string;
   creatorPosition: string;
   approverName: string;
@@ -540,30 +756,18 @@ export interface ActivityPlanReview {
   additionalNotes: string;
 }
 
-export interface ActivityPlanFormState {
+/** `legacy` of GET /activity-plans/:id: the stored JSON of an old-format plan. */
+export interface LegacyActivityPlan {
   planTitle: string;
   planYear: string;
   planPeriodStart: string;
   planPeriodEnd: string;
-  /** Department name from master-service (GET /departments). */
   department: string;
-  createdBy: string;
   creationDate: string;
-  plannedActivities: PlannedAuditActivity[];
-  resourceAuditors: ResourceAuditor[];
-  budget: ActivityPlanBudget;
-  review: ActivityPlanReview;
-  attachmentCategory?: string;
-  attachmentUploadedBy?: string;
-  attachmentUploadDate?: string;
-  attachments?: AnnualAuditAttachment[];
-  file?: File[] | null;
-}
-
-export interface ActivityPlan extends ActivityPlanFormState {
-  id: string;
-  status: string;
-  createdAt: string;
+  plannedActivities: LegacyPlannedAuditActivity[];
+  resourceAuditors: LegacyResourceAuditor[];
+  budget: LegacyActivityPlanBudget;
+  review: LegacyActivityPlanReview;
 }
 
 export interface KPITargetYear {

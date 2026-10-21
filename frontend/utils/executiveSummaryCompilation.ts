@@ -6,6 +6,9 @@
  *   high | moderate-high | moderate | low-moderate | low
  * Persisted as risikoHigh / risikoModerateHigh / risikoModerate / risikoLowModerate / risikoLow.
  * The risk data is calculated by the system; the legacy three-level fields are no longer sent.
+ *
+ * Statistics come from GET /executive-summary/compilation-stats (parseCompilationStats). The backend
+ * does the counting; the frontend only maps the response onto the form fields.
  */
 
 export const RISK_LEVELS = ['high', 'moderateHigh', 'moderate', 'lowModerate', 'low'] as const
@@ -40,31 +43,6 @@ export const RISK_LEVEL_STYLE: Record<RiskLevel, { border: string, chip: string 
 }
 
 export const emptyRiskBreakdown = (): RiskBreakdown => ({ high: 0, moderateHigh: 0, moderate: 0, lowModerate: 0, low: 0 })
-
-const RISK_LEVEL_BY_KEY: Record<string, RiskLevel> = {
-  'high': 'high',
-  'critical': 'high',
-  'tinggi': 'high',
-  'moderate-high': 'moderateHigh',
-  'moderate-to-high': 'moderateHigh',
-  'moderate': 'moderate',
-  'medium': 'moderate',
-  'sedang': 'moderate',
-  'low-moderate': 'lowModerate',
-  'low-to-moderate': 'lowModerate',
-  'low': 'low',
-  'rendah': 'low'
-}
-
-/**
- * Working paper risk level -> breakdown level. Case-insensitive; spaces/underscores are read as '-'.
- * Legacy values: HIGH/CRITICAL/TINGGI -> high, MEDIUM/MODERATE/SEDANG -> moderate, LOW/RENDAH -> low.
- * Returns null for unknown or empty values so they are not counted.
- */
-export const mapWorkingPaperRiskLevel = (raw: unknown): RiskLevel | null => {
-  const key = String(raw ?? '').trim().toLowerCase().replace(/[\s_]+/g, '-')
-  return RISK_LEVEL_BY_KEY[key] ?? null
-}
 
 export const riskBreakdownTotal = (breakdown: RiskBreakdown): number =>
   RISK_LEVELS.reduce((sum, level) => sum + breakdown[level], 0)
@@ -116,27 +94,140 @@ export const riskFieldsToBreakdown = (fields: Partial<Record<RiskField, unknown>
   low: toCount(fields.risikoLow)
 })
 
-/** Quarter (1-4) of a 'YYYY-MM-DD...' date, or null when the month cannot be read. */
-export const quarterOfDate = (value: unknown): number | null => {
-  const match = /^\d{4}-(\d{2})/.exec(String(value ?? '').trim())
-  const month = match ? Number(match[1]) : 0
-  if (month < 1 || month > 12) return null
-  return Math.ceil(month / 3)
+export type FollowUpStatus = 'Closed' | 'In Progress' | 'Overdue'
+
+export interface CompilationFollowUp {
+  closed: number
+  inProgress: number
+  overdue: number
+}
+
+/** Statistics of GET /executive-summary/compilation-stats (data payload), already validated. */
+export interface CompilationStats {
+  year: number
+  /** 1-4, or 0 for the whole year */
+  quarter: number
+  /** RFC3339 time at which the backend counted the figures */
+  syncedAt: string
+  jumlahLaporan: number
+  jumlahRekomendasi: number
+  /** Sum of the five risk levels (risikoLainnya is not part of it) */
+  totalTemuan: number
+  riskBreakdown: RiskBreakdown
+  /** Findings with an empty or unrecognised risk level; shown as a note, not counted in totalTemuan */
+  risikoLainnya: number
+  followUp: CompilationFollowUp
+  followUpCancelled: number
+}
+
+const FOLLOW_UP_STATUS_KEYS = new Map<string, keyof CompilationFollowUp>([
+  ['Closed', 'closed'],
+  ['In Progress', 'inProgress'],
+  ['Overdue', 'overdue']
+])
+
+const COUNT_FIELDS = [
+  'year',
+  'quarter',
+  'jumlahLaporan',
+  'jumlahRekomendasi',
+  'totalTemuan',
+  'risikoHigh',
+  'risikoModerateHigh',
+  'risikoModerate',
+  'risikoLowModerate',
+  'risikoLow',
+  'risikoLainnya',
+  'followUpCancelled'
+] as const
+
+const isCount = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isInteger(value) && value >= 0
+
+/**
+ * Validates the body of GET /executive-summary/compilation-stats and maps it to CompilationStats.
+ * Throws when a count is missing or not a non-negative integer, or when the follow-up table does not
+ * have exactly the three statuses, so that a partial response is never written to the form.
+ */
+export const parseCompilationStats = (body: unknown): CompilationStats => {
+  const data = (body as { data?: Record<string, unknown> } | null | undefined)?.data
+  if (!data || typeof data !== 'object') throw new Error('Invalid compilation statistics response')
+
+  for (const field of COUNT_FIELDS) {
+    if (!isCount(data[field])) throw new Error(`Invalid compilation statistics field: ${field}`)
+  }
+  const syncedAt = data.syncedAt
+  if (typeof syncedAt !== 'string' || Number.isNaN(Date.parse(syncedAt))) {
+    throw new Error('Invalid compilation statistics field: syncedAt')
+  }
+  if (!Array.isArray(data.followUpTable)) throw new Error('Invalid compilation statistics field: followUpTable')
+
+  const followUp: CompilationFollowUp = { closed: 0, inProgress: 0, overdue: 0 }
+  const seen = new Set<string>()
+  for (const row of data.followUpTable as { status?: unknown, jumlah?: unknown }[]) {
+    const key = typeof row?.status === 'string' ? FOLLOW_UP_STATUS_KEYS.get(row.status) : undefined
+    if (!key || !isCount(row.jumlah) || seen.has(row.status as string)) {
+      throw new Error('Invalid compilation statistics field: followUpTable')
+    }
+    seen.add(row.status as string)
+    followUp[key] = row.jumlah
+  }
+  if (seen.size !== FOLLOW_UP_STATUS_KEYS.size) throw new Error('Invalid compilation statistics field: followUpTable')
+
+  const count = (field: typeof COUNT_FIELDS[number]) => data[field] as number
+  return {
+    year: count('year'),
+    quarter: count('quarter'),
+    syncedAt,
+    jumlahLaporan: count('jumlahLaporan'),
+    jumlahRekomendasi: count('jumlahRekomendasi'),
+    totalTemuan: count('totalTemuan'),
+    riskBreakdown: {
+      high: count('risikoHigh'),
+      moderateHigh: count('risikoModerateHigh'),
+      moderate: count('risikoModerate'),
+      lowModerate: count('risikoLowModerate'),
+      low: count('risikoLow')
+    },
+    risikoLainnya: count('risikoLainnya'),
+    followUp,
+    followUpCancelled: count('followUpCancelled')
+  }
+}
+
+/** Local date and time of an RFC3339 timestamp for the "last synced" label; '' when missing or invalid. */
+export const formatSyncedAt = (iso: string | null | undefined, locale: string = 'id'): string => {
+  if (!iso) return ''
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return ''
+  return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(date)
+}
+
+export interface CompilationFollowUpRow {
+  status: FollowUpStatus
+  jumlah: number
+  persentase: number
+  keterangan: string
 }
 
 /**
- * Individual LHAs that belong to a compilation: same assignment letter, or report date in the target quarter.
- * No fallback: when nothing matches, the result is empty (the caller syncs nothing).
+ * Follow-up table rows from the counts. Percentages are derived from the counts; the notes (keterangan)
+ * are kept from the previous rows of the same status and are never generated text.
  */
-export const selectCompilationReports = <T extends { assignmentLetterId?: string | null, reportDate?: string | null }>(
-  reports: T[],
-  target: { assignmentLetterId?: string | null, quarter: number }
-): T[] => {
-  const letter = target.assignmentLetterId && target.assignmentLetterId !== 'All Assignment Letters'
-    ? target.assignmentLetterId
-    : ''
-  return reports.filter((report) => {
-    if (letter && report.assignmentLetterId === letter) return true
-    return quarterOfDate(report.reportDate) === target.quarter
-  })
+export const followUpRowsFromStats = (
+  followUp: CompilationFollowUp,
+  previous: readonly CompilationFollowUpRow[] = []
+): CompilationFollowUpRow[] => {
+  const total = followUp.closed + followUp.inProgress + followUp.overdue
+  const statuses: [FollowUpStatus, number][] = [
+    ['Closed', followUp.closed],
+    ['In Progress', followUp.inProgress],
+    ['Overdue', followUp.overdue]
+  ]
+  return statuses.map(([status, jumlah]) => ({
+    status,
+    jumlah,
+    persentase: total > 0 ? (jumlah / total) * 100 : 0,
+    keterangan: previous.find(row => row.status === status)?.keterangan ?? ''
+  }))
 }

@@ -25,8 +25,7 @@
               <h3 class="text-lg font-bold text-gray-900 dark:text-white">
                 {{ store.isEditing ? 'Edit Audit Result Report' : 'Create New Audit Result Report' }}
               </h3>
-              <p class="text-xs text-gray-500 dark:text-gray-400">
-                Surat Tugas: <span class="font-semibold text-primary-600 dark:text-primary-400">{{ store.reportForm.assignmentLetterId || store.selectedAssignmentLetter || '-' }}</span>
+              <p class="text-xs text-gray-500 dark:text-gray-400"> {{ t('auditResultReport.editor.form.assignmentLetter') }} <span class="font-semibold text-primary-600 dark:text-primary-400">{{ store.reportForm.assignmentLetterId || store.selectedAssignmentLetter || '-' }}</span>
               </p>
             </div>
           </div>
@@ -46,27 +45,26 @@
             @submit="onFormSubmit"
           >
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <UFormField label="Nomor LHA (Report Number)" name="reportNumber" required class="md:col-span-2">
+              <UFormField :label="t('auditResultReport.editor.form.reportNumber')" name="reportNumber" required class="md:col-span-2">
                 <div class="flex gap-2 items-center">
                   <UInput
                     v-model="store.reportForm.reportNumber"
-                    placeholder="e.g. LHA-026/SKAI/2026"
+                    :placeholder="t('auditResultReport.editor.form.reportNumberExample')"
                     class="w-full font-mono font-medium"
                     required
                     disabled
                   />
                 </div>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Format dinamis otomatis: <code class="text-primary-600 dark:text-primary-400 font-mono">LHA-[NoUrut]/[Audit Team]/[Tahun]</code>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1"> {{ t('auditResultReport.editor.form.automaticFormat') }} <code class="text-primary-600 dark:text-primary-400 font-mono">{{ t('auditResultReport.editor.form.formatExample') }}</code>
                 </p>
               </UFormField>
 
-              <UFormField label="Company / Entity" name="companyId" class="md:col-span-2">
+              <UFormField :label="t('auditResultReport.editor.form.company')" name="companyId" class="md:col-span-2">
                 <USelectMenu
                   v-model="store.reportForm.companyId"
                   :items="companySelectItems"
                   value-key="value"
-                  placeholder="Select Company / Entity (Optional / Inherited from Assignment Letter)"
+                  :placeholder="t('auditResultReport.editor.form.companyPlaceholder')"
                   class="w-full"
                   :clear="true"
                   :loading="masterOptions.loading"
@@ -74,10 +72,10 @@
                 />
               </UFormField>
 
-              <UFormField label="Report Title" name="reportTitle" required class="md:col-span-2">
+              <UFormField :label="t('auditResultReport.dashboard.columns.reportTitle')" name="reportTitle" required class="md:col-span-2">
                 <UInput
                   v-model="store.reportForm.reportTitle"
-                  placeholder="e.g. Audit Report - Financial Operations 2026"
+                  :placeholder="t('auditResultReport.editor.form.titleExample')"
                   class="w-full"
                   maxlength="100"
                   @invalid="($event.target as any)?.setCustomValidity('Report Title maksimal 100 karakter dan wajib diisi')"
@@ -89,7 +87,7 @@
               </UFormField>
 
               <UFormField
-                label="Report Date"
+                :label="t('auditResultReport.editor.form.reportDate')"
                 name="reportDate"
                 required
               >
@@ -100,7 +98,7 @@
               </UFormField>
 
               <UFormField
-                label="Status"
+                :label="t('strategicPlan.columns.status')"
                 name="status"
               >
                 <USelectMenu
@@ -115,7 +113,7 @@
               </UFormField>
 
               <UFormField
-                label="Findings Count"
+                :label="t('auditResultReport.editor.form.findingCount')"
                 name="findingsCount"
               >
                 <div class="flex items-center gap-2">
@@ -125,7 +123,7 @@
                     class="w-full"
                   />
                   <span class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                    ({{ store.reportForm.findings?.length || 0 }} list)
+                    ({{ store.reportForm.findings?.length || 0 }} {{ t('auditResultReport.editor.form.listUnit') }})
                   </span>
                 </div>
               </UFormField>
@@ -138,9 +136,7 @@
                       <UIcon
                         name="i-heroicons-list-bullet"
                         class="text-secondary-600 dark:text-secondary-400"
-                      />
-                      Findings / Temuan Audit
-                    </h4>
+                      /> {{ t('auditResultReport.editor.form.findingList') }} </h4>
                     <UBadge
                       color="secondary"
                       variant="subtle"
@@ -151,9 +147,9 @@
                   </div>
 
                   <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                    <UTooltip text="Tarik temuan dari modul Digital Working Paper (KKA) dan Fieldwork Test Controls">
+                    <UTooltip :text="t('auditResultReport.editor.form.syncDescription')">
                       <UButton
-                        label="Tarik Temuan Otomatis"
+                        :label="t('auditResultReport.editor.form.sync')"
                         size="sm"
                         color="secondary"
                         variant="solid"
@@ -163,7 +159,7 @@
                       />
                     </UTooltip>
                     <UButton
-                      label="Add Manual"
+                      :label="t('auditResultReport.editor.form.addManual')"
                       size="sm"
                       color="neutral"
                       variant="outline"
@@ -182,36 +178,30 @@
                     <UIcon
                       name="i-heroicons-chart-pie"
                       class="size-4 text-secondary-600 dark:text-secondary-400"
-                    />
-                    Distribusi Kategori:
-                  </span>
+                    /> {{ t('auditResultReport.editor.form.categoryDistribution') }} </span>
                   <UBadge
                     color="error"
                     variant="subtle"
                     size="xs"
-                  >
-                    Very Significant: {{ countCategory('Very Significant') }}
+                  > {{ t('auditResultReport.editor.form.verySignificant') }} {{ countCategory('Very Significant') }}
                   </UBadge>
                   <UBadge
                     color="warning"
                     variant="subtle"
                     size="xs"
-                  >
-                    Significant: {{ countCategory('Significant') }}
+                  > {{ t('auditResultReport.editor.form.significant') }} {{ countCategory('Significant') }}
                   </UBadge>
                   <UBadge
                     color="info"
                     variant="subtle"
                     size="xs"
-                  >
-                    Quite Significant: {{ countCategory('Quite Significant') }}
+                  > {{ t('auditResultReport.editor.form.quiteSignificant') }} {{ countCategory('Quite Significant') }}
                   </UBadge>
                   <UBadge
                     color="success"
                     variant="subtle"
                     size="xs"
-                  >
-                    Not Significant: {{ countCategory('Not Significant') }}
+                  > {{ t('auditResultReport.editor.form.notSignificant') }} {{ countCategory('Not Significant') }}
                   </UBadge>
                 </div>
 
@@ -225,8 +215,7 @@
                     <div class="flex-1 space-y-3">
                       <!-- Card Header (Index & Source Badge) -->
                       <div class="flex justify-between items-center border-b border-secondary-100 dark:border-secondary-900/40 pb-2">
-                        <span class="text-xs font-bold text-secondary-700 dark:text-secondary-300 uppercase tracking-wider">
-                          Temuan #{{ idx + 1 }}
+                        <span class="text-xs font-bold text-secondary-700 dark:text-secondary-300 uppercase tracking-wider"> {{ t('auditResultReport.editor.form.findingNumber') }}{{ idx + 1 }}
                         </span>
                         <UBadge
                           :color="getSourceColor(finding.source)"
@@ -244,7 +233,7 @@
 
                       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <UFormField
-                          label="Category / Tingkat Signifikansi"
+                          :label="t('auditResultReport.editor.form.category')"
                           size="sm"
                           class="md:col-span-1"
                         >
@@ -256,13 +245,13 @@
                         </UFormField>
 
                         <UFormField
-                          label="Finding Description / Title"
+                          :label="t('auditResultReport.editor.form.findingDescription')"
                           size="sm"
                           class="md:col-span-1"
                         >
                           <UInput
                             v-model="finding.title"
-                            placeholder="e.g. Keterlambatan rekonsiliasi kas harian"
+                            :placeholder="t('auditResultReport.editor.form.findingExample')"
                             required
                             class="w-full"
                             maxlength="255"
@@ -273,13 +262,13 @@
                         </UFormField>
 
                         <UFormField
-                          label="Action / Tindak Lanjut Rekomendasi"
+                          :label="t('auditResultReport.editor.form.action')"
                           size="sm"
                           class="md:col-span-2"
                         >
                           <UTextarea
                             v-model="finding.action"
-                            placeholder="e.g. Evaluasi SOP dan pelatihan ulang tim kasir"
+                            :placeholder="t('auditResultReport.editor.form.actionExample')"
                             :rows="2"
                             class="w-full"
                           />
@@ -287,7 +276,7 @@
                       </div>
                     </div>
 
-                    <UTooltip text="Hapus Temuan">
+                    <UTooltip :text="t('auditResultReport.editor.form.deleteFinding')">
                       <UButton
                         color="error"
                         variant="ghost"
@@ -310,15 +299,11 @@
                         class="size-6"
                       />
                     </div>
-                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                      Belum ada temuan audit di dalam laporan ini
-                    </p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-                      Klik <strong>"Tarik Temuan Otomatis"</strong> untuk mengambil temuan dari Digital Working Paper (KKA) dan Fieldwork Test Controls penugasan ini.
-                    </p>
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-200"> {{ t('auditResultReport.editor.form.empty') }} </p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 max-w-md mx-auto">{{ t('auditResultReport.editor.form.click') }} <strong>{{ t('auditResultReport.editor.form.sync') }}</strong> {{ t('auditResultReport.editor.form.emptyInstruction') }}</p>
                     <div class="flex justify-center gap-2 pt-2">
                       <UButton
-                        label="Tarik Temuan Otomatis"
+                        :label="t('auditResultReport.editor.form.sync')"
                         size="sm"
                         color="secondary"
                         icon="i-heroicons-sparkles"
@@ -326,7 +311,7 @@
                         @click="store.runAutoDetectFindings('replace')"
                       />
                       <UButton
-                        label="Tambah Manual"
+                        :label="t('auditResultReport.editor.form.addManual')"
                         size="sm"
                         color="neutral"
                         variant="outline"
@@ -342,14 +327,14 @@
             <!-- Footer Actions -->
             <div class="flex justify-end gap-3 pt-6 border-t border-gray-100 dark:border-gray-800">
               <UButton
-                label="Cancel"
+                :label="t('auditResultReport.editor.form.cancel')"
                 color="neutral"
                 variant="ghost"
                 @click="store.closeModal"
               />
               <UButton
                 type="submit"
-                label="Sign Report"
+                :label="t('auditResultReport.editor.form.signReport')"
                 color="primary"
                 icon="i-heroicons-pencil-square"
                 :loading="store.loading"

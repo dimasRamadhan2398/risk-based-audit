@@ -1,6 +1,7 @@
 package executivesummary
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 	"time"
@@ -13,9 +14,10 @@ import (
 	"gorm.io/gorm"
 )
 
-// CompilationStatsHandler handles GET /api/v1/executive-summary/compilation-stats?year=2026.
+// CompilationStatsHandler handles GET /api/v1/executive-summary/compilation-stats?year=2026&quarter=1.
 // A missing or invalid year falls back to the current year, as the performance
-// endpoints do.
+// endpoints do. quarter is optional (1-4); without it the whole year is counted.
+// A quarter outside 1-4 is a 400.
 func CompilationStatsHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		now := time.Now()
@@ -24,7 +26,20 @@ func CompilationStatsHandler(db *gorm.DB) gin.HandlerFunc {
 			year = now.Year()
 		}
 
-		stats, err := LoadCompilationStats(db.WithContext(c.Request.Context()), year, now)
+		quarter := 0
+		if raw := strings.TrimSpace(c.Query("quarter")); raw != "" {
+			quarter, err = strconv.Atoi(raw)
+			if err != nil || quarter < 1 || quarter > 4 {
+				response.BadRequest(c, ErrInvalidQuarter.Error())
+				return
+			}
+		}
+
+		stats, err := LoadCompilationStats(db.WithContext(c.Request.Context()), year, quarter, now)
+		if errors.Is(err, ErrInvalidQuarter) {
+			response.BadRequest(c, ErrInvalidQuarter.Error())
+			return
+		}
 		if err != nil {
 			if logger.Log != nil {
 				logger.Error("failed to load executive summary compilation stats", zap.Error(err))

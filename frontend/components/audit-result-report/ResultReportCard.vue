@@ -20,10 +20,10 @@
     <div class="flex items-center justify-between pt-4 border-t border-gray-100">
       <div class="flex items-center gap-1 text-md text-gray-500">
         <UIcon name="i-heroicons-magnifying-glass" class="size-4" />
-        <span>{{ row.findingsCount }} Findings</span>
+        <span>{{ row.findingsCount }} {{ t('executiveSummaryCompilation.findingsUnit') }}</span>
       </div>
       <div class="flex gap-1">
-        <UTooltip text="Edit">
+        <UTooltip :text="t('common.edit')">
           <UButton
             color="warning"
             variant="ghost"
@@ -33,7 +33,7 @@
           />
         </UTooltip>
 
-        <UTooltip text="Print">
+        <UTooltip :text="t('auditResultReport.dashboard.actions.print')">
           <UButton
             color="neutral"
             variant="ghost"
@@ -48,6 +48,7 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 import type { AuditResultReport } from '~/stores/audit-result-report'
 
 defineProps<{

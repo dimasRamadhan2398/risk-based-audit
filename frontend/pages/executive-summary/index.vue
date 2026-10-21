@@ -96,7 +96,7 @@
             <USelectMenu
               v-model="selectedLhaNumber"
               :items="lhaNumberOptions"
-              placeholder="Filter berdasarkan Nomor LHA..."
+              :placeholder="t('executiveSummary.filterLhaPlaceholder')"
               class="w-full"
             >
               <template #leading>

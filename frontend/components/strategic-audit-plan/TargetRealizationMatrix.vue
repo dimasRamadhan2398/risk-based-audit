@@ -43,10 +43,10 @@
 
         <!-- Target Input -->
         <div class="space-y-1 text-left">
-          <label class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">Target</label>
+          <label class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">{{ t('strategicPlan.extra.target') }}</label>
           <UInput
             :model-value="(store.form.kpiTargets as any)?.[item] || ''"
-            placeholder="Target"
+            :placeholder="t('strategicPlan.extra.target')"
             size="md"
             class="w-full text-center font-bold font-mono text-gray-900 dark:text-white"
             @update:model-value="(val: string) => updatePeriodTarget(item, val)"
@@ -55,10 +55,10 @@
 
         <!-- Realisasi Input -->
         <div class="space-y-1 text-left">
-          <label class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">Realisasi</label>
+          <label class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">{{ t('strategicPlan.extra.realization') }}</label>
           <UInput
             :model-value="(store.form.kpiActuals as any)?.[item] || ''"
-            placeholder="Actual"
+            :placeholder="t('strategicPlan.columns.actual')"
             size="md"
             class="w-full text-center font-bold font-mono text-gray-900 dark:text-white"
             @update:model-value="(val: string) => updatePeriodActual(item, val)"
@@ -67,7 +67,7 @@
 
         <!-- Hitungan (Calculation / % Achievement) -->
         <div class="space-y-1 text-left">
-          <label class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">Hitungan</label>
+          <label class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">{{ t('strategicPlan.columns.calculation') }}</label>
           <div
             class="w-full text-center font-bold font-mono text-md py-1 px-2 rounded border transition-colors"
             :class="getPeriodCalcColorClass(item)"

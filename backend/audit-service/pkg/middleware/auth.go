@@ -13,6 +13,10 @@ type Claims struct {
 	UserID   string   `json:"user_id"`
 	Username string   `json:"username"`
 	Roles    []string `json:"roles"`
+	// EmployeeID and EmployeeCode are issued by auth-service at login. Tokens
+	// issued before the claims existed decode with both empty.
+	EmployeeID   string `json:"employee_id,omitempty"`
+	EmployeeCode string `json:"employee_code,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -39,19 +43,9 @@ func (m *AuthMiddleware) Authenticate() gin.HandlerFunc {
 			}
 		}
 
-		if tokenString == "" {
-			tokenString = c.Query("token")
-		}
-
-		if tokenString == "" {
-			if cookie, err := c.Cookie("auth_token"); err == nil && cookie != "" {
-				tokenString = cookie
-			} else if cookie, err := c.Cookie("auth-token"); err == nil && cookie != "" {
-				tokenString = cookie
-			} else if cookie, err := c.Cookie("token"); err == nil && cookie != "" {
-				tokenString = cookie
-			}
-		}
+		// Only the Authorization header is accepted. Tokens in the query string
+		// or in cookies are refused: query strings reach access logs and
+		// browser history.
 
 		if tokenString == "" {
 			response.Unauthorized(c, "Missing authorization header")
@@ -81,6 +75,8 @@ func (m *AuthMiddleware) Authenticate() gin.HandlerFunc {
 			c.Set("user_id", claims.UserID)
 			c.Set("username", claims.Username)
 			c.Set("roles", claims.Roles)
+			c.Set("employee_id", claims.EmployeeID)
+			c.Set("employee_code", claims.EmployeeCode)
 		} else {
 			response.Unauthorized(c, "Invalid token claims")
 			c.Abort()

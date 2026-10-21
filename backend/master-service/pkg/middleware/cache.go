@@ -40,7 +40,7 @@ var DefaultCacheConfigs = map[string]CacheConfig{
 		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/v1/employees": {
-		MaxAge:   3600, // 1 hour
+		MaxAge:   900, // 15 minutes; employee records change more often than other master data
 		IsPublic: false,
 		VaryBy:   "Accept-Encoding, Authorization",
 	},

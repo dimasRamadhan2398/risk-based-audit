@@ -22,7 +22,7 @@ const { t } = useI18n()
             {{ t('navigation.analytics') }}
           </NuxtLink>
           <UIcon name="i-heroicons-chevron-right" class="w-3.5 h-3.5 text-gray-400" />
-          <span class="font-medium text-gray-600 dark:text-gray-300">CAATT Insight</span>
+          <span class="font-medium text-gray-600 dark:text-gray-300">{{ t('analytics.hub.caattTitle') }}</span>
           <UIcon name="i-heroicons-chevron-right" class="w-3.5 h-3.5 text-gray-400" />
           <span class="text-indigo-600 dark:text-indigo-400 font-bold">{{ props.title }}</span>
         </nav>

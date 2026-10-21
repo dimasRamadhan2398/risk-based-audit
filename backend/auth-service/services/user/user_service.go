@@ -121,6 +121,17 @@ func NewUserService(userRepo repositories.UserRepositoryInterface, kafkaProducer
 
 // CreateUser creates a new user
 func (s *UserService) CreateUser(ctx context.Context, req *models.CreateUserRequest) error {
+	// An account is never created without at least one role.
+	roles := make([]string, 0, len(req.Roles))
+	for _, r := range req.Roles {
+		if name := strings.TrimSpace(r); name != "" {
+			roles = append(roles, name)
+		}
+	}
+	if len(roles) == 0 {
+		return errors.New("ROLE_REQUIRED", "At least one role is required", http.StatusBadRequest)
+	}
+
 	// Check if username exists
 	if _, err := s.userRepo.FindByUsername(req.Username); err == nil {
 		return errors.Wrap(errors.ErrDuplicateEntry.Code, "Username already exists", errors.ErrDuplicateEntry.StatusCode, nil)
@@ -152,6 +163,19 @@ func (s *UserService) CreateUser(ctx context.Context, req *models.CreateUserRequ
 	if err := s.userRepo.Create(user); err != nil {
 		s.LogError("Failed to create user", utils.LogField("error", err))
 		return errors.ErrInternalServer
+	}
+
+	// Roles are assigned straight after creation. If none of the requested names
+	// exist, the account is removed again so no active user is left without a role.
+	if err := s.userRepo.AssignRoles(user.ID, roles); err != nil {
+		s.LogError("Failed to assign roles to new user", utils.LogField("error", err))
+		_ = s.userRepo.Delete(user.ID)
+		return errors.ErrInternalServer
+	}
+	assigned, err := s.userRepo.FindByID(user.ID)
+	if err != nil || assigned == nil || len(assigned.Roles) == 0 {
+		_ = s.userRepo.Delete(user.ID)
+		return errors.New("ROLE_NOT_FOUND", "None of the requested roles exist", http.StatusBadRequest)
 	}
 
 	s.LogInfo("User created successfully", utils.LogField("user_id", user.ID))

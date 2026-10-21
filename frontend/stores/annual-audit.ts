@@ -11,6 +11,13 @@ import { extractErrorMessage } from '~/utils/error'
 import { getFiscalYearStrings } from '~/composables/useFiscalYear'
 import { useDepartmentApi } from '~/composables/useDepartmentApi'
 import { buildAnnualPlanPayload, sumActivityMandays, toCount } from '~/utils/annualPlanPayload'
+import { parseApiError, translateApiError } from '~/utils/activityPlanForm'
+
+/** Outcome of deletePlan: deleted, deactivated (the plan is in use), or null when nothing was done. */
+export type DeletePlanResult = 'deleted' | 'deactivated' | null
+
+/** 409 codes of /annual-audit-plans tied to the Audit Activity Plan; translated at annualAudit.errors.<CODE>. */
+const ANNUAL_PLAN_ERROR_CODES = new Set(['ANNUAL_PLAN_IN_USE', 'ANNUAL_PLAN_ACTIVITY_IN_USE', 'ANNUAL_PLAN_ACTIVITY_TYPE_CONFLICT'])
 
 export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const showModal = ref(false)
@@ -131,6 +138,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   // riskName, riskLevel and department are server snapshots: they are read as they come
   // and never rewritten here, so a refreshed value from Kafka shows as is.
+  // activityCode, justification, auditObjective and auditFocus are legacy values (moved to the
+  // Audit Activity Plan): read for display only and never sent back.
   const normalizeActivity = (a: any): AuditActivities => ({
     ...a,
     id: a.id,
@@ -149,7 +158,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     timelineText: a.timelineText || a.timeline_text || '',
     auditorCount: toCount(a.auditorCount ?? a.auditor_count, 0),
     totalMandays: toCount(a.totalMandays ?? a.total_mandays, 0),
-    supervisorName: a.supervisorName || a.supervisor_name || ''
+    supervisorName: a.supervisorName || a.supervisor_name || '',
+    activityPlanRef: a.activityPlanRef && typeof a.activityPlanRef === 'object' ? { ...a.activityPlanRef } : null
   })
 
   const normalizePlans = (rawPlans: any[]): AnnualAuditPlan[] => {
@@ -159,6 +169,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       code: p.code || p.plan_code || '',
       title: p.title || p.plan_title || '',
       activityType: p.activityType || p.activity_type || '',
+      // Set by the server when an Audit Activity Plan or audit activity uses the plan.
+      isUsed: p.isUsed === true || p.is_used === true,
       activities: Array.isArray(p.activities)
         ? p.activities.map(normalizeActivity)
         : [],
@@ -264,9 +276,9 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const isNotesLongText = (text: string) => text && text.length > 100
   const isDetailLongText = (text: string) => text && text.length > 100
 
-  // One empty Formulir Rencana Kegiatan Audit row. Jumlah Tim defaults to 1.
+  // One empty PKAT row. Jumlah Tim defaults to 1. Kode Penugasan, Justifikasi, Tujuan and
+  // Fokus are filled on the Audit Activity Plan.
   const createEmptyActivity = (): AuditActivities => ({
-    activityCode: '',
     name: '',
     category: AuditCategory.ASSURANCE,
     departmentId: '',
@@ -274,9 +286,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     auditUniverseId: '',
     riskName: '',
     riskLevel: '',
-    justification: '',
-    auditObjective: '',
-    auditFocus: '',
     timelineText: '',
     auditorCount: 1,
     totalMandays: 0,
@@ -287,7 +296,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const form = reactive<AnnualPlanForm>({
     code: '',
     title: '',
-    activityType: '',
     version: 'v1.0',
     revisionHistory: [],
     activities: [createEmptyActivity()],
@@ -325,6 +333,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   }
 
   const removeActivity = (index: number) => {
+    // A row an Audit Activity Plan uses is removed there first (the server answers 409 otherwise).
+    if (form.activities[index]?.activityPlanRef) return
     if (form.activities.length > 1) {
       form.activities.splice(index, 1)
     }
@@ -340,7 +350,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     Object.assign(form, {
       code: '',
       title: '',
-      activityType: '',
       version: 'v1.0',
       revisionHistory: [],
       activities: [createEmptyActivity()],
@@ -543,8 +552,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       }
 
       closeModal()
-    } catch (err: any) {
-      toast.showError('Gagal menyimpan data: ' + err.message)
+    } catch {
+      // addPlan/updatePlan already showed the error toast (and the form message for a 409).
     }
   }
 
@@ -562,7 +571,6 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     form.status = plan.status
     form.selectedMonths = [...plan.selectedMonths]
     form.title = plan.title || ''
-    form.activityType = plan.activityType || ''
     form.notes = plan.notes || ''
     form.file = []
     form.attachmentCategory = plan.attachmentCategory || ''
@@ -576,13 +584,17 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   const handleDelete = async (id: string | undefined) => {
     if (!id) return
+    let result: DeletePlanResult
     try {
-      await deletePlan(id)
-      toast.showSuccess('Data Rencana Audit Berhasil Dihapus!')
-      closeViewModal()
-    } catch (error) {
-      toast.showError('Gagal menghapus data: ' + error)
+      result = await deletePlan(id)
+    } catch {
+      // deletePlan already showed the error toast.
+      return
     }
+    // Cancelled in the confirmation (or the plan is gone): nothing happened, so no toast.
+    if (!result) return
+    toast.showSuccess(t(result === 'deactivated' ? 'annualAudit.delete.deactivated' : 'annualAudit.delete.success'))
+    closeViewModal()
   }
 
   const handleFileChange = (event: Event) => {
@@ -659,6 +671,25 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       url: '#'
     }))
 
+  /**
+   * Message for a failed write: the Audit Activity Plan 409s are translated with their details
+   * (row, plan title); anything else keeps the backend message.
+   */
+  const describeWriteError = (error: unknown, fallback: string): string => {
+    const { code } = parseApiError(error)
+    return code && ANNUAL_PLAN_ERROR_CODES.has(code)
+      ? translateApiError(error, t, 'annualAudit.errors')
+      : extractErrorMessage(error, fallback)
+  }
+
+  /** A 409 about a row used by an Audit Activity Plan is also shown in the form, next to the rows. */
+  const showRowConflictInForm = (error: unknown, message: string) => {
+    const { code } = parseApiError(error)
+    if (code === 'ANNUAL_PLAN_ACTIVITY_IN_USE' || code === 'ANNUAL_PLAN_ACTIVITY_TYPE_CONFLICT') {
+      validationErrors.activityDetail = message
+    }
+  }
+
   const addPlan = async (form: AnnualPlanForm) => {
     const quarters = calculateQuarters(form.selectedMonths)
 
@@ -680,7 +711,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       return typeof createdCode === 'string' ? createdCode : ''
     } catch (error: any) {
       console.error('Failed to create annual plan:', error)
-      const detail = extractErrorMessage(error, 'Gagal menambahkan rencana audit.')
+      const detail = describeWriteError(error, 'Gagal menambahkan rencana audit.')
       errorMsg.value = detail
       toast.showError('Gagal menambahkan rencana audit.', detail)
       throw error
@@ -707,48 +738,78 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       await fetchPlans()
     } catch (error: any) {
       console.error('Failed to update annual plan:', error)
-      const detail = extractErrorMessage(error, 'Gagal memperbarui rencana audit.')
+      const detail = describeWriteError(error, 'Gagal memperbarui rencana audit.')
       errorMsg.value = detail
+      showRowConflictInForm(error, detail)
       toast.showError('Gagal memperbarui rencana audit.', detail)
       throw error
     }
   }
 
-  const deletePlan = async (id: string) => {
+  /**
+   * Asks for confirmation, then deletes the plan (or deactivates it when it is already used).
+   * Resolves to what happened, or null when the user cancelled: no request is sent then.
+   * A failed request shows the error toast and rethrows.
+   */
+  const deletePlan = async (id: string): Promise<DeletePlanResult> => {
     const plan = plans.value.find(a => a.id === id)
-    if (!plan) return
+    if (!plan) return null
+
+    const planLine = plan.code ? [t('annualAudit.delete.planLabel', { code: plan.code })] : []
+    const confirmed = plan.isUsed
+      ? await useGlobalModalStore().confirmDelete({
+          description: t('annualAudit.delete.deactivateTitle'),
+          body: [...planLine, t('annualAudit.delete.deactivateBody')],
+          confirmLabel: t('annualAudit.delete.deactivateConfirm')
+        })
+      : await useGlobalModalStore().confirmDelete({
+          description: t('annualAudit.delete.confirmTitle'),
+          body: [...planLine, t('annualAudit.delete.confirmBody')]
+        })
+    if (!confirmed) return null
 
     const baseUrl = getAuditServiceBaseUrl()
+    // PUT is partial: only the field that changes is sent.
+    const deactivate = () => $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
+      method: 'PUT',
+      body: { isActive: false }
+    })
+    let result: DeletePlanResult = plan.isUsed ? 'deactivated' : 'deleted'
     try {
       if (plan.isUsed) {
-        const confirmed = await useGlobalModalStore().confirmDelete({ description: 'Rencana audit ini sudah digunakan dan tidak dapat dihapus permanen. Apakah Anda ingin menonaktifkannya?' })
-
-        if (!confirmed) return
-
-        // PUT is partial: only the field that changes is sent.
-        const payload = { isActive: false }
-
-        await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
-          method: 'PUT',
-          body: payload
-        })
+        await deactivate()
       } else {
-        const confirmed = await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin menghapus rencana ini secara permanen dari server?' })
-
-        if (!confirmed) return
-
-        await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
-          method: 'DELETE'
-        })
+        try {
+          await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
+            method: 'DELETE'
+          })
+        } catch (error) {
+          // The server refuses to delete a plan an Audit Activity Plan uses (409 ANNUAL_PLAN_IN_USE),
+          // also when the list did not know it yet: offer to deactivate it instead.
+          if (parseApiError(error).code !== 'ANNUAL_PLAN_IN_USE' || plan.isActive === false) throw error
+          const deactivateConfirmed = await useGlobalModalStore().confirmDelete({
+            description: t('annualAudit.delete.deactivateTitle'),
+            body: [...planLine, t('annualAudit.delete.deactivateBody')],
+            confirmLabel: t('annualAudit.delete.deactivateConfirm')
+          })
+          if (!deactivateConfirmed) {
+            // Refresh so isUsed now shows the plan as in use.
+            await fetchPlans()
+            return null
+          }
+          await deactivate()
+          result = 'deactivated'
+        }
       }
-      await fetchPlans()
     } catch (error: any) {
       console.error('Failed to delete annual plan:', error)
-      const detail = extractErrorMessage(error, 'Gagal menghapus rencana audit.')
+      const detail = describeWriteError(error, t('annualAudit.delete.error'))
       errorMsg.value = detail
-      toast.showError('Gagal menghapus rencana audit.', detail)
+      toast.showError(t('annualAudit.delete.error'), detail)
       throw error
     }
+    await fetchPlans()
+    return result
   }
 
   const createRevision = async (planId: string, changesNote: string, user: string) => {

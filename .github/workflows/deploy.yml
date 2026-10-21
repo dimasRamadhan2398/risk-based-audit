@@ -74,6 +74,7 @@ jobs:
           DEPLOY_REF: ${{ github.ref_name }}
           DEPLOY_ACTOR: ${{ github.actor }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          KONG_SYNC_MODE: ${{ vars.KONG_SYNC_MODE || 'report' }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
@@ -83,7 +84,7 @@ jobs:
           timeout: 30m
           command_timeout: 30m
           script_stop: true
-          envs: DEPLOY_SHA,DEPLOY_REF,DEPLOY_ACTOR,GH_TOKEN
+          envs: DEPLOY_SHA,DEPLOY_REF,DEPLOY_ACTOR,GH_TOKEN,KONG_SYNC_MODE
           script: |
             set -Eeuo pipefail
 
@@ -254,6 +255,12 @@ jobs:
               tar -xzf /tmp/backend-dist-prod.tar.gz -C "$REPO_DIR"
               rm -f /tmp/backend-dist-prod.tar.gz
               log "   ✓ pre-compiled backend ready"
+
+              # Kong gateway: validate the repo config and, when KONG_SYNC_MODE=apply,
+              # reload it. Without this, a route added to the repo never reaches the
+              # running gateway. Validation failure stops the deploy before services change.
+              log "🛣️  Kong config sync (mode: $KONG_SYNC_MODE)..."
+              bash "$REPO_DIR/scripts/sync-kong.sh" "$REPO_DIR/backend/kong-gateway/kong/prod/kong.yml" "$KONG_SYNC_MODE"
 
               export DOCKER_BUILDKIT=1
               export COMPOSE_DOCKER_CLI_BUILD=1

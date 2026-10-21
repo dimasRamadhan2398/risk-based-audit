@@ -32,10 +32,10 @@ onMounted(() => {
   }
 })
 
-const aiModules = [
+const aiModules = computed(() => [
   {
     title: t('navigation.riskScoringPrediction'),
-    description: 'Prediksi kuantitatif probabilitas dan dampak risiko departemen/cabang menggunakan model machine learning XGBoost.',
+    description: t('analytics.hub.descriptions.riskScoring'),
     icon: 'i-lucide-binary',
     badge: 'XGBoost ML',
     badgeColor: 'primary' as const,
@@ -43,7 +43,7 @@ const aiModules = [
   },
   {
     title: t('navigation.anomalyDetection'),
-    description: 'Deteksi deviasi pola transaksi dan anomali operasional perbankan menggunakan algoritma Isolation Forest.',
+    description: t('analytics.hub.descriptions.anomalyDetection'),
     icon: 'i-lucide-shield-alert',
     badge: 'Isolation Forest',
     badgeColor: 'error' as const,
@@ -51,7 +51,7 @@ const aiModules = [
   },
   {
     title: t('navigation.nlpAnalysis'),
-    description: 'Ekstraksi sentimen dan klasifikasi otomatis taksonomi risiko dari kertas kerja audit berbasis IndoBERT deep learning.',
+    description: t('analytics.hub.descriptions.nlp'),
     icon: 'i-lucide-file-search',
     badge: 'IndoBERT NLP',
     badgeColor: 'warning' as const,
@@ -59,18 +59,18 @@ const aiModules = [
   },
   {
     title: t('navigation.kpiForecast'),
-    description: 'Prakiraan lintasan kinerja KPI audit kuartal mendatang disertai rentang keyakinan prediktif berbasis PyTorch LSTM.',
+    description: t('analytics.hub.descriptions.kpiForecast'),
     icon: 'i-lucide-trending-up',
     badge: 'PyTorch LSTM',
     badgeColor: 'info' as const,
     to: '/analytics/ai/kpi-forecast'
   }
-]
+])
 
-const caattModules = [
+const caattModules = computed(() => [
   {
     title: t('navigation.caattFullPopulation'),
-    description: 'Pengujian 100% populasi transaksi kredit, valas, dan tunai tanpa sampling risk untuk mendeteksi pelanggaran plafon.',
+    description: t('analytics.hub.descriptions.fullPopulation'),
     icon: 'i-lucide-check-check',
     badge: 'Full Population',
     badgeColor: 'primary' as const,
@@ -78,7 +78,7 @@ const caattModules = [
   },
   {
     title: t('navigation.caattDuplicateGap'),
-    description: 'Deteksi transaksi duplikat bernilai identik dan identifikasi celah nomor warkat/voucher General Ledger yang hilang.',
+    description: t('analytics.hub.descriptions.duplicateGap'),
     icon: 'i-lucide-copy-x',
     badge: 'Integrity Check',
     badgeColor: 'warning' as const,
@@ -86,7 +86,7 @@ const caattModules = [
   },
   {
     title: t('navigation.caattBenford'),
-    description: 'Uji forensik sebaran angka pertama (First-Digit Law) untuk mendeteksi potensi manipulasi data atau transaksi terstruktur.',
+    description: t('analytics.hub.descriptions.benford'),
     icon: 'i-lucide-calculator',
     badge: 'Forensic Math',
     badgeColor: 'info' as const,
@@ -94,7 +94,7 @@ const caattModules = [
   },
   {
     title: t('navigation.caattStratification'),
-    description: 'Stratifikasi nominal transaksi dan portofolio untuk evaluasi konsentrasi risiko dan Monetary Unit Sampling.',
+    description: t('analytics.hub.descriptions.stratification'),
     icon: 'i-lucide-layers',
     badge: 'Stratification',
     badgeColor: 'neutral' as const,
@@ -102,7 +102,7 @@ const caattModules = [
   },
   {
     title: t('navigation.caattReconciliation'),
-    description: '3-Way Reconciliation otomatis antara Core Banking System (CBS), General Ledger, LOS, dan ATM Switch.',
+    description: t('analytics.hub.descriptions.reconciliation'),
     icon: 'i-lucide-git-compare',
     badge: '3-Way Recon',
     badgeColor: 'success' as const,
@@ -110,7 +110,7 @@ const caattModules = [
   },
   {
     title: t('navigation.caattPolicy'),
-    description: 'Pengujian otomatis kepatuhan operasional perbankan terhadap regulasi OJK/BI dan SOP internal (BMPK, LPS, Dual Control).',
+    description: t('analytics.hub.descriptions.policy'),
     icon: 'i-lucide-alert-triangle',
     badge: 'Compliance',
     badgeColor: 'error' as const,
@@ -118,13 +118,13 @@ const caattModules = [
   },
   {
     title: t('navigation.caattDataQuality'),
-    description: 'Profiling kualitas multi-zona data lake (Bronze, Silver, Gold) untuk kelengkapan, akurasi, latensi, dan duplikasi.',
+    description: t('analytics.hub.descriptions.dataQuality'),
     icon: 'i-lucide-gauge',
     badge: 'Data Lake',
     badgeColor: 'success' as const,
     to: '/analytics/caatt/data-quality'
   }
-]
+])
 </script>
 
 <template>
@@ -143,7 +143,7 @@ const caattModules = [
       <div class="flex items-center gap-2">
         <UBadge color="primary" variant="subtle" size="lg" class="px-3.5 py-1.5 font-bold">
           <UIcon name="i-heroicons-squares-2x2" class="w-4 h-4 mr-1.5" />
-          11 Modul Analitik Terintegrasi
+          {{ t('analytics.hub.moduleCount') }}
         </UBadge>
       </div>
     </div>
@@ -156,12 +156,12 @@ const caattModules = [
             <UIcon name="i-heroicons-cpu-chip" class="w-5 h-5" />
           </div>
           <div>
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white">AI Insights</h2>
-            <p class="text-xs text-gray-500">Kecerdasan buatan, predictive modelling, dan deteksi anomali mutakhir</p>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ t('analytics.hub.aiTitle') }}</h2>
+            <p class="text-xs text-gray-500">{{ t('analytics.hub.aiSubtitle') }}</p>
           </div>
         </div>
         <UButton to="/analytics/ai" variant="ghost" color="primary" size="sm" icon="i-heroicons-arrow-right" trailing>
-          Dashboard AI
+          {{ t('analytics.hub.aiDashboard') }}
         </UButton>
       </div>
 
@@ -190,7 +190,7 @@ const caattModules = [
               </p>
             </div>
             <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs font-semibold text-indigo-600 dark:text-indigo-400">
-              <span>Buka Modul</span>
+              <span>{{ t('analytics.hub.openModule') }}</span>
               <UIcon name="i-heroicons-arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </div>
           </UCard>
@@ -206,8 +206,8 @@ const caattModules = [
             <UIcon name="i-heroicons-chart-bar" class="w-5 h-5" />
           </div>
           <div>
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white">CAATT Insight</h2>
-            <p class="text-xs text-gray-500">Computer-Assisted Audit Tools & Techniques untuk pengujian 100% populasi data</p>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ t('analytics.hub.caattTitle') }}</h2>
+            <p class="text-xs text-gray-500">{{ t('analytics.hub.caattSubtitle') }}</p>
           </div>
         </div>
       </div>
@@ -237,7 +237,7 @@ const caattModules = [
               </p>
             </div>
             <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-              <span>Buka Modul</span>
+              <span>{{ t('analytics.hub.openModule') }}</span>
               <UIcon name="i-heroicons-arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </div>
           </UCard>

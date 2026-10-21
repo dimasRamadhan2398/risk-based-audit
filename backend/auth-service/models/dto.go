@@ -15,15 +15,6 @@ type LoginRequest struct {
 	DeviceType        string `json:"device_type"`
 }
 
-// RegisterRequest represents a register request
-type RegisterRequest struct {
-	Username  string `json:"username" binding:"required" validate:"required,min=3,max=50"`
-	Email     string `json:"email" binding:"required" validate:"required,email"`
-	Password  string `json:"password" binding:"required" validate:"required,min=6"`
-	FullName  string `json:"full_name" validate:"max=100"`
-	Phone     string `json:"phone" validate:"max=20"`
-	Department string `json:"department" validate:"max=100"`
-}
 
 // LoginResponse represents a login response
 type LoginResponse struct {
@@ -46,6 +37,23 @@ type UserInfo struct {
 	AvatarURL string   `json:"avatar_url"`
 	Roles     []string `json:"roles"`
 	MustChangePassword bool `json:"must_change_password"`
+	// EmployeeCode is users.employee_id: the employee_code this login is linked to.
+	// Null when the account is not linked to an employee.
+	EmployeeCode *string `json:"employee_code"`
+	// EmployeeID is the master-data employee UUID for EmployeeCode (employees.id).
+	// Null when unlinked or when master-service could not be reached.
+	EmployeeID *string `json:"employee_id"`
+	// DepartmentID is the master-data department UUID of the employee.
+	// Null when unlinked or when master-service could not be reached.
+	DepartmentID *string `json:"department_id"`
+}
+
+// EmployeeLink is the master-data employee behind a login account.
+// Every field is nil when the account is not linked or the lookup failed.
+type EmployeeLink struct {
+	EmployeeCode *string
+	EmployeeID   *string
+	DepartmentID *string
 }
 
 // ChangePasswordRequest represents a change password request

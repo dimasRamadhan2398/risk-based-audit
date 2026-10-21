@@ -24,7 +24,7 @@
 
         <template #actions-cell="{ row }">
             <div class="flex gap-2">
-              <UTooltip text="Edit Audit Plan">
+              <UTooltip :text="t('workingPaper.common.edit')">
                 <UButton 
                     size="md" 
                     color="warning" 
@@ -33,7 +33,7 @@
                     @click="store.handleEditF01(row.original)" 
                 />
               </UTooltip>
-              <UTooltip text="Delete Audit Plan">
+              <UTooltip :text="t('workingPaper.common.delete')">
                 <UButton 
                     size="md" 
                     color="error" 

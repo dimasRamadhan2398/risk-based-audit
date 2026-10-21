@@ -6,6 +6,10 @@ export interface User {
   fullName: string
   phone?: string
   department?: string
+  /** Linked employee (users.employee_id = employees.employee_code). Filled once /auth/me returns it (spec B1). */
+  employeeId?: string | null
+  /** master-service department UUID of the linked employee (spec B1/B2). Filled by fetchEmployeeLink(). */
+  departmentId?: string | null
   position?: string
   /** Profile picture as a data URL. Held in memory only, never written to the auth-user cookie. */
   avatarUrl?: string
@@ -15,15 +19,14 @@ export interface User {
   updatedAt?: string
 }
 
+/** Role names as seeded by the backend (auth-service/pkg/database/seeders/seeder.go). */
 export enum UserRole {
-  ADMIN = 'admin',
-  AUDITOR = 'auditor',
-  DEPARTMENT_HEAD = 'department_head',
-  AUDITEE = 'auditee',
-  VIEWER = 'viewer',
-  AUDIT_STAFF = 'audit_staff',
-  AUDIT_MANAGER = 'audit_manager',
-  CHIEF_AUDIT_EXECUTIVE = 'chief_audit_executive',
+  ADMIN = 'ADMIN',
+  AUDITOR = 'AUDITOR',
+  EXECUTIVE = 'EXECUTIVE',
+  AUDITEE = 'AUDITEE',
+  VIEWER = 'VIEWER',
+  DEPARTMENT_HEAD = 'DEPARTMENT_HEAD',
 }
 
 export interface LoginCredentials {

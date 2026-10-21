@@ -8,6 +8,7 @@ import QADetailModal from '~/components/quality-assurance/QADetailModal.vue';
 import { useQualityAssuranceStore } from '~/stores/quality-assurance'
 
 const store = useQualityAssuranceStore()
+const { t } = useI18n()
 
 </script>
 
@@ -17,16 +18,16 @@ const store = useQualityAssuranceStore()
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div class="space-y-1">
         <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
-          Internal Audit Quality Assurance - Integrated Dashboard
+          {{ t('qualityAssurance.dashboard.title') }}
         </h1>
         <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 font-medium">
-          Monitoring Compliance to Global Standards (IPPF 2027 & GIAS 2024)
+          {{ t('qualityAssurance.dashboard.subtitle') }}
         </p>
       </div>
       <div class="flex items-center gap-3 w-full sm:w-auto">
         <UButton
           color="primary"
-          label="Add Report"
+          :label="t('qualityAssurance.dashboard.addReport')"
           icon="i-lucide-plus"
           class="w-full sm:w-auto px-6 py-2.5 font-bold rounded-lg shadow-lg"
           @click="store.openForm"

@@ -90,8 +90,29 @@ type PlanReview struct {
 	AdditionalNotes  string `json:"additionalNotes"`
 }
 
+// Activity plan form versions (ActivityPlan.FormVersion).
+const (
+	// ActivityPlanFormLegacy is the old generic plan (plannedActivities JSON,
+	// budget, auditors, review). Read-only since the RKA form.
+	ActivityPlanFormLegacy = 1
+	// ActivityPlanFormRKA is the Formulir Rencana Kegiatan Audit: this header
+	// plus one audit_activities row per assignment (activity_plan_id).
+	ActivityPlanFormRKA = 2
+)
+
+// ActivityPlan is an Audit Activity Plan. Form version 2 (the RKA form) is a
+// header (AnnualPlanID, ActivityType, PlanTitle = Judul Kegiatan Audit,
+// PlanYear = the PKAT year) whose rows are audit_activities rows with
+// activity_plan_id = ID (see services/activity_plan_form). Form version 1 rows
+// are legacy plans that keep their JSON columns and are not converted.
 type ActivityPlan struct {
-	ID                   uuid.UUID                `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
+	ID uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
+	// AnnualPlanID is the PKAT (audit_annuals.id) of an RKA; nil for legacy plans.
+	AnnualPlanID *uuid.UUID `gorm:"type:uuid;index" json:"annualPlanId"`
+	// ActivityType is the Jenis Kegiatan Audit, one of ActivityPlanActivityTypes.
+	ActivityType string `gorm:"type:varchar(100)" json:"activityType"`
+	// FormVersion is ActivityPlanFormLegacy or ActivityPlanFormRKA.
+	FormVersion          int                      `gorm:"type:int;not null;default:1" json:"formVersion"`
 	PlanTitle            string                   `gorm:"type:varchar(255)" json:"planTitle"`
 	PlanYear             string                   `gorm:"type:varchar(50)" json:"planYear"`
 	PlanPeriodStart      string                   `gorm:"type:varchar(100)" json:"planPeriodStart"`
@@ -117,26 +138,50 @@ func (ActivityPlan) TableName() string {
 	return "activity_plans"
 }
 
+// AuditActivity is one audit assignment. Rows written by the RKA form
+// (ActivityPlanID set) are one row of the Formulir Rencana Kegiatan Audit:
+// AnnualActivityID links the PKAT row (AnnualAuditActivity.ID) that owns the
+// object, category, universe, department, team size and mandays. Title,
+// AuditType, AuditUniverseID, TargetUnitID, TeamSize and TotalMandays are then
+// server-written snapshots of that PKAT row, kept for the SQL readers (KPI
+// realisation, audit completion, execution sync); the API shows the live PKAT
+// values.
 type AuditActivity struct {
 	ID           uuid.UUID   `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
 	AnnualPlanID uuid.UUID   `gorm:"type:uuid;not null;index" json:"annual_plan_id"`
 	AnnualPlan   AuditAnnual `gorm:"foreignKey:AnnualPlanID" json:"annual_plan"`
 
-	// Link to Master Data: Which unit is being audited?
-	TargetUnitID uuid.UUID `gorm:"type:uuid;not null;index" json:"target_unit_id"`
+	// ActivityPlanID is the RKA (activity_plans.id, form version 2) this row
+	// belongs to; nil for rows created outside the RKA form.
+	ActivityPlanID *uuid.UUID `gorm:"type:uuid;index" json:"activity_plan_id"`
+	// AnnualActivityID is the PKAT row id (AnnualAuditActivity.ID). At most one
+	// live row per id (partial unique index ux_audit_activities_annual_activity_live).
+	AnnualActivityID *string `gorm:"type:varchar(36);index" json:"annual_activity_id"`
+	// SortOrder is the RKA "No" (1..N); 0 outside an RKA.
+	SortOrder int `gorm:"type:int;not null;default:0" json:"sort_order"`
+	// AuditKind is the RKA "Jenis Audit" (Operasional, Keuangan, ...).
+	AuditKind string `gorm:"type:varchar(100)" json:"audit_kind"`
+	// TeamLeaderName is the display snapshot of TeamLeaderID (RKA "Ketua Tim").
+	TeamLeaderName string `gorm:"type:varchar(255)" json:"team_leader_name"`
 
-	// ProjectCode is the Activity ID ("ASR-2026-003"), generated on create from
-	// AuditType and the annual plan's year and never changed afterwards.
-	ProjectCode     string    `gorm:"type:varchar(50);uniqueIndex;not null" json:"project_code"`
-	Title           string    `gorm:"type:varchar(255);not null" json:"title"`
-	AuditType       string    `gorm:"type:varchar(100)" json:"audit_type"` // e.g., Assurance, Special, Investigation
-	AuditUniverseID uuid.UUID `gorm:"type:uuid" json:"audit_universe_id"`
-	Justification   string    `gorm:"type:text" json:"justification"`
-	AuditPurpose    string    `gorm:"type:text" json:"audit_purpose"`
-	AuditFocus      string    `gorm:"type:text" json:"audit_focus"`
-	TeamSize        int       `gorm:"type:int" json:"team_size"`
-	TotalMandays    int       `gorm:"type:int" json:"total_mandays"`
-	TeamLeaderID    uuid.UUID `gorm:"type:uuid" json:"team_leader_id"`
+	// Link to Master Data: Which unit is being audited? Nil when unknown (a PKAT
+	// row may have no department).
+	TargetUnitID *uuid.UUID `gorm:"type:uuid;index" json:"target_unit_id"`
+
+	// ProjectCode is the Activity ID / Kode Penugasan. Generated as
+	// "ASR-2026-003" when not given; in the RKA form the user may type the
+	// client's own code. Unique across all rows, soft-deleted ones included.
+	ProjectCode     string     `gorm:"type:varchar(50);uniqueIndex;not null" json:"project_code"`
+	Title           string     `gorm:"type:varchar(255);not null" json:"title"`
+	AuditType       string     `gorm:"type:varchar(100)" json:"audit_type"` // e.g., Assurance, Special, Investigation
+	AuditUniverseID *uuid.UUID `gorm:"type:uuid" json:"audit_universe_id"`
+	Justification   string     `gorm:"type:text" json:"justification"`
+	AuditPurpose    string     `gorm:"type:text" json:"audit_purpose"`
+	AuditFocus      string     `gorm:"type:text" json:"audit_focus"`
+	TeamSize        int        `gorm:"type:int" json:"team_size"`
+	TotalMandays    int        `gorm:"type:int" json:"total_mandays"`
+	// TeamLeaderID is a master-service employee id; nil when no Ketua Tim.
+	TeamLeaderID *uuid.UUID `gorm:"type:uuid" json:"team_leader_id"`
 
 	Objective string `gorm:"type:text" json:"objective"`
 	Scope     string `gorm:"type:text" json:"scope"`

@@ -62,6 +62,9 @@ func testDB(t *testing.T) *gorm.DB {
 	if err := db.Exec("CREATE TABLE audit_annuals (" + strings.Join(cols, ", ") + ")").Error; err != nil {
 		t.Fatal(err)
 	}
+	if err := db.AutoMigrate(&models.AnnualSnapshotRef{}); err != nil {
+		t.Fatal(err)
+	}
 	return db
 }
 

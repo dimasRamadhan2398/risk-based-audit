@@ -20,17 +20,21 @@ import (
 )
 
 // activityRouter serves the annual plan routes with the same handlers as
-// routes/handler.go (GET, POST, PUT).
+// routes/handler.go (GET, POST, PUT, DELETE). The activity plan and audit
+// activity tables exist because the update hook checks RKA usage.
 func activityRouter(t *testing.T) (*gin.Engine, *gorm.DB) {
 	t.Helper()
 	gin.SetMode(gin.TestMode)
-	db := sqlitetest.Open(t, &models.ActivityCodeSequence{}, &models.AuditAnnual{})
+	db := sqlitetest.Open(t, &models.ActivityCodeSequence{}, &models.AuditAnnual{}, &models.AnnualSnapshotRef{},
+		&models.ActivityPlan{}, &models.AuditActivity{}, &models.AuditExecution{})
 	db.Logger = logger.Discard
 	r := gin.New()
 	g := r.Group("/annual-audit-plans")
-	g.GET("/:id", crud.GetByID(db, "AuditAnnual", func() interface{} { return &models.AuditAnnual{} }))
+	g.GET("", crud.ListWithItems(db, "AuditAnnual", func() interface{} { return &[]models.AuditAnnual{} }, ctrlAnnualPlan.DecorateList(db)))
+	g.GET("/:id", ctrlAnnualPlan.GetByID(db))
 	g.POST("", crud.CreateWithHook(db, "AuditAnnual", func() interface{} { return &models.AuditAnnual{} }, ctrlAnnualPlan.PrepareOnCreate))
-	g.PUT("/:id", crud.UpdateWithHook(db, "AuditAnnual", func() interface{} { return &models.AuditAnnual{} }, ctrlAnnualPlan.PrepareOnUpdate))
+	g.PUT("/:id", crud.UpdateWithHooks(db, "AuditAnnual", func() interface{} { return &models.AuditAnnual{} }, ctrlAnnualPlan.PrepareOnUpdate, ctrlAnnualPlan.RefreshSnapshotsAfterUpdate))
+	g.DELETE("/:id", ctrlAnnualPlan.Delete(db))
 	return r, db
 }
 

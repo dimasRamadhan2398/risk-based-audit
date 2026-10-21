@@ -23,7 +23,7 @@ describe('Audit Universe RBAC sync after login (bug repro)', () => {
     global.useCookie = originalUseCookie
   })
 
-  it('grants canEditAuditUniverse to an AUDIT_MANAGER immediately after a successful login', async () => {
+  it('grants canEditAuditUniverse to an EXECUTIVE immediately after a successful login', async () => {
     const store = useAuthStore()
 
     // Mirrors the real auth-service response shape consumed by _persistSession
@@ -36,7 +36,7 @@ describe('Audit Universe RBAC sync after login (bug repro)', () => {
           id: 'u-1',
           email: 'manager@auditsphere.app',
           full_name: 'Manager User',
-          roles: [UserRole.AUDIT_MANAGER],
+          roles: [UserRole.EXECUTIVE],
         },
         token: 'real-token',
       },
@@ -45,10 +45,10 @@ describe('Audit Universe RBAC sync after login (bug repro)', () => {
     await store.login({ username: 'manager', password: 'secret' })
 
     expect(store.isAuthenticated).toBe(true)
-    expect(store.user?.roles).toEqual([UserRole.AUDIT_MANAGER])
+    expect(store.user?.roles).toEqual([UserRole.EXECUTIVE])
 
     const rbac = useRbac()
-    expect(rbac.hasAnyRole([UserRole.ADMIN, UserRole.AUDIT_MANAGER, UserRole.CHIEF_AUDIT_EXECUTIVE])).toBe(true)
+    expect(rbac.hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE])).toBe(true)
     expect(rbac.canEditAuditUniverse.value).toBe(true)
 
     // Mirrors the actual gates in pages/risk-profile/audit-universe/index.vue:
@@ -95,7 +95,7 @@ describe('Audit Universe RBAC sync after login (bug repro)', () => {
     // THE BUG: despite isAuthenticated === true, canEditAuditUniverse stays false because
     // `roles` never made it into the rehydrated user object. The Audit Universe page then
     // renders as if the user were unauthenticated: Edit UI hidden, row checkboxes disabled.
-    expect(rbac.hasAnyRole([UserRole.ADMIN, UserRole.AUDIT_MANAGER, UserRole.CHIEF_AUDIT_EXECUTIVE])).toBe(false)
+    expect(rbac.hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE])).toBe(false)
     expect(rbac.canEditAuditUniverse.value).toBe(false)
   })
 
@@ -114,7 +114,7 @@ describe('Audit Universe RBAC sync after login (bug repro)', () => {
     store.isAuthenticated = true
 
     const rbac = useRbac()
-    expect(rbac.hasAnyRole([UserRole.ADMIN, UserRole.AUDIT_MANAGER, UserRole.CHIEF_AUDIT_EXECUTIVE])).toBe(true)
+    expect(rbac.hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE])).toBe(true)
     expect(rbac.canEditAuditUniverse.value).toBe(true)
   })
 

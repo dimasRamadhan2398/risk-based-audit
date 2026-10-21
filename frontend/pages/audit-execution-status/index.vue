@@ -183,7 +183,7 @@ const handleRemind = (audit: any) => {
         class="w-full sm:w-64"
       />
       <UButton
-        label="Reset Filter"
+        :label="t('auditExecution.resetFilter')"
         icon="i-lucide-rotate-ccw"
         color="neutral"
         variant="outline"
@@ -229,7 +229,7 @@ const handleRemind = (audit: any) => {
         </template>
 
         <template #actions-cell="{ row }">
-          <UTooltip text="View Detail">
+          <UTooltip :text="t('qualityAssurance.dashboard.summary.viewDetail')">
             <UButton
             icon="i-lucide-eye"
             variant="ghost"

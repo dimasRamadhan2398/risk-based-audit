@@ -76,6 +76,18 @@ func (c *BaseController) GetUsername(ctx *gin.Context) string {
 	return ""
 }
 
+// GetEmployeeID returns the master-data employee UUID from the token, or ""
+// when the token carries none (unlinked account or a token issued before the
+// claim existed).
+func (c *BaseController) GetEmployeeID(ctx *gin.Context) string {
+	if id, exists := ctx.Get("employee_id"); exists {
+		if s, ok := id.(string); ok {
+			return s
+		}
+	}
+	return ""
+}
+
 // GetRoles retrieves roles from context
 func (c *BaseController) GetRoles(ctx *gin.Context) []string {
 	if roles, exists := ctx.Get("roles"); exists {

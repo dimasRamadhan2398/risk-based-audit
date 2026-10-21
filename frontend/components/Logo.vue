@@ -2,7 +2,7 @@
   <div class="flex items-center gap-2 min-w-0 select-none">
     <img
       :src="auditsphereIconUrl"
-      alt="AuditSphere Logo"
+      :alt="t('brand.logoAlt')"
       class="shrink-0 w-auto"
       :class="iconOnly ? 'h-7 sm:h-8' : 'h-8 sm:h-9'"
     />
@@ -11,13 +11,16 @@
         <span class="text-orange-600">Audit</span>
         <span class="text-indigo-700 dark:text-indigo-400">Sphere</span>
       </div>
-      <span v-if="!hideSubtitle" class="text-[8px] sm:text-[9px] text-gray-500 dark:text-gray-400 uppercase tracking-tight font-semibold whitespace-nowrap leading-tight mt-0.5">Intelligent Risk-Based Audit</span>
+      <span v-if="!hideSubtitle" class="text-[8px] sm:text-[9px] text-gray-500 dark:text-gray-400 uppercase tracking-tight font-semibold whitespace-nowrap leading-tight mt-0.5">{{ t('brand.tagline') }}</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import auditsphereIconUrl from '@/assets/images/utils/auditsphere-icon.png'
+import { useI18n } from '~/composables/useI18n'
+
+const { t } = useI18n()
 
 interface Props {
   iconOnly?: boolean

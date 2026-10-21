@@ -1,4 +1,8 @@
 {
+  "brand": {
+    "logoAlt": "AuditSphere logo",
+    "tagline": "Intelligent Risk-Based Audit"
+  },
   "actions": {
     "view": "View",
     "edit": "Edit",
@@ -132,6 +136,34 @@
     }
   },
   "common": {
+    "datePicker": {
+      "clearDate": "Clear date",
+      "openCalendar": "Open calendar",
+      "previousMonth": "Previous month",
+      "nextMonth": "Next month",
+      "today": "Today",
+      "clear": "Clear",
+      "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+      "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    },
+    "signaturePad": {
+      "draw": "Draw",
+      "signed": "Signed",
+      "clear": "Clear",
+      "signAboveLine": "Sign above the line",
+      "drawHint": "Use a mouse, finger, or stylus to draw your signature.",
+      "chooseImage": "Choose Image File (.png, .jpg)",
+      "uploadHint": "Maximum 2 MB; a transparent image is recommended",
+      "previewAlt": "Signature Preview"
+    },
+    "formField": {
+      "required": "Field is required",
+      "moreInformation": "More information",
+      "max": "max",
+      "optional": "Optional",
+      "titleLength": "Title is {count} characters (maximum {max})",
+      "characterCount": "Characters: {count} of {max}"
+    },
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
@@ -168,10 +200,73 @@
   },
   "dashboard": {
     "title": "Home",
+    "overview": {
+      "dashboard": "Dashboard",
+      "welcome": "Welcome back, {name}. Here's your risk & audit performance overview.",
+      "sync": "Sync",
+      "fromLastMonth": "from last month",
+      "requiresAttention": "requires attention",
+      "auditPlans": "Audit Plans",
+      "thisQuarter": "this quarter",
+      "updated": "Updated",
+      "thisMonth": "this month",
+      "auditStatistics": "Audit Statistics",
+      "plannedAudits": "Planned Audits",
+      "openFindings": "Open Findings",
+      "executionStatus": "Execution Status",
+      "atrCompliance": "ATR Compliance",
+      "predictiveTitle": "Predictive Intelligence & Anomaly Analytics",
+      "predictiveDescription": "Future KPI projections and detection of financial and operational anomalies.",
+      "openAnalytics": "Open Deep Analytics Center",
+      "kpiForecasting": "KPI Performance Forecasting",
+      "forecastPeriod": "Historical trends versus Q3 2026–Q1 2027 forecasts (95% confidence interval)",
+      "details": "Details",
+      "atRiskKpi": "At-Risk KPI Projections & Audit Recommendations",
+      "projection": "Projection",
+      "predictionInterval": "Prediction interval ±4.8% MAPE",
+      "targetHorizon": "Target horizon: Q3 2026",
+      "transactionAnomalies": "Transaction Anomaly Detection",
+      "transactionAnomaliesDescription": "Detect transaction outliers and unusual patterns using unsupervised machine learning",
+      "criticalAnomalies": "Critical Anomaly Alerts Requiring Investigation",
+      "score": "Score:",
+      "contaminationRate": "Contamination rate:",
+      "manageAll": "Manage all",
+      "anomalies": "anomalies →",
+      "riskControlMatrix": "Risk Control Matrix →",
+      "controlEffectiveness": "Internal Control Effectiveness",
+      "item": "Item",
+      "departmentRisk": "Inherent vs Residual Risk by Department",
+      "inherentRisk": "Inherent Risk",
+      "residualRisk": "Residual Risk",
+      "riskProfiles": "Risk Profiles",
+      "riskHeatMap": "Risk Heat Map",
+      "probability": "Probability",
+      "low": "Low",
+      "lowModerate": "Low–Moderate",
+      "moderate": "Moderate",
+      "moderateHigh": "Moderate–High",
+      "high": "High",
+      "registeredRisks": "Registered Risks",
+      "overallProgress": "Overall Progress",
+      "completedPercent": "% Completed",
+      "remaining": "Remaining",
+      "actionTakenReports": "Action Taken Reports (ATR)",
+      "viewFullReport": "View Full Report",
+      "recentRiskProfiles": "Recent Risk Profiles",
+      "latestRiskAssessments": "Latest risk assessments",
+      "viewAllRiskProfiles": "View all Risk Profiles",
+      "upcomingAudits": "Upcoming Audits",
+      "scheduledActivities": "Scheduled audit activities",
+      "viewAllAnnualAudits": "View all Annual Audits",
+      "status": "Status:",
+      "noUpcomingAudits": "No upcoming audits scheduled."
+    },
     "planningExecution": {
       "title": "Audit Planning & Execution",
       "coverageTitle": "Audit Planning Coverage",
       "executionTitle": "Audit Execution Status",
+      "executionEmpty": "No audit executions to show yet.",
+      "executionError": "Could not load audit executions.",
       "configure": "Configure"
     },
     "registeredRisks": {
@@ -193,9 +288,201 @@
         "quiteSignificant": "Quite Significant",
         "notSignificant": "Not Significant"
       }
+    },
+    "auditee": {
+      "title": "Auditee Dashboard",
+      "welcome": "Welcome, {name}. Working view for the audits that affect your unit and the action plans you must answer.",
+      "unitLabel": "Unit: {unit}",
+      "refresh": "Refresh",
+      "notice": {
+        "label": "Auditee view principle:",
+        "text": "The dashboard shows the audits that affect your unit and the items you must respond to (action plans, requests and revisions), while corporate-level risk metrics stay in the background."
+      },
+      "errors": {
+        "link": "Your account details could not be loaded. Department-based data is unavailable until this succeeds.",
+        "notLinked": "Your account is not linked to an employee record with a department yet. Engagements for your unit cannot be shown. Action plans assigned to you are still listed.",
+        "notLinkedShort": "Your account is not linked to a department yet, so engagements for your unit cannot be shown."
+      },
+      "states": {
+        "loadError": "This section could not be loaded.",
+        "retry": "Retry"
+      },
+      "stats": {
+        "title": "Action plan status",
+        "scope": "Scope: action plans assigned to you (PIC)",
+        "empty": "No action plans are assigned to you yet.",
+        "open": "Open action plans",
+        "openHint": "Not completed or cancelled",
+        "overdue": "Overdue",
+        "overdueHint": "Open items past the due date",
+        "pendingReview": "Waiting for review",
+        "pendingReviewHint": "Submitted and not yet reviewed",
+        "compliance": "Completion",
+        "complianceHint": "Completed share of your action plans"
+      },
+      "engagements": {
+        "title": "Audit engagements for your unit",
+        "description": "Audits whose target unit is your department, with their status and planned period.",
+        "scope": "Scope: engagements filtered to your department (interim, not yet scoped on the server)",
+        "empty": "No audit engagements are linked to your unit yet.",
+        "loadError": "Audit engagements could not be loaded.",
+        "period": "{start} to {end}",
+        "showing": "Showing {shown} of {total} engagements",
+        "status": {
+          "planned": "Planned",
+          "inProgress": "In progress",
+          "reporting": "Reporting",
+          "completed": "Completed"
+        }
+      },
+      "tasks": {
+        "title": "Tasks and deadlines",
+        "description": "Open action plans you must fill in or follow up, earliest deadline first.",
+        "scope": "Scope: action plans assigned to you (interim)",
+        "empty": "No open action plans. Nothing is waiting on your unit.",
+        "dueOn": "Due {date}",
+        "noDueDate": "No due date",
+        "overdueDays": "{days} days overdue",
+        "showing": "Showing {shown} of {total} open action plans"
+      },
+      "requests": {
+        "title": "Requests needing a response",
+        "description": "Action plans returned for revision. PBC requests and comments are not connected yet.",
+        "empty": "No action plan is waiting for a response from you.",
+        "noRevisions": "No action plan has been returned for revision.",
+        "revisionLabel": "Returned for revision",
+        "placeholder": "PBC requests, comments and notifications are not connected yet."
+      },
+      "calendar": {
+        "title": "Important dates",
+        "description": "Engagement dates and action plan due dates for your unit.",
+        "placeholder": "The calendar for your unit is not connected yet."
+      }
+    },
+    "auditor": {
+    "roleBadge": "Role: Auditor",
+    "title": "Auditor Dashboard",
+    "welcome": "Welcome, {name}. Working view for fieldwork execution, working papers and draft findings.",
+    "previewMode": "Mode:",
+    "previewAuditor": "Auditor",
+    "previewReset": "(Reset)",
+    "previewResetTitle": "Back to the full dashboard view",
+    "sync": "Sync data",
+    "syncSuccess": "Auditor data synced",
+    "syncError": "Failed to sync auditor data",
+    "notice": {
+      "label": "Auditor view principle:",
+      "text": "The dashboard prioritizes active audit engagements, working papers, and client-provided evidence (PBC), while keeping corporate-level risk metrics in the background."
+    },
+    "states": {
+      "loading": "Loading...",
+      "loadError": "This section could not be loaded.",
+      "retry": "Retry",
+      "noData": "No data for this period."
+    },
+    "stats": {
+      "title": "Audit statistics",
+      "scope": "Scope: all ATR and audit data you can access (interim)",
+      "plannedAudits": "Planned audits",
+      "plannedAuditsHint": "Annual plans not yet approved",
+      "openFindings": "Open findings",
+      "openFindingsHint": "ATR items not completed or cancelled",
+      "executionProgress": "Execution progress",
+      "executionProgressHint": "Average progress of audit executions",
+      "atrCompliance": "ATR compliance",
+      "atrComplianceHint": "Completed share of ATR items"
+    },
+    "coverage": {
+      "title": "Audit planning & coverage",
+      "description": "Coverage of the annual audit plan (PKAT).",
+      "scope": "Scope: all annual audit plans (interim)",
+      "overallProgress": "Overall progress",
+      "planned": "Planned",
+      "approved": "Approved",
+      "remaining": "Remaining",
+      "empty": "No annual audit plan yet.",
+      "openPlan": "Open annual audit"
+    },
+    "status": {
+      "title": "Audit status and progress",
+      "description": "Published assignment letters, fieldwork stage and working paper completion.",
+      "scope": "Scope: all published assignment letters (interim)",
+      "searchPlaceholder": "Search letter / unit...",
+      "allAssignments": "All assignments",
+      "colLetter": "Assignment letter & title",
+      "colUnit": "Audited unit",
+      "colPeriod": "Fieldwork period",
+      "colStages": "Fieldwork stages",
+      "colWorkingPapers": "Working paper completeness",
+      "colStatus": "Status",
+      "colActions": "Actions",
+      "team": "Team",
+      "formsCount": "{count}/5 forms",
+      "currentStage": "Current stage:",
+      "openWorkingPaper": "Working paper",
+      "openFieldwork": "Testing & PBC",
+      "openLha": "Draft LHA",
+      "empty": "No published assignment letter yet.",
+      "emptyFiltered": "No engagement matches your search.",
+      "emptyHint": "Make sure the assignment letter is Published in the Assignment Letter module.",
+      "stepper": {
+        "entry": "1. Entry",
+        "testing": "2. Testing",
+        "workingPapers": "3. Working papers",
+        "exit": "4. Exit"
+      },
+      "stage": {
+        "preparation": "Entry meeting & preparation",
+        "testing": "Sampling & evidence testing",
+        "workingPapers": "Preparing working papers",
+        "reporting": "Drafting LHA & exit"
+      },
+      "statusLabel": {
+        "preparation": "Preparation",
+        "fieldwork": "Fieldwork active",
+        "reporting": "Reporting (LHA)"
+      },
+      "deadline": {
+        "none": "No schedule set",
+        "today": "Last day",
+        "overdue": "{days} days overdue",
+        "remaining": "{days} days left"
+      },
+      "periodTo": "to",
+      "unitFallback": "Audited unit"
+    },
+    "tasks": {
+      "title": "Task list with deadlines",
+      "description": "Open ATR items you need to review or follow up.",
+      "scope": "Scope: ATR items you can access (interim)",
+      "kindReview": "Review ATR action plan",
+      "kindFollowUp": "Follow up ATR action plan",
+      "dueOn": "Due {date}",
+      "noDueDate": "No due date",
+      "overdueDays": "{days} days overdue",
+      "empty": "No open tasks. Nothing is waiting on you.",
+      "placeholder": "Tasks for KKA, PBC and LHA are not connected yet."
+    },
+    "calendar": {
+      "title": "Important dates",
+      "description": "Engagement start and end dates, and ATR due dates for engagements you are on.",
+      "notConnected": "Calendar is not connected yet.",
+      "notLinked": "Your account is not linked to an employee record yet, so engagement dates cannot be filtered to you."
+    },
+    "notifications": {
+      "title": "Notifications and reminders",
+      "description": "In-app reminders derived from ATR data.",
+      "empty": "You have no new notifications.",
+      "typeOverdue": "ATR overdue by {days} days",
+      "typePendingReview": "ATR waiting for review",
+      "typeDueSoon": "ATR due in {days} days",
+      "placeholder": "PBC requests, comments and revisions are not connected yet."
+    },
+    "placeholder": "Placeholder"
     }
   },
   "auditExecution": {
+    "resetFilter": "Reset Filter",
     "title": "Audit Execution Status",
     "subtitle": "Transparency of audit cycle progress & phases from planning to report completion.",
     "cycleGuideButton": "Audit Cycle Guide",
@@ -289,11 +576,32 @@
       "sources": {
         "title": "[0] SOURCE DATA",
         "description": "Progress is calculated from the data recorded in each module.",
-        "annual_plan": { "label": "Annual Audit Plan", "linked": "Linked to an annual plan activity", "notLinked": "No annual plan activity linked" },
-        "assignment_letter": { "label": "Assignment Letter", "issued": "Letter issued", "notIssued": "Letter not issued yet" },
-        "fieldwork": { "label": "Audit Fieldwork", "detail": "{count} fieldwork records · {tested}/{total} test controls tested · {mitigations} mitigation plans", "notStarted": "Fieldwork not started" },
-        "working_paper": { "label": "Working Paper", "detail": "{count} working paper records · {plans} plans", "notStarted": "No working paper yet" },
-        "result_report": { "label": "Result Report (LHA)", "approved": "LHA approved", "draft": "LHA drafted, not approved yet", "notYet": "LHA not created yet" }
+        "annual_plan": {
+          "label": "Annual Audit Plan",
+          "linked": "Linked to an annual plan activity",
+          "notLinked": "No annual plan activity linked"
+        },
+        "assignment_letter": {
+          "label": "Assignment Letter",
+          "issued": "Letter issued",
+          "notIssued": "Letter not issued yet"
+        },
+        "fieldwork": {
+          "label": "Audit Fieldwork",
+          "detail": "{count} fieldwork records · {tested}/{total} test controls tested · {mitigations} mitigation plans",
+          "notStarted": "Fieldwork not started"
+        },
+        "working_paper": {
+          "label": "Working Paper",
+          "detail": "{count} working paper records · {plans} plans",
+          "notStarted": "No working paper yet"
+        },
+        "result_report": {
+          "label": "Result Report (LHA)",
+          "approved": "LHA approved",
+          "draft": "LHA drafted, not approved yet",
+          "notYet": "LHA not created yet"
+        }
       },
       "sampleDataTitle": "[1] SAMPLE DATA & TEST CONTROLS",
       "progress": "Progress",
@@ -373,6 +681,8 @@
       "languageSetToast": "System language set to {lang}."
     },
     "profile": {
+      "avatarAlt": "Avatar",
+      "emailPlaceholder": "Enter your email",
       "title": "My Profile",
       "subtitle": "Manage your personal account details and preferences.",
       "changePhoto": "Change Photo",
@@ -411,6 +721,9 @@
       "departmentsRetry": "Try again"
     },
     "mfa": {
+      "qrAlt": "MFA QR Code",
+      "generatingQr": "Generating QR code...",
+      "scanQr": "Scan QR code",
       "title": "Two-Factor Authentication (2FA / MFA)",
       "subtitle": "Enhance your account security using a TOTP authenticator application.",
       "activeProtected": "Active & Protected",
@@ -445,6 +758,8 @@
       "disabledDesc": "Two-factor authentication has been disabled."
     },
     "activity": {
+      "fingerprintLabel": "Fingerprint:",
+      "ipLabel": "IP:",
       "verificationTitle": "Database Storage Verification",
       "deviceText": "Current device in use:",
       "registeredYes": "Registered in Database: Yes (Last Login Fingerprint: {fingerprint})",
@@ -475,6 +790,29 @@
       "deviceRemovedDesc": "Trusted access for device \"{name}\" has been removed."
     },
     "permission": {
+      "matrix": {
+        "title": "AuditSphere Role-Based Access Control (RBAC) Matrix",
+        "description": "Official permission matrix defining access rights and operational authority across system modules.",
+        "export": "Export Matrix",
+        "legend": "Access Level Legend",
+        "full": "FULL",
+        "fullDescription": "Full access (create, read, update, delete, approve)",
+        "limited": "LIMITED / ACTION",
+        "limitedDescription": "Restricted operational actions (draft, edit, respond, review, etc.)",
+        "read": "READ",
+        "readDescription": "Read-only access",
+        "none": "NONE",
+        "noneDescription": "No access; hidden from navigation",
+        "searchPlaceholder": "Search module or feature...",
+        "of": "of",
+        "features": "module features",
+        "module": "Sidebar Module / Feature",
+        "admin": "Admin / CAE",
+        "auditor": "Auditor",
+        "auditee": "Auditee / Department Head",
+        "viewer": "Viewer",
+        "emptySearch": "No matching features found for \"{query}\""
+      },
       "title": "Access Rights & Role Settings",
       "subtitle": "Manage specific permissions for each user group within the system.",
       "currentRole": "Current Role :",
@@ -505,6 +843,23 @@
       "confirmDelete": "Delete"
     },
     "dataSource": {
+      "mapping": {
+        "deletionDetection": "Deletion Detection (Reconcile)",
+        "introspecting": "Inspecting database catalog and schemas...",
+        "rows": "rows",
+        "columnsShort": "columns",
+        "mapped": "Mapped →",
+        "columns": "Columns:",
+        "autoSuggest": "AI Auto-Suggest Canonical",
+        "targetSchema": "Target Schema:",
+        "riskExample": "e.g. Risk Profile / RCM",
+        "canonicalEntity": "Canonical Entity (Lakehouse)",
+        "watermark": "Watermark (Incremental Stream)",
+        "datePlaceholder": "Select date or update column",
+        "softDelete": "Soft-Delete Column (Reconcile)",
+        "deleteExample": "e.g. is_deleted, deleted_at",
+        "fetchingRows": "Fetching sample rows from database..."
+      },
       "title": "Data Source Connections",
       "subtitle": "Connect database systems, ERPs, and storage services to feed audit evidence & automated compliance checks.",
       "addConnection": "Add Connection",
@@ -622,9 +977,35 @@
         "question": "What are the different risk levels?",
         "answer": "Risk levels are calculated based on impact and probability scores: Low (1-3), Low to Moderate (4-6), Moderate (7-9), Moderate to High (10-12), and High (13-15)."
       }
+    },
+    "devices": {
+      "title": "Trusted Devices",
+      "registeredDevices": "Registered Devices",
+      "registerNew": "Register New Device",
+      "registerTitle": "Register Device",
+      "scanInstruction": "Scan this QR code with your mobile app to trust this device.",
+      "qrAlt": "Device enrollment QR code",
+      "expiresAt": "Expires at: {date}",
+      "close": "Close",
+      "columns": {
+        "device": "Device",
+        "ipAddress": "IP Address",
+        "addedOn": "Added On"
+      },
+      "enrollFailed": "Failed to enroll device",
+      "removeConfirm": "Are you sure you want to remove this trusted device?",
+      "removed": "Device Removed",
+      "removeFailed": "Failed to remove device"
     }
   },
   "strategicPlan": {
+    "extra": {
+      "quarters": "Quarters (",
+      "quarterRange": "{count} quarters ({start}–{end})",
+      "year": "Year",
+      "target": "Target",
+      "realization": "Realization"
+    },
     "title": "Strategic Plan Internal Audit",
     "subtitle": "Strategic Planning for Risk-Based Audit",
     "addObjective": "Add Strategic Objective",
@@ -684,7 +1065,8 @@
       "yearly": "Yearly",
       "quartal": "Quartal",
       "allYears": "All Years",
-      "allQuarters": "All Quarters"
+      "allQuarters": "All Quarters",
+      "allObjectives": "All Strategic Objectives"
     },
     "columns": {
       "code": "Objective ID",
@@ -741,7 +1123,9 @@
       "submit": "Submit",
       "update": "Update",
       "category": "Category",
-      "selectCategory": "Select a category (optional)"
+      "selectCategory": "Select a category (optional)",
+      "corporateGoal": "Corporate Goal",
+      "selectCorporateGoal": "Select Corporate Goal"
     },
     "viewModal": {
       "title": "Strategic Objective Details",
@@ -803,6 +1187,7 @@
     }
   },
   "riskFactors": {
+    "detailDescription": "Factor Description:",
     "title": "Risk Factors & Scoring Settings",
     "subtitle": "Configure risk weights and perform workspace scoring.",
     "backToHeatmap": "Back to Heat Map",
@@ -919,7 +1304,9 @@
     "backToHeatmap": "Back to Heat Map",
     "tabs": {
       "library": "1. Corporate Universe Builder",
-      "establish": "2. Yearly Establishment"
+      "establish": "2. Yearly Establishment",
+      "builder": "1. Corporate Universe Builder",
+      "yearly": "2. Yearly Establishment"
     },
     "library": {
       "standardTitle": "Standard Audit Universe Library",
@@ -940,7 +1327,8 @@
       "title": "📅 2. Establish {year} Audit Universe",
       "subtitle": "Select Auditable Entities from the Corporate Audit Universe active for auditing in year {year}.",
       "targetYear": "Target Year:",
-      "establishBtn": "Establish Active Universe"
+      "establishBtn": "Establish Active Universe",
+      "action": "Establish Active Universe"
     },
     "modals": {
       "renameTitle": "Rename Entity",
@@ -964,10 +1352,50 @@
       "syncSuccess": "Companies and Branches/Locations successfully synchronized to Corporate Audit Universe.",
       "syncFailed": "Failed to synchronize master data.",
       "establishSuccess": "Successfully established active Audit Universe for year {year}.",
-      "establishFailed": "Failed to establish yearly audit universe."
+      "establishFailed": "Failed to establish yearly audit universe.",
+      "renameSuccess": "Corporate entity name updated successfully.",
+      "addSuccess": "Custom corporate entity added successfully.",
+      "deleteConfirm": "Are you sure you want to delete this entity from the Corporate Audit Universe? This will delete all sub-entities and yearly entries.",
+      "deleteSuccess": "Entity deleted successfully from the corporate library."
+    },
+    "backToHeatMap": "Back to Heat Map",
+    "success": "Success",
+    "error": "Error",
+    "standard": {
+      "title": "Standard Audit Universe Library",
+      "subtitle": "Select standard entities to include them in your Corporate Audit Universe."
+    },
+    "corporate": {
+      "title": "Corporate Audit Universe",
+      "addCustom": "Add Custom Entity",
+      "entityCount": "{count} Entities",
+      "addSub": "Add Sub-Entity",
+      "renameParent": "Rename Parent Entity",
+      "deleteParent": "Delete Parent Entity",
+      "renameSub": "Rename Sub-Entity",
+      "deleteSub": "Delete Sub-Entity",
+      "empty": "Corporate Audit Universe is empty. Select from the standard library or add a custom entity."
+    },
+    "form": {
+      "renameTitle": "Rename Entity",
+      "entityName": "Entity Name",
+      "entityPlaceholder": "Enter entity name",
+      "nameValidation": "The entity name is required and must not exceed 100 characters",
+      "cancel": "Cancel",
+      "save": "Save",
+      "addSubTitle": "Add Sub-Entity",
+      "addCustomTitle": "Add Custom Corporate Entity",
+      "name": "Name",
+      "namePlaceholder": "Enter name...",
+      "addNode": "Add Node"
     }
   },
   "auditPriority": {
+    "loadingYear": "Loading audit priority data for year {year}...",
+    "emptyFiltered": "No auditable entities match your filter criteria.",
+    "establishFirst": "Please establish active entities in the Yearly Establishment tab of Audit Universe first.",
+    "establishYear": "Establish Universe for {year}",
+    "ofEntities": "of {total} entities",
     "title": "Audit Priority",
     "subtitle": "Annual Audit Plan priorities based on calculated risk levels.",
     "backToHeatmap": "Back to Heat Map",
@@ -986,6 +1414,13 @@
     "ruleInfo": "Audit Priority = Risk Level Medium to High or High"
   },
   "auditFieldwork": {
+    "extra": {
+      "noAttachment": "No file attached",
+      "addInterview": "Add Interview",
+      "downloadFile": "Download File",
+      "pic": "PIC:",
+      "dueDate": "Due Date:"
+    },
     "title": "Audit Fieldwork",
     "subtitle": "Manage audit execution from interview to working papers",
     "assignmentLetter": {
@@ -1285,10 +1720,219 @@
       "riskAddedDesc": "Successfully added new risk: {name}",
       "riskUpdated": "Risk Updated",
       "riskUpdatedDesc": "Successfully updated risk details.",
-      "saveFailed": "Failed to save the risk. Please try again."
+      "saveFailed": "Failed to save the risk. Please try again.",
+      "positionUpdated": "Risk \"{name}\" moved to likelihood {l} and impact {i} for {period}.",
+      "positionUpdateFailed": "Failed to update the risk position.",
+      "riskDeleted": "Risk \"{name}\" was deleted."
     }
   },
   "analytics": {
+    "caattUi": {
+      "common": {
+        "cases": "cases",
+        "transactions": "transactions",
+        "branches": "branches",
+        "branch": "Branch",
+        "accountNumber": "Account No.",
+        "customerName": "Customer Name",
+        "transactionCount": "Transaction Count",
+        "violationCount": "Total Violations",
+        "affectedBranches": "Affected Branches"
+      },
+      "duplicateGap": {
+        "subtitle": "Find repeated transactions with identical values and detect gaps in document or voucher numbers.",
+        "badge": "Data Integrity Audit",
+        "title": "CAATT: Data Integrity — Duplicate Transactions and Document Number Gaps",
+        "description": "Identify identical-value transactions processed repeatedly within a suspicious interval and missing sequential General Ledger document or voucher numbers.",
+        "duplicates": "Total Duplicate Transactions",
+        "duplicateHint": "Possible duplicate transactions or split bills",
+        "gaps": "Document Number Gaps",
+        "missingNumbers": "missing numbers",
+        "gapHint": "Out-of-sequence GL vouchers and clearing documents",
+        "branchHint": "Operational investigation required",
+        "findings": "Duplicate and Sequence-Gap Findings",
+        "reference": "Reference / Voucher No.",
+        "amount": "Amount",
+        "findingDescription": "Finding Description",
+        "frequency": "Frequency"
+      },
+      "benford": {
+        "subtitle": "Test first-digit frequencies across banking transactions for signs of data manipulation.",
+        "badge": "Benford Forensic Test",
+        "title": "CAATT: Benford's Law Analysis (First-Digit Frequency Distribution)",
+        "description": "Test first-digit frequencies across banking transactions. Significant deviations may indicate manipulated data or structured transactions below reporting thresholds.",
+        "comparison": "Digit Distribution: Actual vs Benford's Law",
+        "chiSquare": "Chi-Square Deviation by Digit (1–9)",
+        "digit": "Digit",
+        "actualPercent": "% Actual",
+        "benfordPercent": "% Benford",
+        "deviation": "Deviation",
+        "actualFrequency": "Actual Frequency (%)",
+        "benfordCurve": "Benford Curve (%)",
+        "frequencyDistribution": "Frequency Distribution (%)"
+      },
+      "policy": {
+        "subtitle": "Automatically test operational data against OJK/BI rules and internal procedures (LPS rates, BMPK, dual control).",
+        "badge": "Automated Compliance Testing",
+        "title": "CAATT: Banking Product Policy and Regulatory Compliance",
+        "description": "Automatically test all operational data against OJK/BI rules and internal procedures, including LPS rates, BMPK, dual control, and dormant-account verification.",
+        "violatedRules": "Rules with detected violations",
+        "criticalLevel": "Critical Level",
+        "criticalHint": "BMPK and LPS violations",
+        "highLevel": "High Level",
+        "highHint": "Dual control and cash limits",
+        "branchHint": "Internal controls need improvement",
+        "findings": "Banking Product Policy and Regulatory Violations",
+        "policyName": "Policy / SOP Name",
+        "customerEntity": "Customer / Entity",
+        "severity": "Severity",
+        "violationDescription": "Violation Description"
+      },
+      "fullPopulation": {
+        "subtitle": "Test all credit, cash withdrawal, and foreign-exchange transactions without sampling risk.",
+        "badge": "100% Population Tested",
+        "title": "CAATT: Full Population Transaction Testing",
+        "description": "Test all credit, cash withdrawal, and foreign-exchange transactions without sampling to eliminate sampling risk and detect every limit breach.",
+        "tested": "Total Transactions Tested",
+        "cbsPopulation": "100% CBS Population",
+        "followUp": "Follow-up required",
+        "violationRatio": "Violation Ratio",
+        "tolerance": "Tolerance limit: 2.0%",
+        "branchesTested": "Branches Tested",
+        "allBranches": "All branch units",
+        "categoriesTested": "Categories Tested",
+        "categories": "Lending, Cash, FX, Rates",
+        "findings": "Transactions Exceeding Limits and Thresholds",
+        "amount": "Transaction Value",
+        "limit": "Limit",
+        "excess": "Excess",
+        "violationType": "Violation Type"
+      },
+      "reconciliation": {
+        "subtitle": "Validate banking data integrity by comparing transactions and balances across CBS, GL, LOS, and ATM Switch.",
+        "badge": "Automated Three-Way Reconciliation",
+        "title": "CAATT: Automated Cross-System Reconciliation",
+        "description": "Validate banking data integrity by comparing transactions and balances across Core Banking System, General Ledger, Loan Origination System, and ATM Switch.",
+        "averageMatch": "Average Match Rate",
+        "sla": "SLA standard: 99.5%",
+        "unmatched": "Total Unmatched Transactions",
+        "journalAdjustment": "Journal adjustment required",
+        "difference": "Total Amount Difference",
+        "clearing": "Discrepancy under clearing review",
+        "integrationMatch": "Match Rate by Integration Path",
+        "status": "General Ledger and Operational System Reconciliation Status",
+        "systems": "System A ↔ System B",
+        "transactionsA": "Transactions A",
+        "transactionsB": "Transactions B",
+        "matched": "Matched",
+        "matchPercent": "Match %",
+        "differenceCurrency": "Difference (IDR)",
+        "matchRateAxis": "Match Rate (%)"
+      },
+      "stratification": {
+        "subtitle": "Group transactions and portfolios by amount to identify concentrated risk exposure.",
+        "badge": "Monetary Unit Sampling",
+        "title": "CAATT: Transaction and Credit Portfolio Stratification",
+        "description": "Group transactions and portfolios into amount strata to identify concentrated risk exposure and select high-value samples.",
+        "transactions": "Total Stratified Transactions",
+        "allCustomers": "All customer categories",
+        "portfolioValue": "Total Portfolio Value",
+        "fullExposure": "Full nominal exposure",
+        "strataCount": "Number of Strata",
+        "strataUnit": "strata",
+        "segmentRange": "Retail to High-Value Wholesale",
+        "valueConcentration": "Value Concentration by Stratum",
+        "valueDescription": "Accumulated exposure (IDR billions) by stratum range",
+        "distribution": "Transaction Amount Strata Distribution",
+        "distributionDescription": "Transaction counts and accumulated values by amount range",
+        "range": "Stratum (Transaction Value Range)",
+        "segment": "Segment",
+        "accumulated": "Total Accumulated Amount",
+        "transactionPercent": "% Transactions",
+        "valuePercent": "% Value",
+        "guide": "How to Interpret the Columns:",
+        "rangeGuide": "Amount range for each individual transaction (for example, retail transactions below IDR 10 million through wholesale above IDR 500 million).",
+        "accumulatedGuide": "Cumulative value of all transactions in the stratum (for example, 8,420 transactions below IDR 10 million total IDR 32.5 billion).",
+        "totalAccumulatedBillions": "Total Accumulated Value (IDR Billions)",
+        "accumulatedAxis": "Accumulated Value (IDR Billions)"
+      },
+      "dataQuality": {
+        "subtitle": "Monitor integrated data quality: completeness, accuracy, timeliness, and duplication across the data lake.",
+        "badge": "Data Lake Profiling",
+        "title": "CAATT: Data Lake Quality Dashboard (Bronze → Silver → Gold)",
+        "description": "Monitor integrated data reliability, including completeness, accuracy, synchronization latency, and uniqueness across all data-lake zones.",
+        "overallScore": "Overall Data Quality Score",
+        "excellent": "% — EXCELLENT",
+        "profiledPrefix": "Based on profiling 6 core tables and",
+        "profiledSuffix": "data rows",
+        "productionReady": "Production Ready",
+        "averageCompleteness": "Average Completeness",
+        "noNulls": "No critical null values",
+        "averageAccuracy": "Average Accuracy",
+        "validity": "Valid data types and relationships",
+        "averageDelay": "Average Delay",
+        "freshness": "Synchronization pipeline freshness",
+        "profiledTables": "Tables Profiled",
+        "tableUnit": "tables",
+        "zones": "Bronze, Silver, and Gold zones",
+        "comparison": "Table Completeness vs Accuracy",
+        "metrics": "Multi-Zone Data Lake Quality Profiling Metrics",
+        "tableName": "Table Name",
+        "zone": "Zone",
+        "totalRows": "Total Rows",
+        "completeness": "Completeness",
+        "accuracy": "Accuracy",
+        "latency": "Latency",
+        "duplicates": "Duplicates",
+        "completenessDataset": "Completeness (%)",
+        "accuracyDataset": "Accuracy (%)",
+        "qualityAxis": "Quality Score (%)"
+      }
+    },
+    "anomalyFilter": "Filter:",
+    "all": "All",
+    "hub": {
+      "moduleCount": "11 integrated analytics modules",
+      "aiTitle": "AI Insights",
+      "aiSubtitle": "Artificial intelligence, predictive modeling, and advanced anomaly detection",
+      "aiDashboard": "AI Dashboard",
+      "openModule": "Open Module",
+      "caattTitle": "CAATT Insights",
+      "caattSubtitle": "Computer-assisted audit tools and techniques for testing the full data population",
+      "descriptions": {
+        "riskScoring": "Quantitative prediction of department and branch risk likelihood and impact using XGBoost machine learning.",
+        "anomalyDetection": "Detect transaction-pattern deviations and banking operational anomalies using Isolation Forest.",
+        "nlp": "Extract sentiment and automatically classify audit working-paper risks using IndoBERT deep learning.",
+        "kpiForecast": "Forecast next-quarter audit KPI performance with predictive confidence intervals using PyTorch LSTM.",
+        "fullPopulation": "Test 100% of credit, foreign-exchange, and cash transactions to detect limit breaches without sampling risk.",
+        "duplicateGap": "Detect identical-value duplicate transactions and missing General Ledger voucher or document numbers.",
+        "benford": "Forensic first-digit analysis to detect possible data manipulation or structured transactions.",
+        "stratification": "Stratify transactions and portfolios by amount to assess risk concentration and support monetary-unit sampling.",
+        "reconciliation": "Automatic three-way reconciliation of Core Banking System, General Ledger, LOS, and ATM Switch data.",
+        "policy": "Automatically test banking operations against OJK/BI regulations and internal procedures (BMPK, LPS, dual control).",
+        "dataQuality": "Profile Bronze, Silver, and Gold data-lake zones for completeness, accuracy, latency, and duplicates."
+      }
+    },
+    "aiHome": {
+      "modelBadge": "ML Model",
+      "isolationBadge": "Isolation Forest • Multivariate Clustering",
+      "unsupervisedBadge": "Unsupervised",
+      "nlpModelBadge": "NLP Deep Learning",
+      "forecastBadge": "PyTorch LSTM • Time-Series Horizon",
+      "predictiveBadge": "Predictive Horizon",
+      "title": "AI Insights Suite",
+      "introTitle": "Integrated Artificial Intelligence Modules (AI Insights)",
+      "introDescription": "AI Analytics offers four predictive internal-audit engines: XGBoost Risk Scoring, Isolation Forest Anomaly Detection, IndoBERT NLP Analysis, and PyTorch LSTM KPI Forecasting. Select a module below or use the navigation cards above.",
+      "xgboostBadge": "XGBoost Regressor • 8 Risk Matrix Features",
+      "xgboostDescription": "Proactively predict quantitative risk scores for branches and departments using audit history, KPI deviations, and operational incidents.",
+      "isolationDescription": "Detect banking operational anomalies in funding, lending, treasury, KYC, and IT controls without static rules to mitigate fraud early.",
+      "nlpBadge": "IndoBERT Fine-Tuned • Audit Text Classification",
+      "nlpDescription": "Analyze sentiment and automatically classify audit working-paper findings into standard risk categories.",
+      "documentsAnalyzed": "Documents Analyzed",
+      "forecastDescription": "Forecast next-quarter audit KPIs with upper and lower confidence bounds and proactive improvement recommendations.",
+      "activeForecasts": "Active KPI Forecasts",
+      "openAnalytics": "Open Analytics"
+    },
     "title": "Data Analytics Center",
     "subtitle": "Comperehensive Data Analytics using CAATT Engine and AI Engine",
     "statusActive": "4 Trained Models Active & Synchronized",
@@ -1429,6 +2073,13 @@
     }
   },
   "annualAudit": {
+    "extra": {
+      "view": "View Annual Audit",
+      "edit": "Edit Annual Audit",
+      "delete": "Delete Annual Audit",
+      "searchActivity": "Search activity code or name...",
+      "allDepartments": "All Departments"
+    },
     "title": "Annual Audit Plan",
     "status": {
       "draft": "Draft",
@@ -1445,8 +2096,25 @@
     },
     "importPlanDocument": "Import Plan Document",
     "newAuditPlan": "New Audit Plan",
+    "table": {
+      "empty": "No audit plans yet.",
+      "viewTooltip": "View audit plan",
+      "editTooltip": "Edit audit plan",
+      "deleteTooltip": "Delete audit plan"
+    },
+    "delete": {
+      "confirmTitle": "Delete this audit plan?",
+      "confirmBody": "The plan will be permanently deleted. This action cannot be undone.",
+      "deactivateTitle": "Deactivate this audit plan?",
+      "deactivateBody": "This plan is already in use, so it cannot be permanently deleted. It will be deactivated instead.",
+      "deactivateConfirm": "Yes, deactivate",
+      "planLabel": "Plan: {code}",
+      "success": "Audit plan deleted.",
+      "deactivated": "Audit plan deactivated.",
+      "error": "Failed to delete the audit plan."
+    },
     "form": {
-      "activityCodeHelp": "Format: PKAT-Tahun-No.Urut (e.g. PKAT-2026-001). Generated automatically on save.",
+      "activityCodeHelp": "Format: PKAT-Year-Sequence (e.g. PKAT-2026-001). Generated automatically on save.",
       "activityCodePending": "Generated on save",
       "auditableEntityLabel": "Auditable Entity (from Audit Universe)",
       "auditableEntityPlaceholder": "-- Select Auditable Entity --",
@@ -1455,7 +2123,7 @@
       "auditPriorityBadge": "Audit Priority",
       "departmentsPlaceholder": "Select Departments",
       "departmentsEmpty": "No departments found in Master Data",
-      "title": "Annual Audit Plan",
+      "title": "Annual Audit Plan (PKAT) Form",
       "defaultActivityName": "Operational audit of {entity}",
       "sectionActivity": "2. Activities",
       "status": "Status",
@@ -1498,22 +2166,15 @@
       "savePlan": "Save plan",
       "updatePlan": "Update plan",
       "sectionPlanHeader": "1. Plan header",
-      "activityType": "Audit activity type",
-      "activityTypePlaceholder": "Select audit activity type",
-      "planTitle": "Audit activity title",
+      "planTitle": "PKAT title",
       "planTitlePlaceholder": "e.g. Annual Audit Plan 2026",
-      "assignmentCode": "Assignment code",
-      "assignmentCodePlaceholder": "e.g. ASR-2026-001",
       "objectName": "Audit object",
-      "auditType": "Audit type",
+      "auditType": "Audit category",
       "department": "Department",
-      "justification": "Justification for selecting the object",
-      "auditObjective": "Audit objective",
-      "auditFocus": "Audit focus",
       "scheduleText": "Assignment schedule",
       "scheduleTextPlaceholder": "e.g. Q1 2026, 2 weeks",
       "teamCount": "Team size (persons)",
-      "teamLead": "Team lead",
+      "teamLead": "Supervisor",
       "riskSnapshotHelp": "Risk name and level come from the Audit Universe and update automatically.",
       "mandaysSumHint": "Sum of the Total Mandays of all activities",
       "validation": {
@@ -1523,8 +2184,10 @@
         "universeRequired": "Pick the Audit Universe entity for sub-activity {number}.",
         "auditorCountRange": "Team size on sub-activity {number} must be between 1 and 10.",
         "mandaysMin": "Total mandays on sub-activity {number} must be at least 1.",
-        "leadRequired": "Team lead on sub-activity {number} is required."
-      }
+        "leadRequired": "Supervisor on sub-activity {number} is required."
+      },
+      "usedInActivityPlan": "Used in activity plan \"{title}\" ({code})",
+      "rowInUseTooltip": "Used by an audit activity plan: remove it there first"
     },
     "detail": {
       "activityStatus": "Activity status",
@@ -1576,7 +2239,8 @@
       "waitingStaff": "Waiting for Audit Staff approval...",
       "waitingManager": "Waiting for Audit Manager approval...",
       "waitingChief": "Waiting for Chief Audit Executive approval...",
-      "approvedAlert": "This document has been approved."
+      "approvedAlert": "This document has been approved.",
+      "activityPlan": "Audit activity plan"
     },
     "upload": {
       "title": "Import Annual Audit Plan",
@@ -1608,9 +2272,40 @@
       },
       "deleteConfirm": "Are you sure you want to delete this document?",
       "fileSizeLimit": "File size exceeds the 10MB limit."
+    },
+    "errors": {
+      "ANNUAL_PLAN_IN_USE": "This PKAT is used by an activity plan and cannot be deleted",
+      "ANNUAL_PLAN_ACTIVITY_IN_USE": "Row {row} is used in \"{activityPlanTitle}\". Remove it there first.",
+      "ANNUAL_PLAN_ACTIVITY_TYPE_CONFLICT": "Row {row}: its type cannot change while it is in \"{activityPlanTitle}\""
     }
   },
   "assignmentLetter": {
+    "formExtra": {
+      "number": "Assignment Letter Number:",
+      "titleExample": "e.g. Financial Operations Audit",
+      "category": "Audit Category",
+      "team": "Audit Team",
+      "to": "to",
+      "workUnit": "Work Unit",
+      "workUnitPlaceholder": "Select Work Unit (Required)",
+      "company": "Company / Entity",
+      "companyPlaceholder": "Select Company / Entity (Optional)",
+      "members": "Team Members",
+      "memberName": "Member Name",
+      "role": "Role",
+      "memberHint": "* At least three team members are recommended by the template.",
+      "purposePlaceholder": "Enter the audit purpose...",
+      "addPurpose": "Add Purpose",
+      "scopePlaceholder": "Enter the audit scope...",
+      "addScope": "Add Scope",
+      "cc": "CC (Carbon Copy)",
+      "ccPosition": "CC Position (e.g. President Director)",
+      "addCc": "Add CC",
+      "pic": "(PIC)",
+      "publish": "Publish Assignment Letter",
+      "edit": "Edit Assignment Letter",
+      "delete": "Delete Assignment Letter"
+    },
     "title": "Assignment Letter List",
     "importDocument": "Import Document",
     "createAssignmentLetter": "Create Assignment Letter",
@@ -1647,168 +2342,238 @@
     }
   },
   "auditActivityPlan": {
+    "extra": {
+      "yearExample": "Audit Plan for 2026",
+      "auditExample": "IT Audit Q1",
+      "nameExample": "Jamil",
+      "auditorExample": "IT Auditor",
+      "available": "Available",
+      "decrease": "Decrease",
+      "increase": "Increase",
+      "viewPlan": "View Plan",
+      "editPlan": "Edit Plan",
+      "deletePlan": "Delete Plan"
+    },
     "title": "Audit Activity Plan",
     "subtitle": "Manage and review annual audit activity plans.",
     "importDocument": "Import Document",
     "createPlan": "Create Plan",
     "editPlan": "Edit Audit Activity Plan",
     "createPlanTitle": "Create Audit Activity Plan",
+    "formTitle": "Audit Activity Plan Form",
+    "preview": "Form preview",
     "emptyState": "No audit activity plan data available.",
     "deleteConfirm": "Are you sure you want to delete this activity plan?",
-    "validation": {
-      "basicInfo": "Please fill in all required fields (Plan Title, Year, Period, Department).",
-      "plannedActivities": "Please add at least one audit activity with Activity Title and Auditee filled.",
-      "reviewAndApproval": "Please fill in the Creator and Approver names and positions.",
-      "periodOrder": "The plan period end date must be on or after the start date.",
-      "scheduleOutsidePeriod": "Activity {num}: the estimated schedule must fall within the plan period.",
-      "negativeNumber": "Activity {num}: duration, number of auditors and budget cannot be negative.",
-      "annualDepartmentMissing": "The linked annual activity has no department or plan year. Check the Annual Audit Plan."
-    },
+    "deleteSuccess": "Audit activity plan deleted.",
+    "deleteError": "Failed to delete the audit activity plan.",
+    "saveSuccess": "Audit activity plan saved.",
+    "saveError": "Failed to save the audit activity plan.",
+    "loadError": "Failed to load the audit activity plans.",
+    "retry": "Try again",
+    "reload": "Reload",
     "stepper": {
-      "step1": "Basic Info",
-      "step2": "Audit Activities",
-      "step3": "Resources & Budget",
-      "step4": "Review & Approval",
-      "step5": "Attachments",
+      "next": "Next Step",
       "previous": "Previous",
-      "next": "Next Step"
+      "header": "Form header",
+      "rows": "Assignments",
+      "attachments": "Attachments"
+    },
+    "header": {
+      "annualPlan": "Annual Audit Plan (PKAT)",
+      "annualPlanPlaceholder": "Select a PKAT",
+      "annualPlanEmpty": "No active PKAT yet. Create the Annual Audit Plan first.",
+      "annualPlanLocked": "The PKAT cannot be changed after the plan is created.",
+      "annualPlanNotApproved": "This PKAT is still {status}. You can draft the plan; it follows any later PKAT change.",
+      "changeAnnualPlanConfirm": "Change the PKAT? The assignments added so far will be removed.",
+      "changeAnnualPlanConfirmLabel": "Change PKAT",
+      "year": "Year",
+      "activityType": "Audit Activity Type",
+      "activityTypePlaceholder": "Select the audit activity type",
+      "title": "Audit Activity Title",
+      "titlePlaceholder": "e.g. Assurance Activity Plan 2026"
+    },
+    "activityTypes": {
+      "assurance": "Assurance",
+      "specialAudit": "Special Audit",
+      "specificPurpose": "Specific-Purpose Audit",
+      "investigation": "Investigative Audit"
+    },
+    "columns": {
+      "no": "No.",
+      "assignmentCode": "Assignment Code",
+      "auditObject": "Audit Engagement Object",
+      "auditKind": "Audit Type",
+      "auditUniverse": "Audit Universe",
+      "justification": "Justification for Object Selection",
+      "objectives": "Audit Objectives",
+      "focus": "Audit Focus",
+      "schedule": "Engagement Schedule",
+      "teamSize": "Team Size (Persons)",
+      "totalMandays": "Total Mandays",
+      "teamLeader": "Team Leader"
+    },
+    "auditKinds": {
+      "operational": "Operational",
+      "financial": "Financial",
+      "compliance": "Compliance",
+      "it": "Information Technology",
+      "performance": "Performance"
+    },
+    "rows": {
+      "addFromPkat": "Add assignments from PKAT",
+      "pickHeaderFirst": "Select the PKAT and the audit activity type first",
+      "empty": "No assignments yet. Add them from the PKAT.",
+      "fromPkat": "From PKAT (edit it in the Annual Audit Plan)",
+      "category": "PKAT category",
+      "assignmentCodeHint": "Leave blank to generate a code",
+      "assignmentCodeLocked": "Locked: the engagement has started",
+      "assignmentCodePending": "(generated on save)",
+      "auditKindPlaceholder": "Select or type the audit type",
+      "teamLeaderPlaceholder": "Select an employee",
+      "teamLeaderEmpty": "No employees found",
+      "teamLeaderLoadError": "Failed to load the employee list.",
+      "pkatSupervisor": "PKAT supervisor: {name}",
+      "pkatMissing": "The PKAT row no longer exists; showing saved values",
+      "inUseTooltip": "Cannot remove: the engagement has started",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "remove": "Remove"
+    },
+    "list": {
+      "addItem": "Add item",
+      "itemPlaceholder": "Item {num}",
+      "pasteHint": "Pasting a numbered list splits it into items"
+    },
+    "picker": {
+      "title": "Select PKAT activities",
+      "usedIn": "Already in \"{title}\"",
+      "alreadyAdded": "Already added to this form",
+      "noMatch": "No PKAT activities of type {type}",
+      "confirm": "Add {count} assignment(s)",
+      "loadError": "Failed to load the PKAT activities."
+    },
+    "totals": {
+      "rows": "Assignments",
+      "teamSize": "Total team",
+      "mandays": "Total mandays"
     },
     "table": {
+      "actions": "Actions",
+      "attachment": "Attachment",
       "title": "Title",
       "year": "Year",
-      "period": "Period",
-      "department": "Department/Unit",
-      "activityId": "Activity ID",
-      "riskName": "Risk Name",
-      "riskLevel": "Risk Level",
-      "attachment": "Attachment",
-      "actions": "Actions"
+      "activityType": "Activity Type",
+      "pkat": "PKAT",
+      "pkatInactive": "Deactivated",
+      "rowCount": "Assignments",
+      "totalMandays": "Total Mandays",
+      "status": "Status",
+      "viewAttachments": "View attachments",
+      "viewTooltip": "View plan",
+      "editTooltip": "Edit plan",
+      "deleteTooltip": "Delete plan"
+    },
+    "filter": {
+      "year": "Year",
+      "activityType": "Activity type",
+      "all": "All",
+      "reset": "Reset filters"
+    },
+    "legacy": {
+      "badge": "Old format",
+      "notice": "This plan uses the old form. It can be viewed or deleted, not edited. Create a new plan in the form format.",
+      "section": "Old-format data"
+    },
+    "validation": {
+      "annualPlanRequired": "Select a PKAT",
+      "activityTypeRequired": "Select the audit activity type",
+      "activityTypeRowsMismatch": "The audit activity type cannot change while assignments of another type are in the form. Remove them first.",
+      "titleRequired": "Audit activity title is required (max 255 characters)",
+      "rowsRequired": "Add at least one assignment",
+      "rowsTooMany": "A plan can have at most {max} assignments",
+      "rowDuplicate": "Assignment {num}: this PKAT activity is already in the form",
+      "rowTypeMismatch": "Assignment {num}: its PKAT type does not match the activity type",
+      "rowAuditKind": "Assignment {num}: Audit Type is required",
+      "rowListRequired": "Assignment {num}: {field} needs at least one item",
+      "rowListLimits": "Assignment {num}: {field} allows up to 20 items of 1000 characters",
+      "assignmentCodeFormat": "Assignment {num}: code may use letters, digits, . _ / - (max 50)",
+      "assignmentCodeDuplicate": "Assignment {num}: code is used twice in this form"
+    },
+    "errors": {
+      "ANNUAL_PLAN_NOT_FOUND": "The PKAT no longer exists",
+      "ANNUAL_PLAN_INACTIVE": "The PKAT is deactivated",
+      "ANNUAL_ACTIVITY_NOT_FOUND": "Assignment {row}: the PKAT row no longer exists",
+      "ANNUAL_ACTIVITY_TYPE_MISMATCH": "Assignment {row}: its PKAT type does not match the activity type",
+      "ANNUAL_ACTIVITY_TAKEN": "Assignment {row} is already in \"{activityPlanTitle}\"",
+      "ASSIGNMENT_CODE_TAKEN": "Assignment {row}: code {assignmentCode} is already used",
+      "ASSIGNMENT_CODE_LOCKED": "Assignment {row}: the code cannot change after the engagement started",
+      "ACTIVITY_ROW_IN_USE": "Assignment {row} has started and cannot be removed",
+      "ACTIVITY_PLAN_IN_USE": "This plan has started assignments and cannot be deleted",
+      "ACTIVITY_PLAN_DUPLICATE": "A plan of this type already exists for this PKAT",
+      "ACTIVITY_PLAN_STALE": "Someone else changed this plan. Reload and try again.",
+      "ACTIVITY_PLAN_LEGACY_READONLY": "Old-format plans cannot be edited"
     },
     "form": {
-      "stepNum": "Step {current} of {total}",
-      "basicInfo": "Basic Planning Information",
-      "planTitle": "Title of Audit Activity Plan",
-      "planYear": "Planning Year",
-      "planPeriod": "Planning Period",
-      "department": "Department/Unit of Audit",
-      "createdBy": "Created By",
-      "creationDate": "Creation Date",
-      "to": "to",
-      "plannedActivities": "Planned Audit Activities",
-      "addAuditActivity": "Add Audit Activity",
-      "activityNum": "Audit Activity {num}",
-      "activityId": "Activity ID",
-      "activityIdPending": "Generated on save",
-      "activityTitle": "Title of Audit Activity",
-      "createPlanTitle": "Create Audit Activity Plan",
-      "auditee": "Auditee",
-      "category": "Category",
-      "selectCategory": "Select Category",
-      "associatedRisk": "Associated Risk (Based on Risk Profile)",
-      "selectRiskProfile": "-- Select Risk Profile --",
-      "riskLevel": "Risk Level",
-      "selectRiskLevel": "Select risk level",
-      "duration": "Duration (days)",
-      "priority": "Priority",
-      "selectPriority": "Select priority",
-      "auditorsNum": "Number of Auditors",
-      "estimatedSchedule": "Estimated Schedule/Time",
-      "budgetEstimation": "Budget Estimation",
-      "millionRupiah": "Million Rupiah",
-      "rupiah": "Rupiah",
-      "selectDepartment": "Select department",
-      "autoCalculated": "Calculated from the activity budgets",
-      "allocatedBelowEstimate": "The allocated budget is lower than the total estimated cost.",
-      "autoFilledFromAccount": "Filled in from your account",
       "attachedFiles": "Attached files",
-      "uploadFailed": "Failed to upload attachment {name}.",
-      "noActivitiesAdded": "No audit activities have been added yet.",
-      "summaryOfActivities": "Summary of Activities",
-      "highRisk": "High Risk",
-      "mediumRisk": "Medium Risk",
-      "lowRisk": "Low Risk",
-      "resourcesAndBudget": "Resources & Budget",
-      "addAuditor": "Add Auditor",
-      "auditorNum": "Auditor {num}",
-      "name": "Name",
-      "position": "Position",
-      "competence": "Competence",
-      "availability": "Availability",
-      "budgetPlanning": "Budget Planning",
-      "totalEstimatedCost": "Total Estimated Activity Cost",
-      "totalAllocatedBudget": "Total Budget Allocated",
-      "budgetNotes": "Budget Notes",
-      "reviewAndApproval": "Review & Approval",
-      "creatorName": "Creator Name",
-      "creatorPosition": "Creator Position",
-      "approvedBy": "Approved By",
-      "approverName": "Approver Name",
-      "approverPosition": "Approver Position",
-      "approvalDate": "Approval Date",
-      "additionalNotes": "Additional Notes",
       "attachment": "Attachment",
       "attachmentCategory": "Attachment Category",
-      "attachmentUploadedBy": "Attachment Uploaded By",
-      "attachmentUploadDate": "Attachment Upload Date",
-      "uploadAttachmentHere": "Upload your Attachment here",
-      "dropAttachmentsHere": "Drop your attachments here",
-      "maxFileSizeDesc": "You can upload multiple files (max. 2MB each)",
       "cancel": "Cancel",
       "create": "Create",
+      "derivedFromAnnual": "Taken from the PKAT",
+      "dropAttachmentsHere": "Drop your attachments here",
+      "maxFileSizeDesc": "You can upload multiple files (max. 2MB each)",
+      "stepNum": "Step {current} of {total}",
       "update": "Update",
-      "annualActivity": "Annual audit activity (Annual Audit Plan)",
-      "selectAnnualActivity": "-- Select annual audit activity --",
-      "annualActivityHint": "Category, risk, department, year, team size and mandays are copied from the annual activity.",
-      "noAnnualActivities": "No annual audit activities yet. Create the Annual Audit Plan first.",
-      "annualActivityRequired": "Pick the annual audit activity for each planned activity.",
-      "copiedFromAnnual": "Copied from the annual plan",
-      "derivedFromAnnual": "Taken from the linked annual activities"
+      "uploadAttachmentHere": "Upload your Attachment here",
+      "uploadFailed": "Failed to upload attachment {name}.",
+      "highRisk": "High Risk"
     },
     "view": {
-      "title": "Audit Activity Plan Details",
-      "basicInfo": "Basic Information",
-      "planTitle": "Plan Title:",
-      "planYear": "Plan Year:",
-      "planPeriod": "Plan Period:",
-      "department": "Department:",
-      "createdBy": "Created By:",
-      "creationDate": "Creation Date:",
-      "plannedActivities": "Planned Audit Activities ({count})",
-      "resourceAuditors": "Resource Auditors ({count})",
-      "budgetPlanning": "Budget Planning",
-      "totalEstimatedCost": "Total Estimated Cost:",
-      "totalAllocatedBudget": "Total Allocated Budget:",
-      "budgetNotes": "Budget Notes:",
-      "reviewAndApproval": "Review & Approval",
-      "creator": "Created By",
-      "approver": "Approved By",
-      "name": "Name:",
-      "position": "Position:",
-      "date": "Date:",
       "additionalNotes": "Additional Notes:",
+      "approver": "Approved By",
       "attachment": "Attachment",
       "attachmentCategory": "File Category:",
-      "uploadedBy": "Uploaded By:",
-      "uploadDate": "Upload Date:",
-      "uploadedFiles": "Uploaded Files:",
-      "noFilesAttached": "No files attached.",
-      "loading": "Loading data...",
+      "budgetNotes": "Budget Notes:",
+      "budgetPlanning": "Budget Planning",
       "close": "Close",
-      "download": "Download",
       "columns": {
         "activityId": "Activity ID",
         "auditName": "Audit Name",
         "auditee": "Auditee",
+        "availability": "Availability",
         "category": "Category",
-        "riskName": "Risk Name",
-        "riskLevel": "Risk Level",
+        "competence": "Competence",
         "duration": "Duration (days)",
-        "priority": "Priority",
         "name": "Name",
         "position": "Position",
-        "competence": "Competence",
-        "availability": "Availability"
-      }
+        "priority": "Priority",
+        "riskLevel": "Risk Level",
+        "riskName": "Risk Name"
+      },
+      "createdBy": "Created By:",
+      "creationDate": "Creation Date:",
+      "creator": "Created By",
+      "date": "Date:",
+      "department": "Department:",
+      "download": "Download",
+      "loading": "Loading data...",
+      "name": "Name:",
+      "noFilesAttached": "No files attached.",
+      "planPeriod": "Plan Period:",
+      "planTitle": "Plan Title:",
+      "planYear": "Plan Year:",
+      "plannedActivities": "Planned Audit Activities ({count})",
+      "position": "Position:",
+      "resourceAuditors": "Resource Auditors ({count})",
+      "title": "Audit Activity Plan Details",
+      "totalAllocatedBudget": "Total Allocated Budget:",
+      "totalEstimatedCost": "Total Estimated Cost:",
+      "uploadDate": "Upload Date:",
+      "uploadedBy": "Uploaded By:",
+      "uploadedFiles": "Uploaded Files:",
+      "createdByLabel": "Created by",
+      "updatedAt": "Last updated",
+      "openAttachmentError": "Failed to open the attachment."
     },
     "upload": {
       "title": "Import Plan Document",
@@ -1988,6 +2753,71 @@
     }
   },
   "executiveSummaryForm": {
+    "extra": {
+      "syncWarning": "Synchronization Warning",
+      "syncWarningDescription": "The total findings in Section II do not match the Master Matrix. Please review the data.",
+      "month": "Month",
+      "documentNumber": "Internal Document Number (LHA ID)",
+      "documentNumberExample": "e.g. LHA-021/SKAI/2026",
+      "narrativeSection": "Section I: Executive Summary Narrative",
+      "statisticsSection": "Section II: Compilation Statistics",
+      "highRisk": "High Risk",
+      "highRiskHint": "Automatically calculated from High and Moderate-to-High risk levels",
+      "mediumRisk": "Medium Risk",
+      "mediumRiskHint": "Automatically calculated from the Moderate risk level",
+      "lowRisk": "Low Risk",
+      "lowRiskHint": "Automatically calculated from Low-to-Moderate and Low risk levels",
+      "followUpSection": "Section III: Follow-up Status",
+      "topFindingsSection": "Section IV: Top 5 Significant Findings",
+      "analysisSection": "Sections V and VII: Recurring Findings Analysis and Conclusion",
+      "recurringThemes": "Section V: Recurring Themes (Root Causes and Proposed Policy Revisions)",
+      "managementConclusion": "Section VII: Management Conclusion and Recommendations",
+      "chartsSection": "Section VI: System-Generated Trends and Charts",
+      "chartsDescription": "Charts are generated automatically from Section III and Master Matrix data.",
+      "followUpPercent": "Follow-up Status (%)",
+      "monthlyFindings": "Findings per Month",
+      "recommendationAging": "Recommendation Aging (Average Progress %)",
+      "matrixSection": "Appendix: Master Findings Compilation Matrix",
+      "matrixDescription": "Detailed data grid for all findings compiled in this quarter.",
+      "downloadTemplate": "Download Excel Template",
+      "columns": {
+        "number": "Number (A)",
+        "division": "Division (B)",
+        "workUnit": "Work Unit (C)",
+        "businessProcess": "Business Process (D)",
+        "finding": "Finding Title (E)",
+        "risk": "Risk (F)",
+        "recommendation": "Recommendation (G)",
+        "dueDate": "Due Date (H)",
+        "pic": "Unit PIC (I)",
+        "progress": "Progress % (J)",
+        "status": "Status (K)",
+        "evidence": "Evidence (L)"
+      },
+      "divisionExample": "Operations Personnel",
+      "findingPlaceholder": "Describe the finding...",
+      "actionPlaceholder": "Corrective action...",
+      "managerExample": "Operations Manager",
+      "evidencePlaceholder": "Evidence name...",
+      "attachFile": "Attach File",
+      "addFindingRow": "Add Finding Row",
+      "findingUnit": "findings",
+      "emptyMatrix": "There are no finding rows in the master matrix appendix yet.",
+      "addManualRow": "Add a row manually",
+      "approveReport": "Approve Report",
+      "revertDraft": "Unlock (Revert to Draft)",
+      "navCharts": "Trends & Charts",
+      "navMatrix": "Master Matrix",
+      "chartFindingCount": "Number of Findings",
+      "chartFollowUpProgress": "Follow-up Progress (%)",
+      "revertConfirm": "Are you sure you want to unlock this document and revert it to Draft?",
+      "months": {
+        "Januari": "January", "Februari": "February", "Maret": "March",
+        "April": "April", "Mei": "May", "Juni": "June",
+        "Juli": "July", "Agustus": "August", "September": "September",
+        "Oktober": "October", "November": "November", "Desember": "December"
+      }
+    },
     "navTitle": "Report Sections",
     "lock": {
       "title": "Lock Status",
@@ -2105,6 +2935,12 @@
     }
   },
   "executiveSummaryIndividual": {
+    "formExtra": {
+      "lhaNumber": "LHA No.:",
+      "assignmentLetter": "Assignment Letter:",
+      "division": "Division:",
+      "findings": "Findings:"
+    },
     "page": {
       "description": "Official executive summary for each individual Audit Report (LHA).",
       "importButton": "Import Executive Summary",
@@ -2158,6 +2994,19 @@
     }
   },
   "executiveSummaryCompilation": {
+    "formExtra": {
+      "documentNumber": "Compilation Document Number",
+      "documentNumberExample": "e.g. ESC-001/2026",
+      "sourcesTitle": "Compiled LHA Data Set",
+      "sourcesDescription": "All LHAs from the selected year and quarter are summarized automatically in this compiled report.",
+      "total": "Total:",
+      "lha": "LHAs",
+      "refresh": "Refresh Data",
+      "assignmentLetter": "Assignment Letter (ST)",
+      "reportDate": "LHA Date",
+      "noDocumentsFor": "No LHA documents for",
+      "emptyDescription": "No LHA has been published for this period. Compilation data will populate automatically when an LHA is published."
+    },
     "nav": {
       "upload": "Navigation & Upload",
       "narrative": "Narrative Summary",
@@ -2272,9 +3121,11 @@
     "confirmDelete": "Are you sure you want to delete this imported document?",
     "deleteConfirm": "Are you sure you want to delete this imported document?",
     "fileSizeLimitAlert": "File size exceeds the 10MB limit.",
-    "fileSizeLimit": "File size exceeds the 10MB limit."
+    "fileSizeLimit": "File size exceeds the 10MB limit.",
+    "deleted": "Executive Summary document deleted successfully."
   },
   "riskAppetite": {
+    "deleteStatement": "Delete Appetite Statement",
     "title": "Risk Appetite Statement (RAS)",
     "subtitle": "Manage organizational risk appetite statements and verify compliance with risk mitigation rules.",
     "kpi": {
@@ -2430,7 +3281,8 @@
           "title": "Action Plan",
           "description": "Add your action plan"
         }
-      }
+      },
+      "subtitle": "Create and manage audit working papers step by step"
     },
     "upload": {
       "title": "Import Working Paper Reference",
@@ -2520,6 +3372,9 @@
     },
     "sampleTable": {
       "emptyState": "No data saved yet.",
+      "pass": "Pass",
+      "fail": "Fail",
+      "notApplicable": "N/A",
       "noDocumentName": "Unnamed Document",
       "effective": "Effective",
       "ineffective": "Ineffective",
@@ -2533,6 +3388,118 @@
         "conclusion": "Conclusion",
         "actions": "Action"
       }
+    },
+    "common": {
+      "empty": "No data saved yet.",
+      "edit": "Edit",
+      "delete": "Delete",
+      "editRisk": "Edit Risk",
+      "deleteRisk": "Delete Risk",
+      "effective": "Effective",
+      "ineffective": "Ineffective",
+      "unnamedDocument": "Unnamed Document",
+      "noSamples": "No sample data",
+      "why": "Why",
+      "dateError": "The end date cannot be before the start date.",
+      "fileTooLarge": "File size is too large. Maximum size is 10MB."
+    },
+    "headerForm": {
+      "title": "Assignment Reference",
+      "assignmentLetter": "Assignment Letter",
+      "assignmentPlaceholder": "Choose Assignment Letter",
+      "auditPurpose": "Audit Purpose",
+      "auditPurposePlaceholder": "Automatically filled in from the selected assignment letter",
+      "businessProcess": "Business Process Name",
+      "businessProcessPlaceholder": "e.g. Procurement process",
+      "businessProcessValidation": "Business Process Name is required and must not exceed 100 characters",
+      "activities": "Activities",
+      "activityPlaceholder": "Activity Description",
+      "addActivity": "Add Activity",
+      "auditPeriod": "Audit Period",
+      "until": "to",
+      "location": "Location",
+      "locationPlaceholder": "Choose Location",
+      "team": "Team",
+      "member": "Member",
+      "teamAutoFilled": "Automatically filled in from the team members of the selected assignment letter.",
+      "teamReadonly": "Team members are synchronized from the assignment letter and cannot be edited here.",
+      "memberPlaceholder": "Choose Member",
+      "positionPlaceholder": "Position",
+      "addMember": "Add Member",
+      "update": "Update Data",
+      "submit": "Submit"
+    },
+    "sampleForm": {
+      "title": "Samples",
+      "population": "Total Population",
+      "populationPlaceholder": "e.g. 100 or 100 transactions",
+      "sampleSize": "Number of Samples Tested",
+      "sampleSizePlaceholder": "e.g. 10",
+      "sample": "Sample {number}",
+      "documentNumber": "Document {number}",
+      "fieldworkDocument": "Document",
+      "fieldworkDocumentPlaceholder": "Select a document from Fieldwork Sample Data",
+      "document": "Sample Document",
+      "documentPlaceholder": "e.g. INV/2026/03/001 - Purchase invoice",
+      "documentValidation": "Sample Document is required and must not exceed 100 characters",
+      "step": "Step {number}",
+      "stepInputPlaceholder": "Enter procedure or test for step {number} (up to 100 characters)...",
+      "stepTooLong": "Step {number} must not exceed 100 characters",
+      "stepPlaceholder": "Choose Step",
+      "testResultPlaceholder": "Select result for step {number} (Pass / Fail)",
+      "status": "Status",
+      "addSample": "Add Sample",
+      "conclusion": "Conclusion",
+      "conclusionPlaceholder": "Enter a conclusion for the evaluated controls or SOP...",
+      "update": "Update Data",
+      "submit": "Submit"
+    },
+    "columns": {
+      "assignmentLetter": "Assignment Letter",
+      "businessProcess": "Business Process",
+      "period": "Period",
+      "location": "Location",
+      "team": "Team",
+      "risk": "Risk",
+      "riskCategory": "Risk Category",
+      "riskLevel": "Risk Level",
+      "controlDescription": "Control Description",
+      "population": "Population",
+      "sampleSize": "Sample Size",
+      "sampleList": "Sample List",
+      "conclusion": "Conclusion",
+      "condition": "Condition",
+      "criteria": "Criteria",
+      "impact": "Impact",
+      "rootCause": "Root Cause",
+      "evidenceDocument": "Evidence Document",
+      "recommendation": "Recommendation",
+      "auditeeResponse": "Auditee Response",
+      "description": "Description",
+      "pic": "PIC",
+      "completionTarget": "Completion Target",
+      "actions": "Actions"
+    },
+    "messages": {
+      "deleteConfirm": "Are you sure you want to delete this data permanently?",
+      "loadFailed": "Failed to load working papers.",
+      "deleteFailed": "Failed to delete data",
+      "saveFailed": "Failed to save data",
+      "headerDeleted": "Header data deleted successfully.",
+      "headerUpdated": "Header data updated successfully.",
+      "headerSaved": "Header data saved successfully.",
+      "riskDeleted": "Risk data deleted successfully.",
+      "riskUpdated": "Risk data updated successfully.",
+      "riskSaved": "Risk data saved successfully.",
+      "sampleDeleted": "Sample data deleted successfully.",
+      "sampleUpdated": "Sample data updated successfully.",
+      "sampleSaved": "Sample data saved successfully.",
+      "causeDeleted": "Root cause data deleted successfully.",
+      "causeUpdated": "Root cause data updated successfully.",
+      "causeSaved": "Root cause data saved successfully.",
+      "planDeleted": "Action plan data deleted successfully.",
+      "planUpdated": "Action plan data updated successfully.",
+      "planSaved": "Action plan data saved successfully."
     }
   },
   "consultingService": {
@@ -2566,9 +3533,113 @@
       },
       "deleteConfirm": "Are you sure you want to delete this document?",
       "fileSizeLimit": "File size exceeds the 10MB limit."
+    },
+    "dashboard": {
+      "title": "Consulting Services Dashboard",
+      "subtitle": "Manage advisory, review, and training consulting projects.",
+      "importDocument": "Import Document",
+      "newAssignment": "New Assignment",
+      "summary": {
+        "total": "Total Assignments",
+        "inProgress": "In Progress",
+        "completed": "Completed",
+        "planned": "Planned"
+      },
+      "filters": {
+        "searchTitle": "Search Title",
+        "searchPlaceholder": "Search by project title...",
+        "category": "Category",
+        "selectCategory": "Select Category",
+        "status": "Status",
+        "selectStatus": "Select Status",
+        "department": "Department",
+        "selectDepartment": "Select Department",
+        "all": "All"
+      },
+      "columns": {
+        "projectTitle": "Project Title",
+        "category": "Category",
+        "department": "Department",
+        "period": "Period",
+        "consultantLead": "Consultant Lead",
+        "status": "Status",
+        "document": "Document",
+        "actions": "Actions"
+      },
+      "actions": {
+        "viewDetails": "View Details",
+        "edit": "Edit",
+        "delete": "Delete",
+        "download": "Download",
+        "close": "Close"
+      },
+      "noFile": "No file",
+      "form": {
+        "editTitle": "Edit Consulting Assignment",
+        "newTitle": "New Consulting Assignment",
+        "projectTitle": "Project Title",
+        "projectPlaceholder": "Advisory on Policy Revisions",
+        "category": "Category",
+        "requestorDepartment": "Requestor Department",
+        "periodQuarter": "Period Quarter",
+        "periodYear": "Period Year",
+        "consultant": "Consultant / Lead Auditor",
+        "consultantPlaceholder": "Consultant name",
+        "status": "Status",
+        "notes": "Notes / Description",
+        "notesPlaceholder": "Detailed notes about the consulting service...",
+        "upload": "Upload Support Document / Report",
+        "uploadPrompt": "Click or drag a file to upload",
+        "uploadHint": "PDF or DOCX (max. 10MB)",
+        "cancel": "Cancel",
+        "save": "Save Assignment",
+        "titleValidation": "The title is required and must not exceed 100 characters",
+        "consultantValidation": "The consultant is required and must not exceed 50 characters"
+      },
+      "detail": {
+        "title": "Assignment Details",
+        "category": "Category",
+        "period": "Period",
+        "requestorDepartment": "Requestor Department",
+        "consultantLead": "Consultant Lead",
+        "description": "Description / Notes",
+        "noDescription": "No description provided.",
+        "attachedDocument": "Attached Document",
+        "uploadedAt": "Uploaded at {date}"
+      },
+      "statuses": {
+        "planned": "Planned",
+        "inProgress": "In Progress",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
+      "categories": {
+        "operationalAdvisory": "Operational Advisory",
+        "itAdvisory": "IT Advisory",
+        "trainingWorkshops": "Training & Workshops",
+        "policySopReview": "Policy & SOP Review",
+        "governanceAssessment": "Governance Assessment"
+      },
+      "deleteConfirm": "Are you sure you want to delete this consulting assignment?",
+      "messages": {
+        "fetchFailed": "Failed to load consulting services.",
+        "required": "Title and Consultant Name are required.",
+        "updateFileUnsupported": "File replacement while editing is not yet supported by the server.",
+        "saveSuccess": "Consulting service saved successfully.",
+        "saveFailed": "Failed to save consulting service.",
+        "deleteSuccess": "Consulting service deleted successfully.",
+        "deleteFailed": "Failed to delete consulting service.",
+        "fileTooLarge": "File is too large (maximum 10MB).",
+        "downloadFailed": "Failed to download consulting attachment.",
+        "viewFailed": "Failed to view document."
+      }
     }
   },
   "executiveSummary": {
+    "filterLhaPlaceholder": "Filter by LHA number...",
+    "filterCompilationPlaceholder": "Filter by compilation document number...",
+    "statusLabel": "Status:",
+    "quarterLabel": "Quarter",
     "title": "Executive Summary (Compiled Audit Reports)",
     "subtitle": "Quarterly compiled Audit Result Reports for BOD & Audit Committee.",
     "importButton": "Import Document",
@@ -2643,9 +3714,167 @@
       },
       "deleteConfirm": "Are you sure you want to delete this document?",
       "fileSizeLimit": "File size exceeds the 10MB limit."
+    },
+    "individual": {
+      "title": "Executive Summary (Individual Report)",
+      "subtitle": "Official executive summary for each individual Audit Result Report (LHA).",
+      "import": "Import Executive Summary",
+      "create": "Create New Executive Summary",
+      "stats": {
+        "total": "Total Individual Summaries",
+        "approved": "Approved",
+        "draft": "Draft",
+        "handling": "Total Handling"
+      },
+      "filters": {
+        "assignmentLetter": "Filter by Assignment Letter...",
+        "search": "Search LHA ID number...",
+        "showing": "Showing {count} executive summary documents",
+        "allAssignmentLetters": "All Assignment Letters"
+      },
+      "card": {
+        "draftLha": "Draft LHA",
+        "status": "Status: {status}",
+        "assignmentLetter": "Assignment Letter: {number}",
+        "mainSummary": "Main Executive Summary",
+        "noNarrative": "No narrative summary yet.",
+        "statistics": "Findings & Recommendation Statistics",
+        "highRisk": "High Risk",
+        "totalRecommendations": "Total Recommendations"
+      },
+      "actions": {
+        "view": "View Details",
+        "edit": "Edit Report",
+        "delete": "Delete"
+      },
+      "empty": {
+        "title": "No Executive Summary Yet",
+        "description": "No individual executive summary document matches this search or filter. Please create a new one."
+      },
+      "modal": {
+        "detail": "Individual Executive Summary Details",
+        "edit": "Edit Individual Executive Summary",
+        "create": "Create Individual Executive Summary",
+        "lhaId": "LHA ID: {id}",
+        "draft": "Draft",
+        "status": "Status: {status}",
+        "save": "Save Report",
+        "close": "Close"
+      },
+      "statuses": {
+        "approved": "Approved",
+        "draft": "Draft",
+        "rejected": "Rejected"
+      }
     }
   },
   "auditResultReport": {
+    "viewLhaDetail": "View Audit Report Details",
+    "editor": {
+      "form": {
+        "assignmentLetter": "Assignment Letter:",
+        "reportNumber": "LHA Number (Report Number)",
+        "reportNumberExample": "e.g. LHA-026/SKAI/2026",
+        "automaticFormat": "Automatically generated format:",
+        "formatExample": "LHA-[Sequence]/[Audit Team]/[Year]",
+        "company": "Company / Entity",
+        "companyPlaceholder": "Select Company / Entity (Optional; inherited from Assignment Letter)",
+        "titleExample": "e.g. Audit Report – Financial Operations 2026",
+        "reportDate": "Report Date",
+        "findingCount": "Findings Count",
+        "listUnit": "in list",
+        "findingList": "Audit Findings",
+        "syncDescription": "Import findings from Digital Working Papers (KKA) and Fieldwork Test Controls",
+        "sync": "Import Findings Automatically",
+        "addManual": "Add Manually",
+        "categoryDistribution": "Category Distribution:",
+        "verySignificant": "Very Significant:",
+        "significant": "Significant:",
+        "quiteSignificant": "Quite Significant:",
+        "notSignificant": "Not Significant:",
+        "findingNumber": "Finding #",
+        "category": "Category / Significance Level",
+        "findingDescription": "Finding Description / Title",
+        "findingExample": "e.g. Delayed daily cash reconciliation",
+        "action": "Action / Follow-up Recommendation",
+        "actionExample": "e.g. Review procedures and retrain the cashier team",
+        "deleteFinding": "Delete Finding",
+        "empty": "This report has no audit findings yet",
+        "click": "Click",
+        "emptyInstruction": "to import findings from this assignment's Digital Working Papers (KKA) and Fieldwork Test Controls.",
+        "cancel": "Cancel",
+        "signReport": "Sign Report"
+      },
+      "detail": {
+        "title": "Audit Result Report (LHA) Details",
+        "assignmentLetter": "• Assignment Letter:",
+        "reportNumber": "LHA No.",
+        "reportDate": "Report Date",
+        "company": "Company / Entity",
+        "findings": "Findings",
+        "executiveSummary": "Executive Summary",
+        "findingsList": "Audit Findings and Recommendations",
+        "recommendation": "Recommendation / Follow-up:",
+        "source": "Source:",
+        "empty": "This report has no detailed audit findings.",
+        "downloadDocx": "Download DOCX",
+        "print": "Print LHA Document"
+      },
+      "print": {
+        "title": "Audit Result Report (LHA) Document",
+        "printPdf": "Print / Save PDF",
+        "department": "Internal Audit Unit (SKAI)",
+        "status": "STATUS:",
+        "reportTitle": "AUDIT RESULT REPORT (LHA)",
+        "number": "Number:",
+        "assignmentLetter": "Assignment Letter:",
+        "reportDate": "Report Date:",
+        "company": "Entity / Company:",
+        "auditTitle": "Audit Title:",
+        "findingCount": "Number of Findings:",
+        "findings": "Findings",
+        "auditObject": "Audit Object:",
+        "summarySection": "I. Executive Summary",
+        "findingsSection": "II. Audit Findings and Recommendations",
+        "category": "Category / Level",
+        "findingDescription": "Finding Description",
+        "recommendation": "Follow-up / Recommendation",
+        "source": "Source:",
+        "empty": "No findings were reported for this period.",
+        "internalAudit": "INTERNAL AUDIT",
+        "approvalSheet": "AUDIT TEAM APPROVAL SHEET",
+        "signatureAlt": "Signature",
+        "signature": "(Signature)",
+        "teamLead": "Audit Team Lead",
+        "teamMember": "Audit Team Member",
+        "notSigned": "(Not Signed Yet)",
+        "member": "Team Member",
+        "backgroundTip": "Enable background graphics in the browser print dialog.",
+        "printDocument": "Print Document"
+      },
+      "signature": {
+        "title": "Audit Result Report Signature and Approval",
+        "assignmentLetter": "Assignment Letter:",
+        "reportNumber": "LHA No.:",
+        "introPrefix": "Please provide signatures for",
+        "member": "team members",
+        "introMiddle": "listed on Assignment Letter",
+        "introAfterLetter": "These signatures will be printed on the",
+        "lastPage": "last page",
+        "introSuffix": "of the LHA along with the signing place, date, and company name.",
+        "approvalInfo": "Report Approval Information",
+        "companyExample": "e.g. PT AIFL Indonesia",
+        "memberSignatures": "Team Member Signatures",
+        "automaticList": "The team list is loaded automatically from the Assignment Letter.",
+        "memberNumber": "Team Member #",
+        "empty": "No team members are listed on this Assignment Letter",
+        "emptyDescription": "Team members can only be added through the Assignment Letter feature. Ensure this letter has a team list.",
+        "of": "of",
+        "completed": "signatures completed",
+        "back": "Back to Form",
+        "confirm": "Confirm and Save Report"
+      }
+    },
     "form": {
       "assignmentLetterRequired": "Select an assignment letter before saving the report."
     },
@@ -2690,6 +3919,63 @@
       "none": "This LHA was approved, but no follow-ups were created. Check that it has findings.",
       "createdUnknownTitle": "LHA approved",
       "createdUnknown": "Follow-ups are created automatically; open Action Taken Report to see them."
+    },
+    "dashboard": {
+      "title": "Audit Result Report",
+      "subtitle": "Finalize and publish audit results and findings",
+      "createReport": "Create Audit Result Report",
+      "importDocument": "Import LHA Document",
+      "assignment": {
+        "label": "Select Assignment Letter (Audit)",
+        "placeholder": "Select Assignment Letter to audit",
+        "nonePublished": "No Assignment Letter with Published status. Please create and publish an Assignment Letter first.",
+        "selected": "Audit: {number}",
+        "noneSelected": "No Assignment Letter selected"
+      },
+      "columns": {
+        "reportNumber": "LHA No. / ID",
+        "reportTitle": "Report Title",
+        "date": "Date",
+        "findings": "Findings",
+        "category": "Category",
+        "findingList": "List of Findings",
+        "action": "Action",
+        "status": "Status"
+      },
+      "status": {
+        "final": "Final",
+        "draft": "Draft"
+      },
+      "findings": {
+        "viewCount": "View {count} Findings",
+        "title": "{category} Findings",
+        "viewActions": "View Actions",
+        "actionsTitle": "{category} Actions",
+        "noAction": "No action defined"
+      },
+      "actions": {
+        "syncTooltip": "Automatically sync findings from KKA & Fieldwork",
+        "sync": "Sync",
+        "generateDocx": "Generate LHA (.docx)",
+        "edit": "Edit",
+        "print": "Print"
+      },
+      "empty": {
+        "title": "No Audit Result Report (LHA) Yet",
+        "description": "No report has been created for this assignment letter. You can create one with findings automatically populated from KKA and Fieldwork.",
+        "create": "Create Report with Automatic Findings"
+      },
+      "selectAssignment": {
+        "title": "Select Assignment Letter",
+        "description": "Please select an assignment letter to view or manage its audit result reports."
+      },
+      "categories": {
+        "verySignificant": "Very Significant",
+        "significant": "Significant",
+        "quiteSignificant": "Quite Significant",
+        "notSignificant": "Not Significant"
+      },
+      "printing": "Printing report: {title}"
     }
   },
   "qualityAssurance": {
@@ -2892,6 +4178,56 @@
       "generallyConformed": "Generally Conformed",
       "partiallyConform": "Partially Conform",
       "doesNotConform": "Does not Conform"
+    },
+    "dashboard": {
+      "title": "Internal Audit Quality Assurance - Integrated Dashboard",
+      "subtitle": "Monitoring Compliance to Global Standards (IPPF 2027 & GIAS 2024)",
+      "addReport": "Add Report",
+      "filters": {
+        "search": "Search",
+        "type": "Select QA",
+        "period": "Select Period",
+        "status": "Select Status",
+        "reset": "Reset Filter"
+      },
+      "summary": {
+        "regular": "Regular Assessment",
+        "qar": "QAR (Professional Review)",
+        "saiv": "SAIV (GIAS Standard)",
+        "iacm": "BUMN IACM Assessment",
+        "latestResult": "Latest Result",
+        "period": "Period",
+        "status": "Status",
+        "overallConclusion": "Overall Conclusion",
+        "cycle": "Cycle",
+        "validator": "Validator",
+        "capabilityLevel": "Capability Level",
+        "viewDetail": "View Detail"
+      },
+      "table": {
+        "columns": {
+          "type": "QA Type",
+          "period": "Period",
+          "reportName": "Report Name",
+          "result": "Result/Score",
+          "status": "Status",
+          "conductedBy": "Conducted By",
+          "viewReport": "View Report",
+          "actions": "Actions"
+        },
+        "view": "View",
+        "noFile": "No File",
+        "viewDetail": "View Detail",
+        "editReport": "Edit Report",
+        "deleteReport": "Delete Report"
+      },
+      "deleteConfirm": "Are you sure you want to delete this Quality Assurance report?",
+      "deleteSuccess": "Quality Assurance report deleted successfully.",
+      "createSuccess": "Quality Assurance report added successfully.",
+      "updateSuccess": "Quality Assurance report updated successfully.",
+      "saveFailed": "Failed to save Quality Assurance report.",
+      "importSuccess": "Quality Assurance report imported successfully.",
+      "importFailed": "Failed to import Quality Assurance report."
     }
   },
   "kpiPerformance": {
@@ -3076,6 +4412,106 @@
       "deleteFailed": "Failed to delete performance report document.",
       "downloadFailed": "Failed to download document.",
       "viewFailed": "Failed to view document."
+    },
+    "dashboard": {
+      "title": "Internal Audit Performance",
+      "subtitle": "Monitor and track internal audit performance metrics and Performance Reports (Q1, Q2, Q3, Q4, Annual)",
+      "periodPlaceholder": "Period",
+      "allPeriods": "All",
+      "annual": "Annual",
+      "importReport": "Import Performance Report",
+      "exportPdf": "Export PDF",
+      "imported": {
+        "title": "Imported Performance Report Documents ({count} Reports)",
+        "active": "Active Performance Report: {title} ({period} {year})",
+        "manage": "Manage Report Documents"
+      },
+      "print": {
+        "division": "INTERNAL AUDIT DIVISION",
+        "reportTitle": "KPI Performance Report - Year {year}",
+        "generatedOn": "Generated on: {date}",
+        "system": "Risk-Based Audit System",
+        "confidential": "Confidential - Internal Use Only",
+        "preparedBy": "Prepared By:",
+        "reviewedBy": "Reviewed By:",
+        "approvedBy": "Approved By:",
+        "specialist": "Internal Audit Specialist",
+        "qualityManager": "Audit Quality Manager",
+        "cae": "Chief Audit Executive (CAE)"
+      },
+      "messages": {
+        "generating": "Generating Executive PDF Report...",
+        "opening": "Opening official KPI Performance PDF Report for Year {year}...",
+        "failed": "Failed to generate PDF report",
+        "retry": "Please try again."
+      },
+      "summary": {
+        "target": "Target: {value}",
+        "vsTarget": "{value} vs target",
+        "auditCompletion": "Audit Completion Rate",
+        "reportTimeliness": "Report Timeliness",
+        "clientSatisfaction": "Client Satisfaction",
+        "actionPlanClosed": "Action Plan Closed",
+        "operationalCompletion": "Operational Completion Rate (Started Audits)",
+        "completionDetail": "{completed} completed / {started} started",
+        "draftingCycle": "Average Drafting Cycle Time",
+        "days": "{value} days",
+        "lessThanDays": "< {value} days",
+        "surveyResponse": "Survey Response Rate",
+        "responseDetail": "{responses} responses from {audits} completed audits",
+        "openPending": "Open / Pending Action Plans",
+        "openCount": "{count} open",
+        "overdueCount": "{count} overdue",
+        "recommendationsRegistered": "{count} total recommendations registered"
+      },
+      "charts": {
+        "monthlyCompletion": "Monthly Completion Rate",
+        "trend": "CSAT & Timeliness Trend",
+        "timeliness": "Timeliness (%)",
+        "csat": "CSAT Score",
+        "months": {
+          "jan": "Jan",
+          "feb": "Feb",
+          "mar": "Mar",
+          "apr": "Apr",
+          "may": "May",
+          "jun": "Jun"
+        }
+      },
+      "detail": {
+        "title": "KPI Detailed Breakdown",
+        "setTargets": "Set KPI Targets",
+        "search": "Search Report",
+        "selectCategory": "Select Category",
+        "selectPeriod": "Select Period",
+        "selectStatus": "Select Status",
+        "reset": "Reset Filter",
+        "columns": {
+          "metric": "KPI Metric",
+          "category": "Category",
+          "target": "Target",
+          "actual": "Actual",
+          "gap": "Gap",
+          "status": "Status",
+          "actions": "Actions"
+        },
+        "categories": {
+          "operational": "Operational",
+          "financial": "Financial",
+          "quality": "Quality",
+          "issue": "Issue",
+          "efficiency": "Efficiency",
+          "corporate": "Corporate"
+        },
+        "statuses": {
+          "onTrack": "On Track",
+          "exceeded": "Exceeded",
+          "completed": "Completed",
+          "needsAttention": "Needs Attention"
+        },
+        "editTarget": "Edit KPI Target",
+        "showing": "Showing {start} - {end} of {total} data"
+      }
     }
   },
   "navigation": {
@@ -3159,6 +4595,11 @@
     "location": "Branch / Location"
   },
   "satisfactionSurvey": {
+    "metricLabels": {
+      "clarity": "Clarity:",
+      "professionalism": "Professionalism:",
+      "timeliness": "Timeliness:"
+    },
     "title": "Client Satisfaction Survey",
     "subtitle": "Fill in the satisfaction questionnaire for published audit result reports",
     "hideExplanation": "Hide Explanation",
@@ -3474,6 +4915,66 @@
     }
   },
   "masterData": {
+    "company": {
+      "title": "Company Management",
+      "subtitle": "Manage holding, subsidiary entities, and branch companies",
+      "list": "Company List",
+      "add": "Add Company",
+      "edit": "Edit Company",
+      "addNew": "Add New Company",
+      "details": "Company Details",
+      "contact": "Contact & Online Presence",
+      "code": "Company Code *",
+      "name": "Company Name *",
+      "legalName": "Legal Name",
+      "type": "Company Type *",
+      "taxId": "Tax ID (NPWP)",
+      "parent": "Parent Company (Optional)",
+      "phone": "Phone",
+      "email": "Email",
+      "website": "Website",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "cancel": "Cancel",
+      "create": "Create Company",
+      "update": "Update Company",
+      "close": "Close modal",
+      "search": "Search",
+      "reset": "Reset",
+      "searchPlaceholder": "Search company code, name, or tax ID...",
+      "empty": "No companies found.",
+      "codePlaceholder": "e.g. AIFL-HQ, SUB-001",
+      "codeHint": "Unique company code identifier",
+      "namePlaceholder": "e.g. PT AIFL Indonesia",
+      "nameHint": "Common operational name",
+      "legalNamePlaceholder": "e.g. PT Astra International Financial Logistics Tbk",
+      "legalNameHint": "Official registered entity name (optional)",
+      "typePlaceholder": "Select company type",
+      "taxIdPlaceholder": "e.g. 01.234.567.8-901.000",
+      "parentPlaceholder": "Select parent company (if subsidiary / branch)",
+      "parentHint": "Select holding company if this entity is a subsidiary or branch",
+      "none": "— None (Top Level Holding) —",
+      "types": {
+        "HOLDING": "Holding Company",
+        "SUBSIDIARY": "Subsidiary Entity",
+        "BRANCH": "Branch Office"
+      },
+      "columns": {
+        "code": "Code",
+        "name": "Company Name",
+        "legalName": "Legal Name",
+        "type": "Type",
+        "taxId": "Tax ID",
+        "status": "Status"
+      },
+      "messages": {
+        "created": "Company created successfully!",
+        "updated": "Company updated successfully!",
+        "deleted": "Company deleted successfully!",
+        "deleteConfirm": "Are you sure you want to delete company \"{name}\"?"
+      }
+    },
     "errors": {
       "fetchEmployees": "Failed to load employee data.",
       "fetchEmployee": "Failed to load employee details.",
@@ -3514,6 +5015,32 @@
       "locationCityRequired": "City is required"
     },
     "employee": {
+      "form": {
+        "code": "Employee Code",
+        "fullName": "Full Name *",
+        "fullNamePlaceholder": "Enter full name",
+        "email": "Email *",
+        "joinDate": "Join Date *",
+        "department": "Department *",
+        "jobRole": "Job Role *",
+        "jobRolePlaceholder": "Select job role",
+        "workLocation": "Work Location",
+        "workLocationPlaceholder": "Select work location (optional)",
+        "manager": "Manager",
+        "managerPlaceholder": "Select manager (optional)",
+        "address": "Residence Address",
+        "postalCodePlaceholder": "Postal code",
+        "cancel": "Cancel"
+      },
+      "resetModal": {
+        "noAccount": "This employee has no login account",
+        "noAccountDescription": "No user account is linked to this employee code or email, so there is no password to reset.",
+        "cannotReset": "Password cannot be reset here",
+        "email": "Email",
+        "roles": "Roles",
+        "temporaryDescription": "A temporary password will be generated. The user must change it at the next login, and the current password will stop working immediately.",
+        "shareSecurely": "Share this temporary password with the user through a secure channel. It is shown only once."
+      },
       "title": "Employee Management",
       "subtitle": "Manage employee data for the organization",
       "listTitle": "Employee List",
@@ -3575,6 +5102,52 @@
         "address": "Address",
         "status": "Status"
       }
+    },
+    "department": {
+      "title": "Department Management",
+      "subtitle": "Manage department data for the organization",
+      "listTitle": "Department List",
+      "add": "Add Department",
+      "searchPlaceholder": "Search department...",
+      "search": "Search",
+      "reset": "Reset",
+      "empty": "No departments found.",
+      "level": "Level {level}",
+      "active": "Active",
+      "inactive": "Inactive",
+      "deleteConfirm": "Are you sure you want to delete department \"{name}\"?",
+      "deleted": "Department deleted successfully.",
+      "createTitle": "Add New Department",
+      "editTitle": "Edit Department",
+      "sectionInfo": "Department Information",
+      "fieldCode": "Department Code *",
+      "fieldCodePlaceholder": "e.g. DEPT-001",
+      "fieldName": "Department Name *",
+      "fieldNamePlaceholder": "Enter department name",
+      "fieldLevel": "Level *",
+      "fieldLevelHelp": "Department hierarchy level",
+      "fieldDescription": "Description",
+      "fieldDescriptionPlaceholder": "Department description (optional)",
+      "status": "Status",
+      "organizationLink": "Organization Link",
+      "companyId": "Company *",
+      "companyIdPlaceholder": "Select company",
+      "companyIdHelp": "Select the company this department belongs to",
+      "picId": "Person In Charge (PIC)",
+      "picIdPlaceholder": "Select PIC employee (optional)",
+      "picIdHelp": "Select the employee who leads this department",
+      "businessUnitId": "Business Unit",
+      "businessUnitIdPlaceholder": "Select business unit (optional)",
+      "businessUnitIdHelp": "Select a business unit if applicable",
+      "columns": {
+        "code": "Code",
+        "name": "Department Name",
+        "company": "Company",
+        "description": "Description",
+        "level": "Level",
+        "status": "Status",
+        "actions": "Actions"
+      }
     }
   },
   "actionTakenReport": {
@@ -3597,7 +5170,8 @@
       "inProgress": "{percent}% Work In Progress",
       "planned": "{percent}% Planned",
       "overdue": "{percent}% Overdue",
-      "cancelled": "{percent}% Cancelled"
+      "cancelled": "{percent}% Cancelled",
+      "late": "{percent}% Late"
     },
     "summaryHint": "Overdue = past the due date and not completed or cancelled (Asia/Jakarta date).",
     "daysOverdue": "{days} days overdue",
@@ -3688,7 +5262,25 @@
       "conclusion": "Conclusion",
       "preparedBy": "Prepared by",
       "lhaReviewedBy": "Reviewed by (LHA)",
-      "approvedBy": "Approved by"
+      "approvedBy": "Approved by",
+      "referenceStatus": "Ref: {reference} | Status:",
+      "assignmentInfo": "Assignment Letter Information",
+      "auditTitle": "Audit Title",
+      "workingUnit": "Working Unit",
+      "auditLeader": "Audit Leader",
+      "period": "Period",
+      "categoryContext": "Category & Context",
+      "findingsCategory": "Findings Category",
+      "findingsDetail": "Finding Details",
+      "condition": "Condition",
+      "criteria": "Criteria",
+      "correctivePlan": "Corrective Action Plan",
+      "deadline": "Deadline",
+      "latestProgress": "Latest Progress Update",
+      "attachment": "Attachment",
+      "noAttachment": "No attachment",
+      "description": "Description",
+      "sendReminder": "Send Reminder"
     },
     "timeline": {
       "title": "Status timeline",
@@ -3818,7 +5410,264 @@
     },
     "dashboard": {
       "centerLabel": "Completed",
-      "legend": "{label} ({percent}%)"
+      "legend": "{label} ({percent}%)",
+      "empty": "No action taken reports yet. They are created when an audit result report (LHA) is approved.",
+      "error": "Could not load action taken reports."
+    },
+    "title": "Action Taken Report",
+    "filters": {
+      "searchPlaceholder": "Search finding",
+      "departmentPlaceholder": "Choose department",
+      "statusPlaceholder": "Choose status",
+      "reset": "Reset Filter"
+    },
+    "columns": {
+      "auditReference": "Audit Reference",
+      "title": "Title",
+      "department": "Department",
+      "deadline": "Deadline",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "statuses": {
+      "cancelled": "Cancelled",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "planned": "Planned"
     }
+  },
+  "siteGenerator": {
+    "modal": {
+      "headerExample": "Provision an isolated AuditSphere instance (e.g.",
+      "autoStorage": "Dedicated Evidence Storage",
+      "autoStorageValue": "Dedicated VPS Silo (Auto-Allocated)",
+      "vpsStorage": "VPS Storage",
+      "copied": "Copied!",
+      "cancel": "Cancel",
+      "cloudNotice": "Evidence is stored directly on the host VPS volume. Google Drive integration is blocked by architecture policy."
+    },
+    "badge": "Client Site Generator",
+    "domainRoot": "Domain Root: {domain}",
+    "title": "Generate New Client Site",
+    "subtitle": "Provision an isolated AuditSphere instance for client demonstration and onboarding.",
+    "stepProgress": "Step {current} of {total}",
+    "steps": {
+      "organization": "Organization",
+      "administrator": "Administrator",
+      "infrastructure": "Infrastructure",
+      "review": "Review & Deploy"
+    },
+    "success": {
+      "title": "Client Site Successfully Generated!",
+      "titleWithErrors": "Client Site Generated — With Errors",
+      "description": "The isolated instance for {client} has been provisioned and is ready for onboarding.",
+      "descriptionWithErrors": "The isolated instance for {client} has been provisioned, but one or more steps failed. Review the details below before onboarding.",
+      "resendFailed": "Resend email provisioning failed",
+      "resendExplanation": "No sending domain, API key, or DNS records were created for this tenant. The site is deployed but cannot send email. Register the domain in the Resend dashboard manually and inject the scoped key into the tenant auth-service configuration before onboarding.",
+      "portalUrl": "Portal URL",
+      "subdomain": "Subdomain: {url}",
+      "apiGateway": "API Gateway",
+      "databases": "Isolated Databases",
+      "schemas": "5 Schemas (Clean / Empty Data State)",
+      "emailDispatcher": "Email Dispatcher",
+      "sharedEmailDomain": "Shared domain mail.auditsphere.app (tenant key via provision-tenant-email.sh)",
+      "resendApi": "Resend API ({domain})",
+      "notProvisioned": "Not provisioned — manual setup required",
+      "evidenceStorage": "Evidence Storage",
+      "storageSilo": "VPS Dedicated Silo ({path})",
+      "containerPorts": "Container Ports",
+      "ports": "Frontend: {frontend} | Kong: {kong}",
+      "chiefAuditExecutive": "Chief Audit Executive",
+      "complianceFramework": "Compliance Framework",
+      "dnsRecords": "Resend DNS Records for Verification",
+      "apiKey": "API Key: {key}",
+      "copyValue": "Copy value",
+      "cliCommand": "CLI Deployment Command",
+      "copy": "Copy",
+      "generateAnother": "Generate Another Site"
+    },
+    "organization": {
+      "clientName": "Client Organization Name",
+      "clientNameTooltip": "Official name of the client organization displayed across its portal",
+      "clientNamePlaceholder": "Company Name",
+      "industry": "Industry / Sector",
+      "industryTooltip": "Primary industry sector for benchmarking risk metrics",
+      "industryPlaceholder": "Select industry sector",
+      "environment": "Target Deployment Environment",
+      "localhost": "Localhost Dev",
+      "production": "Production Cloud",
+      "localhostRecommendation": "Localhost Subdomain Recommendation (RFC 6761 Standard):",
+      "localhostDescription": "Modern browsers route any *.localhost subdomain directly to 127.0.0.1 without editing the hosts file. Test this tenant at {url} or directly at {directUrl}.",
+      "slug": "Tenant Subdomain Slug",
+      "slugTooltip": "Alphanumeric identifier used for the DNS subdomain, database prefixes, and container routing",
+      "frontendDomain": "Frontend Portal Domain",
+      "direct": "Direct: {url}",
+      "apiEndpoint": "Kong API Gateway Endpoint",
+      "proxyPort": "Proxy Port: {port}",
+      "brandColor": "Primary Brand Color",
+      "brandColorTooltip": "Used for accent highlights in the client custom theme"
+    },
+    "administrator": {
+      "info": "The initial administrator account will have Chief Audit Executive (CAE) / Super Admin privileges on the new tenant instance with automated RBAC seeding.",
+      "fullName": "Admin Full Name",
+      "fullNameTooltip": "Full name of the Chief Audit Executive or primary system administrator",
+      "fullNamePlaceholder": "e.g. Budi Santoso, CIA, CISA",
+      "email": "Admin Email Address",
+      "emailTooltip": "Receives initial login credentials and security alerts",
+      "phone": "Admin Phone / WhatsApp",
+      "phoneTooltip": "Emergency contact for security and incident alerts",
+      "twoFactor": "Two-Factor Authentication (2FA)",
+      "twoFactorTooltip": "Enforce mandatory TOTP Two-Factor Authentication for all tenant auditors",
+      "enforceTwoFactor": "Enforce Mandatory 2FA for all auditors"
+    },
+    "infrastructure": {
+      "autoConfigure": "Let the system automatically configure cloud infrastructure (Recommended)",
+      "autoConfigureDesc": "Recommended for most clients. The platform allocates container ports, configures the dedicated VPS evidence storage silo, assigns host gateways, and prepares database clusters automatically.",
+      "matrix": "Automated Provisioning Matrix",
+      "autoConfigured": "Auto-Configured",
+      "webPort": "Assigned Web Port",
+      "gatewayPort": "Assigned Gateway Port",
+      "portNuxt": "Port {port} (Internal Nuxt)",
+      "portKong": "Port {port} (Kong Gateway)",
+      "storageProvider": "Evidence Storage Provider",
+      "storageSilo": "VPS Dedicated Silo ({path})",
+      "hostCluster": "Host Node Cluster",
+      "productionVps": "{ip} (Production VPS)",
+      "emailDispatcher": "Email Service Dispatcher",
+      "emailApi": "Email API",
+      "databaseInitialization": "Database Data Initialization",
+      "cleanStateBusiness": "Clean / Empty Data State (0 Business Records)",
+      "storagePolicy": "Storage is hosted directly on the VPS filesystem. Google Drive integration is blocked by architecture policy.",
+      "storageDirectory": "Host VPS Evidence Storage Directory",
+      "storageDirectoryTooltip": "Dedicated host VPS directory for working-paper attachments and audit-observation evidence",
+      "filesystemPath": "VPS Filesystem Path",
+      "thirdPartyStorage": "Third-Party Cloud Storage (Google Drive)",
+      "blocked": "Blocked by Architecture Policy",
+      "hostIp": "Host VPS IP",
+      "hostIpTooltip": "Public IP of the target server running Docker and Nginx",
+      "frontendPort": "Assigned Frontend Port",
+      "frontendPortTooltip": "Internal container port for this tenant Nuxt frontend",
+      "kongPort": "Assigned Kong Proxy Port",
+      "kongPortTooltip": "Internal container port for this tenant Kong Gateway",
+      "isolatedDatabases": "Dedicated Isolated PostgreSQL Databases (Auto-Generated)"
+    },
+    "review": {
+      "summary": "Tenant Site Provisioning Summary",
+      "validated": "Pre-flight Validated",
+      "organization": "Organization Name",
+      "environment": "Target Environment",
+      "localEnvironment": "Localhost Dev (RFC 6761 Loopback)",
+      "productionEnvironment": "Production Cloud Cluster",
+      "portalUrl": "Target Portal URL",
+      "apiGateway": "Kong API Gateway",
+      "ports": "Assigned Ports",
+      "portsValue": "FE: {frontend} | Kong: {kong}",
+      "dataState": "Data Initialization State",
+      "cleanState": "Clean / Empty Data State (0 Records)",
+      "emailDispatcher": "Email Service Dispatcher",
+      "sharedResendDomain": "Shared Resend domain (mail.auditsphere.app), tenant sending key",
+      "evidenceStorage": "Evidence Storage Provider",
+      "chiefAuditExecutive": "Chief Audit Executive",
+      "complianceStandard": "Compliance Standard",
+      "onboardingCommand": "Automated Onboarding Command (CLI)",
+      "copyCommand": "Copy Command",
+      "provisioning": "Provisioning {domain}..."
+    },
+    "actions": {
+      "back": "Back",
+      "continue": "Continue",
+      "deploy": "Generate & Deploy Site"
+    },
+    "copy": {
+      "success": "Copied to Clipboard",
+      "successDescription": "{label} copied successfully.",
+      "fallback": "Copied",
+      "cliCommand": "CLI Command",
+      "recordValue": "{type} Value"
+    },
+    "messages": {
+      "unknownError": "Unknown error",
+      "resendNoData": "Resend provisioning returned no data.",
+      "localDns": "Configuring RFC 6761 localhost DNS loopback for {domain}",
+      "productionDns": "Resolving DNS *.auditsphere.id for {domain}",
+      "databasesCreated": "Created 5 isolated PostgreSQL databases ({prefix})",
+      "migrations": "Executed schema migrations in a clean data state (0 business records)",
+      "storageAllocated": "Allocated dedicated VPS storage silo ({path})",
+      "storagePolicy": "Enforced storage policy: Google Drive integration blocked",
+      "resendSuccess": "Provisioned Resend sending domain ({domain}) and created a scoped API key",
+      "resendFailure": "Resend provisioning FAILED for {domain}: {error}",
+      "emailNotConfigured": "Tenant email is NOT configured — no sending domain, API key, or DNS records",
+      "localGateway": "Configured local Kong Gateway proxy on port {port}",
+      "sslActivated": "SSL Let's Encrypt certificate activated for {domain}",
+      "emailSetupFailed": "Site Provisioned — Email Setup Failed",
+      "emailSetupFailedDesc": "{client} is deployed, but the Resend sending domain could not be created: {error}",
+      "siteProvisioned": "Client Site Provisioned",
+      "siteProvisionedDesc": "{client} ({domain}) is now ready with clean, empty data."
+    },
+    "industries": {
+      "consulting": "Consulting & Professional Services",
+      "telecommunications": "Telecommunications",
+      "banking": "Banking & Financial Services",
+      "energy": "Energy, Oil & Gas",
+      "stateOwned": "State-Owned Enterprise (BUMN)",
+      "manufacturing": "Manufacturing & Supply Chain",
+      "healthcare": "Healthcare & Pharmaceuticals",
+      "technology": "Technology & Software"
+    }
+  },
+  "riskMitigation": {
+    "title": "Risk Mitigation Plan",
+    "riskId": "Risk ID:",
+    "backToDetail": "Back to Detail",
+    "listTitle": "Risk Mitigation Plans & Controls",
+    "listSubtitle": "Expand a row to monitor weekly/monthly checks and update realization notes.",
+    "add": "Add Mitigation Plan",
+    "columns": {
+      "number": "No",
+      "plan": "Mitigation Plan & Controls",
+      "timeline": "Timeline",
+      "unit": "Unit in Charge",
+      "pic": "Person in Charge",
+      "supervisor": "Supervisor",
+      "progress": "Monitoring Progress",
+      "actions": "Actions"
+    },
+    "monitoring": {
+      "label": "{unit} Monitoring",
+      "checklistTitle": "Monitoring Control Checklist",
+      "checklistDesc": "Realization progress calculation is based on the current date.",
+      "realization": "Realization",
+      "monitored": "{actual} / {target} {unit} Monitored",
+      "notesPlaceholder": "Add monitoring notes...",
+      "weeks": "Weeks",
+      "months": "Months",
+      "completed": "Completed",
+      "overdue": "Overdue",
+      "scheduled": "Scheduled",
+      "updateSuccessTitle": "Success",
+      "updateSuccessDesc": "Monitoring controls updated successfully.",
+      "updateErrorTitle": "Error",
+      "updateErrorDesc": "Failed to update monitoring controls."
+    },
+    "empty": "No risk mitigation plans found for this risk.",
+    "form": {
+      "editTitle": "Edit Mitigation & Control Plan",
+      "addTitle": "Add Mitigation & Control Plan",
+      "plan": "Mitigation Plan & Controls",
+      "planPlaceholder": "Explain the mitigation plan and controls in detail...",
+      "supervisor": "Supervisor",
+      "supervisorPlaceholder": "Select a supervisor...",
+      "pic": "PIC",
+      "picPlaceholder": "Select a PIC...",
+      "unit": "Unit in Charge",
+      "unitPlaceholder": "Select the responsible unit...",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "notes": "Additional Notes",
+      "notesPlaceholder": "Optional notes...",
+      "saveChanges": "Save Changes",
+      "save": "Save Mitigation"
+    },
+    "deleteConfirm": "Are you sure you want to delete this mitigation plan?"
   }
 }

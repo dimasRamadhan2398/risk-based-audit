@@ -73,12 +73,11 @@
               </div>
               <div>
                 <div class="text-xs font-bold uppercase tracking-wider text-primary-700 dark:text-primary-300 flex items-center gap-2">
-                  <span>No. LHA: {{ linkedLhaReport.reportNumber || (linkedLhaReport as any).report_number }}</span>
+                  <span>{{ t('executiveSummaryIndividual.formExtra.lhaNumber') }} {{ linkedLhaReport.reportNumber || (linkedLhaReport as any).report_number }}</span>
                   <UBadge :color="linkedLhaReport.status === 'Final' || (linkedLhaReport.status as any) === 'Approved' ? 'success' : 'warning'" variant="subtle" size="xs">
                     {{ linkedLhaReport.status || 'Draft' }}
                   </UBadge>
-                  <UBadge v-if="linkedLhaReport.assignmentLetterId" color="neutral" variant="outline" size="xs" class="font-mono">
-                    ST: {{ linkedLhaReport.assignmentLetterId }}
+                  <UBadge v-if="linkedLhaReport.assignmentLetterId" color="neutral" variant="outline" size="xs" class="font-mono"> {{ t('executiveSummaryIndividual.formExtra.assignmentLetter') }} {{ linkedLhaReport.assignmentLetterId }}
                   </UBadge>
                 </div>
                 <div class="text-sm font-semibold text-gray-900 dark:text-white mt-0.5">
@@ -88,13 +87,13 @@
             </div>
             <div class="flex flex-wrap items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
               <div v-if="linkedLhaReport.department">
-                <span class="text-gray-400">Divisi:</span> <span class="font-medium text-gray-700 dark:text-gray-300">{{ linkedLhaReport.department }}</span>
+                <span class="text-gray-400">{{ t('executiveSummaryIndividual.formExtra.division') }}</span> <span class="font-medium text-gray-700 dark:text-gray-300">{{ linkedLhaReport.department }}</span>
               </div>
               <div v-if="linkedLhaReport.reportDate">
-                <span class="text-gray-400">Tanggal:</span> <span class="font-medium text-gray-700 dark:text-gray-300">{{ linkedLhaReport.reportDate }}</span>
+                <span class="text-gray-400">{{ t('auditActivityPlan.view.date') }}</span> <span class="font-medium text-gray-700 dark:text-gray-300">{{ linkedLhaReport.reportDate }}</span>
               </div>
               <div>
-                <span class="text-gray-400">Temuan:</span> <span class="font-bold text-primary-600 dark:text-primary-400">{{ linkedLhaReport.findingsCount || (linkedLhaReport.findings?.length || 0) }}</span>
+                <span class="text-gray-400">{{ t('executiveSummaryIndividual.formExtra.findings') }}</span> <span class="font-bold text-primary-600 dark:text-primary-400">{{ linkedLhaReport.findingsCount || (linkedLhaReport.findings?.length || 0) }}</span>
               </div>
             </div>
           </div>

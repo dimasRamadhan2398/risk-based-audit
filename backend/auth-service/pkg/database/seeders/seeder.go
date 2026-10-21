@@ -226,12 +226,12 @@ func (s *Seeder) SeedUsers() error {
 		return fmt.Errorf("failed to hash password: %w", err)
 	}
 
-	emp001 := "EMP001"
-	emp002 := "EMP002"
-	emp003 := "EMP003"
-	emp004 := "EMP004"
-	emp005 := "EMP005"
-	emp007 := "EMP007"
+	emp001 := "EMP-0013"
+	emp002 := "EMP-0014"
+	emp003 := "EMP-0015"
+	emp004 := "EMP-0016"
+	emp005 := "EMP-0017"
+	emp007 := "EMP-0018"
 
 	users := []models.User{
 		{

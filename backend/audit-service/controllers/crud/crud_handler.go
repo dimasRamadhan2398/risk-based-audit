@@ -277,7 +277,7 @@ type UpdateHook func(tx *gorm.DB, existing interface{}, columns map[string]inter
 func writeHookError(c *gin.Context, modelName, action string, err error) {
 	var appErr *apperrors.AppError
 	if stderrors.As(err, &appErr) {
-		response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
+		response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, appErr.Details)
 		return
 	}
 	response.InternalServerError(c, "Failed to "+action+" "+modelName+": "+err.Error())

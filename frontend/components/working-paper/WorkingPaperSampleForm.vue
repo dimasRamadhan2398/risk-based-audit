@@ -19,7 +19,7 @@
               <UIcon name="i-lucide-clipboard-check" class="w-5 h-5" />
             </div>
             <h3 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
-              {{ store.isEditingF03 ? (t('auditFieldwork.sample.modalEdit') || 'Edit Sample') : (t('auditFieldwork.sample.modalAdd') || 'Sample Data Form') }}
+              {{ store.isEditingF03 ? t('auditFieldwork.sample.modalEdit') : t('auditFieldwork.sample.modalAdd') }}
             </h3>
           </div>
           <UButton
@@ -34,23 +34,23 @@
         <!-- Scrollable Body -->
         <div class="p-4 sm:p-6 space-y-6 overflow-y-auto flex-1 min-h-0">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-full">
-            <UFormField label="Total Populasi" required name="population">
-              <UInput v-model="store.sampleForm.population" placeholder="Contoh: 100 atau 100 Transaksi" class="w-full"/>
+            <UFormField :label="t('workingPaper.sampleForm.population')" required name="population">
+              <UInput v-model="store.sampleForm.population" :placeholder="t('workingPaper.sampleForm.populationPlaceholder')" class="w-full"/>
             </UFormField>
-            <UFormField label="Jumlah Sampel yang Diuji" required name="sampleSize">
-              <UInput type="number" v-model.number="store.sampleForm.sampleSize" placeholder="Ex: 10" class="w-full"/>
+            <UFormField :label="t('workingPaper.sampleForm.sampleSize')" required name="sampleSize">
+              <UInput type="number" v-model.number="store.sampleForm.sampleSize" :placeholder="t('workingPaper.sampleForm.sampleSizePlaceholder')" class="w-full"/>
             </UFormField>
           </div>
 
           <div class="space-y-4">
             <div class="flex items-center justify-between">
-              <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('auditFieldwork.sample.documentListLabel') || 'Daftar Sampel Dokumen' }}</h4>
+              <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('auditFieldwork.sample.documentListLabel') }}</h4>
               <UButton 
                 color="primary" 
                 icon="i-heroicons-plus" 
                 variant="soft" 
                 size="sm"
-                :label="t('auditFieldwork.sample.addBtn') || 'Tambah Sampel Dokumen'" 
+                :label="t('auditFieldwork.sample.addBtn')"
                 @click="store.addSample()" 
               />
             </div>
@@ -61,7 +61,7 @@
               class="border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-5 relative bg-gray-50/50 dark:bg-gray-800/30 space-y-4"
             >
               <div class="flex justify-between items-center">
-                <span class="text-sm font-bold text-gray-800 dark:text-gray-200">Dokumen {{ index + 1 }}</span>
+                <span class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ t('workingPaper.sampleForm.documentNumber', { number: index + 1 }) }}</span>
                 <UButton 
                   v-if="store.sampleForm.samples.length > 1"
                   icon="i-heroicons-trash" 
@@ -74,13 +74,13 @@
 
               <!-- 1. Dropdown Dokumen (Sinkronisasi dengan Sample Data Audit Fieldwork) -->
               <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                <UFormField label="Dokumen" class="font-semibold text-sm" required />
+                <UFormField :label="t('workingPaper.sampleForm.fieldworkDocument')" class="font-semibold text-sm" required />
                 <div class="md:col-span-3">
                   <USelectMenu 
                     v-model="sampel.fieldworkDocument" 
                     :items="getAvailableFieldworkOptions(index)" 
                     value-key="value"
-                    placeholder="Pilih Dokumen dari Sample Data Fieldwork" 
+                    :placeholder="t('workingPaper.sampleForm.fieldworkDocumentPlaceholder')"
                     class="w-full"
                     @update:model-value="(val: any) => handleFieldworkDocumentChange(sampel, val)"
                   />
@@ -89,15 +89,15 @@
 
               <!-- 2. Input Field: Sample Dokumen -->
               <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                <UFormField label="Sample Dokumen" class="font-semibold text-sm" required />
+                <UFormField :label="t('workingPaper.sampleForm.document')" class="font-semibold text-sm" required />
                 <div class="md:col-span-3">
                   <UInput 
                     v-model="sampel.document" 
-                    placeholder="Contoh: INV/2026/03/001 - Faktur Pembelian PT Maju Mundur"
+                    :placeholder="t('workingPaper.sampleForm.documentPlaceholder')"
                     required
                     maxlength="100"
                     class="w-full"
-                    @invalid="($event.target as any)?.setCustomValidity('Sample Dokumen maksimal 100 karakter dan wajib diisi')"
+                    @invalid="($event.target as any)?.setCustomValidity(t('workingPaper.sampleForm.documentValidation'))"
                     @input="($event.target as any)?.setCustomValidity('')"
                   />
                   <div class="text-xs text-gray-500 mt-1 text-right">
@@ -109,15 +109,15 @@
               <!-- 3. Langkah 1 sampai 3 dengan Pass/Fail dropdown di posisikan di bawahnya -->
               <!-- Langkah 1 -->
               <div class="grid grid-cols-1 md:grid-cols-4 gap-2 md:gap-4 items-start pt-3 border-t border-gray-100 dark:border-gray-800">
-                <UFormField label="Langkah 1" class="font-semibold text-sm md:pt-2" />
+                <UFormField :label="t('workingPaper.sampleForm.step', { number: 1 })" class="font-semibold text-sm md:pt-2" />
                 <div class="md:col-span-3 space-y-2">
                   <div>
                     <UInput 
                       v-model="sampel.step1" 
-                      placeholder="Ketik prosedur / pengujian langkah 1 (maksimal 100 karakter)..." 
+                      :placeholder="t('workingPaper.sampleForm.stepInputPlaceholder', { number: 1 })"
                       maxlength="100"
                       class="w-full"
-                      @invalid="($event.target as any)?.setCustomValidity('Langkah 1 maksimal 100 karakter')"
+                      @invalid="($event.target as any)?.setCustomValidity(t('workingPaper.sampleForm.stepTooLong', { number: 1 }))"
                       @input="($event.target as any)?.setCustomValidity('')"
                     />
                     <div class="text-xs text-gray-500 mt-1 text-right">
@@ -126,8 +126,9 @@
                   </div>
                   <USelectMenu 
                     v-model="sampel.l1" 
-                    :items="store.options.testResult" 
-                    placeholder="Pilih Hasil Langkah 1 (Pass / Fail)" 
+                    :items="localizedTestResultOptions"
+                    value-key="value"
+                    :placeholder="t('workingPaper.sampleForm.testResultPlaceholder', { number: 1 })"
                     class="w-full"
                   />
                 </div>
@@ -135,15 +136,15 @@
 
               <!-- Langkah 2 -->
               <div class="grid grid-cols-1 md:grid-cols-4 gap-2 md:gap-4 items-start pt-3 border-t border-gray-100 dark:border-gray-800">
-                <UFormField label="Langkah 2" class="font-semibold text-sm md:pt-2" />
+                <UFormField :label="t('workingPaper.sampleForm.step', { number: 2 })" class="font-semibold text-sm md:pt-2" />
                 <div class="md:col-span-3 space-y-2">
                   <div>
                     <UInput 
                       v-model="sampel.step2" 
-                      placeholder="Ketik prosedur / pengujian langkah 2 (maksimal 100 karakter)..." 
+                      :placeholder="t('workingPaper.sampleForm.stepInputPlaceholder', { number: 2 })"
                       maxlength="100"
                       class="w-full"
-                      @invalid="($event.target as any)?.setCustomValidity('Langkah 2 maksimal 100 karakter')"
+                      @invalid="($event.target as any)?.setCustomValidity(t('workingPaper.sampleForm.stepTooLong', { number: 2 }))"
                       @input="($event.target as any)?.setCustomValidity('')"
                     />
                     <div class="text-xs text-gray-500 mt-1 text-right">
@@ -152,8 +153,9 @@
                   </div>
                   <USelectMenu 
                     v-model="sampel.l2" 
-                    :items="store.options.testResult" 
-                    placeholder="Pilih Hasil Langkah 2 (Pass / Fail)" 
+                    :items="localizedTestResultOptions"
+                    value-key="value"
+                    :placeholder="t('workingPaper.sampleForm.testResultPlaceholder', { number: 2 })"
                     class="w-full"
                   />
                 </div>
@@ -161,15 +163,15 @@
 
               <!-- Langkah 3 -->
               <div class="grid grid-cols-1 md:grid-cols-4 gap-2 md:gap-4 items-start pt-3 border-t border-gray-100 dark:border-gray-800">
-                <UFormField label="Langkah 3" class="font-semibold text-sm md:pt-2" />
+                <UFormField :label="t('workingPaper.sampleForm.step', { number: 3 })" class="font-semibold text-sm md:pt-2" />
                 <div class="md:col-span-3 space-y-2">
                   <div>
                     <UInput 
                       v-model="sampel.step3" 
-                      placeholder="Ketik prosedur / pengujian langkah 3 (maksimal 100 karakter)..." 
+                      :placeholder="t('workingPaper.sampleForm.stepInputPlaceholder', { number: 3 })"
                       maxlength="100"
                       class="w-full"
-                      @invalid="($event.target as any)?.setCustomValidity('Langkah 3 maksimal 100 karakter')"
+                      @invalid="($event.target as any)?.setCustomValidity(t('workingPaper.sampleForm.stepTooLong', { number: 3 }))"
                       @input="($event.target as any)?.setCustomValidity('')"
                     />
                     <div class="text-xs text-gray-500 mt-1 text-right">
@@ -178,8 +180,9 @@
                   </div>
                   <USelectMenu 
                     v-model="sampel.l3" 
-                    :items="store.options.testResult" 
-                    placeholder="Pilih Hasil Langkah 3 (Pass / Fail)" 
+                    :items="localizedTestResultOptions"
+                    value-key="value"
+                    :placeholder="t('workingPaper.sampleForm.testResultPlaceholder', { number: 3 })"
                     class="w-full"
                   />
                 </div>
@@ -187,11 +190,11 @@
 
               <!-- Status Evaluasi 3 Langkah -->
               <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center pt-3 border-t border-gray-100 dark:border-gray-800">
-                <UFormField label="Status" class="font-semibold text-sm" />
+                <UFormField :label="t('workingPaper.sampleForm.status')" class="font-semibold text-sm" />
                 <div class="md:col-span-3 flex items-center gap-2">
                   <div class="w-3.5 h-3.5 rounded-full" :class="store.checkSampleStatus(sampel) ? 'bg-green-500' : 'bg-red-500'"></div>
                   <span class="font-bold text-sm" :class="store.checkSampleStatus(sampel) ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
-                    {{ store.checkSampleStatus(sampel) ? 'Efektif' : 'Tidak Efektif' }}
+                    {{ store.checkSampleStatus(sampel) ? t('workingPaper.common.effective') : t('workingPaper.common.ineffective') }}
                   </span>
                 </div>
               </div>
@@ -199,13 +202,13 @@
           </div>
 
           <UFormField 
-            label="Kesimpulan" 
+            :label="t('workingPaper.sampleForm.conclusion')"
             name="conclusion" 
             required
             class="grid grid-cols-1 md:grid-cols-4 items-start gap-2 md:gap-4" 
             :ui="{ container: 'md:col-span-3 w-full', label: 'font-semibold text-sm text-gray-700 dark:text-gray-300 md:mt-2' }"
           >
-            <UTextarea v-model="store.sampleForm.conclusion" :rows="4" placeholder="Ketik kontrol pengamanan / SOP yang sedang dievaluasi di lapangan..." class="w-full" />
+            <UTextarea v-model="store.sampleForm.conclusion" :rows="4" :placeholder="t('workingPaper.sampleForm.conclusionPlaceholder')" class="w-full" />
           </UFormField>
         </div>
 
@@ -235,6 +238,13 @@ import { useWorkingPaperStore, sampleSchema } from '~/stores/working-paper'
 
 const { t } = useI18n()
 const store = useWorkingPaperStore()
+
+const localizedTestResultOptions = computed(() => store.options.testResult.map(value => ({
+  value,
+  label: value === 'Pass' ? t('workingPaper.sampleTable.pass')
+    : value === 'Fail' ? t('workingPaper.sampleTable.fail')
+    : t('workingPaper.sampleTable.notApplicable')
+})))
 
 const handleFieldworkDocumentChange = (sampel: any, val: any) => {
   sampel.fieldworkDocument = val

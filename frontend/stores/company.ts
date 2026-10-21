@@ -49,15 +49,15 @@ export const useCompanyStore = defineStore('company', () => {
   })
 
   // Table Columns
-  const columns: TableColumn<Company>[] = [
-    { accessorKey: 'company_code', header: 'Code' },
-    { accessorKey: 'company_name', header: 'Company Name' },
-    { accessorKey: 'legal_name', header: 'Legal Name' },
-    { accessorKey: 'company_type', header: 'Type' },
-    { accessorKey: 'tax_id', header: 'Tax ID' },
-    { accessorKey: 'is_active', header: 'Status' },
+  const columns = computed<TableColumn<Company>[]>(() => [
+    { accessorKey: 'company_code', header: t('masterData.company.columns.code') },
+    { accessorKey: 'company_name', header: t('masterData.company.columns.name') },
+    { accessorKey: 'legal_name', header: t('masterData.company.columns.legalName') },
+    { accessorKey: 'company_type', header: t('masterData.company.columns.type') },
+    { accessorKey: 'tax_id', header: t('masterData.company.columns.taxId') },
+    { accessorKey: 'is_active', header: t('masterData.company.columns.status') },
     { accessorKey: 'actions', header: '' }
-  ]
+  ])
 
   // ============= Getters =============
   const totalPages = computed(() => pagination.value.total_pages)
@@ -306,13 +306,13 @@ export const useCompanyStore = defineStore('company', () => {
       if (isEditing.value && editingId.value) {
         const success = await updateCompany(editingId.value)
         if (success) {
-          alert('Company berhasil diperbarui!')
+          alert(t('masterData.company.messages.updated'))
           closeModal()
         }
       } else {
         const success = await createCompany()
         if (success) {
-          alert('Company berhasil dibuat!')
+          alert(t('masterData.company.messages.created'))
           closeModal()
         }
       }
@@ -325,13 +325,13 @@ export const useCompanyStore = defineStore('company', () => {
    * Handle delete with confirmation
    */
   const handleDelete = async (company: Company) => {
-    if (!await useGlobalModalStore().confirmDelete({ description: `Are you sure you want to delete company "${company.company_name}"?` })) {
+    if (!await useGlobalModalStore().confirmDelete({ description: t('masterData.company.messages.deleteConfirm', { name: company.company_name }) })) {
       return
     }
 
     const success = await deleteCompany(company.id)
     if (success) {
-      alert('Company berhasil dihapus!')
+      alert(t('masterData.company.messages.deleted'))
     }
   }
 

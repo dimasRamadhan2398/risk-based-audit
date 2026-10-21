@@ -35,7 +35,6 @@ func getUserAgent(c *gin.Context) string {
 type AuthControllerInterface interface {
 	Login(c *gin.Context)
 	VerifyMFALogin(c *gin.Context)
-	Register(c *gin.Context)
 	Logout(c *gin.Context)
 	ChangePassword(c *gin.Context)
 	Me(c *gin.Context)
@@ -117,36 +116,6 @@ func (ctrl *AuthController) VerifyMFALogin(c *gin.Context) {
 	}
 
 	response.OK(c, "Login successful", result)
-}
-
-// Register handles user registration
-// @Summary Register
-// @Description Register a new user
-// @Tags auth
-// @Accept json
-// @Produce json
-// @Param request body models.RegisterRequest true "Register request"
-// @Success 201 {object} response.Response
-// @Router /api/v1/auth/register [post]
-func (ctrl *AuthController) Register(c *gin.Context) {
-	var req models.RegisterRequest
-	if !ctrl.ValidateRequest(c, &req) {
-		return
-	}
-
-	ipAddress := getClientIP(c)
-
-	if err := ctrl.authService.Register(c.Request.Context(), &req, ipAddress); err != nil {
-		appErr, ok := err.(*apperrors.AppError)
-		if ok {
-			response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
-		} else {
-			response.InternalServerError(c, err.Error())
-		}
-		return
-	}
-
-	response.Created(c, "Registration successful", nil)
 }
 
 // Logout handles user logout
@@ -243,9 +212,19 @@ func (ctrl *AuthController) Me(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "User retrieved successfully", models.UserInfo{
+	info := models.UserInfo{
 		ID:        claims.UserID,
 		Username:  claims.Username,
 		Roles:     claims.Roles,
-	})
+	}
+
+	// The employee link is best-effort: a lookup failure must not fail /auth/me.
+	if userID, parseErr := uuid.Parse(claims.UserID); parseErr == nil {
+		link, _ := ctrl.authService.ResolveEmployeeLink(c.Request.Context(), userID, c.GetHeader("Authorization"))
+		info.EmployeeCode = link.EmployeeCode
+		info.EmployeeID = link.EmployeeID
+		info.DepartmentID = link.DepartmentID
+	}
+
+	response.OK(c, "User retrieved successfully", info)
 }

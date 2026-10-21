@@ -24,7 +24,7 @@ import (
 func planRouter(t *testing.T) (*gin.Engine, *gorm.DB) {
 	t.Helper()
 	gin.SetMode(gin.TestMode)
-	db := sqlitetest.Open(t, &models.ActivityCodeSequence{}, &models.AuditAnnual{})
+	db := sqlitetest.Open(t, &models.ActivityCodeSequence{}, &models.AuditAnnual{}, &models.AnnualSnapshotRef{})
 	db.Logger = logger.Discard
 	r := gin.New()
 	g := r.Group("/annual-audit-plans")

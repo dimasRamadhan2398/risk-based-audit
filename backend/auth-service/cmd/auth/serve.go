@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"os"
+	"strings"
 
 	"auth-service/docs"
 	"auth-service/pkg/database"
@@ -46,6 +49,9 @@ func runServe(cmd *cobra.Command, args []string) error {
 	defer logger.Sync()
 
 	logger.Info("Starting Auth Service", logger.LogField("port", cfg.Server.Port))
+	if err := cfg.ValidateJWT(); err != nil {
+		logger.Fatal("Refusing to start: invalid JWT_SECRET", logger.LogField("error", err.Error()))
+	}
 
 	// Set Gin mode
 	if cfg.Server.Mode == "release" {
@@ -112,7 +118,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 	controllerRegistry := routes.NewControllerRegistry(serviceRegistry, validator)
 
 	// Initialize middleware
-	authMiddleware := middleware.NewAuthMiddleware(cfg.JWT.Secret)
+	authMiddleware := middleware.NewAuthMiddleware(cfg.JWT.Secret).WithSessionCheck(loginSessionCheck(redisClient))
 
 	// Create Gin engine
 	engine := gin.New()
@@ -158,7 +164,11 @@ func runServe(cmd *cobra.Command, args []string) error {
 	docs.SwaggerInfo.Version = "1.0.0"
 	docs.SwaggerInfo.Host = fmt.Sprintf("localhost:%d", cfg.Server.Port)
 	docs.SwaggerInfo.BasePath = "/"
-	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	// Swagger UI is off unless ENABLE_SWAGGER=true.
+	if swaggerEnabled() {
+		engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+		logger.Info("Swagger documentation available at", logger.LogField("url", fmt.Sprintf("http://localhost:%d/swagger/index.html", cfg.Server.Port)))
+	}
 
 	// API v1 routes
 	apiV1 := engine.Group("/api/v1")
@@ -174,7 +184,6 @@ func runServe(cmd *cobra.Command, args []string) error {
 	// Start server
 	addr := fmt.Sprintf(":%d", cfg.Server.Port)
 	logger.Info("Starting Auth Service HTTP server", logger.LogField("address", addr))
-	logger.Info("Swagger documentation available at", logger.LogField("url", fmt.Sprintf("http://localhost:%d/swagger/index.html", cfg.Server.Port)))
 
 	if err := engine.Run(addr); err != nil {
 		logger.Fatal("Failed to start server", logger.LogField("error", err))
@@ -182,4 +191,19 @@ func runServe(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+// loginSessionCheck reports whether a token still has the session that login
+// stored under "token:<jwt>" (services/auth). Logout deletes that key, so a
+// logged-out token stops working here before its JWT expiry.
+func loginSessionCheck(rdb *redis.Client) middleware.SessionChecker {
+	return func(ctx context.Context, token string) (bool, error) {
+		n, err := rdb.Exists(ctx, "token:"+token).Result()
+		return n > 0, err
+	}
+}
+
+// swaggerEnabled reports whether the Swagger UI is mounted (ENABLE_SWAGGER=true).
+func swaggerEnabled() bool {
+	return strings.EqualFold(strings.TrimSpace(os.Getenv("ENABLE_SWAGGER")), "true")
 }

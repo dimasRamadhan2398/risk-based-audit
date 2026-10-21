@@ -13,9 +13,7 @@
             class="text-primary-500 text-2xl"
           />
           <div>
-            <h3 class="text-lg font-bold text-[var(--text-main)]">
-              Reset Password
-            </h3>
+            <h3 class="text-lg font-bold text-[var(--text-main)]"> {{ t('masterData.employee.resetPassword') }} </h3>
             <p
               v-if="employee"
               class="text-sm text-[var(--text-muted)]"
@@ -40,8 +38,8 @@
             color="neutral"
             variant="soft"
             icon="i-heroicons-information-circle"
-            title="This employee has no login account"
-            description="There is no user account linked to this employee code or email, so there is no password to reset."
+            :title="t('masterData.employee.resetModal.noAccount')"
+            :description="t('masterData.employee.resetModal.noAccountDescription')"
           />
 
           <!-- Account cannot be reset from here -->
@@ -50,7 +48,7 @@
             color="warning"
             variant="soft"
             icon="i-heroicons-shield-exclamation"
-            title="Password cannot be reset here"
+            :title="t('masterData.employee.resetModal.cannotReset')"
             :description="blockedReason"
           />
 
@@ -58,18 +56,16 @@
           <template v-else-if="(step === 'confirm' || step === 'resetting') && account">
             <div class="rounded-xl border border-[var(--border-main)] bg-[var(--bg-surface)] px-4 py-3 text-sm space-y-1">
               <div class="flex justify-between">
-                <span class="text-[var(--text-muted)]">Username</span><span class="font-medium text-[var(--text-main)]">{{ account.username }}</span>
+                <span class="text-[var(--text-muted)]">{{ t('settings.profile.username') }}</span><span class="font-medium text-[var(--text-main)]">{{ account.username }}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-[var(--text-muted)]">Email</span><span class="font-medium text-[var(--text-main)]">{{ account.email }}</span>
+                <span class="text-[var(--text-muted)]">{{ t('masterData.employee.resetModal.email') }}</span><span class="font-medium text-[var(--text-main)]">{{ account.email }}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-[var(--text-muted)]">Roles</span><span class="font-medium text-[var(--text-main)]">{{ account.roles.join(', ') || '-' }}</span>
+                <span class="text-[var(--text-muted)]">{{ t('masterData.employee.resetModal.roles') }}</span><span class="font-medium text-[var(--text-main)]">{{ account.roles.join(', ') || '-' }}</span>
               </div>
             </div>
-            <p class="text-sm text-[var(--text-muted)]">
-              A temporary password will be generated. The user must change it the next time they log in. Their current password stops working immediately.
-            </p>
+            <p class="text-sm text-[var(--text-muted)]"> {{ t('masterData.employee.resetModal.temporaryDescription') }} </p>
           </template>
 
           <!-- Result: temporary password shown once -->
@@ -79,7 +75,7 @@
               variant="soft"
               icon="i-heroicons-check-circle"
               :title="`Password for ${result.username} has been reset`"
-              description="Give this temporary password to the user through a secure channel. It is shown only once."
+              :description="t('masterData.employee.resetModal.shareSecurely')"
             />
             <div class="flex items-center gap-2">
               <code class="flex-1 rounded-xl border border-[var(--border-main)] bg-[var(--bg-surface)] px-4 py-3 font-mono text-lg tracking-wider text-[var(--text-main)] select-all">{{ result.temporary_password }}</code>
@@ -119,9 +115,7 @@
             class="rounded-xl font-bold"
             :loading="step === 'resetting'"
             @click="handleReset"
-          >
-            Reset Password
-          </UButton>
+          > {{ t('masterData.employee.resetPassword') }} </UButton>
         </div>
       </div>
     </template>
@@ -129,6 +123,7 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 import type { Employee } from '~/types/master'
 import type { AdminResetPasswordResult, LinkedUserAccount } from '~/composables/useUserAccountApi'
 import { useUserAccountApi } from '~/composables/useUserAccountApi'

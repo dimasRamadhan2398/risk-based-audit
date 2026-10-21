@@ -33,7 +33,15 @@ export default defineNuxtPlugin(() => {
   const requestUrl = (request: RequestInfo | URL) =>
     typeof request === 'string' ? request : request instanceof URL ? request.href : request.url
 
-  const isApiRequest = (url: string) => apiBases().some(base => url.startsWith(base))
+  // Uploaded files (/uploads/*) are behind the same token check; relative in production,
+  // on the API origin locally
+  const uploadBases = () => [
+    '/uploads/',
+    `${getAuditServiceBaseUrl().replace(/\/api\/v1\/?$/, '')}/uploads/`,
+  ]
+
+  const isApiRequest = (url: string) =>
+    apiBases().some(base => url.startsWith(base)) || uploadBases().some(base => url.startsWith(base))
 
   // Analytics / python-ai validate the token separately (and their callers already
   // swallow failures), so a 401 there must not log the whole app out
@@ -42,6 +50,7 @@ export default defineNuxtPlugin(() => {
     getMasterServiceBaseUrl(),
     getRiskServiceBaseUrl(),
     getAuthServiceBaseUrl(),
+    ...uploadBases(),
   ].some(base => url.startsWith(base))
 
   // Auth endpoints return 401 for a wrong password; that must not end the session

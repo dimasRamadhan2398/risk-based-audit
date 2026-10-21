@@ -1,20 +1,20 @@
 <template>
   <UDashboardPage>
-    <UDashboardHeader title="Trusted Devices" />
+    <UDashboardHeader :title="t('settings.devices.title')" />
 
     <UDashboardPanelContent>
       <div class="space-y-6">
         <UCard>
           <template #header>
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <h3 class="text-lg font-semibold">Registered Devices</h3>
-              <UButton icon="i-lucide-qr-code" class="w-full sm:w-auto justify-center" @click="handleGenerateQR">Register New Device</UButton>
+              <h3 class="text-lg font-semibold">{{ t('settings.devices.registeredDevices') }}</h3>
+              <UButton icon="i-lucide-qr-code" class="w-full sm:w-auto justify-center" @click="handleGenerateQR">{{ t('settings.devices.registerNew') }}</UButton>
             </div>
           </template>
 
           <UTable :rows="devices" :columns="columns">
             <template #created_at-data="{ row }">
-              {{ new Date(row.original.created_at).toLocaleDateString() }}
+              {{ formatDate(row.original.created_at) }}
             </template>
             <template #actions-data="{ row }">
               <UButton
@@ -29,16 +29,16 @@
 
         <UModal v-model="showQRModal" :ui="{ content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-md' }">
           <UCard>
-            <template #header>Register Device</template>
+            <template #header>{{ t('settings.devices.registerTitle') }}</template>
             <div class="flex flex-col items-center py-6">
-              <p class="mb-4 text-center">Scan this QR code with your mobile app to trust this device.</p>
+              <p class="mb-4 text-center">{{ t('settings.devices.scanInstruction') }}</p>
               <div class="bg-white p-4 rounded-lg shadow-inner">
-                <img v-if="qrCodeDataURL" :src="qrCodeDataURL" alt="Enrollment QR" />
+                <img v-if="qrCodeDataURL" :src="qrCodeDataURL" :alt="t('settings.devices.qrAlt')" />
               </div>
-              <p v-if="qrData" class="mt-4 text-sm text-gray-500 italic">Expires at: {{ new Date(qrData.expires_at).toLocaleString() }}</p>
+              <p v-if="qrData" class="mt-4 text-sm text-gray-500 italic">{{ t('settings.devices.expiresAt', { date: formatDateTime(qrData.expires_at) }) }}</p>
             </div>
             <template #footer>
-              <UButton block @click="() => { showQRModal = false }">Close</UButton>
+              <UButton block @click="() => { showQRModal = false }">{{ t('settings.devices.close') }}</UButton>
             </template>
           </UCard>
         </UModal>
@@ -65,13 +65,18 @@ const showQRModal = ref(false)
 const qrData = ref<any>(null)
 const qrCodeDataURL = ref('')
 const toast = useToast()
+const { t, locale } = useI18n()
 
-const columns: TableColumn<Device>[] = [
-  { accessorKey: 'device_name', header: 'Device' },
-  { accessorKey: 'ip_address', header: 'IP Address' },
-  { accessorKey: 'created_at', header: 'Added On' },
+const columns = computed<TableColumn<Device>[]>(() => [
+  { accessorKey: 'device_name', header: t('settings.devices.columns.device') },
+  { accessorKey: 'ip_address', header: t('settings.devices.columns.ipAddress') },
+  { accessorKey: 'created_at', header: t('settings.devices.columns.addedOn') },
   { accessorKey: 'actions', header: '' }
-]
+])
+
+const dateLocale = computed(() => locale.value === 'id' ? 'id-ID' : 'en-US')
+const formatDate = (value: string) => new Date(value).toLocaleDateString(dateLocale.value)
+const formatDateTime = (value: string) => new Date(value).toLocaleString(dateLocale.value)
 
 const fetchDevices = async () => {
   try {
@@ -91,19 +96,19 @@ const handleGenerateQR = async () => {
     }
     showQRModal.value = true
   } catch (err: any) {
-    toast.add({ title: 'Error', description: extractErrorMessage(err, 'Failed to enroll device'), color: 'error' })
+    toast.add({ title: t('common.error'), description: extractErrorMessage(err, t('settings.devices.enrollFailed')), color: 'error' })
   }
 }
 
 const handleRemove = async (id: string) => {
-  if (!await useGlobalModalStore().confirmDelete({ description: 'Are you sure you want to remove this trusted device?' })) return
+  if (!await useGlobalModalStore().confirmDelete({ description: t('settings.devices.removeConfirm') })) return
 
   try {
     await $fetch(`${config.public.apiBase}/devices/${id}`, { method: 'DELETE' })
-    toast.add({ title: 'Device removed' })
+    toast.add({ title: t('settings.devices.removed') })
     await fetchDevices()
   } catch (err: any) {
-    toast.add({ title: 'Error', description: extractErrorMessage(err, 'Failed to remove device'), color: 'error' })
+    toast.add({ title: t('common.error'), description: extractErrorMessage(err, t('settings.devices.removeFailed')), color: 'error' })
   }
 }
 

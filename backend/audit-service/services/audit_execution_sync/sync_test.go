@@ -66,7 +66,6 @@ func seedActivity(t *testing.T, db *gorm.DB, title string) *models.AuditActivity
 	act := &models.AuditActivity{
 		ID:           uuid.New(),
 		AnnualPlanID: uuid.New(),
-		TargetUnitID: uuid.New(),
 		ProjectCode:  "ASR-2026-001",
 		Title:        title,
 		Status:       "PLANNED",
@@ -473,7 +472,7 @@ func TestUnmatchedSourceRows(t *testing.T) {
 func TestFindActivityID_BlankNameOrRefNeverMatches(t *testing.T) {
 	db := syncTestDB(t)
 	mustCreate(t, db, &models.AuditActivity{
-		ID: uuid.New(), AnnualPlanID: uuid.New(), TargetUnitID: uuid.New(),
+		ID: uuid.New(), AnnualPlanID: uuid.New(),
 		ProjectCode: "", Title: "", Status: "PLANNED",
 	})
 
