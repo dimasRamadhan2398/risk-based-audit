@@ -327,7 +327,7 @@ func (e *EmailService) sendViaSMTP(to []string, subject, htmlBody, textBody stri
 
 // SendOTPEmail sends an OTP verification code with modern enterprise styling
 func (e *EmailService) SendOTPEmail(ctx context.Context, toEmail string, otp string, ipAddress string, userAgent string) (bool, error) {
-	subject := "🔐 Verification Code for Login - AuditSphere"
+	subject := "Verification Code for Login - AuditSphere"
 	currentTime := time.Now().Format("02 Jan 2006 15:04:05 MST")
 
 	textBody := fmt.Sprintf(`Hello,
@@ -393,7 +393,7 @@ AuditSphere Security Team
                   %s
                 </div>
                 <div style="font-size: 13px; color: #64748b; margin-top: 8px;">
-                  ⏱ Valid for <strong>5 minutes</strong> only
+                  Valid for <strong>5 minutes</strong> only
                 </div>
               </div>
 
@@ -449,7 +449,7 @@ AuditSphere Security Team
 
 // SendNewDeviceTrustedEmail sends a notification when a new trusted device is registered
 func (e *EmailService) SendNewDeviceTrustedEmail(email string, username string, deviceName string, ipAddress string) error {
-	subject := "🛡️ New Trusted Device Registered - AuditSphere"
+	subject := "New Trusted Device Registered - AuditSphere"
 	currentTime := time.Now().Format("02 Jan 2006 15:04:05 MST")
 
 	textBody := fmt.Sprintf(`Hello %s,
@@ -506,7 +506,7 @@ AuditSphere Security Team
 
 // SendDeviceRemovedEmail sends a notification when a device is removed from trusted list
 func (e *EmailService) SendDeviceRemovedEmail(email string, deviceName string, ipAddress string, location string) error {
-	subject := "⚠️ Device Removed From Account - AuditSphere"
+	subject := "Device Removed From Account - AuditSphere"
 	currentTime := time.Now().Format("02 Jan 2006 15:04:05 MST")
 
 	textBody := fmt.Sprintf(`Hello,

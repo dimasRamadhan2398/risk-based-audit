@@ -82,5 +82,5 @@ for _, row in training_data.iterrows():
         "is_anomaly": True,
     }]).to_sql("anomaly_training_data", dl, schema="gold", if_exists="append", index=False)
 
-print(f"✅ Wrote {len(training_data)} anomaly training records to gold.anomaly_training_data")
+print(f"✓ Wrote {len(training_data)} anomaly training records to gold.anomaly_training_data")
 print("   → AI Engine will auto-retrain on next scheduled cycle")

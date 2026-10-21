@@ -86,4 +86,93 @@ describe('buildAuditableEntityOptions', () => {
     expect(options).toHaveLength(1)
     expect(options[0]).toMatchObject({ name: 'Ops', riskLevel: 'Not Scored', riskIndex: 0, auditPriority: false, id: 'corp-5' })
   })
+
+  describe('entities sharing a name', () => {
+    const dupCorporate = [
+      { id: 'jkt', name: 'Jakarta Branch', children: [{ id: 'ops-jkt', name: 'Operations', children: [] }] },
+      { id: 'sby', name: 'Surabaya Branch', children: [{ id: 'ops-sby', name: 'Operations', children: [] }] }
+    ]
+
+    it('keeps both entities, uses the corporate id as the value and the parent name in the label', () => {
+      const yearly = [
+        { id: 'y1', corporate_audit_universe_id: 'ops-jkt', corporate_audit_universe: { id: 'ops-jkt', name: 'Operations', parent_id: 'jkt' }, risk_level: 'High', risk_index: 85, audit_priority: true, scored_at: '2026-10-01T00:00:00Z' },
+        { id: 'y2', corporate_audit_universe_id: 'ops-sby', corporate_audit_universe: { id: 'ops-sby', name: 'Operations', parent_id: 'sby' }, risk_level: 'Low', risk_index: 10, audit_priority: false, scored_at: '2026-10-01T00:00:00Z' }
+      ]
+
+      const options = buildAuditableEntityOptions(yearly, dupCorporate)
+      const ops = options.filter(o => o.name === 'Operations')
+
+      expect(ops).toHaveLength(2)
+      expect(ops.map(o => o.value)).toEqual(['ops-jkt', 'ops-sby'])
+      expect(ops.map(o => o.label)).toEqual(['Operations (Jakarta Branch)', 'Operations (Surabaya Branch)'])
+      expect(new Set(options.map(o => o.value)).size).toBe(options.length)
+    })
+
+    it('resolves the picked option by id, not by name', () => {
+      const yearly = [
+        { corporate_audit_universe_id: 'ops-jkt', corporate_audit_universe: { name: 'Operations' }, risk_level: 'High', risk_index: 85, audit_priority: true },
+        { corporate_audit_universe_id: 'ops-sby', corporate_audit_universe: { name: 'Operations' }, risk_level: 'Low', risk_index: 10, audit_priority: false }
+      ]
+      const options = buildAuditableEntityOptions(yearly, dupCorporate)
+      const surabaya = options.find(o => o.id === 'ops-sby')!
+
+      // option object as emitted by USelectMenu
+      expect(resolveAuditableEntitySelection(options, surabaya)).toMatchObject({ id: 'ops-sby', riskLevel: 'Low' })
+      // a copy of the object (different reference) still resolves by id
+      expect(resolveAuditableEntitySelection(options, { ...surabaya })).toBe(surabaya)
+      // a bare value
+      expect(resolveAuditableEntitySelection(options, 'ops-sby')).toBe(surabaya)
+      // a bare name never matches
+      expect(resolveAuditableEntitySelection(options, 'Operations')).toBeNull()
+      expect(resolveAuditableEntitySelection(options, null)).toBeNull()
+    })
+  })
+
+  describe('pre-selecting a saved PKAT row', () => {
+    const options = buildAuditableEntityOptions([], [
+      { id: 'jkt', name: 'Jakarta Branch', children: [{ id: 'ops-jkt', name: 'Operations', children: [] }] },
+      { id: 'sby', name: 'Surabaya Branch', children: [{ id: 'ops-sby', name: 'Operations', children: [] }] },
+      { id: 'it', name: 'IT', children: [] }
+    ])
+
+    it('selects by auditUniverseId even when the name is shared', () => {
+      const selected = findAuditableEntityForActivity(options, { auditUniverseId: 'ops-sby', riskName: 'Operations', riskLevel: 'Low' })
+      expect(selected?.id).toBe('ops-sby')
+      expect(selected?.label).toBe('Operations (Surabaya Branch)')
+    })
+
+    it('prefers the id over a different saved name (renamed entity)', () => {
+      expect(findAuditableEntityForActivity(options, { auditUniverseId: 'it', riskName: 'Information Technology' })?.id).toBe('it')
+    })
+
+    it('falls back to the name only when the row has no id, and only for an unambiguous name', () => {
+      expect(findAuditableEntityForActivity(options, { auditUniverseId: '', riskName: 'it' })?.id).toBe('it')
+      const ambiguous = findAuditableEntityForActivity(options, { auditUniverseId: '', riskName: 'Operations', riskLevel: 'High' })
+      expect(ambiguous?.id).toBeUndefined()
+      expect(ambiguous).toMatchObject({ name: 'Operations', riskLevel: 'High' })
+    })
+
+    it('keeps showing a saved entity that is no longer in the lists, and nothing for an empty row', () => {
+      expect(findAuditableEntityForActivity(options, { auditUniverseId: 'gone', riskName: 'Old Unit', riskLevel: 'Medium' }))
+        .toMatchObject({ id: 'gone', name: 'Old Unit', value: 'gone', riskLevel: 'Medium', auditPriority: false })
+      expect(findAuditableEntityForActivity(options, { auditUniverseId: '', riskName: '' })).toBeUndefined()
+    })
+  })
+
+  describe('unscored entities', () => {
+    it('are never presented as prioritized and show as Not Scored', () => {
+      const yearly = [
+        { corporate_audit_universe_id: 'corp-4', corporate_audit_universe: { name: 'IT' }, scored_at: null, risk_level: '', risk_index: 0, audit_priority: true }
+      ]
+      const [it0] = buildAuditableEntityOptions(yearly, [])
+      expect(it0).toMatchObject({ auditPriority: false, riskLevel: 'Not Scored', riskIndex: 0 })
+    })
+
+    it('treats rows from an older backend without scored_at as scored', () => {
+      const yearly = [
+        { corporate_audit_universe_id: 'corp-4', corporate_audit_universe: { name: 'IT' }, risk_level: 'High', risk_index: 81, audit_priority: true }
+      ]
+      expect(buildAuditableEntityOptions(yearly, [])[0]).toMatchObject({ auditPriority: true, riskLevel: 'High', riskIndex: 81 })
+    })
+  })
 })

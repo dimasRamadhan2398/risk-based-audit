@@ -54,7 +54,7 @@
             :class="locale === 'id' ? 'bg-secondary-500 text-white shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
             @click="setLocale('id')"
           >
-            <span>🇮🇩</span> ID
+            ID
           </button>
           <button
             type="button"
@@ -62,7 +62,7 @@
             :class="locale === 'en' ? 'bg-secondary-500 text-white shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
             @click="setLocale('en')"
           >
-            <span>🇬🇧</span> EN
+            EN
           </button>
         </div>
       </div>
@@ -151,7 +151,7 @@
           <!-- Attempts Warning -->
           <Transition name="fade">
             <div v-if="attempts > 0" class="flex items-start gap-3 rounded-xl bg-warning-500/10 border border-warning-500/20 px-4 py-3">
-              <span class="text-warning-500 text-lg leading-none">⚠️</span>
+              <UIcon name="i-lucide-triangle-alert" class="w-5 h-5 shrink-0 text-warning-500" />
               <p class="text-md text-warning-600 dark:text-warning-400">
                 {{ t('auth.mfaLogin.attemptsWarning', { attempts }) }}
               </p>

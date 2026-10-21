@@ -1242,10 +1242,10 @@
       "badgeValid": "VALID",
       "badgeInvalid": "JUMLAH TIDAK VALID",
       "saveWeights": "Simpan Bobot",
-      "standardFactorsTitle": "📂 Faktor Risiko Standar",
+      "standardFactorsTitle": "Faktor Risiko Standar",
       "searchPlaceholder": "Cari faktor standar...",
       "noMatchingFactors": "Tidak ada faktor risiko standar yang cocok dengan pencarian Anda.",
-      "selectedWeightsTitle": "⚙️ Bobot Terpilih",
+      "selectedWeightsTitle": "Bobot Terpilih",
       "activeFactorsCount": "{count} Faktor Aktif",
       "no": "No",
       "riskFactor": "Faktor Risiko",
@@ -1276,7 +1276,7 @@
       "viewGuidelines": "Lihat Panduan"
     },
     "scoring": {
-      "title": "🎯 Skor Risiko",
+      "title": "Skor Risiko",
       "subtitle": "Pilih tahun dan entitas untuk memasukkan penilaian faktor risiko.",
       "yearLabel": "Tahun:",
       "entityLabel": "Entitas:",
@@ -1324,7 +1324,7 @@
       }
     },
     "guidelines": {
-      "modalTitle": "📖 Panduan Skala Penilaian: {name}"
+      "modalTitle": "Panduan Skala Penilaian: {name}"
     },
     "messages": {
       "scoresSaved": "Skor risiko berhasil disimpan dan prioritas telah dihitung.",
@@ -1373,7 +1373,7 @@
       "emptyState": "Audit Universe Korporat masih kosong. Pilih dari pustaka standar atau tambahkan entitas kustom."
     },
     "establish": {
-      "title": "📅 2. Tetapkan Audit Universe {year}",
+      "title": "2. Tetapkan Audit Universe {year}",
       "subtitle": "Pilih Entitas Auditee dari Audit Universe Korporat yang aktif untuk diaudit pada tahun {year}.",
       "targetYear": "Tahun Target:",
       "establishBtn": "Tetapkan Universe Aktif",
@@ -2042,8 +2042,8 @@
     "statusActive": "4 Model Terlatih Aktif & Tersinkronisasi",
     "statusOffline": "Offline - Menampilkan Data Real Tersimpan",
     "statusDisconnected": "AI Backend Terputus",
-    "warningTitleCached": "⚠️ Peringatan: Service AI Backend Tidak Terhubung (Menampilkan Data Real Terakhir)",
-    "warningTitleDisconnected": "⚠️ Peringatan: Fitur AI Analytics Belum Berjalan / Tersambung ke Backend",
+    "warningTitleCached": "Peringatan: Service AI Backend Tidak Terhubung (Menampilkan Data Real Terakhir)",
+    "warningTitleDisconnected": "Peringatan: Fitur AI Analytics Belum Berjalan / Tersambung ke Backend",
     "warningDescCached": "Fitur AI Analytics saat ini menampilkan data real terakhir yang berhasil disinkronkan pada {time} sebelum koneksi terputus. Mohon pastikan Service Python AI (Port 8000) atau Go Analytics (Port 8084) telah dinyalakan di backend.",
     "warningDescDisconnected": "Fitur AI Analytics saat ini belum tersambung ke backend. Mohon pastikan Service Python AI (Port 8000) atau Go Analytics (Port 8084) telah dinyalakan di backend.",
     "loading": "Menghubungkan & Memuat Model AI...",
@@ -2156,7 +2156,7 @@
       "alertDesc": "Model Deep Learning (PyTorch LSTM) memprediksi tren performa KPI masa depan berdasarkan deret waktu historis untuk peringatan dini perencanaan audit.",
       "chartTitle": "Prediksi Performa KPI",
       "chartConfidenceBadge": "Area arsir = interval kepercayaan",
-      "atRiskTitle": "⚠️ Departemen Berisiko",
+      "atRiskTitle": "Departemen Berisiko",
       "projectedQ3": "% proyeksi Q3",
       "tableTitle": "Ringkasan Prediksi KPI",
       "colCode": "Kode",
@@ -2258,7 +2258,7 @@
       "mandaysFormula": "= {auditors} orang × {days} hari",
       "supervisor": "Supervisor",
       "supervisorPlaceholder": "Masukkan nama supervisor...",
-      "supervisorOverloadWarning": "⚠️ Peringatan: Supervisor ini sudah mengawasi lebih dari 6 aktivitas!",
+      "supervisorOverloadWarning": "Peringatan: Supervisor ini sudah mengawasi lebih dari 6 aktivitas!",
       "teamCapacity": "Estimasi Kapasitas Tim",
       "totalLoad": "Total beban: {percent}% dari kapasitas tahunan.",
       "sectionNotes": "4. Catatan",
@@ -3004,7 +3004,11 @@
       "description": "Narasi bebas untuk ringkasan eksekutif hasil audit triwulanan.",
       "label": "Teks Narasi Ringkasan",
       "reset": "Reset Ke Template Default",
-      "placeholder": "Isi teks ringkasan naratif..."
+      "placeholder": "Isi teks ringkasan naratif...",
+      "periodPrefix": "Periode {period},",
+      "quarterPeriod": "Kuartal {quarter} {year}",
+      "quarterPeriodNoYear": "Kuartal {quarter}",
+      "templateBody": "SPI telah menerbitkan .... LHA. Total temuan …. dengan .... rekomendasi. Tingkat penyelesaian on-time 95%. Terdapat 5 temuan risiko tinggi overdue/terlambat terkait .... yang perlu arahan Direksi. Temuan berulang tertinggi pada proses …………….."
     },
     "followUp": {
       "title": "Status Tindak Lanjut",
@@ -3976,7 +3980,12 @@
         "click": "Klik",
         "emptyInstruction": "untuk menarik temuan dari Kertas Kerja Audit Digital (KKA) dan Pengujian Pengendalian Lapangan penugasan ini.",
         "cancel": "Batal",
-        "signReport": "Tandatangani Laporan"
+        "signReport": "Tandatangani Laporan",
+        "titleCreate": "Buat Laporan Hasil Audit Baru",
+        "titleEdit": "Ubah Laporan Hasil Audit",
+        "statusLocked": "Status terkunci pada Draf. Otorisasi Final LHA merupakan wewenang Manager/CAE.",
+        "reportTitleInvalid": "Judul Laporan wajib diisi dan maksimal 100 karakter",
+        "companyNone": "— Tidak ada (Mengikuti Induk / Bawaan) —"
       },
       "detail": {
         "title": "Detail Laporan Hasil Audit (LHA)",
@@ -3991,7 +4000,9 @@
         "source": "Sumber:",
         "empty": "Belum ada rincian temuan audit pada laporan ini.",
         "downloadDocx": "Unduh DOCX",
-        "print": "Cetak Dokumen LHA"
+        "print": "Cetak Dokumen LHA",
+        "executiveSummaryFallback": "Berdasarkan hasil penugasan audit yang telah diselesaikan sesuai dengan Surat Tugas, ruang lingkup evaluasi pengendalian internal telah dirangkum dalam temuan dan rekomendasi tindak lanjut di bawah ini.",
+        "noAction": "Tidak ada tindakan yang dicatat."
       },
       "print": {
         "title": "Dokumen Laporan Hasil Audit (LHA)",

@@ -6,7 +6,7 @@
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 1. [What is a Demo Environment?](#1-what-is-a-demo-environment)
 2. [Demo Architecture Overview](#2-demo-architecture-overview)
@@ -538,13 +538,13 @@ backend/scripts/onboard-tenant.sh client1 "Demo Client 1" 3010 8090 --with-demo-
 ```
 
 **What the onboard script does:**
-1. ✅ Generates Kong gateway config for the tenant
-2. ✅ Allocates ports (3010 for frontend, 8090 for API gateway)
-3. ✅ Generates `.env` file with unique JWT secrets
-4. ✅ Creates PostgreSQL databases (`rb_audit_*_client1`)
-5. ✅ Runs database migrations
-6. ✅ Seeds demo data (sample audit charters, findings, etc.)
-7. ✅ Starts all containers (Kong, frontend, auth-service, audit-service, etc.)
+1. ✓ Generates Kong gateway config for the tenant
+2. ✓ Allocates ports (3010 for frontend, 8090 for API gateway)
+3. ✓ Generates `.env` file with unique JWT secrets
+4. ✓ Creates PostgreSQL databases (`rb_audit_*_client1`)
+5. ✓ Runs database migrations
+6. ✓ Seeds demo data (sample audit charters, findings, etc.)
+7. ✓ Starts all containers (Kong, frontend, auth-service, audit-service, etc.)
 
 ### 6.3 Verify Tenant Deployment
 

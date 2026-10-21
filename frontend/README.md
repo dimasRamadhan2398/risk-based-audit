@@ -4,14 +4,14 @@ A modern web application built with Nuxt.js for managing enterprise risk and int
 
 ## Features
 
-- 🔐 **Authentication System** - Complete login, register, and password reset flow
-- 🌍 **Multi-language Support** - English and Indonesian translations
-- 🎨 **Modern UI** - Built with Tailwind CSS and Nuxt UI
-- 📊 **Risk Management** - Risk profiles, priority lists, and mitigation tracking
-- 📝 **Audit Planning** - Strategic plans, annual plans, and audit activities
-- 📈 **Dashboard & Analytics** - Real-time monitoring and reporting
-- 🧪 **Testing** - Unit, integration, and E2E tests with Vitest and Playwright
-- 🐳 **Docker Support** - Development and production Docker configurations
+- **Authentication System** - Complete login, register, and password reset flow
+- **Multi-language Support** - English and Indonesian translations
+- **Modern UI** - Built with Tailwind CSS and Nuxt UI
+- **Risk Management** - Risk profiles, priority lists, and mitigation tracking
+- **Audit Planning** - Strategic plans, annual plans, and audit activities
+- **Dashboard & Analytics** - Real-time monitoring and reporting
+- **Testing** - Unit, integration, and E2E tests with Vitest and Playwright
+- **Docker Support** - Development and production Docker configurations
 
 ## Tech Stack
 

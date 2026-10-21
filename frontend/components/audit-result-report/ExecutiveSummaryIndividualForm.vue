@@ -525,6 +525,12 @@ import { useRbac } from '~/composables/useRbac'
 import { UserRole } from '~/types/auth'
 import { useI18n } from '~/composables/useI18n'
 import { useAppToast } from '~/composables/useAppToast'
+import {
+  auditPeriodFromAssignmentLetter,
+  formatAuditPeriod,
+  prefixNarrative,
+  refreshNarrativePeriod
+} from '~/utils/executiveSummaryNarrative'
 const store = useExecutiveSummaryStore()
 const authStore = useAuthStore()
 const { canReviewExecutiveSummary } = useRbac()
@@ -577,7 +583,7 @@ const formatPercent = (val: number) => {
 }
 
 const resetNarrativeToDefault = () => {
-  store.form.narrative = store.defaultNarrativeTemplate(store.form.periodeBulan, store.form.tahun)
+  store.form.narrative = store.defaultNarrativeTemplate(narrativePeriod.value)
 }
 
 // File Upload Handler (with corrupted file simulation & validation)
@@ -698,6 +704,20 @@ const assignmentLetterStore = useAssignmentLetterStore()
 if (!auditReportStore.loading && auditReportStore.reportList.length === 0) {
   auditReportStore.fetchReports()
 }
+// The audit period of the narrative comes from the assignment letter of the selected LHA
+if (!assignmentLetterStore.loading && assignmentLetterStore.assignmentLetterList.length === 0) {
+  assignmentLetterStore.fetchAssignmentLetters()
+}
+
+// Audit period of an LHA from its assignment letter dates: "Januari 2026", "Januari – Maret 2026"; '' when unknown
+const auditPeriodForReport = (report?: { assignmentLetterId?: string } | null): string => {
+  const letterRef = report?.assignmentLetterId
+  if (!letterRef) return ''
+  const letter = assignmentLetterStore.assignmentLetterList.find(
+    (st: any) => st.letterNumber === letterRef || st.id === letterRef
+  )
+  return formatAuditPeriod(t, auditPeriodFromAssignmentLetter(letter))
+}
 
 const assignmentLetterDropdownOptions = computed(() => {
   const lettersFromStore = assignmentLetterStore.assignmentLetterList
@@ -792,6 +812,9 @@ const linkedLhaReport = computed(() => {
   return null
 })
 
+// Period at the start of the narrative, from the linked LHA (assignment letters may load after the LHA is selected)
+const narrativePeriod = computed(() => auditPeriodForReport(linkedLhaReport.value))
+
 const lhaDropdownOptions: Ref<Array<{ label: string; value: string; report: any }>> = computed(() => {
   return auditReportStore.reportList
     .filter(r => {
@@ -815,6 +838,13 @@ const lhaDropdownOptions: Ref<Array<{ label: string; value: string; report: any 
 const selectedLhaId = ref<{ label: string; value: string; report: any } | undefined>(
   lhaDropdownOptions.value.find(o => o.value === store.form.nomorDokumen)
 )
+
+// A new audit period updates the generated period prefix; free text written by the user is kept.
+// Registered after selectedLhaId: the watcher reads it (via linkedLhaReport) as soon as it is created.
+watch(narrativePeriod, (period) => {
+  if (store.isViewing || store.isEditing || isLocked.value) return
+  store.form.narrative = refreshNarrativePeriod(t, store.form.narrative, period)
+})
 
 const onAssignmentLetterSelect = (val: any) => {
   if (!val) return
@@ -849,7 +879,8 @@ const syncFindingsFromLha = (lhaItem?: any) => {
     if (found) selectedAssignmentLetter.value = found
   }
   if (item.executiveSummary) {
-    store.form.narrative = item.executiveSummary
+    // The narrative starts with the audit period: "Periode Januari 2026, ..."
+    store.form.narrative = prefixNarrative(t, item.executiveSummary, auditPeriodForReport(item))
   }
 
   const findings = item.findings || []

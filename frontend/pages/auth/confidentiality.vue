@@ -83,7 +83,7 @@
             :class="locale === 'id' ? 'bg-primary-500 text-white shadow-xs' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
             @click="locale = 'id'"
           >
-            <span>🇮🇩</span> ID
+            ID
           </button>
           <button
             type="button"
@@ -91,7 +91,7 @@
             :class="locale === 'en' ? 'bg-primary-500 text-white shadow-xs' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
             @click="locale = 'en'"
           >
-            <span>🇬🇧</span> EN
+            EN
           </button>
         </div>
       </div>

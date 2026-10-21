@@ -1,6 +1,6 @@
 # Employee Management Backend Setup Summary
 
-## ✅ Completed Tasks
+## ✓ Completed Tasks
 
 ### 1. Frontend Fixes
 - **Fixed missing imports** in API composables:
@@ -35,7 +35,7 @@
 ✓ Routes:              routes/routes.go (All endpoints registered)
 ```
 
-## 🔧 Next Steps: Rebuild & Deploy Backend
+## Next Steps: Rebuild & Deploy Backend
 
 ### Option 1: Using Docker (Recommended)
 ```bash
@@ -68,7 +68,7 @@ cd /Users/a/Projects/risk-based-audit/backend
 bash deploy-backend.sh
 ```
 
-## 📋 Files Modified
+## Files Modified
 
 ### Frontend
 - `frontend/composables/useEmployeeApi.ts` - Added import statement
@@ -78,7 +78,7 @@ bash deploy-backend.sh
 ### Backend
 - `backend/master-service/routes/routes.go` - Added employee routes (lines 58-67)
 
-## ✨ Expected Endpoints After Rebuild
+## Expected Endpoints After Rebuild
 
 Once the backend is rebuilt and restarted, these endpoints will be available:
 
@@ -90,7 +90,7 @@ PUT    /api/v1/employees/:id          - Update employee
 DELETE /api/v1/employees/:id          - Delete employee
 ```
 
-## 🧪 Testing
+## Testing
 
 After rebuilding and restarting the backend:
 
@@ -102,7 +102,7 @@ curl -X GET http://localhost:8080/api/v1/employees
 # Navigate to: http://localhost:3000/master/employee
 ```
 
-## 📊 Architecture Diagram
+## Architecture Diagram
 
 ```
 Frontend (Vue 3 + Nuxt)
@@ -120,7 +120,7 @@ EmployeeRepository (✓ Implemented)
 Database (Employee table)
 ```
 
-## 🚀 Deployment Checklist
+## Deployment Checklist
 
 - [ ] Rebuild backend binary or Docker image
 - [ ] Restart backend service (master-service on port 8002)
@@ -128,14 +128,14 @@ Database (Employee table)
 - [ ] Verify frontend loads at `/master/employee`
 - [ ] Test creating, reading, updating, deleting employees
 
-## ⚠️ Important Notes
+## Important Notes
 
 1. **Database**: Make sure the `employees` table exists in the database
 2. **Port 8002**: Master service runs on port 8002 by default
 3. **Port 8080**: Kong gateway/API proxy on port 8080
 4. **Frontend proxy**: Frontend proxies requests to `/api/v1/*` → backend
 
-## 📞 Troubleshooting
+## Troubleshooting
 
 If you see "no route matched" error:
 1. Verify the backend was rebuilt

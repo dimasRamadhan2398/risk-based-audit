@@ -3,7 +3,7 @@
 
 ---
 
-## 🎯 Prinsip Utama
+## Prinsip Utama
 Tampilan aplikasi disesuaikan dengan tanggung jawab operasional masing-masing role agar pengguna tidak bingung (*information overload*) dan data sensitif tetap terjaga:
 - **Auditor**: Fokus pada **eksekusi penugasan lapangan** dan penyusunan kertas kerja.
 - **Auditee**: Fokus pada **tindak lanjut rekomendasi (CAPA)** dan pemenuhan dokumen audit.
@@ -13,7 +13,7 @@ Tampilan aplikasi disesuaikan dengan tanggung jawab operasional masing-masing ro
 
 ---
 
-## 1. 🏢 Tampilan Dashboard: Auditee (Unit Kerja yang Diaudit)
+## 1. Tampilan Dashboard: Auditee (Unit Kerja yang Diaudit)
 
 > **Landasan Matriks `permission.vue`:**
 > - Row 8-1 (`Audit Fieldwork`): `RESPOND`
@@ -33,13 +33,13 @@ Tampilan aplikasi disesuaikan dengan tanggung jawab operasional masing-masing ro
 4. **Banner Survei Kepuasan (*Satisfaction Survey*)**:
    - Otomatis muncul jika ada penugasan audit yang baru saja selesai (*Result Report* terbit).
 5. **Elemen yang Disembunyikan (Hidden)**:
-   - ❌ Seluruh Kertas Kerja Audit internal (KKA F-01 s/d F-05).
-   - ❌ Statistik risiko makro korporat (hanya tampil profil risiko unitnya sendiri).
-   - ❌ Menu Rencana Strategis, Audit Universe, dan KPI internal audit.
+   - ✗ Seluruh Kertas Kerja Audit internal (KKA F-01 s/d F-05).
+   - ✗ Statistik risiko makro korporat (hanya tampil profil risiko unitnya sendiri).
+   - ✗ Menu Rencana Strategis, Audit Universe, dan KPI internal audit.
 
 ---
 
-## 2. 🔍 Tampilan Dashboard: Auditor (Pelaksana Audit)
+## 2. Tampilan Dashboard: Auditor (Pelaksana Audit)
 
 > **Landasan Matriks `permission.vue`:**
 > - Row 8-1 (`Audit Fieldwork`): `FULL`
@@ -57,12 +57,12 @@ Tampilan aplikasi disesuaikan dengan tanggung jawab operasional masing-masing ro
 3. **Widget Draft Temuan & LHA**:
    - Ringkasan temuan sementara yang sedang disusun sebelum finalisasi laporan.
 4. **Elemen yang Disederhanakan / Dihilangkan**:
-   - ❌ Widget agregat risiko makro korporasi dihilangkan/disederhanakan agar layar kerja fokus ke penugasan audit aktif.
-   - ❌ Tombol publish/otorisasi akhir laporan (karena wewenang Manager/CAE).
+   - ✗ Widget agregat risiko makro korporasi dihilangkan/disederhanakan agar layar kerja fokus ke penugasan audit aktif.
+   - ✗ Tombol publish/otorisasi akhir laporan (karena wewenang Manager/CAE).
 
 ---
 
-## 3. 👔 Tampilan Dashboard: Manager / Team Lead / CAE
+## 3. Tampilan Dashboard: Manager / Team Lead / CAE
 
 > **Landasan Matriks `permission.vue`:**
 > - Row 8-2 (`Working Papers`): `REVIEW`
@@ -82,7 +82,7 @@ Tampilan aplikasi disesuaikan dengan tanggung jawab operasional masing-masing ro
 
 ---
 
-## 4. 👁️ Tampilan Role Lainnya
+## 4. Tampilan Role Lainnya
 
 - **Viewer (Direksi / Komite Audit)**:
   - Tampilan dashboard eksekutif berbasis grafik (ringkasan status audit, rasio temuan tertutup/terbuka, dan laporan LHA final). Sifatnya *Read-Only* tanpa tombol edit/import/upload.
@@ -91,14 +91,14 @@ Tampilan aplikasi disesuaikan dengan tanggung jawab operasional masing-masing ro
 
 ---
 
-## 📌 Ringkasan Hak Akses Navigasi & Menu Sidebar
+## Ringkasan Hak Akses Navigasi & Menu Sidebar
 
 | Menu / Fitur | Auditee | Auditor | Manager | Viewer | Admin |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | **Dashboard** | Khusus CAPA & PBC | Khusus Audit Aktif | Khusus Approval | Eksekutif Read-Only | Full |
 | **Audit Fieldwork (PBC)** | Respond (Upload) | Full | Full | Read | Full |
-| **Working Papers (KKA)** | ❌ Hidden | Create & Edit | Review | Read | Full |
+| **Working Papers (KKA)** | ✗ Hidden | Create & Edit | Review | Read | Full |
 | **LHA / Hasil Audit** | Read | Draft | Full / Approve | Read | Full |
 | **Survei Kepuasan** | Fill Survey | Read | Read | Read | Full |
 | **Action Taken Report (ATR)** | Update CAPA | Read | Review | Read | Full |
-| **Pengaturan & User** | ❌ Hidden | ❌ Hidden | ❌ Hidden | ❌ Hidden | Full |
+| **Pengaturan & User** | ✗ Hidden | ✗ Hidden | ✗ Hidden | ✗ Hidden | Full |

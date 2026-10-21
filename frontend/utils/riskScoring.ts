@@ -72,7 +72,7 @@ export const buildScoringRows = <F extends CorporateFactorLike>(
     }
   })
 
-export const roundTo = (value: number, decimals: number): number => {
+const roundDecimals = (value: number, decimals: number): number => {
   const factor = 10 ** decimals
   return Math.round((Number(value) || 0) * factor) / factor
 }
@@ -80,7 +80,7 @@ export const roundTo = (value: number, decimals: number): number => {
 export interface RiskIndexPreview {
   /** Σ(weight × score) over scored factors */
   weightedSum: number
-  /** weightedSum / 5 × 100, rounded to 1 decimal */
+  /** weightedSum / (Σ weight of scored factors) / 5 × 100, rounded to 1 decimal */
   riskIndex: number
   riskLevel: PriorityRiskLevel
   auditPriority: boolean
@@ -89,19 +89,23 @@ export interface RiskIndexPreview {
 }
 
 /**
- * Same formula as the backend: Σ(weight × score) / 5 × 100 over scored factors only,
- * rounded to 1 decimal before choosing the level.
+ * Same formula as the backend (risk-service models/audit_universe_scoring.go): over scored factors only,
+ * Σ(weight × score) / Σ(weight) / 5 × 100, rounded to 1 decimal before choosing the level. An unscored
+ * factor is left out rather than counted as 0, so with every factor scored this is Σ(weight × score) / 5 × 100.
  */
 export const computeRiskIndexPreview = (rows: Pick<ScoringRow, 'weight' | 'score'>[] | null | undefined): RiskIndexPreview => {
   const list = rows || []
   let weightedSum = 0
+  let scoredWeight = 0
   let scoredCount = 0
   for (const row of list) {
     if (row.score === null || row.score === undefined) continue
-    weightedSum += (Number(row.weight) || 0) * Number(row.score)
+    const weight = Number(row.weight) || 0
+    weightedSum += weight * Number(row.score)
+    scoredWeight += weight
     scoredCount++
   }
-  const riskIndex = roundTo((weightedSum / 5) * 100, 1)
+  const riskIndex = scoredWeight > 0 ? roundDecimals((weightedSum / scoredWeight / 5) * 100, 1) : 0
   const riskLevel = getRiskLevelForIndex(riskIndex)
   return {
     weightedSum,
@@ -121,14 +125,14 @@ export const WEIGHT_SUM_MAX = 100.1
 export const WEIGHT_DECIMALS = 2
 
 /** Normalises a weight percentage to at most 2 decimals. */
-export const normalizeWeightPercent = (value: unknown): number => roundTo(Number(value) || 0, WEIGHT_DECIMALS)
+export const normalizeWeightPercent = (value: unknown): number => roundDecimals(Number(value) || 0, WEIGHT_DECIMALS)
 
 /** Stored fraction (0.1234) to a percentage for the form (12.34). */
-export const weightFractionToPercent = (fraction: number): number => roundTo((Number(fraction) || 0) * 100, WEIGHT_DECIMALS)
+export const weightFractionToPercent = (fraction: number): number => roundDecimals((Number(fraction) || 0) * 100, WEIGHT_DECIMALS)
 
 /** Sum of weight percentages, each normalised to 2 decimals, without floating point noise. */
 export const sumWeightPercents = (weights: unknown[]): number =>
-  roundTo(weights.reduce<number>((sum, w) => sum + normalizeWeightPercent(w), 0), WEIGHT_DECIMALS)
+  roundDecimals(weights.reduce<number>((sum, w) => sum + normalizeWeightPercent(w), 0), WEIGHT_DECIMALS)
 
 export const isValidWeightTotal = (total: number): boolean =>
   Number.isFinite(total) && total >= WEIGHT_SUM_MIN && total <= WEIGHT_SUM_MAX

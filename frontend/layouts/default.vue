@@ -825,7 +825,7 @@ const userDropdownItems = computed(() => [
                 :class="locale === 'id' ? 'bg-primary-500 text-white shadow-xs' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
                 @click="setLocale('id')"
               >
-                <span>🇮🇩</span> <span class="hidden xs:inline">ID</span>
+                <span>ID</span>
               </button>
               <button
                 type="button"
@@ -833,7 +833,7 @@ const userDropdownItems = computed(() => [
                 :class="locale === 'en' ? 'bg-primary-500 text-white shadow-xs' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
                 @click="setLocale('en')"
               >
-                <span>🇬🇧</span> <span class="hidden xs:inline">EN</span>
+                <span>EN</span>
               </button>
             </div>
             <UColorModeButton />

@@ -196,6 +196,10 @@ services:
     container_name: rb_audit_risk_service
     environment:
       - JWT_SECRET=${JWT_SECRET:?JWT_SECRET missing - every service in the stack must share one signing secret; set it in the deploy env}
+      # risk-service seeds demo risks / audit universe at boot unless this is
+      # false (unset means true). Prod data must never be seeded over, with or
+      # without the external no-seed override.
+      - SEED_ON_BOOT=false
     depends_on:
       postgres:
         condition: service_started

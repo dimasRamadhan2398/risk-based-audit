@@ -69,4 +69,4 @@ print(df_aging)
 
 # %%
 df_strata.to_sql("caatt_stratification_results", dl, schema="gold", if_exists="append", index=False)
-print("✅ Stratification results saved")
+print("✓ Stratification results saved")

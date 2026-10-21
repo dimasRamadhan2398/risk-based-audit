@@ -465,6 +465,12 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		// List rows leave out the approval signature image (ListDecorator)
 		executiveSummaries.GET("", crud.ListWithItems(h.db, "ExecutiveSummary", func() interface{} { return &[]models.ExecutiveSummary{} }, ctrlExecutiveSummary.ListDecorator))
+		// Read-only aggregates for the compilation form. Lives under /executive-summaries
+		// because that prefix is already routed by every Kong config (dev, prod, tenant
+		// template); /executive-summary/* is not, and Kong answers it with 404
+		// "no Route matched with those values". Registered before /:id for readability;
+		// gin matches the static segment first either way.
+		executiveSummaries.GET("/compilation-stats", ctrlExecutiveSummary.CompilationStatsHandler(h.db))
 		executiveSummaries.GET("/:id", crud.GetByID(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
 		// A summary cannot be created as Approved, see GuardCreateHook
 		executiveSummaries.POST("", crud.CreateWithHook(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }, ctrlExecutiveSummary.GuardCreateHook))
@@ -477,7 +483,9 @@ func (h *RouteHandler) RegisterRoutes() {
 	}
 
 	// Read-only aggregates for the compilation form ("Statistik Kompilasi" and
-	// "Status Tindak Lanjut"), counted from the source tables for one year
+	// "Status Tindak Lanjut"), counted from the source tables for one year.
+	// Legacy path: not routed by Kong, so only reachable when calling audit-service
+	// directly. The frontend uses /executive-summaries/compilation-stats (above).
 	executiveSummaryStats := apiV1.Group("/executive-summary")
 	{
 		executiveSummaryStats.GET("/compilation-stats", ctrlExecutiveSummary.CompilationStatsHandler(h.db))
@@ -743,7 +751,7 @@ func (h *RouteHandler) downloadAuditResultReportDocx(c *gin.Context) {
 	h.db.Find(&importedWPs)
 
 	// Resolve Company Name dynamically from master-service / st / report
-	resolvedComp := masterclient.ResolveCompanyName(c.Request.Context(), report.CompanyID, report.CompanyName, st.CompanyID, st.CompanyName, st.WorkingUnit, report.Department)
+	resolvedComp := masterclient.ResolveCompanyName(c.Request.Context(), c.GetHeader("Authorization"), report.CompanyID, report.CompanyName, st.CompanyID, st.CompanyName, st.WorkingUnit, report.Department)
 	if report.CompanyName == "" {
 		report.CompanyName = resolvedComp
 	}

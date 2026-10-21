@@ -63,7 +63,7 @@ export const isPrioritizedRiskLevel = (level?: string | null): boolean => {
 /** "80 - 100%" style label for the reference table. */
 export const formatRiskLevelRange = (threshold: RiskLevelThreshold): string => `${threshold.min} - ${threshold.max}%`
 
-const RISK_LEVEL_BADGE_BASE_CLASS ='inline-flex items-center justify-center font-bold px-3 py-1 rounded text-xs w-36 shadow-sm'
+const RISK_LEVEL_BADGE_BASE_CLASS = 'inline-flex items-center justify-center font-bold px-3 py-1 rounded text-xs w-36 shadow-sm'
 
 export const isPriorityRiskLevel = (level?: string | null): level is PriorityRiskLevel =>
   !!level && Object.prototype.hasOwnProperty.call(RISK_LEVEL_BG_CLASSES, level)

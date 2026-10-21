@@ -779,6 +779,7 @@ import {
   type CompilationStats,
   type RiskBucket
 } from '~/utils/executiveSummaryCompilation'
+import { formatQuarterPeriod, refreshNarrativePeriod } from '~/utils/executiveSummaryNarrative'
 const store = useExecutiveSummaryStore()
 const authStore = useAuthStore()
 const auditReportStore = useAuditResultReportStore()
@@ -977,9 +978,18 @@ const formatPercent = (val: number) => {
   return val ? val.toFixed(1) : '0.0'
 }
 
+// The narrative starts with the selected quarter and year: "Periode Kuartal 4 2026, SPI telah menerbitkan ..."
+const narrativePeriod = computed(() => formatQuarterPeriod(t, Number(store.form.quarter) || 1, Number(store.form.tahun) || null))
+
 const resetNarrativeToDefault = () => {
-  store.form.narrative = store.defaultNarrativeTemplate(reportingQuarter.value, store.form.tahun)
+  store.form.narrative = store.defaultNarrativeTemplate(narrativePeriod.value)
 }
+
+// A new quarter or year updates the generated period prefix; free text written by the user is kept.
+watch(narrativePeriod, (period) => {
+  if (store.isViewing || store.isEditing || isLocked.value) return
+  store.form.narrative = refreshNarrativePeriod(t, store.form.narrative, period)
+})
 
 // File Upload Handler (with corrupted file simulation & validation)
 const handleFileUpload = (e: Event) => {
@@ -1054,20 +1064,22 @@ const syncFromIndividualLha = async () => {
   // 1. Statistics (read-only) from the backend
   const key = `${targetYear}-${targetQuarter}`
   const stats = await fetchCompilationStats({ year: targetYear, quarter: targetQuarter })
-  if (!stats) {
-    // A failed sync (not a superseded request) drops the statistics, so saving stays blocked until a sync succeeds
-    if (sourcesError.value) {
-      lastStats.value = null
-      syncedStatsKey.value = ''
-    }
+  if (stats) {
+    lastStats.value = stats
+    syncedStatsKey.value = key
+    Object.assign(store.form, riskBreakdownToFields(stats.riskBreakdown))
+    store.form.jumlahLaporan = stats.jumlahLaporan
+    store.form.jumlahRekomendasi = stats.jumlahRekomendasi
+    store.form.followUpTable = followUpRowsFromStats(stats.followUp, store.form.followUpTable)
+  } else if (sourcesError.value) {
+    // A failed sync drops the statistics, so saving stays blocked until a sync succeeds.
+    // The Top 5 list and matrix below come from the LHAs already loaded, so they are still filled.
+    lastStats.value = null
+    syncedStatsKey.value = ''
+  } else {
+    // Superseded by a newer sync, which fills the rest of the form
     return
   }
-  lastStats.value = stats
-  syncedStatsKey.value = key
-  Object.assign(store.form, riskBreakdownToFields(stats.riskBreakdown))
-  store.form.jumlahLaporan = stats.jumlahLaporan
-  store.form.jumlahRekomendasi = stats.jumlahRekomendasi
-  store.form.followUpTable = followUpRowsFromStats(stats.followUp, store.form.followUpTable)
 
   // 2. LHA findings for the Top 5 list and the compilation matrix (not statistics)
   const individualReports = quarterlyLhas.value

@@ -1,5 +1,11 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { useExecutiveSummarySources } from '~/composables/useExecutiveSummarySources'
+import {
+  COMPILATION_STATS_PATH,
+  describeStatsError,
+  useExecutiveSummarySources
+} from '~/composables/useExecutiveSummarySources'
 import {
   followUpRowsFromStats,
   formatSyncedAt,
@@ -7,7 +13,7 @@ import {
   riskBreakdownTotal
 } from '~/utils/executiveSummaryCompilation'
 
-// Body of GET /api/v1/executive-summary/compilation-stats (contract of the audit-service handler)
+// Body of GET /api/v1/executive-summaries/compilation-stats (contract of the audit-service handler)
 const statsBody = (overrides: Record<string, unknown> = {}, dataOverrides: Record<string, unknown> = {}) => ({
   success: true,
   message: 'Compilation statistics retrieved successfully',
@@ -174,7 +180,7 @@ describe('useExecutiveSummarySources.fetchCompilationStats', () => {
     const stats = await pending
 
     expect(calls).toHaveLength(1)
-    expect(calls[0]!.url.endsWith('/executive-summary/compilation-stats')).toBe(true)
+    expect(calls[0]!.url.endsWith('/executive-summaries/compilation-stats')).toBe(true)
     expect(calls[0]!.params).toEqual({ year: 2026, quarter: 1 })
     expect(stats?.jumlahRekomendasi).toBe(7)
     expect(loading.value).toBe(false)
@@ -192,6 +198,23 @@ describe('useExecutiveSummarySources.fetchCompilationStats', () => {
 
     expect(stats).toBeNull()
     expect(error.value).toBe('Network down')
+    expect(loading.value).toBe(false)
+  })
+
+  it('shows the gateway reason and HTTP status when Kong has no route (the reported failure)', async () => {
+    // Shape of the ofetch FetchError for Kong's answer to an unrouted path
+    vi.stubGlobal('$fetch', vi.fn(async () => {
+      throw Object.assign(new Error('[GET] "/api/v1/executive-summary/compilation-stats": 404 Not Found'), {
+        statusCode: 404,
+        statusMessage: 'Not Found',
+        data: { message: 'no Route matched with those values' }
+      })
+    }))
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const { fetchCompilationStats, loading, error } = useExecutiveSummarySources()
+    expect(await fetchCompilationStats({ year: 2026, quarter: 1 })).toBeNull()
+    expect(error.value).toBe('no Route matched with those values (HTTP 404)')
     expect(loading.value).toBe(false)
   })
 
@@ -222,5 +245,46 @@ describe('useExecutiveSummarySources.fetchCompilationStats', () => {
 
     expect(second?.quarter).toBe(2)
     expect(await first).toBeNull()
+  })
+})
+
+describe('describeStatsError', () => {
+  it('appends the HTTP status unless the message already carries it, and keeps non-HTTP errors as they are', () => {
+    expect(describeStatsError({ statusCode: 403, data: { success: false, error: { code: 'FORBIDDEN', message: 'Access denied' } } }))
+      .toBe('Access denied (HTTP 403)')
+    expect(describeStatsError({ statusCode: 500, statusMessage: 'Internal Server Error' })).toBe('500 Internal Server Error')
+    expect(describeStatsError(new Error('Network down'))).toBe('Network down')
+    expect(describeStatsError(null)).toBe('Failed to load compilation statistics.')
+  })
+})
+
+// The browser reaches the audit-service only through Kong, which forwards a request when its path
+// starts with one of the prefixes listed for the audit-service. The old path
+// /api/v1/executive-summary/compilation-stats matched none of them, so Kong answered 404
+// "no Route matched with those values" and the form showed "Failed to load source data".
+describe('compilation-stats path is routed by every Kong config', () => {
+  const repoRoot = resolve(__dirname, '../../..')
+  const kongConfigs = [
+    'backend/kong-gateway/kong/dev/kong-dev.yml',
+    'backend/kong-gateway/kong/prod/kong.yml',
+    'backend/tenants/bai/kong/kong.yml',
+    'scripts/templates/kong-tenant.yml.tpl'
+  ]
+
+  /** Service name (top-level "  - name:") whose route path prefixes the request path, or null. */
+  const kongServiceFor = (config: string, requestPath: string): string | null => {
+    let service: string | null = null
+    for (const line of config.split('\n')) {
+      const serviceMatch = /^ {2}- name: (\S+)/.exec(line)
+      if (serviceMatch) service = serviceMatch[1]!
+      const pathMatch = /^\s+- (\/\S+)\s*$/.exec(line)
+      if (pathMatch && requestPath.startsWith(pathMatch[1]!)) return service
+    }
+    return null
+  }
+
+  it.each(kongConfigs)('%s sends the stats request to audit-service', (file) => {
+    const config = readFileSync(resolve(repoRoot, file), 'utf8')
+    expect(kongServiceFor(config, `/api/v1${COMPILATION_STATS_PATH}`)).toBe('audit-service')
   })
 })

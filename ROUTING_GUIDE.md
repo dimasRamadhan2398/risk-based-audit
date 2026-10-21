@@ -15,11 +15,11 @@ Nuxt uses **file-based routing**, meaning your URL structure is determined by yo
 │   └── index.vue                          → /dashboard
 ├── audit-result-report/
 │   ├── index.vue                          → /audit-result-report
-│   ├── executive-summary.vue              → /audit-result-report/executive-summary ❌
+│   ├── executive-summary.vue              → /audit-result-report/executive-summary ✗
 │   ├── executive-summary-upload.vue       → /audit-result-report/executive-summary-upload
 │   └── satisfaction-survey.vue            → /audit-result-report/satisfaction-survey
 ├── executive-summary/                     
-│   ├── index.vue                          → /executive-summary ✅
+│   ├── index.vue                          → /executive-summary ✓
 │   └── upload.vue                         → /executive-summary/upload
 └── master/
     └── employee/
@@ -73,9 +73,9 @@ export default defineNuxtConfig({
 ```
 
 **Pros:** 
-- ✅ Old links still work (redirects to new URL)
-- ✅ SEO friendly (301 redirects)
-- ✅ Backward compatible
+- ✓ Old links still work (redirects to new URL)
+- ✓ SEO friendly (301 redirects)
+- ✓ Backward compatible
 
 ---
 
@@ -163,8 +163,8 @@ console.log(useRouter().getRoutes())
 
 ## Best Practices
 
-1. **Use kebab-case for files:** `dashboard-settings.vue` ✅ not `dashboardSettings.vue`
-2. **Use index.vue for folder routes:** `folder/index.vue` → `/folder` ✅
+1. **Use kebab-case for files:** `dashboard-settings.vue` ✓ not `dashboardSettings.vue`
+2. **Use index.vue for folder routes:** `folder/index.vue` → `/folder` ✓
 3. **Keep related pages together:** Group by feature, not by page type
 4. **Use route prefixes consistently:** `/admin/*`, `/settings/*`, `/master/*`
 5. **Document route changes:** Add comments in nuxt.config.ts for redirects
@@ -214,9 +214,9 @@ grep -r "audit-result-report/executive-summary" frontend/
 For your **Executive Summary** case:
 
 **Recommended:** Use Option A (Keep both + redirect)
-- ✅ New URL works: `/executive-summary`
-- ✅ Old URL redirects: `/audit-result-report/executive-summary`
-- ✅ No broken links for existing users
-- ✅ Better URL hierarchy (flattens navigation)
+- ✓ New URL works: `/executive-summary`
+- ✓ Old URL redirects: `/audit-result-report/executive-summary`
+- ✓ No broken links for existing users
+- ✓ Better URL hierarchy (flattens navigation)
 
 This approach is safer and provides a smooth transition.

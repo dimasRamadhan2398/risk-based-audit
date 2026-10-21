@@ -537,7 +537,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      toast.showError('⚠️ Mohon lengkapi data pada Activity Detail, Timeline, dan Auditor.')
+      toast.showError('Mohon lengkapi data pada Activity Detail, Timeline, dan Auditor.')
       return
     }
 
@@ -647,9 +647,9 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     const totalAfterAdd = currentUsed + additionalMandays
     const utilization = (totalAfterAdd / TEAM_CAPACITY_PER_YEAR) * 100
 
-    if (utilization > 95) return { color: 'red', percent: utilization, msg: '🔴 OVERLOAD (>95%)' }
-    if (utilization > 80) return { color: 'yellow', percent: utilization, msg: '🟡 High Load (80-95%)' }
-    return { color: 'green', percent: utilization, msg: '🟢 Optimal (60-80%)' }
+    if (utilization > 95) return { color: 'red', percent: utilization, msg: 'OVERLOAD (>95%)' }
+    if (utilization > 80) return { color: 'yellow', percent: utilization, msg: 'High Load (80-95%)' }
+    return { color: 'green', percent: utilization, msg: 'Optimal (60-80%)' }
   }
 
   const checkScheduleGaps = (months: number[]) => {
@@ -657,7 +657,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     const sorted = [...months].sort((a, b) => a - b)
     for (let i = 0; i < sorted.length - 1; i++) {
       if (sorted[i + 1]! - sorted[i]! > 1) {
-        return '⚠️ Warning: Ada gap bulan kosong. Pastikan continuous coverage jika diperlukan.'
+        return 'Warning: Ada gap bulan kosong. Pastikan continuous coverage jika diperlukan.'
       }
     }
     return null

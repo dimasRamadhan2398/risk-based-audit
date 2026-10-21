@@ -95,4 +95,4 @@ for _, row in df.iterrows():
     })
 
 pd.DataFrame(results).to_sql("caatt_benford_results", dl, schema="gold", if_exists="append", index=False)
-print("✅ Benford results saved to gold.caatt_benford_results")
+print("✓ Benford results saved to gold.caatt_benford_results")

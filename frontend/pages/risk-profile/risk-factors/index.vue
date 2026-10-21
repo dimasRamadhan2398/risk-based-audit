@@ -384,13 +384,13 @@
                   </div>
                   <div class="flex items-center gap-3">
                     <USelect
-                      v-model.number="score.score"
+                      :model-value="score.score ?? undefined"
                       :items="[1, 2, 3, 4, 5]"
-                      :placeholder="'–'"
+                      placeholder="–"
                       size="sm"
                       color="neutral"
                       class="w-20"
-                      @update:model-value="onScoreChange"
+                      @update:model-value="(val: number) => onScoreChange(score, val)"
                     />
                     <UTooltip :text="t('riskFactors.scoring.guidelinesTooltip')">
                       <UButton
@@ -933,7 +933,9 @@ const selectEntityForScoring = (ent: any) => {
 }
 
 // The store row is not touched; the overview switches to a preview of the edited scores.
-const onScoreChange = () => {
+const onScoreChange = (row: ScoringRow<any>, value: unknown) => {
+  const score = Number(value)
+  row.score = Number.isFinite(score) && score > 0 ? score : null
   scoresDirty.value = true
 }
 

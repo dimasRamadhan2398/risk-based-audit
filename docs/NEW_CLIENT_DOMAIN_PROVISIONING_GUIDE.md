@@ -7,7 +7,7 @@ To illustrate every step concretely, this guide uses **Client A: Accenture** wit
 
 ---
 
-## 📑 Table of Contents
+## Table of Contents
 1. [Architecture & Multi-Tenancy Model](#1-architecture--multi-tenancy-model)
 2. [Tenant Planning & Provisioning Parameters](#2-tenant-planning--provisioning-parameters)
 3. [Phase 1: Domain, DNS & SSL/TLS Configuration](#phase-1-domain-dns--ssltls-configuration)
@@ -560,7 +560,7 @@ If the client contract terminates, UU PDP mandates secure data erasure:
 
 ---
 
-## 📌 Summary Reference Table
+## Summary Reference Table
 
 ```
 Client Name          : Accenture

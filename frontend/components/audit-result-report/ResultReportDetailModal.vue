@@ -23,10 +23,10 @@
               <div class="flex items-center gap-2">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white"> {{ t('auditResultReport.editor.detail.title') }} </h3>
                 <UBadge :color="report?.status === 'Final' ? 'success' : 'neutral'" variant="subtle" size="xs">
-                  {{ (report?.status || 'Draft').toUpperCase() }}
+                  {{ report?.status === 'Final' ? t('auditResultReport.dashboard.status.final') : t('auditResultReport.dashboard.status.draft') }}
                 </UBadge>
               </div>
-              <p class="text-xs text-gray-500 font-mono mt-0.5">
+              <p class="text-xs text-gray-500 mt-0.5">
                 {{ report?.reportNumber || '-' }} {{ t('auditResultReport.editor.detail.assignmentLetter') }} <span class="font-semibold text-primary-600">{{ report?.assignmentLetterId || '-' }}</span>
               </p>
             </div>
@@ -44,28 +44,28 @@
           <!-- Overview Cards -->
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <div class="p-4 rounded-xl bg-slate-50 dark:bg-gray-850 border border-slate-200 dark:border-slate-800">
-              <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">{{ t('auditResultReport.editor.detail.reportNumber') }}</span>
-              <span class="text-sm font-mono font-bold text-primary-600 dark:text-primary-400 mt-1 block truncate">
+              <span class="text-[11px] font-semibold text-gray-400 block">{{ t('auditResultReport.editor.detail.reportNumber') }}</span>
+              <span class="text-sm font-bold text-primary-600 dark:text-primary-400 mt-1 block truncate">
                 {{ report?.reportNumber || '-' }}
               </span>
             </div>
 
             <div class="p-4 rounded-xl bg-slate-50 dark:bg-gray-850 border border-slate-200 dark:border-slate-800">
-              <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">{{ t('auditResultReport.editor.detail.reportDate') }}</span>
+              <span class="text-[11px] font-semibold text-gray-400 block">{{ t('auditResultReport.editor.detail.reportDate') }}</span>
               <span class="text-sm font-semibold text-gray-900 dark:text-gray-100 mt-1 block">
                 {{ formatDate(report?.reportDate) }}
               </span>
             </div>
 
             <div class="p-4 rounded-xl bg-slate-50 dark:bg-gray-850 border border-slate-200 dark:border-slate-800">
-              <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">{{ t('auditResultReport.editor.detail.company') }}</span>
+              <span class="text-[11px] font-semibold text-gray-400 block">{{ t('auditResultReport.editor.detail.company') }}</span>
               <span class="text-sm font-semibold text-gray-900 dark:text-gray-100 mt-1 block truncate" :title="report?.companyName">
                 {{ report?.companyName || 'PT AIFL Indonesia' }}
               </span>
             </div>
 
             <div class="p-4 rounded-xl bg-slate-50 dark:bg-gray-850 border border-slate-200 dark:border-slate-800">
-              <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">{{ t('executiveSummary.cardStats.totalFindings') }}</span>
+              <span class="text-[11px] font-semibold text-gray-400 block">{{ t('executiveSummary.cardStats.totalFindings') }}</span>
               <span class="text-sm font-bold text-primary-600 dark:text-primary-400 mt-1 block">
                 {{ report?.findingsCount || report?.findings?.length || 0 }} {{ t('auditResultReport.editor.detail.findings') }} </span>
             </div>
@@ -73,7 +73,7 @@
 
           <!-- Report Title Card -->
           <div class="p-5 rounded-xl bg-slate-50 dark:bg-gray-850 border border-slate-200 dark:border-slate-800 space-y-1">
-            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">{{ t('auditResultReport.dashboard.columns.reportTitle') }}</span>
+            <span class="text-xs font-bold text-gray-500">{{ t('auditResultReport.dashboard.columns.reportTitle') }}</span>
             <h4 class="text-base font-bold text-gray-900 dark:text-white">
               {{ report?.reportTitle || '-' }}
             </h4>
@@ -81,17 +81,17 @@
 
           <!-- Executive Summary Section -->
           <div class="space-y-2">
-            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
+            <h4 class="text-sm font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
               <UIcon name="i-heroicons-document-text" class="size-4 text-primary-600" /> {{ t('auditResultReport.editor.detail.executiveSummary') }} </h4>
             <div class="p-4 rounded-xl bg-slate-50/70 dark:bg-gray-850/60 border border-slate-200 dark:border-slate-800 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">
-              {{ report?.executiveSummary || 'Berdasarkan hasil penugasan audit yang telah diselesaikan sesuai dengan Surat Tugas, ruang lingkup evaluasi pengendalian internal telah dirangkum dalam temuan dan rekomendasi tindak lanjut di bawah ini.' }}
+              {{ report?.executiveSummary || t('auditResultReport.editor.detail.executiveSummaryFallback') }}
             </div>
           </div>
 
           <!-- Findings & Actions Section -->
           <div class="space-y-3">
             <div class="flex justify-between items-center border-b border-gray-100 dark:border-gray-800 pb-2">
-              <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 flex items-center gap-2">
+              <h4 class="text-sm font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2">
                 <UIcon name="i-heroicons-list-bullet" class="size-4 text-primary-600" /> {{ t('auditResultReport.editor.detail.findingsList') }} </h4>
               <UBadge color="primary" variant="subtle" size="xs">
                 {{ report?.findings?.length || 0 }} {{ t('auditResultReport.editor.detail.findings') }} </UBadge>
@@ -114,14 +114,14 @@
                     </span>
                   </div>
                   <UBadge :color="getCategoryColor(finding.category)" variant="subtle" size="xs" class="shrink-0">
-                    {{ finding.category }}
+                    {{ getCategoryLabel(finding.category) }}
                   </UBadge>
                 </div>
 
                 <div class="pl-8 text-xs space-y-1.5">
                   <div class="p-3 bg-slate-50 dark:bg-gray-900 rounded-lg border border-slate-100 dark:border-gray-800">
                     <span class="font-semibold text-gray-700 dark:text-gray-300 block mb-0.5">{{ t('auditResultReport.editor.detail.recommendation') }}</span>
-                    <span class="text-gray-600 dark:text-gray-400">{{ finding.action || 'Tidak ada tindakan yang dicatat.' }}</span>
+                    <span class="text-gray-600 dark:text-gray-400">{{ finding.action || t('auditResultReport.editor.detail.noAction') }}</span>
                   </div>
                   <span v-if="finding.source" class="text-[11px] text-gray-400 italic block"> {{ t('auditResultReport.editor.detail.source') }} {{ finding.source }}
                   </span>
@@ -171,7 +171,7 @@
 </template>
 
 <script setup lang="ts">
-const { t } = useI18n()
+const { t, locale } = useI18n()
 import { useAuditResultReportStore, type AuditResultReport } from '~/stores/audit-result-report'
 
 const props = defineProps<{
@@ -189,10 +189,10 @@ const store = useAuditResultReportStore()
 const formatDate = (rawDate?: string) => {
   if (!rawDate) return '-'
   try {
-    const clean = rawDate.split('T')[0]
+    const clean = rawDate.split('T')[0] ?? rawDate
     const d = new Date(clean)
     if (isNaN(d.getTime())) return rawDate
-    return d.toLocaleDateString('id-ID', {
+    return d.toLocaleDateString(locale.value === 'en' ? 'en-US' : 'id-ID', {
       day: '2-digit',
       month: 'long',
       year: 'numeric'
@@ -210,6 +210,18 @@ const getCategoryColor = (cat?: string) => {
     case 'Not Significant': return 'success'
     default: return 'neutral'
   }
+}
+
+const categoryLabelKeys: Record<string, string> = {
+  'Very Significant': 'verySignificant',
+  'Significant': 'significant',
+  'Quite Significant': 'quiteSignificant',
+  'Not Significant': 'notSignificant'
+}
+
+const getCategoryLabel = (cat?: string) => {
+  const key = cat ? categoryLabelKeys[cat] : undefined
+  return key ? t(`auditResultReport.dashboard.categories.${key}`) : (cat || '-')
 }
 
 const handleOpenPrint = () => {

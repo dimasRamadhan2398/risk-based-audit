@@ -15,7 +15,11 @@ import (
 	"gorm.io/gorm"
 )
 
+var seedCatalogOnly bool
+
 func init() {
+	seedCmd.Flags().BoolVar(&seedCatalogOnly, "catalog-only", false,
+		"seed only reference data (risk levels, standard risk factors, standard audit universe); no corporate, yearly, score or demo rows")
 	rootCmd.AddCommand(seedCmd)
 }
 
@@ -23,6 +27,17 @@ var seedCmd = &cobra.Command{
 	Use:   "seed",
 	Short: "Seed initial data for risk-service",
 	RunE:  runSeed,
+}
+
+// seedReferenceCatalogs (`seed --catalog-only`) seeds the reference data a new tenant needs and nothing it
+// would have to delete: the risk level bands, the standard risk factor library
+// and the standard audit universe library. Each step skips what already exists,
+// so re-running is safe. Tables must exist (run `./risk up` first).
+func seedReferenceCatalogs(db *gorm.DB) error {
+	if err := seedRiskLevels(db); err != nil {
+		return err
+	}
+	return seedCatalogs(db)
 }
 
 func runSeed(cmd *cobra.Command, args []string) error {
@@ -37,6 +52,10 @@ func runSeed(cmd *cobra.Command, args []string) error {
 	db, err := database.NewPostgresConnection(&cfg.Database)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
+	}
+
+	if seedCatalogOnly {
+		return seedReferenceCatalogs(db)
 	}
 
 	if err := seedInitialRisks(db); err != nil {
@@ -356,14 +375,14 @@ func seedRiskLevels(db *gorm.DB) error {
 			if err := db.Create(&level).Error; err != nil {
 				return fmt.Errorf("failed to seed risk level %s: %w", level.RiskCode, err)
 			}
-			fmt.Printf("✅ Seeded: %s (score: %d-%d)\n", level.RiskName, level.MinScore, level.MaxScore)
+			fmt.Printf("✓ Seeded: %s (score: %d-%d)\n", level.RiskName, level.MinScore, level.MaxScore)
 		} else if result.Error != nil {
 			return fmt.Errorf("failed to check risk level %s: %w", level.RiskCode, result.Error)
 		} else {
-			fmt.Printf("⏭️  Already exists: %s\n", level.RiskCode)
+			fmt.Printf("Already exists: %s\n", level.RiskCode)
 		}
 	}
 
-	fmt.Println("\n✅ Risk level seeding completed!")
+	fmt.Println("\n✓ Risk level seeding completed!")
 	return nil
 }

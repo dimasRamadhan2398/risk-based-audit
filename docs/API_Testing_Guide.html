@@ -198,9 +198,9 @@
 <div class="checklist">
     <p>Before testing the API, ensure the following:</p>
     <ul>
-        <li>✅ <strong>PostgreSQL is running</strong> on port 5432</li>
-        <li>✅ <strong>Database `master_service`** exists</li>
-        <li>✅ <strong>Run database migrations:</strong></li>
+        <li>✓ <strong>PostgreSQL is running</strong> on port 5432</li>
+        <li>✓ <strong>Database `master_service`** exists</li>
+        <li>✓ <strong>Run database migrations:</strong></li>
     </ul>
 </div>
 
@@ -365,31 +365,31 @@ go run cmd/migrate.go migrate</code></pre>
     <tr>
         <td><code>department_code</code></td>
         <td>string</td>
-        <td><span class="success">✅ Yes</span></td>
+        <td><span class="success">✓ Yes</span></td>
         <td>Unique department code (e.g., "DEPT001")</td>
     </tr>
     <tr>
         <td><code>department_name</code></td>
         <td>string</td>
-        <td><span class="success">✅ Yes</span></td>
+        <td><span class="success">✓ Yes</span></td>
         <td>Department name</td>
     </tr>
     <tr>
         <td><code>pic_id</code></td>
         <td>UUID</td>
-        <td><span class="success">✅ Yes</span></td>
+        <td><span class="success">✓ Yes</span></td>
         <td>Person in Charge ID</td>
     </tr>
     <tr>
         <td><code>level</code></td>
         <td>int</td>
-        <td><span class="success">✅ Yes</span></td>
+        <td><span class="success">✓ Yes</span></td>
         <td>Department level</td>
     </tr>
     <tr>
         <td><code>company_id</code></td>
         <td>UUID</td>
-        <td><span class="success">✅ Yes</span></td>
+        <td><span class="success">✓ Yes</span></td>
         <td>Company ID</td>
     </tr>
     <tr>
@@ -557,49 +557,49 @@ go run cmd/migrate.go migrate</code></pre>
     <tr>
         <td><code>employee_code</code></td>
         <td>string</td>
-        <td><span class="success">✅ Yes</span></td>
+        <td><span class="success">✓ Yes</span></td>
         <td>Unique employee code (e.g., "EMP001")</td>
     </tr>
     <tr>
         <td><code>full_name</code></td>
         <td>string</td>
-        <td><span class="success">✅ Yes</span></td>
+        <td><span class="success">✓ Yes</span></td>
         <td>Employee's full name</td>
     </tr>
     <tr>
         <td><code>email</code></td>
         <td>string</td>
-        <td><span class="success">✅ Yes</span></td>
+        <td><span class="success">✓ Yes</span></td>
         <td>Valid email address</td>
     </tr>
     <tr>
         <td><code>company_id</code></td>
         <td>UUID</td>
-        <td><span class="success">✅ Yes</span></td>
+        <td><span class="success">✓ Yes</span></td>
         <td>Company ID</td>
     </tr>
     <tr>
         <td><code>department_id</code></td>
         <td>UUID</td>
-        <td><span class="success">✅ Yes</span></td>
+        <td><span class="success">✓ Yes</span></td>
         <td>Department ID</td>
     </tr>
     <tr>
         <td><code>job_role_id</code></td>
         <td>UUID</td>
-        <td><span class="success">✅ Yes</span></td>
+        <td><span class="success">✓ Yes</span></td>
         <td>Job Role ID</td>
     </tr>
     <tr>
         <td><code>level_grade</code></td>
         <td>int</td>
-        <td><span class="success">✅ Yes</span></td>
+        <td><span class="success">✓ Yes</span></td>
         <td>Employee level/grade</td>
     </tr>
     <tr>
         <td><code>join_date</code></td>
         <td>string</td>
-        <td><span class="success">✅ Yes</span></td>
+        <td><span class="success">✓ Yes</span></td>
         <td>Join date (format: YYYY-MM-DD)</td>
     </tr>
     <tr>
@@ -765,11 +765,11 @@ go run cmd/migrate.go migrate</code></pre>
 
 <h3>Collection Features:</h3>
 <ul>
-    <li>✅ All CRUD endpoints for Department and Employee</li>
-    <li>✅ Pre-configured environment variable: <code>{{baseUrl}}</code></li>
-    <li>✅ Sample request bodies</li>
-    <li>✅ Auto-save created IDs to collection variables</li>
-    <li>✅ Test scripts for validation</li>
+    <li>✓ All CRUD endpoints for Department and Employee</li>
+    <li>✓ Pre-configured environment variable: <code>{{baseUrl}}</code></li>
+    <li>✓ Sample request bodies</li>
+    <li>✓ Auto-save created IDs to collection variables</li>
+    <li>✓ Test scripts for validation</li>
 </ul>
 
 <h3>Environment Variables Setup:</h3>

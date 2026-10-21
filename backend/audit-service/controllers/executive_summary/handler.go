@@ -14,7 +14,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// CompilationStatsHandler handles GET /api/v1/executive-summary/compilation-stats?year=2026&quarter=1.
+// CompilationStatsHandler handles GET /api/v1/executive-summaries/compilation-stats?year=2026&quarter=1
+// (also registered at the legacy /api/v1/executive-summary/compilation-stats, which Kong does not route).
 // A missing or invalid year falls back to the current year, as the performance
 // endpoints do. quarter is optional (1-4); without it the whole year is counted.
 // A quarter outside 1-4 is a 400.

@@ -2,7 +2,7 @@
 
 A microservice-based backend for Risk-Based Internal Audit system built with Go, PostgreSQL, Redis, and Docker.
 
-## 🏗️ Architecture
+## Architecture
 
 This backend follows a clean architecture pattern with clear separation of concerns:
 
@@ -42,7 +42,7 @@ backend/
 └── proto/              # gRPC protobuf definitions
 ```
 
-## 🚀 Technology Stack
+## Technology Stack
 
 - **Language**: Go 1.21
 - **Web Framework**: Gin
@@ -55,14 +55,14 @@ backend/
 - **Validation**: go-playground/validator
 - **Deployment**: Docker & Docker Compose
 
-## 📋 Prerequisites
+## Prerequisites
 
 - Go 1.21 or higher
 - Docker and Docker Compose
 - PostgreSQL 16
 - Redis 7
 
-## 🔧 Installation
+## Installation
 
 1. **Clone the repository**
    ```bash
@@ -95,7 +95,7 @@ docker-compose up -d postgres redis
 make run
 ```
 
-## 🏃 Running Services
+## Running Services
 
 ### Using Make commands
 
@@ -129,7 +129,7 @@ docker-compose logs -f
 docker-compose down
 ```
 
-## 📡 API Endpoints
+## API Endpoints
 
 ### Auth Service (`:8001`)
 
@@ -157,7 +157,7 @@ All routes require JWT authentication:
 All services have a health check endpoint:
 - `GET /health` - Service health status
 
-## 🔐 Authentication
+## Authentication
 
 The API uses JWT (JSON Web Token) for authentication. Include the token in the Authorization header:
 
@@ -165,7 +165,7 @@ The API uses JWT (JSON Web Token) for authentication. Include the token in the A
 Authorization: Bearer <your-jwt-token>
 ```
 
-## 📝 Example Requests
+## Example Requests
 
 ### Login
 
@@ -201,7 +201,7 @@ curl -X GET http://localhost:8001/api/v1/users?page=1&page_size=10 \
   -H "Authorization: Bearer <your-token>"
 ```
 
-## 🗄️ Database Schema
+## Database Schema
 
 ### Users Table
 - `id` (UUID, Primary Key)
@@ -231,7 +231,7 @@ curl -X GET http://localhost:8001/api/v1/users?page=1&page_size=10 \
 - `created_at` (TIMESTAMP)
 - `updated_at` (TIMESTAMP)
 
-## 🧪 Testing
+## Testing
 
 ```bash
 # Run all tests
@@ -244,7 +244,7 @@ make test-coverage
 go test ./internal/auth/...
 ```
 
-## 🐳 Docker
+## Docker
 
 ### Build Images
 
@@ -270,7 +270,7 @@ make docker-logs
 make docker-down
 ```
 
-## 🔧 Configuration
+## Configuration
 
 Configuration is loaded from `configs/config.yaml`:
 
@@ -303,7 +303,7 @@ log:
   format: json
 ```
 
-## 📦 Dependency Injection
+## Dependency Injection
 
 Each service uses a registry pattern for dependency injection:
 
@@ -319,7 +319,7 @@ The registry handles:
 - Route registration
 - Middleware setup
 
-## 🛠️ Development
+## Development
 
 ### Adding a New Service
 
@@ -338,7 +338,7 @@ The registry handles:
 4. Add the controller handler in `controllers/`
 5. Register the route in `routes/routes.go`
 
-## 📊 Performance Requirements
+## Performance Requirements
 
 Based on requirements.MD, the system targets:
 
@@ -348,7 +348,7 @@ Based on requirements.MD, the system targets:
 - Email notifications: 6 seconds maximum
 - Report generation: 60 seconds for 200 pages
 
-## 🔒 Security
+## Security
 
 - Password hashing with bcrypt
 - JWT-based authentication
@@ -358,11 +358,11 @@ Based on requirements.MD, the system targets:
 - SQL injection prevention (via GORM)
 - Data encryption at rest (PostgreSQL)
 
-## 📝 License
+## License
 
 This project is proprietary software.
 
-## 🤝 Contributing
+## Contributing
 
 1. Create a feature branch
 2. Make your changes

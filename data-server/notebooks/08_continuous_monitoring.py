@@ -47,10 +47,10 @@ df_daily = pd.read_sql("""
 alerts = []
 for _, row in df_daily.iterrows():
     if row['suspicious_cnt'] > thresholds['daily_suspicious_max']:
-        alerts.append(f"⚠️ {row['trx_date']}: {row['suspicious_cnt']} suspicious transactions (threshold: {thresholds['daily_suspicious_max']})")
+        alerts.append(f"{row['trx_date']}: {row['suspicious_cnt']} suspicious transactions (threshold: {thresholds['daily_suspicious_max']})")
     after_pct = row['after_hours_cnt'] / row['cnt'] * 100 if row['cnt'] > 0 else 0
     if after_pct > thresholds['after_hours_pct_max']:
-        alerts.append(f"⚠️ {row['trx_date']}: {after_pct:.1f}% after-hours (threshold: {thresholds['after_hours_pct_max']}%)")
+        alerts.append(f"{row['trx_date']}: {after_pct:.1f}% after-hours (threshold: {thresholds['after_hours_pct_max']}%)")
 
 print(f"Alerts generated: {len(alerts)}")
 for a in alerts[:20]:
@@ -72,7 +72,7 @@ df_npl = pd.read_sql("""
 npl_ratio = (df_npl['npl_loans'].iloc[0] / df_npl['total_loans'].iloc[0] * 100) if df_npl['total_loans'].iloc[0] > 0 else 0
 print(f"NPL Ratio: {npl_ratio:.2f}% (threshold: {thresholds['npl_ratio_max']}%)")
 if npl_ratio > thresholds['npl_ratio_max']:
-    alerts.append(f"🔴 NPL Ratio {npl_ratio:.2f}% exceeds threshold {thresholds['npl_ratio_max']}%!")
+    alerts.append(f"NPL Ratio {npl_ratio:.2f}% exceeds threshold {thresholds['npl_ratio_max']}%!")
 
 print(f"\nTotal alerts: {len(alerts)}")
-print("✅ Continuous monitoring check complete")
+print("✓ Continuous monitoring check complete")

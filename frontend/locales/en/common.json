@@ -1324,7 +1324,7 @@
       }
     },
     "guidelines": {
-      "modalTitle": "📖 Scoring Scale Guidelines: {name}"
+      "modalTitle": "Scoring Scale Guidelines: {name}"
     },
     "messages": {
       "scoresSaved": "Risk scores saved and priority calculated successfully.",
@@ -1373,7 +1373,7 @@
       "emptyState": "Corporate Audit Universe is empty. Select from standard library or add custom ones."
     },
     "establish": {
-      "title": "📅 2. Establish {year} Audit Universe",
+      "title": "2. Establish {year} Audit Universe",
       "subtitle": "Select Auditable Entities from the Corporate Audit Universe active for auditing in year {year}.",
       "targetYear": "Target Year:",
       "establishBtn": "Establish Active Universe",
@@ -2042,8 +2042,8 @@
     "statusActive": "4 Trained Models Active & Synchronized",
     "statusOffline": "Offline - Displaying Saved Real Data",
     "statusDisconnected": "AI Backend Disconnected",
-    "warningTitleCached": "⚠️ Warning: AI Backend Service Disconnected (Showing Last Real Data)",
-    "warningTitleDisconnected": "⚠️ Warning: AI Analytics Feature Not Running / Not Connected to Backend",
+    "warningTitleCached": "Warning: AI Backend Service Disconnected (Showing Last Real Data)",
+    "warningTitleDisconnected": "Warning: AI Analytics Feature Not Running / Not Connected to Backend",
     "warningDescCached": "AI Analytics is currently displaying the last real data successfully synced at {time} before the connection was lost. Please ensure the Python AI Service (Port 8000) or Go Analytics (Port 8084) is running on the backend.",
     "warningDescDisconnected": "AI Analytics is currently not connected to the backend. Please ensure the Python AI Service (Port 8000) or Go Analytics (Port 8084) is running on the backend.",
     "loading": "Connecting & Loading AI Models...",
@@ -2156,7 +2156,7 @@
       "alertDesc": "The Deep Learning model (PyTorch LSTM) predicts future KPI performance trends based on historical time series for early audit planning warnings.",
       "chartTitle": "KPI Performance Forecast",
       "chartConfidenceBadge": "Shaded area = confidence interval",
-      "atRiskTitle": "⚠️ At-Risk Departments",
+      "atRiskTitle": "At-Risk Departments",
       "projectedQ3": "% projected Q3",
       "tableTitle": "KPI Forecast Summary",
       "colCode": "Code",
@@ -2258,7 +2258,7 @@
       "mandaysFormula": "= {auditors} person × {days} day",
       "supervisor": "Supervisor",
       "supervisorPlaceholder": "Enter the supervisor's name...",
-      "supervisorOverloadWarning": "⚠️ Warning: this supervisor is already supervising more than 6 activities!",
+      "supervisorOverloadWarning": "Warning: this supervisor is already supervising more than 6 activities!",
       "teamCapacity": "Team estimated capacity",
       "totalLoad": "Total load: {percent}% of annual capacity.",
       "sectionNotes": "4. Notes",
@@ -3004,7 +3004,11 @@
       "description": "Free-form narrative for the quarterly audit executive summary.",
       "label": "Summary Narrative Text",
       "reset": "Reset to Default Template",
-      "placeholder": "Enter the summary narrative text..."
+      "placeholder": "Enter the summary narrative text...",
+      "periodPrefix": "For the period of {period},",
+      "quarterPeriod": "Q{quarter} {year}",
+      "quarterPeriodNoYear": "Q{quarter}",
+      "templateBody": "SPI has issued .... LHA. Total findings …. with .... recommendations. On-time completion rate 95%. There are 5 overdue/late high-risk findings related to .... that require direction from the Board of Directors. The most frequently recurring findings are in the …………….. process."
     },
     "followUp": {
       "title": "Follow-up Status",
@@ -3976,7 +3980,12 @@
         "click": "Click",
         "emptyInstruction": "to import findings from this assignment's Digital Working Papers (KKA) and Fieldwork Test Controls.",
         "cancel": "Cancel",
-        "signReport": "Sign Report"
+        "signReport": "Sign Report",
+        "titleCreate": "Create New Audit Result Report",
+        "titleEdit": "Edit Audit Result Report",
+        "statusLocked": "Status is locked to Draft. Final LHA authorization belongs to the Manager/CAE.",
+        "reportTitleInvalid": "Report Title is required and must be at most 100 characters",
+        "companyNone": "— None (Inherited / Default) —"
       },
       "detail": {
         "title": "Audit Result Report (LHA) Details",
@@ -3991,7 +4000,9 @@
         "source": "Source:",
         "empty": "This report has no detailed audit findings.",
         "downloadDocx": "Download DOCX",
-        "print": "Print LHA Document"
+        "print": "Print LHA Document",
+        "executiveSummaryFallback": "Based on the results of the audit engagement completed in accordance with the Assignment Letter, the scope of the internal control evaluation is summarized in the findings and follow-up recommendations below.",
+        "noAction": "No action recorded."
       },
       "print": {
         "title": "Audit Result Report (LHA) Document",

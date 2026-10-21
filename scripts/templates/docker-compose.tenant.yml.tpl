@@ -96,6 +96,21 @@ services:
       <<: *tenant-env
       DATABASE_NAME: rb_audit_audit___SLUG__
       KAFKA_SERVICE_NAME: audit-service-__SLUG__
+      # This tenant's own master/auth services. The bare aliases
+      # "master-service" / "auth-service" on the shared bridge are the control
+      # plane's. audit-service also derives these from KAFKA_SERVICE_NAME; the
+      # explicit values make the target visible and survive a rename.
+      MASTER_SERVICE_URL: http://master-service-__SLUG__:8002
+      AUTH_SERVICE_URL: http://auth-service-__SLUG__:8001
+      # Kafka is shared. The prefix moves this tenant's Audit Universe events
+      # to __SLUG__.audit-universe.events (same key as risk-service below, so
+      # producer and consumer agree), and the group id keeps this consumer out
+      # of the control plane's group — sharing it would split partitions
+      # between stacks and each would silently miss the other's events.
+      # department.events is still shared until master-service honours the
+      # prefix; the per-tenant group at least stops it being split.
+      KAFKA_TOPIC_PREFIX: __SLUG__
+      KAFKA_CONSUMER_GROUP_ID: audit-service-annual-plan-sync-__SLUG__
       # Evidence stays in this tenant's VPS silo. Google Drive is blocked by
       # architecture policy — the shared service-account credentials would put
       # every tenant's fieldwork in one Drive account.
@@ -140,6 +155,12 @@ services:
       <<: *tenant-env
       DATABASE_NAME: rb_audit_risk___SLUG__
       KAFKA_SERVICE_NAME: risk-service-__SLUG__
+      # This tenant's own master-service (also derived from KAFKA_SERVICE_NAME)
+      MASTER_SERVICE_URL: http://master-service-__SLUG__:8002
+      # Publishes to __SLUG__.audit-universe.events (created by the relay on
+      # first connect; onboard-tenant.sh also pre-creates it). Must match
+      # audit-service-__SLUG__ above.
+      KAFKA_TOPIC_PREFIX: __SLUG__
       # risk-service is the only service that seeds at boot. Left enabled it
       # injects ~570 rows of sample risk data into any empty tenant database
       # the moment the container starts, so a client's "clean slate" instance
