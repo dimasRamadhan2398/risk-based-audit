@@ -323,14 +323,22 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       expect(compilationContent).toContain("t('executiveSummaryCompilation.matrix.title')")
       expect(compilationContent).toContain('store.form.matriksKompilasi')
 
-      // Synchronized stats
-      expect(compilationContent).toContain('store.form.jumlahLaporan')
+      // Statistics come from one compilation-stats call for the selected year and quarter
+      expect(compilationContent).toContain('fetchCompilationStats({ year: targetYear, quarter: targetQuarter })')
+      expect(compilationContent).not.toContain('fetchCompilationSources')
+      expect(compilationContent).not.toContain('computeAtrOverdue')
+      expect(compilationContent).toContain('store.form.jumlahLaporan = stats.jumlahLaporan')
+      expect(compilationContent).toContain('riskBreakdownToFields(stats.riskBreakdown)')
       expect(compilationContent).toContain('riskBucketFields')
-      expect(compilationContent).toContain('riskBucketBreakdown(risk)')
+      expect(compilationContent).toContain('riskBucketBreakdown(riskFieldsToBreakdown(store.form))')
       expect(compilationContent).toContain('riskBuckets.high')
       expect(compilationContent).not.toContain('noMatchingLha')
       expect(compilationContent).not.toContain('selectCompilationReports')
       expect(compilationContent).toContain('store.form.topFindings')
+      // Saving is blocked until a sync succeeds; generated narrative text is no longer written
+      expect(compilationContent).toContain(':disabled="!canSaveDraft"')
+      expect(compilationContent).not.toContain('Tingkat penyelesaian on-time 95%')
+      expect(compilationContent).not.toContain('cukup efektif')
     })
 
     it('handles RBAC with varied spacing, positions, and executive aliases', () => {

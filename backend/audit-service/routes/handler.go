@@ -462,11 +462,16 @@ func (h *RouteHandler) RegisterRoutes() {
 	// 17b. Executive Summary Reports
 	executiveSummaries := apiV1.Group("/executive-summaries")
 	{
-		executiveSummaries.GET("", crud.List(h.db, "ExecutiveSummary", func() interface{} { return &[]models.ExecutiveSummary{} }))
+		// List rows leave out the approval signature image (ListDecorator)
+		executiveSummaries.GET("", crud.ListWithItems(h.db, "ExecutiveSummary", func() interface{} { return &[]models.ExecutiveSummary{} }, ctrlExecutiveSummary.ListDecorator))
 		executiveSummaries.GET("/:id", crud.GetByID(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
-		executiveSummaries.POST("", crud.Create(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
-		// Keeps the five-level and legacy risk counts in step (create: models.ExecutiveSummary.BeforeCreate)
-		executiveSummaries.PUT("/:id", crud.UpdateWithHook(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }, ctrlExecutiveSummary.SyncRiskColumnsBeforeUpdate))
+		// A summary cannot be created as Approved, see GuardCreateHook
+		executiveSummaries.POST("", crud.CreateWithHook(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }, ctrlExecutiveSummary.GuardCreateHook))
+		// Draft -> Approved only through /:id/approve (signature required). Approved is locked,
+		// and the status guard and risk count sync run in UpdateHook
+		executiveSummaries.PUT("/:id", crud.UpdateWithHook(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }, ctrlExecutiveSummary.UpdateHook))
+		// Approval with signature; ADMIN or EXECUTIVE only (see ApproveHandler)
+		executiveSummaries.POST("/:id/approve", ctrlExecutiveSummary.ApproveHandler(h.db))
 		executiveSummaries.DELETE("/:id", crud.Delete(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
 	}
 

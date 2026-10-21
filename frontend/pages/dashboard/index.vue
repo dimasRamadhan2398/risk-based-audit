@@ -924,6 +924,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import AuditorDashboard from "~/components/dashboard/AuditorDashboard.vue";
+import AuditeeDashboard from "~/components/dashboard/AuditeeDashboard.vue";
 import { useRbac } from "~/composables/useRbac";
 import { Line, Scatter } from "vue-chartjs";
 import {

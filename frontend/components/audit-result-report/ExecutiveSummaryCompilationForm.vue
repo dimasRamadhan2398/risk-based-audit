@@ -264,22 +264,36 @@
             />
           </div>
 
-          <!-- Source status: loading / error / no LHA selected / empty sources -->
+          <!-- Source status: loading / error with retry / no LHA in the quarter / empty sources / last sync -->
           <div v-if="sourcesLoading" class="flex items-center gap-2 text-sm text-gray-400">
             <UIcon name="i-lucide-loader-circle" class="size-4 animate-spin" />
             {{ t('executiveSummaryCompilation.sources.loading') }}
           </div>
-          <div v-else-if="sourcesError" class="text-sm text-error-500">
-            {{ t('executiveSummaryCompilation.sources.error', { message: sourcesError }) }}
+          <div v-else-if="sourcesError" class="flex flex-wrap items-center gap-3 text-sm text-error-500">
+            <span>{{ t('executiveSummaryCompilation.sources.error', { message: sourcesError }) }}</span>
+            <UButton
+              color="error"
+              variant="outline"
+              size="xs"
+              icon="i-lucide-refresh-cw"
+              :label="t('executiveSummaryCompilation.sources.retry')"
+              @click="syncFromIndividualLha"
+            />
           </div>
-          <div v-else-if="!quarterlyLhas.length" class="text-sm text-gray-400">
+          <div v-else-if="displayedStats && displayedStats.jumlahLaporan === 0" class="text-sm text-gray-400">
             {{ t('executiveSummaryCompilation.sources.noLhaInQuarter') }}
           </div>
-          <ul v-else-if="sourceEmptyNotes.length" class="text-sm text-gray-400 space-y-1">
+          <p v-if="lastSyncedLabel && !sourcesLoading && !sourcesError" class="text-xs text-gray-400">
+            {{ t('executiveSummaryCompilation.sources.lastSynced', { time: lastSyncedLabel }) }}
+          </p>
+          <ul v-if="sourceEmptyNotes.length && !sourcesLoading && !sourcesError" class="text-sm text-gray-400 space-y-1">
             <li v-for="note in sourceEmptyNotes" :key="note">{{ note }}</li>
           </ul>
+          <p v-if="displayedStats && displayedStats.risikoLainnya > 0 && !sourcesLoading" class="text-sm text-warning-600 dark:text-warning-400">
+            {{ t('executiveSummaryCompilation.sources.otherRiskNote', { count: displayedStats.risikoLainnya }) }}
+          </p>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6" :class="statsBusyClass">
             <UFormField :label="t('executiveSummaryCompilation.reportCount')" :hint="t('executiveSummaryCompilation.sources.hintLha')">
               <UInput
                 type="number"
@@ -317,7 +331,7 @@
             </UFormField>
           </div>
 
-          <div class="p-6 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-200 dark:border-gray-800 space-y-4">
+          <div class="p-6 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-200 dark:border-gray-800 space-y-4" :class="statsBusyClass">
             <div class="flex justify-between items-center">
               <h4 class="text-md font-extrabold uppercase tracking-wider text-gray-400">{{ t('executiveSummaryCompilation.riskBreakdown') }}</h4>
               <span class="text-xs text-gray-400">{{ t('executiveSummaryCompilation.sources.hintRisk') }}</span>
@@ -351,7 +365,7 @@
             <p class="text-xs text-gray-400 mt-1">{{ t('executiveSummaryCompilation.sources.hintFollowUp') }}</p>
           </div>
 
-          <div class="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
+          <div class="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm" :class="statsBusyClass">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
               <thead class="bg-gray-50 dark:bg-gray-800/80">
                 <tr>
@@ -722,7 +736,8 @@
             icon="i-lucide-save"
             :label="t('executiveSummaryForm.actions.saveDraft')"
             class="font-bold px-6"
-            :loading="store.loading"
+            :loading="store.loading || sourcesLoading"
+            :disabled="!canSaveDraft"
             @click="saveReportDraft"
           />
         </template>
@@ -1121,6 +1136,8 @@ const syncFromIndividualLha = async () => {
 
 // Form submission & workflow helpers
 const saveReportDraft = async () => {
+  // Blocked while the statistics are loading or the last sync failed
+  if (!canSaveDraft.value) return
   if (!store.form.nomorDokumen) {
     store.form.nomorDokumen = generateEscDocNumber(Number(store.form.tahun) || 2026)
   }

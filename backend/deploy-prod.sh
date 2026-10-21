@@ -132,13 +132,20 @@ cat > "$1" <<'YAML'
 services:
   auth-service:
     command: ["sh", "-c", "./auth --config ./pkg/config/config.yaml migrate up && ./auth --config ./pkg/config/config.yaml serve"]
+    environment:
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET missing - every service in the stack must share one signing secret; set it in the deploy env}
   audit-service:
     command: ["sh", "-c", "./audit migrate up && ./audit serve"]
+    environment:
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET missing - every service in the stack must share one signing secret; set it in the deploy env}
   master-service:
     command: ["sh", "-c", "./master migrate && ./master serve"]
+    environment:
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET missing - every service in the stack must share one signing secret; set it in the deploy env}
   risk-service:
     environment:
       SEED_ON_BOOT: "false"
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET missing - every service in the stack must share one signing secret; set it in the deploy env}
   analytics-service:
     environment:
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET missing - every service in the stack must share one signing secret; set it in the deploy env}
@@ -389,6 +396,9 @@ main() {
     PAYLOAD="$DIR/payload.tgz"
     UPLOADS_BEFORE=none
     OVERRIDE_IN_USE=""
+    # Shared JWT signing secret, kept in a root-only file on the server (never in git).
+    : "${JWT_SECRET:=$(tr -d '\n' < "$DEPLOY_ROOT/jwt-secret" 2>/dev/null)}"
+    export JWT_SECRET
 
     if [ "$MODE" = real ]; then
         [ -d "$DIR" ] || die "$DIR missing"
