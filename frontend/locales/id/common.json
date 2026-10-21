@@ -288,6 +288,126 @@
         "quiteSignificant": "Cukup Signifikan",
         "notSignificant": "Tidak Signifikan"
       }
+    },
+    "auditor": {
+    "roleBadge": "Peran: Auditor",
+    "title": "Dashboard Pelaksana Audit",
+    "welcome": "Selamat datang, {name}. Layar kerja untuk eksekusi lapangan, kertas kerja dan draft temuan.",
+    "previewMode": "Mode:",
+    "previewAuditor": "Auditor",
+    "previewReset": "(Reset)",
+    "previewResetTitle": "Kembali ke tampilan penuh dashboard",
+    "sync": "Sinkronisasi Data",
+    "syncSuccess": "Data auditor berhasil disinkronkan",
+    "syncError": "Gagal memperbarui data auditor",
+    "notice": {
+      "label": "Prinsip tampilan auditor:",
+      "text": "Metrik risiko tingkat korporasi disederhanakan agar workspace berfokus pada penugasan aktif, kertas kerja dan dokumen bukti (PBC)."
+    },
+    "states": {
+      "loading": "Memuat...",
+      "loadError": "Bagian ini tidak dapat dimuat.",
+      "retry": "Coba lagi",
+      "noData": "Belum ada data untuk periode ini."
+    },
+    "stats": {
+      "title": "Statistik audit",
+      "scope": "Cakupan: semua data ATR dan audit yang dapat Anda akses (sementara)",
+      "plannedAudits": "Audit terencana",
+      "plannedAuditsHint": "Rencana tahunan yang belum disetujui",
+      "openFindings": "Temuan terbuka",
+      "openFindingsHint": "Item ATR yang belum selesai atau dibatalkan",
+      "executionProgress": "Progres pelaksanaan",
+      "executionProgressHint": "Rata-rata progres pelaksanaan audit",
+      "atrCompliance": "Kepatuhan ATR",
+      "atrComplianceHint": "Porsi item ATR yang sudah selesai"
+    },
+    "coverage": {
+      "title": "Perencanaan & cakupan audit",
+      "description": "Cakupan rencana audit tahunan (PKAT).",
+      "scope": "Cakupan: semua rencana audit tahunan (sementara)",
+      "overallProgress": "Progres keseluruhan",
+      "planned": "Terencana",
+      "approved": "Disetujui",
+      "remaining": "Sisa",
+      "empty": "Belum ada rencana audit tahunan.",
+      "openPlan": "Buka audit tahunan"
+    },
+    "status": {
+      "title": "Status dan progres audit",
+      "description": "Surat tugas yang terbit, tahap lapangan dan kelengkapan kertas kerja.",
+      "scope": "Cakupan: semua surat tugas yang sudah terbit (sementara)",
+      "searchPlaceholder": "Cari surat / unit...",
+      "allAssignments": "Semua penugasan",
+      "colLetter": "Surat tugas & judul",
+      "colUnit": "Unit yang diaudit",
+      "colPeriod": "Periode lapangan",
+      "colStages": "Tahapan lapangan",
+      "colWorkingPapers": "Kelengkapan kertas kerja",
+      "colStatus": "Status",
+      "colActions": "Aksi",
+      "team": "Tim",
+      "formsCount": "{count}/5 form",
+      "currentStage": "Tahap saat ini:",
+      "openWorkingPaper": "Kertas kerja",
+      "openFieldwork": "Uji & PBC",
+      "openLha": "Draft LHA",
+      "empty": "Belum ada surat tugas yang terbit.",
+      "emptyFiltered": "Tidak ada penugasan yang cocok dengan pencarian.",
+      "emptyHint": "Pastikan surat tugas berstatus Published di modul Assignment Letter.",
+      "stepper": {
+        "entry": "1. Entry",
+        "testing": "2. Pengujian",
+        "workingPapers": "3. Kertas kerja",
+        "exit": "4. Exit"
+      },
+      "stage": {
+        "preparation": "Entry meeting & persiapan",
+        "testing": "Pengujian sampel & bukti",
+        "workingPapers": "Penyusunan kertas kerja",
+        "reporting": "Penyusunan LHA & exit"
+      },
+      "statusLabel": {
+        "preparation": "Persiapan",
+        "fieldwork": "Lapangan aktif",
+        "reporting": "Pelaporan (LHA)"
+      },
+      "deadline": {
+        "none": "Jadwal belum diatur",
+        "today": "Hari terakhir",
+        "overdue": "Terlambat {days} hari",
+        "remaining": "Sisa {days} hari"
+      },
+      "periodTo": "s/d"
+    },
+    "tasks": {
+      "title": "Daftar tugas dengan tenggat",
+      "description": "Item ATR terbuka yang perlu Anda review atau tindak lanjuti.",
+      "scope": "Cakupan: item ATR yang dapat Anda akses (sementara)",
+      "kindReview": "Review rencana aksi ATR",
+      "kindFollowUp": "Tindak lanjut rencana aksi ATR",
+      "dueOn": "Tenggat {date}",
+      "noDueDate": "Tanpa tenggat",
+      "overdueDays": "Terlambat {days} hari",
+      "empty": "Tidak ada tugas terbuka. Tidak ada yang menunggu Anda.",
+      "placeholder": "Tugas KKA, PBC dan LHA belum terhubung."
+    },
+    "calendar": {
+      "title": "Tanggal penting",
+      "description": "Tanggal mulai dan selesai penugasan, serta tenggat ATR untuk penugasan yang Anda ikuti.",
+      "notConnected": "Kalender belum terhubung.",
+      "notLinked": "Akun Anda belum terhubung ke data pegawai, sehingga tanggal penugasan belum dapat difilter untuk Anda."
+    },
+    "notifications": {
+      "title": "Notifikasi & pengingat",
+      "description": "Pengingat dalam aplikasi yang diturunkan dari data ATR.",
+      "empty": "Tidak ada notifikasi baru.",
+      "typeOverdue": "ATR terlambat {days} hari",
+      "typePendingReview": "ATR menunggu review",
+      "typeDueSoon": "ATR jatuh tempo dalam {days} hari",
+      "placeholder": "Permintaan PBC, komentar dan revisi belum terhubung."
+    },
+    "placeholder": "Placeholder"
     }
   },
   "auditExecution": {

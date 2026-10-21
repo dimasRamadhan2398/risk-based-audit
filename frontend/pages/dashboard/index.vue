@@ -52,12 +52,6 @@
           <h3 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight dark:text-white">
             {{ totalRisks }}
           </h3>
-          <div
-            class="flex flex-wrap items-center gap-1 text-md font-semibold text-emerald-500 mt-1"
-          >
-            <span>↑ 12%</span>
-            <span class="text-slate-400 font-normal">{{ t('dashboard.overview.fromLastMonth') }}</span>
-          </div>
         </div>
       </div>
 
@@ -73,10 +67,6 @@
         </div>
         <div class="mt-2">
           <h3 class="text-2xl sm:text-3xl font-bold text-red-600 tracking-tight">{{ highRisks }}</h3>
-          <div class="flex flex-wrap items-center gap-1 text-md font-semibold text-red-500 mt-1">
-            <span>↑ 3</span>
-            <span class="text-slate-400 font-normal">{{ t('dashboard.overview.requiresAttention') }}</span>
-          </div>
         </div>
       </div>
 

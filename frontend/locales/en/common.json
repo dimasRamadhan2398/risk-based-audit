@@ -288,6 +288,126 @@
         "quiteSignificant": "Quite Significant",
         "notSignificant": "Not Significant"
       }
+    },
+    "auditor": {
+    "roleBadge": "Role: Auditor",
+    "title": "Auditor Dashboard",
+    "welcome": "Welcome, {name}. Working view for fieldwork execution, working papers and draft findings.",
+    "previewMode": "Mode:",
+    "previewAuditor": "Auditor",
+    "previewReset": "(Reset)",
+    "previewResetTitle": "Back to the full dashboard view",
+    "sync": "Sync data",
+    "syncSuccess": "Auditor data synced",
+    "syncError": "Failed to sync auditor data",
+    "notice": {
+      "label": "Auditor view principle:",
+      "text": "Corporate-level risk metrics are simplified so the workspace focuses on active engagements, working papers and client evidence (PBC)."
+    },
+    "states": {
+      "loading": "Loading...",
+      "loadError": "This section could not be loaded.",
+      "retry": "Retry",
+      "noData": "No data for this period."
+    },
+    "stats": {
+      "title": "Audit statistics",
+      "scope": "Scope: all ATR and audit data you can access (interim)",
+      "plannedAudits": "Planned audits",
+      "plannedAuditsHint": "Annual plans not yet approved",
+      "openFindings": "Open findings",
+      "openFindingsHint": "ATR items not completed or cancelled",
+      "executionProgress": "Execution progress",
+      "executionProgressHint": "Average progress of audit executions",
+      "atrCompliance": "ATR compliance",
+      "atrComplianceHint": "Completed share of ATR items"
+    },
+    "coverage": {
+      "title": "Audit planning & coverage",
+      "description": "Coverage of the annual audit plan (PKAT).",
+      "scope": "Scope: all annual audit plans (interim)",
+      "overallProgress": "Overall progress",
+      "planned": "Planned",
+      "approved": "Approved",
+      "remaining": "Remaining",
+      "empty": "No annual audit plan yet.",
+      "openPlan": "Open annual audit"
+    },
+    "status": {
+      "title": "Audit status and progress",
+      "description": "Published assignment letters, fieldwork stage and working paper completion.",
+      "scope": "Scope: all published assignment letters (interim)",
+      "searchPlaceholder": "Search letter / unit...",
+      "allAssignments": "All assignments",
+      "colLetter": "Assignment letter & title",
+      "colUnit": "Audited unit",
+      "colPeriod": "Fieldwork period",
+      "colStages": "Fieldwork stages",
+      "colWorkingPapers": "Working paper completeness",
+      "colStatus": "Status",
+      "colActions": "Actions",
+      "team": "Team",
+      "formsCount": "{count}/5 forms",
+      "currentStage": "Current stage:",
+      "openWorkingPaper": "Working paper",
+      "openFieldwork": "Testing & PBC",
+      "openLha": "Draft LHA",
+      "empty": "No published assignment letter yet.",
+      "emptyFiltered": "No engagement matches your search.",
+      "emptyHint": "Make sure the assignment letter is Published in the Assignment Letter module.",
+      "stepper": {
+        "entry": "1. Entry",
+        "testing": "2. Testing",
+        "workingPapers": "3. Working papers",
+        "exit": "4. Exit"
+      },
+      "stage": {
+        "preparation": "Entry meeting & preparation",
+        "testing": "Sampling & evidence testing",
+        "workingPapers": "Preparing working papers",
+        "reporting": "Drafting LHA & exit"
+      },
+      "statusLabel": {
+        "preparation": "Preparation",
+        "fieldwork": "Fieldwork active",
+        "reporting": "Reporting (LHA)"
+      },
+      "deadline": {
+        "none": "No schedule set",
+        "today": "Last day",
+        "overdue": "{days} days overdue",
+        "remaining": "{days} days left"
+      },
+      "periodTo": "to"
+    },
+    "tasks": {
+      "title": "Task list with deadlines",
+      "description": "Open ATR items you need to review or follow up.",
+      "scope": "Scope: ATR items you can access (interim)",
+      "kindReview": "Review ATR action plan",
+      "kindFollowUp": "Follow up ATR action plan",
+      "dueOn": "Due {date}",
+      "noDueDate": "No due date",
+      "overdueDays": "{days} days overdue",
+      "empty": "No open tasks. Nothing is waiting on you.",
+      "placeholder": "Tasks for KKA, PBC and LHA are not connected yet."
+    },
+    "calendar": {
+      "title": "Important dates",
+      "description": "Engagement start and end dates, and ATR due dates for engagements you are on.",
+      "notConnected": "Calendar is not connected yet.",
+      "notLinked": "Your account is not linked to an employee record yet, so engagement dates cannot be filtered to you."
+    },
+    "notifications": {
+      "title": "Notifications and reminders",
+      "description": "In-app reminders derived from ATR data.",
+      "empty": "You have no new notifications.",
+      "typeOverdue": "ATR overdue by {days} days",
+      "typePendingReview": "ATR waiting for review",
+      "typeDueSoon": "ATR due in {days} days",
+      "placeholder": "PBC requests, comments and revisions are not connected yet."
+    },
+    "placeholder": "Placeholder"
     }
   },
   "auditExecution": {
