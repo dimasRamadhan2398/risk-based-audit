@@ -113,12 +113,10 @@
               :required="!store.isEditing"
             >
               <div class="flex items-center gap-4">
-                <input
-                  type="file"
+                <LocalizedFileInput
                   accept=".pdf,.docx,.doc"
-                  @change="store.handleFileChange"
-                  class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 cursor-pointer"
                   :required="!store.isEditing && !store.form.file"
+                  @change="store.handleFileChange"
                 />
               </div>
               <p v-if="store.form.file || store.form.fileName" class="text-md text-gray-500 mt-1">

@@ -74,6 +74,10 @@ func autoMigrate(db *gorm.DB) error {
 		db.Exec(`ALTER TABLE "risk_profile" ADD COLUMN IF NOT EXISTS "severity_weight" numeric(5,4) DEFAULT 0`)
 	}
 
+	if err := addAuditUniverseScoredAt(db); err != nil {
+		return err
+	}
+
 	if err := db.AutoMigrate(
 		&models.KafkaOutboxEvent{},
 		&models.RiskLevel{},
@@ -103,6 +107,36 @@ func autoMigrate(db *gorm.DB) error {
 	// Migrations never delete data. The legacy dummy audit-universe cleanup is
 	// an explicit operator command (cleanup-dummy-universe), not a boot step.
 	return backfillAssessmentSnapshots(db)
+}
+
+// addAuditUniverseScoredAt adds audit_universe_years.scored_at and, in the same
+// transaction, marks every row that existed before the column as scored
+// (scored_at = updated_at, or created_at). Those rows were all created with an
+// index and level (the old default of 60 / "Medium to High" or a real score),
+// so they keep counting as scored.
+//
+// The backfill runs only in the run that adds the column. It must not run
+// again: after this deploy a NULL scored_at means "never scored" and a later
+// migrate would otherwise turn newly established rows into scored ones. The
+// ALTER and the UPDATE share one transaction (Postgres DDL is transactional),
+// so a failed backfill also leaves the column absent and the next run retries.
+// AutoMigrate then sees the column already present.
+func addAuditUniverseScoredAt(db *gorm.DB) error {
+	m := db.Migrator()
+	if !m.HasTable(&models.AuditUniverseYear{}) || m.HasColumn(&models.AuditUniverseYear{}, "scored_at") {
+		return nil
+	}
+	return db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Exec(`ALTER TABLE "audit_universe_years" ADD COLUMN "scored_at" timestamptz`).Error; err != nil {
+			return fmt.Errorf("add audit_universe_years.scored_at: %w", err)
+		}
+		res := tx.Exec(`UPDATE "audit_universe_years" SET "scored_at" = COALESCE("updated_at", "created_at") WHERE "scored_at" IS NULL`)
+		if res.Error != nil {
+			return fmt.Errorf("backfill audit_universe_years.scored_at: %w", res.Error)
+		}
+		log.Printf("added audit_universe_years.scored_at; backfilled %d existing rows as scored", res.RowsAffected)
+		return nil
+	})
 }
 
 // backfillAssessmentSnapshots gives assessment rows written before the

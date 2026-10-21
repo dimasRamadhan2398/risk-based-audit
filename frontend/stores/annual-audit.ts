@@ -90,14 +90,14 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     window.URL.revokeObjectURL(url)
   }
 
-  const columns: (TableColumn<AnnualAuditPlan> & { class?: string })[] = [
-    { accessorKey: 'activity', header: 'Activity', class: 'w-44 whitespace-nowrap' },
-    { accessorKey: 'department', header: 'Department', class: 'w-36' },
-    { accessorKey: 'riskName', header: 'Risk Name', class: 'w-52' },
-    { accessorKey: 'riskLevel', header: 'Risk Level', class: 'w-28 whitespace-nowrap' },
-    { accessorKey: 'status', header: 'Status', class: 'w-20 whitespace-nowrap text-center' },
-    { accessorKey: 'actions', header: 'Actions', class: 'w-36 whitespace-nowrap text-center' }
-  ]
+  const columns = computed<(TableColumn<AnnualAuditPlan> & { class?: string })[]>(() => [
+    { accessorKey: 'activity', header: t('annualAudit.table.columns.activity'), class: 'w-44 whitespace-nowrap' },
+    { accessorKey: 'department', header: t('annualAudit.detail.department'), class: 'w-36' },
+    { accessorKey: 'riskName', header: t('annualAudit.table.columns.riskName'), class: 'w-52' },
+    { accessorKey: 'riskLevel', header: t('annualAudit.table.columns.riskLevel'), class: 'w-28 whitespace-nowrap' },
+    { accessorKey: 'status', header: t('annualAudit.form.status'), class: 'w-20 whitespace-nowrap text-center' },
+    { accessorKey: 'actions', header: t('common.columns.actions'), class: 'w-36 whitespace-nowrap text-center' }
+  ])
 
   const isEditing = ref(false)
   const editingId = ref<string | null>(null)
@@ -603,7 +603,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     if (!file) return
 
     if (file.size > 5 * 1024 * 1024) {
-      errorMsg.value = 'File terlalu besar! Maksimal 5MB.'
+      errorMsg.value = t('common.fileInput.tooLarge', { size: 5 })
       form.file = null
       target.value = ''
       return
@@ -616,7 +616,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     ]
 
     if (!allowedTypes.includes(file.type)) {
-      errorMsg.value = 'Format file tidak valid. Gunakan PDF atau DOCX.'
+      errorMsg.value = t('common.fileInput.invalidPdfDocx')
       form.file = null
       target.value = ''
       return

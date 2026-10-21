@@ -164,7 +164,7 @@
                 <p class="text-md text-gray-500 dark:text-gray-400">{{ t('riskAppetite.compliance.registryDesc') }}</p>
               </div>
               <div class="flex gap-3">
-                <USelect v-model="complianceFilter" :items="complianceFilters" class="w-full sm:w-auto" />
+                <USelect v-model="complianceFilter" :items="complianceFilters" value-key="value" class="w-full sm:w-auto" />
               </div>
             </div>
 
@@ -291,7 +291,7 @@
                         variant="solid"
                         class="font-bold"
                       >
-                        {{ stmt.status }}
+                        {{ statementStatusLabel(stmt.status) }}
                       </UBadge>
                       <span class="text-[10px] font-mono text-gray-400 dark:text-gray-500">{{ t('riskAppetite.statements.limitThreshold', { limit: stmt.threshold_limit }) }}</span>
                     </div>
@@ -422,7 +422,7 @@ import { ref, computed, onMounted } from 'vue'
 import TableEntities from '~/components/shared/TableEntities.vue'
 import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
-import { useRiskProfileStore, riskLevelConfig } from '~/stores/risk-profile'
+import { useRiskProfileStore } from '~/stores/risk-profile'
 import { useMitigationStore } from '~/stores/mitigation-risk'
 import { useRiskAppetiteStore, type RiskAppetite } from '~/stores/risk-appetite'
 import { RiskLevel } from '~/types/risk'
@@ -436,7 +436,8 @@ const mitigationStore = useMitigationStore()
 const appetiteStore = useRiskAppetiteStore()
 
 const activeTab = ref('overview')
-const complianceFilter = ref('All Risks')
+// Filter values are locale-independent keys; only the labels are translated.
+const complianceFilter = ref<'all' | 'required' | 'acceptable' | 'violating'>('all')
 
 const isModalOpen = ref(false)
 const isEditing = ref(false)
@@ -448,11 +449,16 @@ const form = ref({
   status: 'DRAFT'
 })
 
-const statusOptions = [
-  { label: 'DRAFT', value: 'DRAFT' },
-  { label: 'SUBMITTED', value: 'SUBMITTED' },
-  { label: 'APPROVED', value: 'APPROVED' }
-]
+const statusOptions = computed(() => [
+  { label: t('riskAppetite.statements.status.DRAFT'), value: 'DRAFT' },
+  { label: t('riskAppetite.statements.status.SUBMITTED'), value: 'SUBMITTED' },
+  { label: t('riskAppetite.statements.status.APPROVED'), value: 'APPROVED' }
+])
+
+const statementStatusLabel = (status: string) =>
+  ['DRAFT', 'SUBMITTED', 'APPROVED'].includes(status)
+    ? t(`riskAppetite.statements.status.${status}`)
+    : status
 
 const tabs = computed(() => [
   { label: t('riskAppetite.tabs.overview'), key: 'overview' as const, value: 'overview', icon: 'i-heroicons-information-circle' },
@@ -461,10 +467,10 @@ const tabs = computed(() => [
 ])
 
 const complianceFilters = computed(() => [
-  t('riskAppetite.compliance.filters.all'),
-  t('riskAppetite.compliance.filters.required'),
-  t('riskAppetite.compliance.filters.acceptable'),
-  t('riskAppetite.compliance.filters.violating')
+  { label: t('riskAppetite.compliance.filters.all'), value: 'all' },
+  { label: t('riskAppetite.compliance.filters.required'), value: 'required' },
+  { label: t('riskAppetite.compliance.filters.acceptable'), value: 'acceptable' },
+  { label: t('riskAppetite.compliance.filters.violating'), value: 'violating' }
 ])
 
 
@@ -490,7 +496,7 @@ const getRiskLevelBadgeColorClass = (risk: any) =>
 
 const getRiskLevelLabel = (risk: any) => {
   const level = profileStore.getRiskLevel(risk.likelihood, risk.impact)
-  return riskLevelConfig[level]?.label || 'Unknown'
+  return t(`riskProfile.riskLevelLabels.${level}`)
 }
 
 const isAppetiteAcceptable = (risk: any): boolean => {
@@ -578,14 +584,14 @@ const complianceIcon = computed(() => {
 // Filtered Compliance Risks
 const filteredComplianceRisks = computed(() => {
   return profileStore.risks.filter(r => {
-    if (complianceFilter.value === t('riskAppetite.compliance.filters.all')) return true
+    if (complianceFilter.value === 'all') return true
     
     const acceptable = isAppetiteAcceptable(r)
-    if (complianceFilter.value === t('riskAppetite.compliance.filters.acceptable')) return acceptable
-    if (complianceFilter.value === t('riskAppetite.compliance.filters.required')) return !acceptable
+    if (complianceFilter.value === 'acceptable') return acceptable
+    if (complianceFilter.value === 'required') return !acceptable
     
     // Non-Compliant
-    if (complianceFilter.value === t('riskAppetite.compliance.filters.violating')) {
+    if (complianceFilter.value === 'violating') {
       return !acceptable && !hasMitigation(r.id)
     }
     return true

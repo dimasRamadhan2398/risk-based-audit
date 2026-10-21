@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { getRiskServiceBaseUrl } from '~/composables/useApiUrl'
 import { extractErrorMessage } from '~/utils/error'
 
 export interface StandardRiskFactor {

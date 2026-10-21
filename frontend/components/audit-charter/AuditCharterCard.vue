@@ -273,7 +273,7 @@ const columns = computed(() => [
   { accessorKey: 'date', header: t('auditCharter.card.columns.date'), class: 'w-28 whitespace-nowrap' },
   { accessorKey: 'approvedBy', header: t('auditCharter.card.columns.approvedBy'), class: 'w-36' },
   { accessorKey: 'uploadedBy', header: t('auditCharter.card.columns.uploadedBy'), class: 'w-36' },
-  { accessorKey: 'actions', header: t('auditCharter.card.columns.actions'), class: 'w-14 whitespace-nowrap text-center' },
+  { accessorKey: 'actions', header: t('common.columns.actions'), class: 'w-14 whitespace-nowrap text-center' },
 ])
 
 const confirmDelete = async (item: any) => {

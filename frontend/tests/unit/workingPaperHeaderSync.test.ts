@@ -178,7 +178,7 @@ describe('Working Paper Header - Audit Purpose from Assignment Letter', () => {
 
     wpStore.syncFromAssignmentLetter('ST-006/SKAI/2026')
 
-    expect(wpStore.headerForm.auditPurpose).toBe('Assess cash controls; Review procurement approvals')
+    expect(wpStore.headerForm.auditPurpose).toBe('Assess cash controls\nReview procurement approvals')
   })
 
   it('matches the letter by id as well as by letter number', () => {
@@ -188,7 +188,7 @@ describe('Working Paper Header - Audit Purpose from Assignment Letter', () => {
 
     wpStore.syncFromAssignmentLetter('uuid-ui-6')
 
-    expect(wpStore.headerForm.auditPurpose).toBe('Assess cash controls; Review procurement approvals')
+    expect(wpStore.headerForm.auditPurpose).toBe('Assess cash controls\nReview procurement approvals')
   })
 
   it('populates Audit Purpose when opening the create modal for a UI-created letter', () => {
@@ -200,7 +200,7 @@ describe('Working Paper Header - Audit Purpose from Assignment Letter', () => {
 
     wpStore.openModalF01()
 
-    expect(wpStore.headerForm.auditPurpose).toBe('Assess cash controls; Review procurement approvals')
+    expect(wpStore.headerForm.auditPurpose).toBe('Assess cash controls\nReview procurement approvals')
     expect(wpStore.headerForm.teamMembers.map(m => m.name)).toEqual(['Sari Dewi'])
   })
 
@@ -277,7 +277,7 @@ describe('Working Paper Header - Audit Purpose from Assignment Letter', () => {
     letterStore.assignmentLetterList = [uiCreatedLetter() as any]
     await nextTick()
 
-    expect(wpStore.headerForm.auditPurpose).toBe('Assess cash controls; Review procurement approvals')
+    expect(wpStore.headerForm.auditPurpose).toBe('Assess cash controls\nReview procurement approvals')
     expect(wpStore.headerForm.teamMembers.map(m => m.name)).toEqual(['Sari Dewi'])
   })
 })

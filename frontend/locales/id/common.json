@@ -196,6 +196,21 @@
       "delete": "Hapus",
       "download": "Unduh",
       "upload": "Unggah"
+    },
+    "columns": {
+      "actions": "Aksi"
+    },
+    "fileInput": {
+      "chooseFile": "Pilih file",
+      "noFileChosen": "Belum ada file dipilih",
+      "tooLarge": "File terlalu besar. Ukuran maksimal {size} MB.",
+      "invalidPdfDocx": "Format file tidak valid. Gunakan PDF atau DOCX."
+    },
+    "sourceSelector": {
+      "allSources": "Semua sumber",
+      "dataSource": "Sumber data",
+      "allSourcesConsolidated": "Semua sumber data (konsolidasi)",
+      "manage": "Kelola sumber data..."
     }
   },
   "dashboard": {
@@ -259,7 +274,19 @@
       "scheduledActivities": "Kegiatan audit terjadwal",
       "viewAllAnnualAudits": "Lihat semua Audit Tahunan",
       "status": "Status:",
-      "noUpcomingAudits": "Belum ada audit mendatang yang dijadwalkan."
+      "noUpcomingAudits": "Belum ada audit mendatang yang dijadwalkan.",
+      "trend": {
+        "improving": "Membaik",
+        "declining": "Menurun",
+        "deteriorating": "Memburuk",
+        "stable": "Stabil"
+      },
+      "severity": {
+        "critical": "Kritis",
+        "high": "Tinggi",
+        "medium": "Sedang",
+        "low": "Rendah"
+      }
     },
     "planningExecution": {
       "title": "Perencanaan & Pelaksanaan Audit",
@@ -271,7 +298,18 @@
     },
     "registeredRisks": {
       "columns": {
+        "name": "Nama Risiko",
+        "score": "Skor",
         "level": "Tingkat Risiko"
+      },
+      "empty": "Belum ada data yang dimasukkan ke Peta Panas Risiko.",
+      "cellTooltip": "Dampak: {impact}, Probabilitas: {probability}, Risiko: {level}"
+    },
+    "atrTable": {
+      "columns": {
+        "auditId": "ID Audit",
+        "actionItem": "Butir Tindak Lanjut",
+        "owner": "Penanggung Jawab"
       }
     },
     "recentFindings": {
@@ -1014,6 +1052,8 @@
     "toast": {
       "validationTitle": "Validasi Gagal",
       "objectiveRequired": "Kolom Strategic Objective (Tujuan Strategis) harus diisi.",
+      "periodInvalid": "Tahun akhir ({end}) tidak boleh sebelum tahun awal ({start}).",
+      "numberInvalid": "{field} untuk periode {period} harus berupa angka (contoh: 85 atau 85.5).",
       "updatedTitle": "Rencana Strategis Diperbarui",
       "createdTitle": "Rencana Strategis Dibuat",
       "savedDesc": "Rencana Strategis \"{name}\" berhasil disimpan.",
@@ -1250,7 +1290,14 @@
       "selectEntityTitle": "Pilih Entitas Auditee",
       "selectEntityDesc": "Pilih tahun dan entitas auditee aktif dari menu pilihan di atas untuk memulai penilaian risiko.",
       "saveBtn": "Simpan Penilaian & Hitung",
-      "guidelinesTooltip": "Panduan Skala Penilaian"
+      "guidelinesTooltip": "Panduan Skala Penilaian",
+      "notScored": "Belum dinilai",
+      "notScoredHint": "Belum ada skor tersimpan untuk faktor ini; tidak dihitung dalam indeks risiko.",
+      "entityNotScored": "Entitas ini belum dinilai untuk tahun ini.",
+      "previewLabel": "Pratinjau (belum disimpan)",
+      "previewHint": "Dihitung dari skor yang sedang Anda ubah. Simpan untuk memperbarui indeks risiko tersimpan.",
+      "unscoredFactorsCount": "{count} dari {total} faktor belum dinilai.",
+      "noScoresToSave": "Pilih skor untuk minimal satu faktor sebelum menyimpan."
     },
     "priority": {
       "title": "Prioritas Audit ({year})",
@@ -1264,7 +1311,9 @@
       "auditPriorityCol": "Prioritas Audit*",
       "priorityBadge": "√ Prioritas",
       "noEntities": "Belum ada entitas auditee yang ditetapkan untuk tahun {year}.",
-      "sortedNote": "Diurutkan berdasarkan Indeks Risiko (menurun)",
+      "sortedNote": "Diurutkan berdasarkan Indeks Risiko (menurun); entitas yang belum dinilai ditampilkan paling akhir",
+      "notScoredBadge": "Belum dinilai",
+      "notScoredHint": "Entitas ini belum dinilai untuk tahun ini.",
       "levelInfoTitle": "Informasi Tingkat Indeks Risiko Korporat",
       "levels": {
         "high": "Tinggi",
@@ -2097,6 +2146,11 @@
     "importPlanDocument": "Impor Dokumen Rencana",
     "newAuditPlan": "Rencana Audit Baru",
     "table": {
+      "columns": {
+        "activity": "Aktivitas",
+        "riskName": "Nama Risiko",
+        "riskLevel": "Tingkat Risiko"
+      },
       "empty": "Belum ada data rencana audit.",
       "viewTooltip": "Lihat rencana audit",
       "editTooltip": "Ubah rencana audit",
@@ -2290,6 +2344,7 @@
       "workUnitPlaceholder": "Pilih Unit Kerja (Wajib)",
       "company": "Perusahaan / Entitas",
       "companyPlaceholder": "Pilih Perusahaan / Entitas (Opsional)",
+      "companyNone": "— Tidak ada (Bawaan {company}) —",
       "members": "Anggota Tim",
       "memberName": "Nama Anggota",
       "role": "Peran",
@@ -2306,7 +2361,22 @@
       "edit": "Ubah Surat Tugas",
       "delete": "Hapus Surat Tugas"
     },
-    "title": "Assignment Letter List",
+    "title": "Daftar Surat Tugas",
+    "table": {
+      "columns": {
+        "letterNumber": "Nomor Surat Tugas",
+        "auditTitle": "Judul / Objek Audit",
+        "workingUnit": "Unit Kerja",
+        "executionPeriod": "Periode Pelaksanaan",
+        "auditTeam": "Tim Audit",
+        "status": "Status"
+      },
+      "status": {
+        "Draft": "Draf",
+        "Published": "Diterbitkan"
+      },
+      "empty": "Belum ada Surat Tugas. Klik Buat Surat Tugas untuk memulai."
+    },
     "importDocument": "Impor Dokumen",
     "createAssignmentLetter": "Buat Surat Tugas",
     "upload": {
@@ -2440,9 +2510,9 @@
       "remove": "Hapus"
     },
     "list": {
-      "addItem": "Tambah butir",
-      "itemPlaceholder": "Butir {num}",
-      "pasteHint": "Menempel daftar bernomor akan dipecah per butir"
+      "addItem": "Tambah",
+      "itemPlaceholder": "Poin {num}",
+      "pasteHint": "Menempel daftar bernomor akan dipecah per poin"
     },
     "picker": {
       "title": "Pilih kegiatan PKAT",
@@ -2622,8 +2692,8 @@
       "currentlyActive": "SAAT INI AKTIF",
       "uploadedBy": "Diupload Oleh",
       "approvedBy": "Disetujui Oleh",
-      "download": "Download",
-      "edit": "Edit",
+      "download": "Unduh",
+      "edit": "Ubah",
       "delete": "Hapus",
       "noActiveCharterWarning": "Belum ada Audit Charter yang aktif. Silakan upload atau aktifkan dokumen.",
       "historyTitle": "Riwayat Audit Charter",
@@ -2658,6 +2728,7 @@
       "inactive": "Tidak Aktif",
       "uploadFile": "Unggah File Charter (PDF/DOCX)",
       "selectedFile": "File terpilih:",
+      "fileRequired": "Mohon unggah file Audit Charter.",
       "submit": "Simpan"
     },
     "guideline": {
@@ -2691,6 +2762,7 @@
       "statusUnderReview": "Sedang Diperbarui",
       "effectiveDate": "Mulai Berlaku",
       "fileUpload": "Dokumen Pedoman (PDF)",
+      "fileRequired": "Mohon unggah dokumen Pedoman Audit.",
       "selectedFile": "File terpilih:",
       "saveChanges": "Simpan Perubahan",
       "addGuideline": "Tambah Pedoman",
@@ -2729,6 +2801,7 @@
       "underReview": "Sedang Diperbarui",
       "effectiveDate": "Mulai Berlaku",
       "fileUpload": "Dokumen SOP / Juknis (PDF)",
+      "fileRequired": "Mohon unggah dokumen Petunjuk Teknis / SOP.",
       "selectedFile": "File terpilih:",
       "saveChanges": "Simpan Perubahan",
       "addSop": "Tambah SOP",
@@ -2745,6 +2818,38 @@
       "viewSop": "Lihat Petunjuk Teknis / SOP",
       "editSop": "Edit Petunjuk Teknis / SOP",
       "deleteSop": "Hapus Petunjuk Teknis / SOP"
+    },
+    "toasts": {
+      "charter": {
+        "loadFailed": "Gagal mengambil data Audit Charter.",
+        "added": "Audit Charter berhasil ditambahkan!",
+        "addFailed": "Gagal menambahkan Audit Charter.",
+        "updated": "Audit Charter berhasil diperbarui!",
+        "updateFailed": "Gagal memperbarui Audit Charter.",
+        "deleted": "Audit Charter berhasil dihapus!",
+        "deleteFailed": "Gagal menghapus Audit Charter.",
+        "uploaded": "Audit Charter berhasil diunggah!"
+      },
+      "guideline": {
+        "loadFailed": "Gagal mengambil data Pedoman Audit.",
+        "uploadFailed": "Gagal mengunggah file dokumen.",
+        "added": "Pedoman Audit berhasil ditambahkan!",
+        "addFailed": "Gagal menambahkan Pedoman Audit.",
+        "updated": "Pedoman Audit berhasil diperbarui!",
+        "updateFailed": "Gagal memperbarui Pedoman Audit.",
+        "deleted": "Pedoman Audit berhasil dihapus!",
+        "deleteFailed": "Gagal menghapus Pedoman Audit."
+      },
+      "sop": {
+        "loadFailed": "Gagal mengambil data Petunjuk Teknis/SOP.",
+        "uploadFailed": "Gagal mengunggah file dokumen.",
+        "added": "Petunjuk Teknis/SOP berhasil ditambahkan!",
+        "addFailed": "Gagal menambahkan Petunjuk Teknis/SOP.",
+        "updated": "Petunjuk Teknis/SOP berhasil diperbarui!",
+        "updateFailed": "Gagal memperbarui Petunjuk Teknis/SOP.",
+        "deleted": "Petunjuk Teknis/SOP berhasil dihapus!",
+        "deleteFailed": "Gagal menghapus Petunjuk Teknis/SOP."
+      }
     },
     "errors": {
       "downloadTitle": "Gagal mengunduh file Audit Charter",
@@ -3198,11 +3303,24 @@
       "deleteConfirm": "Apakah Anda yakin ingin menghapus pernyataan selera risiko ini?",
       "deleteError": "Gagal menghapus pernyataan.",
       "saveError": "Gagal menyimpan pernyataan selera risiko.",
+      "status": {
+        "DRAFT": "Draf",
+        "SUBMITTED": "Diajukan",
+        "APPROVED": "Disetujui"
+      },
+      "toasts": {
+        "created": "Pernyataan selera risiko berhasil dibuat",
+        "updated": "Pernyataan selera risiko berhasil diperbarui",
+        "deleted": "Pernyataan selera risiko berhasil dihapus",
+        "createFailed": "Gagal membuat pernyataan selera risiko",
+        "updateFailed": "Gagal memperbarui pernyataan selera risiko",
+        "deleteFailed": "Gagal menghapus pernyataan selera risiko"
+      },
       "modal": {
         "newTitle": "Tambah Pernyataan Selera Risiko Baru",
         "editTitle": "Edit Pernyataan Selera Risiko",
         "statementLabel": "Teks Kebijakan Pernyataan",
-        "statementPlaceholder": "contoh: Risiko tingkat Low dan Low to Moderate dapat diterima...",
+        "statementPlaceholder": "contoh: Risiko tingkat Rendah dan Rendah-Sedang dapat diterima...",
         "thresholdLabel": "Batas Toleransi (%)",
         "statusLabel": "Status Persetujuan",
         "cancel": "Batal",
@@ -4349,7 +4467,8 @@
         "nov": "Nov",
         "dec": "Des"
       },
-      "noData": "Belum ada data tren untuk {year}"
+      "noData": "Belum ada data tren untuk {year}",
+      "noRecentData": "Belum ada data dalam 6 bulan terakhir"
     },
     "table": {
       "title": "Rincian Detail KPI",
@@ -4766,26 +4885,26 @@
       }
     },
     "dimensions": {
-      "design": "Design",
-      "operating": "Operating",
-      "coverage": "Coverage",
-      "timeliness": "Timeliness",
-      "automation": "Automation",
-      "designFullName": "1. Design Effectiveness (20%)",
+      "design": "Desain",
+      "operating": "Operasional",
+      "coverage": "Cakupan",
+      "timeliness": "Ketepatan Waktu",
+      "automation": "Otomasi",
+      "designFullName": "1. Efektivitas Desain (20%)",
       "designDesc": "Kesesuaian rancangan kontrol terhadap risiko & SOP",
-      "operatingFullName": "2. Operating Effectiveness (20%)",
+      "operatingFullName": "2. Efektivitas Operasional (20%)",
       "operatingDesc": "Konsistensi eksekusi dan ketiadaan deviasi kontrol",
-      "coverageFullName": "3. Coverage & Completeness (20%)",
+      "coverageFullName": "3. Cakupan & Kelengkapan (20%)",
       "coverageDesc": "Cakupan kontrol pada seluruh transaksi/aktivitas",
-      "timelinessFullName": "4. Timeliness & Frequency (20%)",
+      "timelinessFullName": "4. Ketepatan Waktu & Frekuensi (20%)",
       "timelinessDesc": "Ketepatan waktu kontrol mendeteksi / mencegah insiden",
-      "automationFullName": "5. Automation & Monitoring (20%)",
+      "automationFullName": "5. Otomasi & Pemantauan (20%)",
       "automationDesc": "Tingkat otomatisasi sistemik & continuous monitoring"
     },
     "interpretationTable": {
       "toggle": "Tabel Standar Interpretasi Rating Efektivitas Kontrol Internal",
       "headers": {
-        "totalWeightedScore": "Total Weighted Score (%)",
+        "totalWeightedScore": "Total Skor Tertimbang (%)",
         "rating": "Rating",
         "interpretation": "Interpretasi"
       },
@@ -4816,12 +4935,12 @@
         "riskCode": "Kode / Risiko",
         "controlCode": "Risk Control ID & Deskripsi Mitigasi",
         "department": "Departemen / PIC",
-        "design": "Design",
-        "operating": "Operating",
-        "coverage": "Coverage",
-        "timeliness": "Timeliness",
-        "automation": "Automation",
-        "totalScore": "Total Score",
+        "design": "Desain",
+        "operating": "Operasional",
+        "coverage": "Cakupan",
+        "timeliness": "Ketepatan Waktu",
+        "automation": "Otomasi",
+        "totalScore": "Skor Total",
         "rating": "Rating Efektivitas",
         "actions": "Aksi"
       },
@@ -4854,7 +4973,7 @@
       "controlDescPlaceholder": "Jelaskan mekanisme kontrol operasional, review, verifikasi, atau sistemik yang dijalankan...",
       "evaluationTitle": "Evaluasi 5 Dimensi Internal Control (COSO 2013)",
       "evaluationWeight": "Bobot Tetap: 20% Tiap Dimensi (Skala 1 - 5)",
-      "totalWeightedScore": "Total Weighted Effectiveness Score:",
+      "totalWeightedScore": "Total Skor Efektivitas Tertimbang:",
       "interpretation": "Interpretasi:",
       "cancel": "Batal",
       "save": "Simpan Kontrol Matrix"
@@ -5145,8 +5264,7 @@
         "company": "Perusahaan",
         "description": "Deskripsi",
         "level": "Level",
-        "status": "Status",
-        "actions": "Aksi"
+        "status": "Status"
       }
     }
   },
@@ -5627,7 +5745,7 @@
       "plan": "Rencana Mitigasi & Kontrol",
       "timeline": "Linimasa",
       "unit": "Unit Penanggung Jawab",
-      "pic": "Person in Charge",
+      "pic": "Penanggung Jawab (PIC)",
       "supervisor": "Supervisor",
       "progress": "Progres Pemantauan",
       "actions": "Aksi"

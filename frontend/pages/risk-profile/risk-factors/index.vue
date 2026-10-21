@@ -234,11 +234,14 @@
                           <UInput
                             v-model.number="item.weight"
                             type="number"
+                            step="0.01"
+                            min="0"
                             size="sm"
                             placeholder="0"
                             color="neutral"
-                            class="w-24"
+                            class="w-28"
                             trailing-icon="i-lucide-percent"
+                            @blur="item.weight = normalizeWeightPercent(item.weight)"
                           />
                         </td>
                         <td class="px-4 py-3 text-center">
@@ -317,22 +320,48 @@
 
             <!-- Scoring Area when activeYearlyEntity is selected -->
             <div v-if="activeYearlyEntity" class="space-y-6">
-              <!-- Calculations overview -->
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 dark:bg-slate-850/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
-                <div class="text-center border-b sm:border-b-0 sm:border-r border-slate-200 dark:border-slate-800 pb-3 sm:pb-0">
-                  <p class="text-md text-slate-500">{{ t('riskFactors.scoring.weightedScoreSum') }}</p>
-                  <p class="text-lg font-black text-slate-800 dark:text-slate-100 mt-1">{{ totalWeightedScore.toFixed(2) }}</p>
-                </div>
-                <div class="text-center border-b sm:border-b-0 sm:border-r border-slate-200 dark:border-slate-800 pb-3 sm:pb-0">
-                  <p class="text-md text-slate-500">{{ t('riskFactors.scoring.riskIndex') }}</p>
-                  <p class="text-lg font-black text-slate-800 dark:text-slate-100 mt-1">{{ activeYearlyEntity.risk_index?.toFixed(1) }}%</p>
-                </div>
-                <div class="text-center">
-                  <p class="text-md text-slate-500">{{ t('riskFactors.scoring.auditPriority') }}</p>
-                  <UBadge :color="activeYearlyEntity.audit_priority ? 'success' : 'neutral'" variant="subtle" class="mt-1">
-                    {{ activeYearlyEntity.audit_priority ? t('riskFactors.scoring.priorityYes') : t('riskFactors.scoring.priorityNo') }}
+              <!-- Calculations overview: saved values come from the server; while editing, a labelled preview -->
+              <div class="space-y-2">
+                <div class="flex flex-wrap items-center gap-2">
+                  <UBadge v-if="scoringSummary.isPreview" color="warning" variant="subtle">
+                    {{ t('riskFactors.scoring.previewLabel') }}
                   </UBadge>
+                  <UBadge v-else-if="!scoringSummary.scored" color="neutral" variant="subtle">
+                    {{ t('riskFactors.scoring.notScored') }}
+                  </UBadge>
+                  <span class="text-xs text-slate-500">
+                    {{ scoringSummary.isPreview ? t('riskFactors.scoring.previewHint') : (!scoringSummary.scored ? t('riskFactors.scoring.entityNotScored') : '') }}
+                  </span>
                 </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 dark:bg-slate-850/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                  <div class="text-center border-b sm:border-b-0 sm:border-r border-slate-200 dark:border-slate-800 pb-3 sm:pb-0">
+                    <p class="text-md text-slate-500">{{ t('riskFactors.scoring.weightedScoreSum') }}</p>
+                    <p class="text-lg font-black text-slate-800 dark:text-slate-100 mt-1">{{ scoringSummary.scored ? scoringSummary.weightedSum.toFixed(2) : '–' }}</p>
+                  </div>
+                  <div class="text-center border-b sm:border-b-0 sm:border-r border-slate-200 dark:border-slate-800 pb-3 sm:pb-0">
+                    <p class="text-md text-slate-500">{{ t('riskFactors.scoring.riskIndex') }}</p>
+                    <p class="text-lg font-black text-slate-800 dark:text-slate-100 mt-1">{{ scoringSummary.scored ? `${scoringSummary.riskIndex.toFixed(1)}%` : '–' }}</p>
+                    <span
+                      v-if="scoringSummary.scored && scoringSummary.riskLevel"
+                      class="inline-flex items-center px-2 py-0.5 mt-1 rounded text-xs font-bold"
+                      :class="getRiskLevelColorClass(scoringSummary.riskLevel)"
+                    >
+                      {{ formatRiskLevel(scoringSummary.riskLevel) }}
+                    </span>
+                  </div>
+                  <div class="text-center">
+                    <p class="text-md text-slate-500">{{ t('riskFactors.scoring.auditPriority') }}</p>
+                    <UBadge v-if="!scoringSummary.scored" color="neutral" variant="outline" class="mt-1">
+                      {{ t('riskFactors.scoring.notScored') }}
+                    </UBadge>
+                    <UBadge v-else :color="scoringSummary.auditPriority ? 'success' : 'neutral'" variant="subtle" class="mt-1">
+                      {{ scoringSummary.auditPriority ? t('riskFactors.scoring.priorityYes') : t('riskFactors.scoring.priorityNo') }}
+                    </UBadge>
+                  </div>
+                </div>
+                <p v-if="unscoredFactorCount > 0" class="text-xs text-slate-500">
+                  {{ t('riskFactors.scoring.unscoredFactorsCount', { count: unscoredFactorCount, total: scoringRows.length }) }}
+                </p>
               </div>
 
               <!-- Scoring list -->
@@ -347,17 +376,21 @@
                       {{ score.factor_name }}
                     </h3>
                     <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-                      {{ t('riskFactors.scoring.weightInfo', { weight: (score.weight * 100).toFixed(0), weighted: (score.weight * score.score).toFixed(2) }) }}
+                      {{ t('riskFactors.scoring.weightInfo', { weight: weightFractionToPercent(score.weight), weighted: score.score === null ? '–' : (score.weight * score.score).toFixed(2) }) }}
+                    </p>
+                    <p v-if="score.score === null" class="text-[10px] text-slate-400 italic mt-0.5">
+                      {{ t('riskFactors.scoring.notScoredHint') }}
                     </p>
                   </div>
                   <div class="flex items-center gap-3">
                     <USelect
                       v-model.number="score.score"
                       :items="[1, 2, 3, 4, 5]"
+                      :placeholder="'–'"
                       size="sm"
                       color="neutral"
                       class="w-20"
-                      @update:model-value="onScoreChange(score)"
+                      @update:model-value="onScoreChange"
                     />
                     <UTooltip :text="t('riskFactors.scoring.guidelinesTooltip')">
                       <UButton
@@ -651,6 +684,17 @@ import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { useFiscalYear } from '~/composables/useFiscalYear'
+import { getRiskLevelColorClass, isPriorityRiskLevel, RISK_LEVEL_LABEL_KEYS } from '~/utils/riskLevelBadge'
+import {
+  buildScoringRows,
+  computeRiskIndexPreview,
+  isUniverseYearScored,
+  isValidWeightTotal,
+  normalizeWeightPercent,
+  sumWeightPercents,
+  weightFractionToPercent,
+  type ScoringRow
+} from '~/utils/riskScoring'
 
 const store = useRiskFactorsStore()
 const auditStore = useAuditUniverseStore()
@@ -697,9 +741,9 @@ const { fiscalYears, selectedFiscalYear } = useFiscalYear()
 const selectedYear = selectedFiscalYear
 const selectedEntityId = ref<string | undefined>(undefined)
 const activeYearlyEntity = ref<any>(null)
-const scoringRows = ref<any[]>([])
-const rubricModalOpen = ref(false)
-const rubricFactor = ref<any>(null)
+const scoringRows = ref<ScoringRow<any>[]>([])
+// True once the user changes a score; the overview then shows a labelled preview instead of the saved values.
+const scoresDirty = ref(false)
 
 watch(selectedYear, async () => {
   await fetchYearlyUniverse()
@@ -721,7 +765,7 @@ onMounted(async () => {
   // Populate local corporate selection from store
   selectedCorporateList.value = store.corporateFactors.map(cf => ({
     standard_risk_factor_id: cf.standard_risk_factor_id,
-    weight: Math.round(cf.weight * 100), // convert 0.15 to 15
+    weight: weightFractionToPercent(cf.weight), // convert 0.1525 to 15.25
     standard_risk_factor: cf.standard_risk_factor
   }))
 })
@@ -771,16 +815,10 @@ const parsedGuidelines = computed(() => {
   }
 })
 
-// Correct reactive calculation of total weight sum
-const totalWeight = computed(() => {
-  return selectedCorporateList.value.reduce((sum, item) => sum + (Number(item.weight) || 0), 0)
-})
+// Weights are percentages with up to 2 decimals; the backend accepts a total of 99.9–100.1.
+const totalWeight = computed(() => sumWeightPercents(selectedCorporateList.value.map(item => item.weight)))
 
-const isValidWeightSum = computed(() => {
-  return totalWeight.value === 100
-})
-
-const yearlyUniverse = computed(() => auditStore.yearlyUniverse)
+const isValidWeightSum = computed(() => isValidWeightTotal(totalWeight.value))
 
 const dropdownEntities = computed(() => {
   return auditStore.yearlyUniverse.map(item => ({
@@ -792,15 +830,46 @@ const dropdownEntities = computed(() => {
 
 
 
-const totalWeightedScore = computed(() => {
-  return scoringRows.value.reduce((sum, item) => sum + (item.score * item.weight || 0), 0)
+const unscoredFactorCount = computed(() => scoringRows.value.filter(row => row.score === null).length)
+
+// Saved data shows the server's risk_index / risk_level / audit_priority; edits show a preview using the backend formula.
+const scoringSummary = computed(() => {
+  const ent = activeYearlyEntity.value
+  if (scoresDirty.value) {
+    const preview = computeRiskIndexPreview(scoringRows.value)
+    return {
+      isPreview: true,
+      scored: preview.scoredCount > 0,
+      weightedSum: preview.weightedSum,
+      riskIndex: preview.riskIndex,
+      riskLevel: preview.riskLevel as string,
+      auditPriority: preview.auditPriority
+    }
+  }
+  const scored = isUniverseYearScored(ent)
+  const riskIndex = Number(ent?.risk_index) || 0
+  return {
+    isPreview: false,
+    scored,
+    // Derived from the stored index so the two figures always agree.
+    weightedSum: (riskIndex / 100) * 5,
+    riskIndex,
+    riskLevel: (ent?.risk_level || '') as string,
+    auditPriority: scored && !!ent?.audit_priority
+  }
 })
+
+const formatRiskLevel = (level?: string) => {
+  if (!level) return ''
+  return isPriorityRiskLevel(level) ? t(RISK_LEVEL_LABEL_KEYS[level]) : level
+}
 
 // Methods
 const fetchYearlyUniverse = async () => {
   selectedEntityId.value = undefined
   activeYearlyEntity.value = null
   scoringRows.value = []
+  scoresDirty.value = false
   await auditStore.fetchYearlyUniverse(selectedYear.value)
 }
 
@@ -813,8 +882,8 @@ const toggleFactorSelection = (factor: any) => {
   if (index >= 0) {
     selectedCorporateList.value.splice(index, 1)
   } else {
-    const currentSum = selectedCorporateList.value.reduce((s, i) => s + (i.weight || 0), 0)
-    const remaining = Math.max(0, 100 - currentSum)
+    const currentSum = sumWeightPercents(selectedCorporateList.value.map(i => i.weight))
+    const remaining = normalizeWeightPercent(Math.max(0, 100 - currentSum))
     
     selectedCorporateList.value.push({
       standard_risk_factor_id: factor.id,
@@ -852,82 +921,72 @@ const selectEntityForScoringById = (entityId?: string) => {
 }
 
 const selectEntityForScoring = (ent: any) => {
+  scoresDirty.value = false
   if (!ent) {
     activeYearlyEntity.value = null
     scoringRows.value = []
     return
   }
   activeYearlyEntity.value = ent
-  scoringRows.value = store.corporateFactors.map(cf => {
-    const matchScore = ent.risk_scores?.find((s: any) => s.corporate_risk_factor_id === cf.id)
-    return {
-      corporate_risk_factor_id: cf.id,
-      factor_name: cf.standard_risk_factor?.name,
-      weight: cf.weight,
-      score: matchScore ? matchScore.score : 3,
-      rubric: cf.standard_risk_factor
-    }
-  })
+  // A factor without a saved score row stays unscored (null); it is never defaulted.
+  scoringRows.value = buildScoringRows(store.corporateFactors, ent.risk_scores)
 }
 
-const onScoreChange = (scoreRow: any) => {
-  const sum = scoringRows.value.reduce((s, row) => s + (row.score * row.weight), 0)
-  activeYearlyEntity.value.risk_index = (sum / 5.0) * 100.0
-  
-  if (activeYearlyEntity.value.risk_index >= 80.0) {
-    activeYearlyEntity.value.risk_level = 'High'
-    activeYearlyEntity.value.audit_priority = true
-  } else if (activeYearlyEntity.value.risk_index >= 60.0) {
-    activeYearlyEntity.value.risk_level = 'Medium to High'
-    activeYearlyEntity.value.audit_priority = true
-  } else if (activeYearlyEntity.value.risk_index >= 40.0) {
-    activeYearlyEntity.value.risk_level = 'Medium'
-    activeYearlyEntity.value.audit_priority = false
-  } else if (activeYearlyEntity.value.risk_index >= 20.0) {
-    activeYearlyEntity.value.risk_level = 'Low to Medium'
-    activeYearlyEntity.value.audit_priority = false
-  } else {
-    activeYearlyEntity.value.risk_level = 'Low'
-    activeYearlyEntity.value.audit_priority = false
-  }
+// The store row is not touched; the overview switches to a preview of the edited scores.
+const onScoreChange = () => {
+  scoresDirty.value = true
 }
 
 const saveEntityScoring = async () => {
   if (!activeYearlyEntity.value) return
 
-  const payload = {
-    audit_universe_year_id: activeYearlyEntity.value.id,
-    scores: scoringRows.value.map(row => ({
+  const scores = scoringRows.value
+    .filter(row => row.score !== null)
+    .map(row => ({
       corporate_risk_factor_id: row.corporate_risk_factor_id,
-      score: row.score
+      score: row.score as number
     }))
+  if (scores.length === 0) {
+    toast.showError(t('riskFactors.scoring.noScoresToSave'))
+    return
   }
 
-  const res = await auditStore.scoreYearlyEntity(selectedYear.value, payload)
+  const payload = {
+    audit_universe_year_id: activeYearlyEntity.value.id,
+    scores
+  }
+
+  const year = selectedYear.value
+  const entityId = activeYearlyEntity.value.id
+  const res = await auditStore.scoreYearlyEntity(year, payload)
   if (res) {
-    toast.showSuccess('Skor berhasil disimpan')
-    await fetchYearlyUniverse()
+    toast.showSuccess(t('riskFactors.messages.scoresSaved'))
+    // The store already reloaded the year; show the server's recomputed values for the same entity.
+    selectedEntityId.value = entityId
+    selectEntityForScoring(auditStore.yearlyUniverse.find(item => item.id === entityId) ?? null)
   } else {
-    toast.showError('Skor gagal disimpan')
+    toast.showError(auditStore.errorMsg || t('riskFactors.messages.scoresSaveFailed'))
   }
 }
 
 const saveChanges = async () => {
   if (!isValidWeightSum.value) {
-    toast.showError(`Jumlah bobot harus 100%, total saat ini: ${totalWeight.value}`)
+    toast.showError(t('riskFactors.messages.weightSumMustBe100', { total: totalWeight.value }))
     return
   }
 
   const payload = selectedCorporateList.value.map(item => ({
     standard_risk_factor_id: item.standard_risk_factor_id,
-    weight: item.weight
+    weight: normalizeWeightPercent(item.weight)
   }))
 
   const success = await store.saveCorporateFactors(payload)
   if (success) {
-    toast.showSuccess('Bobot berhasil disimpan')
+    toast.showSuccess(t('riskFactors.messages.weightsUpdated'))
+    // The backend recomputes every entity's risk index after a weight change.
+    await fetchYearlyUniverse()
   } else {
-    toast.showError('Bobot gagal disimpan')
+    toast.showError(store.errorMsg || t('riskFactors.messages.weightsUpdateFailed'))
   }
 }
 

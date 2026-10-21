@@ -50,13 +50,9 @@
                 class="block text-sm font-medium"
                 size="lg"
             >
-                <UInput 
-                type="file" 
-                ref="fileInput" 
-                class="w-full" 
-                icon="i-heroicons-paper-clip"
-                accept="image/png, image/jpeg" 
-                @change="store.onFileChange"
+                <LocalizedFileInput
+                  accept="image/png, image/jpeg"
+                  @change="store.onFileChange"
                 />     
             </UFormField>
             </div>

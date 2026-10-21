@@ -52,7 +52,8 @@
                 {{ formatStatus(objective.status) }}
               </span>
             </div>
-            <div class="w-12 h-12 rounded-xl bg-primary-50 dark:bg-primary-950/40 flex items-center justify-center text-primary-600 dark:text-primary-400 font-bold text-sm">
+            <!-- Width follows the value: "100.00%" or "1234.56%" widens the box instead of overflowing it -->
+            <div class="min-w-12 h-12 px-3 shrink-0 whitespace-nowrap tabular-nums rounded-xl bg-primary-50 dark:bg-primary-950/40 flex items-center justify-center text-primary-600 dark:text-primary-400 font-bold text-sm">
               {{ objective.calculation || '-' }}
             </div>
           </div>

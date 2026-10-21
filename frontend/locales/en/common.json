@@ -196,6 +196,21 @@
       "delete": "Delete",
       "download": "Download",
       "upload": "Upload"
+    },
+    "columns": {
+      "actions": "Actions"
+    },
+    "fileInput": {
+      "chooseFile": "Choose file",
+      "noFileChosen": "No file chosen",
+      "tooLarge": "File is too large. Maximum size is {size} MB.",
+      "invalidPdfDocx": "Invalid file format. Use PDF or DOCX."
+    },
+    "sourceSelector": {
+      "allSources": "All sources",
+      "dataSource": "Data source",
+      "allSourcesConsolidated": "All data sources (consolidated)",
+      "manage": "Manage data sources..."
     }
   },
   "dashboard": {
@@ -259,7 +274,19 @@
       "scheduledActivities": "Scheduled audit activities",
       "viewAllAnnualAudits": "View all Annual Audits",
       "status": "Status:",
-      "noUpcomingAudits": "No upcoming audits scheduled."
+      "noUpcomingAudits": "No upcoming audits scheduled.",
+      "trend": {
+        "improving": "Improving",
+        "declining": "Declining",
+        "deteriorating": "Deteriorating",
+        "stable": "Stable"
+      },
+      "severity": {
+        "critical": "Critical",
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      }
     },
     "planningExecution": {
       "title": "Audit Planning & Execution",
@@ -271,7 +298,18 @@
     },
     "registeredRisks": {
       "columns": {
+        "name": "Risk Name",
+        "score": "Score",
         "level": "Risk Level"
+      },
+      "empty": "No data has been added to the Risk Heat Map yet.",
+      "cellTooltip": "Impact: {impact}, Probability: {probability}, Risk: {level}"
+    },
+    "atrTable": {
+      "columns": {
+        "auditId": "Audit ID",
+        "actionItem": "Action Item",
+        "owner": "Owner"
       }
     },
     "recentFindings": {
@@ -1014,6 +1052,8 @@
     "toast": {
       "validationTitle": "Validation failed",
       "objectiveRequired": "The Strategic Objective field is required.",
+      "periodInvalid": "The end year ({end}) cannot be before the start year ({start}).",
+      "numberInvalid": "{field} for {period} must be a number (e.g. 85 or 85.5).",
       "updatedTitle": "Strategic plan updated",
       "createdTitle": "Strategic plan created",
       "savedDesc": "Strategic plan \"{name}\" saved successfully.",
@@ -1202,10 +1242,10 @@
       "badgeValid": "VALID",
       "badgeInvalid": "INVALID SUM",
       "saveWeights": "Save Weights",
-      "standardFactorsTitle": "📂 Standard Risk Factors",
+      "standardFactorsTitle": "Standard Risk Factors",
       "searchPlaceholder": "Search standard factors...",
       "noMatchingFactors": "No standard risk factors match your query.",
-      "selectedWeightsTitle": "⚙️ Selected Weights",
+      "selectedWeightsTitle": "Selected Weights",
       "activeFactorsCount": "{count} Active Factors",
       "no": "No",
       "riskFactor": "Risk Factor",
@@ -1236,7 +1276,7 @@
       "viewGuidelines": "View Guidelines"
     },
     "scoring": {
-      "title": "🎯 Risk Score",
+      "title": "Risk Score",
       "subtitle": "Select year and entity to enter risk factor scoring.",
       "yearLabel": "Year:",
       "entityLabel": "Entity:",
@@ -1250,7 +1290,14 @@
       "selectEntityTitle": "Select Auditable Entity",
       "selectEntityDesc": "Choose a year and active auditable entity from the dropdowns above to begin risk scoring.",
       "saveBtn": "Save Scoring & Calculate",
-      "guidelinesTooltip": "Scoring Scale Guidelines"
+      "guidelinesTooltip": "Scoring Scale Guidelines",
+      "notScored": "Not scored",
+      "notScoredHint": "No score saved for this factor yet; it is not counted in the risk index.",
+      "entityNotScored": "This entity has not been scored for this year yet.",
+      "previewLabel": "Preview (unsaved)",
+      "previewHint": "Calculated from the scores you are editing. Save to update the stored risk index.",
+      "unscoredFactorsCount": "{count} of {total} factors not scored yet.",
+      "noScoresToSave": "Select a score for at least one factor before saving."
     },
     "priority": {
       "title": "Audit Priority ({year})",
@@ -1264,7 +1311,9 @@
       "auditPriorityCol": "Audit Priority*",
       "priorityBadge": "√ Priority",
       "noEntities": "No established auditable entities for year {year}.",
-      "sortedNote": "Sorted by Risk Index (descending)",
+      "sortedNote": "Sorted by Risk Index (descending); entities not scored yet are listed last",
+      "notScoredBadge": "Not scored",
+      "notScoredHint": "This entity has not been scored for this year yet.",
       "levelInfoTitle": "Corporate Risk Index Level Information",
       "levels": {
         "high": "High",
@@ -2097,6 +2146,11 @@
     "importPlanDocument": "Import Plan Document",
     "newAuditPlan": "New Audit Plan",
     "table": {
+      "columns": {
+        "activity": "Activity",
+        "riskName": "Risk Name",
+        "riskLevel": "Risk Level"
+      },
       "empty": "No audit plans yet.",
       "viewTooltip": "View audit plan",
       "editTooltip": "Edit audit plan",
@@ -2290,6 +2344,7 @@
       "workUnitPlaceholder": "Select Work Unit (Required)",
       "company": "Company / Entity",
       "companyPlaceholder": "Select Company / Entity (Optional)",
+      "companyNone": "— None (Default {company}) —",
       "members": "Team Members",
       "memberName": "Member Name",
       "role": "Role",
@@ -2307,6 +2362,21 @@
       "delete": "Delete Assignment Letter"
     },
     "title": "Assignment Letter List",
+    "table": {
+      "columns": {
+        "letterNumber": "Letter Number",
+        "auditTitle": "Audit Title / Object",
+        "workingUnit": "Work Unit",
+        "executionPeriod": "Execution Period",
+        "auditTeam": "Audit Team",
+        "status": "Status"
+      },
+      "status": {
+        "Draft": "Draft",
+        "Published": "Published"
+      },
+      "empty": "No assignment letters yet. Click Create Assignment Letter to start."
+    },
     "importDocument": "Import Document",
     "createAssignmentLetter": "Create Assignment Letter",
     "upload": {
@@ -2658,6 +2728,7 @@
       "inactive": "Inactive",
       "uploadFile": "Upload Charter File (PDF/DOCX)",
       "selectedFile": "Selected file:",
+      "fileRequired": "Please upload the Audit Charter file.",
       "submit": "Submit"
     },
     "guideline": {
@@ -2691,6 +2762,7 @@
       "statusUnderReview": "Under Review",
       "effectiveDate": "Effective Date",
       "fileUpload": "Guideline Document (PDF)",
+      "fileRequired": "Please upload the Audit Guideline document.",
       "selectedFile": "Selected file:",
       "saveChanges": "Save Changes",
       "addGuideline": "Add Guideline",
@@ -2729,6 +2801,7 @@
       "underReview": "Under Review",
       "effectiveDate": "Effective Date",
       "fileUpload": "SOP / Technical Instruction Document (PDF)",
+      "fileRequired": "Please upload the Technical Instruction / SOP document.",
       "selectedFile": "Selected file:",
       "saveChanges": "Save Changes",
       "addSop": "Add SOP",
@@ -2745,6 +2818,38 @@
       "viewSop": "View Technical Instruction / SOP",
       "editSop": "Edit Technical Instruction / SOP",
       "deleteSop": "Delete Technical Instruction / SOP"
+    },
+    "toasts": {
+      "charter": {
+        "loadFailed": "Failed to load Audit Charter data.",
+        "added": "Audit Charter added successfully!",
+        "addFailed": "Failed to add Audit Charter.",
+        "updated": "Audit Charter updated successfully!",
+        "updateFailed": "Failed to update Audit Charter.",
+        "deleted": "Audit Charter deleted successfully!",
+        "deleteFailed": "Failed to delete Audit Charter.",
+        "uploaded": "Audit Charter uploaded successfully!"
+      },
+      "guideline": {
+        "loadFailed": "Failed to load Audit Guideline data.",
+        "uploadFailed": "Failed to upload the document file.",
+        "added": "Audit Guideline added successfully!",
+        "addFailed": "Failed to add Audit Guideline.",
+        "updated": "Audit Guideline updated successfully!",
+        "updateFailed": "Failed to update Audit Guideline.",
+        "deleted": "Audit Guideline deleted successfully!",
+        "deleteFailed": "Failed to delete Audit Guideline."
+      },
+      "sop": {
+        "loadFailed": "Failed to load Technical Instruction / SOP data.",
+        "uploadFailed": "Failed to upload the document file.",
+        "added": "Technical Instruction / SOP added successfully!",
+        "addFailed": "Failed to add Technical Instruction / SOP.",
+        "updated": "Technical Instruction / SOP updated successfully!",
+        "updateFailed": "Failed to update Technical Instruction / SOP.",
+        "deleted": "Technical Instruction / SOP deleted successfully!",
+        "deleteFailed": "Failed to delete Technical Instruction / SOP."
+      }
     },
     "errors": {
       "downloadTitle": "Could not download the Audit Charter file",
@@ -3198,6 +3303,19 @@
       "deleteConfirm": "Are you sure you want to delete this appetite statement?",
       "deleteError": "Failed to delete statement.",
       "saveError": "Failed to save appetite statement.",
+      "status": {
+        "DRAFT": "Draft",
+        "SUBMITTED": "Submitted",
+        "APPROVED": "Approved"
+      },
+      "toasts": {
+        "created": "Appetite statement created successfully",
+        "updated": "Appetite statement updated successfully",
+        "deleted": "Appetite statement deleted successfully",
+        "createFailed": "Failed to create appetite statement",
+        "updateFailed": "Failed to update appetite statement",
+        "deleteFailed": "Failed to delete appetite statement"
+      },
       "modal": {
         "newTitle": "Add New Appetite Statement",
         "editTitle": "Edit Appetite Statement",
@@ -4349,7 +4467,8 @@
         "nov": "Nov",
         "dec": "Dec"
       },
-      "noData": "No trend data for {year}"
+      "noData": "No trend data for {year}",
+      "noRecentData": "No data for the last 6 months"
     },
     "table": {
       "title": "KPI detailed breakdown",
@@ -5145,8 +5264,7 @@
         "company": "Company",
         "description": "Description",
         "level": "Level",
-        "status": "Status",
-        "actions": "Actions"
+        "status": "Status"
       }
     }
   },

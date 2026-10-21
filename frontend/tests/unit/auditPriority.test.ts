@@ -45,22 +45,27 @@ describe('Audit Priority Feature Restructuring', () => {
     expect(content).toContain('selectedYear')
     expect(content).toContain('loadData')
 
-    // Table & Columns
+    // Table & Columns: priority and sorting go through the shared scoring helpers (unscored rows last, never prioritized)
     expect(content).toContain('filteredYearlyUniverse')
-    expect(content).toContain('ent.audit_priority')
-    expect(content).toContain('ent.risk_index')
+    expect(content).toContain('isUniverseYearPrioritized(ent)')
+    expect(content).toContain('sortUniverseYearsByRisk(')
     expect(content).toContain('ent.risk_level')
+    expect(content).toContain('riskFactors.priority.notScoredBadge')
 
-    // Risk Index Level Reference
+    // Risk Index Level Reference comes from the one shared threshold table, not a local copy
     expect(content).toContain('levelInfoTitle')
-    expect(content).toContain('80 - 100%')
-    expect(content).toContain('60 - 79%')
-    expect(content).toContain('40 - 59%')
-    expect(content).toContain('20 - 39%')
-    expect(content).toContain('0 - 19%')
+    expect(content).toContain('RISK_LEVEL_THRESHOLDS')
+    expect(content).toContain('formatRiskLevelRange(row)')
+    expect(content).not.toMatch(/>=\s*80/)
 
     // Store integration
     expect(content).toContain('useAuditUniverseStore')
+  })
+
+  it('keeps the reference ranges of the shared thresholds', async () => {
+    const { RISK_LEVEL_THRESHOLDS, formatRiskLevelRange } = await import('~/utils/riskLevelBadge')
+    expect(RISK_LEVEL_THRESHOLDS.map(formatRiskLevelRange)).toEqual(['80 - 100%', '60 - 79%', '40 - 59%', '20 - 39%', '0 - 19%'])
+    expect(RISK_LEVEL_THRESHOLDS.filter(th => th.prioritized).map(th => th.level)).toEqual(['High', 'Medium to High'])
   })
 
   it('verifies localization keys for auditPriority exist in en and id locales', () => {

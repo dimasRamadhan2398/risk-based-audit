@@ -2,9 +2,13 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"math"
 	"net/http"
 	"risk-service/models"
+	"risk-service/pkg/kafka"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -14,11 +18,19 @@ import (
 
 type RiskFactorController struct {
 	db *gorm.DB
+	// events may be nil (Kafka disabled); *kafka.Publisher treats a nil
+	// receiver as a no-op. Weight changes re-score year rows and announce them
+	// with year.scored, like ScoreYearlyEntity.
+	events *kafka.Publisher
 }
 
-func NewRiskFactorController(db *gorm.DB) *RiskFactorController {
-	return &RiskFactorController{db: db}
+func NewRiskFactorController(db *gorm.DB, events *kafka.Publisher) *RiskFactorController {
+	return &RiskFactorController{db: db, events: events}
 }
+
+// errFactorHasWeight is returned from the delete transaction when the standard
+// factor is still weighted in the corporate risk factors.
+var errFactorHasWeight = errors.New("standard risk factor still has a corporate weight")
 
 type StandardRiskFactorReq struct {
 	Name            string `json:"name" binding:"required"`
@@ -176,13 +188,24 @@ func (ctrl *RiskFactorController) DeleteStandardRiskFactor(c *gin.Context) {
 		return
 	}
 
+	var rescored []models.AuditUniverseYear
+	var weight float64
 	err = ctrl.db.Transaction(func(tx *gorm.DB) error {
-		// 1. Delete dependent scores for any corporate risk factors linked to this standard factor
 		var corpFactors []models.CorporateRiskFactor
 		if err := tx.Where("standard_risk_factor_id = ?", factorID).Find(&corpFactors).Error; err != nil {
 			return err
 		}
 
+		// Deleting a weighted factor would leave the corporate weights under
+		// 100%. The user must first save the corporate weights without it.
+		for _, cf := range corpFactors {
+			if cf.Weight > 0 {
+				weight = cf.Weight
+				return errFactorHasWeight
+			}
+		}
+
+		// 1. Delete dependent scores for any (zero-weight) corporate risk factors linked to this standard factor
 		for _, cf := range corpFactors {
 			if err := tx.Where("corporate_risk_factor_id = ?", cf.ID).Delete(&models.AuditUniverseRiskScore{}).Error; err != nil {
 				return err
@@ -199,9 +222,24 @@ func (ctrl *RiskFactorController) DeleteStandardRiskFactor(c *gin.Context) {
 			return err
 		}
 
+		// 4. Scores were removed: re-derive the scored year rows.
+		if len(corpFactors) > 0 {
+			var err error
+			rescored, err = recomputeScoredYears(tx, time.Now())
+			return err
+		}
 		return nil
 	})
 
+	if errors.Is(err, errFactorHasWeight) {
+		c.JSON(http.StatusConflict, gin.H{
+			"success": false,
+			"code":    "FACTOR_HAS_CORPORATE_WEIGHT",
+			"error": fmt.Sprintf("Risk factor %q still has a corporate weight of %s%%. Remove it from the corporate risk factors (and save the weights) before deleting it.",
+				factor.Name, strconv.FormatFloat(math.Round(weight*10000)/100, 'f', -1, 64)),
+		})
+		return
+	}
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -209,6 +247,8 @@ func (ctrl *RiskFactorController) DeleteStandardRiskFactor(c *gin.Context) {
 		})
 		return
 	}
+
+	publishYearScores(ctrl.events, rescored)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -265,9 +305,10 @@ func (ctrl *RiskFactorController) UpdateCorporateRiskFactors(c *gin.Context) {
 	}
 
 	// Perform database updates inside transaction
+	var rescored []models.AuditUniverseYear
 	err := ctrl.db.Transaction(func(tx *gorm.DB) error {
 		now := time.Now()
-		
+
 		// Map requested factors for fast lookup
 		reqMap := make(map[uuid.UUID]float64)
 		for _, r := range reqs {
@@ -322,7 +363,14 @@ func (ctrl *RiskFactorController) UpdateCorporateRiskFactors(c *gin.Context) {
 				}
 			}
 		}
-		return nil
+
+		// 3. Weights or the factor set changed: re-derive weighted scores and
+		// index/level/priority of every scored year row in this transaction.
+		// A newly added factor has no score yet and is "not scored" for each
+		// entity (see models.ComputeRiskIndex).
+		var err error
+		rescored, err = recomputeScoredYears(tx, now)
+		return err
 	})
 
 	if err != nil {
@@ -332,6 +380,8 @@ func (ctrl *RiskFactorController) UpdateCorporateRiskFactors(c *gin.Context) {
 		})
 		return
 	}
+
+	publishYearScores(ctrl.events, rescored)
 
 	// Fetch updated list to return
 	var updatedFactors []models.CorporateRiskFactor

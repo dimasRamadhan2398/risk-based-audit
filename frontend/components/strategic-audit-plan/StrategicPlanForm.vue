@@ -113,7 +113,7 @@
                 <span class="text-sm font-bold text-gray-800 dark:text-white">{{ t('strategicPlan.form.to') }}</span>
                 <USelectMenu
                   v-model="store.form.yearEnd"
-                  :items="store.yearOptions"
+                  :items="store.yearEndOptions"
                   value-key="value"
                   :placeholder="t('strategicPlan.vmg.year')"
                   class="w-28"

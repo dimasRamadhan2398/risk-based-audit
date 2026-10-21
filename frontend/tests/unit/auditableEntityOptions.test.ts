@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { buildAuditableEntityOptions } from '~/utils/auditableEntityOptions'
+import {
+  buildAuditableEntityOptions,
+  findAuditableEntityForActivity,
+  resolveAuditableEntitySelection
+} from '~/utils/auditableEntityOptions'
 
 describe('buildAuditableEntityOptions', () => {
   const corporate = [
@@ -32,7 +36,7 @@ describe('buildAuditableEntityOptions', () => {
       id: 'corp-4',
       name: 'IT',
       label: 'IT',
-      value: 'IT',
+      value: 'corp-4',
       riskLevel: 'High',
       riskIndex: 72.5,
       auditPriority: true,
@@ -54,7 +58,7 @@ describe('buildAuditableEntityOptions', () => {
     })
   })
 
-  it('de-duplicates names case-insensitively, keeping the yearly entry', () => {
+  it('de-duplicates by corporate id, keeping the yearly entry', () => {
     const yearly = [
       { corporate_audit_universe_id: 'corp-4', corporate_audit_universe: { name: 'it' }, risk_level: 'Low' }
     ]

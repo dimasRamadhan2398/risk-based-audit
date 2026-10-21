@@ -798,28 +798,10 @@ func seedCorporateAuditUniverseAndScores(db *gorm.DB) error {
 			totalWeighted += rf.Weight * float64(scoreVal)
 		}
 
-		riskIndex := (totalWeighted / 5.0) * 100.0
-		var riskLevel string
-		var priority bool
+		riskIndex, riskLevel, priority := models.ClassifyRiskIndex((totalWeighted / 5.0) * 100.0)
 
-		if riskIndex >= 80.0 {
-			riskLevel = "High"
-			priority = true
-		} else if riskIndex >= 60.0 {
-			riskLevel = "Medium to High"
-			priority = true
-		} else if riskIndex >= 40.0 {
-			riskLevel = "Medium"
-			priority = false
-		} else if riskIndex >= 20.0 {
-			riskLevel = "Low to Medium"
-			priority = false
-		} else {
-			riskLevel = "Low"
-			priority = false
-		}
-
-		// Create AuditUniverseYear
+		// Create AuditUniverseYear (seeded with scores, so it counts as scored)
+		scoredAt := now
 		auYear := models.AuditUniverseYear{
 			ID:                       uuid.New(),
 			CorporateAuditUniverseID: corpID,
@@ -827,6 +809,7 @@ func seedCorporateAuditUniverseAndScores(db *gorm.DB) error {
 			RiskIndex:                riskIndex,
 			RiskLevel:                riskLevel,
 			AuditPriority:            priority,
+			ScoredAt:                 &scoredAt,
 			CreatedAt:                now,
 			UpdatedAt:                now,
 		}

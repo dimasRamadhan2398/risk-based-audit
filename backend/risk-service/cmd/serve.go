@@ -156,7 +156,6 @@ func runServe(cmd *cobra.Command, args []string) error {
 
 	riskCtrl := controllers.NewRiskController(riskServ)
 	mitigationCtrl := controllers.NewMitigationController(mitigationServ)
-	riskFactorCtrl := controllers.NewRiskFactorController(db)
 	// Audit Universe events feed audit-service's annual plan sync. Best-effort:
 	// if the broker is unreachable at start-up the service still serves the
 	// universe, and POST /audit-universe/events/resync repairs the gap later.
@@ -171,6 +170,8 @@ func runServe(cmd *cobra.Command, args []string) error {
 		go kafka.NewRelay(db, cfg.Kafka.Brokers, kafka.TopicAuditUniverse).Run(context.Background())
 	}
 	auditUniverseCtrl := controllers.NewAuditUniverseController(db, universeEvents)
+	// Weight changes re-score year rows, so this controller publishes too.
+	riskFactorCtrl := controllers.NewRiskFactorController(db, universeEvents)
 	rcmCtrl := controllers.NewRCMController(db)
 
 	// Register Routes

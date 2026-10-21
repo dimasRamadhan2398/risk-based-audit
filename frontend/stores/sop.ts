@@ -49,7 +49,7 @@ export const useSopStore = defineStore('sop', () => {
     { accessorKey: 'guideline_name', header: t('auditCharter.sopList.columns.guidelineName'), class: 'w-[130px] min-w-[130px] max-w-[130px] sm:w-[220px] sm:min-w-[220px] sm:max-w-[220px] whitespace-normal break-words' },
     { accessorKey: 'status', header: t('auditCharter.sopList.columns.status'), class: 'w-32 whitespace-nowrap text-center' },
     { accessorKey: 'effective_date', header: t('auditCharter.sopList.columns.effectiveDate'), class: 'w-36 whitespace-nowrap text-center' },
-    { accessorKey: 'actions', header: t('auditCharter.sopList.columns.actions'), class: 'w-28 whitespace-nowrap text-center' }
+    { accessorKey: 'actions', header: t('common.columns.actions'), class: 'w-28 whitespace-nowrap text-center' }
   ])
 
   const form = reactive({
@@ -96,7 +96,7 @@ export const useSopStore = defineStore('sop', () => {
       }
     } catch (err: any) {
       console.error('Failed to fetch sops:', err)
-      errorMsg.value = extractErrorMessage(err, 'Gagal mengambil data Petunjuk Teknis/SOP.')
+      errorMsg.value = extractErrorMessage(err, t('auditCharter.toasts.sop.loadFailed'))
     } finally {
       loading.value = false
     }
@@ -116,7 +116,7 @@ export const useSopStore = defineStore('sop', () => {
     if (!file) return
 
     if (file.size > 10 * 1024 * 1024) {
-      errorMsg.value = 'File terlalu besar! Maksimal 10MB.'
+      errorMsg.value = t('common.fileInput.tooLarge', { size: 10 })
       form.file = null
       target.value = ''
       return
@@ -166,16 +166,16 @@ export const useSopStore = defineStore('sop', () => {
       )
     } catch (err) {
       console.error('Failed to upload file:', err)
-      const detail = extractErrorMessage(err, 'Gagal mengupload file dokumen.')
+      const detail = extractErrorMessage(err, t('auditCharter.toasts.sop.uploadFailed'))
       errorMsg.value = detail
-      toast.showError('Gagal mengupload file dokumen.', detail)
+      toast.showError(t('auditCharter.toasts.sop.uploadFailed'), detail)
       throw err
     }
   }
 
   const addSop = async () => {
     if (!form.file && !form.fileUrl) {
-      errorMsg.value = 'Mohon upload file dokumen Petunjuk Teknis / SOP.'
+      errorMsg.value = t('auditCharter.sopForm.fileRequired')
       return
     }
 
@@ -215,14 +215,14 @@ export const useSopStore = defineStore('sop', () => {
         }
       })
 
-      toast.showSuccess('Petunjuk Teknis/SOP berhasil ditambahkan!')
+      toast.showSuccess(t('auditCharter.toasts.sop.added'))
       await fetchSops()
       closeModal()
     } catch (err: any) {
       console.error('Failed to add sop:', err)
-      const detail = extractErrorMessage(err, 'Gagal menambahkan Petunjuk Teknis/SOP.')
+      const detail = extractErrorMessage(err, t('auditCharter.toasts.sop.addFailed'))
       errorMsg.value = detail
-      toast.showError('Gagal menambahkan Petunjuk Teknis/SOP.', detail)
+      toast.showError(t('auditCharter.toasts.sop.addFailed'), detail)
     } finally {
       loading.value = false
     }
@@ -266,14 +266,14 @@ export const useSopStore = defineStore('sop', () => {
         }
       })
 
-      toast.showSuccess('Petunjuk Teknis/SOP berhasil diperbarui!')
+      toast.showSuccess(t('auditCharter.toasts.sop.updated'))
       await fetchSops()
       closeModal()
     } catch (err: any) {
       console.error('Failed to update sop:', err)
-      const detail = extractErrorMessage(err, 'Gagal memperbarui Petunjuk Teknis/SOP.')
+      const detail = extractErrorMessage(err, t('auditCharter.toasts.sop.updateFailed'))
       errorMsg.value = detail
-      toast.showError('Gagal memperbarui Petunjuk Teknis/SOP.', detail)
+      toast.showError(t('auditCharter.toasts.sop.updateFailed'), detail)
     } finally {
       loading.value = false
     }
@@ -293,13 +293,13 @@ export const useSopStore = defineStore('sop', () => {
         }
       })
 
-      toast.showSuccess('Petunjuk Teknis/SOP berhasil dihapus!')
+      toast.showSuccess(t('auditCharter.toasts.sop.deleted'))
       await fetchSops()
     } catch (err: any) {
       console.error('Failed to delete sop:', err)
-      const detail = extractErrorMessage(err, 'Gagal menghapus Petunjuk Teknis/SOP.')
+      const detail = extractErrorMessage(err, t('auditCharter.toasts.sop.deleteFailed'))
       errorMsg.value = detail
-      toast.showError('Gagal menghapus Petunjuk Teknis/SOP.', detail)
+      toast.showError(t('auditCharter.toasts.sop.deleteFailed'), detail)
     } finally {
       loading.value = false
     }

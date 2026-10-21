@@ -749,15 +749,16 @@ const categoryOptions = Object.keys(categoryIcons).map(cat => ({
   value: cat 
 }))
 
-const impactOptions = Object.entries(impactLabels).map(([val, label]) => ({ 
-  label: `${val} - ${getImpactLabel(val)}`, 
-  value: Number(val) 
-}))
+// Computed so the labels follow the active locale without a reload.
+const impactOptions = computed(() => Object.keys(impactLabels).map(val => ({
+  label: `${val} - ${getImpactLabel(val)}`,
+  value: Number(val)
+})))
 
-const likelihoodOptions = Object.entries(likelihoodLabels).map(([val, label]) => ({ 
-  label: `${val} - ${getLikelihoodLabel(val)}`, 
-  value: Number(val) 
-}))
+const likelihoodOptions = computed(() => Object.keys(likelihoodLabels).map(val => ({
+  label: `${val} - ${getLikelihoodLabel(val)}`,
+  value: Number(val)
+})))
 
 async function submitNewRisk() {
   if (!newRisk.value.name) {

@@ -169,8 +169,9 @@ func (h *RouteHandler) RegisterRoutes() {
 		strategicPlans.GET("", crud.List(h.db, "StrategicPlan", func() interface{} { return &[]models.StrategicPlan{} }))
 		strategicPlans.GET("/:id", crud.GetByID(h.db, "StrategicPlan", func() interface{} { return &models.StrategicPlan{} }))
 		// category must be empty or one of models.StrategicPlanCategories (400 otherwise)
-		strategicPlans.POST("", ctrlStrategicPlan.ValidateCategory(), crud.Create(h.db, "StrategicPlan", func() interface{} { return &models.StrategicPlan{} }))
-		strategicPlans.PUT("/:id", ctrlStrategicPlan.ValidateCategory(), crud.Update(h.db, "StrategicPlan", func() interface{} { return &models.StrategicPlan{} }))
+		// the server assigns the code (SO-IA{n}); yearEnd >= yearStart; targets/realizations are numbers (400 otherwise)
+		strategicPlans.POST("", ctrlStrategicPlan.ValidateCategory(), crud.CreateWithHook(h.db, "StrategicPlan", func() interface{} { return &models.StrategicPlan{} }, ctrlStrategicPlan.PrepareOnCreate))
+		strategicPlans.PUT("/:id", ctrlStrategicPlan.ValidateCategory(), crud.UpdateWithHook(h.db, "StrategicPlan", func() interface{} { return &models.StrategicPlan{} }, ctrlStrategicPlan.PrepareOnUpdate))
 		strategicPlans.DELETE("/:id", crud.Delete(h.db, "StrategicPlan", func() interface{} { return &models.StrategicPlan{} }))
 	}
 

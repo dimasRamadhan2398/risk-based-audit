@@ -205,6 +205,7 @@
                         :model-value="auditableEntityValue(activity)"
                         :items="auditableUniverseOptions"
                         label-key="label"
+                        by="value"
                         :placeholder="t('annualAudit.form.auditableEntityPlaceholder')"
                         class="w-full"
                         :loading="auditUniverseStore.loading"
@@ -546,7 +547,13 @@ import { useAuditUniverseStore } from '~/stores/audit-universe'
 import { useAuthStore } from '~/stores/auth'
 import { AnnualAuditPlanStatus, AuditCategory, AuditDepartment, type AuditActivities } from '~/types/audit'
 import { getRiskLevelColorClass, getRiskLevelDotClass } from '~/utils/riskLevelBadge'
-import { buildAuditableEntityOptions, type AuditableEntityOption } from '~/utils/auditableEntityOptions'
+import {
+  buildAuditableEntityOptions,
+  findAuditableEntityForActivity,
+  NOT_SCORED_RISK_LEVEL,
+  resolveAuditableEntitySelection,
+  type AuditableEntityOption
+} from '~/utils/auditableEntityOptions'
 
 const store = useAnnualPlanStore()
 const riskStore = useRiskProfileStore()
@@ -614,30 +621,18 @@ const auditableUniverseOptions = computed<AuditableEntityOption[]>(() =>
   buildAuditableEntityOptions(auditUniverseStore.yearlyUniverse, auditUniverseStore.corporateUniverse)
 )
 
-// The picker shows the row's own entity even when it is not in the loaded universe lists.
-const auditableEntityValue = (activity: AuditActivities): AuditableEntityOption | undefined => {
-  const match = auditableUniverseOptions.value.find(u => u.id && u.id === activity.auditUniverseId)
-  if (match) return match
-  if (!activity.auditUniverseId || !activity.riskName) return undefined
-  return {
-    id: activity.auditUniverseId,
-    name: activity.riskName,
-    label: activity.riskName,
-    value: activity.riskName,
-    riskLevel: activity.riskLevel || 'Not Scored',
-    riskIndex: 0,
-    auditPriority: false,
-    source: 'corporate'
-  }
-}
+// Pre-selects by auditUniverseId (name only for old rows without an id); the picker shows the row's own
+// entity even when it is not in the loaded universe lists.
+const auditableEntityValue = (activity: AuditActivities): AuditableEntityOption | undefined =>
+  findAuditableEntityForActivity(auditableUniverseOptions.value, activity)
 
 const handleSelectAuditableEntity = (activity: AuditActivities, val: unknown) => {
-  if (val) {
-    const selectedName = typeof val === 'object' && val !== null ? ((val as { name?: string, label?: string }).name || (val as { name?: string, label?: string }).label || '') : String(val)
-    const match = auditableUniverseOptions.value.find(u => u.name === selectedName || u.label === selectedName) || (typeof val === 'object' && val !== null ? val as AuditableEntityOption : null)
-    activity.auditUniverseId = match?.id || ''
-    activity.riskName = match?.name || selectedName
-    activity.riskLevel = match?.riskLevel || 'Not Scored'
+  // Resolved by corporate id, never by name, so entities sharing a name cannot be confused.
+  const match = resolveAuditableEntitySelection(auditableUniverseOptions.value, val)
+  if (match) {
+    activity.auditUniverseId = match.id || ''
+    activity.riskName = match.name
+    activity.riskLevel = match.riskLevel || NOT_SCORED_RISK_LEVEL
 
     // Suggest default activity title if empty or using standard default prefix
     const defaultNamePrefixes = ['Audit Operasional', t('annualAudit.form.defaultActivityName', { entity: '|' }).split('|')[0]!.trim()]

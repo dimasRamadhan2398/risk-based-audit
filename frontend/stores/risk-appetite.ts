@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import type { TableColumn } from '@nuxt/ui'
 import { extractErrorMessage } from '~/utils/error'
 import { getRiskServiceBaseUrl } from '~/composables/useApiUrl'
+import { useI18n } from '~/composables/useI18n'
 
 export interface RiskAppetite {
   id: string
@@ -19,45 +20,46 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
   const loading = ref(false)
   const errorMsg = ref('')
   const toast = useToastNotification()
+  const { t } = useI18n()
 
-  const columns: (TableColumn<any> & { class?: string })[] = [
+  const columns = computed<(TableColumn<any> & { class?: string })[]>(() => [
     {
       accessorKey: 'id',
       id: 'id',
-      header: 'ID Risiko',
+      header: t('riskAppetite.compliance.columns.id'),
       class: 'w-[120px] min-w-[100px] whitespace-nowrap'
     },
     {
       accessorKey: 'name',
       id: 'name',
-      header: 'Nama Risiko & Area',
+      header: t('riskAppetite.compliance.columns.name'),
       class: 'min-w-[260px] max-w-[380px]'
     },
     {
       accessorKey: 'level',
       id: 'level',
-      header: 'Level Risiko',
+      header: t('riskAppetite.compliance.columns.level'),
       class: 'w-[130px] min-w-[130px] text-center whitespace-nowrap'
     },
     {
       accessorKey: 'appetite',
       id: 'appetite',
-      header: 'Toleransi Appetite',
+      header: t('riskAppetite.compliance.columns.appetite'),
       class: 'w-[150px] min-w-[150px] text-center whitespace-nowrap'
     },
     {
       accessorKey: 'mitigationStatus',
       id: 'mitigationStatus',
-      header: 'Status Mitigasi',
+      header: t('riskAppetite.compliance.columns.status'),
       class: 'w-[180px] min-w-[180px] whitespace-nowrap'
     },
     {
       accessorKey: 'actions',
       id: 'actions',
-      header: 'Aksi',
+      header: t('common.columns.actions'),
       class: 'w-[140px] min-w-[140px] text-center whitespace-nowrap'
     }
-  ]
+  ])
 
 
 
@@ -99,14 +101,14 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
           status: statusValue
         }
       })
-      toast.showSuccess('Statement berhasil dibuat')
+      toast.showSuccess(t('riskAppetite.statements.toasts.created'))
       await fetchStatements()
       return response
     } catch (error: any) {
       console.error('Failed to create risk appetite statement:', error)
-      const message = extractErrorMessage(error, 'Gagal membuat statement.')
+      const message = extractErrorMessage(error, t('riskAppetite.statements.toasts.createFailed'))
       errorMsg.value = message
-      toast.showError('Gagal membuat statement', message)
+      toast.showError(t('riskAppetite.statements.toasts.createFailed'), message)
       throw error
     } finally {
       loading.value = false
@@ -130,14 +132,14 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
           status: statusValue
         }
       })
-      toast.showSuccess('Statement berhasil diupdate')
+      toast.showSuccess(t('riskAppetite.statements.toasts.updated'))
       await fetchStatements()
       return response
     } catch (error: any) {
       console.error('Failed to update risk appetite statement:', error)
-      const message = extractErrorMessage(error, 'Gagal mengupdate statement.')
+      const message = extractErrorMessage(error, t('riskAppetite.statements.toasts.updateFailed'))
       errorMsg.value = message
-      toast.showError('Gagal mengupdate statement', message)
+      toast.showError(t('riskAppetite.statements.toasts.updateFailed'), message)
       throw error
     } finally {
       loading.value = false
@@ -152,13 +154,13 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
       await $fetch(`${baseUrl}/risk-appetite/${id}`, {
         method: 'DELETE'
       })
-      toast.showSuccess('Statement berhasil dihapus')
+      toast.showSuccess(t('riskAppetite.statements.toasts.deleted'))
       await fetchStatements()
     } catch (error: any) {
       console.error('Failed to delete risk appetite statement:', error)
-      const message = extractErrorMessage(error, 'Gagal menghapus statement.')
+      const message = extractErrorMessage(error, t('riskAppetite.statements.toasts.deleteFailed'))
       errorMsg.value = message
-      toast.showError('Gagal menghapus statement', message)
+      toast.showError(t('riskAppetite.statements.toasts.deleteFailed'), message)
       throw error
     } finally {
       loading.value = false

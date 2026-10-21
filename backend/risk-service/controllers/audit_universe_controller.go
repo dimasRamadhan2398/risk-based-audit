@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -338,29 +339,23 @@ func (ctrl *AuditUniverseController) DeleteCorporateNode(c *gin.Context) {
 	// Fetch node to ensure it exists
 	var node models.CorporateAuditUniverse
 	if err := ctrl.db.First(&node, "id = ?", nodeID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"success": false, "error": "Corporate node not found"})
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"success": false, "error": "Corporate node not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to load corporate node: " + err.Error()})
 		return
 	}
 
-	// Snapshot the direct children first: the cascade below removes them, and
-	// their deleted events need the names and ids.
-	var children []models.CorporateAuditUniverse
-	ctrl.db.Where("parent_id = ?", nodeID).Find(&children)
-
-	// Delete recursively (in transaction)
+	// Delete the node and ALL its descendants, with their yearly rows and
+	// scores, in one transaction. Any error rolls everything back.
+	// CorporateAuditUniverse and AuditUniverseYear have no DeletedAt, so this
+	// is a hard delete: the yearly score history of the subtree goes with it.
+	var deleted []models.CorporateAuditUniverse // deepest level first
 	err = ctrl.db.Transaction(func(tx *gorm.DB) error {
-		// Delete child scores first, if any
-		var childYears []models.AuditUniverseYear
-		tx.Where("corporate_audit_universe_id = ? OR corporate_audit_universe_id IN (SELECT id FROM corporate_audit_universe WHERE parent_id = ?)", nodeID, nodeID).Find(&childYears)
-		for _, cy := range childYears {
-			tx.Where("audit_universe_year_id = ?", cy.ID).Delete(&models.AuditUniverseRiskScore{})
-		}
-		tx.Where("corporate_audit_universe_id = ? OR corporate_audit_universe_id IN (SELECT id FROM corporate_audit_universe WHERE parent_id = ?)", nodeID, nodeID).Delete(&models.AuditUniverseYear{})
-
-		// Delete corporate nodes
-		tx.Where("parent_id = ?", nodeID).Delete(&models.CorporateAuditUniverse{})
-		tx.Delete(&node)
-		return nil
+		var derr error
+		deleted, derr = deleteCorporateSubtree(tx, node)
+		return derr
 	})
 
 	if err != nil {
@@ -371,15 +366,78 @@ func (ctrl *AuditUniverseController) DeleteCorporateNode(c *gin.Context) {
 		return
 	}
 
-	for _, child := range children {
-		ctrl.publishEntity(kafka.EventEntityDeleted, child)
+	for _, n := range deleted {
+		ctrl.publishEntity(kafka.EventEntityDeleted, n)
 	}
-	ctrl.publishEntity(kafka.EventEntityDeleted, node)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "Corporate node and associated data deleted successfully",
 	})
+}
+
+// maxCorporateDepth bounds the descendant walk so a parent_id cycle in bad data
+// cannot loop forever.
+const maxCorporateDepth = 64
+
+// deleteCorporateSubtree deletes root, every descendant, their
+// audit_universe_years rows and those rows' scores. It returns the deleted
+// nodes ordered deepest level first, root last (the order their entity.deleted
+// events are published in). Run it inside a transaction.
+func deleteCorporateSubtree(tx *gorm.DB, root models.CorporateAuditUniverse) ([]models.CorporateAuditUniverse, error) {
+	levels := [][]models.CorporateAuditUniverse{{root}}
+	seen := map[uuid.UUID]bool{root.ID: true}
+	frontier := []uuid.UUID{root.ID}
+	for depth := 0; len(frontier) > 0; depth++ {
+		if depth >= maxCorporateDepth {
+			return nil, fmt.Errorf("corporate audit universe deeper than %d levels below %s (parent_id cycle?)", maxCorporateDepth, root.ID)
+		}
+		var children []models.CorporateAuditUniverse
+		if err := tx.Where("parent_id IN ?", frontier).Find(&children).Error; err != nil {
+			return nil, err
+		}
+		frontier = frontier[:0:0]
+		var level []models.CorporateAuditUniverse
+		for _, ch := range children {
+			if seen[ch.ID] {
+				continue
+			}
+			seen[ch.ID] = true
+			level = append(level, ch)
+			frontier = append(frontier, ch.ID)
+		}
+		if len(level) > 0 {
+			levels = append(levels, level)
+		}
+	}
+
+	ids := make([]uuid.UUID, 0, len(seen))
+	for id := range seen {
+		ids = append(ids, id)
+	}
+
+	yearIDs := tx.Model(&models.AuditUniverseYear{}).Select("id").Where("corporate_audit_universe_id IN ?", ids)
+	if err := tx.Where("audit_universe_year_id IN (?)", yearIDs).Delete(&models.AuditUniverseRiskScore{}).Error; err != nil {
+		return nil, err
+	}
+	if err := tx.Where("corporate_audit_universe_id IN ?", ids).Delete(&models.AuditUniverseYear{}).Error; err != nil {
+		return nil, err
+	}
+
+	// Children before parents, so the parent_id foreign key never points at a
+	// row that is already gone.
+	ordered := make([]models.CorporateAuditUniverse, 0, len(ids))
+	for i := len(levels) - 1; i >= 0; i-- {
+		levelIDs := make([]uuid.UUID, 0, len(levels[i]))
+		for _, n := range levels[i] {
+			levelIDs = append(levelIDs, n.ID)
+		}
+		if err := tx.Where("id IN ?", levelIDs).Delete(&models.CorporateAuditUniverse{}).Error; err != nil {
+			return nil, err
+		}
+		ordered = append(ordered, levels[i]...)
+	}
+	return ordered, nil
 }
 
 // ListYearlyAuditUniverse returns the audit universe established for a specific year
@@ -429,10 +487,13 @@ func (ctrl *AuditUniverseController) EstablishYearlyUniverse(c *gin.Context) {
 	}
 
 	// Perform updates in transaction
+	var added, removed []models.AuditUniverseYear
 	err := ctrl.db.Transaction(func(tx *gorm.DB) error {
 		// 1. Fetch current established entities for this year
 		var existing []models.AuditUniverseYear
-		tx.Where("year = ?", year).Find(&existing)
+		if err := tx.Where("year = ?", year).Find(&existing).Error; err != nil {
+			return err
+		}
 
 		existingMap := make(map[string]models.AuditUniverseYear)
 		for _, e := range existing {
@@ -443,49 +504,35 @@ func (ctrl *AuditUniverseController) EstablishYearlyUniverse(c *gin.Context) {
 		keepIDs := make(map[string]bool)
 		now := time.Now()
 
-		// Get corporate risk factors to seed default scores (3) for newly established entities
-		var corporateRiskFactors []models.CorporateRiskFactor
-		tx.Find(&corporateRiskFactors)
-
 		for _, corpIDStr := range req.CorporateAuditUniverseIDs {
 			corpID, err := uuid.Parse(corpIDStr)
 			if err != nil {
 				continue
 			}
 
+			if keepIDs[corpID.String()] {
+				continue // duplicate id in the request
+			}
 			keepIDs[corpID.String()] = true
 
 			if _, exists := existingMap[corpID.String()]; !exists {
-				// Create new AuditUniverseYear
+				// A newly established entity is NOT scored: no score rows, no
+				// index, no level and no priority until someone scores it.
 				auYear := models.AuditUniverseYear{
 					ID:                       uuid.New(),
 					CorporateAuditUniverseID: corpID,
 					Year:                     year,
-					RiskIndex:                60.0, // Default risk index matching default score 3 (TotalWeightedScore=3.0, 3.0/5.0*100 = 60.0)
-					RiskLevel:                "Medium to High",
-					AuditPriority:            true,
+					RiskIndex:                0,
+					RiskLevel:                "",
+					AuditPriority:            false,
+					ScoredAt:                 nil,
 					CreatedAt:                now,
 					UpdatedAt:                now,
 				}
 				if err := tx.Create(&auYear).Error; err != nil {
 					return err
 				}
-
-				// Create default scores of 3
-				for _, rf := range corporateRiskFactors {
-					sc := models.AuditUniverseRiskScore{
-						ID:                    uuid.New(),
-						AuditUniverseYearID:   auYear.ID,
-						CorporateRiskFactorID: rf.ID,
-						Score:                 3,
-						WeightedScore:         rf.Weight * 3.0,
-						CreatedAt:             now,
-						UpdatedAt:             now,
-					}
-					if err := tx.Create(&sc).Error; err != nil {
-						return err
-					}
-				}
+				added = append(added, auYear)
 			}
 		}
 
@@ -499,6 +546,7 @@ func (ctrl *AuditUniverseController) EstablishYearlyUniverse(c *gin.Context) {
 				if err := tx.Delete(&existingYear).Error; err != nil {
 					return err
 				}
+				removed = append(removed, existingYear)
 			}
 		}
 
@@ -511,6 +559,16 @@ func (ctrl *AuditUniverseController) EstablishYearlyUniverse(c *gin.Context) {
 			"error":   "Failed to establish yearly universe: " + err.Error(),
 		})
 		return
+	}
+
+	// An added row is announced with its (unscored) state through year.scored,
+	// so consumers see risk_level "" for it; a removed row gets year.removed.
+	publishYearScores(ctrl.events, added)
+	for _, row := range removed {
+		data := kafka.YearRemovedData{CorporateAuditUniverseID: row.CorporateAuditUniverseID.String(), Year: row.Year}
+		if err := ctrl.events.PublishYearRemoved(context.Background(), data); err != nil {
+			log.Printf("audit universe event %s for %s not published: %v", kafka.EventYearRemoved, row.CorporateAuditUniverseID, err)
+		}
 	}
 
 	// Fetch and return the updated yearly universe
@@ -619,50 +677,25 @@ func (ctrl *AuditUniverseController) ScoreYearlyEntity(c *gin.Context) {
 			}
 		}
 
-		// 2. Fetch all scores for this yearly entity to calculate total weighted score
+		// 2. Recalculate the row from all of its scores and the current weights
+		// (shared with the recompute that follows a weight change).
 		var allScores []models.AuditUniverseRiskScore
 		if err := tx.Find(&allScores, "audit_universe_year_id = ?", auYearID).Error; err != nil {
 			return err
 		}
-
-		var totalWeighted float64
-		for _, sc := range allScores {
-			totalWeighted += sc.WeightedScore
-		}
-
-		// Risk Index = (Total Weighted Score / 5.0) * 100%
-		riskIndex := (totalWeighted / 5.0) * 100.0
-		var riskLevel string
-		var priority bool
-
-		if riskIndex >= 80.0 {
-			riskLevel = "High"
-			priority = true
-		} else if riskIndex >= 60.0 {
-			riskLevel = "Medium to High"
-			priority = true
-		} else if riskIndex >= 40.0 {
-			riskLevel = "Medium"
-			priority = false
-		} else if riskIndex >= 20.0 {
-			riskLevel = "Low to Medium"
-			priority = false
-		} else {
-			riskLevel = "Low"
-			priority = false
-		}
-
-		// 3. Update AuditUniverseYear
-		auYear.RiskIndex = riskIndex
-		auYear.RiskLevel = riskLevel
-		auYear.AuditPriority = priority
-		auYear.UpdatedAt = now
-
-		if err := tx.Save(&auYear).Error; err != nil {
+		weights, err := loadFactorWeights(tx)
+		if err != nil {
 			return err
 		}
 
-		return nil
+		auYear.ScoredAt = &now
+		if _, err := rescoreYearRow(tx, &auYear, allScores, weights, now); err != nil {
+			return err
+		}
+		auYear.UpdatedAt = now
+
+		// 3. Update AuditUniverseYear
+		return saveYearRowScore(tx, &auYear)
 	})
 
 	if err != nil {
@@ -673,9 +706,7 @@ func (ctrl *AuditUniverseController) ScoreYearlyEntity(c *gin.Context) {
 		return
 	}
 
-	if err := ctrl.events.PublishYearScore(context.Background(), yearScoreData(auYear)); err != nil {
-		log.Printf("audit universe event %s for %s not published: %v", kafka.EventYearScored, auYear.CorporateAuditUniverseID, err)
-	}
+	publishYearScores(ctrl.events, []models.AuditUniverseYear{auYear})
 
 	// Fetch updated entity to return
 	var updated models.AuditUniverseYear

@@ -6,7 +6,7 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error';
 import { useI18n } from '~/composables/useI18n';
 import { getFiscalYears } from '~/composables/useFiscalYear';
-import { buildStrategicPlanPayload, defaultStrategicPlanGoalId, strategicPlanErrorField, strategicPlanFormFromPlan } from '~/utils/strategicPlanPayload';
+import { buildStrategicPlanPayload, defaultStrategicPlanGoalId, firstInvalidKpiValue, strategicPlanErrorField, strategicPlanFormFromPlan } from '~/utils/strategicPlanPayload';
 import { useVisionMissionGoalsStore } from '~/stores/vision-mission-goals';
 
 export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
@@ -66,6 +66,14 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
         target: '',
         calculation: '',
         status: '',
+    });
+
+    // "To" years: none before the start year. The form's own end year stays listed (a new plan ends start + 4).
+    const yearEndOptions = computed(() => {
+        const start = form.value.yearStart || currentYear;
+        const years = new Set(getFiscalYears());
+        if (form.value.yearEnd) years.add(form.value.yearEnd);
+        return [...years].filter(y => y >= start).sort((a, b) => a - b).map(y => ({ label: String(y), value: y }));
     });
 
     const availablePeriods = computed(() => {
@@ -331,11 +339,20 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             return;
         }
 
+        if (form.value.yearStart && form.value.yearEnd && form.value.yearEnd < form.value.yearStart) {
+            toast.showWarning(t('strategicPlan.toast.validationTitle'), t('strategicPlan.toast.periodInvalid', { start: form.value.yearStart, end: form.value.yearEnd }));
+            return;
+        }
+
         cleanKpiMaps();
 
-        if (!form.value.code) {
-            form.value.code = `SO-IA${String(strategicObjectives.value.length + 1).padStart(2, '0')}`;
+        const invalid = firstInvalidKpiValue(form.value);
+        if (invalid) {
+            toast.showWarning(t('strategicPlan.toast.validationTitle'), t('strategicPlan.toast.numberInvalid', { field: t(`strategicPlan.extra.${invalid.field}`), period: invalid.period }));
+            return;
         }
+
+        // The code (SO-IA{n}) of a new plan is assigned by the server; an edit keeps the code the row has.
 
         // The form has no goal picker: a new plan is linked to the single corporate goal ("" when no VMG/goal
         // exists, which the backend accepts). An edit keeps the goalId the row already has.
@@ -436,6 +453,11 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     });
 
     watch([(() => form.value.yearStart), (() => form.value.yearEnd)], () => {
+        // Moving the start past the end moves the end along: the period never ends before it starts.
+        if (form.value.yearStart && form.value.yearEnd && form.value.yearEnd < form.value.yearStart) {
+            form.value.yearEnd = form.value.yearStart;
+            return;
+        }
         if (form.value.periodType === 'Yearly') {
             const periods = availablePeriods.value;
             if (!periods.includes(form.value.selectedPeriod || '')) {
@@ -447,7 +469,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     return {
         columns, strategicObjectives, isAddModalOpen, isEditMode, form,
         isViewModalOpen, selectedViewObjective, openViewModal, closeViewModal,
-        unitOptions, yearOptions, availablePeriods, computedCalculation, computedStatus,
+        unitOptions, yearOptions, yearEndOptions, availablePeriods, computedCalculation, computedStatus,
         getRowActions, openModal, closeModal, handleEdit, handleDelete, handleSubmit,
         fetchStrategicPlans, fetchStrategicPlanById, loading, saving, errorMsg,
         formError, formFieldErrors, clearFormErrors

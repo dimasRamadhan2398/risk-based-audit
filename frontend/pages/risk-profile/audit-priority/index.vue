@@ -184,15 +184,20 @@
         </template>
 
         <template #risk_index-cell="{ row }">
-          <span class="font-semibold text-slate-700 dark:text-slate-300">{{ typeof row.original.risk_index === 'number' ? row.original.risk_index.toFixed(1) + '%' : '-' }}</span>
+          <span class="font-semibold text-slate-700 dark:text-slate-300">{{ isUniverseYearScored(row.original) && typeof row.original.risk_index === 'number' ? row.original.risk_index.toFixed(1) + '%' : '–' }}</span>
         </template>
 
         <template #risk_level-cell="{ row }">
-          <span :class="getRiskLevelBadgeClass(row.original.risk_level)">{{ formatRiskLevel(row.original.risk_level) }}</span>
+          <span
+            v-if="!isUniverseYearScored(row.original)"
+            :class="getRiskLevelBadgeClass(null)"
+            :title="t('riskFactors.priority.notScoredHint')"
+          >{{ t('riskFactors.priority.notScoredBadge') }}</span>
+          <span v-else :class="getRiskLevelBadgeClass(row.original.risk_level)">{{ formatRiskLevel(row.original.risk_level) }}</span>
         </template>
 
         <template #audit_priority-cell="{ row }">
-          <div v-if="row.original.audit_priority" class="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+          <div v-if="isUniverseYearPrioritized(row.original)" class="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
             <UIcon name="i-lucide-check-circle" class="w-5 h-5 text-emerald-500" />
             <span>{{ t('riskFactors.priority.priorityBadge') }}</span>
           </div>
@@ -264,8 +269,8 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-            <tr v-for="row in riskLevelReferenceRows" :key="row.level">
-              <td class="px-4 py-2.5 text-slate-600 dark:text-slate-400 font-medium text-center">{{ row.range }}</td>
+            <tr v-for="row in RISK_LEVEL_THRESHOLDS" :key="row.level">
+              <td class="px-4 py-2.5 text-slate-600 dark:text-slate-400 font-medium text-center">{{ formatRiskLevelRange(row) }}</td>
               <td class="px-4 py-2.5 text-center">
                 <span :class="getRiskLevelBadgeClass(row.level)">
                   {{ formatRiskLevel(row.level) }}
@@ -291,11 +296,13 @@ import { useAuditUniverseStore } from '~/stores/audit-universe'
 import { useI18n } from '~/composables/useI18n'
 import { useFiscalYear } from '~/composables/useFiscalYear'
 import {
+  formatRiskLevelRange,
   getRiskLevelBadgeClass,
   isPriorityRiskLevel,
   RISK_LEVEL_LABEL_KEYS,
-  type PriorityRiskLevel
+  RISK_LEVEL_THRESHOLDS
 } from '~/utils/riskLevelBadge'
+import { isUniverseYearPrioritized, isUniverseYearScored, sortUniverseYearsByRisk } from '~/utils/riskScoring'
 
 const store = useAuditUniverseStore()
 const { t } = useI18n()
@@ -317,12 +324,11 @@ const statusFilterOptions = computed(() => [
 const loading = computed(() => store.loading)
 const yearlyUniverse = computed(() => store.yearlyUniverse || [])
 
-const sortedYearlyUniverse = computed(() => {
-  return [...yearlyUniverse.value].sort((a, b) => (b.risk_index || 0) - (a.risk_index || 0))
-})
+// Scored rows by risk index (desc); unscored rows (scored_at === null) after them.
+const sortedYearlyUniverse = computed(() => sortUniverseYearsByRisk(yearlyUniverse.value))
 
 const prioritizedCount = computed(() => {
-  return yearlyUniverse.value.filter(ent => ent.audit_priority).length
+  return yearlyUniverse.value.filter(ent => isUniverseYearPrioritized(ent)).length
 })
 
 const filteredYearlyUniverse = computed(() => {
@@ -331,17 +337,18 @@ const filteredYearlyUniverse = computed(() => {
     if (searchQuery.value) {
       const q = searchQuery.value.toLowerCase().trim()
       const name = (ent.corporate_audit_universe?.name || '').toLowerCase()
-      const level = (ent.risk_level || '').toLowerCase()
+      const level = (isUniverseYearScored(ent) ? ent.risk_level || '' : t('riskFactors.priority.notScoredBadge')).toLowerCase()
       if (!name.includes(q) && !level.includes(q)) {
         return false
       }
     }
 
-    // Status filter
-    if (statusFilter.value === 'prioritized' && !ent.audit_priority) {
+    // Status filter (audit_priority only counts once the entity is scored)
+    const prioritized = isUniverseYearPrioritized(ent)
+    if (statusFilter.value === 'prioritized' && !prioritized) {
       return false
     }
-    if (statusFilter.value === 'non_prioritized' && ent.audit_priority) {
+    if (statusFilter.value === 'non_prioritized' && prioritized) {
       return false
     }
 
@@ -380,14 +387,8 @@ const formatRiskLevel = (level?: string) => {
   return isPriorityRiskLevel(level) ? t(RISK_LEVEL_LABEL_KEYS[level]) : level
 }
 
-// Corporate Risk Index Level Information reference table; badges share getRiskLevelBadgeClass with the main table.
-const riskLevelReferenceRows: { range: string, level: PriorityRiskLevel, prioritized: boolean }[] = [
-  { range: '80 - 100%', level: 'High', prioritized: true },
-  { range: '60 - 79%', level: 'Medium to High', prioritized: true },
-  { range: '40 - 59%', level: 'Medium', prioritized: false },
-  { range: '20 - 39%', level: 'Low to Medium', prioritized: false },
-  { range: '0 - 19%', level: 'Low', prioritized: false }
-]
+// The Corporate Risk Index Level Information table renders RISK_LEVEL_THRESHOLDS (utils/riskLevelBadge.ts),
+// the same thresholds the scoring preview uses; badges share getRiskLevelBadgeClass with the main table.
 
 const showAlert = (msg: string, type: string) => {
   alertMessage.value = msg

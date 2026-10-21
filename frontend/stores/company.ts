@@ -56,7 +56,7 @@ export const useCompanyStore = defineStore('company', () => {
     { accessorKey: 'company_type', header: t('masterData.company.columns.type') },
     { accessorKey: 'tax_id', header: t('masterData.company.columns.taxId') },
     { accessorKey: 'is_active', header: t('masterData.company.columns.status') },
-    { accessorKey: 'actions', header: '' }
+    { accessorKey: 'actions', header: t('common.columns.actions') }
   ])
 
   // ============= Getters =============
