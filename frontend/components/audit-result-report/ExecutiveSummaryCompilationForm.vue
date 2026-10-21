@@ -751,15 +751,17 @@ import { useExecutiveSummaryStore } from '~/stores/executive-summary'
 import { useAuthStore } from '~/stores/auth'
 import { useRbac } from '~/composables/useRbac'
 import { useI18n } from '~/composables/useI18n'
-import { useExecutiveSummarySources, type CompilationSources } from '~/composables/useExecutiveSummarySources'
+import { useExecutiveSummarySources } from '~/composables/useExecutiveSummarySources'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import {
-  emptyRiskBreakdown,
+  followUpRowsFromStats,
+  formatSyncedAt,
   riskBreakdownToFields,
   riskBucketBreakdown,
   riskBucketTotal,
   riskFieldsToBreakdown,
+  type CompilationStats,
   type RiskBucket
 } from '~/utils/executiveSummaryCompilation'
 const store = useExecutiveSummaryStore()
@@ -767,14 +769,24 @@ const authStore = useAuthStore()
 const auditReportStore = useAuditResultReportStore()
 const assignmentLetterStore = useAssignmentLetterStore()
 const { canReviewExecutiveSummary } = useRbac()
-const { t } = useI18n()
-const { loading: sourcesLoading, error: sourcesError, fetchCompilationSources } = useExecutiveSummarySources()
+const { t, locale } = useI18n()
+const { loading: sourcesLoading, error: sourcesError, fetchCompilationStats } = useExecutiveSummarySources()
 const fileInput = ref<HTMLInputElement | null>(null)
 const activeSection = ref('sec-upload')
 const scrollContainer = ref<HTMLElement | null>(null)
 
-// Last successful read of the statistics sources (null until the first sync)
-const lastSources = ref<CompilationSources | null>(null)
+// Last successful statistics response, and the 'year-quarter' key it was read for ('' after a failed sync)
+const lastStats = ref<CompilationStats | null>(null)
+const syncedStatsKey = ref('')
+const currentStatsKey = computed(() => `${Number(store.form.tahun) || 2026}-${Number(store.form.quarter) || 1}`)
+// Statistics are shown only when they belong to the selected year and quarter
+const displayedStats = computed<CompilationStats | null>(() =>
+  lastStats.value && syncedStatsKey.value === currentStatsKey.value ? lastStats.value : null
+)
+const lastSyncedLabel = computed(() => formatSyncedAt(displayedStats.value?.syncedAt, locale.value))
+// Saving a draft is blocked while the statistics are loading or the last sync failed
+const canSaveDraft = computed(() => !sourcesLoading.value && !sourcesError.value)
+const statsBusyClass = computed(() => (sourcesLoading.value ? 'opacity-50 pointer-events-none' : ''))
 
 // Display buckets of the risk breakdown (High / Medium / Low), read-only.
 // The five audit-universe levels are mapped to buckets in utils (RISK_BUCKET_BY_LEVEL).
@@ -785,16 +797,14 @@ const riskBucketFields: { key: RiskBucket, label: string, borderClass: string }[
 ]
 const riskBuckets = computed(() => riskBucketBreakdown(riskFieldsToBreakdown(store.form)))
 
-// Empty-source hints shown under the statistics section after a sync
+// Empty-source hints shown under the statistics section after a successful sync
 const sourceEmptyNotes = computed<string[]>(() => {
-  const sources = lastSources.value
-  if (!sources) return []
+  const stats = displayedStats.value
+  if (!stats) return []
   const notes: string[] = []
-  if (sources.recommendationCount === 0) notes.push(t('executiveSummaryCompilation.sources.emptyRecommendation'))
-  if (riskBucketTotal(riskBucketBreakdown(sources.riskBreakdown)) === 0) {
-    notes.push(t('executiveSummaryCompilation.sources.emptyRisk'))
-  }
-  if (sources.followUp.closed + sources.followUp.inProgress + sources.followUp.overdue === 0) {
+  if (stats.jumlahRekomendasi === 0) notes.push(t('executiveSummaryCompilation.sources.emptyRecommendation'))
+  if (stats.totalTemuan === 0) notes.push(t('executiveSummaryCompilation.sources.emptyRisk'))
+  if (stats.followUp.closed + stats.followUp.inProgress + stats.followUp.overdue === 0) {
     notes.push(t('executiveSummaryCompilation.sources.emptyFollowUp'))
   }
   return notes
@@ -939,8 +949,8 @@ const quarterlyLhas = computed(() => {
   })
 })
 
-// Section II computed auto-sum of the three risk buckets
-const totalTemuanSummary = computed(() => riskBucketTotal(riskBuckets.value))
+// Section II total: totalTemuan from the backend after a sync; the stored risk fields otherwise (saved or approved summaries)
+const totalTemuanSummary = computed(() => displayedStats.value?.totalTemuan ?? riskBucketTotal(riskBuckets.value))
 
 // Section III computed auto-sums
 const totalFollowUpCount = computed(() => {
@@ -1010,54 +1020,42 @@ const getStatusBadgeClass = (status: 'Closed' | 'In Progress' | 'Overdue') => {
   return colors[status]
 }
 
-// Automatic Compilation Synchronization from all individual LHAs in the selected quarter and year.
-// Statistics (recommendations, risk levels, follow-up) are read-only and computed from the source data.
+// Automatic compilation synchronization for the selected year and quarter.
+// The statistics come from the backend in one call and are written to the form only when the whole response is valid.
+// Approved summaries keep their saved values and are not synchronized again.
 const syncFromIndividualLha = async () => {
-  const targetYear = store.form.tahun
+  const targetYear = Number(store.form.tahun) || 2026
+  const targetQuarter = Number(store.form.quarter) || 1
 
   // Auto-set nomorDokumen if empty or follows legacy template
   if (!store.isEditing && !store.isViewing) {
     if (!store.form.nomorDokumen || store.form.nomorDokumen.startsWith('EXSUM-KOMP-Q') || store.form.nomorDokumen.startsWith('KOMPILASI-LHA-Q')) {
-      store.form.nomorDokumen = generateEscDocNumber(Number(targetYear) || 2026)
+      store.form.nomorDokumen = generateEscDocNumber(targetYear)
     }
   }
 
-  const individualReports = quarterlyLhas.value
+  if (isLocked.value) return
 
-  // 1. Set jumlahLaporan to exact count of individual LHAs
-  store.form.jumlahLaporan = individualReports.length
-
-  if (individualReports.length === 0) {
-    lastSources.value = null
-    Object.assign(store.form, riskBreakdownToFields(emptyRiskBreakdown()))
-    store.form.jumlahRekomendasi = 0
-    store.form.topFindings = []
-    store.form.matriksKompilasi = []
-    store.form.followUpTable = [
-      { status: 'Closed', jumlah: 0, persentase: 0, keterangan: 'Telah diverifikasi' },
-      { status: 'In Progress', jumlah: 0, persentase: 0, keterangan: 'On-track pelaksanaan' },
-      { status: 'Overdue', jumlah: 0, persentase: 0, keterangan: '-' }
-    ]
-    store.form.akarMasalah = `Belum ada data LHA untuk ${reportingQuarter.value} ${targetYear}.`
-    store.form.kesimpulan = `Belum ada hasil audit yang dikompilasi untuk ${reportingQuarter.value} ${targetYear}.`
-    store.form.narrative = `Periode ${reportingQuarter.value} ${targetYear}, belum ada LHA yang diterbitkan.`
+  // 1. Statistics (read-only) from the backend
+  const key = `${targetYear}-${targetQuarter}`
+  const stats = await fetchCompilationStats({ year: targetYear, quarter: targetQuarter })
+  if (!stats) {
+    // A failed sync (not a superseded request) drops the statistics, so saving stays blocked until a sync succeeds
+    if (sourcesError.value) {
+      lastStats.value = null
+      syncedStatsKey.value = ''
+    }
     return
   }
+  lastStats.value = stats
+  syncedStatsKey.value = key
+  Object.assign(store.form, riskBreakdownToFields(stats.riskBreakdown))
+  store.form.jumlahLaporan = stats.jumlahLaporan
+  store.form.jumlahRekomendasi = stats.jumlahRekomendasi
+  store.form.followUpTable = followUpRowsFromStats(stats.followUp, store.form.followUpTable)
 
-  // 2. Read-only sources: test-control recommendations, working paper risks, ATR follow-up status
-  const sources = await fetchCompilationSources({
-    assignmentLetterIds: individualReports.map(r => r.assignmentLetterId),
-    lhaIds: individualReports.map(r => r.id)
-  })
-  if (!sources) return
-  lastSources.value = sources
-  const risk = sources.riskBreakdown
-  const buckets = riskBucketBreakdown(risk)
-  const totalRecs = sources.recommendationCount
-  Object.assign(store.form, riskBreakdownToFields(risk))
-  store.form.jumlahRekomendasi = totalRecs
-
-  // 3. Aggregate LHA findings for the Top 5 list and the compilation matrix
+  // 2. LHA findings for the Top 5 list and the compilation matrix (not statistics)
+  const individualReports = quarterlyLhas.value
   const allFindings: any[] = []
   const matriks: any[] = []
 
@@ -1085,7 +1083,7 @@ const syncFromIndividualLha = async () => {
         judulTemuan: f.title || f.finding || '',
         risiko,
         statusTL: 'In Progress',
-        usulan: f.action || f.recommendation || 'Perbaikan SOP dan Kontrol Pengendalian Internal',
+        usulan: f.action || f.recommendation || '',
         severityRank: risiko === 'Tinggi' ? 3 : risiko === 'Sedang' ? 2 : 1
       })
     })
@@ -1098,8 +1096,8 @@ const syncFromIndividualLha = async () => {
       prosesBisnis: r.reportTitle,
       judulTemuan: (findings[0]?.title) || r.reportTitle,
       nilaiRisiko: highestRisk,
-      rekomendasi: (findings[0]?.action) || 'Tindak lanjut rekomendasi audit',
-      dueDate: r.reportDate || `${targetYear}-06-30`,
+      rekomendasi: (findings[0]?.action) || '',
+      dueDate: r.reportDate || '',
       picUnit: `PIC ${div}`,
       progres: r.status === 'Final' || (r.status as any) === 'Approved' ? 100 : 60,
       status: r.status === 'Final' || (r.status as any) === 'Approved' ? 'Closed' : 'In Progress',
@@ -1109,7 +1107,7 @@ const syncFromIndividualLha = async () => {
 
   store.form.matriksKompilasi = matriks
 
-  // 4. Sort findings by severity (High first) and pick Top 5
+  // Sort findings by severity (High first) and pick Top 5
   allFindings.sort((a, b) => b.severityRank - a.severityRank)
   store.form.topFindings = allFindings.slice(0, 5).map(f => ({
     unitDivision: f.unitDivision,
@@ -1118,29 +1116,7 @@ const syncFromIndividualLha = async () => {
     statusTL: f.statusTL,
     usulan: f.usulan
   }))
-
-  // 5. Follow-up table from Action Taken Report statuses (read-only)
-  const { closed: closedCount, inProgress: inProgCount, overdue: overdueCount } = sources.followUp
-  const totalTl = closedCount + inProgCount + overdueCount
-  const percentOfTl = (n: number) => (totalTl > 0 ? (n / totalTl) * 100 : 0)
-  store.form.followUpTable = [
-    { status: 'Closed', jumlah: closedCount, persentase: percentOfTl(closedCount), keterangan: 'Telah diverifikasi' },
-    { status: 'In Progress', jumlah: inProgCount, persentase: percentOfTl(inProgCount), keterangan: 'On-track pelaksanaan' },
-    { status: 'Overdue', jumlah: overdueCount, persentase: percentOfTl(overdueCount), keterangan: '-' }
-  ]
-  const totalFindings = riskBucketTotal(buckets)
-
-  // 6. Section V & VII Qualitative text
-  if (store.form.topFindings.length > 0) {
-    store.form.akarMasalah = `Analisis kompilasi terhadap ${individualReports.length} LHA Individual menunjukkan tema berulang utama pada: ${store.form.topFindings.slice(0, 2).map(f => f.judulTemuan).join('; ')}. Diperlukan penguatan regulasi operasional serta koordinasi lintas unit.`
-    store.form.kesimpulan = `Secara keseluruhan hasil audit kompilasi ${reportingQuarter.value} ${targetYear} atas ${individualReports.length} LHA menunjukkan sistem pengendalian internal berjalan cukup efektif dengan total ${totalFindings} temuan (${buckets.high} risiko tinggi, ${buckets.medium} sedang, ${buckets.low} rendah) dan ${totalRecs} rekomendasi yang perlu dipantau implementasinya.`
-  } else {
-    store.form.akarMasalah = `Analisis kompilasi terhadap ${individualReports.length} LHA Individual periode ${reportingQuarter.value} ${targetYear}.`
-    store.form.kesimpulan = `Secara keseluruhan hasil audit kompilasi ${reportingQuarter.value} ${targetYear} atas ${individualReports.length} LHA menunjukkan tata kelola dan kontrol internal telah dievaluasi.`
-  }
-
-  // 7. Update narrative
-  store.form.narrative = `Periode ${reportingQuarter.value} ${targetYear}, SPI telah menerbitkan ${individualReports.length} LHA Individual. Total temuan ${totalFindings} dengan ${totalRecs} rekomendasi perbaikan. Tingkat penyelesaian on-time 95%. Terdapat ${buckets.high} temuan risiko tinggi terkait ${store.form.topFindings[0]?.judulTemuan || 'operasional'} yang memerlukan perhatian dan arahan Direksi.`
+  // Narrative, root cause and conclusion are written by the user; the sync does not generate text.
 }
 
 // Form submission & workflow helpers

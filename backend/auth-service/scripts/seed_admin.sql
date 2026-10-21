@@ -20,7 +20,7 @@ ON CONFLICT (name) DO NOTHING;
 INSERT INTO users (id, employee_id, username, email, password_hash, full_name, department, is_active, created_at, updated_at)
 VALUES (
   gen_random_uuid(),
-  'EMP-001',
+  'EMP-0013',
   'admin',
   'admin@rbaudit.local',
   '$2a$10$3r.aoE1pTojJMDuEVuSH0OQxZ5zLMPCwIIgz.v2K9JJOLPtuMk242',

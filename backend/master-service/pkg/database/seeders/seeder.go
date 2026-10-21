@@ -608,7 +608,7 @@ func (s *Seeder) SeedEmployees() error {
 			JoinDate:          joinDate,
 		},
 		{
-			EmployeeCode:      "EMP001",
+			EmployeeCode:      "EMP-0013",
 			FullName:          "System Administrator",
 			Email:             "admin@company.com",
 			Phone:             "+6281234567890",
@@ -625,7 +625,7 @@ func (s *Seeder) SeedEmployees() error {
 			JoinDate:          joinDate,
 		},
 		{
-			EmployeeCode:      "EMP002",
+			EmployeeCode:      "EMP-0014",
 			FullName:          "John Auditor",
 			Email:             "auditor@company.com",
 			Phone:             "+6281234567891",
@@ -642,7 +642,7 @@ func (s *Seeder) SeedEmployees() error {
 			JoinDate:          joinDate,
 		},
 		{
-			EmployeeCode:      "EMP003",
+			EmployeeCode:      "EMP-0015",
 			FullName:          "Alice Department Head",
 			Email:             "depthead@company.com",
 			Phone:             "+6281234567892",
@@ -659,7 +659,7 @@ func (s *Seeder) SeedEmployees() error {
 			JoinDate:          joinDate,
 		},
 		{
-			EmployeeCode:      "EMP004",
+			EmployeeCode:      "EMP-0016",
 			FullName:          "Bob Auditee",
 			Email:             "auditee@company.com",
 			Phone:             "+6281234567893",
@@ -676,7 +676,7 @@ func (s *Seeder) SeedEmployees() error {
 			JoinDate:          joinDate,
 		},
 		{
-			EmployeeCode:      "EMP005",
+			EmployeeCode:      "EMP-0017",
 			FullName:          "Carol Viewer",
 			Email:             "viewer@company.com",
 			Phone:             "+6281234567894",
@@ -693,7 +693,7 @@ func (s *Seeder) SeedEmployees() error {
 			JoinDate:          joinDate,
 		},
 		{
-			EmployeeCode:      "EMP007",
+			EmployeeCode:      "EMP-0018",
 			FullName:          "New Department Head",
 			Email:             "new_dept_head@company.com",
 			Phone:             "+6281234567897",

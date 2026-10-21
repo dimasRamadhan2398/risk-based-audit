@@ -127,18 +127,34 @@ export const useEmployeeApi = () => {
 
   /**
    * Get all employees (no pagination - for dropdowns)
-   * GET /api/v1/employees (fetch all)
+   * GET /api/v1/employees?page=N&page_size=100, walking pages until total_pages.
+   * The backend caps page_size at 100, so a single request cannot fetch everything.
    */
   const getAllEmployees = async (): Promise<Employee[]> => {
-    const response = await $fetch<any>(`${getBaseUrl()}/employees`, {
-      method: 'GET',
-      params: { page: 1, page_size: 1000 }
-    })
+    const pageSize = 100
+    const all: Employee[] = []
+    let page = 1
+    let totalPages = 1
 
-    const employees = Array.isArray(response.data)
-      ? response.data
-      : (response.data?.employees || response.employees || response.data?.data || [])
-    return Array.isArray(employees) ? employees : []
+    do {
+      const response = await $fetch<any>(`${getBaseUrl()}/employees`, {
+        method: 'GET',
+        params: { page, page_size: pageSize }
+      })
+
+      const employees = Array.isArray(response.data)
+        ? response.data
+        : (response.data?.employees || response.employees || response.data?.data || [])
+      if (!Array.isArray(employees) || employees.length === 0) break
+
+      all.push(...employees)
+
+      // Without pagination info we cannot know whether more pages exist, so stop after this one.
+      totalPages = response.data?.pagination?.total_pages ?? response.pagination?.total_pages ?? page
+      page++
+    } while (page <= totalPages)
+
+    return all
   }
 
   return {

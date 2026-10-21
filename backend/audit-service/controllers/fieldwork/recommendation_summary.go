@@ -152,6 +152,10 @@ func LoadRecommendationSummary(db *gorm.DB, ids []string) (RecommendationSummary
 		}
 	}
 
+	// Total counts each letter key once: LHAs that share an assignment letter
+	// (or reference it by number and by UUID) must not repeat its test controls.
+	// Items keep the per-LHA count, which is the letter's count for every LHA of it.
+	totalCounted := map[string]bool{}
 	for _, id := range ids {
 		item := RecommendationCount{AuditResultReportID: id}
 		if u, err := uuid.Parse(id); err == nil {
@@ -160,10 +164,13 @@ func LoadRecommendationSummary(db *gorm.DB, ids []string) (RecommendationSummary
 				// Keys are distinct and each test control has one key: no double count
 				for _, k := range keysOf[ref] {
 					item.Count += countOf[k]
+					if !totalCounted[k] {
+						totalCounted[k] = true
+						out.Total += countOf[k]
+					}
 				}
 			}
 		}
-		out.Total += item.Count
 		out.Items = append(out.Items, item)
 	}
 	return out, nil

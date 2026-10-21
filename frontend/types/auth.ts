@@ -26,7 +26,7 @@ export enum UserRole {
   EXECUTIVE = 'EXECUTIVE',
   AUDITEE = 'AUDITEE',
   VIEWER = 'VIEWER',
-  DEPARTMENT_HEAD = 'DEPARTMENT_HEAD'
+  DEPARTMENT_HEAD = 'DEPARTMENT_HEAD',
 }
 
 export interface LoginCredentials {
@@ -68,3 +68,4 @@ export interface MFAVerifyPayload {
   deviceName?: string
   deviceType?: string
 }
+

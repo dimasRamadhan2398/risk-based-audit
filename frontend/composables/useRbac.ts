@@ -102,7 +102,7 @@ export const useRbac = () => {
    */
   const canReviewExecutiveSummary = computed(() => hasAnyRole([
     UserRole.ADMIN,
-    UserRole.EXECUTIVE
+    UserRole.EXECUTIVE,
   ]))
 
   /**
@@ -116,7 +116,7 @@ export const useRbac = () => {
   const isAuditor = computed(() => hasAnyRole([
     UserRole.ADMIN,
     UserRole.AUDITOR,
-    UserRole.EXECUTIVE
+    UserRole.EXECUTIVE,
   ]))
 
   /**
@@ -124,7 +124,7 @@ export const useRbac = () => {
    */
   const canManageAudits = computed(() => hasAnyRole([
     UserRole.ADMIN,
-    UserRole.EXECUTIVE
+    UserRole.EXECUTIVE,
   ]))
 
   /**
@@ -135,7 +135,7 @@ export const useRbac = () => {
     UserRole.AUDITOR,
     UserRole.EXECUTIVE,
     UserRole.DEPARTMENT_HEAD,
-    UserRole.VIEWER
+    UserRole.VIEWER,
   ]))
 
   /**
@@ -149,7 +149,7 @@ export const useRbac = () => {
       UserRole.AUDITOR,
       UserRole.DEPARTMENT_HEAD,
       UserRole.AUDITEE,
-      UserRole.VIEWER
+      UserRole.VIEWER,
     ].map(normalize)
     for (const role of priority) {
       if (roles.includes(role)) return role
@@ -208,14 +208,14 @@ export const useRbac = () => {
    */
   const isPureAuditor = computed((): boolean => {
     const userRoles = getUserRoles()
-    const hasAuditor = userRoles.some((r) => {
+    const hasAuditor = userRoles.some(r => {
       const c = cleanStr(r)
       return c === 'auditor' || c === 'auditstaff' || c === 'staffaudit' || c === 'leadauditor'
     })
     const isHigher = hasAnyRole([
       UserRole.ADMIN,
       UserRole.CHIEF_AUDIT_EXECUTIVE,
-      UserRole.AUDIT_MANAGER
+      UserRole.AUDIT_MANAGER,
     ])
     return hasAuditor && !isHigher
   })
@@ -243,7 +243,7 @@ export const useRbac = () => {
       UserRole.ADMIN,
       UserRole.EXECUTIVE,
       UserRole.AUDITOR,
-      UserRole.DEPARTMENT_HEAD
+      UserRole.DEPARTMENT_HEAD,
     ])
     return !isHigher && !isPureAuditor.value
   })
@@ -301,6 +301,6 @@ export const useRbac = () => {
     isAtrPic,
     canWorkOnAtr,
     getCurrentUserId,
-    primaryRole
+    primaryRole,
   }
 }
