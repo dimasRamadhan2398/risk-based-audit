@@ -13,6 +13,7 @@ import (
 type EmployeeControllerInterface interface {
 	FindAll(ctx *gin.Context)
 	FindById(ctx *gin.Context)
+	FindByCode(ctx *gin.Context)
 	Create(ctx *gin.Context)
 	NextCode(ctx *gin.Context)
 	Update(ctx *gin.Context)
@@ -48,6 +49,18 @@ func (d *EmployeeController) FindById(ctx *gin.Context) {
 	}
 	response.OK(ctx, "Employee fetched successfully", employee)
 }
+// FindByCode returns one employee by employee_code (GET /employees/by-code/:code).
+func (d *EmployeeController) FindByCode(ctx *gin.Context) {
+	baseService := base.NewBaseService().WithContext(ctx.Request.Context())
+
+	employee, err := d.employeeSvc.FindByCode(baseService, ctx.Param("code"))
+	if err != nil {
+		d.RespondError(ctx, err)
+		return
+	}
+	response.OK(ctx, "Employee fetched successfully", employee)
+}
+
 func (d *EmployeeController) Create(ctx *gin.Context) {
 	var req models.Employee
 	if !d.ValidateRequest(ctx, &req) {

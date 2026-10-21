@@ -212,9 +212,19 @@ func (ctrl *AuthController) Me(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "User retrieved successfully", models.UserInfo{
+	info := models.UserInfo{
 		ID:        claims.UserID,
 		Username:  claims.Username,
 		Roles:     claims.Roles,
-	})
+	}
+
+	// The employee link is best-effort: a lookup failure must not fail /auth/me.
+	if userID, parseErr := uuid.Parse(claims.UserID); parseErr == nil {
+		link, _ := ctrl.authService.ResolveEmployeeLink(c.Request.Context(), userID, c.GetHeader("Authorization"))
+		info.EmployeeCode = link.EmployeeCode
+		info.EmployeeID = link.EmployeeID
+		info.DepartmentID = link.DepartmentID
+	}
+
+	response.OK(c, "User retrieved successfully", info)
 }

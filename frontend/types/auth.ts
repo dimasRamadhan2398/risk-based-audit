@@ -6,6 +6,10 @@ export interface User {
   fullName: string
   phone?: string
   department?: string
+  /** Linked employee (users.employee_id = employees.employee_code). Filled once /auth/me returns it (spec B1). */
+  employeeId?: string | null
+  /** master-service department UUID of the linked employee (spec B1/B2). Filled by fetchEmployeeLink(). */
+  departmentId?: string | null
   position?: string
   /** Profile picture as a data URL. Held in memory only, never written to the auth-user cookie. */
   avatarUrl?: string
@@ -22,7 +26,7 @@ export enum UserRole {
   EXECUTIVE = 'EXECUTIVE',
   AUDITEE = 'AUDITEE',
   VIEWER = 'VIEWER',
-  DEPARTMENT_HEAD = 'DEPARTMENT_HEAD',
+  DEPARTMENT_HEAD = 'DEPARTMENT_HEAD'
 }
 
 export interface LoginCredentials {
@@ -64,4 +68,3 @@ export interface MFAVerifyPayload {
   deviceName?: string
   deviceType?: string
 }
-

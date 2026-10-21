@@ -289,6 +289,76 @@
         "notSignificant": "Not Significant"
       }
     },
+    "auditee": {
+      "title": "Auditee Dashboard",
+      "welcome": "Welcome, {name}. Working view for the audits that affect your unit and the action plans you must answer.",
+      "unitLabel": "Unit: {unit}",
+      "refresh": "Refresh",
+      "notice": {
+        "label": "Auditee view principle:",
+        "text": "The dashboard shows the audits that affect your unit and the items you must respond to (action plans, requests and revisions), while corporate-level risk metrics stay in the background."
+      },
+      "errors": {
+        "link": "Your account details could not be loaded. Department-based data is unavailable until this succeeds.",
+        "notLinked": "Your account is not linked to an employee record with a department yet. Engagements for your unit cannot be shown. Action plans assigned to you are still listed.",
+        "notLinkedShort": "Your account is not linked to a department yet, so engagements for your unit cannot be shown."
+      },
+      "states": {
+        "loadError": "This section could not be loaded.",
+        "retry": "Retry"
+      },
+      "stats": {
+        "title": "Action plan status",
+        "scope": "Scope: action plans assigned to you (PIC)",
+        "empty": "No action plans are assigned to you yet.",
+        "open": "Open action plans",
+        "openHint": "Not completed or cancelled",
+        "overdue": "Overdue",
+        "overdueHint": "Open items past the due date",
+        "pendingReview": "Waiting for review",
+        "pendingReviewHint": "Submitted and not yet reviewed",
+        "compliance": "Completion",
+        "complianceHint": "Completed share of your action plans"
+      },
+      "engagements": {
+        "title": "Audit engagements for your unit",
+        "description": "Audits whose target unit is your department, with their status and planned period.",
+        "scope": "Scope: engagements filtered to your department (interim, not yet scoped on the server)",
+        "empty": "No audit engagements are linked to your unit yet.",
+        "loadError": "Audit engagements could not be loaded.",
+        "period": "{start} to {end}",
+        "showing": "Showing {shown} of {total} engagements",
+        "status": {
+          "planned": "Planned",
+          "inProgress": "In progress",
+          "reporting": "Reporting",
+          "completed": "Completed"
+        }
+      },
+      "tasks": {
+        "title": "Tasks and deadlines",
+        "description": "Open action plans you must fill in or follow up, earliest deadline first.",
+        "scope": "Scope: action plans assigned to you (interim)",
+        "empty": "No open action plans. Nothing is waiting on your unit.",
+        "dueOn": "Due {date}",
+        "noDueDate": "No due date",
+        "overdueDays": "{days} days overdue",
+        "showing": "Showing {shown} of {total} open action plans"
+      },
+      "requests": {
+        "title": "Requests needing a response",
+        "description": "Action plans returned for revision. PBC requests and comments are not connected yet.",
+        "empty": "No action plan is waiting for a response from you.",
+        "noRevisions": "No action plan has been returned for revision.",
+        "revisionLabel": "Returned for revision",
+        "placeholder": "PBC requests, comments and notifications are not connected yet."
+      },
+      "calendar": {
+        "title": "Important dates",
+        "description": "Engagement dates and action plan due dates for your unit.",
+        "placeholder": "The calendar for your unit is not connected yet."
+      }
+    },
     "auditor": {
     "roleBadge": "Role: Auditor",
     "title": "Auditor Dashboard",
@@ -302,7 +372,7 @@
     "syncError": "Failed to sync auditor data",
     "notice": {
       "label": "Auditor view principle:",
-      "text": "Corporate-level risk metrics are simplified so the workspace focuses on active engagements, working papers and client evidence (PBC)."
+      "text": "The dashboard prioritizes active audit engagements, working papers, and client-provided evidence (PBC), while keeping corporate-level risk metrics in the background."
     },
     "states": {
       "loading": "Loading...",
@@ -378,7 +448,8 @@
         "overdue": "{days} days overdue",
         "remaining": "{days} days left"
       },
-      "periodTo": "to"
+      "periodTo": "to",
+      "unitFallback": "Audited unit"
     },
     "tasks": {
       "title": "Task list with deadlines",
@@ -2454,7 +2525,8 @@
       "stepNum": "Step {current} of {total}",
       "update": "Update",
       "uploadAttachmentHere": "Upload your Attachment here",
-      "uploadFailed": "Failed to upload attachment {name}."
+      "uploadFailed": "Failed to upload attachment {name}.",
+      "highRisk": "High Risk"
     },
     "view": {
       "additionalNotes": "Additional Notes:",

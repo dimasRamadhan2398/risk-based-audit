@@ -1,7 +1,7 @@
 {
   "brand": {
     "logoAlt": "Logo AuditSphere",
-    "tagline": "Audit Berbasis Risiko Cerdas"
+    "tagline": "Intelligent Risk-Based Audit"
   },
   "actions": {
     "view": "Lihat",
@@ -289,20 +289,90 @@
         "notSignificant": "Tidak Signifikan"
       }
     },
+    "auditee": {
+      "title": "Dashboard Auditee",
+      "welcome": "Selamat datang, {name}. Tampilan kerja untuk audit yang berdampak pada unit Anda dan rencana tindak lanjut yang harus Anda jawab.",
+      "unitLabel": "Unit: {unit}",
+      "refresh": "Muat ulang",
+      "notice": {
+        "label": "Prinsip tampilan auditee:",
+        "text": "Dashboard menampilkan audit yang berdampak pada unit Anda dan item yang harus Anda tanggapi (rencana tindak lanjut, permintaan, dan revisi), sementara metrik risiko tingkat korporasi tetap berada di latar belakang."
+      },
+      "errors": {
+        "link": "Data akun Anda tidak dapat dimuat. Data berbasis unit belum tersedia sampai proses ini berhasil.",
+        "notLinked": "Akun Anda belum terhubung ke data pegawai yang memiliki unit kerja. Penugasan audit untuk unit Anda belum dapat ditampilkan. Rencana tindak lanjut yang ditugaskan kepada Anda tetap ditampilkan.",
+        "notLinkedShort": "Akun Anda belum terhubung ke unit kerja, sehingga penugasan audit untuk unit Anda belum dapat ditampilkan."
+      },
+      "states": {
+        "loadError": "Bagian ini tidak dapat dimuat.",
+        "retry": "Coba lagi"
+      },
+      "stats": {
+        "title": "Status rencana tindak lanjut",
+        "scope": "Cakupan: rencana tindak lanjut yang ditugaskan kepada Anda (PIC)",
+        "empty": "Belum ada rencana tindak lanjut yang ditugaskan kepada Anda.",
+        "open": "Rencana tindak lanjut terbuka",
+        "openHint": "Belum selesai atau dibatalkan",
+        "overdue": "Terlambat",
+        "overdueHint": "Item terbuka yang melewati tenggat",
+        "pendingReview": "Menunggu review",
+        "pendingReviewHint": "Sudah dikirim dan belum direview",
+        "compliance": "Penyelesaian",
+        "complianceHint": "Porsi rencana tindak lanjut Anda yang sudah selesai"
+      },
+      "engagements": {
+        "title": "Penugasan audit untuk unit Anda",
+        "description": "Audit dengan unit yang diaudit adalah departemen Anda, beserta status dan periode rencananya.",
+        "scope": "Cakupan: penugasan yang difilter ke departemen Anda (sementara, belum dibatasi di server)",
+        "empty": "Belum ada penugasan audit yang terhubung ke unit Anda.",
+        "loadError": "Penugasan audit tidak dapat dimuat.",
+        "period": "{start} s.d. {end}",
+        "showing": "Menampilkan {shown} dari {total} penugasan",
+        "status": {
+          "planned": "Direncanakan",
+          "inProgress": "Berjalan",
+          "reporting": "Pelaporan",
+          "completed": "Selesai"
+        }
+      },
+      "tasks": {
+        "title": "Tugas dan tenggat",
+        "description": "Rencana tindak lanjut terbuka yang harus Anda isi atau tindak lanjuti, tenggat terdekat lebih dulu.",
+        "scope": "Cakupan: rencana tindak lanjut yang ditugaskan kepada Anda (sementara)",
+        "empty": "Tidak ada rencana tindak lanjut terbuka. Tidak ada yang menunggu unit Anda.",
+        "dueOn": "Tenggat {date}",
+        "noDueDate": "Belum ada tenggat",
+        "overdueDays": "Terlambat {days} hari",
+        "showing": "Menampilkan {shown} dari {total} rencana tindak lanjut terbuka"
+      },
+      "requests": {
+        "title": "Permintaan yang perlu ditanggapi",
+        "description": "Rencana tindak lanjut yang dikembalikan untuk revisi. Permintaan PBC dan komentar belum terhubung.",
+        "empty": "Tidak ada rencana tindak lanjut yang menunggu tanggapan dari Anda.",
+        "noRevisions": "Tidak ada rencana tindak lanjut yang dikembalikan untuk revisi.",
+        "revisionLabel": "Dikembalikan untuk revisi",
+        "placeholder": "Permintaan PBC, komentar, dan notifikasi belum terhubung."
+      },
+      "calendar": {
+        "title": "Tanggal penting",
+        "description": "Tanggal penugasan dan tenggat rencana tindak lanjut untuk unit Anda.",
+        "placeholder": "Kalender untuk unit Anda belum terhubung."
+      }
+    },
     "auditor": {
     "roleBadge": "Peran: Auditor",
-    "title": "Dashboard Pelaksana Audit",
-    "welcome": "Selamat datang, {name}. Layar kerja untuk eksekusi lapangan, kertas kerja dan draft temuan.",
+    "title": "Dashboard Auditor",
+    "welcome": "Selamat datang, {name}. Tampilan kerja untuk pelaksanaan lapangan, kertas kerja, dan draft temuan.",
     "previewMode": "Mode:",
     "previewAuditor": "Auditor",
     "previewReset": "(Reset)",
     "previewResetTitle": "Kembali ke tampilan penuh dashboard",
-    "sync": "Sinkronisasi Data",
+    "sync": "Sinkronkan data",
     "syncSuccess": "Data auditor berhasil disinkronkan",
-    "syncError": "Gagal memperbarui data auditor",
+    "syncError": "Gagal menyinkronkan data auditor",
     "notice": {
       "label": "Prinsip tampilan auditor:",
-      "text": "Metrik risiko tingkat korporasi disederhanakan agar workspace berfokus pada penugasan aktif, kertas kerja dan dokumen bukti (PBC)."
+      "text": "Dashboard memprioritaskan penugasan audit aktif, kertas kerja, dan bukti yang disediakan klien (PBC), sementara metrik risiko tingkat korporasi tetap berada di latar belakang."
     },
     "states": {
       "loading": "Memuat...",
@@ -335,7 +405,7 @@
     },
     "status": {
       "title": "Status dan progres audit",
-      "description": "Surat tugas yang terbit, tahap lapangan dan kelengkapan kertas kerja.",
+      "description": "Surat tugas yang terbit, tahap pekerjaan lapangan, dan kelengkapan kertas kerja.",
       "scope": "Cakupan: semua surat tugas yang sudah terbit (sementara)",
       "searchPlaceholder": "Cari surat / unit...",
       "allAssignments": "Semua penugasan",
@@ -350,7 +420,7 @@
       "formsCount": "{count}/5 form",
       "currentStage": "Tahap saat ini:",
       "openWorkingPaper": "Kertas kerja",
-      "openFieldwork": "Uji & PBC",
+      "openFieldwork": "Pengujian & PBC",
       "openLha": "Draft LHA",
       "empty": "Belum ada surat tugas yang terbit.",
       "emptyFiltered": "Tidak ada penugasan yang cocok dengan pencarian.",
@@ -378,7 +448,8 @@
         "overdue": "Terlambat {days} hari",
         "remaining": "Sisa {days} hari"
       },
-      "periodTo": "s/d"
+      "periodTo": "s/d",
+      "unitFallback": "Unit yang diaudit"
     },
     "tasks": {
       "title": "Daftar tugas dengan tenggat",
@@ -389,8 +460,8 @@
       "dueOn": "Tenggat {date}",
       "noDueDate": "Tanpa tenggat",
       "overdueDays": "Terlambat {days} hari",
-      "empty": "Tidak ada tugas terbuka. Tidak ada yang menunggu Anda.",
-      "placeholder": "Tugas KKA, PBC dan LHA belum terhubung."
+      "empty": "Tidak ada tugas terbuka. Tidak ada yang menunggu tindakan Anda.",
+      "placeholder": "Tugas KKA, PBC, dan LHA belum terhubung."
     },
     "calendar": {
       "title": "Tanggal penting",
@@ -405,7 +476,7 @@
       "typeOverdue": "ATR terlambat {days} hari",
       "typePendingReview": "ATR menunggu review",
       "typeDueSoon": "ATR jatuh tempo dalam {days} hari",
-      "placeholder": "Permintaan PBC, komentar dan revisi belum terhubung."
+      "placeholder": "Permintaan PBC, komentar, dan revisi belum terhubung."
     },
     "placeholder": "Placeholder"
     }
@@ -2450,6 +2521,7 @@
       "create": "Buat",
       "derivedFromAnnual": "Diambil dari PKAT",
       "dropAttachmentsHere": "Tarik dan lepas lampiran Anda di sini",
+      "highRisk": "Resiko Tinggi",
       "maxFileSizeDesc": "Anda dapat mengupload beberapa file (maks. 2MB per file)",
       "stepNum": "Langkah {current} dari {total}",
       "update": "Update",

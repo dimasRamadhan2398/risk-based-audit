@@ -4,20 +4,27 @@
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-5 sm:p-6 bg-gradient-to-r from-emerald-900/10 via-primary-500/5 to-transparent border border-emerald-500/20 rounded-2xl shadow-xs">
       <div class="flex items-start sm:items-center gap-4">
         <div class="size-14 rounded-2xl bg-emerald-600/10 dark:bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-xs">
-          <UIcon name="i-lucide-clipboard-check" class="size-7" />
+          <UIcon
+            name="i-lucide-clipboard-check"
+            class="size-7"
+          />
         </div>
         <div>
           <div class="flex flex-wrap items-center gap-2">
             <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
-              Dashboard Pelaksana Audit (Fieldwork Auditor)
+              {{ t('dashboard.auditor.title') }}
             </h1>
-            <UBadge color="success" variant="subtle" size="sm" class="font-bold uppercase tracking-wider">
-              Role: Auditor
-            </UBadge>
+            <!-- <UBadge
+              color="success"
+              variant="subtle"
+              size="sm"
+              class="font-bold uppercase tracking-wider"
+            >
+              {{ t('dashboard.auditor.roleBadge') }}
+            </UBadge> -->
           </div>
           <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 max-w-3xl">
-            Selamat datang, <strong class="text-gray-900 dark:text-gray-200">{{ currentUserFullName }}</strong>. 
-            Layar kerja khusus eksekusi penugasan audit lapangan, penyusunan Kertas Kerja Audit dan perumusan draft temuan audit (LHA).
+            {{ t('dashboard.auditor.welcome', { name: currentUserFullName }) }}
           </p>
         </div>
       </div>
@@ -25,17 +32,23 @@
       <!-- Quick Action Controls & Role Switcher -->
       <div class="flex flex-wrap items-center gap-2 self-start lg:self-center shrink-0">
         <!-- Role Preview Pill (Visible for admins / reviewers to test/toggle) -->
-        <div v-if="canToggleRoleView" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs font-medium">
-          <UIcon name="i-lucide-eye" class="size-4 text-emerald-500" />
-          <span class="text-gray-600 dark:text-gray-300">Mode:</span>
-          <span class="font-bold text-emerald-600 dark:text-emerald-400">Auditor</span>
+        <div
+          v-if="canToggleRoleView"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs font-medium"
+        >
+          <UIcon
+            name="i-lucide-eye"
+            class="size-4 text-emerald-500"
+          />
+          <span class="text-gray-600 dark:text-gray-300">{{ t('dashboard.auditor.previewMode') }}</span>
+          <span class="font-bold text-emerald-600 dark:text-emerald-400">{{ t('dashboard.auditor.previewAuditor') }}</span>
           <button
             type="button"
             class="ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 underline text-[11px]"
-            title="Kembali ke tampilan penuh dashboard"
+            :title="t('dashboard.auditor.previewResetTitle')"
             @click="switchDashboardView(null)"
           >
-            (Reset)
+            {{ t('dashboard.auditor.previewReset') }}
           </button>
         </div>
 
@@ -48,145 +61,196 @@
           @click="manualSyncAuditorData"
         >
           <template #leading>
-            <UIcon name="i-lucide-rotate-cw" :class="{ 'animate-spin': isSyncing }" class="size-4" />
+            <UIcon
+              name="i-lucide-rotate-cw"
+              :class="{ 'animate-spin': isSyncing }"
+              class="size-4"
+            />
           </template>
-          Sinkronisasi Data
+          {{ t('dashboard.auditor.sync') }}
         </UButton>
       </div>
     </div>
 
-    <!-- Notice Card: Fokus Operasional Lapangan (Sesuai Panduan RBAC) -->
-    <div class="flex items-center justify-between gap-4 p-4 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-900 dark:text-sky-200 text-xs sm:text-sm">
-      <div class="flex items-center gap-3">
-        <UIcon name="i-lucide-info" class="size-5 text-sky-600 dark:text-sky-400 shrink-0" />
-        <div>
-          <span class="font-bold">Prinsip Tampilan Auditor:</span>
-          <span class="ml-1 text-sky-800 dark:text-sky-300">
-            Metrik risiko makro korporasi disederhanakan agar workspace berfokus penuh pada penugasan aktif, kertas kerja, dan dokumen bukti (PBC).
-          </span>
-        </div>
-      </div>
-      <div class="hidden md:flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-md bg-sky-600/10 text-sky-700 dark:text-sky-300 shrink-0">
-        <UIcon name="i-lucide-shield-check" class="size-3.5" />
-        <span>Matriks RBAC Baris 8 & 9</span>
+    <!-- Notice -->
+    <div class="flex items-start gap-3 p-4 rounded-xl bg-secondary-500/10 border border-secondary-500/20 text-secondary-900 dark:text-secondary-200 text-xs sm:text-sm">
+      <UIcon
+        name="i-lucide-info"
+        class="size-5 text-secondary-600 dark:text-secondary-400 shrink-0"
+      />
+      <div>
+        <span class="font-bold">{{ t('dashboard.auditor.notice.label') }}</span>
+        <span class="ml-1 text-secondary-800 dark:text-secondary-300">{{ t('dashboard.auditor.notice.text') }}</span>
       </div>
     </div>
 
-    <!-- 4 Focused Operational Stat Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-      <!-- Card 1: Active Fieldwork Assignments -->
-      <div class="p-5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 shadow-xs flex flex-col justify-between hover:border-emerald-500/40 transition-all">
-        <div class="flex items-start justify-between">
-          <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-              Audit Lapangan Aktif
-            </p>
-            <h3 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mt-1">
-              {{ activeAssignmentsCount }}
-            </h3>
-          </div>
-          <div class="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-            <UIcon name="i-lucide-briefcase" class="size-5" />
-          </div>
-        </div>
-        <div class="mt-3 flex items-center justify-between text-xs border-t border-gray-100 dark:border-gray-800/80 pt-2.5">
-          <span class="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
-            <UIcon name="i-lucide-activity" class="size-3.5" />
-            {{ inProgressAssignmentsCount }} Dalam Pelaksanaan
-          </span>
-          <span class="text-gray-400">Tahun {{ currentYear }}</span>
-        </div>
+    <!-- 1. Audit statistics -->
+    <section
+      class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-5"
+      aria-labelledby="auditor-stats-title"
+    >
+      <div>
+        <h2
+          id="auditor-stats-title"
+          class="text-lg font-bold text-gray-900 dark:text-white"
+        >
+          {{ t('dashboard.auditor.stats.title') }}
+        </h2>
+        <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
+          {{ t('dashboard.auditor.stats.scope') }}
+        </p>
       </div>
-
-      <!-- Card 2: Working Papers (KKA) Progress -->
-      <div class="p-5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 shadow-xs flex flex-col justify-between hover:border-primary-500/40 transition-all">
-        <div class="flex items-start justify-between">
-          <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-              Kertas Kerja
-            </p>
-            <h3 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mt-1">
-              {{ totalWorkingPapersCount }}
-            </h3>
-          </div>
-          <div class="p-2.5 rounded-xl bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400">
-            <UIcon name="i-lucide-file-signature" class="size-5" />
-          </div>
-        </div>
-        <div class="mt-3 flex items-center justify-between text-xs border-t border-gray-100 dark:border-gray-800/80 pt-2.5">
-          <div class="flex items-center gap-1.5">
-            <div class="w-16 bg-gray-200 dark:bg-gray-800 h-2 rounded-full overflow-hidden">
-              <div class="bg-primary-500 h-full rounded-full" :style="{ width: `${kkaCompletionRate}%` }" />
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div
+          v-for="card in statCards"
+          :key="card.key"
+          class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] border border-gray-200/80 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30"
+        >
+          <div class="flex items-start justify-between gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ card.label }}</span>
+            <div
+              class="p-2 rounded-lg shrink-0"
+              :class="card.iconBg"
+            >
+              <UIcon
+                :name="card.icon"
+                class="size-4"
+                :class="card.iconClass"
+              />
             </div>
-            <span class="font-bold text-primary-600 dark:text-primary-400">{{ kkaCompletionRate }}% Selesai</span>
           </div>
-          <NuxtLink to="/working-paper" class="text-primary-600 dark:text-primary-400 hover:underline font-semibold">
-            Kelola &rarr;
-          </NuxtLink>
+          <AuditorWidgetState
+            :state="card.state === 'empty' ? 'ready' : card.state"
+            :error-text="t('dashboard.auditor.states.loadError')"
+            :retry-label="t('dashboard.auditor.states.retry')"
+            @retry="card.retry"
+          >
+            <div class="mt-2">
+              <h4 class="text-2xl font-extrabold text-gray-900 dark:text-white">
+                {{ card.value }}
+              </h4>
+              <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                {{ card.hint }}
+              </p>
+              <p
+                v-if="card.state === 'empty'"
+                class="text-[11px] text-gray-400 mt-1"
+              >
+                {{ t('dashboard.auditor.states.noData') }}
+              </p>
+            </div>
+          </AuditorWidgetState>
         </div>
       </div>
+    </section>
 
-      <!-- Card 3: Draft Findings (LHA) -->
-      <div class="p-5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 shadow-xs flex flex-col justify-between hover:border-amber-500/40 transition-all">
-        <div class="flex items-start justify-between">
+    <!-- 2. Audit planning & coverage -->
+    <section
+      class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-5"
+      aria-labelledby="auditor-coverage-title"
+    >
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <h2
+            id="auditor-coverage-title"
+            class="text-lg font-bold text-gray-900 dark:text-white"
+          >
+            {{ t('dashboard.auditor.coverage.title') }}
+          </h2>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            {{ t('dashboard.auditor.coverage.description') }}
+          </p>
+          <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
+            {{ t('dashboard.auditor.coverage.scope') }}
+          </p>
+        </div>
+        <UButton
+          to="/annual-audit"
+          variant="ghost"
+          color="neutral"
+          size="sm"
+          class="self-start sm:self-auto"
+        >
+          {{ t('dashboard.auditor.coverage.openPlan') }}
+        </UButton>
+      </div>
+
+      <AuditorWidgetState
+        :state="planState === 'empty' ? 'ready' : planState"
+        :error-text="t('dashboard.auditor.states.loadError')"
+        :retry-label="t('dashboard.auditor.states.retry')"
+        @retry="reloadPlans"
+      >
+        <p
+          v-if="planState === 'empty'"
+          class="text-xs text-gray-500 dark:text-gray-400"
+        >
+          {{ t('dashboard.auditor.coverage.empty') }}
+        </p>
+        <div class="space-y-4">
+          <div class="flex flex-wrap justify-between items-center gap-x-3 gap-y-1">
+            <span class="text-sm font-semibold text-gray-500 dark:text-gray-400">{{ t('dashboard.auditor.coverage.overallProgress') }}</span>
+            <h5 class="text-base font-bold text-indigo-600 dark:text-indigo-400 whitespace-nowrap">
+              {{ coveragePercent }}%
+            </h5>
+          </div>
+          <UProgress
+            :model-value="coveragePercent"
+            color="secondary"
+            class="h-2 rounded"
+          />
+        </div>
+        <div class="grid grid-cols-3 gap-2 border-t border-gray-100 dark:border-gray-800 pt-5 mt-5 text-center">
           <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-              Draft Temuan Sementara
+            <p class="text-[11px] text-gray-400 font-semibold uppercase">
+              {{ t('dashboard.auditor.coverage.planned') }}
             </p>
-            <h3 class="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400 mt-1">
-              {{ draftFindingsList.length }}
-            </h3>
+            <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-1">
+              {{ auditCoverage.plannedAudits }}
+            </h4>
           </div>
-          <div class="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400">
-            <UIcon name="i-lucide-alert-triangle" class="size-5" />
-          </div>
-        </div>
-        <div class="mt-3 flex items-center justify-between text-xs border-t border-gray-100 dark:border-gray-800/80 pt-2.5">
-          <div class="flex items-center gap-1 text-[11px]">
-            <span class="px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-300 font-semibold">{{ highFindingsCount }} High</span>
-            <span class="px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 font-semibold">{{ mediumFindingsCount }} Med</span>
-            <span class="px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-semibold">{{ lowFindingsCount }} Low</span>
-          </div>
-          <span class="text-gray-400 text-[11px]">Draft LHA</span>
-        </div>
-      </div>
-
-      <!-- Card 4: PBC & Evidence Tracker -->
-      <div class="p-5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 shadow-xs flex flex-col justify-between hover:border-sky-500/40 transition-all">
-        <div class="flex items-start justify-between">
           <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-              Bukti Klien (PBC Tracker)
+            <p class="text-[11px] text-gray-400 font-semibold uppercase">
+              {{ t('dashboard.auditor.coverage.approved') }}
             </p>
-            <h3 class="text-2xl sm:text-3xl font-extrabold text-sky-600 dark:text-sky-400 mt-1">
-              {{ pbcStats.collected }}/{{ pbcStats.total }}
-            </h3>
+            <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-1">
+              {{ auditCoverage.completedAudits }}
+            </h4>
           </div>
-          <div class="p-2.5 rounded-xl bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400">
-            <UIcon name="i-lucide-folder-input" class="size-5" />
+          <div>
+            <p class="text-[11px] text-gray-400 font-semibold uppercase">
+              {{ t('dashboard.auditor.coverage.remaining') }}
+            </p>
+            <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-1">
+              {{ auditCoverage.remainingAudits }}
+            </h4>
           </div>
         </div>
-        <div class="mt-3 flex items-center justify-between text-xs border-t border-gray-100 dark:border-gray-800/80 pt-2.5">
-          <span class="text-sky-600 dark:text-sky-400 font-semibold">
-            {{ pbcStats.pending }} Dokumen Menunggu Respon
-          </span>
-          <NuxtLink to="/audit-fieldwork" class="text-sky-600 dark:text-sky-400 hover:underline font-semibold">
-            Lihat &rarr;
-          </NuxtLink>
-        </div>
-      </div>
-    </div>
+      </AuditorWidgetState>
+    </section>
 
-    <!-- KOMPONEN UTAMA 1: TABEL DAFTAR AUDIT BERJALAN (ACTIVE FIELDWORK) -->
-    <div class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-5">
+    <!-- 3. Audit status and progress (active fieldwork) -->
+    <section
+      class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-5"
+      aria-labelledby="auditor-status-title"
+    >
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <UIcon name="i-lucide-briefcase" class="size-5 text-emerald-600 dark:text-emerald-400" />
-            1. Tabel Utama: Daftar Audit Berjalan (Active Fieldwork)
+          <h2
+            id="auditor-status-title"
+            class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2"
+          >
+            <UIcon
+              name="i-lucide-briefcase"
+              class="size-5 text-emerald-600 dark:text-emerald-400"
+            />
+            {{ t('dashboard.auditor.status.title') }}
           </h2>
           <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-            Daftar penugasan audit yang sedang dipegang, timeline tahapan lapangan, dan status progres Kertas Kerja.
+            {{ t('dashboard.auditor.status.description') }}
+          </p>
+          <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
+            {{ t('dashboard.auditor.status.scope') }}
           </p>
         </div>
 
@@ -194,7 +258,7 @@
           <UInput
             v-model="fieldworkSearch"
             icon="i-lucide-search"
-            placeholder="Cari surat tugas / unit..."
+            :placeholder="t('dashboard.auditor.status.searchPlaceholder')"
             size="sm"
             class="w-full sm:w-64"
           />
@@ -206,185 +270,438 @@
             icon="i-lucide-external-link"
             class="shrink-0 font-medium"
           >
-            Semua Penugasan
+            {{ t('dashboard.auditor.status.allAssignments') }}
           </UButton>
         </div>
       </div>
 
-      <!-- Table Content -->
-      <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
-        <table class="w-full text-left text-sm">
-          <thead class="bg-gray-50 dark:bg-gray-800/80 text-gray-700 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 text-xs uppercase font-bold tracking-wider">
-            <tr>
-              <th class="py-3 px-4 min-w-[200px]">Surat Tugas & Judul Audit</th>
-              <th class="py-3 px-4 min-w-[130px]">Unit Kerja (Auditee)</th>
-              <th class="py-3 px-4 min-w-[170px]">Periode Lapangan</th>
-              <th class="py-3 px-4 min-w-[240px]">Tahapan Lapangan</th>
-              <th class="py-3 px-4 min-w-[120px] text-center">Kelengkapan Kertas Kerja</th>
-              <th class="py-3 px-4 min-w-[120px] text-center">Status</th>
-              <th class="py-3 px-4 min-w-[160px] text-center">Aksi Operasional</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-            <tr
-              v-for="item in filteredFieldworkList"
-              :key="item.letterNumber"
-              class="hover:bg-emerald-50/30 dark:hover:bg-emerald-950/10 transition-colors"
-              :class="{ 'bg-emerald-50/20 dark:bg-emerald-950/20': selectedLetterNumber === item.letterNumber }"
-            >
-              <!-- Letter Number & Title -->
-              <td class="py-3.5 px-4">
-                <div class="flex items-start gap-2.5">
-                  <div class="size-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
-                    <UIcon name="i-lucide-file-text" class="size-4" />
-                  </div>
-                  <div>
-                    <span class="font-mono font-bold text-xs text-primary-600 dark:text-primary-400 block">
-                      {{ item.letterNumber }}
-                    </span>
-                    <span class="font-semibold text-gray-900 dark:text-gray-100 text-xs sm:text-sm line-clamp-1">
-                      {{ item.auditTitle }}
-                    </span>
-                    <span class="text-[11px] text-gray-500 dark:text-gray-400">
-                      Tim: {{ item.auditTeam || 'SKAI' }} &bull; {{ item.category || 'Assurance' }}
-                    </span>
-                  </div>
-                </div>
-              </td>
+      <AuditorWidgetState
+        :state="statusState === 'empty' ? 'ready' : statusState"
+        :error-text="t('dashboard.auditor.states.loadError')"
+        :retry-label="t('dashboard.auditor.states.retry')"
+        @retry="reloadLetters"
+      >
+        <div
+          v-if="statusState === 'empty'"
+          class="py-8 text-center text-gray-500 dark:text-gray-400"
+        >
+          <UIcon
+            name="i-lucide-folder-open"
+            class="size-10 mx-auto text-gray-300 dark:text-gray-600 mb-2"
+          />
+          <p class="font-medium text-sm">
+            {{ t('dashboard.auditor.status.empty') }}
+          </p>
+          <p class="text-xs text-gray-400 mt-1">
+            {{ t('dashboard.auditor.status.emptyHint') }}
+          </p>
+        </div>
 
-              <!-- Auditee Unit -->
-              <td class="py-3.5 px-4">
-                <div class="flex items-center gap-1.5 font-medium text-xs text-gray-800 dark:text-gray-200">
-                  <UIcon name="i-lucide-building" class="size-3.5 text-gray-400 shrink-0" />
-                  <span>{{ item.workingUnit }}</span>
-                </div>
-              </td>
-
-              <!-- Execution Period -->
-              <td class="py-3.5 px-4 text-xs">
-                <div class="space-y-1">
-                  <div class="flex items-center gap-1 text-gray-700 dark:text-gray-300">
-                    <UIcon name="i-lucide-calendar" class="size-3.5 text-gray-400" />
-                    <span>{{ formatPeriod(item.startPeriod, item.finishPeriod) }}</span>
+        <div
+          v-else
+          class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800"
+        >
+          <table class="w-full text-left text-sm">
+            <thead class="bg-gray-50 dark:bg-gray-800/80 text-gray-700 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 text-xs uppercase font-bold tracking-wider">
+              <tr>
+                <th class="py-3 px-4 min-w-[200px]">
+                  {{ t('dashboard.auditor.status.colLetter') }}
+                </th>
+                <th class="py-3 px-4 min-w-[130px]">
+                  {{ t('dashboard.auditor.status.colUnit') }}
+                </th>
+                <th class="py-3 px-4 min-w-[170px]">
+                  {{ t('dashboard.auditor.status.colPeriod') }}
+                </th>
+                <th class="py-3 px-4 min-w-[240px]">
+                  {{ t('dashboard.auditor.status.colStages') }}
+                </th>
+                <th class="py-3 px-4 min-w-[120px] text-center">
+                  {{ t('dashboard.auditor.status.colWorkingPapers') }}
+                </th>
+                <th class="py-3 px-4 min-w-[120px] text-center">
+                  {{ t('dashboard.auditor.status.colStatus') }}
+                </th>
+                <th class="py-3 px-4 min-w-[160px] text-center">
+                  {{ t('dashboard.auditor.status.colActions') }}
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+              <tr
+                v-for="item in filteredFieldworkList"
+                :key="item.letterNumber"
+                class="hover:bg-emerald-50/30 dark:hover:bg-emerald-950/10 transition-colors"
+                :class="{ 'bg-emerald-50/20 dark:bg-emerald-950/20': selectedLetterNumber === item.letterNumber }"
+              >
+                <!-- Letter Number & Title -->
+                <td class="py-3.5 px-4">
+                  <div class="flex items-start gap-2.5">
+                    <div class="size-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                      <UIcon
+                        name="i-lucide-file-text"
+                        class="size-4"
+                      />
+                    </div>
+                    <div>
+                      <span class="font-mono font-bold text-xs text-primary-600 dark:text-primary-400 block">
+                        {{ item.letterNumber }}
+                      </span>
+                      <span class="font-semibold text-gray-900 dark:text-gray-100 text-xs sm:text-sm line-clamp-1">
+                        {{ item.auditTitle }}
+                      </span>
+                      <span class="text-[11px] text-gray-500 dark:text-gray-400">
+                        {{ t('dashboard.auditor.status.team') }}: {{ item.auditTeam || 'SKAI' }} &bull; {{ item.category || 'Assurance' }}
+                      </span>
+                    </div>
                   </div>
+                </td>
+
+                <!-- Auditee Unit -->
+                <td class="py-3.5 px-4">
+                  <div class="flex items-center gap-1.5 font-medium text-xs text-gray-800 dark:text-gray-200">
+                    <UIcon
+                      name="i-lucide-building"
+                      class="size-3.5 text-gray-400 shrink-0"
+                    />
+                    <span>{{ item.workingUnit }}</span>
+                  </div>
+                </td>
+
+                <!-- Execution Period -->
+                <td class="py-3.5 px-4 text-xs">
+                  <div class="space-y-1">
+                    <div class="flex items-center gap-1 text-gray-700 dark:text-gray-300">
+                      <UIcon
+                        name="i-lucide-calendar"
+                        class="size-3.5 text-gray-400"
+                      />
+                      <span>{{ formatPeriod(item.startPeriod, item.finishPeriod) }}</span>
+                    </div>
+                    <UBadge
+                      :color="getDeadlineBadgeColor(item.finishPeriod)"
+                      variant="soft"
+                      size="sm"
+                      class="text-[10px] font-semibold"
+                    >
+                      {{ getDeadlineLabel(item.finishPeriod) }}
+                    </UBadge>
+                  </div>
+                </td>
+
+                <!-- Fieldwork Milestones Stepper -->
+                <td class="py-3.5 px-4">
+                  <div class="space-y-1.5">
+                    <div class="flex items-center justify-between text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+                      <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': item.stageStep >= 1 }">{{ t('dashboard.auditor.status.stepper.entry') }}</span>
+                      <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': item.stageStep >= 2 }">{{ t('dashboard.auditor.status.stepper.testing') }}</span>
+                      <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': item.stageStep >= 3 }">{{ t('dashboard.auditor.status.stepper.workingPapers') }}</span>
+                      <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': item.stageStep >= 4 }">{{ t('dashboard.auditor.status.stepper.exit') }}</span>
+                    </div>
+                    <!-- Progress Tracker Bar -->
+                    <div class="w-full h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden flex">
+                      <div
+                        class="bg-emerald-500 h-full transition-all duration-500"
+                        :style="{ width: `${(item.stageStep / 4) * 100}%` }"
+                      />
+                    </div>
+                    <div class="text-[11px] text-gray-500 dark:text-gray-400">
+                      {{ t('dashboard.auditor.status.currentStage') }}
+                      <strong class="text-gray-800 dark:text-gray-200">{{ t(`dashboard.auditor.status.stage.${item.stageKey}`) }}</strong>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- KKA Progress Bar -->
+                <td class="py-3.5 px-4 text-center">
+                  <div class="inline-flex flex-col items-center gap-1">
+                    <span class="font-bold text-xs text-gray-900 dark:text-gray-100">
+                      {{ t('dashboard.auditor.status.formsCount', { count: item.kkaCompleted }) }}
+                    </span>
+                    <div class="w-16 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+                      <div
+                        class="h-full rounded-full transition-all"
+                        :class="item.kkaCompleted === 5 ? 'bg-emerald-500' : 'bg-primary-500'"
+                        :style="{ width: `${(item.kkaCompleted / 5) * 100}%` }"
+                      />
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Status Badge -->
+                <td class="py-3.5 px-4 text-center">
                   <UBadge
-                    :color="getDeadlineBadgeColor(item.finishPeriod)"
-                    variant="soft"
+                    :color="getFieldworkStatusColor(item.statusKey)"
+                    variant="subtle"
                     size="sm"
-                    class="text-[10px] font-semibold"
+                    class="font-semibold"
                   >
-                    {{ getDeadlineLabel(item.finishPeriod) }}
+                    {{ t(`dashboard.auditor.status.statusLabel.${item.statusKey}`) }}
                   </UBadge>
-                </div>
-              </td>
+                </td>
 
-              <!-- Fieldwork Milestones Stepper -->
-              <td class="py-3.5 px-4">
-                <div class="space-y-1.5">
-                  <div class="flex items-center justify-between text-[11px] font-semibold text-gray-500 dark:text-gray-400">
-                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': item.stageStep >= 1 }">1. Entry</span>
-                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': item.stageStep >= 2 }">2. Pengujian</span>
-                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': item.stageStep >= 3 }">3. Kertas Kerja</span>
-                    <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': item.stageStep >= 4 }">4. Exit</span>
-                  </div>
-                  <!-- Progress Tracker Bar -->
-                  <div class="w-full h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden flex">
-                    <div
-                      class="bg-emerald-500 h-full transition-all duration-500"
-                      :style="{ width: `${(item.stageStep / 4) * 100}%` }"
+                <!-- Operational Actions -->
+                <td class="py-3.5 px-4 text-center">
+                  <div class="flex items-center justify-center gap-1.5">
+                    <UButton
+                      size="xs"
+                      color="primary"
+                      variant="solid"
+                      icon="i-lucide-file-signature"
+                      class="font-bold cursor-pointer"
+                      @click="goToWorkingPaper(item.letterNumber)"
+                    >
+                      {{ t('dashboard.auditor.status.openWorkingPaper') }}
+                    </UButton>
+                    <UButton
+                      size="xs"
+                      color="neutral"
+                      variant="outline"
+                      icon="i-lucide-briefcase"
+                      class="font-medium cursor-pointer"
+                      @click="goToFieldwork(item.letterNumber)"
+                    >
+                      {{ t('dashboard.auditor.status.openFieldwork') }}
+                    </UButton>
+                    <UButton
+                      size="xs"
+                      color="neutral"
+                      variant="ghost"
+                      icon="i-lucide-file-text"
+                      class="cursor-pointer"
+                      :title="t('dashboard.auditor.status.openLha')"
+                      @click="goToResultReport(item.letterNumber)"
                     />
                   </div>
-                  <div class="text-[11px] text-gray-500 dark:text-gray-400">
-                    Tahap saat ini: <strong class="text-gray-800 dark:text-gray-200">{{ item.currentStageName }}</strong>
-                  </div>
-                </div>
-              </td>
+                </td>
+              </tr>
 
-              <!-- KKA Progress Bar -->
-              <td class="py-3.5 px-4 text-center">
-                <div class="inline-flex flex-col items-center gap-1">
-                  <span class="font-bold text-xs text-gray-900 dark:text-gray-100">
-                    {{ item.kkaCompleted }}/5 Form
-                  </span>
-                  <div class="w-16 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                    <div
-                      class="h-full rounded-full transition-all"
-                      :class="item.kkaCompleted === 5 ? 'bg-emerald-500' : 'bg-primary-500'"
-                      :style="{ width: `${(item.kkaCompleted / 5) * 100}%` }"
-                    />
-                  </div>
-                </div>
-              </td>
-
-              <!-- Status Badge -->
-              <td class="py-3.5 px-4 text-center">
-                <UBadge
-                  :color="getFieldworkStatusColor(item.status)"
-                  variant="subtle"
-                  size="sm"
-                  class="font-semibold"
+              <tr v-if="filteredFieldworkList.length === 0">
+                <td
+                  colspan="7"
+                  class="py-8 text-center text-gray-500 dark:text-gray-400"
                 >
-                  {{ item.status || 'In Progress' }}
-                </UBadge>
-              </td>
+                  <p class="font-medium">
+                    {{ t('dashboard.auditor.status.emptyFiltered') }}
+                  </p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </AuditorWidgetState>
+    </section>
 
-              <!-- Operational Actions -->
-              <td class="py-3.5 px-4 text-center">
-                <div class="flex items-center justify-center gap-1.5">
-                  <UButton
-                    size="xs"
-                    color="primary"
-                    variant="solid"
-                    icon="i-lucide-file-signature"
-                    class="font-bold cursor-pointer"
-                    title="Buka Kertas Kerja"
-                    @click="goToWorkingPaper(item.letterNumber)"
-                  >
-                    Kertas Kerja
-                  </UButton>
-                  <UButton
-                    size="xs"
-                    color="neutral"
-                    variant="outline"
-                    icon="i-lucide-briefcase"
-                    class="font-medium cursor-pointer"
-                    title="Buka Pengujian Lapangan & PBC"
-                    @click="goToFieldwork(item.letterNumber)"
-                  >
-                    Uji
-                  </UButton>
-                  <UButton
-                    size="xs"
-                    color="neutral"
-                    variant="ghost"
-                    icon="i-lucide-file-text"
-                    class="cursor-pointer"
-                    title="Draft Laporan Hasil Audit (LHA)"
-                    @click="goToResultReport(item.letterNumber)"
-                  />
-                </div>
-              </td>
-            </tr>
-
-            <tr v-if="filteredFieldworkList.length === 0">
-              <td colspan="7" class="py-8 text-center text-gray-500 dark:text-gray-400">
-                <UIcon name="i-lucide-folder-open" class="size-10 mx-auto text-gray-300 dark:text-gray-600 mb-2" />
-                <p class="font-medium">Tidak ada penugasan audit berjalan yang cocok dengan pencarian.</p>
-                <p class="text-xs text-gray-400 mt-1">Pastikan Surat Tugas telah berstatus Published di modul Assignment Letter.</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <!-- 4. Task list with deadlines -->
+    <section
+      class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-4"
+      aria-labelledby="auditor-tasks-title"
+    >
+      <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+        <div>
+          <h2
+            id="auditor-tasks-title"
+            class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2"
+          >
+            <UIcon
+              name="i-lucide-list-checks"
+              class="size-5 text-primary-600 dark:text-primary-400"
+            />
+            {{ t('dashboard.auditor.tasks.title') }}
+          </h2>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            {{ t('dashboard.auditor.tasks.description') }}
+          </p>
+          <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
+            {{ t('dashboard.auditor.tasks.scope') }}
+          </p>
+        </div>
       </div>
-    </div>
 
-    <!-- KOMPONEN UTAMA 2: KERTAS KERJA & TEMPLATE (KKA F-01 S/D F-05) -->
+      <AuditorWidgetState
+        :state="tasksState"
+        :error-text="t('dashboard.auditor.states.loadError')"
+        :retry-label="t('dashboard.auditor.states.retry')"
+        :empty-text="t('dashboard.auditor.tasks.empty')"
+        @retry="reloadAtr"
+      >
+        <ul class="divide-y divide-gray-200 dark:divide-gray-800 rounded-xl border border-gray-200 dark:border-gray-800">
+          <li
+            v-for="item in taskRows"
+            :key="item.id"
+            class="flex flex-wrap items-center justify-between gap-3 p-3.5 text-xs"
+          >
+            <div class="min-w-0">
+              <p class="font-semibold text-gray-900 dark:text-white line-clamp-1">
+                {{ item.finding_title || item.report_title || item.report_number || '-' }}
+              </p>
+              <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+                {{ item.status === 'PENDING_REVIEW' ? t('dashboard.auditor.tasks.kindReview') : t('dashboard.auditor.tasks.kindFollowUp') }}
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 shrink-0">
+              <UBadge
+                :color="atrStatusBadgeColor(item.status)"
+                variant="subtle"
+                size="xs"
+              >
+                {{ atrStatusLabel(item.status) }}
+              </UBadge>
+              <UBadge
+                v-if="item.is_overdue"
+                color="error"
+                variant="soft"
+                size="xs"
+              >
+                {{ t('dashboard.auditor.tasks.overdueDays', { days: item.overdue_days }) }}
+              </UBadge>
+              <span
+                v-else
+                class="text-[11px] text-gray-500 dark:text-gray-400"
+              >
+                {{ item.due_date ? t('dashboard.auditor.tasks.dueOn', { date: formatAtrDate(item.due_date, locale) }) : t('dashboard.auditor.tasks.noDueDate') }}
+              </span>
+              <UButton
+                to="/action-taken-report"
+                size="xs"
+                variant="ghost"
+                color="neutral"
+                icon="i-lucide-arrow-right"
+              />
+            </div>
+          </li>
+        </ul>
+        <p class="mt-3 text-[11px] text-gray-400 dark:text-gray-500">
+          {{ t('dashboard.auditor.tasks.placeholder') }}
+        </p>
+      </AuditorWidgetState>
+    </section>
+
+    <!-- 5. Calendar of important dates -->
+    <section
+      class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-4"
+      aria-labelledby="auditor-calendar-title"
+    >
+      <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+        <div>
+          <h2
+            id="auditor-calendar-title"
+            class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2"
+          >
+            <UIcon
+              name="i-lucide-calendar-days"
+              class="size-5 text-sky-500"
+            />
+            {{ t('dashboard.auditor.calendar.title') }}
+          </h2>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            {{ t('dashboard.auditor.calendar.description') }}
+          </p>
+        </div>
+        <UBadge
+          color="warning"
+          variant="subtle"
+          size="xs"
+          class="shrink-0 self-start"
+        >
+          {{ t('dashboard.auditor.placeholder') }}
+        </UBadge>
+      </div>
+
+      <!-- TODO(B4): replace with GET /api/v1/me/calendar?from&to (audit-service). Needs the employee link (B1) for team membership. -->
+      <div class="py-8 px-4 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 text-center text-gray-500 dark:text-gray-400">
+        <UIcon
+          name="i-lucide-calendar-off"
+          class="size-8 mx-auto text-gray-300 dark:text-gray-600 mb-2"
+        />
+        <p class="text-sm font-medium">
+          {{ t('dashboard.auditor.calendar.notConnected') }}
+        </p>
+        <p
+          v-if="!employeeLinked"
+          class="text-xs text-gray-400 mt-1 max-w-xl mx-auto"
+        >
+          {{ t('dashboard.auditor.calendar.notLinked') }}
+        </p>
+      </div>
+    </section>
+
+    <!-- 6. Notifications and reminders -->
+    <section
+      class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-4"
+      aria-labelledby="auditor-notifications-title"
+    >
+      <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+        <div>
+          <h2
+            id="auditor-notifications-title"
+            class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2"
+          >
+            <UIcon
+              name="i-lucide-bell"
+              class="size-5 text-amber-500"
+            />
+            {{ t('dashboard.auditor.notifications.title') }}
+          </h2>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            {{ t('dashboard.auditor.notifications.description') }}
+          </p>
+        </div>
+      </div>
+
+      <AuditorWidgetState
+        :state="notificationsState"
+        :error-text="t('dashboard.auditor.states.loadError')"
+        :retry-label="t('dashboard.auditor.states.retry')"
+        :empty-text="t('dashboard.auditor.notifications.empty')"
+        @retry="reloadAtr"
+      >
+        <ul class="divide-y divide-gray-200 dark:divide-gray-800 rounded-xl border border-gray-200 dark:border-gray-800">
+          <li
+            v-for="n in derivedNotifications"
+            :key="`${n.kind}-${n.id}`"
+            class="flex items-center justify-between gap-3 p-3.5 text-xs"
+          >
+            <div class="flex items-center gap-2.5 min-w-0">
+              <UIcon
+                :name="n.kind === 'overdue' ? 'i-lucide-alert-triangle' : (n.kind === 'pendingReview' ? 'i-lucide-eye' : 'i-lucide-clock')"
+                class="size-4 shrink-0"
+                :class="n.kind === 'overdue' ? 'text-red-500' : (n.kind === 'pendingReview' ? 'text-sky-500' : 'text-amber-500')"
+              />
+              <div class="min-w-0">
+                <p class="font-semibold text-gray-900 dark:text-white">
+                  {{ notificationText(n) }}
+                </p>
+                <p class="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-1">
+                  {{ n.item.finding_title || n.item.report_title || n.item.report_number || '-' }}
+                </p>
+              </div>
+            </div>
+            <UButton
+              to="/action-taken-report"
+              size="xs"
+              variant="ghost"
+              color="neutral"
+              icon="i-lucide-arrow-right"
+            />
+          </li>
+        </ul>
+        <p class="mt-3 text-[11px] text-gray-400 dark:text-gray-500">
+          {{ t('dashboard.auditor.notifications.placeholder') }}
+        </p>
+      </AuditorWidgetState>
+    </section>
+
+    <!-- KKA FORMS (F-01 to F-05) -->
     <div class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-6">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <UIcon name="i-lucide-file-signature" class="size-5 text-primary-600 dark:text-primary-400" />
-            2. Kertas Kerja & Template
+            <UIcon
+              name="i-lucide-file-signature"
+              class="size-5 text-primary-600 dark:text-primary-400"
+            />
+            Kertas Kerja & Template
           </h2>
           <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">
             Akses cepat pembuatan atau kelanjutan formulir kertas kerja pengujian audit dan upload kertas kerja pendukung.
@@ -402,7 +719,10 @@
               class="w-full"
             >
               <template #leading>
-                <UIcon name="i-lucide-file-text" class="size-4 text-primary-500" />
+                <UIcon
+                  name="i-lucide-file-text"
+                  class="size-4 text-primary-500"
+                />
               </template>
             </USelectMenu>
           </div>
@@ -424,7 +744,10 @@
       <!-- Selected Audit Context Banner -->
       <div class="p-3.5 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
         <div class="flex items-center gap-2">
-          <UIcon name="i-lucide-target" class="size-4 text-primary-500 shrink-0" />
+          <UIcon
+            name="i-lucide-target"
+            class="size-4 text-primary-500 shrink-0"
+          />
           <span class="text-gray-600 dark:text-gray-400">Fokus Kertas Kerja Saat Ini:</span>
           <strong class="font-mono text-primary-600 dark:text-primary-400 text-xs sm:text-sm">{{ activeAssignmentData.letterNumber }}</strong>
           <span class="text-gray-500 dark:text-gray-400 hidden sm:inline">&mdash; {{ activeAssignmentData.auditTitle }}</span>
@@ -440,7 +763,11 @@
         <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between space-y-4 hover:border-primary-500 transition-all group">
           <div class="space-y-2">
             <div class="flex items-center justify-between">
-              <UBadge :color="kkaFormStatus.f01 ? 'success' : 'neutral'" variant="soft" size="xs">
+              <UBadge
+                :color="kkaFormStatus.f01 ? 'success' : 'neutral'"
+                variant="soft"
+                size="xs"
+              >
                 {{ kkaFormStatus.f01 ? 'Lengkap' : 'Draft' }}
               </UBadge>
             </div>
@@ -467,7 +794,11 @@
         <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between space-y-4 hover:border-primary-500 transition-all group">
           <div class="space-y-2">
             <div class="flex items-center justify-between">
-              <UBadge :color="kkaFormStatus.f02 ? 'success' : 'neutral'" variant="soft" size="xs">
+              <UBadge
+                :color="kkaFormStatus.f02 ? 'success' : 'neutral'"
+                variant="soft"
+                size="xs"
+              >
                 {{ kkaFormStatus.f02 ? 'Lengkap' : 'Draft' }}
               </UBadge>
             </div>
@@ -494,7 +825,11 @@
         <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between space-y-4 hover:border-primary-500 transition-all group">
           <div class="space-y-2">
             <div class="flex items-center justify-between">
-              <UBadge :color="kkaFormStatus.f03 ? 'success' : 'neutral'" variant="soft" size="xs">
+              <UBadge
+                :color="kkaFormStatus.f03 ? 'success' : 'neutral'"
+                variant="soft"
+                size="xs"
+              >
                 {{ kkaFormStatus.f03 ? 'Lengkap' : 'Draft' }}
               </UBadge>
             </div>
@@ -521,7 +856,11 @@
         <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between space-y-4 hover:border-primary-500 transition-all group">
           <div class="space-y-2">
             <div class="flex items-center justify-between">
-              <UBadge :color="kkaFormStatus.f04 ? 'success' : 'neutral'" variant="soft" size="xs">
+              <UBadge
+                :color="kkaFormStatus.f04 ? 'success' : 'neutral'"
+                variant="soft"
+                size="xs"
+              >
                 {{ kkaFormStatus.f04 ? 'Lengkap' : 'Draft' }}
               </UBadge>
             </div>
@@ -548,7 +887,11 @@
         <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between space-y-4 hover:border-primary-500 transition-all group">
           <div class="space-y-2">
             <div class="flex items-center justify-between">
-              <UBadge :color="kkaFormStatus.f05 ? 'success' : 'neutral'" variant="soft" size="xs">
+              <UBadge
+                :color="kkaFormStatus.f05 ? 'success' : 'neutral'"
+                variant="soft"
+                size="xs"
+              >
                 {{ kkaFormStatus.f05 ? 'Lengkap' : 'Draft' }}
               </UBadge>
             </div>
@@ -573,15 +916,21 @@
       </div>
     </div>
 
-    <!-- 2 COLUMN LAYOUT: WIDGET DRAFT TEMUAN & PBC TRACKER -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      <!-- KOMPONEN UTAMA 3: WIDGET DRAFT TEMUAN & LHA (7 COLS) -->
+    <!-- 2 COLUMN LAYOUT: DRAFT FINDINGS & PBC TRACKER (hidden in auditor view, see showDraftAndPbcWidgets) -->
+    <div
+      v-if="showDraftAndPbcWidgets"
+      class="grid grid-cols-1 lg:grid-cols-12 gap-6"
+    >
+      <!-- Draft Findings & LHA (7 COLS) -->
       <div class="lg:col-span-7 p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-5">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <UIcon name="i-lucide-alert-triangle" class="size-5 text-amber-500" />
-              3. Widget Draft Temuan & LHA
+              <UIcon
+                name="i-lucide-alert-triangle"
+                class="size-5 text-amber-500"
+              />
+              Widget Draft Temuan & LHA
             </h2>
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
               Ringkasan temuan sementara yang sedang disusun sebelum finalisasi laporan.
@@ -599,7 +948,10 @@
 
         <!-- Warning Callout: Wewenang Auditor (No Publish Button) -->
         <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200 text-xs flex items-start gap-2.5">
-          <UIcon name="i-lucide-lock" class="size-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+          <UIcon
+            name="i-lucide-lock"
+            class="size-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"
+          />
           <div>
             <span class="font-bold">Otorisasi Laporan:</span>
             <span class="ml-1 text-amber-800 dark:text-amber-300">
@@ -633,11 +985,21 @@
           <table class="w-full text-left text-xs">
             <thead class="bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 uppercase font-bold text-[11px]">
               <tr>
-                <th class="py-2.5 px-3">Judul Temuan Sementara</th>
-                <th class="py-2.5 px-3">Kategori</th>
-                <th class="py-2.5 px-3">Sumber Kertas Kerja</th>
-                <th class="py-2.5 px-3 text-center">Status</th>
-                <th class="py-2.5 px-3 text-center">Aksi</th>
+                <th class="py-2.5 px-3">
+                  Judul Temuan Sementara
+                </th>
+                <th class="py-2.5 px-3">
+                  Kategori
+                </th>
+                <th class="py-2.5 px-3">
+                  Sumber Kertas Kerja
+                </th>
+                <th class="py-2.5 px-3 text-center">
+                  Status
+                </th>
+                <th class="py-2.5 px-3 text-center">
+                  Aksi
+                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
@@ -655,7 +1017,11 @@
                   </span>
                 </td>
                 <td class="py-2.5 px-3">
-                  <UBadge :color="getFindingCategoryColor(finding.category)" variant="subtle" size="xs">
+                  <UBadge
+                    :color="getFindingCategoryColor(finding.category)"
+                    variant="subtle"
+                    size="xs"
+                  >
                     {{ finding.category }}
                   </UBadge>
                 </td>
@@ -663,7 +1029,11 @@
                   {{ finding.source || 'Test Controls' }}
                 </td>
                 <td class="py-2.5 px-3 text-center">
-                  <UBadge color="neutral" variant="soft" size="xs">
+                  <UBadge
+                    color="neutral"
+                    variant="soft"
+                    size="xs"
+                  >
                     Draft Auditor
                   </UBadge>
                 </td>
@@ -680,7 +1050,10 @@
               </tr>
 
               <tr v-if="draftFindingsList.length === 0">
-                <td colspan="5" class="py-6 text-center text-gray-500 dark:text-gray-400">
+                <td
+                  colspan="5"
+                  class="py-6 text-center text-gray-500 dark:text-gray-400"
+                >
                   Belum ada draft temuan untuk penugasan ini.
                 </td>
               </tr>
@@ -705,13 +1078,16 @@
         </div>
       </div>
 
-      <!-- KOMPONEN PENDUKUNG: PBC TRACKER & DOKUMEN BUKTI (5 COLS) -->
+      <!-- PBC TRACKER & DOKUMEN BUKTI (5 COLS) -->
       <div class="lg:col-span-5 p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-5">
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <UIcon name="i-lucide-folder-check" class="size-5 text-sky-500" />
-              4. Permintaan Bukti Klien (PBC)
+              <UIcon
+                name="i-lucide-folder-check"
+                class="size-5 text-sky-500"
+              />
+              Permintaan Bukti Klien (PBC)
             </h2>
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
               Monitoring dokumen dan data yang diminta ke Auditee.
@@ -772,10 +1148,20 @@
             </UBadge>
           </div>
 
-          <div v-if="pbcItemsList.length === 0" class="py-8 text-center text-gray-500 dark:text-gray-400">
-            <UIcon name="i-lucide-folder-open" class="size-8 mx-auto text-gray-300 dark:text-gray-600 mb-2" />
-            <p class="text-xs font-medium">Belum ada daftar permintaan bukti (PBC) untuk penugasan ini.</p>
-            <p class="text-[11px] text-gray-400 mt-0.5">Kelola permintaan dokumen di modul Audit Fieldwork.</p>
+          <div
+            v-if="pbcItemsList.length === 0"
+            class="py-8 text-center text-gray-500 dark:text-gray-400"
+          >
+            <UIcon
+              name="i-lucide-folder-open"
+              class="size-8 mx-auto text-gray-300 dark:text-gray-600 mb-2"
+            />
+            <p class="text-xs font-medium">
+              Belum ada daftar permintaan bukti (PBC) untuk penugasan ini.
+            </p>
+            <p class="text-[11px] text-gray-400 mt-0.5">
+              Kelola permintaan dokumen di modul Audit Fieldwork.
+            </p>
           </div>
         </div>
 
@@ -794,13 +1180,16 @@
       </div>
     </div>
 
-    <!-- REFERENSI CEPAT: RCM & FAKTOR RISIKO (READ-ONLY) -->
+    <!-- RCM QUICK REFERENCE (READ-ONLY) -->
     <div class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
           <h2 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <UIcon name="i-lucide-book-open" class="size-5 text-indigo-500" />
-            5. Referensi Cepat: Risk Control Matrix (RCM) & Kriteria Audit (Read-Only)
+            <UIcon
+              name="i-lucide-book-open"
+              class="size-5 text-indigo-500"
+            />
+            Referensi Cepat: Risk Control Matrix (RCM) & Kriteria Audit (Read-Only)
           </h2>
           <p class="text-xs text-gray-500 dark:text-gray-400">
             Akses rujukan risiko dan standar kontrol (Hak Akses Auditor: READ & FULL RCM) untuk penyusunan kertas kerja pengujian.
@@ -823,7 +1212,11 @@
         >
           <div class="flex items-center justify-between">
             <span class="font-mono font-bold text-primary-600 dark:text-primary-400 text-[11px]">{{ rcm.code }}</span>
-            <UBadge :color="rcm.riskLevel === 'High' ? 'error' : (rcm.riskLevel === 'Moderate' ? 'warning' : 'info')" variant="soft" size="xs">
+            <UBadge
+              :color="rcm.riskLevel === 'High' ? 'error' : (rcm.riskLevel === 'Moderate' ? 'warning' : 'info')"
+              variant="soft"
+              size="xs"
+            >
               {{ rcm.riskLevel }} Risk
             </UBadge>
           </div>
@@ -835,9 +1228,17 @@
           </p>
         </div>
 
-        <div v-if="rcmQuickReferences.length === 0" class="col-span-full py-6 text-center text-gray-500 dark:text-gray-400">
-          <UIcon name="i-lucide-book-open" class="size-8 mx-auto text-gray-300 dark:text-gray-600 mb-2" />
-          <p class="text-xs font-medium">Belum ada data Risk Control Matrix (RCM) yang tercatat.</p>
+        <div
+          v-if="rcmQuickReferences.length === 0"
+          class="col-span-full py-6 text-center text-gray-500 dark:text-gray-400"
+        >
+          <UIcon
+            name="i-lucide-book-open"
+            class="size-8 mx-auto text-gray-300 dark:text-gray-600 mb-2"
+          />
+          <p class="text-xs font-medium">
+            Belum ada data Risk Control Matrix (RCM) yang tercatat.
+          </p>
         </div>
       </div>
     </div>
@@ -849,15 +1250,42 @@ import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth'
 import { useRbac } from '~/composables/useRbac'
+import { useI18n } from '~/composables/useI18n'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useWorkingPaperStore } from '~/stores/working-paper'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import { useRCMStore } from '~/stores/rcm'
+import { useAnnualPlanStore } from '~/stores/annual-audit'
+import { useActionTakenReportStore } from '~/stores/action-taken-report'
+import { useAuditExecutionStore } from '~/stores/audit-execution'
+import { AnnualAuditPlanStatus, type ActionTakenReport } from '~/types/audit'
+import { getProgressValue } from '~/utils/executionSources'
+import {
+  atrDateOnly,
+  atrStatusBadgeColor,
+  atrStatusI18nKey,
+  formatAtrDate,
+  isAtrClosed,
+  jakartaToday
+} from '~/utils/actionTakenReport'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
+import AuditorWidgetState from './AuditorWidgetState.vue'
+
+type WidgetState = 'loading' | 'error' | 'empty' | 'ready'
+type FieldworkStatusKey = 'preparation' | 'fieldwork' | 'reporting'
+type StageKey = 'preparation' | 'testing' | 'workingPapers' | 'reporting'
+
+const DAY_MS = 24 * 60 * 60 * 1000
+const DUE_SOON_DAYS = 3
+const TASK_LIMIT = 10
+const NOTIFICATION_LIMIT = 10
+// Stage 1..4 maps to these keys (index = stageStep - 1).
+const STAGE_KEYS: StageKey[] = ['preparation', 'testing', 'workingPapers', 'reporting']
 
 const router = useRouter()
 const toast = useToastNotification()
+const { t, locale } = useI18n()
 const authStore = useAuthStore()
 const { isAdmin, canManageAudits, setRoleView } = useRbac()
 
@@ -866,8 +1294,12 @@ const fieldworkStore = useAuditFieldworkStore()
 const workingPaperStore = useWorkingPaperStore()
 const auditResultStore = useAuditResultReportStore()
 const rcmStore = useRCMStore()
+const annualPlanStore = useAnnualPlanStore()
+const atrStore = useActionTakenReportStore()
+const auditExecutionStore = useAuditExecutionStore()
 
 const isSyncing = ref(false)
+const initialLoadDone = ref(false)
 const fieldworkSearch = ref('')
 const selectedLetterNumber = ref<string>('')
 
@@ -875,6 +1307,13 @@ const selectedLetterNumber = ref<string>('')
 const currentUserFullName = computed(() => {
   return authStore.user?.fullName || authStore.user?.username || 'Auditor SKAI'
 })
+
+// Linked employee (spec B1). Until /auth/me returns it, team-based widgets stay in their placeholder state.
+const employeeLinked = computed(() => !!authStore.user?.employeeId)
+
+// Draft findings / LHA and PBC widgets are hidden in the auditor view for now.
+// Their data sources (draftFindingsList, pbcItemsList, ...) stay in place so the block can be re-enabled by flipping this flag.
+const showDraftAndPbcWidgets = false
 
 // Can the current user toggle role views (Admin or Manager testing)
 const canToggleRoleView = computed(() => {
@@ -886,7 +1325,19 @@ const switchDashboardView = (view: string | null) => {
   toast.info(view ? `Beralih ke mode pratinjau: ${view}` : 'Tampilan dashboard dikembalikan ke default')
 }
 
-const currentYear = computed(() => new Date().getFullYear())
+// Maps a store's loading/error/count to a widget state.
+// Before the first load finishes an empty source counts as loading, so the page does not flash "no data".
+const sourceState = (loading: boolean, error: string | null | undefined, count: number): WidgetState => {
+  if (count === 0 && (loading || !initialLoadDone.value)) return 'loading'
+  if (count === 0 && error) return 'error'
+  return count === 0 ? 'empty' : 'ready'
+}
+
+// Reload handlers used by the per-widget retry buttons
+const reloadPlans = () => annualPlanStore.fetchPlans()
+const reloadAtr = () => atrStore.fetchSummary()
+const reloadExecutions = () => auditExecutionStore.fetchAuditExecutions()
+const reloadLetters = () => assignmentLetterStore.fetchAssignmentLetters()
 
 // Helper to count how many KKA forms are completed for a specific assignment letter
 const getCompletedKkaFormsCount = (letterNumber: string, letterId?: string) => {
@@ -903,56 +1354,54 @@ const getCompletedKkaFormsCount = (letterNumber: string, letterId?: string) => {
   return (hasF01 ? 1 : 0) + (hasF02 ? 1 : 0) + (hasF03 ? 1 : 0) + (hasF04 ? 1 : 0) + (hasF05 ? 1 : 0)
 }
 
-// 100% Real Live Fieldwork Assignments from Assignment Letter Store
+// ─── Assignment letters (engagements) ──────────────────────────────────────
+// Interim scope: every published letter. Team-scoped list comes from GET /api/v1/me/engagements (B3).
 const combinedFieldworkList = computed(() => {
   return assignmentLetterStore.assignmentLetterList
     .filter((st: any) => st.status === 'Published')
     .map((st: any) => {
       const kkaCompleted = getCompletedKkaFormsCount(st.letterNumber, st.id)
 
-      // Determine real audit stage based on data lifecycle:
+      // Determine the real audit stage from the data lifecycle:
       // 1. Has draft/final LHA report -> Stage 4 (Exit / Reporting)
-      // 2. Has Working Paper forms -> Stage 3 (Kertas Kerja)
-      // 3. Has Fieldwork observations/interviews/samples/documents -> Stage 2 (Pengujian)
-      // 4. Default -> Stage 1 (Entry / Persiapan)
+      // 2. Has Working Paper forms -> Stage 3 (Working papers)
+      // 3. Has Fieldwork observations/interviews/samples/documents -> Stage 2 (Testing)
+      // 4. Default -> Stage 1 (Entry / Preparation)
       const hasReport = auditResultStore.reportList.some(
         (r: any) => r.assignmentLetterId === st.letterNumber || (st.id && r.assignmentLetterId === st.id)
       )
 
       const fwData = fieldworkStore.fieldworkData?.[st.letterNumber]
       const hasFieldworkData = !!(
-        fwData?.interviews?.length ||
-        fwData?.observations?.length ||
-        fwData?.documents?.length ||
-        fwData?.samples?.length ||
-        fwData?.testControls?.length
+        fwData?.interviews?.length
+        || fwData?.observations?.length
+        || fwData?.documents?.length
+        || fwData?.samples?.length
+        || fwData?.testControls?.length
       )
 
       let stageStep = 1
-      let currentStageName = 'Entry Meeting & Persiapan'
-
       if (hasReport) {
         stageStep = 4
-        currentStageName = 'Penyusunan LHA & Exit'
       } else if (kkaCompleted > 0) {
         stageStep = 3
-        currentStageName = 'Penyusunan Kertas Kerja'
       } else if (hasFieldworkData) {
         stageStep = 2
-        currentStageName = 'Pengujian Sampel & Bukti'
       }
+
+      const statusKey: FieldworkStatusKey = stageStep === 4 ? 'reporting' : (stageStep >= 2 ? 'fieldwork' : 'preparation')
 
       return {
         letterNumber: st.letterNumber,
         auditTitle: st.auditTitle,
-        workingUnit: st.workingUnit || 'Unit Kerja',
+        workingUnit: st.workingUnit || t('dashboard.auditor.status.unitFallback'),
         auditTeam: st.auditTeam || 'SKAI',
         category: st.category || 'Assurance',
         startPeriod: st.startPeriod || '',
         finishPeriod: st.finishPeriod || '',
-        status: stageStep === 4 ? 'Pelaporan (LHA)' : (stageStep >= 2 ? 'Fieldwork Active' : 'Persiapan Lapangan'),
+        statusKey,
         stageStep,
-        currentStageName,
+        stageKey: STAGE_KEYS[stageStep - 1] as StageKey,
         kkaCompleted
       }
     })
@@ -964,16 +1413,16 @@ const filteredFieldworkList = computed(() => {
   if (!q) return combinedFieldworkList.value
   return combinedFieldworkList.value.filter((item) => {
     return (
-      (item.letterNumber || '').toLowerCase().includes(q) ||
-      (item.auditTitle || '').toLowerCase().includes(q) ||
-      (item.workingUnit || '').toLowerCase().includes(q)
+      (item.letterNumber || '').toLowerCase().includes(q)
+      || (item.auditTitle || '').toLowerCase().includes(q)
+      || (item.workingUnit || '').toLowerCase().includes(q)
     )
   })
 })
 
 // Assignment letter dropdown options
 const assignmentLetterOptions = computed(() => {
-  return combinedFieldworkList.value.map((item) => ({
+  return combinedFieldworkList.value.map(item => ({
     label: `${item.letterNumber || '-'} - ${item.auditTitle || 'Penugasan Audit'}`,
     value: item.letterNumber
   }))
@@ -991,35 +1440,184 @@ const activeAssignmentData = computed(() => {
     category: '-',
     startPeriod: '',
     finishPeriod: '',
-    status: '',
+    statusKey: 'preparation' as FieldworkStatusKey,
     stageStep: 0,
-    currentStageName: '-',
+    stageKey: 'preparation' as StageKey,
     kkaCompleted: 0
   }
 })
 
-// Top Stats
-const activeAssignmentsCount = computed(() => combinedFieldworkList.value.length)
-const inProgressAssignmentsCount = computed(() => {
-  return combinedFieldworkList.value.filter(i => i.stageStep >= 2).length
-})
-
-const totalWorkingPapersCount = computed(() => {
-  return (
-    workingPaperStore.dataF01.length +
-    workingPaperStore.dataF02.length +
-    workingPaperStore.dataF03.length +
-    workingPaperStore.dataF04.length +
-    workingPaperStore.dataF05.length
+const statusState = computed<WidgetState>(() => {
+  const base = sourceState(
+    assignmentLetterStore.loading,
+    assignmentLetterStore.errorMsg,
+    assignmentLetterStore.assignmentLetterList.length
   )
+  if (base !== 'ready') return base
+  return combinedFieldworkList.value.length === 0 ? 'empty' : 'ready'
 })
 
-const kkaCompletionRate = computed(() => {
-  if (combinedFieldworkList.value.length === 0) return 0
-  const totalPossible = combinedFieldworkList.value.length * 5
-  const current = combinedFieldworkList.value.reduce((acc, curr) => acc + (curr.kkaCompleted || 0), 0)
-  return Math.min(100, Math.round((current / totalPossible) * 100))
+// ─── Audit statistics (scope: all data the user can access, interim) ─────
+const plannedAuditCount = computed(
+  () => annualPlanStore.plans.filter(p => p.status !== AnnualAuditPlanStatus.APPROVED).length
+)
+// Open findings = ATR items not COMPLETED and not CANCELLED (see utils/actionTakenReport).
+const openFindingsCount = computed(() => atrStore.stats.counts.open)
+const executionPercent = computed(() => {
+  const executions = auditExecutionStore.auditExecutions
+  if (executions.length === 0) return 0
+  return Math.round(executions.reduce((sum, e) => sum + getProgressValue(e.progress), 0) / executions.length)
 })
+// ATR compliance = completed / all items (same basis as the admin donut).
+const atrCompliancePercent = computed(() => Math.round((atrStore.stats.compliance || 0) * 100))
+
+const planState = computed<WidgetState>(() =>
+  sourceState(annualPlanStore.loading, annualPlanStore.errorMsg, annualPlanStore.plans.length)
+)
+const atrState = computed<WidgetState>(() =>
+  sourceState(atrStore.summaryLoading, atrStore.summaryError, atrStore.summaryItems.length)
+)
+const executionState = computed<WidgetState>(() =>
+  sourceState(auditExecutionStore.loading, auditExecutionStore.error, auditExecutionStore.auditExecutions.length)
+)
+
+const statCards = computed(() => [
+  {
+    key: 'planned',
+    label: t('dashboard.auditor.stats.plannedAudits'),
+    hint: t('dashboard.auditor.stats.plannedAuditsHint'),
+    value: String(plannedAuditCount.value),
+    state: planState.value,
+    retry: reloadPlans,
+    icon: 'i-lucide-calendar-check',
+    iconClass: 'text-indigo-600 dark:text-indigo-400',
+    iconBg: 'bg-indigo-50 dark:bg-indigo-500/10'
+  },
+  {
+    key: 'open',
+    label: t('dashboard.auditor.stats.openFindings'),
+    hint: t('dashboard.auditor.stats.openFindingsHint'),
+    value: String(openFindingsCount.value),
+    state: atrState.value,
+    retry: reloadAtr,
+    icon: 'i-lucide-alert-triangle',
+    iconClass: 'text-amber-600 dark:text-amber-400',
+    iconBg: 'bg-amber-50 dark:bg-amber-500/10'
+  },
+  {
+    key: 'execution',
+    label: t('dashboard.auditor.stats.executionProgress'),
+    hint: t('dashboard.auditor.stats.executionProgressHint'),
+    value: `${executionPercent.value}%`,
+    state: executionState.value,
+    retry: reloadExecutions,
+    icon: 'i-lucide-activity',
+    iconClass: 'text-emerald-600 dark:text-emerald-400',
+    iconBg: 'bg-emerald-50 dark:bg-emerald-500/10'
+  },
+  {
+    key: 'compliance',
+    label: t('dashboard.auditor.stats.atrCompliance'),
+    hint: t('dashboard.auditor.stats.atrComplianceHint'),
+    value: `${atrCompliancePercent.value}%`,
+    state: atrState.value,
+    retry: reloadAtr,
+    icon: 'i-lucide-check-circle',
+    iconClass: 'text-sky-600 dark:text-sky-400',
+    iconBg: 'bg-sky-50 dark:bg-sky-500/10'
+  }
+])
+
+// ─── Audit planning & coverage (PKAT) ─────────────────────────────────────
+// Planned = every annual audit plan, Approved = status APPROVED, Remaining = everything else.
+const auditCoverage = computed(() => {
+  const plannedAudits = annualPlanStore.plans.length
+  const completedAudits = annualPlanStore.plans.filter(p => p.status === AnnualAuditPlanStatus.APPROVED).length
+  return {
+    plannedAudits,
+    completedAudits,
+    remainingAudits: plannedAudits - completedAudits
+  }
+})
+const coveragePercent = computed(() => {
+  const total = auditCoverage.value.plannedAudits
+  if (total === 0) return 0
+  return Math.round((auditCoverage.value.completedAudits / total) * 100)
+})
+
+// ─── ATR-based tasks and reminders (interim sources) ──────────────────────
+// TODO(B5): replace with GET /api/v1/me/tasks (audit-service). Interim: open ATR items the user can access.
+const compareAtrByUrgency = (a: ActionTakenReport, b: ActionTakenReport) => {
+  if (a.is_overdue !== b.is_overdue) return a.is_overdue ? -1 : 1
+  const da = atrDateOnly(a.due_date)
+  const db = atrDateOnly(b.due_date)
+  if (da && db) return da.localeCompare(db)
+  if (da) return -1
+  if (db) return 1
+  return 0
+}
+
+const openAtrItems = computed(() =>
+  atrStore.summaryItems
+    .filter(item => !isAtrClosed(item.status))
+    .sort(compareAtrByUrgency)
+)
+
+const tasksState = computed<WidgetState>(() => {
+  if (atrState.value !== 'ready') return atrState.value
+  return openAtrItems.value.length === 0 ? 'empty' : 'ready'
+})
+
+const taskRows = computed(() => openAtrItems.value.slice(0, TASK_LIMIT))
+
+const atrStatusLabel = (status: unknown) => {
+  const key = atrStatusI18nKey(status)
+  return key ? t(key) : String(status ?? '-')
+}
+
+// Whole days from today (Asia/Jakarta) to a due date. NaN when there is no due date.
+const daysUntil = (value: unknown): number => {
+  const due = atrDateOnly(value)
+  if (!due) return Number.NaN
+  return Math.round((Date.parse(`${due}T00:00:00Z`) - Date.parse(`${jakartaToday()}T00:00:00Z`)) / DAY_MS)
+}
+
+// TODO(B9): replace with GET /api/v1/notifications?unread=true (audit-service). Interim: derived from ATR data.
+// Only ATR-based types are derived here; PBC requests, comments and revisions are not available yet.
+type DerivedNotification = {
+  id: string
+  kind: 'overdue' | 'pendingReview' | 'dueSoon'
+  days: number
+  item: ActionTakenReport
+}
+
+const derivedNotifications = computed<DerivedNotification[]>(() => {
+  const list: DerivedNotification[] = []
+  for (const item of openAtrItems.value) {
+    if (item.is_overdue) {
+      list.push({ id: item.id, kind: 'overdue', days: item.overdue_days, item })
+    } else if (item.status === 'PENDING_REVIEW') {
+      list.push({ id: item.id, kind: 'pendingReview', days: 0, item })
+    } else {
+      const days = daysUntil(item.due_date)
+      if (days >= 0 && days <= DUE_SOON_DAYS) {
+        list.push({ id: item.id, kind: 'dueSoon', days, item })
+      }
+    }
+  }
+  return list.slice(0, NOTIFICATION_LIMIT)
+})
+
+const notificationsState = computed<WidgetState>(() => {
+  if (atrState.value !== 'ready') return atrState.value
+  return derivedNotifications.value.length === 0 ? 'empty' : 'ready'
+})
+
+const notificationText = (n: DerivedNotification) => {
+  if (n.kind === 'overdue') return t('dashboard.auditor.notifications.typeOverdue', { days: n.days })
+  if (n.kind === 'pendingReview') return t('dashboard.auditor.notifications.typePendingReview')
+  return t('dashboard.auditor.notifications.typeDueSoon', { days: n.days })
+}
 
 // Real Draft Findings (Auditor Scope: Live Working Paper Causes + Ineffective Controls + Draft LHA)
 const draftFindingsList = computed(() => {
@@ -1051,9 +1649,9 @@ const draftFindingsList = computed(() => {
   // 1. Findings from saved reports (Draft status only)
   auditResultStore.reportList
     .filter(r => r.status === 'Draft' && (!targetLetter || r.assignmentLetterId === targetLetter))
-    .forEach(report => {
+    .forEach((report) => {
       if (Array.isArray(report.findings)) {
-        report.findings.forEach(f => {
+        report.findings.forEach((f) => {
           addFinding(f.title, f.category, report.assignmentLetterId, 'Draft LHA')
         })
       }
@@ -1065,7 +1663,7 @@ const draftFindingsList = computed(() => {
       try {
         const autoFindings = auditResultStore.getLocalAutoFindings(targetLetter)
         if (Array.isArray(autoFindings)) {
-          autoFindings.forEach(f => {
+          autoFindings.forEach((f) => {
             addFinding(f.title, f.category, targetLetter, f.source || 'Digital Working Paper (KKA)')
           })
         }
@@ -1074,12 +1672,12 @@ const draftFindingsList = computed(() => {
       }
     }
   } else {
-    combinedFieldworkList.value.forEach(item => {
+    combinedFieldworkList.value.forEach((item) => {
       if (typeof auditResultStore.getLocalAutoFindings === 'function') {
         try {
           const autoFindings = auditResultStore.getLocalAutoFindings(item.letterNumber)
           if (Array.isArray(autoFindings)) {
-            autoFindings.forEach(f => {
+            autoFindings.forEach((f) => {
               addFinding(f.title, f.category, item.letterNumber, f.source || 'Digital Working Paper (KKA)')
             })
           }
@@ -1094,7 +1692,7 @@ const draftFindingsList = computed(() => {
   if (Array.isArray(auditResultStore.recentFindings)) {
     auditResultStore.recentFindings
       .filter(rf => !targetLetter || rf.assignmentLetterId === targetLetter)
-      .forEach(rf => {
+      .forEach((rf) => {
         addFinding(rf.title, rf.category, rf.assignmentLetterId || targetLetter || '-', rf.source || 'Temuan Lapangan')
       })
   }
@@ -1125,8 +1723,8 @@ const pbcItemsList = computed(() => {
     return []
   }
 
-  const docList = fieldworkStore.fieldworkData?.[targetLetter]?.documents || 
-                  (fieldworkStore.selectedAssignmentLetter === targetLetter ? fieldworkStore.documents : [])
+  const docList = fieldworkStore.fieldworkData?.[targetLetter]?.documents
+    || (fieldworkStore.selectedAssignmentLetter === targetLetter ? fieldworkStore.documents : [])
 
   if (!Array.isArray(docList)) return []
 
@@ -1230,19 +1828,19 @@ const goToResultReport = (letterNumber: string) => {
 // Helpers
 const formatPeriod = (start?: string, end?: string) => {
   if (!start && !end) return '-'
-  if (start && end) return `${start} s/d ${end}`
+  if (start && end) return `${start} ${t('dashboard.auditor.status.periodTo')} ${end}`
   return start || end || '-'
 }
 
 const getDeadlineLabel = (finishPeriod?: string) => {
-  if (!finishPeriod) return 'Jadwal belum diatur'
+  if (!finishPeriod) return t('dashboard.auditor.status.deadline.none')
   const end = new Date(finishPeriod)
   if (isNaN(end.getTime())) return '-'
   const now = new Date()
-  const diffDays = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-  if (diffDays < 0) return `${Math.abs(diffDays)} Hari Terlambat`
-  if (diffDays === 0) return 'Hari Terakhir'
-  return `${diffDays} Hari Tersisa`
+  const diffDays = Math.ceil((end.getTime() - now.getTime()) / DAY_MS)
+  if (diffDays < 0) return t('dashboard.auditor.status.deadline.overdue', { days: Math.abs(diffDays) })
+  if (diffDays === 0) return t('dashboard.auditor.status.deadline.today')
+  return t('dashboard.auditor.status.deadline.remaining', { days: diffDays })
 }
 
 const getDeadlineBadgeColor = (finishPeriod?: string): 'error' | 'warning' | 'success' | 'neutral' => {
@@ -1250,7 +1848,7 @@ const getDeadlineBadgeColor = (finishPeriod?: string): 'error' | 'warning' | 'su
   const end = new Date(finishPeriod)
   if (isNaN(end.getTime())) return 'neutral'
   const now = new Date()
-  const diffDays = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+  const diffDays = Math.ceil((end.getTime() - now.getTime()) / DAY_MS)
   if (diffDays < 0) return 'error'
   if (diffDays <= 3) return 'error'
   if (diffDays <= 7) return 'warning'
@@ -1268,10 +1866,10 @@ const formatDisplayDate = (d?: string) => {
   }
 }
 
-const getFieldworkStatusColor = (status?: string): 'success' | 'info' | 'warning' | 'neutral' => {
-  if (status === 'Fieldwork Active') return 'success'
-  if (status === 'Pelaporan (LHA)') return 'info'
-  if (status === 'Persiapan Lapangan') return 'warning'
+const getFieldworkStatusColor = (statusKey?: FieldworkStatusKey): 'success' | 'info' | 'warning' | 'neutral' => {
+  if (statusKey === 'fieldwork') return 'success'
+  if (statusKey === 'reporting') return 'info'
+  if (statusKey === 'preparation') return 'warning'
   return 'neutral'
 }
 
@@ -1296,7 +1894,10 @@ const loadInitialAuditorData = async () => {
       workingPaperStore.fetchAllData(),
       auditResultStore.fetchReports(),
       auditResultStore.fetchRecentFindings(10),
-      rcmStore.fetchRCMList()
+      rcmStore.fetchRCMList(),
+      annualPlanStore.fetchPlans(),
+      atrStore.fetchSummary(),
+      auditExecutionStore.fetchAuditExecutions()
     ])
     if (!isMounted) return
     if (!selectedLetterNumber.value && combinedFieldworkList.value[0]) {
@@ -1307,6 +1908,8 @@ const loadInitialAuditorData = async () => {
     }
   } catch (err) {
     console.warn('Initial auditor dashboard data load warning:', err)
+  } finally {
+    initialLoadDone.value = true
   }
 }
 
@@ -1319,16 +1922,19 @@ const manualSyncAuditorData = async () => {
       workingPaperStore.fetchAllData(),
       auditResultStore.fetchReports(),
       auditResultStore.fetchRecentFindings(10),
-      rcmStore.fetchRCMList()
+      rcmStore.fetchRCMList(),
+      annualPlanStore.fetchPlans(),
+      atrStore.fetchSummary(),
+      auditExecutionStore.fetchAuditExecutions()
     ])
     if (!isMounted) return
     if (selectedLetterNumber.value) {
       await fieldworkStore.fetchAllFieldworkData(selectedLetterNumber.value, true)
     }
-    toast.success('Data operasional auditor berhasil disinkronkan')
-  } catch (err) {
+    toast.success(t('dashboard.auditor.syncSuccess'))
+  } catch {
     if (isMounted) {
-      toast.error('Gagal memperbarui data auditor')
+      toast.error(t('dashboard.auditor.syncError'))
     }
   } finally {
     if (isMounted) {

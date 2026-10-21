@@ -18,6 +18,7 @@ import (
 type EmployeeServiceInterface interface {
 	FindAll(ctx *base.BaseService) (*[]models.Employee, error)
 	FindById(ctx *base.BaseService, id string) (*models.Employee, error)
+	FindByCode(ctx *base.BaseService, code string) (*models.Employee, error)
 	Create(ctx *base.BaseService, employee *models.Employee) (*models.Employee, error)
 	NextEmployeeCode(ctx *base.BaseService) (string, error)
 	Update(ctx *base.BaseService, id string, employee *models.Employee) (*models.Employee, error)
@@ -244,6 +245,25 @@ func (s *EmployeeService) FindById(ctx *base.BaseService, id string) (*models.Em
 	}
 
 	employee, err := s.employeeRepo.FindByID(employeeID)
+	if err != nil {
+		if err == apperrors.ErrNotFound {
+			return nil, apperrors.ErrEmployeeNotFound
+		}
+		return nil, apperrors.DB(err, apperrors.OpRead, "Failed to load the employee.")
+	}
+
+	return employee, nil
+}
+
+// FindByCode returns the employee with the given employee_code. Auth-service
+// uses it to resolve a login account's employee_id link (users.employee_id).
+func (s *EmployeeService) FindByCode(ctx *base.BaseService, code string) (*models.Employee, error) {
+	code = strings.TrimSpace(code)
+	if code == "" {
+		return nil, apperrors.ErrEmployeeNotFound
+	}
+
+	employee, err := s.employeeRepo.FindByCode(code)
 	if err != nil {
 		if err == apperrors.ErrNotFound {
 			return nil, apperrors.ErrEmployeeNotFound

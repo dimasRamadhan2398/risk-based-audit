@@ -43,7 +43,7 @@
 <script setup lang="ts">
 // Shared loading / error / empty wrapper for the auditor dashboard widgets.
 // Each widget passes its own state so a failed source never blanks the whole page.
-export type AuditorWidgetStateValue = 'loading' | 'error' | 'empty' | 'ready'
+type AuditorWidgetStateValue = 'loading' | 'error' | 'empty' | 'ready'
 
 defineProps<{
   state: AuditorWidgetStateValue

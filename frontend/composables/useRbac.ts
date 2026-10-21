@@ -102,7 +102,7 @@ export const useRbac = () => {
    */
   const canReviewExecutiveSummary = computed(() => hasAnyRole([
     UserRole.ADMIN,
-    UserRole.EXECUTIVE,
+    UserRole.EXECUTIVE
   ]))
 
   /**
@@ -116,7 +116,7 @@ export const useRbac = () => {
   const isAuditor = computed(() => hasAnyRole([
     UserRole.ADMIN,
     UserRole.AUDITOR,
-    UserRole.EXECUTIVE,
+    UserRole.EXECUTIVE
   ]))
 
   /**
@@ -124,7 +124,7 @@ export const useRbac = () => {
    */
   const canManageAudits = computed(() => hasAnyRole([
     UserRole.ADMIN,
-    UserRole.EXECUTIVE,
+    UserRole.EXECUTIVE
   ]))
 
   /**
@@ -135,7 +135,7 @@ export const useRbac = () => {
     UserRole.AUDITOR,
     UserRole.EXECUTIVE,
     UserRole.DEPARTMENT_HEAD,
-    UserRole.VIEWER,
+    UserRole.VIEWER
   ]))
 
   /**
@@ -149,7 +149,7 @@ export const useRbac = () => {
       UserRole.AUDITOR,
       UserRole.DEPARTMENT_HEAD,
       UserRole.AUDITEE,
-      UserRole.VIEWER,
+      UserRole.VIEWER
     ].map(normalize)
     for (const role of priority) {
       if (roles.includes(role)) return role
@@ -208,14 +208,14 @@ export const useRbac = () => {
    */
   const isPureAuditor = computed((): boolean => {
     const userRoles = getUserRoles()
-    const hasAuditor = userRoles.some(r => {
+    const hasAuditor = userRoles.some((r) => {
       const c = cleanStr(r)
       return c === 'auditor' || c === 'auditstaff' || c === 'staffaudit' || c === 'leadauditor'
     })
     const isHigher = hasAnyRole([
       UserRole.ADMIN,
       UserRole.CHIEF_AUDIT_EXECUTIVE,
-      UserRole.AUDIT_MANAGER,
+      UserRole.AUDIT_MANAGER
     ])
     return hasAuditor && !isHigher
   })
@@ -229,6 +229,34 @@ export const useRbac = () => {
     if (activeRoleView.value === 'auditor') return true
     if (activeRoleView.value && activeRoleView.value !== 'auditor') return false
     return isPureAuditor.value || primaryRole.value === 'auditor' || primaryRole.value === 'audit_staff'
+  })
+
+  /**
+   * Check if current user is strictly an Auditee (AUDITEE and no higher or auditor role).
+   * DEPARTMENT_HEAD is not included on purpose: it keeps the admin view (spec D4).
+   */
+  const isPureAuditee = computed((): boolean => {
+    const userRoles = getUserRoles()
+    const hasAuditee = userRoles.some(r => cleanStr(r) === 'auditee')
+    if (!hasAuditee) return false
+    const isHigher = hasAnyRole([
+      UserRole.ADMIN,
+      UserRole.EXECUTIVE,
+      UserRole.AUDITOR,
+      UserRole.DEPARTMENT_HEAD
+    ])
+    return !isHigher && !isPureAuditor.value
+  })
+
+  /**
+   * Evaluates if Auditee View mode should be active.
+   * - Pure Auditee: ALWAYS true.
+   * - Others: ONLY true if previewing via activeRoleView === 'auditee'.
+   */
+  const isAuditeeView = computed((): boolean => {
+    if (activeRoleView.value === 'auditee') return true
+    if (activeRoleView.value) return false
+    return isPureAuditee.value
   })
 
   /**
@@ -248,6 +276,8 @@ export const useRbac = () => {
     isAuditor,
     isPureAuditor,
     isAuditorView,
+    isPureAuditee,
+    isAuditeeView,
     activeRoleView,
     setRoleView,
     canPublishLha,
@@ -271,6 +301,6 @@ export const useRbac = () => {
     isAtrPic,
     canWorkOnAtr,
     getCurrentUserId,
-    primaryRole,
+    primaryRole
   }
 }

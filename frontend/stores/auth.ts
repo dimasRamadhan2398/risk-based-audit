@@ -32,13 +32,13 @@ export const useAuthStore = defineStore('auth', {
     isNewDevice: false,
     needsConfidentialityAgreement: false,
     _initialized: false,
-    _profileHydrated: false,
+    _profileHydrated: false
   }),
 
   getters: {
-    getUser: (state) => state.user,
-    isLoggedIn: (state) => state.isAuthenticated,
-    userRoles: (state) => state.user?.roles ?? [],
+    getUser: state => state.user,
+    isLoggedIn: state => state.isAuthenticated,
+    userRoles: state => state.user?.roles ?? []
   },
 
   actions: {
@@ -56,9 +56,9 @@ export const useAuthStore = defineStore('auth', {
               password: credentials.password,
               device_fingerprint: credentials.deviceFingerprint,
               device_name: credentials.deviceName,
-              device_type: credentials.deviceType,
-            },
-          },
+              device_type: credentials.deviceType
+            }
+          }
         )
 
         const data = response.data ?? response
@@ -78,8 +78,7 @@ export const useAuthStore = defineStore('auth', {
         await this._checkConfidentialityAgreement()
 
         return data
-      }
-      catch (error: any) {
+      } catch (error: any) {
         const msg = extractErrorMessage(error, 'Login failed')
         const err = new Error(msg) as any
         err.status = error?.status ?? error?.statusCode ?? error?.response?.status
@@ -103,9 +102,9 @@ export const useAuthStore = defineStore('auth', {
               trust_device: payload.trustDevice,
               device_fingerprint: payload.deviceFingerprint,
               device_name: payload.deviceName,
-              device_type: payload.deviceType,
-            },
-          },
+              device_type: payload.deviceType
+            }
+          }
         )
 
         const data = response.data ?? response
@@ -119,8 +118,7 @@ export const useAuthStore = defineStore('auth', {
         await this._checkConfidentialityAgreement()
 
         return data
-      }
-      catch (error: any) {
+      } catch (error: any) {
         const msg = extractErrorMessage(error, 'MFA verification failed')
         throw new Error(msg)
       }
@@ -134,13 +132,12 @@ export const useAuthStore = defineStore('auth', {
         const response = await $fetch<any>(
           `${getAuthServiceBaseUrl()}/confidentiality/status`,
           {
-            headers: { Authorization: `Bearer ${this.token}` },
-          },
+            headers: { Authorization: `Bearer ${this.token}` }
+          }
         )
         const data = response.data ?? response
         this.needsConfidentialityAgreement = !data.has_accepted
-      }
-      catch {
+      } catch {
         // If endpoint doesn't exist yet, show agreement on first login
         this.needsConfidentialityAgreement = true
       }
@@ -159,15 +156,13 @@ export const useAuthStore = defineStore('auth', {
               agreement_type: 'SYSTEM',
               title: 'Pakta Integritas Sistem Audit Internal Berbasis Risiko',
               content: 'Saya menyatakan bahwa saya memahami dan menyetujui ketentuan kerahasiaan sistem ini.',
-              version: '1.0',
-            },
-          },
+              version: '1.0'
+            }
+          }
         )
-      }
-      catch {
+      } catch {
         // Gracefully handle if endpoint not yet wired
-      }
-      finally {
+      } finally {
         this.needsConfidentialityAgreement = false
       }
     },
@@ -180,8 +175,8 @@ export const useAuthStore = defineStore('auth', {
         const response = await $fetch<any>(
           `${getAuthServiceBaseUrl()}/users/${this.user.id}`,
           {
-            headers: { Authorization: `Bearer ${this.token}` },
-          },
+            headers: { Authorization: `Bearer ${this.token}` }
+          }
         )
         const profile = response.data ?? response
         // Hydrates the avatar (kept out of the cookie) after a reload
@@ -189,11 +184,28 @@ export const useAuthStore = defineStore('auth', {
           this.user.avatarUrl = profile.avatar_url || ''
         }
         return profile
-      }
-      catch (error) {
+      } catch (error) {
         console.error('Failed to fetch user profile:', error)
         return null
       }
+    },
+
+    /**
+     * Link the session to the employee and department behind the account (GET /api/v1/auth/me, spec B1).
+     * Only fills employeeId and departmentId in memory. Throws on failure so the caller can show its own error state.
+     */
+    async fetchEmployeeLink() {
+      const response = await $fetch<any>(`${getAuthServiceBaseUrl()}/auth/me`, { method: 'GET' })
+      const info = response?.data ?? response ?? {}
+      const link = {
+        employeeId: (info.employee_id as string | null | undefined) ?? null,
+        departmentId: (info.department_id as string | null | undefined) ?? null
+      }
+      if (this.user) {
+        this.user.employeeId = link.employeeId
+        this.user.departmentId = link.departmentId
+      }
+      return link
     },
 
     /** Load the avatar once per session after the cookie restore (login already returns it) */
@@ -220,9 +232,9 @@ export const useAuthStore = defineStore('auth', {
               phone: profile.phone,
               department: profile.department,
               position: profile.position,
-              ...(profile.avatarUrl !== undefined ? { avatar_url: profile.avatarUrl } : {}),
-            },
-          },
+              ...(profile.avatarUrl !== undefined ? { avatar_url: profile.avatarUrl } : {})
+            }
+          }
         )
 
         // Apply the server's view of the user; fall back to what we sent
@@ -234,8 +246,7 @@ export const useAuthStore = defineStore('auth', {
           this.user.position = saved.position ?? profile.position
           if (saved.avatar_url !== undefined) {
             this.user.avatarUrl = saved.avatar_url || ''
-          }
-          else if (profile.avatarUrl !== undefined) {
+          } else if (profile.avatarUrl !== undefined) {
             this.user.avatarUrl = profile.avatarUrl
           }
 
@@ -243,8 +254,7 @@ export const useAuthStore = defineStore('auth', {
           const userCookie = useCookie('auth-user')
           userCookie.value = serializeUserForCookie(this.user)
         }
-      }
-      catch (error: any) {
+      } catch (error: any) {
         // Keep status/data so callers can map it with getUserErrorMessage
         const err = new Error(extractErrorMessage(error, 'Failed to update profile')) as any
         err.status = error?.status ?? error?.statusCode ?? error?.response?.status
@@ -259,10 +269,9 @@ export const useAuthStore = defineStore('auth', {
         await $fetch(`${getAuthServiceBaseUrl()}/auth/change-password`, {
           method: 'POST',
           headers: { Authorization: `Bearer ${this.token}` },
-          body: { old_password: oldPassword, new_password: newPassword },
+          body: { old_password: oldPassword, new_password: newPassword }
         })
-      }
-      catch (error: any) {
+      } catch (error: any) {
         throw new Error(extractErrorMessage(error, 'Failed to change password'))
       }
 
@@ -289,7 +298,7 @@ export const useAuthStore = defineStore('auth', {
         ...(data.user?.position !== undefined ? { position: data.user.position } : {}),
         ...(data.user?.roles !== undefined ? { roles: data.user.roles } : {}),
         mustChangePassword: data.user?.must_change_password ?? false,
-        avatarUrl: data.user?.avatar_url ?? data.user?.avatarUrl ?? '',
+        avatarUrl: data.user?.avatar_url ?? data.user?.avatarUrl ?? ''
       }
       delete (user as { avatar_url?: string }).avatar_url
 
@@ -313,14 +322,12 @@ export const useAuthStore = defineStore('auth', {
         if (this.token) {
           await $fetch(`${getAuthServiceBaseUrl()}/auth/logout`, {
             method: 'POST',
-            headers: { Authorization: `Bearer ${this.token}` },
+            headers: { Authorization: `Bearer ${this.token}` }
           })
         }
-      }
-      catch {
+      } catch {
         // Always clear local state
-      }
-      finally {
+      } finally {
         this._clearState()
         await navigateTo('/auth/login')
       }
@@ -365,8 +372,7 @@ export const useAuthStore = defineStore('auth', {
         this.isAuthenticated = true
         this._initialized = true
         console.log('[AuthStore] Session successfully restored for user:', this.user?.username)
-      }
-      catch (err) {
+      } catch (err) {
         console.error('[AuthStore] Failed to restore session from cookie:', err)
         this._initialized = true
         this._clearState()
@@ -380,12 +386,11 @@ export const useAuthStore = defineStore('auth', {
         const response = await $fetch<any>(
           `${getAuthServiceBaseUrl()}/devices`,
           {
-            headers: { Authorization: `Bearer ${this.token}` },
-          },
+            headers: { Authorization: `Bearer ${this.token}` }
+          }
         )
         return response.data ?? response
-      }
-      catch (error) {
+      } catch (error) {
         console.error('Failed to fetch trusted devices:', error)
         return []
       }
@@ -399,11 +404,10 @@ export const useAuthStore = defineStore('auth', {
           `${getAuthServiceBaseUrl()}/devices/${deviceId}`,
           {
             method: 'DELETE',
-            headers: { Authorization: `Bearer ${this.token}` },
-          },
+            headers: { Authorization: `Bearer ${this.token}` }
+          }
         )
-      }
-      catch (error: any) {
+      } catch (error: any) {
         throw new Error(extractErrorMessage(error, 'Failed to remove device'))
       }
     },
@@ -413,10 +417,9 @@ export const useAuthStore = defineStore('auth', {
       try {
         await $fetch(`${getAuthServiceBaseUrl()}/auth/forgot-password`, {
           method: 'POST',
-          body: { email },
+          body: { email }
         })
-      }
-      catch (error: any) {
+      } catch (error: any) {
         throw new Error(extractErrorMessage(error, 'Failed to send reset email'))
       }
     },
@@ -426,12 +429,11 @@ export const useAuthStore = defineStore('auth', {
       try {
         await $fetch(`${getAuthServiceBaseUrl()}/auth/reset-password`, {
           method: 'POST',
-          body: { token, password },
+          body: { token, password }
         })
-      }
-      catch (error: any) {
+      } catch (error: any) {
         throw new Error(extractErrorMessage(error, 'Failed to reset password'))
       }
-    },
-  },
+    }
+  }
 })

@@ -6,6 +6,7 @@ import (
 	"auth-service/pkg/config"
 	"auth-service/pkg/errors"
 	"auth-service/pkg/kafka"
+	"auth-service/pkg/masterclient"
 	"auth-service/pkg/redis"
 	"auth-service/pkg/utils"
 	"auth-service/repositories"
@@ -27,6 +28,7 @@ type AuthServiceInterface interface {
 	VerifyMFALogin(ctx context.Context, req *models.VerifyMFALoginRequest, ipAddress, userAgent string) (*models.LoginResponse, error)
 	Logout(ctx context.Context, token, userID, username, ipAddress, userAgent string) error
 	ValidateToken(token string) (*utils.Claims, error)
+	ResolveEmployeeLink(ctx context.Context, userID uuid.UUID, authHeader string) (models.EmployeeLink, error)
 	ChangePassword(ctx context.Context, userID uuid.UUID, req *models.ChangePasswordRequest, ipAddress string) error
 }
 
@@ -39,6 +41,8 @@ type AuthService struct {
 	redis         *redis.Client
 	config        *config.Config
 	kafkaProducer *kafka.Producer
+	// employeeClient resolves users.employee_id to the master-data employee.
+	employeeClient *masterclient.EmployeeClient
 }
 
 // NewAuthService creates a new auth service
@@ -50,14 +54,23 @@ func NewAuthService(
 	cfg *config.Config,
 	kafkaProducer *kafka.Producer,
 ) AuthServiceInterface {
+	var employeeClient *masterclient.EmployeeClient
+	if cfg != nil {
+		employeeClient = masterclient.NewEmployeeClient(
+			cfg.MasterService.BaseURL(),
+			time.Duration(cfg.MasterService.TimeoutSeconds)*time.Second,
+		)
+	}
+
 	return &AuthService{
-		BaseService:   baseService.NewBaseService(),
-		userRepo:      userRepo,
-		mfaRepo:       mfaRepo,
-		trustedRepo:   trustedRepo,
-		redis:         rdb,
-		config:        cfg,
-		kafkaProducer: kafkaProducer,
+		BaseService:    baseService.NewBaseService(),
+		userRepo:       userRepo,
+		mfaRepo:        mfaRepo,
+		trustedRepo:    trustedRepo,
+		redis:          rdb,
+		config:         cfg,
+		kafkaProducer:  kafkaProducer,
+		employeeClient: employeeClient,
 	}
 }
 
@@ -137,11 +150,30 @@ func (s *AuthService) completeLogin(ctx context.Context, user *models.User, fing
 		roles[i] = role.Name
 	}
 
-	// Generate JWT token
-	token, err := utils.GenerateToken(
+	// The employee link is resolved through master-service, which only accepts
+	// a bearer token. A bootstrap token (no employee claims) is signed for that
+	// single lookup and is never stored or returned.
+	bootstrapToken, err := utils.GenerateToken(
 		user.ID.String(),
 		user.Username,
 		roles,
+		s.config.JWT.Secret,
+		s.config.JWT.ExpiryHour,
+	)
+	if err != nil {
+		s.LogError("Failed to generate token", utils.LogField("error", err))
+		return nil, errors.ErrInternalServer
+	}
+	link := s.linkEmployee(ctx, user, "Bearer "+bootstrapToken)
+
+	// Generate the JWT that is returned to the client. It carries the employee
+	// claims so audit-service can identify the caller without another call.
+	token, err := utils.GenerateTokenWithEmployee(
+		user.ID.String(),
+		user.Username,
+		roles,
+		derefString(link.EmployeeID),
+		derefString(link.EmployeeCode),
 		s.config.JWT.Secret,
 		s.config.JWT.ExpiryHour,
 	)
@@ -182,9 +214,66 @@ func (s *AuthService) completeLogin(ctx context.Context, user *models.User, fing
 			AvatarURL:  func() string { if user.AvatarURL != nil { return *user.AvatarURL }; return "" }(),
 			Roles:      roles,
 			MustChangePassword: user.MustChangePassword,
+			EmployeeCode: link.EmployeeCode,
+			EmployeeID:   link.EmployeeID,
+			DepartmentID: link.DepartmentID,
 		},
 		IsNewDevice: isNewDevice,
 	}, nil
+}
+
+// derefString returns the value of p, or "" when p is nil.
+func derefString(p *string) string {
+	if p == nil {
+		return ""
+	}
+	return *p
+}
+
+// ResolveEmployeeLink returns the employee linked to the user (users.employee_id
+// = employees.employee_code). authHeader is the caller's Authorization value.
+// A missing master-service only leaves EmployeeID and DepartmentID nil.
+func (s *AuthService) ResolveEmployeeLink(ctx context.Context, userID uuid.UUID, authHeader string) (models.EmployeeLink, error) {
+	user, err := s.userRepo.FindByID(userID)
+	if err != nil {
+		s.LogWarning("Failed to load user for employee link", utils.LogField("user_id", userID), utils.LogField("error", err))
+		return models.EmployeeLink{}, err
+	}
+	return s.linkEmployee(ctx, user, authHeader), nil
+}
+
+// linkEmployee maps the user's employee_code to the master employee. The code
+// comes from the local users row. The UUIDs come from master-service, and any
+// failure there is logged and leaves them nil.
+func (s *AuthService) linkEmployee(ctx context.Context, user *models.User, authHeader string) models.EmployeeLink {
+	var link models.EmployeeLink
+	if user == nil || user.EmployeeID == nil {
+		return link
+	}
+	code := strings.TrimSpace(*user.EmployeeID)
+	if code == "" {
+		return link
+	}
+	link.EmployeeCode = &code
+
+	if s.employeeClient == nil || authHeader == "" {
+		return link
+	}
+	employee, err := s.employeeClient.FindByCode(ctx, code, authHeader)
+	if err != nil {
+		if err != masterclient.ErrEmployeeNotFound {
+			s.LogWarning("Employee lookup in master-service failed", utils.LogField("error", err))
+		}
+		return link
+	}
+
+	id := employee.ID
+	link.EmployeeID = &id
+	if employee.DepartmentID != "" {
+		departmentID := employee.DepartmentID
+		link.DepartmentID = &departmentID
+	}
+	return link
 }
 
 // VerifyMFALogin verifies MFA code during login

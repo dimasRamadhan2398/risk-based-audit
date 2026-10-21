@@ -35,6 +35,33 @@ type Config struct {
 	App              AppMeta             `mapstructure:"app"      json:"app"`
 	SMTP             SMTPConfig          `mapstructure:"smtp"`
 	Resend           ResendConfig        `mapstructure:"resend"`
+	MasterService    MasterServiceConfig `mapstructure:"master_service"`
+}
+
+// MasterServiceConfig points auth-service at the master-service of this stack.
+// Used to resolve a user's employee_code to the employee record (id, department).
+// Env overrides: MASTER_SERVICE_URL, MASTER_SERVICE_TIMEOUT_SECONDS.
+type MasterServiceConfig struct {
+	URL            string `mapstructure:"url"`
+	TimeoutSeconds int    `mapstructure:"timeout_seconds"`
+}
+
+// defaultMasterServicePort is the port every master-service container listens on.
+const defaultMasterServicePort = "8002"
+
+// BaseURL returns the master-service base URL for this stack. An explicit
+// MASTER_SERVICE_URL wins. Otherwise it is derived from KAFKA_SERVICE_NAME, the
+// same way risk-service does it, so a tenant's auth-service reaches the tenant's
+// own master-service and never the shared one.
+func (c MasterServiceConfig) BaseURL() string {
+	if u := strings.TrimSpace(c.URL); u != "" {
+		return strings.TrimRight(u, "/")
+	}
+	serviceName := strings.TrimSpace(os.Getenv("KAFKA_SERVICE_NAME"))
+	if slug := strings.TrimPrefix(serviceName, "auth-service-"); slug != serviceName && slug != "" {
+		return "http://master-service-" + slug + ":" + defaultMasterServicePort
+	}
+	return "http://master-service:" + defaultMasterServicePort
 }
 
 type AppMeta struct {
@@ -163,6 +190,7 @@ func setDefaults() {
 	viper.SetDefault("resend.api_key", "")        // Override via RESEND_API_KEY env var
 	viper.SetDefault("resend.from", "AuditSphere <no-reply@mail.auditsphere.app>")
 	viper.SetDefault("resend.webhook_secret", "") // Override via RESEND_WEBHOOK_SECRET env var
+	viper.SetDefault("master_service.timeout_seconds", 2)
 }
 
 func Load(configPath string) (*Config, error) {

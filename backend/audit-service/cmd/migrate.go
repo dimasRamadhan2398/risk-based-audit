@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"audit-service/pkg/database"
 	"audit-service/pkg/logger"
 	atrsvc "audit-service/services/action_taken_report"
+	"audit-service/services/annual_plan_sync"
 
 	"github.com/spf13/cobra"
 	"gorm.io/gorm"
@@ -83,7 +85,30 @@ Usage: audit migrate backfill-atr [--dry-run]`,
 	}
 	backfillCmd.Flags().BoolVar(&backfillDryRun, "dry-run", false, "Report what would be created and roll back")
 
-	migrateCmd.AddCommand(upCmd, downCmd, statusCmd, backfillCmd)
+	// backfill-annual-snapshots - fill empty PKAT department, risk name and risk
+	// level snapshots from the local lookup
+	backfillSnapshotsCmd := &cobra.Command{
+		Use:   "backfill-annual-snapshots",
+		Short: "Fill the empty department, risk name and risk level of annual plan activities",
+		Long: `Fills the empty display snapshots (department, riskName, riskLevel) of the
+activities of every live annual plan (PKAT) from the local lookup that the
+Department and Audit Universe events fill (table annual_snapshot_refs).
+
+A field that already has a value is never changed. Idempotent: a second run
+changes nothing.
+
+The lookup only knows what the events delivered. Its rows are seeded by the
+resync endpoints of master-service (POST /api/v1/departments/events/resync) and
+risk-service (POST /api/v1/audit-universe/events/resync), which re-publish the
+current state. Run those first, wait for the sync consumer to catch up, then run
+this command. Use --dry-run to report the counts and roll back.
+
+Usage: audit migrate backfill-annual-snapshots [--dry-run]`,
+		RunE: runBackfillAnnualSnapshots,
+	}
+	backfillSnapshotsCmd.Flags().BoolVar(&backfillSnapshotsDryRun, "dry-run", false, "Report what would be filled and roll back")
+
+	migrateCmd.AddCommand(upCmd, downCmd, statusCmd, backfillCmd, backfillSnapshotsCmd)
 
 	rootCmd.AddCommand(migrateCmd)
 }
@@ -114,6 +139,7 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 		&models.AuditMandate{},
 		&models.AuditAssignment{},
 		&models.AuditAnnual{},
+		&models.AnnualSnapshotRef{},
 		&models.ActivityPlan{},
 		&models.AuditActivity{},
 		&models.ActivityCodeSequence{},
@@ -280,6 +306,8 @@ func migrateATR(db *gorm.DB) error {
 
 var backfillDryRun bool
 
+var backfillSnapshotsDryRun bool
+
 // runBackfillATR creates the missing ATRs of every approved LHA
 func runBackfillATR(cmd *cobra.Command, args []string) error {
 	initLogger()
@@ -317,6 +345,43 @@ func runBackfillATR(cmd *cobra.Command, args []string) error {
 		logger.LogField("approved_reports", res.ApprovedReports),
 		logger.LogField("atrs_created", res.CreatedATRs),
 		logger.LogField("atrs_cancelled_finding_removed", res.CancelledATRs))
+	return nil
+}
+
+func runBackfillAnnualSnapshots(cmd *cobra.Command, args []string) error {
+	initLogger()
+	defer logger.Sync()
+
+	db, err := database.NewPostgresConnection(&cfg.Database)
+	if err != nil {
+		logger.Fatal("Failed to connect to database", logger.LogField("error", err))
+		return err
+	}
+
+	errDryRun := fmt.Errorf("dry run")
+	var res annual_plan_sync.BackfillResult
+	err = db.Transaction(func(tx *gorm.DB) error {
+		var err error
+		res, err = annual_plan_sync.BackfillSnapshots(context.Background(), tx)
+		if err != nil {
+			return err
+		}
+		if backfillSnapshotsDryRun {
+			return errDryRun
+		}
+		return nil
+	})
+	if err != nil && err != errDryRun {
+		logger.Error("Annual snapshot backfill failed", logger.LogField("error", err))
+		return err
+	}
+	msg := "Annual snapshot backfill completed"
+	if backfillSnapshotsDryRun {
+		msg = "Annual snapshot backfill DRY RUN (rolled back, nothing written)"
+	}
+	logger.Info(msg,
+		logger.LogField("plans_changed", res.PlansChanged),
+		logger.LogField("fields_filled", res.FieldsFilled))
 	return nil
 }
 
@@ -360,6 +425,7 @@ func runMigrateDown(cmd *cobra.Command, args []string) error {
 		"strategic_plans",
 		"activity_plans",
 		"audit_activities",
+		"annual_snapshot_refs",
 		"audit_annuals",
 		"audit_assignments",
 		"audit_mandates",
