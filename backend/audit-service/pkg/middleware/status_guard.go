@@ -28,6 +28,20 @@ func HasAnyRole(c *gin.Context, roles ...string) bool {
 	return false
 }
 
+// RequireAnyRole lets a request through only when the caller has one of the
+// given roles (case-insensitive, see HasAnyRole); anyone else gets 403.
+// Requires Authenticate to have run first.
+func RequireAnyRole(roles ...string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if HasAnyRole(c, roles...) {
+			c.Next()
+			return
+		}
+		response.Forbidden(c, "Insufficient permissions")
+		c.Abort()
+	}
+}
+
 // RequireRolesForStatusChange guards the "status" field of a record on the
 // generic CRUD routes: other fields stay editable by anyone who can reach the
 // route, but only the given roles may create a record with a status other

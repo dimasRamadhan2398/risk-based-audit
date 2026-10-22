@@ -184,17 +184,22 @@ func (h *RouteHandler) RegisterRoutes() {
 		// may publish or otherwise change a letter's status
 		letterStatusGuard := middleware.RequireRolesForStatusChange(h.db, "assignment_letters", "Draft",
 			"ADMIN", "AUDIT_MANAGER", "CHIEF_AUDIT_EXECUTIVE")
-		assignmentLetters.POST("", letterStatusGuard, crud.CreateWithHooks(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }, nil, ctrlAuditExecution.SyncAfterCreate(ctrlAuditExecution.LetterKeysOf)))
+		// Each live letter has one audit execution: created with the letter, following
+		// it on update and soft-deleted with it, see controllers/audit_execution/write_sync.go
+		assignmentLetters.POST("", letterStatusGuard, crud.CreateWithHooks(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }, nil, ctrlAuditExecution.SyncLetterAfterCreate()))
 		// auditPurpose echoed back from purposeList is not frozen into the column, see controllers/assignment_letter
-		assignmentLetters.PUT("/:id", letterStatusGuard, ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.AssignmentLetter{} }, ctrlAuditExecution.LetterKeysOf, crud.UpdateWithHook(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }, ctrlAssignmentLetter.NormalizePurposeOnUpdate)))
-		assignmentLetters.DELETE("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.AssignmentLetter{} }, ctrlAuditExecution.LetterKeysOf, crud.Delete(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} })))
+		assignmentLetters.PUT("/:id", letterStatusGuard, ctrlAuditExecution.SyncLetterOnWrite(h.db, crud.UpdateWithHook(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }, ctrlAssignmentLetter.NormalizePurposeOnUpdate)))
+		assignmentLetters.DELETE("/:id", ctrlAuditExecution.SyncLetterOnWrite(h.db, crud.Delete(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} })))
 	}
 
 	// 5. Audit Execution
 	auditExecutions := apiV1.Group("/audit-executions")
 	{
 		auditExecutions.GET("", ctrlAuditExecution.ListWithSources(h.db))
-		auditExecutions.POST("/sync", ctrlAuditExecution.NewSyncController(h.db).SyncFromSources)
+		// The sync creates executions from assignment letters, so it is limited to the
+		// roles that manage letters: ADMIN and EXECUTIVE (canManageAssignmentLetter in
+		// the frontend) plus the roles that may publish a letter (letterStatusGuard).
+		auditExecutions.POST("/sync", middleware.RequireAnyRole("ADMIN", "EXECUTIVE", "AUDIT_MANAGER", "CHIEF_AUDIT_EXECUTIVE"), ctrlAuditExecution.NewSyncController(h.db).SyncFromSources)
 		auditExecutions.GET("/:id", crud.GetByID(h.db, "AuditExecution", func() interface{} { return &models.AuditExecution{} }))
 		auditExecutions.POST("", crud.Create(h.db, "AuditExecution", func() interface{} { return &models.AuditExecution{} }))
 		auditExecutions.PUT("/:id", crud.Update(h.db, "AuditExecution", func() interface{} { return &models.AuditExecution{} }))
