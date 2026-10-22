@@ -340,7 +340,9 @@ preflight() {
     for svc in $SERVICES; do
         if [ -n "$(git -C "$REPO" status --porcelain -- "backend/$svc-service")" ]; then
             warn "server working tree has local changes in backend/$svc-service (they are captured in the rollback tarball and will be overwritten):"
-            git -C "$REPO" status --porcelain -- "backend/$svc-service" | head -20 | sed 's/^/    /'
+            # sed, not head: head exits early, git dies of SIGPIPE (141) and
+            # pipefail + set -e abort the pre-flight when there are >20 lines.
+            git -C "$REPO" status --porcelain -- "backend/$svc-service" | sed -n '1,20s/^/    /p'
         fi
     done
 
