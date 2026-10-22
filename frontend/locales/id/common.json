@@ -524,6 +524,29 @@
     "title": "Audit Execution Status",
     "subtitle": "Transparansi progres & tahapan siklus audit dari perencanaan hingga penyelesaian LHA.",
     "cycleGuideButton": "Panduan Siklus Audit",
+    "sync": {
+      "button": "Sinkronkan dari Surat Tugas",
+      "tooltip": "Buat audit untuk setiap surat tugas yang belum memiliki audit dan perbarui seluruh progres.",
+      "successTitle": "Sinkronisasi selesai",
+      "successCreated": "Audit dari surat tugas: {created} baru, {synced} disinkronkan.",
+      "successNoneCreated": "Tidak ada surat tugas baru. {synced} audit disinkronkan.",
+      "autoCreatedTitle": "Audit ditambahkan dari surat tugas",
+      "autoCreatedDescription": "{created} audit baru dibuat dari surat tugas yang sudah ada.",
+      "unmatchedTitle": "Sebagian data tidak tertaut",
+      "unmatchedWarning": "{count} data fieldwork atau kertas kerja merujuk ke surat tugas yang sudah tidak ada dan tidak dihitung.",
+      "failedTitle": "Sinkronisasi gagal"
+    },
+    "emptyState": {
+      "title": "Belum ada audit",
+      "description": "Audit muncul di sini secara otomatis dari surat tugas. Buat surat tugas, atau lakukan sinkronisasi untuk mengambil surat tugas yang sudah ada.",
+      "descriptionReadOnly": "Audit muncul di sini secara otomatis setelah surat tugas diterbitkan.",
+      "goToAssignmentLetter": "Buka Surat Tugas",
+      "syncing": "Memeriksa surat tugas untuk audit..."
+    },
+    "loadError": {
+      "title": "Gagal memuat daftar audit",
+      "retry": "Coba Lagi"
+    },
     "summary": {
       "title": "Ringkasan Eksekusi:",
       "completed": "{count} Selesai",

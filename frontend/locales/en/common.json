@@ -524,6 +524,29 @@
     "title": "Audit Execution Status",
     "subtitle": "Transparency of audit cycle progress & phases from planning to report completion.",
     "cycleGuideButton": "Audit Cycle Guide",
+    "sync": {
+      "button": "Sync from Assignment Letters",
+      "tooltip": "Create an audit for every assignment letter that does not have one yet and refresh all progress.",
+      "successTitle": "Sync complete",
+      "successCreated": "Audits from assignment letters: {created} new, {synced} synced.",
+      "successNoneCreated": "No new assignment letters found. {synced} audits synced.",
+      "autoCreatedTitle": "Audits added from assignment letters",
+      "autoCreatedDescription": "{created} new audits were created from existing assignment letters.",
+      "unmatchedTitle": "Some records are not linked",
+      "unmatchedWarning": "{count} fieldwork or working paper records point to an assignment letter that no longer exists and are not counted.",
+      "failedTitle": "Sync failed"
+    },
+    "emptyState": {
+      "title": "No audits yet",
+      "description": "Audits appear here automatically from assignment letters (surat tugas). Create an assignment letter, or sync to pick up letters that already exist.",
+      "descriptionReadOnly": "Audits appear here automatically once an assignment letter (surat tugas) is issued.",
+      "goToAssignmentLetter": "Go to Assignment Letters",
+      "syncing": "Checking assignment letters for audits..."
+    },
+    "loadError": {
+      "title": "Failed to load audits",
+      "retry": "Retry"
+    },
     "summary": {
       "title": "Execution Summary:",
       "completed": "{count} Completed",
