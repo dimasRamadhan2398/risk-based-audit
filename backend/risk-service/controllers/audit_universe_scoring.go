@@ -80,13 +80,41 @@ func saveYearRowScore(tx *gorm.DB, row *models.AuditUniverseYear) error {
 		Updates(row).Error
 }
 
+// yearRowsScoredOn returns the ids of the year rows that have a score for any
+// of corporateFactorIDs. Call it BEFORE deleting those scores and pass the
+// result to recomputeScoredYears, so that a row which loses its last score in
+// that transaction is reset to "not scored" instead of being skipped.
+func yearRowsScoredOn(tx *gorm.DB, corporateFactorIDs []uuid.UUID) (map[uuid.UUID]bool, error) {
+	out := map[uuid.UUID]bool{}
+	if len(corporateFactorIDs) == 0 {
+		return out, nil
+	}
+	var ids []uuid.UUID
+	if err := tx.Model(&models.AuditUniverseRiskScore{}).
+		Where("corporate_risk_factor_id IN ?", corporateFactorIDs).
+		Distinct().Pluck("audit_universe_year_id", &ids).Error; err != nil {
+		return nil, err
+	}
+	for _, id := range ids {
+		out[id] = true
+	}
+	return out, nil
+}
+
 // recomputeScoredYears re-derives weighted scores and the risk index, level
 // and priority of every SCORED year row (scored_at not null) from the current
 // corporate weights. Run it in the same transaction as any change to the
 // corporate weights or the factor set. Unscored rows have no scores and are
 // left alone. It returns the rows whose published values changed; the caller
 // publishes year.scored for each after commit.
-func recomputeScoredYears(tx *gorm.DB, now time.Time) ([]models.AuditUniverseYear, error) {
+//
+// A scored row with no score rows at all is left as it is, unless its scores
+// were deleted in this transaction (lostScores, see yearRowsScoredOn). Such
+// rows predate per-factor scoring: migrate backfilled scored_at for every row
+// that existed before the column, and most of them carry an index and level
+// with no factor scores behind them. There is nothing to re-derive them from,
+// so a weight change must not wipe them to "not scored".
+func recomputeScoredYears(tx *gorm.DB, now time.Time, lostScores map[uuid.UUID]bool) ([]models.AuditUniverseYear, error) {
 	weights, err := loadFactorWeights(tx)
 	if err != nil {
 		return nil, err
@@ -114,6 +142,9 @@ func recomputeScoredYears(tx *gorm.DB, now time.Time) ([]models.AuditUniverseYea
 	var changed []models.AuditUniverseYear
 	for i := range rows {
 		row := &rows[i]
+		if len(byRow[row.ID]) == 0 && !lostScores[row.ID] {
+			continue
+		}
 		diff, err := rescoreYearRow(tx, row, byRow[row.ID], weights, now)
 		if err != nil {
 			return nil, err

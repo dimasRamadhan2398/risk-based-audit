@@ -205,6 +205,16 @@ func (ctrl *RiskFactorController) DeleteStandardRiskFactor(c *gin.Context) {
 			}
 		}
 
+		// Rows that lose scores here must be re-derived even if none remain.
+		cfIDs := make([]uuid.UUID, 0, len(corpFactors))
+		for _, cf := range corpFactors {
+			cfIDs = append(cfIDs, cf.ID)
+		}
+		lostScores, err := yearRowsScoredOn(tx, cfIDs)
+		if err != nil {
+			return err
+		}
+
 		// 1. Delete dependent scores for any (zero-weight) corporate risk factors linked to this standard factor
 		for _, cf := range corpFactors {
 			if err := tx.Where("corporate_risk_factor_id = ?", cf.ID).Delete(&models.AuditUniverseRiskScore{}).Error; err != nil {
@@ -225,7 +235,7 @@ func (ctrl *RiskFactorController) DeleteStandardRiskFactor(c *gin.Context) {
 		// 4. Scores were removed: re-derive the scored year rows.
 		if len(corpFactors) > 0 {
 			var err error
-			rescored, err = recomputeScoredYears(tx, time.Now())
+			rescored, err = recomputeScoredYears(tx, time.Now(), lostScores)
 			return err
 		}
 		return nil
@@ -329,6 +339,19 @@ func (ctrl *RiskFactorController) UpdateCorporateRiskFactors(c *gin.Context) {
 			existingMap[e.StandardRiskFactorID] = e
 		}
 
+		// Rows scored on a factor that is being removed must be re-derived
+		// even if they lose their last score (see recomputeScoredYears).
+		var removedIDs []uuid.UUID
+		for sfID, ext := range existingMap {
+			if _, ok := reqMap[sfID]; !ok {
+				removedIDs = append(removedIDs, ext.ID)
+			}
+		}
+		lostScores, err := yearRowsScoredOn(tx, removedIDs)
+		if err != nil {
+			return err
+		}
+
 		// 1. Delete ones that are no longer requested
 		for sfID, ext := range existingMap {
 			if _, ok := reqMap[sfID]; !ok {
@@ -368,8 +391,7 @@ func (ctrl *RiskFactorController) UpdateCorporateRiskFactors(c *gin.Context) {
 		// index/level/priority of every scored year row in this transaction.
 		// A newly added factor has no score yet and is "not scored" for each
 		// entity (see models.ComputeRiskIndex).
-		var err error
-		rescored, err = recomputeScoredYears(tx, now)
+		rescored, err = recomputeScoredYears(tx, now, lostScores)
 		return err
 	})
 

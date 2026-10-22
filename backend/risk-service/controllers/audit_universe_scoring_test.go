@@ -202,6 +202,69 @@ func TestRemovingAFactorRecomputesOverRemainingScores(t *testing.T) {
 	}
 }
 
+// addYearRow adds a third entity's 2026 row with the given state.
+func (f *scoringFixture) addYearRow(t *testing.T, name string, index float64, level string, priority bool, scoredAt *time.Time) models.AuditUniverseYear {
+	t.Helper()
+	now := time.Now()
+	e := models.CorporateAuditUniverse{ID: uuid.New(), Name: name, CreatedAt: now, UpdatedAt: now}
+	mustCreate(t, f.db, &e)
+	y := models.AuditUniverseYear{ID: uuid.New(), CorporateAuditUniverseID: e.ID, Year: 2026,
+		RiskIndex: index, RiskLevel: level, AuditPriority: priority, ScoredAt: scoredAt, CreatedAt: now, UpdatedAt: now}
+	mustCreate(t, f.db, &y)
+	return y
+}
+
+// Rows that existed before scored_at were all backfilled as scored by migrate,
+// and on prod most of them have an index and level but no score rows. A weight
+// change has nothing to re-derive them from and must leave them as they are.
+func TestWeightChangeKeepsScoredRowsWithoutScoreRows(t *testing.T) {
+	f := newScoringFixture(t)
+	backfilled := time.Now().Add(-48 * time.Hour)
+	legacy := f.addYearRow(t, "Treasury", 88, models.RiskLevelHigh, true, &backfilled)
+
+	w := f.do(t, http.MethodPost, "/risk-factors/corporate", []map[string]any{
+		{"standard_risk_factor_id": f.stdA.ID.String(), "weight": 20},
+		{"standard_risk_factor_id": f.stdB.ID.String(), "weight": 80},
+	})
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d: %s", w.Code, w.Body.String())
+	}
+
+	got := f.year(t, legacy.ID)
+	if got.ScoredAt == nil || math.Abs(got.RiskIndex-88) > 1e-9 || got.RiskLevel != models.RiskLevelHigh || !got.AuditPriority {
+		t.Fatalf("legacy row was rewritten: scored_at=%v index=%v level=%q priority=%v", got.ScoredAt, got.RiskIndex, got.RiskLevel, got.AuditPriority)
+	}
+	// The row with real scores is still recomputed (68, Medium to High).
+	if s := f.year(t, f.scored.ID); math.Abs(s.RiskIndex-68) > 1e-9 {
+		t.Fatalf("scored row not recomputed: index=%v", s.RiskIndex)
+	}
+	for _, e := range f.outbox(t) {
+		var d kafka.YearScoreData
+		_ = json.Unmarshal(e.Data, &d)
+		if d.CorporateAuditUniverseID == legacy.CorporateAuditUniverseID.String() {
+			t.Fatalf("an event was published for the untouched legacy row: %+v", d)
+		}
+	}
+}
+
+// A row whose only scores belong to a factor that is removed loses its last
+// score in that transaction and is reset to "not scored".
+func TestRemovingAFactorResetsRowThatLosesItsLastScore(t *testing.T) {
+	f := newScoringFixture(t)
+	scoredAt := time.Now().Add(-time.Hour)
+	onlyB := f.addYearRow(t, "Treasury", 80, models.RiskLevelHigh, true, &scoredAt)
+	now := time.Now()
+	mustCreate(t, f.db, &models.AuditUniverseRiskScore{ID: uuid.New(), AuditUniverseYearID: onlyB.ID, CorporateRiskFactorID: f.cfB.ID, Score: 4, WeightedScore: 2, CreatedAt: now, UpdatedAt: now})
+
+	w := f.do(t, http.MethodPost, "/risk-factors/corporate", []map[string]any{
+		{"standard_risk_factor_id": f.stdA.ID.String(), "weight": 100},
+	})
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d: %s", w.Code, w.Body.String())
+	}
+	assertUnscored(t, f.year(t, onlyB.ID))
+}
+
 func TestAddingAFactorDoesNotInventScores(t *testing.T) {
 	f := newScoringFixture(t)
 	now := time.Now()
