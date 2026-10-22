@@ -87,6 +87,12 @@ services:
       <<: *tenant-env
       DATABASE_NAME: rb_audit_audit_bai
       KAFKA_SERVICE_NAME: audit-service-bai
+      # This tenant's own master/auth services. The bare aliases
+      # "master-service" / "auth-service" on the shared bridge are the control
+      # plane's. audit-service also derives these from KAFKA_SERVICE_NAME; the
+      # explicit values make the target visible and survive a rename.
+      MASTER_SERVICE_URL: http://master-service-bai:8002
+      AUTH_SERVICE_URL: http://auth-service-bai:8001
       # Evidence stays in this tenant's VPS silo. Google Drive is blocked by
       # architecture policy — the shared service-account credentials would put
       # every tenant's fieldwork in one Drive account.
@@ -131,6 +137,8 @@ services:
       <<: *tenant-env
       DATABASE_NAME: rb_audit_risk_bai
       KAFKA_SERVICE_NAME: risk-service-bai
+      # This tenant's own master-service (also derived from KAFKA_SERVICE_NAME)
+      MASTER_SERVICE_URL: http://master-service-bai:8002
       # risk-service is the only service that seeds at boot. Left enabled it
       # injects ~570 rows of sample risk data into any empty tenant database
       # the moment the container starts, so a client's "clean slate" instance

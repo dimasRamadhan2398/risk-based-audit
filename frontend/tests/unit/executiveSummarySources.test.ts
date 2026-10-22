@@ -1,142 +1,290 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { summarizeAtrFollowUp, useExecutiveSummarySources } from '~/composables/useExecutiveSummarySources'
 import {
-  mapWorkingPaperRiskLevel,
-  quarterOfDate,
-  riskBreakdownTotal,
-  riskFieldsToBreakdown,
-  selectCompilationReports
+  COMPILATION_STATS_PATH,
+  describeStatsError,
+  useExecutiveSummarySources
+} from '~/composables/useExecutiveSummarySources'
+import {
+  followUpRowsFromStats,
+  formatSyncedAt,
+  parseCompilationStats,
+  riskBreakdownTotal
 } from '~/utils/executiveSummaryCompilation'
 
-describe('mapWorkingPaperRiskLevel', () => {
-  it('maps the five working paper levels one-to-one', () => {
-    expect(mapWorkingPaperRiskLevel('high')).toBe('high')
-    expect(mapWorkingPaperRiskLevel('moderate-high')).toBe('moderateHigh')
-    expect(mapWorkingPaperRiskLevel('moderate')).toBe('moderate')
-    expect(mapWorkingPaperRiskLevel('low-moderate')).toBe('lowModerate')
-    expect(mapWorkingPaperRiskLevel('low')).toBe('low')
+// Body of GET /api/v1/executive-summaries/compilation-stats (contract of the audit-service handler)
+const statsBody = (overrides: Record<string, unknown> = {}, dataOverrides: Record<string, unknown> = {}) => ({
+  success: true,
+  message: 'Compilation statistics retrieved successfully',
+  data: {
+    year: 2026,
+    quarter: 1,
+    syncedAt: '2026-04-10T08:30:00+07:00',
+    jumlahLaporan: 1,
+    jumlahRekomendasi: 7,
+    totalTemuan: 5,
+    risikoHigh: 1,
+    risikoModerateHigh: 1,
+    risikoModerate: 2,
+    risikoLowModerate: 0,
+    risikoLow: 1,
+    risikoLainnya: 0,
+    followUpTable: [
+      { status: 'Closed', jumlah: 2 },
+      { status: 'In Progress', jumlah: 1 },
+      { status: 'Overdue', jumlah: 1 }
+    ],
+    followUpCancelled: 0,
+    ...dataOverrides
+  },
+  ...overrides
+})
+
+describe('parseCompilationStats', () => {
+  it('maps one LHA response to the statistics', () => {
+    const stats = parseCompilationStats(statsBody())
+    expect(stats.year).toBe(2026)
+    expect(stats.quarter).toBe(1)
+    expect(stats.jumlahLaporan).toBe(1)
+    expect(stats.jumlahRekomendasi).toBe(7)
+    expect(stats.totalTemuan).toBe(5)
+    expect(stats.riskBreakdown).toEqual({ high: 1, moderateHigh: 1, moderate: 2, lowModerate: 0, low: 1 })
+    expect(riskBreakdownTotal(stats.riskBreakdown)).toBe(stats.totalTemuan)
+    expect(stats.followUp).toEqual({ closed: 2, inProgress: 1, overdue: 1 })
   })
 
-  it('maps legacy values case-insensitively', () => {
-    for (const raw of ['HIGH', 'Critical', 'TINGGI', 'tinggi']) expect(mapWorkingPaperRiskLevel(raw)).toBe('high')
-    for (const raw of ['MEDIUM', 'Moderate', 'SEDANG', 'sedang']) expect(mapWorkingPaperRiskLevel(raw)).toBe('moderate')
-    for (const raw of ['LOW', 'Rendah', 'RENDAH']) expect(mapWorkingPaperRiskLevel(raw)).toBe('low')
+  it('accepts the empty case (0 LHA): all counts zero and three follow-up rows', () => {
+    const stats = parseCompilationStats(statsBody({}, {
+      jumlahLaporan: 0,
+      jumlahRekomendasi: 0,
+      totalTemuan: 0,
+      risikoHigh: 0,
+      risikoModerateHigh: 0,
+      risikoModerate: 0,
+      risikoLowModerate: 0,
+      risikoLow: 0,
+      followUpTable: [
+        { status: 'Closed', jumlah: 0 },
+        { status: 'In Progress', jumlah: 0 },
+        { status: 'Overdue', jumlah: 0 }
+      ]
+    }))
+    expect(stats.jumlahLaporan).toBe(0)
+    expect(stats.totalTemuan).toBe(0)
+    expect(stats.followUp).toEqual({ closed: 0, inProgress: 0, overdue: 0 })
   })
 
-  it('accepts capitalised, spaced, underscored and label variants', () => {
-    expect(mapWorkingPaperRiskLevel('Moderate High')).toBe('moderateHigh')
-    expect(mapWorkingPaperRiskLevel('MODERATE_HIGH')).toBe('moderateHigh')
-    expect(mapWorkingPaperRiskLevel('Moderate to High')).toBe('moderateHigh')
-    expect(mapWorkingPaperRiskLevel(' Low Moderate ')).toBe('lowModerate')
-    expect(mapWorkingPaperRiskLevel('Low to Moderate')).toBe('lowModerate')
+  it('accepts more than 20 LHA and keeps risikoLainnya out of totalTemuan', () => {
+    const stats = parseCompilationStats(statsBody({}, {
+      jumlahLaporan: 23,
+      totalTemuan: 96,
+      risikoHigh: 40,
+      risikoModerateHigh: 20,
+      risikoModerate: 20,
+      risikoLowModerate: 10,
+      risikoLow: 6,
+      risikoLainnya: 3,
+      followUpTable: [
+        { status: 'Closed', jumlah: 50 },
+        { status: 'In Progress', jumlah: 30 },
+        { status: 'Overdue', jumlah: 16 }
+      ],
+      followUpCancelled: 4
+    }))
+    expect(stats.jumlahLaporan).toBe(23)
+    expect(stats.totalTemuan).toBe(96)
+    expect(riskBreakdownTotal(stats.riskBreakdown)).toBe(96)
+    expect(stats.risikoLainnya).toBe(3)
+    expect(stats.followUpCancelled).toBe(4)
   })
 
-  it('returns null for unknown or empty levels so they are not counted', () => {
-    expect(mapWorkingPaperRiskLevel('')).toBeNull()
-    expect(mapWorkingPaperRiskLevel(undefined)).toBeNull()
-    expect(mapWorkingPaperRiskLevel(null)).toBeNull()
-    expect(mapWorkingPaperRiskLevel('extreme')).toBeNull()
+  it('keeps the quarter that was requested (0 means the whole year)', () => {
+    expect(parseCompilationStats(statsBody({}, { quarter: 3 })).quarter).toBe(3)
+    expect(parseCompilationStats(statsBody({}, { quarter: 0 })).quarter).toBe(0)
+  })
+
+  it('rejects a response with a missing or non-integer count, so no partial figures reach the form', () => {
+    expect(() => parseCompilationStats(statsBody({}, { jumlahRekomendasi: undefined }))).toThrow(/jumlahRekomendasi/)
+    expect(() => parseCompilationStats(statsBody({}, { totalTemuan: 1.5 }))).toThrow(/totalTemuan/)
+    expect(() => parseCompilationStats(statsBody({}, { risikoLow: -1 }))).toThrow(/risikoLow/)
+    expect(() => parseCompilationStats(statsBody({}, { risikoHigh: '2' }))).toThrow(/risikoHigh/)
+  })
+
+  it('rejects a follow-up table that is not exactly the three statuses', () => {
+    expect(() => parseCompilationStats(statsBody({}, { followUpTable: [{ status: 'Closed', jumlah: 1 }] }))).toThrow(/followUpTable/)
+    expect(() => parseCompilationStats(statsBody({}, {
+      followUpTable: [{ status: 'Closed', jumlah: 1 }, { status: 'Closed', jumlah: 1 }, { status: 'Overdue', jumlah: 0 }]
+    }))).toThrow(/followUpTable/)
+    expect(() => parseCompilationStats(statsBody({}, {
+      followUpTable: [{ status: 'constructor', jumlah: 1 }, { status: 'Closed', jumlah: 0 }, { status: 'Overdue', jumlah: 0 }]
+    }))).toThrow(/followUpTable/)
+  })
+
+  it('rejects a missing body or an invalid syncedAt', () => {
+    expect(() => parseCompilationStats(null)).toThrow()
+    expect(() => parseCompilationStats({ success: true })).toThrow()
+    expect(() => parseCompilationStats(statsBody({}, { syncedAt: 'not-a-date' }))).toThrow(/syncedAt/)
   })
 })
 
-describe('risk breakdown totals', () => {
-  it('total is the sum of the five levels', () => {
-    expect(riskBreakdownTotal(riskFieldsToBreakdown({ risikoHigh: 1, risikoModerateHigh: 2, risikoModerate: 3, risikoLowModerate: 4, risikoLow: 5 }))).toBe(15)
+describe('followUpRowsFromStats', () => {
+  it('derives the percentages from the counts and keeps the user notes by status', () => {
+    const rows = followUpRowsFromStats(
+      { closed: 2, inProgress: 1, overdue: 1 },
+      [
+        { status: 'Closed', jumlah: 0, persentase: 0, keterangan: 'Catatan user' },
+        { status: 'Overdue', jumlah: 0, persentase: 0, keterangan: '' }
+      ]
+    )
+    expect(rows.map(r => r.status)).toEqual(['Closed', 'In Progress', 'Overdue'])
+    expect(rows.map(r => r.jumlah)).toEqual([2, 1, 1])
+    expect(rows.map(r => r.persentase)).toEqual([50, 25, 25])
+    expect(rows.map(r => r.keterangan)).toEqual(['Catatan user', '', ''])
   })
 
-  it('ignores invalid and negative counts', () => {
-    expect(riskFieldsToBreakdown({ risikoHigh: 'x', risikoLow: -2 })).toEqual({ high: 0, moderateHigh: 0, moderate: 0, lowModerate: 0, low: 0 })
-  })
-})
-
-describe('summarizeAtrFollowUp (overdue by due date)', () => {
-  // 2026-05-10 10:00 in Asia/Jakarta (03:00 UTC)
-  const now = new Date('2026-05-10T03:00:00Z')
-
-  it('counts open ATRs with a due date before today (Jakarta) as overdue, ignoring is_overdue', () => {
-    const rows = [
-      { status: 'IN_PROGRESS', due_date: '2026-05-09T00:00:00Z' }, // overdue
-      { status: 'PLANNED', due_date: '2026-05-01', is_overdue: false }, // overdue (flag ignored)
-      { status: 'PENDING_REVIEW', due_date: '2026-05-10T00:00:00Z' }, // due today -> in progress
-      { status: 'IN_PROGRESS', due_date: '2026-06-01', is_overdue: true }, // future -> in progress (flag ignored)
-      { status: 'IN_PROGRESS' }, // no due date -> in progress
-      { status: 'COMPLETED', due_date: '2026-01-01' }, // closed even if past due
-      { status: 'CANCELLED', due_date: '2026-01-01' } // excluded
-    ]
-    expect(summarizeAtrFollowUp(rows, now)).toEqual({ closed: 1, inProgress: 3, overdue: 2 })
-  })
-
-  it('uses the Asia/Jakarta date, not UTC', () => {
-    // 2026-05-09 18:00 UTC is already 2026-05-10 01:00 in Jakarta, so a 2026-05-09 due date is overdue
-    const lateUtc = new Date('2026-05-09T18:00:00Z')
-    expect(summarizeAtrFollowUp([{ status: 'IN_PROGRESS', due_date: '2026-05-09' }], lateUtc)).toEqual({ closed: 0, inProgress: 0, overdue: 1 })
-    // 2026-05-09 16:00 UTC is 23:00 on 2026-05-09 in Jakarta: due today, not overdue yet
-    const earlierUtc = new Date('2026-05-09T16:00:00Z')
-    expect(summarizeAtrFollowUp([{ status: 'IN_PROGRESS', due_date: '2026-05-09' }], earlierUtc)).toEqual({ closed: 0, inProgress: 1, overdue: 0 })
-  })
-
-  it('normalises status spelling and returns zeros for no rows', () => {
-    expect(summarizeAtrFollowUp([{ status: 'Completed' }, { status: 'canceled' }, { status: 'in progress', due_date: '2026-04-30' }], now))
-      .toEqual({ closed: 1, inProgress: 0, overdue: 1 })
-    expect(summarizeAtrFollowUp([], now)).toEqual({ closed: 0, inProgress: 0, overdue: 0 })
+  it('writes no generated note text and zero percentages when there are no follow-ups', () => {
+    const rows = followUpRowsFromStats({ closed: 0, inProgress: 0, overdue: 0 })
+    expect(rows).toEqual([
+      { status: 'Closed', jumlah: 0, persentase: 0, keterangan: '' },
+      { status: 'In Progress', jumlah: 0, persentase: 0, keterangan: '' },
+      { status: 'Overdue', jumlah: 0, persentase: 0, keterangan: '' }
+    ])
   })
 })
 
-describe('selectCompilationReports (no fallback)', () => {
-  const reports = [
-    { id: 'a', assignmentLetterId: 'ST-001/SKAI/2026', reportDate: '2026-02-15' },
-    { id: 'b', assignmentLetterId: 'ST-002/SKAI/2026', reportDate: '2026-05-20' },
-    { id: 'c', assignmentLetterId: 'ST-003/SKAI/2026', reportDate: '' }
-  ]
-
-  it('matches by assignment letter or by report-date quarter', () => {
-    expect(selectCompilationReports(reports, { assignmentLetterId: 'ST-003/SKAI/2026', quarter: 1 }).map(r => r.id)).toEqual(['a', 'c'])
-    expect(selectCompilationReports(reports, { assignmentLetterId: '', quarter: 2 }).map(r => r.id)).toEqual(['b'])
-  })
-
-  it('returns nothing when nothing matches instead of falling back to all LHAs', () => {
-    expect(selectCompilationReports(reports, { assignmentLetterId: 'ST-999/SKAI/2026', quarter: 4 })).toEqual([])
-    expect(selectCompilationReports(reports, { assignmentLetterId: 'All Assignment Letters', quarter: 3 })).toEqual([])
-  })
-
-  it('does not put reports without a date into quarter 1', () => {
-    expect(quarterOfDate('')).toBeNull()
-    expect(quarterOfDate(undefined)).toBeNull()
-    expect(quarterOfDate('2026-12-01')).toBe(4)
-    expect(selectCompilationReports([reports[2]!], { assignmentLetterId: '', quarter: 1 })).toEqual([])
+describe('formatSyncedAt', () => {
+  it('formats a valid RFC3339 timestamp and returns an empty string otherwise', () => {
+    expect(formatSyncedAt('2026-04-10T08:30:00+07:00', 'id')).not.toBe('')
+    expect(formatSyncedAt('2026-04-10T08:30:00+07:00', 'en')).not.toBe('')
+    expect(formatSyncedAt(undefined)).toBe('')
+    expect(formatSyncedAt('garbage')).toBe('')
   })
 })
 
-describe('useExecutiveSummarySources.fetchCompilationSources', () => {
+describe('useExecutiveSummarySources.fetchCompilationStats', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
   })
 
-  it('reads the recommendation total from the summary endpoint in one call', async () => {
+  it('calls the compilation-stats endpoint once with year and quarter', async () => {
     const calls: { url: string, params?: Record<string, unknown> }[] = []
     vi.stubGlobal('$fetch', vi.fn(async (url: string, opts?: { params?: Record<string, unknown> }) => {
       calls.push({ url, params: opts?.params })
-      if (url.endsWith('/fieldwork/test-controls/recommendations/summary')) {
-        return { data: { total: 7, items: [{ auditResultReportId: 'lha-1', assignmentLetterId: 'ST-1', count: 7 }] } }
-      }
-      if (url.endsWith('/working-papers/risks')) {
-        return { data: [
-          { workingPaperId: 'ST-1', riskLevel: 'moderate-high' },
-          { workingPaperId: 'ST-1', riskLevel: 'HIGH' },
-          { workingPaperId: 'ST-other', riskLevel: 'high' }
-        ] }
-      }
-      return { data: { items: [], pagination: { page: 1, page_size: 100, total: 0, total_pages: 1 } } }
+      return statsBody()
     }))
 
-    const { fetchCompilationSources } = useExecutiveSummarySources()
-    const sources = await fetchCompilationSources({ assignmentLetterIds: ['ST-1'], lhaIds: ['lha-1', 'lha-2', 'lha-1'] })
+    const { fetchCompilationStats, loading, error } = useExecutiveSummarySources()
+    const pending = fetchCompilationStats({ year: 2026, quarter: 1 })
+    expect(loading.value).toBe(true)
+    const stats = await pending
 
-    const summaryCalls = calls.filter(c => c.url.endsWith('/recommendations/summary'))
-    expect(summaryCalls).toHaveLength(1)
-    expect(summaryCalls[0]!.params).toEqual({ audit_result_report_ids: 'lha-1,lha-2' })
-    expect(calls.some(c => c.url.endsWith('/fieldwork/test-controls'))).toBe(false)
-    expect(sources?.recommendationCount).toBe(7)
-    expect(sources?.riskBreakdown).toEqual({ high: 1, moderateHigh: 1, moderate: 0, lowModerate: 0, low: 0 })
+    expect(calls).toHaveLength(1)
+    expect(calls[0]!.url.endsWith('/executive-summaries/compilation-stats')).toBe(true)
+    expect(calls[0]!.params).toEqual({ year: 2026, quarter: 1 })
+    expect(stats?.jumlahRekomendasi).toBe(7)
+    expect(loading.value).toBe(false)
+    expect(error.value).toBe('')
+  })
+
+  it('returns null and an error message on a network failure', async () => {
+    vi.stubGlobal('$fetch', vi.fn(async () => {
+      throw new Error('Network down')
+    }))
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const { fetchCompilationStats, loading, error } = useExecutiveSummarySources()
+    const stats = await fetchCompilationStats({ year: 2026, quarter: 2 })
+
+    expect(stats).toBeNull()
+    expect(error.value).toBe('Network down')
+    expect(loading.value).toBe(false)
+  })
+
+  it('shows the gateway reason and HTTP status when Kong has no route (the reported failure)', async () => {
+    // Shape of the ofetch FetchError for Kong's answer to an unrouted path
+    vi.stubGlobal('$fetch', vi.fn(async () => {
+      throw Object.assign(new Error('[GET] "/api/v1/executive-summary/compilation-stats": 404 Not Found'), {
+        statusCode: 404,
+        statusMessage: 'Not Found',
+        data: { message: 'no Route matched with those values' }
+      })
+    }))
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const { fetchCompilationStats, loading, error } = useExecutiveSummarySources()
+    expect(await fetchCompilationStats({ year: 2026, quarter: 1 })).toBeNull()
+    expect(error.value).toBe('no Route matched with those values (HTTP 404)')
+    expect(loading.value).toBe(false)
+  })
+
+  it('returns null and an error when the response is malformed (no partial figures)', async () => {
+    vi.stubGlobal('$fetch', vi.fn(async () => statsBody({}, { risikoLow: undefined })))
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const { fetchCompilationStats, error } = useExecutiveSummarySources()
+    expect(await fetchCompilationStats({ year: 2026, quarter: 1 })).toBeNull()
+    expect(error.value).toContain('risikoLow')
+  })
+
+  it('ignores a superseded request so an older quarter cannot overwrite a newer one', async () => {
+    let resolveFirst: (value: unknown) => void = () => {}
+    vi.stubGlobal('$fetch', vi.fn((_url: string, opts?: { params?: Record<string, unknown> }) => {
+      if (opts?.params?.quarter === 1) {
+        return new Promise((resolve) => {
+          resolveFirst = resolve
+        })
+      }
+      return Promise.resolve(statsBody({}, { quarter: 2, jumlahLaporan: 4 }))
+    }))
+
+    const { fetchCompilationStats } = useExecutiveSummarySources()
+    const first = fetchCompilationStats({ year: 2026, quarter: 1 })
+    const second = await fetchCompilationStats({ year: 2026, quarter: 2 })
+    resolveFirst(statsBody({}, { quarter: 1, jumlahLaporan: 9 }))
+
+    expect(second?.quarter).toBe(2)
+    expect(await first).toBeNull()
+  })
+})
+
+describe('describeStatsError', () => {
+  it('appends the HTTP status unless the message already carries it, and keeps non-HTTP errors as they are', () => {
+    expect(describeStatsError({ statusCode: 403, data: { success: false, error: { code: 'FORBIDDEN', message: 'Access denied' } } }))
+      .toBe('Access denied (HTTP 403)')
+    expect(describeStatsError({ statusCode: 500, statusMessage: 'Internal Server Error' })).toBe('500 Internal Server Error')
+    expect(describeStatsError(new Error('Network down'))).toBe('Network down')
+    expect(describeStatsError(null)).toBe('Failed to load compilation statistics.')
+  })
+})
+
+// The browser reaches the audit-service only through Kong, which forwards a request when its path
+// starts with one of the prefixes listed for the audit-service. The old path
+// /api/v1/executive-summary/compilation-stats matched none of them, so Kong answered 404
+// "no Route matched with those values" and the form showed "Failed to load source data".
+describe('compilation-stats path is routed by every Kong config', () => {
+  const repoRoot = resolve(__dirname, '../../..')
+  const kongConfigs = [
+    'backend/kong-gateway/kong/dev/kong-dev.yml',
+    'backend/kong-gateway/kong/prod/kong.yml',
+    'backend/tenants/bai/kong/kong.yml',
+    'scripts/templates/kong-tenant.yml.tpl'
+  ]
+
+  /** Service name (top-level "  - name:") whose route path prefixes the request path, or null. */
+  const kongServiceFor = (config: string, requestPath: string): string | null => {
+    let service: string | null = null
+    for (const line of config.split('\n')) {
+      const serviceMatch = /^ {2}- name: (\S+)/.exec(line)
+      if (serviceMatch) service = serviceMatch[1]!
+      const pathMatch = /^\s+- (\/\S+)\s*$/.exec(line)
+      if (pathMatch && requestPath.startsWith(pathMatch[1]!)) return service
+    }
+    return null
+  }
+
+  it.each(kongConfigs)('%s sends the stats request to audit-service', (file) => {
+    const config = readFileSync(resolve(repoRoot, file), 'utf8')
+    expect(kongServiceFor(config, `/api/v1${COMPILATION_STATS_PATH}`)).toBe('audit-service')
   })
 })

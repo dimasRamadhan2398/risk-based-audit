@@ -4,6 +4,8 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 import { useAuditResultReportStore } from './audit-result-report'
+import { useI18n } from '~/composables/useI18n'
+import { buildDefaultNarrative, formatQuarterPeriod } from '~/utils/executiveSummaryNarrative'
 
 export interface FollowUpRow {
   status: 'Closed' | 'In Progress' | 'Overdue'
@@ -152,10 +154,13 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
   const loading = ref(false)
   const errorMsg = ref('')
   const toast = useToastNotification()
+  const { t } = useI18n()
 
-  // Default narrative template
-  const defaultNarrativeTemplate = (bulan: string, tahun: number = 2026) => {
-    return `Periode ${bulan} ${tahun}, SPI telah menerbitkan .... LHA. Total temuan …. dengan .... rekomendasi. Tingkat penyelesaian on-time 95%. Terdapat 5 temuan risiko tinggi overdue/terlambat terkait .... yang perlu arahan Direksi. Temuan berulang tertinggi pada proses ……………..`
+  // Default narrative template, starting with the period ("Periode Januari 2026, SPI telah menerbitkan ...").
+  // period is the full label (e.g. "Januari – Maret 2026", "Kuartal 4 2026"); an optional year is appended to it.
+  // Without a period the narrative starts with the template body.
+  const defaultNarrativeTemplate = (period: string = '', tahun?: number | string) => {
+    return buildDefaultNarrative(t, [period, tahun].filter(Boolean).join(' '))
   }
 
   // Active form data
@@ -357,7 +362,8 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       dokumenPath: '',
       status: 'Draft',
       executiveNote: '',
-      narrative: defaultNarrativeTemplate(defaultMonth, 2026),
+      // Compilation: the selected quarter. Individual: no period until an LHA is selected (the form adds the audit period).
+      narrative: isCompilation ? defaultNarrativeTemplate(formatQuarterPeriod(t, quarterNum || 1, targetYear)) : defaultNarrativeTemplate(),
       jumlahLaporan: 0,
       risikoHigh: 0,
       risikoModerateHigh: 0,
@@ -386,6 +392,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     openNewForm(quarterNum, '', true)
     form.tahun = targetYear
     form.nomorDokumen = generateEscDocNumber(targetYear)
+    form.narrative = defaultNarrativeTemplate(formatQuarterPeriod(t, form.quarter, targetYear))
   }
 
   const openEditForm = (summary: ExecutiveSummary) => {
@@ -533,10 +540,21 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       deletedDocNumbers.value.push(targetDocNum)
     }
 
+    // DELETE /executive-summaries/:id only accepts the UUID of an executive_summaries row,
+    // like GET/PUT. Cards that the Individual page derives from an LHA without a summary row
+    // carry `ES-<auditResultReportId>`, and offline saves get `ES-Q<n>-...`; neither exists
+    // in the backend. Resolve the real row (by id, else by document number) like the PUT
+    // paths do, and only remove locally when there is none.
+    const backendId = isValidUuid(id)
+      ? id
+      : summaryList.value.find(s => !!targetDocNum && s.nomorDokumen === targetDocNum && isValidUuid(s.id))?.id
+
     try {
-      const baseUrl = getAuditServiceBaseUrl()
-      await $fetch(`${baseUrl}/executive-summaries/${id}`, { method: 'DELETE' })
-      await fetchSummaries()
+      if (backendId) {
+        const baseUrl = getAuditServiceBaseUrl()
+        await $fetch(`${baseUrl}/executive-summaries/${backendId}`, { method: 'DELETE' })
+        await fetchSummaries()
+      }
       toast.showSuccess('Executive Summary berhasil dihapus!')
     } catch (error: any) {
       console.error('Failed to delete on backend, simulating local deletion:', error)

@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	ctrlAssignmentLetter "audit-service/controllers/assignment_letter"
 	"audit-service/controllers/crud"
 	"audit-service/models"
 	"audit-service/pkg/logger"
@@ -31,8 +32,11 @@ func writeSyncRouter(db *gorm.DB) *gin.Engine {
 	r.POST("/fieldwork/interviews", crud.CreateWithHooks(db, "FieldworkInterview", newInterview, nil, SyncAfterCreate(LetterKeysOf)))
 	r.PUT("/fieldwork/test-controls/:id", SyncOnWrite(db, newControl, LetterKeysOf, crud.Update(db, "FieldworkTestControl", newControl)))
 	r.DELETE("/fieldwork/test-controls/:id", SyncOnWrite(db, newControl, LetterKeysOf, crud.Delete(db, "FieldworkTestControl", newControl)))
-	r.POST("/assignment-letters", crud.CreateWithHooks(db, "AssignmentLetter", newLetter, nil, SyncAfterCreate(LetterKeysOf)))
+	r.POST("/assignment-letters", crud.CreateWithHooks(db, "AssignmentLetter", newLetter, nil, SyncLetterAfterCreate()))
+	r.PUT("/assignment-letters/:id", SyncLetterOnWrite(db, crud.UpdateWithHook(db, "AssignmentLetter", newLetter, ctrlAssignmentLetter.NormalizePurposeOnUpdate)))
+	r.DELETE("/assignment-letters/:id", SyncLetterOnWrite(db, crud.Delete(db, "AssignmentLetter", newLetter)))
 	r.GET("/audit-executions", ListWithSources(db))
+	r.POST("/audit-executions/sync", NewSyncController(db).SyncFromSources)
 	return r
 }
 
@@ -196,7 +200,7 @@ func TestPostLetterSyncsExecutionRefingItsNumber(t *testing.T) {
 	const key = "ST-010/SKAI/2026"
 	mustCreateRow(t, db, &models.AuditExecution{ID: uuid.New(), Ref: key, Name: "Audit Baru"})
 
-	w := doJSON(t, r, http.MethodPost, "/assignment-letters", map[string]string{"letterNumber": key, "status": "Published"})
+	w := doJSON(t, r, http.MethodPost, "/assignment-letters", map[string]string{"id": uuid.NewString(), "letterNumber": key, "status": "Published"})
 	if w.Code != http.StatusCreated {
 		t.Fatalf("status = %d, body = %s", w.Code, w.Body.String())
 	}

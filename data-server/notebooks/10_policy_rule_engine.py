@@ -98,4 +98,4 @@ for _, row in df_override.iterrows():
 
 if violations:
     pd.DataFrame(violations).to_sql("caatt_policy_violations", dl, schema="gold", if_exists="append", index=False)
-    print(f"✅ Saved {len(violations)} policy violations")
+    print(f"✓ Saved {len(violations)} policy violations")

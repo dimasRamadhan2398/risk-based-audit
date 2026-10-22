@@ -21,6 +21,9 @@ import (
 )
 
 const (
+	// Base topic names. A stack with KAFKA_TOPIC_PREFIX set subscribes to
+	// "<prefix>.audit-universe.events" instead (see pkg/config), and Register
+	// keys the handler by the subscribed name.
 	TopicAuditUniverse = "audit-universe.events"
 	TopicDepartments   = "department.events"
 

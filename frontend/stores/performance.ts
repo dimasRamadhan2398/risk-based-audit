@@ -62,11 +62,13 @@ export interface SummaryCardData {
   sub_metrics?: SubMetric[];
 }
 
+/** The last 6 months up to now (December for a past year); null is a month without data. */
 export interface MonthlyTrendData {
   labels: string[];
-  completion_rate_series: number[];
-  timeliness_series: number[];
-  csat_series: number[];
+  periods?: string[]; // "YYYY-MM", same order as labels
+  completion_rate_series: Array<number | null>;
+  timeliness_series: Array<number | null>;
+  csat_series: Array<number | null>;
 }
 
 export const usePerformanceStore = defineStore('performance', () => {

@@ -1,5 +1,9 @@
+import { ref, computed } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 import { UserRole } from '~/types/auth'
+
+// Module-level singleton to share active preview role across all components and pages
+const activeRoleView = ref<string | null>(null)
 
 /**
  * Role-Based Access Control composable.
@@ -20,12 +24,12 @@ export const useRbac = () => {
         if (userCookie.value) {
           u = typeof userCookie.value === 'string' ? JSON.parse(userCookie.value) : userCookie.value
         }
-      } catch {}
+      } catch { }
       if (!u && typeof window !== 'undefined') {
         try {
           const stored = localStorage.getItem('auth-user') || localStorage.getItem('user')
           if (stored) u = JSON.parse(stored)
-        } catch {}
+        } catch { }
       }
     }
     return u || null
@@ -42,9 +46,24 @@ export const useRbac = () => {
     if (!u) return []
 
     const roles: string[] = []
-    if (Array.isArray(u.roles)) roles.push(...u.roles)
-    if (u.role) roles.push(u.role)
-    if (u.position) roles.push(u.position)
+    const addRole = (val: any) => {
+      if (!val) return
+      if (typeof val === 'string') {
+        roles.push(val)
+      } else if (typeof val === 'object') {
+        if (val.name) roles.push(String(val.name))
+        if (val.role) roles.push(String(val.role))
+        if (val.code) roles.push(String(val.code))
+        if (val.title) roles.push(String(val.title))
+        if (val.position) roles.push(String(val.position))
+      }
+    }
+
+    if (Array.isArray(u.roles)) {
+      u.roles.forEach(addRole)
+    }
+    addRole(u.role)
+    addRole(u.position)
     return roles
   }
 
@@ -58,9 +77,12 @@ export const useRbac = () => {
     const executiveAliases = ['executive', 'chiefauditexecutive', 'cae']
     if (executiveAliases.includes(t) && executiveAliases.includes(u)) return true
 
-    // Admin
-    const adminAliases = ['admin', 'superadmin', 'administrator']
-    if (adminAliases.includes(t) && adminAliases.includes(u)) return true
+    // Target is CAE / Executive / Viewer
+    if (t === 'chiefauditexecutive' || t === 'cae' || t === 'executive' || t === 'viewer' || t === 'direksi' || t === 'komiteaudit' || t === 'kepalaspi' || t === 'headofskai') {
+      if (u.includes('admin')) return false
+      const execKeywords = ['chiefauditexecutive', 'cae', 'executive', 'kepalaspi', 'headofskai', 'viewer', 'komiteaudit', 'direksi', 'board', 'boc', 'bod', 'komisaris']
+      return execKeywords.some(kw => u === kw || u.includes(kw))
+    }
 
     // Auditor (backend alias AUDITSTAFF -> AUDITOR)
     const auditorAliases = ['auditor', 'auditstaff']
@@ -119,6 +141,33 @@ export const useRbac = () => {
   ]))
 
   /**
+   * Check if the user is an auditee / PIC unit kerja.
+   */
+  const isAuditee = computed(() => hasAnyRole([
+    UserRole.AUDITEE,
+    UserRole.DEPARTMENT_HEAD,
+    'auditee',
+    'pic',
+    'picunit',
+    'departmenthead',
+    'unitkerja'
+  ]))
+
+  /**
+   * Check if the user is an executive (CAE, Viewer, Direksi, Komite Audit).
+   */
+  const isExecutive = computed(() => hasAnyRole([
+    UserRole.CHIEF_AUDIT_EXECUTIVE,
+    UserRole.VIEWER,
+    UserRole.AUDIT_MANAGER,
+    'cae',
+    'viewer',
+    'executive',
+    'direksi',
+    'komite_audit'
+  ]) && !isAdmin.value)
+
+  /**
    * Check if user can access audit management features.
    */
   const canManageAudits = computed(() => hasAnyRole([
@@ -141,7 +190,7 @@ export const useRbac = () => {
    * Get the user's primary display role (highest privilege).
    */
   const primaryRole = computed((): string => {
-    const roles = (authStore.user?.roles ?? []).map(normalize)
+    const roles = getUserRoles().map(normalize)
     const priority = [
       UserRole.ADMIN,
       UserRole.EXECUTIVE,
@@ -151,9 +200,9 @@ export const useRbac = () => {
       UserRole.VIEWER,
     ].map(normalize)
     for (const role of priority) {
-      if (roles.includes(role)) return role
+      if (roles.some(r => matchesRole(r, role))) return role
     }
-    return authStore.user?.roles?.[0] ?? 'user'
+    return roles[0] ?? 'user'
   })
 
   /**
@@ -193,12 +242,93 @@ export const useRbac = () => {
   const canWorkOnAtr = (item: { pic_user_id?: string | null } | null | undefined): boolean =>
     isAtrPic(item) || (isAdmin.value && !!item?.pic_user_id)
 
+  /**
+   * Active Role View Mode (used for preview & testing by admins/managers).
+   */
+  const activeRoleView = ref<string | null>(null)
+
+  const setRoleView = (view: string | null) => {
+    activeRoleView.value = view
+  }
+
+  /**
+   * Check if current user is strictly an Auditor (not Admin or Manager).
+   */
+  const isPureAuditor = computed((): boolean => {
+    const userRoles = getUserRoles()
+    const hasAuditor = userRoles.some(r => {
+      const c = cleanStr(r)
+      return c === 'auditor' || c === 'auditstaff' || c === 'staffaudit' || c === 'leadauditor'
+    })
+    const isHigher = hasAnyRole([
+      UserRole.ADMIN,
+      UserRole.CHIEF_AUDIT_EXECUTIVE,
+      UserRole.AUDIT_MANAGER,
+    ])
+    return hasAuditor && !isHigher
+  })
+
+  /**
+   * Evaluates if Auditor View mode should be active.
+   * - Pure Auditor: ALWAYS true.
+   * - Admin/Manager: ONLY true if explicitly previewing via activeRoleView === 'auditor'.
+   */
+  const isAuditorView = computed((): boolean => {
+    if (activeRoleView.value === 'auditor') return true
+    if (activeRoleView.value && activeRoleView.value !== 'auditor') return false
+    return isPureAuditor.value || primaryRole.value === 'auditor' || primaryRole.value === 'audit_staff'
+  })
+
+  /**
+   * Check if current user is strictly an Auditee (AUDITEE and no higher or auditor role).
+   * DEPARTMENT_HEAD is not included on purpose: it keeps the admin view (spec D4).
+   */
+  const isPureAuditee = computed((): boolean => {
+    const userRoles = getUserRoles()
+    const hasAuditee = userRoles.some(r => cleanStr(r) === 'auditee')
+    if (!hasAuditee) return false
+    const isHigher = hasAnyRole([
+      UserRole.ADMIN,
+      UserRole.EXECUTIVE,
+      UserRole.AUDITOR,
+      UserRole.DEPARTMENT_HEAD,
+    ])
+    return !isHigher && !isPureAuditor.value
+  })
+
+  /**
+   * Evaluates if Auditee View mode should be active.
+   * - Pure Auditee: ALWAYS true.
+   * - Others: ONLY true if previewing via activeRoleView === 'auditee'.
+   */
+  const isAuditeeView = computed((): boolean => {
+    if (activeRoleView.value === 'auditee') return true
+    if (activeRoleView.value) return false
+    return isPureAuditee.value
+  })
+
+  /**
+   * Authority to publish/authorize LHA report (Row 9-1: FULL for Admin/Manager, DRAFT for Auditor).
+   * Per guide: Auditor does NOT have the publish/authorization button.
+   */
+  const canPublishLha = computed((): boolean => {
+    if (isAuditorView.value) return false
+    return hasAnyRole([UserRole.ADMIN, UserRole.CHIEF_AUDIT_EXECUTIVE, UserRole.AUDIT_MANAGER])
+  })
+
   return {
     hasRole,
     hasAnyRole,
     hasAllRoles,
     isAdmin,
     isAuditor,
+    isPureAuditor,
+    isAuditorView,
+    isPureAuditee,
+    isAuditeeView,
+    activeRoleView,
+    setRoleView,
+    canPublishLha,
     canManageAudits,
     canViewRisks,
     canManageCharter,

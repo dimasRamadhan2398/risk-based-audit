@@ -26,7 +26,7 @@ bash "$SCRIPT_DIR/backend/deploy-dev.sh"
 
 # ── Wait briefly for dev backend containers ─────────────────────────────────
 echo ""
-echo "⏳ Waiting 10s for dev backend containers to stabilise..."
+echo "Waiting 10s for dev backend containers to stabilise..."
 sleep 10
 
 # ── Step 2: Deploy Frontend (DEV) ────────────────────────────────────────────
@@ -39,7 +39,7 @@ bash "$SCRIPT_DIR/frontend/deploy-dev.sh"
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo ""
 echo "╔══════════════════════════════════════════════════════════╗"
-echo "║            🎉  DEV Deployment Successful!   🎉            ║"
+echo "║            DEV Deployment Successful!   ║"
 echo "╠══════════════════════════════════════════════════════════╣"
 echo "║                                                          ║"
 echo "║  Development UI (dev.auditsphere.app)                     ║"

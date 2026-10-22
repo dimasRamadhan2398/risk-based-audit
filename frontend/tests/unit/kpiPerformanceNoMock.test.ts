@@ -196,7 +196,10 @@ describe('cards and charts rendered with no API data', () => {
   it('charts show the empty state instead of a series', async () => {
     const el = await mount(KpiCharts)
     expect(el.querySelectorAll('[data-chart]')).toHaveLength(0)
-    expect(el.textContent).toContain(tEn('kpiPerformance.charts.noData', { year: 2026 }))
+    // Mounted with year 2026: while that is the current year the window is the last 6 months up to now.
+    expect(el.textContent).toContain(new Date().getFullYear() > 2026
+      ? tEn('kpiPerformance.charts.noData', { year: 2026 })
+      : tEn('kpiPerformance.charts.noRecentData'))
   })
 
   it('charts draw exactly the API series', async () => {

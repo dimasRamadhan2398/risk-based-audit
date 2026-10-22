@@ -71,4 +71,4 @@ print(f"  Covers {df_mus['amount'].sum() / total * 100:.1f}% of total monetary v
 df_highvalue = df.nlargest(50, 'amount')
 print(f"Top 50 by amount: total = {df_highvalue['amount'].sum():,.0f}")
 
-print("\n✅ Sampling complete. Export samples for fieldwork.")
+print("\n✓ Sampling complete. Export samples for fieldwork.")

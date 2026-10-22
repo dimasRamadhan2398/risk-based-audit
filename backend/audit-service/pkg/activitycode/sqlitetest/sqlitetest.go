@@ -62,7 +62,7 @@ func CreateTable(t *testing.T, db *gorm.DB, model interface{}) {
 			typ = "INTEGER"
 		case dt == "bool":
 			typ = "BOOLEAN"
-		case dt == "time":
+		case dt == "time", strings.HasPrefix(dt, "timestamp"):
 			typ = "DATETIME"
 		}
 		col := "`" + f.DBName + "` " + typ

@@ -69,16 +69,16 @@ docker compose -f docker-compose.yml build
 ```
 
 **Pros:**
-- ✅ No cloud costs
-- ✅ Fully offline capable
-- ✅ Instant spin-up
-- ✅ Full control
+- ✓ No cloud costs
+- ✓ Fully offline capable
+- ✓ Instant spin-up
+- ✓ Full control
 
 **Cons:**
-- ❌ Not accessible externally
-- ❌ Limited to local network
-- ❌ Requires good laptop
-- ❌ Can be slow with multiple tenants
+- ✗ Not accessible externally
+- ✗ Limited to local network
+- ✗ Requires good laptop
+- ✗ Can be slow with multiple tenants
 
 **Testing Checklist:**
 - [ ] Docker daemon running
@@ -730,10 +730,10 @@ Nginx (Optional):
 ```
 
 **Disadvantages:**
-- ❌ Not HTTPS (data not encrypted)
-- ❌ Not production-like
-- ❌ Difficult with multiple tenants (need unique IPs)
-- ❌ Browser warnings about SSL
+- ✗ Not HTTPS (data not encrypted)
+- ✗ Not production-like
+- ✗ Difficult with multiple tenants (need unique IPs)
+- ✗ Browser warnings about SSL
 
 ---
 

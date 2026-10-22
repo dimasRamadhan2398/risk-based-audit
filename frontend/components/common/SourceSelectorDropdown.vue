@@ -13,7 +13,7 @@
             class="w-4 h-4 text-primary-500 shrink-0"
           />
           <span class="text-xs font-semibold text-[var(--text-main)] max-w-[120px] sm:max-w-[160px] truncate">
-            {{ isAllSources ? 'Semua Sumber' : (selectedSource?.name || 'Sumber Data') }}
+            {{ isAllSources ? t('common.sourceSelector.allSources') : (selectedSource?.name || t('common.sourceSelector.dataSource')) }}
           </span>
           <span
             v-if="!isAllSources"
@@ -31,8 +31,10 @@
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useActiveDataSource } from '~/composables/useActiveDataSource'
+import { useI18n } from '~/composables/useI18n'
 
 const router = useRouter()
+const { t } = useI18n()
 const { sources, selectedSourceId, selectedSource, isAllSources, setSelectedSourceId, fetchSources } = useActiveDataSource()
 
 onMounted(() => {
@@ -54,7 +56,7 @@ const dropdownMenuItems = computed(() => {
   return [
     [
       {
-        label: 'Semua Sumber Data (Consolidated)',
+        label: t('common.sourceSelector.allSourcesConsolidated'),
         icon: isAllSources.value ? 'i-lucide-check-circle-2' : 'i-lucide-layers',
         color: isAllSources.value ? 'primary' : 'neutral',
         onSelect: () => setSelectedSourceId('all')
@@ -69,7 +71,7 @@ const dropdownMenuItems = computed(() => {
     ],
     [
       {
-        label: 'Kelola Sumber Data...',
+        label: t('common.sourceSelector.manage'),
         icon: 'i-lucide-settings-2',
         onSelect: () => router.push('/settings')
       }

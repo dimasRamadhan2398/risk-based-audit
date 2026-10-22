@@ -168,6 +168,10 @@ services:
       context: ./risk-service
       dockerfile: Dockerfile
     container_name: rb_audit_risk_service
+    environment:
+      # risk-service seeds demo risks / audit universe at boot unless this is
+      # false (unset means true). Never seed over this stack's data on restart.
+      SEED_ON_BOOT: "false"
     depends_on:
       postgres:
         condition: service_started

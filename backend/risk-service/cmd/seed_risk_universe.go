@@ -18,33 +18,11 @@ type ScoreGuideline struct {
 }
 
 func seedRiskFactorsAndUniverse(db *gorm.DB) error {
-	log.Println("Seeding Standard Risk Factors...")
-	
-	// Check if already seeded
+	if err := seedCatalogs(db); err != nil {
+		return err
+	}
+
 	var count int64
-	db.Model(&models.StandardRiskFactor{}).Count(&count)
-	if count > 0 {
-		log.Println("Standard Risk Factors already seeded.")
-	} else {
-		factors := getStandardRiskFactors()
-		for _, f := range factors {
-			if err := db.Create(&f).Error; err != nil {
-				return fmt.Errorf("failed to seed standard risk factor %s: %w", f.Name, err)
-			}
-		}
-		log.Println("Successfully seeded 24 Standard Risk Factors.")
-	}
-
-	log.Println("Seeding Standard Audit Universe...")
-	db.Model(&models.StandardAuditUniverse{}).Count(&count)
-	if count > 0 {
-		log.Println("Standard Audit Universe already seeded.")
-	} else {
-		if err := seedStandardAuditUniverse(db); err != nil {
-			return err
-		}
-	}
-
 	log.Println("Seeding Corporate Risk Factors...")
 	db.Model(&models.CorporateRiskFactor{}).Count(&count)
 	if count > 0 {
@@ -67,6 +45,43 @@ func seedRiskFactorsAndUniverse(db *gorm.DB) error {
 
 	// The legacy dummy-node cleanup used to run here on every boot. It is now an
 	// explicit operator command (cleanup-dummy-universe); see cleanup_dummy_universe.go.
+	return nil
+}
+
+// seedCatalogs seeds the two reference libraries: standard risk factors and
+// the standard audit universe. Each is skipped when its table already has rows.
+// Used by `seed` and by `seed --catalog-only`.
+func seedCatalogs(db *gorm.DB) error {
+	log.Println("Seeding Standard Risk Factors...")
+
+	// Check if already seeded
+	var count int64
+	if err := db.Model(&models.StandardRiskFactor{}).Count(&count).Error; err != nil {
+		return fmt.Errorf("count standard risk factors: %w", err)
+	}
+	if count > 0 {
+		log.Println("Standard Risk Factors already seeded.")
+	} else {
+		factors := getStandardRiskFactors()
+		for _, f := range factors {
+			if err := db.Create(&f).Error; err != nil {
+				return fmt.Errorf("failed to seed standard risk factor %s: %w", f.Name, err)
+			}
+		}
+		log.Println("Successfully seeded 24 Standard Risk Factors.")
+	}
+
+	log.Println("Seeding Standard Audit Universe...")
+	if err := db.Model(&models.StandardAuditUniverse{}).Count(&count).Error; err != nil {
+		return fmt.Errorf("count standard audit universe: %w", err)
+	}
+	if count > 0 {
+		log.Println("Standard Audit Universe already seeded.")
+	} else {
+		if err := seedStandardAuditUniverse(db); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -798,28 +813,10 @@ func seedCorporateAuditUniverseAndScores(db *gorm.DB) error {
 			totalWeighted += rf.Weight * float64(scoreVal)
 		}
 
-		riskIndex := (totalWeighted / 5.0) * 100.0
-		var riskLevel string
-		var priority bool
+		riskIndex, riskLevel, priority := models.ClassifyRiskIndex((totalWeighted / 5.0) * 100.0)
 
-		if riskIndex >= 80.0 {
-			riskLevel = "High"
-			priority = true
-		} else if riskIndex >= 60.0 {
-			riskLevel = "Medium to High"
-			priority = true
-		} else if riskIndex >= 40.0 {
-			riskLevel = "Medium"
-			priority = false
-		} else if riskIndex >= 20.0 {
-			riskLevel = "Low to Medium"
-			priority = false
-		} else {
-			riskLevel = "Low"
-			priority = false
-		}
-
-		// Create AuditUniverseYear
+		// Create AuditUniverseYear (seeded with scores, so it counts as scored)
+		scoredAt := now
 		auYear := models.AuditUniverseYear{
 			ID:                       uuid.New(),
 			CorporateAuditUniverseID: corpID,
@@ -827,6 +824,7 @@ func seedCorporateAuditUniverseAndScores(db *gorm.DB) error {
 			RiskIndex:                riskIndex,
 			RiskLevel:                riskLevel,
 			AuditPriority:            priority,
+			ScoredAt:                 &scoredAt,
 			CreatedAt:                now,
 			UpdatedAt:                now,
 		}

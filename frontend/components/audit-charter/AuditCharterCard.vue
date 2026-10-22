@@ -101,7 +101,7 @@
                   {{ t('auditCharter.card.uploadedBy') }}
                 </p>
                 <p class="font-medium text-[var(--text-main)]">
-                  {{ store.activeCharter.uploadedBy }}
+                  {{ (store.activeCharter.uploadedBy && store.activeCharter.uploadedBy !== 'Dimas (HIA)') ? store.activeCharter.uploadedBy : store.currentUserFullName }}
                 </p>
               </div>
               <div>
@@ -208,7 +208,7 @@
           <template #uploadedBy-cell="{ row }">
             <div class="font-medium text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
               <ReadMoreText
-                :text="row.original.uploadedBy"
+                :text="(row.original.uploadedBy && row.original.uploadedBy !== 'Dimas (HIA)') ? row.original.uploadedBy : store.currentUserFullName"
                 :max-length="35"
                 text-class="font-medium text-[var(--text-main)]"
               />
@@ -273,7 +273,7 @@ const columns = computed(() => [
   { accessorKey: 'date', header: t('auditCharter.card.columns.date'), class: 'w-28 whitespace-nowrap' },
   { accessorKey: 'approvedBy', header: t('auditCharter.card.columns.approvedBy'), class: 'w-36' },
   { accessorKey: 'uploadedBy', header: t('auditCharter.card.columns.uploadedBy'), class: 'w-36' },
-  { accessorKey: 'actions', header: t('auditCharter.card.columns.actions'), class: 'w-14 whitespace-nowrap text-center' },
+  { accessorKey: 'actions', header: t('common.columns.actions'), class: 'w-14 whitespace-nowrap text-center' },
 ])
 
 const confirmDelete = async (item: any) => {

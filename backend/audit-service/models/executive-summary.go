@@ -51,6 +51,18 @@ type ExecutiveSummary struct {
 	SignatureNamaKepala string         `gorm:"type:varchar(200)" json:"signatureNamaKepala"`
 	SignatureNIK        string         `gorm:"type:varchar(50)" json:"signatureNIK"`
 
+	// Approval signature, written only by POST /executive-summaries/:id/approve.
+	// SignatureImage is a PNG/JPEG data URL drawn on the signature pad (same
+	// approach as ReportSignature in AuditResultReport). SignatureName and
+	// SignatureRole are the signer as printed; ApprovedBy and ApprovedByRole
+	// record the authenticated user who approved, and ApprovedAt when.
+	SignatureImage      string         `gorm:"type:text" json:"signatureImage"`
+	SignatureName       string         `gorm:"type:varchar(200)" json:"signatureName"`
+	SignatureRole       string         `gorm:"type:varchar(100)" json:"signatureRole"`
+	ApprovedBy          string         `gorm:"type:varchar(200)" json:"approvedBy"`
+	ApprovedByRole      string         `gorm:"type:varchar(100)" json:"approvedByRole"`
+	ApprovedAt          *time.Time     `json:"approvedAt"`
+
 	CreatedAt           time.Time      `json:"created_at"`
 	UpdatedAt           time.Time      `json:"updated_at"`
 	DeletedAt           gorm.DeletedAt `gorm:"index" json:"-"`

@@ -2,7 +2,7 @@
 //
 // Contract (consumed by audit-service, see services/annual_plan_sync there):
 //
-//	topic      audit-universe.events
+//	topic      [<KAFKA_TOPIC_PREFIX>.]audit-universe.events
 //	key        corporate_audit_universe.id (keeps one entity's events ordered)
 //	envelope   {"version":1,"event_id","event_type","occurred_at","producer","data"}
 //
@@ -19,12 +19,44 @@
 // pkg/kafka in the other services uses for log lines.
 package kafka
 
-import "time"
+import (
+	"os"
+	"strings"
+	"time"
+)
+
+// TopicPrefixEnv names the env var that isolates one stack's business events
+// from every other stack on the shared broker. Tenant stacks set it to the
+// tenant slug (scripts/templates/docker-compose.tenant.yml.tpl); audit-service
+// reads the same variable, so producer and consumer always agree. Unset or
+// empty keeps the historical, unprefixed topic used by the shared prod stack.
+const TopicPrefixEnv = "KAFKA_TOPIC_PREFIX"
+
+// BaseTopicAuditUniverse is the unprefixed Audit Universe topic name.
+const BaseTopicAuditUniverse = "audit-universe.events"
+
+// TopicAuditUniverse carries Audit Universe entity and yearly score events. It
+// is BaseTopicAuditUniverse, prefixed with KAFKA_TOPIC_PREFIX when that is set,
+// and is resolved once at start-up.
+var TopicAuditUniverse = AuditUniverseTopicFromEnv()
+
+// AuditUniverseTopicFromEnv returns the Audit Universe topic for this process's
+// KAFKA_TOPIC_PREFIX.
+func AuditUniverseTopicFromEnv() string {
+	return TopicName(os.Getenv(TopicPrefixEnv), BaseTopicAuditUniverse)
+}
+
+// TopicName returns base, or "<prefix>.<base>" when prefix is non-empty.
+// Surrounding whitespace and dots on the prefix are ignored.
+func TopicName(prefix, base string) string {
+	prefix = strings.Trim(strings.TrimSpace(prefix), ".")
+	if prefix == "" {
+		return base
+	}
+	return prefix + "." + base
+}
 
 const (
-	// TopicAuditUniverse carries Audit Universe entity and yearly score events.
-	TopicAuditUniverse = "audit-universe.events"
-
 	// EnvelopeVersion is bumped only for breaking changes to the envelope or to
 	// an existing event's data. Adding optional fields does not bump it.
 	EnvelopeVersion = 1

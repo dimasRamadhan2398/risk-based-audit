@@ -85,4 +85,4 @@ results = [
 
 df_results = pd.DataFrame(results)
 df_results.to_sql("caatt_full_population_results", dl, schema="gold", if_exists="append", index=False)
-print("✅ Full population results saved to gold.caatt_full_population_results")
+print("✓ Full population results saved to gold.caatt_full_population_results")

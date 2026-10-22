@@ -2,7 +2,7 @@
 
 This document provides instructions on how to run the backend services locally and how to deploy them to a server.
 
-## 🚀 Running Locally
+## Running Locally
 
 ### Prerequisites
 - [Go 1.21+](https://golang.org/dl/)
@@ -63,7 +63,7 @@ If you want to run a specific service for development while keeping the infrastr
 
 ---
 
-## 🛳️ Deployment to Server
+## Deployment to Server
 
 ### Server Information
 - **IP Address**: `202.10.34.160`
@@ -106,7 +106,7 @@ If you want to run a specific service for development while keeping the infrastr
 
 ---
 
-## 🤖 Automatic Deployment (CI/CD)
+## Automatic Deployment (CI/CD)
 
 To automate the deployment process, you can use GitHub Actions. This allows for continuous integration and continuous deployment whenever code is pushed to the repository.
 

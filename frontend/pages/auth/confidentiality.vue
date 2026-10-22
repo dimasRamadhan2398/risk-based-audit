@@ -95,7 +95,7 @@
             :class="locale === 'id' ? 'bg-primary-500 text-white shadow-xs' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
             @click="locale = 'id'"
           >
-            <span>🇮🇩</span> ID
+            ID
           </button>
           <button
             type="button"
@@ -103,7 +103,7 @@
             :class="locale === 'en' ? 'bg-primary-500 text-white shadow-xs' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
             @click="locale = 'en'"
           >
-            <span>🇬🇧</span> EN
+            EN
           </button>
         </div>
       </div>
@@ -271,18 +271,42 @@
             </div>
 
             <div>
-              <span class="text-md font-semibold text-[var(--text-main)] block mb-2">{{ t.step3.permissionsLabel }}</span>
-              <div class="bg-[var(--bg-surface)] border border-[var(--border-main)] rounded-xl p-4 max-h-48 overflow-y-auto space-y-2.5">
-                <div v-for="(perm, idx) in permissionsList" :key="perm" class="flex items-start gap-2.5 text-md text-[var(--text-main)]">
-                  <UIcon 
-                    name="i-lucide-shield-check" 
-                    class="w-3.5 h-3.5 mt-0.5 flex-shrink-0"
-                    :class="idx % 2 === 0 ? 'text-secondary-500' : 'text-primary-500'"
-                  />
-                  <div class="flex flex-col">
-                    <span class="font-mono font-bold text-[10px] uppercase tracking-wide" :class="idx % 2 === 0 ? 'text-secondary-500/70' : 'text-primary-500/70'">{{ perm }}</span>
-                    <span class="text-[var(--text-muted)] mt-0.5">{{ getPermissionLabel(perm) }}</span>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-md font-semibold text-[var(--text-main)]">{{ t.step3.permissionsLabel }}</span>
+                <span v-if="permissionsList.length" class="text-xs text-[var(--text-muted)] font-medium">
+                  {{ permissionsList.length }} {{ locale === 'id' ? 'hak akses aktif' : 'active permissions' }}
+                </span>
+              </div>
+              <div class="bg-[var(--bg-surface)] border border-[var(--border-main)] rounded-xl p-4 max-h-56 overflow-y-auto space-y-3">
+                <div 
+                  v-for="(item, idx) in permissionsList" 
+                  :key="item.id || idx" 
+                  class="flex items-start justify-between gap-3 pb-2.5 border-b border-[var(--border-main)]/50 last:border-0 last:pb-0"
+                >
+                  <div class="flex items-start gap-2.5 min-w-0 flex-1">
+                    <UIcon 
+                      name="i-lucide-shield-check" 
+                      class="w-4 h-4 mt-0.5 flex-shrink-0 text-primary-500"
+                    />
+                    <div class="flex flex-col min-w-0">
+                      <span class="font-semibold text-xs text-[var(--text-main)] truncate">
+                        {{ item.displayName }}
+                      </span>
+                      <span class="text-[var(--text-muted)] text-[11px] mt-0.5 leading-snug">
+                        {{ item.description }}
+                      </span>
+                    </div>
                   </div>
+                  <span 
+                    class="shrink-0 inline-flex items-center justify-center px-2 py-0.5 rounded-md font-bold text-[10px] uppercase tracking-wider text-white shadow-xs"
+                    :class="item.badgeClass"
+                  >
+                    {{ item.accessLevel }}
+                  </span>
+                </div>
+
+                <div v-if="permissionsList.length === 0" class="text-center py-4 text-xs text-[var(--text-muted)]">
+                  {{ locale === 'id' ? 'Tidak ada hak akses aktif yang ditemukan untuk peran ini.' : 'No active permissions found for this role.' }}
                 </div>
               </div>
             </div>
@@ -378,7 +402,7 @@
 
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
-import { UserRole } from '~/types/auth'
+import { getPermissionsForUserRoles, type UserPermissionItem } from '~/utils/rbacMatrix'
 
 definePageMeta({
   layout: 'auth',
@@ -403,7 +427,9 @@ const profileState = reactive({
   department: '',
 })
 const userRoles = ref<string[]>([])
-const permissionsList = ref<string[]>([])
+const permissionsList = computed<UserPermissionItem[]>(() => {
+  return getPermissionsForUserRoles(userRoles.value, locale.value)
+})
 const savingProfile = ref(false)
 const error = ref('')
 
@@ -587,6 +613,27 @@ const t = computed(() => {
   }
 })
 
+// Helper to extract role strings reliably from user object
+const extractRoles = (user: any): string[] => {
+  if (!user) return []
+  const roles: string[] = []
+  const add = (val: any) => {
+    if (!val) return
+    if (typeof val === 'string') roles.push(val)
+    else if (typeof val === 'object') {
+      if (val.name) roles.push(String(val.name))
+      if (val.role) roles.push(String(val.role))
+      if (val.code) roles.push(String(val.code))
+      if (val.title) roles.push(String(val.title))
+      if (val.position) roles.push(String(val.position))
+    }
+  }
+  if (Array.isArray(user.roles)) user.roles.forEach(add)
+  add(user.role)
+  add(user.position)
+  return Array.from(new Set(roles.filter(Boolean)))
+}
+
 // Initialize profile state from store
 onMounted(async () => {
   const route = useRoute()
@@ -602,7 +649,7 @@ onMounted(async () => {
   profileState.fullName = authStore.user?.fullName ?? ''
   profileState.phone = authStore.user?.phone ?? ''
   profileState.department = authStore.user?.department ?? ''
-  userRoles.value = authStore.user?.roles ?? []
+  userRoles.value = extractRoles(authStore.user)
 
   if (route.query.demo === 'true' || currentStep.value >= 3) {
     if (!profileState.fullName) {
@@ -620,12 +667,12 @@ onMounted(async () => {
       profileState.fullName = detailedUser.full_name || profileState.fullName
       profileState.phone = detailedUser.phone || profileState.phone
       profileState.department = detailedUser.department || profileState.department
-      userRoles.value = detailedUser.roles || userRoles.value
+      const fetchedRoles = extractRoles(detailedUser)
+      if (fetchedRoles.length > 0) {
+        userRoles.value = fetchedRoles
+      }
     }
   } catch (e) {}
-
-  // Map permissions list dynamically based on roles
-  permissionsList.value = getPermissionsForRoles(userRoles.value)
 })
 
 const userInitials = computed(() => {
@@ -694,62 +741,6 @@ const handleSaveProfile = async () => {
 
 const handleReject = async () => {
   await authStore.logout()
-}
-
-// Helpers for RBAC Roles & Permissions mapping matching the database seed
-const getPermissionsForRoles = (roles: string[]): string[] => {
-  const adminPerms = [
-    'user:create', 'user:read', 'user:update', 'user:delete',
-    'audit:create', 'audit:read', 'audit:update', 'audit:delete',
-    'risk:create', 'risk:read', 'risk:update',
-  ]
-  const auditorPerms = [
-    'audit:create', 'audit:read', 'audit:update', 'risk:read',
-  ]
-  const viewerPerms = [
-    'audit:read', 'risk:read',
-  ]
-
-  const perms = new Set<string>()
-  for (const role of roles) {
-    const roleName = role.toUpperCase()
-    if (roleName === UserRole.ADMIN) adminPerms.forEach(p => perms.add(p))
-    else if (roleName === UserRole.AUDITOR) auditorPerms.forEach(p => perms.add(p))
-    else if (roleName === UserRole.VIEWER) viewerPerms.forEach(p => perms.add(p))
-  }
-  return Array.from(perms)
-}
-
-const getPermissionLabel = (permission: string): string => {
-  const labelsID: Record<string, string> = {
-    'user:create': 'Membuat akun pengguna baru',
-    'user:read': 'Melihat daftar dan detail pengguna',
-    'user:update': 'Mengubah data pengguna dan peran',
-    'user:delete': 'Menghapus/menonaktifkan akun pengguna',
-    'audit:create': 'Membuat piagam audit dan surat tugas baru',
-    'audit:read': 'Melihat dokumen dan laporan hasil audit',
-    'audit:update': 'Melakukan penilaian kertas kerja dan rekomendasi',
-    'audit:delete': 'Menghapus data program kerja audit',
-    'risk:create': 'Mengisi profile risiko unit kerja',
-    'risk:read': 'Melihat matriks penilaian risiko organisasi',
-    'risk:update': 'Mengubah bobot mitigasi risiko',
-  }
-  const labelsEN: Record<string, string> = {
-    'user:create': 'Create new user accounts',
-    'user:read': 'View user list and details',
-    'user:update': 'Modify user data and roles',
-    'user:delete': 'Delete/deactivate user accounts',
-    'audit:create': 'Create audit charters and assignment letters',
-    'audit:read': 'View audit documents and result reports',
-    'audit:update': 'Perform working paper reviews & recommendations',
-    'audit:delete': 'Delete audit work program data',
-    'risk:create': 'Fill in work unit risk profiles',
-    'risk:read': 'View organizational risk assessment matrix',
-    'risk:update': 'Modify risk mitigation weights',
-  }
-
-  const map = locale.value === 'en' ? labelsEN : labelsID
-  return map[permission] || permission
 }
 </script>
 

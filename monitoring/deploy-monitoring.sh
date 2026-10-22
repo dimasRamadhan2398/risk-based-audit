@@ -24,7 +24,7 @@ echo "╚═══════════════════════�
 echo ""
 
 # ── Step 1: Package monitoring configs ────────────────────────────
-echo "📦 [1/4] Packaging monitoring configuration..."
+echo "[1/4] Packaging monitoring configuration..."
 tar \
   --exclude='.DS_Store' \
   --exclude='*.tar.gz' \
@@ -38,15 +38,15 @@ tar \
 echo "   Archive size: $(du -sh $ARCHIVE | cut -f1)"
 
 # ── Step 2: Prepare remote directory ──────────────────────────────
-echo "🌐 [2/4] Preparing remote directory $TARGET_DIR on VPS..."
+echo "[2/4] Preparing remote directory $TARGET_DIR on VPS..."
 ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" "mkdir -p $TARGET_DIR"
 
 # ── Step 3: Upload ────────────────────────────────────────────────
-echo "🚀 [3/4] Uploading monitoring stack to VPS..."
+echo "[3/4] Uploading monitoring stack to VPS..."
 scp -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no "$ARCHIVE" "$VPS_USER@$VPS_IP:$TARGET_DIR/"
 
 # ── Step 4: Extract & Start on VPS ────────────────────────────────
-echo "🔧 [4/4] Extracting and starting monitoring stack on VPS..."
+echo "[4/4] Extracting and starting monitoring stack on VPS..."
 ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" bash <<EOF
   set -e
   cd $TARGET_DIR
@@ -80,7 +80,7 @@ rm -f "$ARCHIVE"
 
 echo ""
 echo "╔══════════════════════════════════════════════════════════╗"
-echo "║         🎉  Monitoring Stack Deployed!   🎉              ║"
+echo "║         Monitoring Stack Deployed!   ║"
 echo "╠══════════════════════════════════════════════════════════╣"
 echo "║                                                          ║"
 echo "║  Grafana Dashboard                                       ║"

@@ -25,22 +25,22 @@ echo "╚═══════════════════════�
 echo ""
 
 # ── Step 1: Build locally ───────────────────────────────────────────────────
-echo "⚡ [1/4] Building Nuxt 4 application locally..."
+echo "[1/4] Building Nuxt 4 application locally..."
 npm run build
 
 # ── Step 2: Package .output and configuration ────────────────────────────────
-echo "📦 [2/4] Packaging pre-built .output and Docker files..."
+echo "[2/4] Packaging pre-built .output and Docker files..."
 tar --no-mac-metadata -czf "$ARCHIVE" .output Dockerfile docker-compose.dev.yml package.json
 
 echo "   Archive size: $(du -sh $ARCHIVE | cut -f1)"
 
 # ── Step 3: Prepare directory & Upload to VPS ───────────────────────────────
-echo "🌐 [3/4] Uploading archive to $VPS_USER@$VPS_IP:$TARGET_DIR ..."
+echo "[3/4] Uploading archive to $VPS_USER@$VPS_IP:$TARGET_DIR ..."
 ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" "mkdir -p $TARGET_DIR"
 rsync -avz -e "ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no" "$ARCHIVE" "$VPS_USER@$VPS_IP:$TARGET_DIR/"
 
 # ── Step 4: Extract & Run Container on VPS ──────────────────────────────────
-echo "🚀 [4/4] Starting rbia-frontend-dev container on VPS..."
+echo "[4/4] Starting rbia-frontend-dev container on VPS..."
 ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" bash <<EOF
   set -e
   cd $TARGET_DIR
@@ -74,7 +74,7 @@ EOF
 rm -f "$ARCHIVE"
 
 echo ""
-echo "🎉 Development Frontend deployment completed successfully!"
+echo "Development Frontend deployment completed successfully!"
 echo "   Container: rbia-frontend-dev (Port 3001)"
 echo "   Target UI Domain: dev.auditsphere.app"
 echo "   Target API Domain: api-dev.auditsphere.app (Port 8081)"

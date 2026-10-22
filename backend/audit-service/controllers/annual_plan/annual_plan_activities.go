@@ -4,11 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"audit-service/models"
 	apperrors "audit-service/pkg/errors"
+	"audit-service/pkg/logger"
 	form "audit-service/services/activity_plan_form"
+	"audit-service/services/annual_plan_sync"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -36,6 +39,7 @@ func PrepareOnCreate(tx *gorm.DB, entity interface{}) error {
 		return err
 	}
 	assignActivityIDs(plan.Activities)
+	fillSnapshots(tx, plan.Year, plan.Activities, nil)
 	return nil
 }
 
@@ -83,12 +87,56 @@ func PrepareOnUpdate(tx *gorm.DB, existing interface{}, columns map[string]inter
 	if err := form.PrepareAnnualPlanRows(tx, plan.ID, rows); err != nil {
 		return err
 	}
+	// The client does not send the snapshots (see the PKAT payload), so they are
+	// resolved here, and a row keeps what it had when its department or entity did not change.
+	year := plan.Year
+	if y, ok := yearFromColumn(columns["year"]); ok {
+		year = y
+	}
+	fillSnapshots(tx, year, rows, &annual_plan_sync.Prior{Year: plan.Year, Rows: priorRows(plan)})
 	out, err := json.Marshal(rows)
 	if err != nil {
 		return err
 	}
 	columns["activities"] = out
 	return nil
+}
+
+// fillSnapshots resolves the PKAT display snapshots (department, risk name, risk
+// level) of rows. It is best effort: the save does not fail when the lookup
+// cannot be read. The lookup runs in a savepoint, so a failed read does not abort
+// the surrounding transaction. The event sync and `audit migrate
+// backfill-annual-snapshots` fill what is left.
+func fillSnapshots(tx *gorm.DB, year int, rows []models.AnnualAuditActivity, prior *annual_plan_sync.Prior) {
+	err := tx.Transaction(func(sp *gorm.DB) error {
+		return annual_plan_sync.FillSnapshots(sp, year, rows, prior)
+	})
+	if err != nil {
+		logger.Warn("annual plan: snapshot lookup failed, saving without it", logger.LogField("error", err))
+	}
+}
+
+// priorRows returns the stored rows of plan with the row ids the PKAT form was
+// given by GET (form.EnsureRowIDs, which assigns ids to legacy rows). The
+// plan itself is not changed.
+func priorRows(plan *models.AuditAnnual) []models.AnnualAuditActivity {
+	cp := &models.AuditAnnual{ID: plan.ID, Activities: append([]models.AnnualAuditActivity(nil), plan.Activities...)}
+	form.EnsureRowIDs(cp)
+	return cp.Activities
+}
+
+// yearFromColumn reads a year sent in the update body (a JSON number or string).
+func yearFromColumn(raw interface{}) (int, bool) {
+	switch v := raw.(type) {
+	case float64:
+		return int(v), true
+	case int:
+		return v, true
+	case string:
+		n, err := strconv.Atoi(strings.TrimSpace(v))
+		return n, err == nil
+	}
+	return 0, false
 }
 
 // validateActivityType accepts an empty value (not yet chosen) or one of the

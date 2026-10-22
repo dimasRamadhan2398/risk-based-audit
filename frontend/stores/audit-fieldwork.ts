@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useI18n } from '~/composables/useI18n'
 import { reactive, ref, computed, watch } from 'vue'
 import { useAssignmentLetterStore } from './assignment-letter'
 import { useAppToast } from '~/composables/useAppToast'
@@ -412,7 +413,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     const file = target.files?.[0]
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
-        toast.error('Ukuran file terlalu besar! Maksimal 10MB.')
+        toast.error(useI18n().t('common.fileInput.tooLarge', { size: 10 }))
         target.value = ''
         return
       }
@@ -798,7 +799,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     const file = target.files?.[0]
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
-        toast.error('Ukuran berkas terlalu besar! Maksimal 10MB.')
+        toast.error(useI18n().t('common.fileInput.tooLarge', { size: 10 }))
         target.value = ''
         return
       }
@@ -1044,7 +1045,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     const file = target.files?.[0]
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
-        toast.error('Ukuran berkas terlalu besar! Maksimal 10MB.')
+        toast.error(useI18n().t('common.fileInput.tooLarge', { size: 10 }))
         target.value = ''
         return
       }
@@ -1845,6 +1846,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     documentForm,
     showDocumentModal,
     isEditingDocument,
+    editingDocumentId,
     isReadOnlyDocument,
     openDocumentModal,
     editDocument,

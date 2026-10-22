@@ -6,7 +6,7 @@
     <template #content>
       <div class="p-4 space-y-4 rounded-lg shadow-xl bg-neutral-50 border border-primary-900">
         <div class="flex items-center gap-3 pb-3 border-b border-primary-900">
-          <span class="text-xl">{{ categoryIcon }}</span>
+          <UIcon :name="categoryIcon" class="w-5 h-5 shrink-0 text-gray-500" />
           <div class="flex-1 min-w-0">
             <h4 class="text-sm font-bold truncate">
               {{ risk.name }}
@@ -76,7 +76,7 @@
 <script setup>
 const { t } = useI18n()
 import { ref, computed } from 'vue'
-import { useRiskProfileStore, riskLevelConfig, categoryIcons, impactLabels, likelihoodLabels } from '~/stores/risk-profile'
+import { useRiskProfileStore, riskLevelConfig, getCategoryIcon, impactLabels, likelihoodLabels } from '~/stores/risk-profile'
 
 const props = defineProps({
   risk: {
@@ -97,7 +97,7 @@ const isDragging = ref(false)
 const riskLevel = computed(() => store.getRiskLevel(props.risk.likelihood, props.risk.impact))
 const config = computed(() => riskLevelConfig[riskLevel.value])
 const isPriority = computed(() => config.value.priority)
-const categoryIcon = computed(() => categoryIcons[props.risk.category] || '📌')
+const categoryIcon = computed(() => getCategoryIcon(props.risk.category))
 
 const formattedId = computed(() => store.getFormattedId(props.risk))
 

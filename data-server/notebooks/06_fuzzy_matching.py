@@ -54,4 +54,4 @@ if len(df_similar) > 0:
             "reference_value": f"{row['name_1']} ≈ {row['name_2']}",
             "duplicate_count": int(row['similarity_pct']),
         }]).to_sql("caatt_duplicate_gap_results", dl, schema="gold", if_exists="append", index=False)
-    print(f"✅ Saved {len(df_similar)} fuzzy match results")
+    print(f"✓ Saved {len(df_similar)} fuzzy match results")

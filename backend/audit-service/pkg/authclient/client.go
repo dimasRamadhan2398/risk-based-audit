@@ -14,19 +14,18 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"time"
-)
 
-// DefaultBaseURL is used when AUTH_SERVICE_URL is unset: the auth-service
-// container of the main stack. Tenant stacks must set AUTH_SERVICE_URL to
-// their own auth-service (http://auth-service-<slug>:8001), because all
-// stacks share the rb_audit_network docker network.
-const DefaultBaseURL = "http://auth-service:8001"
+	"audit-service/pkg/serviceurl"
+)
 
 // ErrNotFound means auth-service answered and has no active user with the id
 var ErrNotFound = errors.New("no active user with this id")
+
+// errNoBaseURL means no auth-service URL could be worked out for this stack
+// (see serviceurl.Resolve); the caller cannot check and must not guess.
+var errNoBaseURL = errors.New("auth-service URL not configured for this stack")
 
 // User is an assignable user as returned by GET /api/v1/users/assignable
 type User struct {
@@ -48,13 +47,13 @@ type Client struct {
 	HTTPClient *http.Client
 }
 
-// New returns a client for AUTH_SERVICE_URL (or DefaultBaseURL)
+// New returns a client for this stack's auth-service: AUTH_SERVICE_URL if set,
+// else auth-service-<slug> derived from KAFKA_SERVICE_NAME, else the control
+// plane's auth-service (see serviceurl.Resolve). All stacks share the
+// rb_audit_network bridge, so a tenant must never fall back to the bare
+// "auth-service" alias.
 func New() *Client {
-	base := strings.TrimRight(strings.TrimSpace(os.Getenv("AUTH_SERVICE_URL")), "/")
-	if base == "" {
-		base = DefaultBaseURL
-	}
-	return &Client{BaseURL: base, HTTPClient: &http.Client{Timeout: 3 * time.Second}}
+	return &Client{BaseURL: serviceurl.Auth(), HTTPClient: &http.Client{Timeout: 3 * time.Second}}
 }
 
 // AssignableUser calls GET /api/v1/users/assignable?id=<id>. It returns
@@ -64,6 +63,9 @@ func New() *Client {
 func (c *Client) AssignableUser(ctx context.Context, authorization, id string) (*User, error) {
 	if strings.TrimSpace(authorization) == "" {
 		return nil, errors.New("no authorization to forward")
+	}
+	if c.BaseURL == "" {
+		return nil, errNoBaseURL
 	}
 	q := url.Values{}
 	q.Set("id", id)
@@ -125,6 +127,9 @@ type ContactLookup interface {
 func (c *Client) Contacts(ctx context.Context, authorization string, ids []string, departmentHeadOf string) ([]Contact, error) {
 	if strings.TrimSpace(authorization) == "" {
 		return nil, errors.New("no authorization to forward")
+	}
+	if c.BaseURL == "" {
+		return nil, errNoBaseURL
 	}
 	q := url.Values{}
 	if len(ids) > 0 {

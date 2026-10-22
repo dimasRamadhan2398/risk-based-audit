@@ -99,6 +99,55 @@ func SyncOnWrite(db *gorm.DB, newEntity func() interface{}, keysOf func(interfac
 	}
 }
 
+// SyncLetterAfterCreate is the after-write hook of POST /assignment-letters. It
+// runs inside the INSERT transaction: it creates the letter's audit execution
+// (unless one already refs the letter) and derives its progress. Like
+// SyncAfterCreate it runs in a savepoint; a failure is logged and the letter
+// still commits.
+func SyncLetterAfterCreate() crud.AfterHook {
+	return func(tx *gorm.DB, entity interface{}) error {
+		letter, ok := entity.(*models.AssignmentLetter)
+		if !ok || letter.ID == uuid.Nil {
+			return nil
+		}
+		err := tx.Transaction(func(sp *gorm.DB) error {
+			return audit_execution_sync.ReconcileLetter(context.Background(), sp, letter.ID, nil)
+		})
+		if err != nil {
+			logSyncFailure(letter.LetterNumber, err)
+		}
+		return nil
+	}
+}
+
+// SyncLetterOnWrite wraps PUT and DELETE /assignment-letters/:id. Before the
+// write it reads the stored letter; after a 2xx response it reconciles the
+// letter's audit execution: a live letter gets its execution ensured (moved to
+// the new number on renumbering, letter-owned fields following the letter) and
+// synced; a deleted letter has its execution soft-deleted. It runs after the
+// write has committed; a failure is logged and the response is left as is.
+func SyncLetterOnWrite(db *gorm.DB, next gin.HandlerFunc) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			next(c)
+			return
+		}
+		var prev models.AssignmentLetter
+		if err := db.Where("id = ?", id).First(&prev).Error; err != nil {
+			next(c)
+			return
+		}
+		next(c)
+		if status := c.Writer.Status(); status < http.StatusOK || status >= http.StatusMultipleChoices {
+			return
+		}
+		if err := audit_execution_sync.ReconcileLetter(c.Request.Context(), db, id, &prev); err != nil {
+			logSyncFailure(prev.LetterNumber, err)
+		}
+	}
+}
+
 // storedLetterKeys returns the letter keys of the stored row with the given id,
 // or nil when the id is not a UUID or no live row matches.
 func storedLetterKeys(db *gorm.DB, id string, newEntity func() interface{}, keysOf func(interface{}) []string) []string {

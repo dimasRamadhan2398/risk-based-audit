@@ -70,7 +70,7 @@
                 :label="t('auditCharter.form.uploadedBy')"
               >
                 <div class="block w-full rounded-md border border-secondary-200 dark:border-gray-700 text-primary-900 dark:text-gray-100 p-2 sm:text-sm font-bold bg-gray-50 dark:bg-black">
-                  <span>{{ store.form.uploadedBy }}</span>
+                  <span>{{ store.form.uploadedBy || store.currentUserFullName }}</span>
                 </div>
               </ReusableFormField>
 
@@ -113,12 +113,10 @@
               :required="!store.isEditing"
             >
               <div class="flex items-center gap-4">
-                <input
-                  type="file"
+                <LocalizedFileInput
                   accept=".pdf,.docx,.doc"
-                  @change="store.handleFileChange"
-                  class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 cursor-pointer"
                   :required="!store.isEditing && !store.form.file"
+                  @change="store.handleFileChange"
                 />
               </div>
               <p v-if="store.form.file || store.form.fileName" class="text-md text-gray-500 mt-1">
@@ -159,10 +157,17 @@
 </template>
 
 <script setup lang="ts">
+import { watch } from 'vue'
 import { useCharterStore } from '~/stores/charter'
 import { useI18n } from '~/composables/useI18n'
 import ReusableFormField from '~/components/shared/ReusableFormField.vue'
 
 const { t } = useI18n()
 const store = useCharterStore()
+
+watch(() => store.showModal, (isOpen) => {
+  if (isOpen && !store.isEditing) {
+    store.form.uploadedBy = store.currentUserFullName
+  }
+})
 </script>

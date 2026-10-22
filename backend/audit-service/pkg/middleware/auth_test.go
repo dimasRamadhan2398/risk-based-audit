@@ -89,3 +89,79 @@ func TestAuthenticateRefusesMissingAndForeignTokens(t *testing.T) {
 		t.Fatalf("token signed with another secret: got %d, want 401", code)
 	}
 }
+
+// signAuthTestTokenWithClaims signs a token with the given claims. It is used
+// for tokens that include employee claims.
+func signAuthTestTokenWithClaims(t *testing.T, secret string, c Claims) string {
+	t.Helper()
+	c.RegisteredClaims = jwt.RegisteredClaims{
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+	}
+	tok, err := jwt.NewWithClaims(jwt.SigningMethodHS256, &c).SignedString([]byte(secret))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return tok
+}
+
+// authTestContextRouter records the context values the middleware sets.
+func authTestContextRouter(t *testing.T, got *map[string]any) *gin.Engine {
+	t.Helper()
+	gin.SetMode(gin.TestMode)
+	mw := NewAuthMiddleware(authTestSecret)
+	r := gin.New()
+	r.GET("/p", mw.Authenticate(), func(c *gin.Context) {
+		values := map[string]any{}
+		for _, k := range []string{"user_id", "username", "employee_id", "employee_code"} {
+			v, _ := c.Get(k)
+			values[k] = v
+		}
+		*got = values
+		c.Status(http.StatusOK)
+	})
+	return r
+}
+
+func TestAuthenticateExposesEmployeeClaimsOnContext(t *testing.T) {
+	var got map[string]any
+	r := authTestContextRouter(t, &got)
+	const empUUID = "6f1c1b1e-0000-4000-8000-0000000000e1"
+	tok := signAuthTestTokenWithClaims(t, authTestSecret, Claims{
+		UserID:       "user-1",
+		Username:     "tester",
+		Roles:        []string{"AUDITOR"},
+		EmployeeID:   empUUID,
+		EmployeeCode: "EMP001",
+	})
+
+	if code := serve(r, "/p", map[string]string{"Authorization": "Bearer " + tok}); code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", code)
+	}
+	if got["employee_id"] != empUUID {
+		t.Fatalf("employee_id on context = %v, want %s", got["employee_id"], empUUID)
+	}
+	if got["employee_code"] != "EMP001" {
+		t.Fatalf("employee_code on context = %v, want EMP001", got["employee_code"])
+	}
+	if got["user_id"] != "user-1" || got["username"] != "tester" {
+		t.Fatalf("existing context values changed: %v", got)
+	}
+}
+
+func TestAuthenticateAcceptsTokenWithoutEmployeeClaims(t *testing.T) {
+	// Tokens issued before the employee claims existed must still work. The
+	// employee values are empty strings, not missing keys and not an error.
+	var got map[string]any
+	r := authTestContextRouter(t, &got)
+	tok := signAuthTestToken(t, authTestSecret)
+
+	if code := serve(r, "/p", map[string]string{"Authorization": "Bearer " + tok}); code != http.StatusOK {
+		t.Fatalf("legacy token: status = %d, want 200", code)
+	}
+	if got["employee_id"] != "" || got["employee_code"] != "" {
+		t.Fatalf("legacy token employee values = %v / %v, want empty", got["employee_id"], got["employee_code"])
+	}
+	if got["user_id"] != "user-1" {
+		t.Fatalf("user_id = %v", got["user_id"])
+	}
+}

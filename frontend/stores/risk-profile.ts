@@ -24,15 +24,18 @@ export const likelihoodLabels: Record<number, string> = {
   [PossibilityLevel.VERY_LIKELY]: 'Very Likely'
 }
 
+// Lucide icon per risk category; the keys are also the category options.
 export const categoryIcons: Record<string, string> = {
-  'Financial': '💰',
-  'Technology': '🔒',
-  'Compliance': '📋',
-  'Governance': '🏛️',
-  'Operations': '⚙️',
-  'Human Resources': '👥',
-  'Strategic': '🎯'
+  'Financial': 'i-lucide-wallet',
+  'Technology': 'i-lucide-lock',
+  'Compliance': 'i-lucide-clipboard-list',
+  'Governance': 'i-lucide-landmark',
+  'Operations': 'i-lucide-settings',
+  'Human Resources': 'i-lucide-users',
+  'Strategic': 'i-lucide-target'
 }
+
+export const getCategoryIcon = (category?: string): string => (category && categoryIcons[category]) || 'i-lucide-tag'
 
 export const categoryPrefixes: Record<string, string> = {
   'Financial': 'FIN',

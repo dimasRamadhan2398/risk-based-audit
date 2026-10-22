@@ -32,6 +32,11 @@ func (s *Syncer) ApplyEntity(ctx context.Context, data EntityData) error {
 		return nil
 	}
 	name := strings.TrimSpace(data.Name)
+	if name != "" {
+		if err := upsertRef(s.db.WithContext(ctx), models.AnnualSnapshotRef{Kind: models.SnapshotRefEntity, RefID: data.ID, Name: name}); err != nil {
+			return err
+		}
+	}
 	return s.mutatePlans(ctx, func(plan *models.AuditAnnual) bool {
 		changed := false
 		for i := range plan.Activities {
@@ -57,6 +62,12 @@ func (s *Syncer) ApplyYearScore(ctx context.Context, data YearScoreData) error {
 	if data.CorporateAuditUniverseID == "" || data.Year == 0 {
 		return nil
 	}
+	if data.RiskLevel != "" {
+		ref := models.AnnualSnapshotRef{Kind: models.SnapshotRefYearScore, RefID: data.CorporateAuditUniverseID, Year: data.Year, RiskLevel: data.RiskLevel}
+		if err := upsertRef(s.db.WithContext(ctx), ref); err != nil {
+			return err
+		}
+	}
 	return s.mutatePlansForYear(ctx, data.Year, func(plan *models.AuditAnnual) bool {
 		changed := false
 		for i := range plan.Activities {
@@ -77,6 +88,11 @@ func (s *Syncer) ApplyDepartment(ctx context.Context, data DepartmentData) error
 		return nil
 	}
 	name := strings.TrimSpace(data.DepartmentName)
+	if name != "" {
+		if err := upsertRef(s.db.WithContext(ctx), models.AnnualSnapshotRef{Kind: models.SnapshotRefDepartment, RefID: data.ID, Name: name}); err != nil {
+			return err
+		}
+	}
 	return s.mutatePlans(ctx, func(plan *models.AuditAnnual) bool {
 		changed := false
 		for i := range plan.Activities {

@@ -4,7 +4,7 @@
     <UCard :ui="{ body: { padding: 'p-0' } }" class="mb-8 overflow-visible border-gray-200 dark:border-gray-800">
       <div class="p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div class="flex items-center gap-3 sm:gap-4">
-          <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-primary to-blue-400 flex items-center justify-center shadow-lg shadow-primary/20 shrink-0">
+          <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 shrink-0">
             <UIcon name="i-heroicons-fire" class="w-7 h-7 sm:w-8 sm:h-8" />
           </div>
           <div>
@@ -218,7 +218,7 @@
                   >
                     <!-- Cell Labels -->
                     <div class="absolute inset-x-2 top-2 flex justify-between items-start pointer-events-none opacity-20 group-hover:opacity-40 transition-opacity">
-                      <span class="text-[8px] font-black uppercase tracking-tighter max-w-[60%] leading-none">{{ getRiskLevelLabel(getRiskLevel(l, i)) }}</span>
+                      <span class="text-[8px] font-black lowercase tracking-wider max-w-[60%] leading-tight">{{ getRiskLevelLabel(getRiskLevel(l, i)) }}</span>
                       <span class="text-[10px] font-black">{{ getRiskScore(l, i) }}</span>
                     </div>
 
@@ -478,17 +478,17 @@
                             <div class="grid grid-cols-2 gap-6 pt-4 border-t border-gray-100 dark:border-gray-800">
                               <div class="space-y-1.5">
                                 <div class="flex items-center justify-between">
-                                  <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">{{ t('riskProfile.detailModal.impactPeriod', { period: store.selectedPeriod }) }}</span>
+                                  <span class="text-[10px] font-black uppercase tracking-wider text-gray-400">{{ t('riskProfile.detailModal.impactPeriod', { period: store.selectedPeriod }) }}</span>
                                   <span class="text-md font-bold text-gray-700 dark:text-gray-300">{{ risk.impact }}/5</span>
                                 </div>
-                                <div class="text-sm font-bold text-gray-700 dark:text-gray-200">{{ getImpactLabel(risk.impact) }}</div>
+                                <div class="text-sm font-bold text-gray-700 dark:text-gray-200 tracking-wider">{{ getImpactLabel(risk.impact) }}</div>
                               </div>
                               <div class="space-y-1.5">
                                 <div class="flex items-center justify-between">
-                                  <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">{{ t('riskProfile.detailModal.likelihoodPeriod', { period: store.selectedPeriod }) }}</span>
+                                  <span class="text-[10px] font-black uppercase tracking-wider text-gray-400">{{ t('riskProfile.detailModal.likelihoodPeriod', { period: store.selectedPeriod }) }}</span>
                                   <span class="text-md font-bold text-gray-700 dark:text-gray-300">{{ risk.likelihood }}/5</span>
                                 </div>
-                                <div class="text-sm font-bold text-gray-700 dark:text-gray-200">{{ getLikelihoodLabel(risk.likelihood) }}</div>
+                                <div class="text-sm font-bold text-gray-700 dark:text-gray-200 tracking-wider">{{ getLikelihoodLabel(risk.likelihood) }}</div>
                               </div>
                             </div>
 
@@ -678,6 +678,7 @@ import {
   useRiskProfileStore, 
   riskLevelConfig, 
   categoryIcons, 
+  getCategoryIcon,
   impactLabels, 
   likelihoodLabels,
   ALL_BRANCHES,
@@ -749,15 +750,16 @@ const categoryOptions = Object.keys(categoryIcons).map(cat => ({
   value: cat 
 }))
 
-const impactOptions = Object.entries(impactLabels).map(([val, label]) => ({ 
-  label: `${val} - ${getImpactLabel(val)}`, 
-  value: Number(val) 
-}))
+// Computed so the labels follow the active locale without a reload.
+const impactOptions = computed(() => Object.keys(impactLabels).map(val => ({
+  label: `${val} - ${getImpactLabel(val)}`,
+  value: Number(val)
+})))
 
-const likelihoodOptions = Object.entries(likelihoodLabels).map(([val, label]) => ({ 
-  label: `${val} - ${getLikelihoodLabel(val)}`, 
-  value: Number(val) 
-}))
+const likelihoodOptions = computed(() => Object.keys(likelihoodLabels).map(val => ({
+  label: `${val} - ${getLikelihoodLabel(val)}`,
+  value: Number(val)
+})))
 
 async function submitNewRisk() {
   if (!newRisk.value.name) {
@@ -880,17 +882,6 @@ const tabItems = computed(() => [
 ])
 
 // Helpers
-// Lucide equivalents of the store's categoryIcons emoji.
-const categoryIconNames = {
-  'Financial': 'i-lucide-wallet',
-  'Technology': 'i-lucide-lock',
-  'Compliance': 'i-lucide-clipboard-list',
-  'Governance': 'i-lucide-landmark',
-  'Operations': 'i-lucide-settings',
-  'Human Resources': 'i-lucide-users',
-  'Strategic': 'i-lucide-target'
-}
-const getCategoryIcon = (category) => categoryIconNames[category] || 'i-lucide-tag'
 
 const getPrefix = (risk) => store.getFormattedId(risk).split('-')[0]
 const getNumber = (risk) => store.getFormattedId(risk).split('-')[1]

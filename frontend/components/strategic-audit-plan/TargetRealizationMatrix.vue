@@ -47,6 +47,7 @@
           <UInput
             :model-value="(store.form.kpiTargets as any)?.[item] || ''"
             :placeholder="t('strategicPlan.extra.target')"
+            inputmode="decimal"
             size="md"
             class="w-full text-center font-bold font-mono text-gray-900 dark:text-white"
             @update:model-value="(val: string) => updatePeriodTarget(item, val)"
@@ -59,6 +60,7 @@
           <UInput
             :model-value="(store.form.kpiActuals as any)?.[item] || ''"
             :placeholder="t('strategicPlan.columns.actual')"
+            inputmode="decimal"
             size="md"
             class="w-full text-center font-bold font-mono text-gray-900 dark:text-white"
             @update:model-value="(val: string) => updatePeriodActual(item, val)"
@@ -81,9 +83,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick } from 'vue'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import { useI18n } from '~/composables/useI18n'
+import { sanitizeKpiNumberInput } from '~/utils/strategicPlanPayload'
 
 const { t } = useI18n()
 const store = useStrategicPlanStore()
@@ -117,25 +120,31 @@ const periodsList = computed(() => {
   return years
 })
 
-function updatePeriodTarget(periodKey: string, value: string) {
-  if (!store.form.kpiTargets) {
-    store.form.kpiTargets = {}
+// Targets and realizations are numbers: anything else typed or pasted is dropped as it is entered.
+function updatePeriodValue(mapKey: 'kpiTargets' | 'kpiActuals', scalarKey: 'target' | 'actual', periodKey: string, input: string) {
+  const value = sanitizeKpiNumberInput(input)
+  if (!store.form[mapKey]) {
+    store.form[mapKey] = {}
   }
-  ;(store.form.kpiTargets as any)[periodKey] = value
-  if (store.form.selectedPeriod === periodKey || !store.form.target) {
-    store.form.target = value
+  const values = store.form[mapKey] as Record<string, string>
+  const write = () => {
+    values[periodKey] = value
+    if (store.form.selectedPeriod === periodKey || !store.form[scalarKey]) {
+      store.form[scalarKey] = value
+    }
   }
+  if (value === input) {
+    write()
+    return
+  }
+  // A dropped character can leave the stored value unchanged ("85" + "a"), and then the input keeps
+  // showing it: store what was typed first so the input re-renders with the number on the next tick.
+  values[periodKey] = input
+  nextTick(write)
 }
 
-function updatePeriodActual(periodKey: string, value: string) {
-  if (!store.form.kpiActuals) {
-    store.form.kpiActuals = {}
-  }
-  ;(store.form.kpiActuals as any)[periodKey] = value
-  if (store.form.selectedPeriod === periodKey || !store.form.actual) {
-    store.form.actual = value
-  }
-}
+const updatePeriodTarget = (periodKey: string, input: string) => updatePeriodValue('kpiTargets', 'target', periodKey, input)
+const updatePeriodActual = (periodKey: string, input: string) => updatePeriodValue('kpiActuals', 'actual', periodKey, input)
 
 function getPeriodCalculation(periodKey: string): string {
   const targetStr = (store.form.kpiTargets as any)?.[periodKey]

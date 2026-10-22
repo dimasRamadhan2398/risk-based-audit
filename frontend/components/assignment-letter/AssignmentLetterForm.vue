@@ -371,9 +371,14 @@ const masterOptions = useMasterOptionsStore()
 const categoryOptions = ['Assurance', 'Special Audit', 'Specific Reason', 'Consulting Services', 'Follow-Up Audit', 'Investigation', 'Quality Assurance Review']
 const yearOptions = computed(() => store.options.yearOptions || getFiscalYearStrings())
 
-const noneOption = { label: '— None (Default PT AIFL Indonesia) —', value: '__none__' }
+// Company name is data (the tenant default entity); only the surrounding text is translated.
+const DEFAULT_COMPANY_NAME = 'PT AIFL Indonesia'
+const noneOption = computed(() => ({
+  label: t('assignmentLetter.formExtra.companyNone', { company: DEFAULT_COMPANY_NAME }),
+  value: '__none__'
+}))
 const companySelectItems = computed(() => [
-  noneOption,
+  noneOption.value,
   ...masterOptions.companyOptions
 ])
 

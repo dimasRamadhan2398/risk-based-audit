@@ -226,6 +226,72 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
     })
   })
 
+  // DELETE /executive-summaries/:id takes the UUID of an executive_summaries row (as GET/PUT do).
+  // Cards derived from an LHA without a summary row carry `ES-<auditResultReportId>`; sending that
+  // id made the backend answer 400 "Invalid ExecutiveSummary ID".
+  describe('deleteSummary ID handling', () => {
+    const REAL_ID = '6f1c2d3e-4b5a-4c7d-8e9f-0a1b2c3d4e5f'
+    const LHA_ID = '12a2eebc-a733-412f-a51a-5c9f447a291c'
+    let deleteUrls: string[]
+    let backendItems: any[]
+
+    const baseItem = {
+      quarter: 1, periodeBulan: 'Januari', tahun: 2026, dokumenPath: '', status: 'Draft', executiveNote: '',
+      narrative: 'n', jumlahLaporan: 1, risikoHigh: 0, risikoModerateHigh: 0, risikoModerate: 0,
+      risikoLowModerate: 0, risikoLow: 0, jumlahRekomendasi: 0, followUpTable: [], topFindings: [], matriksKompilasi: []
+    }
+
+    beforeEach(() => {
+      deleteUrls = []
+      backendItems = []
+      ;(globalThis as any).useGlobalModalStore = () => ({ confirmDelete: async () => true })
+      global.$fetch = (async (url: string, opts?: any) => {
+        if (opts?.method === 'DELETE') {
+          deleteUrls.push(url)
+          return { success: true }
+        }
+        if (!opts?.method || opts.method === 'GET') {
+          return { data: { items: url.includes('/executive-summaries') ? [...backendItems] : [] } }
+        }
+        return { success: true }
+      }) as any
+    })
+
+    it('does not call the backend for a card derived from an LHA (ES-<reportId>)', async () => {
+      const store = useExecutiveSummaryStore()
+      await store.fetchSummaries()
+
+      await store.deleteSummary(`ES-${LHA_ID}`, 'LHA-001/SKAI/2026')
+
+      expect(deleteUrls).toEqual([])
+      expect(store.deletedDocNumbers).toContain('LHA-001/SKAI/2026')
+      expect(store.errorMsg).toBe('')
+    })
+
+    it('deletes a real summary by its bare UUID', async () => {
+      backendItems = [{ ...baseItem, id: REAL_ID, nomorDokumen: 'LHA-002/SKAI/2026' }]
+      const store = useExecutiveSummaryStore()
+      await store.fetchSummaries()
+
+      await store.deleteSummary(REAL_ID, 'LHA-002/SKAI/2026')
+
+      expect(deleteUrls).toHaveLength(1)
+      expect(deleteUrls[0]).toMatch(new RegExp(`/executive-summaries/${REAL_ID}$`))
+    })
+
+    it('resolves a prefixed id to the real summary with the same document number', async () => {
+      backendItems = [{ ...baseItem, id: REAL_ID, nomorDokumen: 'LHA-003/SKAI/2026' }]
+      const store = useExecutiveSummaryStore()
+      await store.fetchSummaries()
+
+      await store.deleteSummary(`ES-${LHA_ID}`, 'LHA-003/SKAI/2026')
+
+      expect(deleteUrls).toHaveLength(1)
+      expect(deleteUrls[0]).toMatch(new RegExp(`/executive-summaries/${REAL_ID}$`))
+      expect(deleteUrls[0]).not.toContain('ES-')
+    })
+  })
+
   describe('Assignment Letter (Surat Tugas) Integration', () => {
     it('ensures IndividualForm integrates LHA selection with Audit Result Report (LHA) context while CompilationForm compiles quarterly LHAs', () => {
       const individualContent = read('components/audit-result-report/ExecutiveSummaryIndividualForm.vue')
@@ -322,14 +388,22 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       expect(compilationContent).toContain("t('executiveSummaryCompilation.matrix.title')")
       expect(compilationContent).toContain('store.form.matriksKompilasi')
 
-      // Synchronized stats
-      expect(compilationContent).toContain('store.form.jumlahLaporan')
+      // Statistics come from one compilation-stats call for the selected year and quarter
+      expect(compilationContent).toContain('fetchCompilationStats({ year: targetYear, quarter: targetQuarter })')
+      expect(compilationContent).not.toContain('fetchCompilationSources')
+      expect(compilationContent).not.toContain('computeAtrOverdue')
+      expect(compilationContent).toContain('store.form.jumlahLaporan = stats.jumlahLaporan')
+      expect(compilationContent).toContain('riskBreakdownToFields(stats.riskBreakdown)')
       expect(compilationContent).toContain('riskBucketFields')
-      expect(compilationContent).toContain('riskBucketBreakdown(risk)')
+      expect(compilationContent).toContain('riskBucketBreakdown(riskFieldsToBreakdown(store.form))')
       expect(compilationContent).toContain('riskBuckets.high')
       expect(compilationContent).not.toContain('noMatchingLha')
       expect(compilationContent).not.toContain('selectCompilationReports')
       expect(compilationContent).toContain('store.form.topFindings')
+      // Saving is blocked until a sync succeeds; generated narrative text is no longer written
+      expect(compilationContent).toContain(':disabled="!canSaveDraft"')
+      expect(compilationContent).not.toContain('Tingkat penyelesaian on-time 95%')
+      expect(compilationContent).not.toContain('cukup efektif')
     })
 
     it('handles RBAC with varied spacing, positions, and executive aliases', () => {

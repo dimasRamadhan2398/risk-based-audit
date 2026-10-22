@@ -23,7 +23,7 @@
             </div>
             <div>
               <h3 class="text-lg font-bold text-gray-900 dark:text-white">
-                {{ store.isEditing ? 'Edit Audit Result Report' : 'Create New Audit Result Report' }}
+                {{ store.isEditing ? t('auditResultReport.editor.form.titleEdit') : t('auditResultReport.editor.form.titleCreate') }}
               </h3>
               <p class="text-xs text-gray-500 dark:text-gray-400"> {{ t('auditResultReport.editor.form.assignmentLetter') }} <span class="font-semibold text-primary-600 dark:text-primary-400">{{ store.reportForm.assignmentLetterId || store.selectedAssignmentLetter || '-' }}</span>
               </p>
@@ -50,12 +50,12 @@
                   <UInput
                     v-model="store.reportForm.reportNumber"
                     :placeholder="t('auditResultReport.editor.form.reportNumberExample')"
-                    class="w-full font-mono font-medium"
+                    class="w-full font-medium"
                     required
                     disabled
                   />
                 </div>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1"> {{ t('auditResultReport.editor.form.automaticFormat') }} <code class="text-primary-600 dark:text-primary-400 font-mono">{{ t('auditResultReport.editor.form.formatExample') }}</code>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1"> {{ t('auditResultReport.editor.form.automaticFormat') }} <span class="text-primary-600 dark:text-primary-400 font-medium">{{ t('auditResultReport.editor.form.formatExample') }}</span>
                 </p>
               </UFormField>
 
@@ -78,7 +78,7 @@
                   :placeholder="t('auditResultReport.editor.form.titleExample')"
                   class="w-full"
                   maxlength="100"
-                  @invalid="($event.target as any)?.setCustomValidity('Report Title maksimal 100 karakter dan wajib diisi')"
+                  @invalid="($event.target as any)?.setCustomValidity(t('auditResultReport.editor.form.reportTitleInvalid'))"
                   @input="($event.target as any)?.setCustomValidity('')"
                 />
                 <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 text-right">
@@ -103,9 +103,14 @@
               >
                 <USelectMenu
                   v-model="store.reportForm.status"
-                  :items="['Draft', 'Final']"
+                  :items="availableStatuses"
+                  value-key="value"
                   class="w-full"
+                  :disabled="!canPublishLha"
                 />
+                <p v-if="!canPublishLha" class="text-[11px] text-amber-600 dark:text-amber-400 mt-1">
+                  {{ t('auditResultReport.editor.form.statusLocked') }}
+                </p>
               </UFormField>
 
               <UFormField
@@ -128,7 +133,7 @@
               <div class="md:col-span-2 space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                   <div class="flex items-center gap-2">
-                    <h4 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide flex items-center gap-2">
+                    <h4 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
                       <UIcon
                         name="i-heroicons-list-bullet"
                         class="text-secondary-600 dark:text-secondary-400"
@@ -211,7 +216,7 @@
                     <div class="flex-1 space-y-3">
                       <!-- Card Header (Index & Source Badge) -->
                       <div class="flex justify-between items-center border-b border-secondary-100 dark:border-secondary-900/40 pb-2">
-                        <span class="text-xs font-bold text-secondary-700 dark:text-secondary-300 uppercase tracking-wider"> {{ t('auditResultReport.editor.form.findingNumber') }}{{ idx + 1 }}
+                        <span class="text-xs font-bold text-secondary-700 dark:text-secondary-300"> {{ t('auditResultReport.editor.form.findingNumber') }}{{ idx + 1 }}
                         </span>
                         <UBadge
                           :color="getSourceColor(finding.source)"
@@ -235,7 +240,8 @@
                         >
                           <USelectMenu
                             v-model="finding.category"
-                            :items="['Very Significant', 'Significant', 'Quite Significant', 'Not Significant']"
+                            :items="categoryItems"
+                            value-key="value"
                             class="w-full"
                           />
                         </UFormField>
@@ -362,11 +368,26 @@ import { ref, computed, watch } from 'vue'
 import { useAuditResultReportStore, type MemberSignature } from '~/stores/audit-result-report'
 import { useMasterOptionsStore } from '~/stores/master-options'
 import { useI18n } from '~/composables/useI18n'
+import { useRbac } from '~/composables/useRbac'
 import ResultReportSignatureModal from './ResultReportSignatureModal.vue'
 
 const { t } = useI18n()
 const store = useAuditResultReportStore()
 const masterOptions = useMasterOptionsStore()
+const { canPublishLha } = useRbac()
+
+const availableStatuses = computed(() => {
+  const draft = { label: t('auditResultReport.dashboard.status.draft'), value: 'Draft' }
+  const final = { label: t('auditResultReport.dashboard.status.final'), value: 'Final' }
+  return canPublishLha.value ? [draft, final] : [draft]
+})
+
+const categoryItems = computed(() => [
+  { label: t('auditResultReport.dashboard.categories.verySignificant'), value: 'Very Significant' },
+  { label: t('auditResultReport.dashboard.categories.significant'), value: 'Significant' },
+  { label: t('auditResultReport.dashboard.categories.quiteSignificant'), value: 'Quite Significant' },
+  { label: t('auditResultReport.dashboard.categories.notSignificant'), value: 'Not Significant' }
+])
 
 const showSignatureModal = ref(false)
 
@@ -412,9 +433,8 @@ const onSignatureConfirm = async (payload: {
   await store.saveReport()
 }
 
-const noneOption = { label: '— None (Inherited / Default) —', value: '__none__' }
 const companySelectItems = computed(() => [
-  noneOption,
+  { label: t('auditResultReport.editor.form.companyNone'), value: '__none__' },
   ...masterOptions.companyOptions
 ])
 

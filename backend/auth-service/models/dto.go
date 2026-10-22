@@ -37,6 +37,23 @@ type UserInfo struct {
 	AvatarURL string   `json:"avatar_url"`
 	Roles     []string `json:"roles"`
 	MustChangePassword bool `json:"must_change_password"`
+	// EmployeeCode is users.employee_id: the employee_code this login is linked to.
+	// Null when the account is not linked to an employee.
+	EmployeeCode *string `json:"employee_code"`
+	// EmployeeID is the master-data employee UUID for EmployeeCode (employees.id).
+	// Null when unlinked or when master-service could not be reached.
+	EmployeeID *string `json:"employee_id"`
+	// DepartmentID is the master-data department UUID of the employee.
+	// Null when unlinked or when master-service could not be reached.
+	DepartmentID *string `json:"department_id"`
+}
+
+// EmployeeLink is the master-data employee behind a login account.
+// Every field is nil when the account is not linked or the lookup failed.
+type EmployeeLink struct {
+	EmployeeCode *string
+	EmployeeID   *string
+	DepartmentID *string
 }
 
 // ChangePasswordRequest represents a change password request

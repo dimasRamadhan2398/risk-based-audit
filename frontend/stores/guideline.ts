@@ -65,7 +65,7 @@ export const useGuidelineStore = defineStore('guideline', () => {
     { accessorKey: 'status', header: t('auditCharter.guideline.columns.status'), class: 'w-32 whitespace-nowrap text-center' },
     { accessorKey: 'effective_date', header: t('auditCharter.guideline.columns.effectiveDate'), class: 'w-36 whitespace-nowrap text-center' },
     { accessorKey: 'file_name', header: t('auditCharter.guideline.columns.fileName'), class: 'min-w-[220px]' },
-    { accessorKey: 'actions', header: t('auditCharter.guideline.columns.actions'), class: 'w-28 whitespace-nowrap text-center' }
+    { accessorKey: 'actions', header: t('common.columns.actions'), class: 'w-28 whitespace-nowrap text-center' }
   ])
 
   const form = reactive({
@@ -111,6 +111,7 @@ export const useGuidelineStore = defineStore('guideline', () => {
       }
     } catch (err: any) {
       console.warn('Backend unavailable, using authentic seed guidelines fallback:', err)
+      errorMsg.value = extractErrorMessage(err, t('auditCharter.toasts.guideline.loadFailed'))
       guidelines.value = [...defaultGuidelines]
     } finally {
       loading.value = false
@@ -131,7 +132,7 @@ export const useGuidelineStore = defineStore('guideline', () => {
     if (!file) return
 
     if (file.size > 10 * 1024 * 1024) {
-      errorMsg.value = 'File terlalu besar! Maksimal 10MB.'
+      errorMsg.value = t('common.fileInput.tooLarge', { size: 10 })
       form.file = null
       target.value = ''
       return
@@ -181,16 +182,16 @@ export const useGuidelineStore = defineStore('guideline', () => {
       )
     } catch (err) {
       console.error('Failed to upload file:', err)
-      const detail = extractErrorMessage(err, 'Gagal mengupload file dokumen.')
+      const detail = extractErrorMessage(err, t('auditCharter.toasts.guideline.uploadFailed'))
       errorMsg.value = detail
-      toast.showError('Gagal mengupload file dokumen.', detail)
+      toast.showError(t('auditCharter.toasts.guideline.uploadFailed'), detail)
       throw err
     }
   }
 
   const addGuideline = async () => {
     if (!form.file && !form.fileUrl) {
-      errorMsg.value = 'Mohon upload file dokumen Pedoman Audit.'
+      errorMsg.value = t('auditCharter.guidelineForm.fileRequired')
       return
     }
 
@@ -229,14 +230,14 @@ export const useGuidelineStore = defineStore('guideline', () => {
         }
       })
 
-      toast.showSuccess('Pedoman Audit berhasil ditambahkan!')
+      toast.showSuccess(t('auditCharter.toasts.guideline.added'))
       await fetchGuidelines()
       closeModal()
     } catch (err: any) {
       console.error('Failed to add guideline:', err)
-      const detail = extractErrorMessage(err, 'Gagal menambahkan Pedoman Audit.')
+      const detail = extractErrorMessage(err, t('auditCharter.toasts.guideline.addFailed'))
       errorMsg.value = detail
-      toast.showError('Gagal menambahkan Pedoman Audit.', detail)
+      toast.showError(t('auditCharter.toasts.guideline.addFailed'), detail)
     } finally {
       loading.value = false
     }
@@ -279,14 +280,14 @@ export const useGuidelineStore = defineStore('guideline', () => {
         }
       })
 
-      toast.showSuccess('Pedoman Audit berhasil diperbarui!')
+      toast.showSuccess(t('auditCharter.toasts.guideline.updated'))
       await fetchGuidelines()
       closeModal()
     } catch (err: any) {
       console.error('Failed to update guideline:', err)
-      const detail = extractErrorMessage(err, 'Gagal memperbarui Pedoman Audit.')
+      const detail = extractErrorMessage(err, t('auditCharter.toasts.guideline.updateFailed'))
       errorMsg.value = detail
-      toast.showError('Gagal memperbarui Pedoman Audit.', detail)
+      toast.showError(t('auditCharter.toasts.guideline.updateFailed'), detail)
     } finally {
       loading.value = false
     }
@@ -306,13 +307,13 @@ export const useGuidelineStore = defineStore('guideline', () => {
         }
       })
 
-      toast.showSuccess('Pedoman Audit berhasil dihapus!')
+      toast.showSuccess(t('auditCharter.toasts.guideline.deleted'))
       await fetchGuidelines()
     } catch (err: any) {
       console.error('Failed to delete guideline:', err)
-      const detail = extractErrorMessage(err, 'Gagal menghapus Pedoman Audit.')
+      const detail = extractErrorMessage(err, t('auditCharter.toasts.guideline.deleteFailed'))
       errorMsg.value = detail
-      toast.showError('Gagal menghapus Pedoman Audit.', detail)
+      toast.showError(t('auditCharter.toasts.guideline.deleteFailed'), detail)
     } finally {
       loading.value = false
     }

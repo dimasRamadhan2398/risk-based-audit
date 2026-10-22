@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from '~/composables/useI18n'
-import { kpiMonthLabel } from '~/utils/kpiPerformanceLabels'
+import { kpiTrendLabels } from '~/utils/kpiPerformanceLabels'
 import { hasSeriesData, kpiChartSeries } from '~/utils/kpiPerformanceDisplay'
 import { usePerformanceStore } from '~/stores/performance'
 import {
@@ -38,16 +38,19 @@ const props = defineProps({
 const { t } = useI18n()
 const perfStore = usePerformanceStore()
 
-// Month labels may come from the API as English abbreviations; translate known ones, keep others as-is.
-const monthLabel = (label: string) => kpiMonthLabel(t, label)
-
-// Only GET /performance/monthly-trends data; with no series the chart shows an empty state instead.
+// Only GET /performance/monthly-trends data (the last 6 months, null where a month has none);
+// with no series the chart shows an empty state instead.
 const series = computed(() => kpiChartSeries(perfStore.monthlyTrends))
+// Month labels come from the API as English abbreviations; the year is added when the window crosses one.
+const labels = computed(() => kpiTrendLabels(t, series.value.labels, perfStore.monthlyTrends?.periods))
+// The window ends now for the current or a future year, at December for a past year.
+const noDataText = computed(() =>
+  props.year < new Date().getFullYear() ? t('kpiPerformance.charts.noData', { year: props.year }) : t('kpiPerformance.charts.noRecentData'))
 const hasCompletionData = computed(() => hasSeriesData(series.value.completion))
 const hasTrendData = computed(() => hasSeriesData(series.value.timeliness, series.value.csat))
 
 const barChartData = computed(() => ({
-  labels: series.value.labels.map(monthLabel),
+  labels: labels.value,
   datasets: [
     {
       label: t('kpiPerformance.charts.monthlyCompletionRate'),
@@ -93,7 +96,7 @@ const barChartOptions = {
 }
 
 const lineChartData = computed(() => ({
-  labels: series.value.labels.map(monthLabel),
+  labels: labels.value,
   datasets: [
     {
       label: t('kpiPerformance.charts.timeliness'),
@@ -192,7 +195,7 @@ const lineChartOptions = {
             :class="['w-8 h-8 text-gray-400', perfStore.loading && 'animate-spin']"
           />
           <p class="text-sm font-medium text-gray-500">
-            {{ perfStore.loading ? t('kpiPerformance.table.loading') : t('kpiPerformance.charts.noData', { year: props.year }) }}
+            {{ perfStore.loading ? t('kpiPerformance.table.loading') : noDataText }}
           </p>
         </div>
       </div>
@@ -231,7 +234,7 @@ const lineChartOptions = {
             :class="['w-8 h-8 text-gray-400', perfStore.loading && 'animate-spin']"
           />
           <p class="text-sm font-medium text-gray-500">
-            {{ perfStore.loading ? t('kpiPerformance.table.loading') : t('kpiPerformance.charts.noData', { year: props.year }) }}
+            {{ perfStore.loading ? t('kpiPerformance.table.loading') : noDataText }}
           </p>
         </div>
       </div>

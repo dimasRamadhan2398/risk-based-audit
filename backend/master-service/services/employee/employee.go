@@ -17,7 +17,9 @@ import (
 
 type EmployeeServiceInterface interface {
 	FindAll(ctx *base.BaseService) (*[]models.Employee, error)
+	FindPage(ctx *base.BaseService, page, pageSize int, search string) (*EmployeePage, error)
 	FindById(ctx *base.BaseService, id string) (*models.Employee, error)
+	FindByCode(ctx *base.BaseService, code string) (*models.Employee, error)
 	Create(ctx *base.BaseService, employee *models.Employee) (*models.Employee, error)
 	NextEmployeeCode(ctx *base.BaseService) (string, error)
 	Update(ctx *base.BaseService, id string, employee *models.Employee) (*models.Employee, error)
@@ -34,6 +36,23 @@ func NewEmployeeService(employeeRepo repo.IEmployeeRepository) EmployeeServiceIn
 	}
 }
 
+// Pagination limits for the employee list. An out-of-range page_size is clamped
+// rather than rejected, so a caller asking for "everything" still gets a page.
+const (
+	defaultEmployeePageSize = 10
+	maxEmployeePageSize     = 100
+)
+
+// EmployeePage is one page of the employee list. Page and PageSize are the
+// normalized values actually used, not the raw request values.
+type EmployeePage struct {
+	Employees  []models.Employee
+	Page       int
+	PageSize   int
+	Total      int64
+	TotalPages int
+}
+
 var (
 	errEmployeeCodeExists = apperrors.New(apperrors.CodeEmployeeCodeAlreadyExists,
 		"An employee with this employee code already exists.", http.StatusConflict).
@@ -48,6 +67,10 @@ const (
 	// e.g. "EMP-0001". Numbers past 9999 simply gain digits ("EMP-10000").
 	employeeCodePrefix = "EMP-"
 	employeeCodeDigits = 4
+	// legacyEmployeeCodePrefix is the pre-canonical format, e.g. "EMP001". It is
+	// read when computing the next number so that existing legacy codes are not
+	// reused, but it is never generated.
+	legacyEmployeeCodePrefix = "EMP"
 	// employeeCodeMaxAttempts bounds the regenerate-on-conflict loop used when
 	// two creates race for the same next number.
 	employeeCodeMaxAttempts = 5
@@ -63,25 +86,40 @@ var employeeCodeConstraints = map[string]bool{
 	"employees_employee_code_key": true,
 }
 
-// nextEmployeeCode returns the code after the highest "EMP-<n>" in existing.
-// Gaps are not filled and codes that do not match the format are ignored.
-// With no matching codes it returns "EMP-0001".
+// nextEmployeeCode returns the canonical code after the highest employee number
+// in existing. Both "EMP-<n>" (canonical) and "EMP<n>" (legacy) codes count
+// towards the maximum; the result is always "EMP-%04d". Gaps are not filled and
+// codes in neither format are ignored. With no matching codes it returns "EMP-0001".
 func nextEmployeeCode(existing []string) string {
 	highest := 0
 	for _, code := range existing {
-		suffix, ok := strings.CutPrefix(code, employeeCodePrefix)
-		if !ok || !isDigits(suffix) {
-			continue
-		}
-		n, err := strconv.Atoi(suffix)
-		if err != nil {
-			continue // overflow: not a code we would have generated
-		}
-		if n > highest {
+		n, ok := employeeCodeNumber(code)
+		if ok && n > highest {
 			highest = n
 		}
 	}
 	return fmt.Sprintf("%s%0*d", employeeCodePrefix, employeeCodeDigits, highest+1)
+}
+
+// employeeCodeNumber parses the number out of a canonical or legacy employee
+// code. It reports false for anything else, including lower-case prefixes,
+// signed or non-digit suffixes and numbers that overflow int.
+func employeeCodeNumber(code string) (int, bool) {
+	suffix, ok := strings.CutPrefix(code, employeeCodePrefix)
+	if !ok {
+		suffix, ok = strings.CutPrefix(code, legacyEmployeeCodePrefix)
+		if !ok {
+			return 0, false
+		}
+	}
+	if !isDigits(suffix) {
+		return 0, false
+	}
+	n, err := strconv.Atoi(suffix)
+	if err != nil {
+		return 0, false // overflow: not a code we would have generated
+	}
+	return n, true
 }
 
 func isDigits(s string) bool {
@@ -237,6 +275,49 @@ func (s *EmployeeService) FindAll(ctx *base.BaseService) (*[]models.Employee, er
 	return &result, nil
 }
 
+// FindPage returns one page of employees matching search. A page below 1 becomes
+// 1, a page_size below 1 becomes the default (10) and above 100 becomes 100.
+// TotalPages is computed from the filtered total, so it is 0 when nothing matches.
+func (s *EmployeeService) FindPage(ctx *base.BaseService, page, pageSize int, search string) (*EmployeePage, error) {
+	if s.employeeRepo == nil {
+		return nil, apperrors.Internal("", nil)
+	}
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 {
+		pageSize = defaultEmployeePageSize
+	}
+	if pageSize > maxEmployeePageSize {
+		pageSize = maxEmployeePageSize
+	}
+	search = strings.TrimSpace(search)
+
+	total, err := s.employeeRepo.Count(search)
+	if err != nil {
+		return nil, apperrors.DB(err, apperrors.OpRead, "Failed to load employees.")
+	}
+	rows, err := s.employeeRepo.FindPage((page-1)*pageSize, pageSize, search)
+	if err != nil {
+		return nil, apperrors.DB(err, apperrors.OpRead, "Failed to load employees.")
+	}
+
+	employees := make([]models.Employee, 0, len(rows))
+	for _, employee := range rows {
+		if employee != nil {
+			employees = append(employees, *employee)
+		}
+	}
+
+	return &EmployeePage{
+		Employees:  employees,
+		Page:       page,
+		PageSize:   pageSize,
+		Total:      total,
+		TotalPages: int((total + int64(pageSize) - 1) / int64(pageSize)),
+	}, nil
+}
+
 func (s *EmployeeService) FindById(ctx *base.BaseService, id string) (*models.Employee, error) {
 	employeeID, err := uuid.Parse(id)
 	if err != nil {
@@ -244,6 +325,25 @@ func (s *EmployeeService) FindById(ctx *base.BaseService, id string) (*models.Em
 	}
 
 	employee, err := s.employeeRepo.FindByID(employeeID)
+	if err != nil {
+		if err == apperrors.ErrNotFound {
+			return nil, apperrors.ErrEmployeeNotFound
+		}
+		return nil, apperrors.DB(err, apperrors.OpRead, "Failed to load the employee.")
+	}
+
+	return employee, nil
+}
+
+// FindByCode returns the employee with the given employee_code. Auth-service
+// uses it to resolve a login account's employee_id link (users.employee_id).
+func (s *EmployeeService) FindByCode(ctx *base.BaseService, code string) (*models.Employee, error) {
+	code = strings.TrimSpace(code)
+	if code == "" {
+		return nil, apperrors.ErrEmployeeNotFound
+	}
+
+	employee, err := s.employeeRepo.FindByCode(code)
 	if err != nil {
 		if err == apperrors.ErrNotFound {
 			return nil, apperrors.ErrEmployeeNotFound

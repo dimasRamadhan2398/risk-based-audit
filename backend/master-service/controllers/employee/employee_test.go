@@ -223,7 +223,8 @@ func TestCreateEmployee_Validation(t *testing.T) {
 // memRepo is a minimal in-memory IEmployeeRepository for HTTP-level create tests
 // that need the generator to see rows and the insert to succeed.
 type memRepo struct {
-	codes []string
+	codes     []string
+	employees []*models.Employee // seeded rows for the list endpoint (employee_list_test.go)
 }
 
 func (m *memRepo) Create(e *models.Employee) error {

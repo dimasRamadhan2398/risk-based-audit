@@ -254,16 +254,23 @@ describe('audit execution list does not call the sync endpoint', () => {
     expect(calls.some(c => /sync/i.test(c))).toBe(false)
   })
 
-  it('no frontend source calls POST /audit-executions/sync', () => {
+  // The sync (create executions from assignment letters + recompute) is an explicit store action;
+  // nothing else talks to the endpoint, and the list fetch above stays read-only.
+  it('only the store action calls POST /audit-executions/sync', () => {
     for (const { path, src } of SOURCE_FILES) {
+      if (path === 'stores/audit-execution.ts') continue
       expect(src, `${path} references the sync endpoint`).not.toMatch(/audit-executions\/sync/)
     }
+    const store = SOURCE_FILES.find(f => f.path === 'stores/audit-execution.ts')!.src
+    expect(store).toMatch(/async syncFromAssignmentLetters\(/)
   })
 
-  it('the list page does not sync on load', () => {
+  it('the list page syncs only through the store action, auto-sync guarded to once per visit', () => {
     const page = SOURCE_FILES.find(f => f.path === 'pages/audit-execution-status/index.vue')!.src
-    expect(page).not.toMatch(/\bsync\w*\s*\(/i)
     expect(page).not.toMatch(/\$fetch\(/)
+    const syncCalls = page.match(/store\.sync\w*\s*\(/g) ?? []
+    expect(syncCalls.every(c => c.startsWith('store.syncFromAssignmentLetters'))).toBe(true)
+    expect(page).toMatch(/createAutoSyncOnce\(\(\) => store\.syncFromAssignmentLetters\(\)\)/)
   })
 })
 

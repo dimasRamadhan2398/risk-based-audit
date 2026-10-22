@@ -6,6 +6,53 @@ import type { AuditCharter, CharterFormState } from '~/types/audit'
 import { extractErrorMessage, getErrorStatus, getUserErrorMessage, parseBlobErrorBody } from '~/utils/error'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 import { useI18n } from '~/composables/useI18n'
+import { useAuthStore } from '~/stores/auth'
+
+export const ROLE_DEFAULT_FULL_NAMES: Record<string, string> = {
+  admin: 'System Administrator',
+  administrator: 'System Administrator',
+  auditor: 'John Auditor',
+  audit_manager: 'Audit Manager',
+  chief_audit_executive: 'Chief Audit Executive',
+  cae: 'Chief Audit Executive',
+  department_head: 'Alice Department Head',
+  auditee: 'Bob Auditee',
+  viewer: 'Carol Viewer',
+  audit_staff: 'Audit Staff',
+}
+
+export const getRoleFullName = (user?: any): string => {
+  const fullName = user?.fullName || user?.full_name
+  if (fullName && typeof fullName === 'string' && fullName.trim() !== '') {
+    return fullName.trim()
+  }
+
+  const roles: string[] = []
+  if (Array.isArray(user?.roles)) roles.push(...user.roles)
+  if (user?.role) roles.push(user.role)
+  if (user?.position) roles.push(user.position)
+
+  for (const r of roles) {
+    const key = String(r || '').toLowerCase().trim()
+    if (ROLE_DEFAULT_FULL_NAMES[key]) {
+      return ROLE_DEFAULT_FULL_NAMES[key]
+    }
+    const clean = key.replace(/[\s-]+/g, '_')
+    if (ROLE_DEFAULT_FULL_NAMES[clean]) {
+      return ROLE_DEFAULT_FULL_NAMES[clean]
+    }
+  }
+
+  if (user?.username) {
+    const un = String(user.username).toLowerCase().trim()
+    if (ROLE_DEFAULT_FULL_NAMES[un]) {
+      return ROLE_DEFAULT_FULL_NAMES[un]
+    }
+    return user.username
+  }
+
+  return 'System Administrator'
+}
 
 // GET /audit-charters pages its results: page_size defaults to 10 and is capped
 // at 100, and the response is
@@ -48,18 +95,53 @@ export const useCharterStore = defineStore('charter', () => {
     { accessorKey: 'actions', header: '', class: 'w-14 whitespace-nowrap text-center' },
   ]
 
+  const authStore = useAuthStore()
+
+  const currentUserFullName = computed(() => {
+    let u: any = authStore.user
+    if (!u) {
+      try {
+        const userCookie = useCookie<any>('auth-user')
+        if (userCookie.value) {
+          u = typeof userCookie.value === 'string' ? JSON.parse(userCookie.value) : userCookie.value
+        }
+      } catch {}
+      if (!u && typeof window !== 'undefined') {
+        try {
+          const stored = localStorage.getItem('auth-user') || localStorage.getItem('user')
+          if (stored) u = JSON.parse(stored)
+        } catch {}
+      }
+    }
+    return getRoleFullName(u)
+  })
+
   // Form State
   const form = reactive<CharterFormState>({
     title: '',
     version: '', // Tidak perlu diisi user
     content: '',
     date: new Date().toISOString().split('T')[0] || '',
-    uploadedBy: 'Dimas (HIA)',
+    uploadedBy: currentUserFullName.value,
     approvedBy: '',
     isActive: true,
     file: null,
     fileName: '',
   })
+
+  // Keep form.uploadedBy in sync with Account Settings Full Name for current role
+  watch(currentUserFullName, (newName, oldName) => {
+    if (!isEditing.value && newName) {
+      form.uploadedBy = newName
+    }
+    if (newName && oldName && charters.value.length > 0) {
+      for (const c of charters.value) {
+        if (!c.uploadedBy || c.uploadedBy === oldName || c.uploadedBy === 'Dimas (HIA)') {
+          c.uploadedBy = newName
+        }
+      }
+    }
+  }, { immediate: true })
 
 
 
@@ -104,9 +186,11 @@ export const useCharterStore = defineStore('charter', () => {
         : '-')
 
     const uploadedBy =
-      item.uploaded_by ||
-      item.uploadedBy ||
-      'Dimas (HIA)'
+      (item.uploaded_by && item.uploaded_by !== 'Dimas (HIA)' && item.uploaded_by !== '-')
+        ? item.uploaded_by
+        : (item.uploadedBy && item.uploadedBy !== 'Dimas (HIA)' && item.uploadedBy !== '-')
+          ? item.uploadedBy
+          : currentUserFullName.value
 
     return {
       id: String(item.id),
@@ -158,7 +242,7 @@ export const useCharterStore = defineStore('charter', () => {
     // Validasi Ukuran (Max 5MB)
     // Sekarang 'file.size' aman diakses karena file dijamin ada
     if (file.size > 5 * 1024 * 1024) {
-      errorMsg.value = 'File terlalu besar! Maksimal 5MB.'
+      errorMsg.value = t('common.fileInput.tooLarge', { size: 5 })
       form.file = null
 
       // Reset input value agar user bisa pilih file ulang
@@ -174,7 +258,7 @@ export const useCharterStore = defineStore('charter', () => {
     ]
 
     if (!allowedTypes.includes(file.type)) {
-      errorMsg.value = 'Format file tidak valid. Gunakan PDF atau DOCX.'
+      errorMsg.value = t('common.fileInput.invalidPdfDocx')
       form.file = null
       target.value = ''
       return
@@ -293,11 +377,12 @@ export const useCharterStore = defineStore('charter', () => {
       if (items.length > 0) {
         charters.value = items.map(mapBackendToFrontend)
       } else {
-        charters.value = [...defaultCharters]
+        charters.value = []
       }
     } catch (error: any) {
-      console.warn('Backend unavailable, using authentic seed charters fallback:', error)
-      charters.value = [...defaultCharters]
+      console.error('Failed to fetch audit charters:', error)
+      errorMsg.value = extractErrorMessage(error, t('auditCharter.toasts.charter.loadFailed'))
+      charters.value = []
     } finally {
       loading.value = false
     }
@@ -351,8 +436,9 @@ export const useCharterStore = defineStore('charter', () => {
       formData.append('content', form.approvedBy || form.content || '')
       formData.append('approvedBy', form.approvedBy || '')
       formData.append('approved_by', form.approvedBy || '')
-      formData.append('uploadedBy', form.uploadedBy || 'Dimas (HIA)')
-      formData.append('uploaded_by', form.uploadedBy || 'Dimas (HIA)')
+      const uploader = form.uploadedBy || currentUserFullName.value
+      formData.append('uploadedBy', uploader)
+      formData.append('uploaded_by', uploader)
       formData.append('isActive', String(form.isActive))
       formData.append('date', form.date)
 
@@ -365,15 +451,15 @@ export const useCharterStore = defineStore('charter', () => {
         body: formData,
       })
 
-      toast.showSuccess('Audit Charter berhasil ditambahkan!')
+      toast.showSuccess(t('auditCharter.toasts.charter.added'))
       // Newest first: the charter this one replaced is now at the top of page 1.
       historyPage.value = 1
       await fetchCharters()
     } catch (error: any) {
       console.error('Failed to create audit charter:', error)
-      const detail = extractErrorMessage(error, 'Gagal menambahkan Audit Charter.')
+      const detail = extractErrorMessage(error, t('auditCharter.toasts.charter.addFailed'))
       errorMsg.value = detail
-      toast.showError('Gagal menambahkan Audit Charter.', detail)
+      toast.showError(t('auditCharter.toasts.charter.addFailed'), detail)
       throw error
     } finally {
       loading.value = false
@@ -401,8 +487,9 @@ export const useCharterStore = defineStore('charter', () => {
       formData.append('content', form.approvedBy || form.content || '')
       formData.append('approvedBy', form.approvedBy || '')
       formData.append('approved_by', form.approvedBy || '')
-      formData.append('uploadedBy', form.uploadedBy || 'Dimas (HIA)')
-      formData.append('uploaded_by', form.uploadedBy || 'Dimas (HIA)')
+      const uploader = form.uploadedBy || currentUserFullName.value
+      formData.append('uploadedBy', uploader)
+      formData.append('uploaded_by', uploader)
       formData.append('isActive', String(form.isActive))
       formData.append('date', form.date)
 
@@ -415,13 +502,13 @@ export const useCharterStore = defineStore('charter', () => {
         body: formData,
       })
 
-      toast.showSuccess('Audit Charter berhasil diubah!')
+      toast.showSuccess(t('auditCharter.toasts.charter.updated'))
       await fetchCharters()
     } catch (error: any) {
       console.error('Failed to update audit charter:', error)
-      const detail = extractErrorMessage(error, 'Gagal memperbarui Audit Charter.')
+      const detail = extractErrorMessage(error, t('auditCharter.toasts.charter.updateFailed'))
       errorMsg.value = detail
-      toast.showError('Gagal memperbarui Audit Charter.', detail)
+      toast.showError(t('auditCharter.toasts.charter.updateFailed'), detail)
       throw error
     } finally {
       loading.value = false
@@ -446,13 +533,13 @@ export const useCharterStore = defineStore('charter', () => {
         }
       })
 
-      toast.showSuccess('Audit Charter berhasil dihapus!')
+      toast.showSuccess(t('auditCharter.toasts.charter.deleted'))
       await fetchCharters()
     } catch (error: any) {
       console.error('Failed to delete audit charter:', error)
-      const detail = extractErrorMessage(error, 'Gagal menghapus Audit Charter.')
+      const detail = extractErrorMessage(error, t('auditCharter.toasts.charter.deleteFailed'))
       errorMsg.value = detail
-      toast.showError('Gagal menghapus Audit Charter.', detail)
+      toast.showError(t('auditCharter.toasts.charter.deleteFailed'), detail)
       throw error
     } finally {
       loading.value = false
@@ -509,7 +596,7 @@ export const useCharterStore = defineStore('charter', () => {
   // Submit Handler
   const handleSubmit = async () => {
     if (!isEditing.value && !form.file) {
-      errorMsg.value = 'Mohon upload file charter.'
+      errorMsg.value = t('auditCharter.form.fileRequired')
       return
     }
 
@@ -517,11 +604,11 @@ export const useCharterStore = defineStore('charter', () => {
       if (isEditing.value && editingId.value) {
         // MODE EDIT
         await updateCharter(editingId.value, { ...form })
-        toast.showSuccess('Audit Charter berhasil diperbarui!')
+        toast.showSuccess(t('auditCharter.toasts.charter.updated'))
       } else {
         // MODE ADD
         await addCharter({ ...form })
-        toast.showSuccess('Audit Charter berhasil diupload!')
+        toast.showSuccess(t('auditCharter.toasts.charter.uploaded'))
       }
       closeModal()
     } catch {
@@ -540,7 +627,7 @@ export const useCharterStore = defineStore('charter', () => {
     form.version = ''
     form.content = ''
     form.date = new Date().toISOString().split('T')[0] || ''
-    form.uploadedBy = 'Dimas (HIA)'
+    form.uploadedBy = currentUserFullName.value
     form.approvedBy = ''
     form.isActive = false
     form.file = null
@@ -557,7 +644,7 @@ export const useCharterStore = defineStore('charter', () => {
     form.version = charter.version
     form.content = charter.content && charter.content !== '-' ? charter.content : ''
     form.date = charter.date
-    form.uploadedBy = charter.uploadedBy && charter.uploadedBy !== '-' ? charter.uploadedBy : 'Dimas (HIA)'
+    form.uploadedBy = charter.uploadedBy && charter.uploadedBy !== '-' && charter.uploadedBy !== 'Dimas (HIA)' ? charter.uploadedBy : currentUserFullName.value
     form.approvedBy = charter.approvedBy && charter.approvedBy !== '-' ? charter.approvedBy : ''
     form.isActive = charter.isActive
     form.file = null // Reset file input karena file tidak wajib diisi saat edit
@@ -595,6 +682,8 @@ export const useCharterStore = defineStore('charter', () => {
     form,
     isEditing,
     errorMsg,
+    currentUserFullName,
+    getRoleFullName,
 
     fetchCharters,
     addCharter,

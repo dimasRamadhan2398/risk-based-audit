@@ -19,6 +19,9 @@ type CacheConfig struct {
 	// presented a token. Every route below is authenticated, so all are private.
 	IsPublic bool
 	VaryBy   string // Vary header value (e.g., "Accept-Encoding")
+	// NoCache sends "private, no-cache": the browser must revalidate on every
+	// request, so an edit shows on the next load. MaxAge is ignored.
+	NoCache bool
 }
 
 // DefaultCacheConfigs maps risk service routes to their cache configurations
@@ -35,27 +38,24 @@ var DefaultCacheConfigs = map[string]CacheConfig{
 		IsPublic: false,
 		VaryBy:   "Accept-Encoding, Authorization",
 	},
-	// Risk Factors
+	// Risk Factors and Audit Universe are edited in the same screens that read
+	// them, and weight/factor edits re-score the year rows: never serve a stale
+	// copy from the browser cache.
 	"GET /api/v1/risk-factors/standard": {
-		MaxAge:   1800, // 30 minutes - stable data
-		IsPublic: false,
-		VaryBy:   "Accept-Encoding, Authorization",
+		NoCache: true,
+		VaryBy:  "Accept-Encoding, Authorization",
 	},
 	"GET /api/v1/risk-factors/corporate": {
-		MaxAge:   600, // 10 minutes - may change
-		IsPublic: false,
-		VaryBy:   "Accept-Encoding, Authorization",
+		NoCache: true,
+		VaryBy:  "Accept-Encoding, Authorization",
 	},
-	// Audit Universe
 	"GET /api/v1/audit-universe/standard": {
-		MaxAge:   1800, // 30 minutes - stable data
-		IsPublic: false,
-		VaryBy:   "Accept-Encoding, Authorization",
+		NoCache: true,
+		VaryBy:  "Accept-Encoding, Authorization",
 	},
 	"GET /api/v1/audit-universe/corporate": {
-		MaxAge:   600, // 10 minutes
-		IsPublic: false,
-		VaryBy:   "Accept-Encoding, Authorization",
+		NoCache: true,
+		VaryBy:  "Accept-Encoding, Authorization",
 	},
 	// RCM - Risk Control Matrix (Dashboard KPI data)
 	"GET /api/v1/rcm": {
@@ -95,6 +95,15 @@ func ResponseCache() gin.HandlerFunc {
 		config, exists := DefaultCacheConfigs[routeKey]
 		if !exists {
 			// No cache config for this route
+			c.Next()
+			return
+		}
+
+		if config.NoCache {
+			// Set before the handler runs: headers added after the body has
+			// been written never reach the client.
+			c.Header("Cache-Control", "private, no-cache")
+			c.Header("Vary", config.VaryBy)
 			c.Next()
 			return
 		}

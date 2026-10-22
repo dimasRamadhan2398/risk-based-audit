@@ -1,0 +1,35 @@
+name: Kong Route Coverage
+
+# Fails a pull request or push when the frontend calls an API path that has no
+# route in the production Kong config. Read-only: no secrets, no deploy.
+
+on:
+  pull_request:
+    paths:
+      - 'frontend/**'
+      - 'backend/kong-gateway/kong/**'
+      - 'scripts/check-kong-routes.sh'
+      - '.github/workflows/route-coverage.yml'
+  push:
+    branches:
+      - staging
+      - main
+    paths:
+      - 'frontend/**'
+      - 'backend/kong-gateway/kong/**'
+      - 'scripts/check-kong-routes.sh'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  route-coverage:
+    name: Frontend calls vs Kong routes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Check every frontend API segment has a Kong route
+        run: scripts/check-kong-routes.sh backend/kong-gateway/kong/prod/kong.yml

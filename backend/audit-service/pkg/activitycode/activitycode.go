@@ -164,6 +164,13 @@ func Reserve(tx *gorm.DB, prefix string, n int) (int, error) {
 	return reserveAbove(tx, prefix, n, floor)
 }
 
+// ReserveAbove is Reserve for codes kept outside the activity tables: the
+// caller supplies the floor (the highest number already stored under prefix),
+// e.g. strategic plan codes under "SO-IA".
+func ReserveAbove(tx *gorm.DB, prefix string, n, floor int) (int, error) {
+	return reserveAbove(tx, prefix, n, floor)
+}
+
 // reserveAbove is Reserve with the floor (the highest number already stored
 // under prefix) supplied by the caller.
 func reserveAbove(tx *gorm.DB, prefix string, n, floor int) (int, error) {

@@ -7,6 +7,10 @@
   --font-sans: "Space Grotesk", sans-serif;
   --font-serif: "Instrument Serif", serif;
 
+  /* Custom dark shade helpers */
+  --color-gray-850: #172033;
+  --color-slate-850: #151e2e;
+
   /* Primary Colors */
   --color-primary-50: #fff5e6;
   --color-primary-100: #ffebcc;

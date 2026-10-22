@@ -23,7 +23,7 @@ echo "╚═══════════════════════�
 echo ""
 
 # ── Step 1: Pre-compile Go Services Locally ──────────────────────────────────
-echo "⚡ [1/5] Pre-compiling Go microservices locally (target: linux/amd64)..."
+echo "[1/5] Pre-compiling Go microservices locally (target: linux/amd64)..."
 
 build_go_service() {
   local svc_dir="$1"
@@ -42,7 +42,7 @@ build_go_service "analytics-service" "cmd" "analytics"
 echo "   All Go microservices compiled successfully!"
 
 # ── Step 2: Package ──────────────────────────────────────────────────────────
-echo "📦 [2/5] Packaging backend source and pre-built binaries..."
+echo "[2/5] Packaging backend source and pre-built binaries..."
 tar \
   --exclude='.git' \
   --exclude='*/vendor' \
@@ -60,15 +60,15 @@ tar \
 echo "   Archive size: $(du -sh $ARCHIVE | cut -f1)"
 
 # ── Step 3: Prepare remote directory ─────────────────────────────────────────
-echo "🌐 [3/5] Preparing remote directory on VPS..."
+echo "[3/5] Preparing remote directory on VPS..."
 ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" "mkdir -p $TARGET_DIR"
 
 # ── Step 4: Upload ────────────────────────────────────────────────────────────
-echo "🚀 [4/5] Uploading archive to $VPS_USER@$VPS_IP:$TARGET_DIR ..."
+echo "[4/5] Uploading archive to $VPS_USER@$VPS_IP:$TARGET_DIR ..."
 rsync -avz -e "ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no" "$ARCHIVE" "$VPS_USER@$VPS_IP:$TARGET_DIR/"
 
 # ── Step 5: Extract & Start on VPS ───────────────────────────────────────────
-echo "🔧 [5/5] Extracting and starting backend on VPS..."
+echo "[5/5] Extracting and starting backend on VPS..."
 ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=6 -o StrictHostKeyChecking=no "$VPS_USER@$VPS_IP" bash <<EOF
   set -e
   cd $TARGET_DIR
@@ -92,7 +92,7 @@ EOF
 rm -f "$ARCHIVE"
 
 echo ""
-echo "✅ Backend deployment complete!"
+echo "✓ Backend deployment complete!"
 echo ""
 echo "   Kong API Gateway : http://$VPS_IP:8080"
 echo "   Kong Admin       : http://$VPS_IP:8009"

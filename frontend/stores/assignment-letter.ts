@@ -52,14 +52,15 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
       scopeList: [''],
       ccList: ['President Director']
     },
+    // Headers are resolved in AssignmentLetterTable.vue (assignmentLetter.table.columns.*).
     columns: [
-      { accessorKey: 'letterNumber', header: 'Letter Number', class: 'w-40 whitespace-nowrap font-medium' },
-      { accessorKey: 'auditTitle', header: 'Audit Title / Object', class: 'min-w-[200px] max-w-xs' },
-      { accessorKey: 'workingUnit', header: 'Work Unit', class: 'w-36' },
-      { accessorKey: 'executionPeriod', header: 'Execution Period', class: 'w-48 whitespace-nowrap' },
-      { accessorKey: 'auditTeam', header: 'Audit Team', class: 'w-40' },
-      { accessorKey: 'status', header: 'Status', class: 'w-28 whitespace-nowrap text-center' },
-      { accessorKey: 'actions', header: 'Actions', class: 'w-24 whitespace-nowrap text-center' }
+      { accessorKey: 'letterNumber', class: 'w-40 whitespace-nowrap font-medium' },
+      { accessorKey: 'auditTitle', class: 'min-w-[200px] max-w-xs' },
+      { accessorKey: 'workingUnit', class: 'w-36' },
+      { accessorKey: 'executionPeriod', class: 'w-48 whitespace-nowrap' },
+      { accessorKey: 'auditTeam', class: 'w-40' },
+      { accessorKey: 'status', class: 'w-28 whitespace-nowrap text-center' },
+      { accessorKey: 'actions', class: 'w-24 whitespace-nowrap text-center' }
     ],
     options: {
       auditTeam: [

@@ -200,15 +200,18 @@ const stepMap: Record<string, number> = {
   f05: 4
 }
 
-const activeStep = ref(
-  route.query.step && typeof route.query.step === 'string' && stepMap[route.query.step] !== undefined
-    ? stepMap[route.query.step]
-    : 0
-)
+const getInitialStep = () => {
+  const s = (route.query.step || route.query.tab) as string
+  if (s && stepMap[s] !== undefined) return stepMap[s]
+  return 0
+}
 
-watch(() => route.query.step, (step) => {
-  if (typeof step === 'string' && stepMap[step] !== undefined) {
-    activeStep.value = stepMap[step]
+const activeStep = ref(getInitialStep())
+
+watch(() => [route.query.step, route.query.tab], ([step, tab]) => {
+  const target = (step || tab) as string
+  if (typeof target === 'string' && stepMap[target] !== undefined) {
+    activeStep.value = stepMap[target]
   }
 })
 

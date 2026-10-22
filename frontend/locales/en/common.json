@@ -197,6 +197,21 @@
       "delete": "Delete",
       "download": "Download",
       "upload": "Upload"
+    },
+    "columns": {
+      "actions": "Actions"
+    },
+    "fileInput": {
+      "chooseFile": "Choose file",
+      "noFileChosen": "No file chosen",
+      "tooLarge": "File is too large. Maximum size is {size} MB.",
+      "invalidPdfDocx": "Invalid file format. Use PDF or DOCX."
+    },
+    "sourceSelector": {
+      "allSources": "All sources",
+      "dataSource": "Data source",
+      "allSourcesConsolidated": "All data sources (consolidated)",
+      "manage": "Manage data sources..."
     }
   },
   "dashboard": {
@@ -260,7 +275,19 @@
       "scheduledActivities": "Scheduled audit activities",
       "viewAllAnnualAudits": "View all Annual Audits",
       "status": "Status:",
-      "noUpcomingAudits": "No upcoming audits scheduled."
+      "noUpcomingAudits": "No upcoming audits scheduled.",
+      "trend": {
+        "improving": "Improving",
+        "declining": "Declining",
+        "deteriorating": "Deteriorating",
+        "stable": "Stable"
+      },
+      "severity": {
+        "critical": "Critical",
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      }
     },
     "planningExecution": {
       "title": "Audit Planning & Execution",
@@ -272,7 +299,18 @@
     },
     "registeredRisks": {
       "columns": {
+        "name": "Risk Name",
+        "score": "Score",
         "level": "Risk Level"
+      },
+      "empty": "No data has been added to the Risk Heat Map yet.",
+      "cellTooltip": "Impact: {impact}, Probability: {probability}, Risk: {level}"
+    },
+    "atrTable": {
+      "columns": {
+        "auditId": "Audit ID",
+        "actionItem": "Action Item",
+        "owner": "Owner"
       }
     },
     "recentFindings": {
@@ -289,6 +327,197 @@
         "quiteSignificant": "Quite Significant",
         "notSignificant": "Not Significant"
       }
+    },
+    "auditee": {
+      "title": "Auditee Dashboard",
+      "welcome": "Welcome, {name}. Working view for the audits that affect your unit and the action plans you must answer.",
+      "unitLabel": "Unit: {unit}",
+      "refresh": "Refresh",
+      "notice": {
+        "label": "Auditee view principle:",
+        "text": "The dashboard shows the audits that affect your unit and the items you must respond to (action plans, requests and revisions), while corporate-level risk metrics stay in the background."
+      },
+      "errors": {
+        "link": "Your account details could not be loaded. Department-based data is unavailable until this succeeds.",
+        "notLinked": "Your account is not linked to an employee record with a department yet. Engagements for your unit cannot be shown. Action plans assigned to you are still listed.",
+        "notLinkedShort": "Your account is not linked to a department yet, so engagements for your unit cannot be shown."
+      },
+      "states": {
+        "loadError": "This section could not be loaded.",
+        "retry": "Retry"
+      },
+      "stats": {
+        "title": "Action plan status",
+        "scope": "Scope: action plans assigned to you (PIC)",
+        "empty": "No action plans are assigned to you yet.",
+        "open": "Open action plans",
+        "openHint": "Not completed or cancelled",
+        "overdue": "Overdue",
+        "overdueHint": "Open items past the due date",
+        "pendingReview": "Waiting for review",
+        "pendingReviewHint": "Submitted and not yet reviewed",
+        "compliance": "Completion",
+        "complianceHint": "Completed share of your action plans"
+      },
+      "engagements": {
+        "title": "Audit engagements for your unit",
+        "description": "Audits whose target unit is your department, with their status and planned period.",
+        "scope": "Scope: engagements filtered to your department (interim, not yet scoped on the server)",
+        "empty": "No audit engagements are linked to your unit yet.",
+        "loadError": "Audit engagements could not be loaded.",
+        "period": "{start} to {end}",
+        "showing": "Showing {shown} of {total} engagements",
+        "status": {
+          "planned": "Planned",
+          "inProgress": "In progress",
+          "reporting": "Reporting",
+          "completed": "Completed"
+        }
+      },
+      "tasks": {
+        "title": "Tasks and deadlines",
+        "description": "Open action plans you must fill in or follow up, earliest deadline first.",
+        "scope": "Scope: action plans assigned to you (interim)",
+        "empty": "No open action plans. Nothing is waiting on your unit.",
+        "dueOn": "Due {date}",
+        "noDueDate": "No due date",
+        "overdueDays": "{days} days overdue",
+        "showing": "Showing {shown} of {total} open action plans"
+      },
+      "requests": {
+        "title": "Requests needing a response",
+        "description": "Action plans returned for revision. PBC requests and comments are not connected yet.",
+        "empty": "No action plan is waiting for a response from you.",
+        "noRevisions": "No action plan has been returned for revision.",
+        "revisionLabel": "Returned for revision",
+        "placeholder": "PBC requests, comments and notifications are not connected yet."
+      },
+      "calendar": {
+        "title": "Important dates",
+        "description": "Engagement dates and action plan due dates for your unit.",
+        "placeholder": "The calendar for your unit is not connected yet."
+      }
+    },
+    "auditor": {
+    "roleBadge": "Role: Auditor",
+    "title": "Auditor Dashboard",
+    "welcome": "Welcome, {name}. Working view for fieldwork execution, working papers and draft findings.",
+    "previewMode": "Mode:",
+    "previewAuditor": "Auditor",
+    "previewReset": "(Reset)",
+    "previewResetTitle": "Back to the full dashboard view",
+    "sync": "Sync data",
+    "syncSuccess": "Auditor data synced",
+    "syncError": "Failed to sync auditor data",
+    "notice": {
+      "label": "Auditor view principle:",
+      "text": "The dashboard prioritizes active audit engagements, working papers, and client-provided evidence (PBC), while keeping corporate-level risk metrics in the background."
+    },
+    "states": {
+      "loading": "Loading...",
+      "loadError": "This section could not be loaded.",
+      "retry": "Retry",
+      "noData": "No data for this period."
+    },
+    "stats": {
+      "title": "Audit statistics",
+      "scope": "Scope: all ATR and audit data you can access (interim)",
+      "plannedAudits": "Planned audits",
+      "plannedAuditsHint": "Annual plans not yet approved",
+      "openFindings": "Open findings",
+      "openFindingsHint": "ATR items not completed or cancelled",
+      "executionProgress": "Execution progress",
+      "executionProgressHint": "Average progress of audit executions",
+      "atrCompliance": "ATR compliance",
+      "atrComplianceHint": "Completed share of ATR items"
+    },
+    "coverage": {
+      "title": "Audit planning & coverage",
+      "description": "Coverage of the annual audit plan (PKAT).",
+      "scope": "Scope: all annual audit plans (interim)",
+      "overallProgress": "Overall progress",
+      "planned": "Planned",
+      "approved": "Approved",
+      "remaining": "Remaining",
+      "empty": "No annual audit plan yet.",
+      "openPlan": "Open annual audit"
+    },
+    "status": {
+      "title": "Audit status and progress",
+      "description": "Published assignment letters, fieldwork stage and working paper completion.",
+      "scope": "Scope: all published assignment letters (interim)",
+      "searchPlaceholder": "Search letter / unit...",
+      "allAssignments": "All assignments",
+      "colLetter": "Assignment letter & title",
+      "colUnit": "Audited unit",
+      "colPeriod": "Fieldwork period",
+      "colStages": "Fieldwork stages",
+      "colWorkingPapers": "Working paper completeness",
+      "colStatus": "Status",
+      "colActions": "Actions",
+      "team": "Team",
+      "formsCount": "{count}/5 forms",
+      "currentStage": "Current stage:",
+      "openWorkingPaper": "Working paper",
+      "openFieldwork": "Testing & PBC",
+      "openLha": "Draft LHA",
+      "empty": "No published assignment letter yet.",
+      "emptyFiltered": "No engagement matches your search.",
+      "emptyHint": "Make sure the assignment letter is Published in the Assignment Letter module.",
+      "stepper": {
+        "entry": "1. Entry",
+        "testing": "2. Testing",
+        "workingPapers": "3. Working papers",
+        "exit": "4. Exit"
+      },
+      "stage": {
+        "preparation": "Entry meeting & preparation",
+        "testing": "Sampling & evidence testing",
+        "workingPapers": "Preparing working papers",
+        "reporting": "Drafting LHA & exit"
+      },
+      "statusLabel": {
+        "preparation": "Preparation",
+        "fieldwork": "Fieldwork active",
+        "reporting": "Reporting (LHA)"
+      },
+      "deadline": {
+        "none": "No schedule set",
+        "today": "Last day",
+        "overdue": "{days} days overdue",
+        "remaining": "{days} days left"
+      },
+      "periodTo": "to",
+      "unitFallback": "Audited unit"
+    },
+    "tasks": {
+      "title": "Task list with deadlines",
+      "description": "Open ATR items you need to review or follow up.",
+      "scope": "Scope: ATR items you can access (interim)",
+      "kindReview": "Review ATR action plan",
+      "kindFollowUp": "Follow up ATR action plan",
+      "dueOn": "Due {date}",
+      "noDueDate": "No due date",
+      "overdueDays": "{days} days overdue",
+      "empty": "No open tasks. Nothing is waiting on you.",
+      "placeholder": "Tasks for KKA, PBC and LHA are not connected yet."
+    },
+    "calendar": {
+      "title": "Important dates",
+      "description": "Engagement start and end dates, and ATR due dates for engagements you are on.",
+      "notConnected": "Calendar is not connected yet.",
+      "notLinked": "Your account is not linked to an employee record yet, so engagement dates cannot be filtered to you."
+    },
+    "notifications": {
+      "title": "Notifications and reminders",
+      "description": "In-app reminders derived from ATR data.",
+      "empty": "You have no new notifications.",
+      "typeOverdue": "ATR overdue by {days} days",
+      "typePendingReview": "ATR waiting for review",
+      "typeDueSoon": "ATR due in {days} days",
+      "placeholder": "PBC requests, comments and revisions are not connected yet."
+    },
+    "placeholder": "Placeholder"
     }
   },
   "auditExecution": {
@@ -296,6 +525,29 @@
     "title": "Audit Execution Status",
     "subtitle": "Transparency of audit cycle progress & phases from planning to report completion.",
     "cycleGuideButton": "Audit Cycle Guide",
+    "sync": {
+      "button": "Sync from Assignment Letters",
+      "tooltip": "Create an audit for every assignment letter that does not have one yet and refresh all progress.",
+      "successTitle": "Sync complete",
+      "successCreated": "Audits from assignment letters: {created} new, {synced} synced.",
+      "successNoneCreated": "No new assignment letters found. {synced} audits synced.",
+      "autoCreatedTitle": "Audits added from assignment letters",
+      "autoCreatedDescription": "{created} new audits were created from existing assignment letters.",
+      "unmatchedTitle": "Some records are not linked",
+      "unmatchedWarning": "{count} fieldwork or working paper records point to an assignment letter that no longer exists and are not counted.",
+      "failedTitle": "Sync failed"
+    },
+    "emptyState": {
+      "title": "No audits yet",
+      "description": "Audits appear here automatically from assignment letters (surat tugas). Create an assignment letter, or sync to pick up letters that already exist.",
+      "descriptionReadOnly": "Audits appear here automatically once an assignment letter (surat tugas) is issued.",
+      "goToAssignmentLetter": "Go to Assignment Letters",
+      "syncing": "Checking assignment letters for audits..."
+    },
+    "loadError": {
+      "title": "Failed to load audits",
+      "retry": "Retry"
+    },
     "summary": {
       "title": "Execution Summary:",
       "completed": "{count} Completed",
@@ -900,6 +1152,8 @@
     "toast": {
       "validationTitle": "Validation failed",
       "objectiveRequired": "The Strategic Objective field is required.",
+      "periodInvalid": "The end year ({end}) cannot be before the start year ({start}).",
+      "numberInvalid": "{field} for {period} must be a number (e.g. 85 or 85.5).",
       "updatedTitle": "Strategic plan updated",
       "createdTitle": "Strategic plan created",
       "savedDesc": "Strategic plan \"{name}\" saved successfully.",
@@ -1085,10 +1339,10 @@
       "badgeValid": "VALID",
       "badgeInvalid": "INVALID SUM",
       "saveWeights": "Save Weights",
-      "standardFactorsTitle": "📂 Standard Risk Factors",
+      "standardFactorsTitle": "Standard Risk Factors",
       "searchPlaceholder": "Search standard factors...",
       "noMatchingFactors": "No standard risk factors match your query.",
-      "selectedWeightsTitle": "⚙️ Selected Weights",
+      "selectedWeightsTitle": "Selected Weights",
       "activeFactorsCount": "{count} Active Factors",
       "no": "No",
       "riskFactor": "Risk Factor",
@@ -1119,7 +1373,7 @@
       "viewGuidelines": "View Guidelines"
     },
     "scoring": {
-      "title": "🎯 Risk Score",
+      "title": "Risk Score",
       "subtitle": "Select year and entity to enter risk factor scoring.",
       "yearLabel": "Year:",
       "entityLabel": "Entity:",
@@ -1133,7 +1387,14 @@
       "selectEntityTitle": "Select Auditable Entity",
       "selectEntityDesc": "Choose a year and active auditable entity from the dropdowns above to begin risk scoring.",
       "saveBtn": "Save Scoring & Calculate",
-      "guidelinesTooltip": "Scoring Scale Guidelines"
+      "guidelinesTooltip": "Scoring Scale Guidelines",
+      "notScored": "Not scored",
+      "notScoredHint": "No score saved for this factor yet; it is not counted in the risk index.",
+      "entityNotScored": "This entity has not been scored for this year yet.",
+      "previewLabel": "Preview (unsaved)",
+      "previewHint": "Calculated from the scores you are editing. Save to update the stored risk index.",
+      "unscoredFactorsCount": "{count} of {total} factors not scored yet.",
+      "noScoresToSave": "Select a score for at least one factor before saving."
     },
     "priority": {
       "title": "Audit Priority ({year})",
@@ -1147,7 +1408,9 @@
       "auditPriorityCol": "Audit Priority*",
       "priorityBadge": "√ Priority",
       "noEntities": "No established auditable entities for year {year}.",
-      "sortedNote": "Sorted by Risk Index (descending)",
+      "sortedNote": "Sorted by Risk Index (descending); entities not scored yet are listed last",
+      "notScoredBadge": "Not scored",
+      "notScoredHint": "This entity has not been scored for this year yet.",
       "levelInfoTitle": "Corporate Risk Index Level Information",
       "levels": {
         "high": "High",
@@ -1158,7 +1421,7 @@
       }
     },
     "guidelines": {
-      "modalTitle": "📖 Scoring Scale Guidelines: {name}",
+      "modalTitle": "Scoring Scale Guidelines: {name}",
       "factorDescription": "Factor Description:"
     },
     "defaultScores": {
@@ -1219,7 +1482,7 @@
       "emptyState": "Corporate Audit Universe is empty. Select from standard library or add custom ones."
     },
     "establish": {
-      "title": "📅 2. Establish {year} Audit Universe",
+      "title": "2. Establish {year} Audit Universe",
       "subtitle": "Select Auditable Entities from the Corporate Audit Universe active for auditing in year {year}.",
       "targetYear": "Target Year:",
       "establishBtn": "Establish Active Universe",
@@ -1781,7 +2044,62 @@
         "duplicates": "Duplicates",
         "completenessDataset": "Completeness (%)",
         "accuracyDataset": "Accuracy (%)",
-        "qualityAxis": "Quality Score (%)"
+        "qualityAxis": "Quality Score (%)",
+        "technicalTable": "Technical Table",
+        "tables": {
+          "gold": {
+            "fact_transactions": "Financial Transactions",
+            "fact_loans": "Loans & Credit",
+            "dim_accounts": "Customer Accounts",
+            "fact_gl_entries": "General Ledger (GL)",
+            "dim_branches": "Branch Directory",
+            "dim_products": "Product Catalog"
+          },
+          "silver": {
+            "cbs_transactions": "Core Banking Transactions",
+            "cbs_customers": "Customer Profiles",
+            "cbs_branches": "Core Banking Branches",
+            "cbs_loans": "Core Banking Loans"
+          },
+          "bronze": {
+            "cbs_daily_transactions": "Daily Raw Transactions",
+            "cb_transactions": "Raw Transactions (CBS)",
+            "cb_accounts": "Raw Accounts (CBS)",
+            "cb_customers": "Raw Customers (CBS)",
+            "cb_loans": "Raw Loans (CBS)",
+            "cb_gl": "Raw General Ledger (CBS)",
+            "cb_products": "Raw Products (CBS)",
+            "cb_branches": "Raw Branches (CBS)",
+            "cb_failed_logins": "Failed Login Logs"
+          }
+        },
+        "chartTables": {
+          "gold": {
+            "fact_transactions": "Financial Trx",
+            "fact_loans": "Loans & Credit",
+            "dim_accounts": "Accounts",
+            "fact_gl_entries": "GL Entries",
+            "dim_branches": "Branches",
+            "dim_products": "Products"
+          },
+          "silver": {
+            "cbs_transactions": "CBS Trx",
+            "cbs_customers": "Profiles",
+            "cbs_branches": "CBS Branches",
+            "cbs_loans": "CBS Loans"
+          },
+          "bronze": {
+            "cbs_daily_transactions": "Daily Raw Trx",
+            "cb_transactions": "Raw Trx",
+            "cb_accounts": "Raw Accounts",
+            "cb_customers": "Raw Customers",
+            "cb_loans": "Raw Loans",
+            "cb_gl": "Raw GL",
+            "cb_products": "Raw Products",
+            "cb_branches": "Raw Branches",
+            "cb_failed_logins": "Failed Logins"
+          }
+        }
       }
     },
     "anomalyFilter": "Filter:",
@@ -1833,8 +2151,8 @@
     "statusActive": "4 Trained Models Active & Synchronized",
     "statusOffline": "Offline - Displaying Saved Real Data",
     "statusDisconnected": "AI Backend Disconnected",
-    "warningTitleCached": "⚠️ Warning: AI Backend Service Disconnected (Showing Last Real Data)",
-    "warningTitleDisconnected": "⚠️ Warning: AI Analytics Feature Not Running / Not Connected to Backend",
+    "warningTitleCached": "Warning: AI Backend Service Disconnected (Showing Last Real Data)",
+    "warningTitleDisconnected": "Warning: AI Analytics Feature Not Running / Not Connected to Backend",
     "warningDescCached": "AI Analytics is currently displaying the last real data successfully synced at {time} before the connection was lost. Please ensure the Python AI Service (Port 8000) or Go Analytics (Port 8084) is running on the backend.",
     "warningDescDisconnected": "AI Analytics is currently not connected to the backend. Please ensure the Python AI Service (Port 8000) or Go Analytics (Port 8084) is running on the backend.",
     "loading": "Connecting & Loading AI Models...",
@@ -1947,7 +2265,7 @@
       "alertDesc": "The Deep Learning model (PyTorch LSTM) predicts future KPI performance trends based on historical time series for early audit planning warnings.",
       "chartTitle": "KPI Performance Forecast",
       "chartConfidenceBadge": "Shaded area = confidence interval",
-      "atRiskTitle": "⚠️ At-Risk Departments",
+      "atRiskTitle": "At-Risk Departments",
       "projectedQ3": "% projected Q3",
       "tableTitle": "KPI Forecast Summary",
       "colCode": "Code",
@@ -1992,6 +2310,11 @@
     "importPlanDocument": "Import Plan Document",
     "newAuditPlan": "New Audit Plan",
     "table": {
+      "columns": {
+        "activity": "Activity",
+        "riskName": "Risk Name",
+        "riskLevel": "Risk Level"
+      },
       "empty": "No audit plans yet.",
       "viewTooltip": "View audit plan",
       "editTooltip": "Edit audit plan",
@@ -2044,7 +2367,7 @@
       "mandaysFormula": "= {auditors} person × {days} day",
       "supervisor": "Supervisor",
       "supervisorPlaceholder": "Enter the supervisor's name...",
-      "supervisorOverloadWarning": "⚠️ Warning: this supervisor is already supervising more than 6 activities!",
+      "supervisorOverloadWarning": "Warning: this supervisor is already supervising more than 6 activities!",
       "teamCapacity": "Team estimated capacity",
       "totalLoad": "Total load: {percent}% of annual capacity.",
       "sectionNotes": "4. Notes",
@@ -2185,6 +2508,7 @@
       "workUnitPlaceholder": "Select Work Unit (Required)",
       "company": "Company / Entity",
       "companyPlaceholder": "Select Company / Entity (Optional)",
+      "companyNone": "— None (Default {company}) —",
       "members": "Team Members",
       "memberName": "Member Name",
       "role": "Role",
@@ -2202,6 +2526,21 @@
       "delete": "Delete Assignment Letter"
     },
     "title": "Assignment Letter List",
+    "table": {
+      "columns": {
+        "letterNumber": "Letter Number",
+        "auditTitle": "Audit Title / Object",
+        "workingUnit": "Work Unit",
+        "executionPeriod": "Execution Period",
+        "auditTeam": "Audit Team",
+        "status": "Status"
+      },
+      "status": {
+        "Draft": "Draft",
+        "Published": "Published"
+      },
+      "empty": "No assignment letters yet. Click Create Assignment Letter to start."
+    },
     "importDocument": "Import Document",
     "createAssignmentLetter": "Create Assignment Letter",
     "upload": {
@@ -2420,7 +2759,8 @@
       "stepNum": "Step {current} of {total}",
       "update": "Update",
       "uploadAttachmentHere": "Upload your Attachment here",
-      "uploadFailed": "Failed to upload attachment {name}."
+      "uploadFailed": "Failed to upload attachment {name}.",
+      "highRisk": "High Risk"
     },
     "view": {
       "additionalNotes": "Additional Notes:",
@@ -2552,6 +2892,7 @@
       "inactive": "Inactive",
       "uploadFile": "Upload Charter File (PDF/DOCX)",
       "selectedFile": "Selected file:",
+      "fileRequired": "Please upload the Audit Charter file.",
       "submit": "Submit"
     },
     "guideline": {
@@ -2585,6 +2926,7 @@
       "statusUnderReview": "Under Review",
       "effectiveDate": "Effective Date",
       "fileUpload": "Guideline Document (PDF)",
+      "fileRequired": "Please upload the Audit Guideline document.",
       "selectedFile": "Selected file:",
       "saveChanges": "Save Changes",
       "addGuideline": "Add Guideline",
@@ -2623,6 +2965,7 @@
       "underReview": "Under Review",
       "effectiveDate": "Effective Date",
       "fileUpload": "SOP / Technical Instruction Document (PDF)",
+      "fileRequired": "Please upload the Technical Instruction / SOP document.",
       "selectedFile": "Selected file:",
       "saveChanges": "Save Changes",
       "addSop": "Add SOP",
@@ -2639,6 +2982,38 @@
       "viewSop": "View Technical Instruction / SOP",
       "editSop": "Edit Technical Instruction / SOP",
       "deleteSop": "Delete Technical Instruction / SOP"
+    },
+    "toasts": {
+      "charter": {
+        "loadFailed": "Failed to load Audit Charter data.",
+        "added": "Audit Charter added successfully!",
+        "addFailed": "Failed to add Audit Charter.",
+        "updated": "Audit Charter updated successfully!",
+        "updateFailed": "Failed to update Audit Charter.",
+        "deleted": "Audit Charter deleted successfully!",
+        "deleteFailed": "Failed to delete Audit Charter.",
+        "uploaded": "Audit Charter uploaded successfully!"
+      },
+      "guideline": {
+        "loadFailed": "Failed to load Audit Guideline data.",
+        "uploadFailed": "Failed to upload the document file.",
+        "added": "Audit Guideline added successfully!",
+        "addFailed": "Failed to add Audit Guideline.",
+        "updated": "Audit Guideline updated successfully!",
+        "updateFailed": "Failed to update Audit Guideline.",
+        "deleted": "Audit Guideline deleted successfully!",
+        "deleteFailed": "Failed to delete Audit Guideline."
+      },
+      "sop": {
+        "loadFailed": "Failed to load Technical Instruction / SOP data.",
+        "uploadFailed": "Failed to upload the document file.",
+        "added": "Technical Instruction / SOP added successfully!",
+        "addFailed": "Failed to add Technical Instruction / SOP.",
+        "updated": "Technical Instruction / SOP updated successfully!",
+        "updateFailed": "Failed to update Technical Instruction / SOP.",
+        "deleted": "Technical Instruction / SOP deleted successfully!",
+        "deleteFailed": "Failed to delete Technical Instruction / SOP."
+      }
     },
     "errors": {
       "downloadTitle": "Could not download the Audit Charter file",
@@ -2738,7 +3113,11 @@
       "description": "Free-form narrative for the quarterly audit executive summary.",
       "label": "Summary Narrative Text",
       "reset": "Reset to Default Template",
-      "placeholder": "Enter the summary narrative text..."
+      "placeholder": "Enter the summary narrative text...",
+      "periodPrefix": "For the period of {period},",
+      "quarterPeriod": "Q{quarter} {year}",
+      "quarterPeriodNoYear": "Q{quarter}",
+      "templateBody": "SPI has issued .... LHA. Total findings …. with .... recommendations. On-time completion rate 95%. There are 5 overdue/late high-risk findings related to .... that require direction from the Board of Directors. The most frequently recurring findings are in the …………….. process."
     },
     "followUp": {
       "title": "Follow-up Status",
@@ -3092,6 +3471,19 @@
       "deleteConfirm": "Are you sure you want to delete this appetite statement?",
       "deleteError": "Failed to delete statement.",
       "saveError": "Failed to save appetite statement.",
+      "status": {
+        "DRAFT": "Draft",
+        "SUBMITTED": "Submitted",
+        "APPROVED": "Approved"
+      },
+      "toasts": {
+        "created": "Appetite statement created successfully",
+        "updated": "Appetite statement updated successfully",
+        "deleted": "Appetite statement deleted successfully",
+        "createFailed": "Failed to create appetite statement",
+        "updateFailed": "Failed to update appetite statement",
+        "deleteFailed": "Failed to delete appetite statement"
+      },
       "modal": {
         "newTitle": "Add New Appetite Statement",
         "editTitle": "Edit Appetite Statement",
@@ -3697,7 +4089,12 @@
         "click": "Click",
         "emptyInstruction": "to import findings from this assignment's Digital Working Papers (KKA) and Fieldwork Test Controls.",
         "cancel": "Cancel",
-        "signReport": "Sign Report"
+        "signReport": "Sign Report",
+        "titleCreate": "Create New Audit Result Report",
+        "titleEdit": "Edit Audit Result Report",
+        "statusLocked": "Status is locked to Draft. Final LHA authorization belongs to the Manager/CAE.",
+        "reportTitleInvalid": "Report Title is required and must be at most 100 characters",
+        "companyNone": "— None (Inherited / Default) —"
       },
       "detail": {
         "title": "Audit Result Report (LHA) Details",
@@ -3712,7 +4109,9 @@
         "source": "Source:",
         "empty": "This report has no detailed audit findings.",
         "downloadDocx": "Download DOCX",
-        "print": "Print LHA Document"
+        "print": "Print LHA Document",
+        "executiveSummaryFallback": "Based on the results of the audit engagement completed in accordance with the Assignment Letter, the scope of the internal control evaluation is summarized in the findings and follow-up recommendations below.",
+        "noAction": "No action recorded."
       },
       "print": {
         "title": "Audit Result Report (LHA) Document",
@@ -4243,7 +4642,8 @@
         "nov": "Nov",
         "dec": "Dec"
       },
-      "noData": "No trend data for {year}"
+      "noData": "No trend data for {year}",
+      "noRecentData": "No data for the last 6 months"
     },
     "table": {
       "title": "KPI detailed breakdown",
@@ -5039,8 +5439,7 @@
         "company": "Company",
         "description": "Description",
         "level": "Level",
-        "status": "Status",
-        "actions": "Actions"
+        "status": "Status"
       }
     }
   },

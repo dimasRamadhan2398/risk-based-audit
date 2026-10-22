@@ -22,6 +22,8 @@ type fakeRepo struct {
 	createErrs  []error
 	created     []*models.Employee
 	codeLookups int
+	employees   []*models.Employee // seeded rows for FindPage/Count (employee_page_test.go)
+	listErr     error              // returned by Count and FindPage when set
 }
 
 func newFakeRepo() *fakeRepo {
@@ -97,7 +99,15 @@ func TestNextEmployeeCode(t *testing.T) {
 		{"leading zeros parsed as numbers", []string{"EMP-0010"}, "EMP-0011"},
 		{"crosses into five digits", []string{"EMP-9999"}, "EMP-10000"},
 		{"six digits keep growing", []string{"EMP-99999"}, "EMP-100000"},
-		{"ignores other prefixes", []string{"X-0500", "emp-0100", "EMP0100", "AUD-0900"}, "EMP-0001"},
+		{"ignores other prefixes", []string{"X-0500", "emp-0100", "AUD-0900"}, "EMP-0001"},
+		{"legacy only", []string{"EMP001", "EMP002", "EMP005"}, "EMP-0006"},
+		{"legacy only, no padding", []string{"EMP7", "EMP12"}, "EMP-0013"},
+		{"canonical only", []string{"EMP-0001", "EMP-0007"}, "EMP-0008"},
+		{"mixed legacy and canonical takes the higher", []string{"EMP001", "EMP-0009", "EMP005"}, "EMP-0010"},
+		{"mixed, legacy higher", []string{"EMP-0003", "EMP0012"}, "EMP-0013"},
+		{"legacy code with no canonical is still counted", []string{"EMP-0002", "EMP0100"}, "EMP-0101"},
+		{"legacy zero counts as zero", []string{"EMP000"}, "EMP-0001"},
+		{"legacy ignores non-digit suffix", []string{"EMP00A", "EMP-", "EMP", "EMPX001"}, "EMP-0001"},
 		{"ignores non-numeric suffix", []string{"EMP-ABC", "EMP-0007A", "EMP-", "EMP-0003-OLD"}, "EMP-0001"},
 		{"ignores signed suffix", []string{"EMP--1", "EMP-+5"}, "EMP-0001"},
 		{"ignores suffix that overflows int", []string{"EMP-99999999999999999999999"}, "EMP-0001"},

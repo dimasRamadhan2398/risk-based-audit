@@ -147,7 +147,7 @@ func (s *ResendService) HandleWebhookEvent(ctx context.Context, payload []byte) 
 			bounceType = fmt.Sprintf("%s/%s", event.Data.Bounce.Type, event.Data.Bounce.SubType)
 			bounceMsg = event.Data.Bounce.Message
 		}
-		logger.Error("🚨 [RESEND WEBHOOK] Email BOUNCED - Recipient unable to receive mail",
+		logger.Error("[RESEND WEBHOOK] Email BOUNCED - Recipient unable to receive mail",
 			zap.String("email_id", event.Data.EmailID),
 			zap.Strings("to", event.Data.To),
 			zap.String("from", event.Data.From),
@@ -157,21 +157,21 @@ func (s *ResendService) HandleWebhookEvent(ctx context.Context, payload []byte) 
 		)
 
 	case "email.complained":
-		logger.Warn("⚠️ [RESEND WEBHOOK] Email SPAM COMPLAINT received",
+		logger.Warn("[RESEND WEBHOOK] Email SPAM COMPLAINT received",
 			zap.String("email_id", event.Data.EmailID),
 			zap.Strings("to", event.Data.To),
 			zap.String("subject", event.Data.Subject),
 		)
 
 	case "email.delivered":
-		logger.Info("✅ [RESEND WEBHOOK] Email DELIVERED successfully to recipient",
+		logger.Info("✓ [RESEND WEBHOOK] Email DELIVERED successfully to recipient",
 			zap.String("email_id", event.Data.EmailID),
 			zap.Strings("to", event.Data.To),
 			zap.String("subject", event.Data.Subject),
 		)
 
 	case "email.delivery_delayed":
-		logger.Warn("⏳ [RESEND WEBHOOK] Email delivery DELAYED by recipient mailserver",
+		logger.Warn("[RESEND WEBHOOK] Email delivery DELAYED by recipient mailserver",
 			zap.String("email_id", event.Data.EmailID),
 			zap.Strings("to", event.Data.To),
 			zap.String("subject", event.Data.Subject),

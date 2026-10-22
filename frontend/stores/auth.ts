@@ -217,6 +217,24 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    /**
+     * Link the session to the employee and department behind the account (GET /api/v1/auth/me, spec B1).
+     * Only fills employeeId and departmentId in memory. Throws on failure so the caller can show its own error state.
+     */
+    async fetchEmployeeLink() {
+      const response = await $fetch<any>(`${getAuthServiceBaseUrl()}/auth/me`, { method: 'GET' })
+      const info = response?.data ?? response ?? {}
+      const link = {
+        employeeId: (info.employee_id as string | null | undefined) ?? null,
+        departmentId: (info.department_id as string | null | undefined) ?? null,
+      }
+      if (this.user) {
+        this.user.employeeId = link.employeeId
+        this.user.departmentId = link.departmentId
+      }
+      return link
+    },
+
     /** Load the avatar once per session after the cookie restore (login already returns it) */
     async hydrateProfile() {
       if (this._profileHydrated || !this.token || !this.user?.id) return

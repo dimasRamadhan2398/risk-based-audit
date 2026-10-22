@@ -1,7 +1,7 @@
 {
   "brand": {
     "logoAlt": "Logo AuditSphere",
-    "tagline": "Audit Berbasis Risiko Cerdas"
+    "tagline": "Intelligent Risk-Based Audit"
   },
   "actions": {
     "view": "Lihat",
@@ -197,6 +197,21 @@
       "delete": "Hapus",
       "download": "Unduh",
       "upload": "Unggah"
+    },
+    "columns": {
+      "actions": "Aksi"
+    },
+    "fileInput": {
+      "chooseFile": "Pilih file",
+      "noFileChosen": "Belum ada file dipilih",
+      "tooLarge": "File terlalu besar. Ukuran maksimal {size} MB.",
+      "invalidPdfDocx": "Format file tidak valid. Gunakan PDF atau DOCX."
+    },
+    "sourceSelector": {
+      "allSources": "Semua sumber",
+      "dataSource": "Sumber data",
+      "allSourcesConsolidated": "Semua sumber data (konsolidasi)",
+      "manage": "Kelola sumber data..."
     }
   },
   "dashboard": {
@@ -260,7 +275,19 @@
       "scheduledActivities": "Kegiatan audit terjadwal",
       "viewAllAnnualAudits": "Lihat semua Audit Tahunan",
       "status": "Status:",
-      "noUpcomingAudits": "Belum ada audit mendatang yang dijadwalkan."
+      "noUpcomingAudits": "Belum ada audit mendatang yang dijadwalkan.",
+      "trend": {
+        "improving": "Membaik",
+        "declining": "Menurun",
+        "deteriorating": "Memburuk",
+        "stable": "Stabil"
+      },
+      "severity": {
+        "critical": "Kritis",
+        "high": "Tinggi",
+        "medium": "Sedang",
+        "low": "Rendah"
+      }
     },
     "planningExecution": {
       "title": "Perencanaan & Pelaksanaan Audit",
@@ -272,7 +299,18 @@
     },
     "registeredRisks": {
       "columns": {
+        "name": "Nama Risiko",
+        "score": "Skor",
         "level": "Tingkat Risiko"
+      },
+      "empty": "Belum ada data yang dimasukkan ke Peta Panas Risiko.",
+      "cellTooltip": "Dampak: {impact}, Probabilitas: {probability}, Risiko: {level}"
+    },
+    "atrTable": {
+      "columns": {
+        "auditId": "ID Audit",
+        "actionItem": "Butir Tindak Lanjut",
+        "owner": "Penanggung Jawab"
       }
     },
     "recentFindings": {
@@ -289,6 +327,197 @@
         "quiteSignificant": "Cukup Signifikan",
         "notSignificant": "Tidak Signifikan"
       }
+    },
+    "auditee": {
+      "title": "Dashboard Auditee",
+      "welcome": "Selamat datang, {name}. Tampilan kerja untuk audit yang berdampak pada unit Anda dan rencana tindak lanjut yang harus Anda jawab.",
+      "unitLabel": "Unit: {unit}",
+      "refresh": "Muat ulang",
+      "notice": {
+        "label": "Prinsip tampilan auditee:",
+        "text": "Dashboard menampilkan audit yang berdampak pada unit Anda dan item yang harus Anda tanggapi (rencana tindak lanjut, permintaan, dan revisi), sementara metrik risiko tingkat korporasi tetap berada di latar belakang."
+      },
+      "errors": {
+        "link": "Data akun Anda tidak dapat dimuat. Data berbasis unit belum tersedia sampai proses ini berhasil.",
+        "notLinked": "Akun Anda belum terhubung ke data pegawai yang memiliki unit kerja. Penugasan audit untuk unit Anda belum dapat ditampilkan. Rencana tindak lanjut yang ditugaskan kepada Anda tetap ditampilkan.",
+        "notLinkedShort": "Akun Anda belum terhubung ke unit kerja, sehingga penugasan audit untuk unit Anda belum dapat ditampilkan."
+      },
+      "states": {
+        "loadError": "Bagian ini tidak dapat dimuat.",
+        "retry": "Coba lagi"
+      },
+      "stats": {
+        "title": "Status rencana tindak lanjut",
+        "scope": "Cakupan: rencana tindak lanjut yang ditugaskan kepada Anda (PIC)",
+        "empty": "Belum ada rencana tindak lanjut yang ditugaskan kepada Anda.",
+        "open": "Rencana tindak lanjut terbuka",
+        "openHint": "Belum selesai atau dibatalkan",
+        "overdue": "Terlambat",
+        "overdueHint": "Item terbuka yang melewati tenggat",
+        "pendingReview": "Menunggu review",
+        "pendingReviewHint": "Sudah dikirim dan belum direview",
+        "compliance": "Penyelesaian",
+        "complianceHint": "Porsi rencana tindak lanjut Anda yang sudah selesai"
+      },
+      "engagements": {
+        "title": "Penugasan audit untuk unit Anda",
+        "description": "Audit dengan unit yang diaudit adalah departemen Anda, beserta status dan periode rencananya.",
+        "scope": "Cakupan: penugasan yang difilter ke departemen Anda (sementara, belum dibatasi di server)",
+        "empty": "Belum ada penugasan audit yang terhubung ke unit Anda.",
+        "loadError": "Penugasan audit tidak dapat dimuat.",
+        "period": "{start} s.d. {end}",
+        "showing": "Menampilkan {shown} dari {total} penugasan",
+        "status": {
+          "planned": "Direncanakan",
+          "inProgress": "Berjalan",
+          "reporting": "Pelaporan",
+          "completed": "Selesai"
+        }
+      },
+      "tasks": {
+        "title": "Tugas dan tenggat",
+        "description": "Rencana tindak lanjut terbuka yang harus Anda isi atau tindak lanjuti, tenggat terdekat lebih dulu.",
+        "scope": "Cakupan: rencana tindak lanjut yang ditugaskan kepada Anda (sementara)",
+        "empty": "Tidak ada rencana tindak lanjut terbuka. Tidak ada yang menunggu unit Anda.",
+        "dueOn": "Tenggat {date}",
+        "noDueDate": "Belum ada tenggat",
+        "overdueDays": "Terlambat {days} hari",
+        "showing": "Menampilkan {shown} dari {total} rencana tindak lanjut terbuka"
+      },
+      "requests": {
+        "title": "Permintaan yang perlu ditanggapi",
+        "description": "Rencana tindak lanjut yang dikembalikan untuk revisi. Permintaan PBC dan komentar belum terhubung.",
+        "empty": "Tidak ada rencana tindak lanjut yang menunggu tanggapan dari Anda.",
+        "noRevisions": "Tidak ada rencana tindak lanjut yang dikembalikan untuk revisi.",
+        "revisionLabel": "Dikembalikan untuk revisi",
+        "placeholder": "Permintaan PBC, komentar, dan notifikasi belum terhubung."
+      },
+      "calendar": {
+        "title": "Tanggal penting",
+        "description": "Tanggal penugasan dan tenggat rencana tindak lanjut untuk unit Anda.",
+        "placeholder": "Kalender untuk unit Anda belum terhubung."
+      }
+    },
+    "auditor": {
+    "roleBadge": "Peran: Auditor",
+    "title": "Dashboard Auditor",
+    "welcome": "Selamat datang, {name}. Tampilan kerja untuk pelaksanaan lapangan, kertas kerja, dan draft temuan.",
+    "previewMode": "Mode:",
+    "previewAuditor": "Auditor",
+    "previewReset": "(Reset)",
+    "previewResetTitle": "Kembali ke tampilan penuh dashboard",
+    "sync": "Sinkronkan data",
+    "syncSuccess": "Data auditor berhasil disinkronkan",
+    "syncError": "Gagal menyinkronkan data auditor",
+    "notice": {
+      "label": "Prinsip tampilan auditor:",
+      "text": "Dashboard memprioritaskan penugasan audit aktif, kertas kerja, dan bukti yang disediakan klien (PBC), sementara metrik risiko tingkat korporasi tetap berada di latar belakang."
+    },
+    "states": {
+      "loading": "Memuat...",
+      "loadError": "Bagian ini tidak dapat dimuat.",
+      "retry": "Coba lagi",
+      "noData": "Belum ada data untuk periode ini."
+    },
+    "stats": {
+      "title": "Statistik audit",
+      "scope": "Cakupan: semua data ATR dan audit yang dapat Anda akses (sementara)",
+      "plannedAudits": "Audit terencana",
+      "plannedAuditsHint": "Rencana tahunan yang belum disetujui",
+      "openFindings": "Temuan terbuka",
+      "openFindingsHint": "Item ATR yang belum selesai atau dibatalkan",
+      "executionProgress": "Progres pelaksanaan",
+      "executionProgressHint": "Rata-rata progres pelaksanaan audit",
+      "atrCompliance": "Kepatuhan ATR",
+      "atrComplianceHint": "Porsi item ATR yang sudah selesai"
+    },
+    "coverage": {
+      "title": "Perencanaan & cakupan audit",
+      "description": "Cakupan rencana audit tahunan (PKAT).",
+      "scope": "Cakupan: semua rencana audit tahunan (sementara)",
+      "overallProgress": "Progres keseluruhan",
+      "planned": "Terencana",
+      "approved": "Disetujui",
+      "remaining": "Sisa",
+      "empty": "Belum ada rencana audit tahunan.",
+      "openPlan": "Buka audit tahunan"
+    },
+    "status": {
+      "title": "Status dan progres audit",
+      "description": "Surat tugas yang terbit, tahap pekerjaan lapangan, dan kelengkapan kertas kerja.",
+      "scope": "Cakupan: semua surat tugas yang sudah terbit (sementara)",
+      "searchPlaceholder": "Cari surat / unit...",
+      "allAssignments": "Semua penugasan",
+      "colLetter": "Surat tugas & judul",
+      "colUnit": "Unit yang diaudit",
+      "colPeriod": "Periode lapangan",
+      "colStages": "Tahapan lapangan",
+      "colWorkingPapers": "Kelengkapan kertas kerja",
+      "colStatus": "Status",
+      "colActions": "Aksi",
+      "team": "Tim",
+      "formsCount": "{count}/5 form",
+      "currentStage": "Tahap saat ini:",
+      "openWorkingPaper": "Kertas kerja",
+      "openFieldwork": "Pengujian & PBC",
+      "openLha": "Draft LHA",
+      "empty": "Belum ada surat tugas yang terbit.",
+      "emptyFiltered": "Tidak ada penugasan yang cocok dengan pencarian.",
+      "emptyHint": "Pastikan surat tugas berstatus Published di modul Assignment Letter.",
+      "stepper": {
+        "entry": "1. Entry",
+        "testing": "2. Pengujian",
+        "workingPapers": "3. Kertas kerja",
+        "exit": "4. Exit"
+      },
+      "stage": {
+        "preparation": "Entry meeting & persiapan",
+        "testing": "Pengujian sampel & bukti",
+        "workingPapers": "Penyusunan kertas kerja",
+        "reporting": "Penyusunan LHA & exit"
+      },
+      "statusLabel": {
+        "preparation": "Persiapan",
+        "fieldwork": "Lapangan aktif",
+        "reporting": "Pelaporan (LHA)"
+      },
+      "deadline": {
+        "none": "Jadwal belum diatur",
+        "today": "Hari terakhir",
+        "overdue": "Terlambat {days} hari",
+        "remaining": "Sisa {days} hari"
+      },
+      "periodTo": "s/d",
+      "unitFallback": "Unit yang diaudit"
+    },
+    "tasks": {
+      "title": "Daftar tugas dengan tenggat",
+      "description": "Item ATR terbuka yang perlu Anda review atau tindak lanjuti.",
+      "scope": "Cakupan: item ATR yang dapat Anda akses (sementara)",
+      "kindReview": "Review rencana aksi ATR",
+      "kindFollowUp": "Tindak lanjut rencana aksi ATR",
+      "dueOn": "Tenggat {date}",
+      "noDueDate": "Tanpa tenggat",
+      "overdueDays": "Terlambat {days} hari",
+      "empty": "Tidak ada tugas terbuka. Tidak ada yang menunggu tindakan Anda.",
+      "placeholder": "Tugas KKA, PBC, dan LHA belum terhubung."
+    },
+    "calendar": {
+      "title": "Tanggal penting",
+      "description": "Tanggal mulai dan selesai penugasan, serta tenggat ATR untuk penugasan yang Anda ikuti.",
+      "notConnected": "Kalender belum terhubung.",
+      "notLinked": "Akun Anda belum terhubung ke data pegawai, sehingga tanggal penugasan belum dapat difilter untuk Anda."
+    },
+    "notifications": {
+      "title": "Notifikasi & pengingat",
+      "description": "Pengingat dalam aplikasi yang diturunkan dari data ATR.",
+      "empty": "Tidak ada notifikasi baru.",
+      "typeOverdue": "ATR terlambat {days} hari",
+      "typePendingReview": "ATR menunggu review",
+      "typeDueSoon": "ATR jatuh tempo dalam {days} hari",
+      "placeholder": "Permintaan PBC, komentar, dan revisi belum terhubung."
+    },
+    "placeholder": "Placeholder"
     }
   },
   "auditExecution": {
@@ -296,6 +525,29 @@
     "title": "Audit Execution Status",
     "subtitle": "Transparansi progres & tahapan siklus audit dari perencanaan hingga penyelesaian LHA.",
     "cycleGuideButton": "Panduan Siklus Audit",
+    "sync": {
+      "button": "Sinkronkan dari Surat Tugas",
+      "tooltip": "Buat audit untuk setiap surat tugas yang belum memiliki audit dan perbarui seluruh progres.",
+      "successTitle": "Sinkronisasi selesai",
+      "successCreated": "Audit dari surat tugas: {created} baru, {synced} disinkronkan.",
+      "successNoneCreated": "Tidak ada surat tugas baru. {synced} audit disinkronkan.",
+      "autoCreatedTitle": "Audit ditambahkan dari surat tugas",
+      "autoCreatedDescription": "{created} audit baru dibuat dari surat tugas yang sudah ada.",
+      "unmatchedTitle": "Sebagian data tidak tertaut",
+      "unmatchedWarning": "{count} data fieldwork atau kertas kerja merujuk ke surat tugas yang sudah tidak ada dan tidak dihitung.",
+      "failedTitle": "Sinkronisasi gagal"
+    },
+    "emptyState": {
+      "title": "Belum ada audit",
+      "description": "Audit muncul di sini secara otomatis dari surat tugas. Buat surat tugas, atau lakukan sinkronisasi untuk mengambil surat tugas yang sudah ada.",
+      "descriptionReadOnly": "Audit muncul di sini secara otomatis setelah surat tugas diterbitkan.",
+      "goToAssignmentLetter": "Buka Surat Tugas",
+      "syncing": "Memeriksa surat tugas untuk audit..."
+    },
+    "loadError": {
+      "title": "Gagal memuat daftar audit",
+      "retry": "Coba Lagi"
+    },
     "summary": {
       "title": "Ringkasan Eksekusi:",
       "completed": "{count} Selesai",
@@ -900,6 +1152,8 @@
     "toast": {
       "validationTitle": "Validasi Gagal",
       "objectiveRequired": "Kolom Strategic Objective (Tujuan Strategis) harus diisi.",
+      "periodInvalid": "Tahun akhir ({end}) tidak boleh sebelum tahun awal ({start}).",
+      "numberInvalid": "{field} untuk periode {period} harus berupa angka (contoh: 85 atau 85.5).",
       "updatedTitle": "Rencana Strategis Diperbarui",
       "createdTitle": "Rencana Strategis Dibuat",
       "savedDesc": "Rencana Strategis \"{name}\" berhasil disimpan.",
@@ -1085,10 +1339,10 @@
       "badgeValid": "VALID",
       "badgeInvalid": "JUMLAH TIDAK VALID",
       "saveWeights": "Simpan Bobot",
-      "standardFactorsTitle": "📂 Faktor Risiko Standar",
+      "standardFactorsTitle": "Faktor Risiko Standar",
       "searchPlaceholder": "Cari faktor standar...",
       "noMatchingFactors": "Tidak ada faktor risiko standar yang cocok dengan pencarian Anda.",
-      "selectedWeightsTitle": "⚙️ Bobot Terpilih",
+      "selectedWeightsTitle": "Bobot Terpilih",
       "activeFactorsCount": "{count} Faktor Aktif",
       "no": "No",
       "riskFactor": "Faktor Risiko",
@@ -1119,7 +1373,7 @@
       "viewGuidelines": "Lihat Panduan"
     },
     "scoring": {
-      "title": "🎯 Skor Risiko",
+      "title": "Skor Risiko",
       "subtitle": "Pilih tahun dan entitas untuk memasukkan penilaian faktor risiko.",
       "yearLabel": "Tahun:",
       "entityLabel": "Entitas:",
@@ -1133,7 +1387,14 @@
       "selectEntityTitle": "Pilih Entitas Auditee",
       "selectEntityDesc": "Pilih tahun dan entitas auditee aktif dari menu pilihan di atas untuk memulai penilaian risiko.",
       "saveBtn": "Simpan Penilaian & Hitung",
-      "guidelinesTooltip": "Panduan Skala Penilaian"
+      "guidelinesTooltip": "Panduan Skala Penilaian",
+      "notScored": "Belum dinilai",
+      "notScoredHint": "Belum ada skor tersimpan untuk faktor ini; tidak dihitung dalam indeks risiko.",
+      "entityNotScored": "Entitas ini belum dinilai untuk tahun ini.",
+      "previewLabel": "Pratinjau (belum disimpan)",
+      "previewHint": "Dihitung dari skor yang sedang Anda ubah. Simpan untuk memperbarui indeks risiko tersimpan.",
+      "unscoredFactorsCount": "{count} dari {total} faktor belum dinilai.",
+      "noScoresToSave": "Pilih skor untuk minimal satu faktor sebelum menyimpan."
     },
     "priority": {
       "title": "Prioritas Audit ({year})",
@@ -1147,7 +1408,9 @@
       "auditPriorityCol": "Prioritas Audit*",
       "priorityBadge": "√ Prioritas",
       "noEntities": "Belum ada entitas auditee yang ditetapkan untuk tahun {year}.",
-      "sortedNote": "Diurutkan berdasarkan Indeks Risiko (menurun)",
+      "sortedNote": "Diurutkan berdasarkan Indeks Risiko (menurun); entitas yang belum dinilai ditampilkan paling akhir",
+      "notScoredBadge": "Belum dinilai",
+      "notScoredHint": "Entitas ini belum dinilai untuk tahun ini.",
       "levelInfoTitle": "Informasi Tingkat Indeks Risiko Korporat",
       "levels": {
         "high": "Tinggi",
@@ -1158,7 +1421,7 @@
       }
     },
     "guidelines": {
-      "modalTitle": "📖 Panduan Skala Penilaian: {name}",
+      "modalTitle": "Panduan Skala Penilaian: {name}",
       "factorDescription": "Deskripsi Faktor:"
     },
     "defaultScores": {
@@ -1219,7 +1482,7 @@
       "emptyState": "Audit Universe Korporat masih kosong. Pilih dari pustaka standar atau tambahkan entitas kustom."
     },
     "establish": {
-      "title": "📅 2. Tetapkan Audit Universe {year}",
+      "title": "2. Tetapkan Audit Universe {year}",
       "subtitle": "Pilih Entitas Auditee dari Audit Universe Korporat yang aktif untuk diaudit pada tahun {year}.",
       "targetYear": "Tahun Target:",
       "establishBtn": "Tetapkan Universe Aktif",
@@ -1781,7 +2044,62 @@
         "duplicates": "Duplikat",
         "completenessDataset": "Kelengkapan (%)",
         "accuracyDataset": "Akurasi (%)",
-        "qualityAxis": "Skor Mutu (%)"
+        "qualityAxis": "Skor Mutu (%)",
+        "technicalTable": "Tabel Teknis",
+        "tables": {
+          "gold": {
+            "fact_transactions": "Transaksi Finansial",
+            "fact_loans": "Pinjaman & Kredit",
+            "dim_accounts": "Rekening Nasabah",
+            "fact_gl_entries": "Jurnal Buku Besar (GL)",
+            "dim_branches": "Data Kantor Cabang",
+            "dim_products": "Katalog Produk"
+          },
+          "silver": {
+            "cbs_transactions": "Transaksi Core Banking",
+            "cbs_customers": "Profil Nasabah",
+            "cbs_branches": "Cabang Core Banking",
+            "cbs_loans": "Kredit Core Banking"
+          },
+          "bronze": {
+            "cbs_daily_transactions": "Log Transaksi Harian",
+            "cb_transactions": "Transaksi Mentah (CBS)",
+            "cb_accounts": "Rekening Mentah (CBS)",
+            "cb_customers": "Nasabah Mentah (CBS)",
+            "cb_loans": "Pinjaman Mentah (CBS)",
+            "cb_gl": "Buku Besar Mentah (CBS)",
+            "cb_products": "Produk Mentah (CBS)",
+            "cb_branches": "Cabang Mentah (CBS)",
+            "cb_failed_logins": "Log Percobaan Login"
+          }
+        },
+        "chartTables": {
+          "gold": {
+            "fact_transactions": "Transaksi Finansial",
+            "fact_loans": "Pinjaman & Kredit",
+            "dim_accounts": "Rekening Nasabah",
+            "fact_gl_entries": "Jurnal GL",
+            "dim_branches": "Kantor Cabang",
+            "dim_products": "Produk Bank"
+          },
+          "silver": {
+            "cbs_transactions": "Transaksi CBS",
+            "cbs_customers": "Profil Nasabah",
+            "cbs_branches": "Cabang CBS",
+            "cbs_loans": "Kredit CBS"
+          },
+          "bronze": {
+            "cbs_daily_transactions": "Log Harian Mentah",
+            "cb_transactions": "Trx Mentah",
+            "cb_accounts": "Rekening Mentah",
+            "cb_customers": "Nasabah Mentah",
+            "cb_loans": "Pinjaman Mentah",
+            "cb_gl": "GL Mentah",
+            "cb_products": "Produk Mentah",
+            "cb_branches": "Cabang Mentah",
+            "cb_failed_logins": "Log Login"
+          }
+        }
       }
     },
     "anomalyFilter": "Filter:",
@@ -1833,8 +2151,8 @@
     "statusActive": "4 Model Terlatih Aktif & Tersinkronisasi",
     "statusOffline": "Offline - Menampilkan Data Real Tersimpan",
     "statusDisconnected": "AI Backend Terputus",
-    "warningTitleCached": "⚠️ Peringatan: Service AI Backend Tidak Terhubung (Menampilkan Data Real Terakhir)",
-    "warningTitleDisconnected": "⚠️ Peringatan: Fitur AI Analytics Belum Berjalan / Tersambung ke Backend",
+    "warningTitleCached": "Peringatan: Service AI Backend Tidak Terhubung (Menampilkan Data Real Terakhir)",
+    "warningTitleDisconnected": "Peringatan: Fitur AI Analytics Belum Berjalan / Tersambung ke Backend",
     "warningDescCached": "Fitur AI Analytics saat ini menampilkan data real terakhir yang berhasil disinkronkan pada {time} sebelum koneksi terputus. Mohon pastikan Service Python AI (Port 8000) atau Go Analytics (Port 8084) telah dinyalakan di backend.",
     "warningDescDisconnected": "Fitur AI Analytics saat ini belum tersambung ke backend. Mohon pastikan Service Python AI (Port 8000) atau Go Analytics (Port 8084) telah dinyalakan di backend.",
     "loading": "Menghubungkan & Memuat Model AI...",
@@ -1947,7 +2265,7 @@
       "alertDesc": "Model Deep Learning (PyTorch LSTM) memprediksi tren performa KPI masa depan berdasarkan deret waktu historis untuk peringatan dini perencanaan audit.",
       "chartTitle": "Prediksi Performa KPI",
       "chartConfidenceBadge": "Area arsir = interval kepercayaan",
-      "atRiskTitle": "⚠️ Departemen Berisiko",
+      "atRiskTitle": "Departemen Berisiko",
       "projectedQ3": "% proyeksi Q3",
       "tableTitle": "Ringkasan Prediksi KPI",
       "colCode": "Kode",
@@ -1992,6 +2310,11 @@
     "importPlanDocument": "Impor Dokumen Rencana",
     "newAuditPlan": "Rencana Audit Baru",
     "table": {
+      "columns": {
+        "activity": "Aktivitas",
+        "riskName": "Nama Risiko",
+        "riskLevel": "Tingkat Risiko"
+      },
       "empty": "Belum ada data rencana audit.",
       "viewTooltip": "Lihat rencana audit",
       "editTooltip": "Ubah rencana audit",
@@ -2044,7 +2367,7 @@
       "mandaysFormula": "= {auditors} orang × {days} hari",
       "supervisor": "Supervisor",
       "supervisorPlaceholder": "Masukkan nama supervisor...",
-      "supervisorOverloadWarning": "⚠️ Peringatan: Supervisor ini sudah mengawasi lebih dari 6 aktivitas!",
+      "supervisorOverloadWarning": "Peringatan: Supervisor ini sudah mengawasi lebih dari 6 aktivitas!",
       "teamCapacity": "Estimasi Kapasitas Tim",
       "totalLoad": "Total beban: {percent}% dari kapasitas tahunan.",
       "sectionNotes": "4. Catatan",
@@ -2185,6 +2508,7 @@
       "workUnitPlaceholder": "Pilih Unit Kerja (Wajib)",
       "company": "Perusahaan / Entitas",
       "companyPlaceholder": "Pilih Perusahaan / Entitas (Opsional)",
+      "companyNone": "— Tidak ada (Bawaan {company}) —",
       "members": "Anggota Tim",
       "memberName": "Nama Anggota",
       "role": "Peran",
@@ -2201,7 +2525,22 @@
       "edit": "Ubah Surat Tugas",
       "delete": "Hapus Surat Tugas"
     },
-    "title": "Assignment Letter List",
+    "title": "Daftar Surat Tugas",
+    "table": {
+      "columns": {
+        "letterNumber": "Nomor Surat Tugas",
+        "auditTitle": "Judul / Objek Audit",
+        "workingUnit": "Unit Kerja",
+        "executionPeriod": "Periode Pelaksanaan",
+        "auditTeam": "Tim Audit",
+        "status": "Status"
+      },
+      "status": {
+        "Draft": "Draf",
+        "Published": "Diterbitkan"
+      },
+      "empty": "Belum ada Surat Tugas. Klik Buat Surat Tugas untuk memulai."
+    },
     "importDocument": "Impor Dokumen",
     "createAssignmentLetter": "Buat Surat Tugas",
     "upload": {
@@ -2335,9 +2674,9 @@
       "remove": "Hapus"
     },
     "list": {
-      "addItem": "Tambah butir",
-      "itemPlaceholder": "Butir {num}",
-      "pasteHint": "Menempel daftar bernomor akan dipecah per butir"
+      "addItem": "Tambah",
+      "itemPlaceholder": "Poin {num}",
+      "pasteHint": "Menempel daftar bernomor akan dipecah per poin"
     },
     "picker": {
       "title": "Pilih kegiatan PKAT",
@@ -2416,6 +2755,7 @@
       "create": "Buat",
       "derivedFromAnnual": "Diambil dari PKAT",
       "dropAttachmentsHere": "Tarik dan lepas lampiran Anda di sini",
+      "highRisk": "Resiko Tinggi",
       "maxFileSizeDesc": "Anda dapat mengupload beberapa file (maks. 2MB per file)",
       "stepNum": "Langkah {current} dari {total}",
       "update": "Update",
@@ -2516,8 +2856,8 @@
       "currentlyActive": "SAAT INI AKTIF",
       "uploadedBy": "Diupload Oleh",
       "approvedBy": "Disetujui Oleh",
-      "download": "Download",
-      "edit": "Edit",
+      "download": "Unduh",
+      "edit": "Ubah",
       "delete": "Hapus",
       "noActiveCharterWarning": "Belum ada Audit Charter yang aktif. Silakan upload atau aktifkan dokumen.",
       "historyTitle": "Riwayat Audit Charter",
@@ -2552,6 +2892,7 @@
       "inactive": "Tidak Aktif",
       "uploadFile": "Unggah File Charter (PDF/DOCX)",
       "selectedFile": "File terpilih:",
+      "fileRequired": "Mohon unggah file Audit Charter.",
       "submit": "Simpan"
     },
     "guideline": {
@@ -2585,6 +2926,7 @@
       "statusUnderReview": "Sedang Diperbarui",
       "effectiveDate": "Mulai Berlaku",
       "fileUpload": "Dokumen Pedoman (PDF)",
+      "fileRequired": "Mohon unggah dokumen Pedoman Audit.",
       "selectedFile": "File terpilih:",
       "saveChanges": "Simpan Perubahan",
       "addGuideline": "Tambah Pedoman",
@@ -2623,6 +2965,7 @@
       "underReview": "Sedang Diperbarui",
       "effectiveDate": "Mulai Berlaku",
       "fileUpload": "Dokumen SOP / Juknis (PDF)",
+      "fileRequired": "Mohon unggah dokumen Petunjuk Teknis / SOP.",
       "selectedFile": "File terpilih:",
       "saveChanges": "Simpan Perubahan",
       "addSop": "Tambah SOP",
@@ -2639,6 +2982,38 @@
       "viewSop": "Lihat Petunjuk Teknis / SOP",
       "editSop": "Edit Petunjuk Teknis / SOP",
       "deleteSop": "Hapus Petunjuk Teknis / SOP"
+    },
+    "toasts": {
+      "charter": {
+        "loadFailed": "Gagal mengambil data Audit Charter.",
+        "added": "Audit Charter berhasil ditambahkan!",
+        "addFailed": "Gagal menambahkan Audit Charter.",
+        "updated": "Audit Charter berhasil diperbarui!",
+        "updateFailed": "Gagal memperbarui Audit Charter.",
+        "deleted": "Audit Charter berhasil dihapus!",
+        "deleteFailed": "Gagal menghapus Audit Charter.",
+        "uploaded": "Audit Charter berhasil diunggah!"
+      },
+      "guideline": {
+        "loadFailed": "Gagal mengambil data Pedoman Audit.",
+        "uploadFailed": "Gagal mengunggah file dokumen.",
+        "added": "Pedoman Audit berhasil ditambahkan!",
+        "addFailed": "Gagal menambahkan Pedoman Audit.",
+        "updated": "Pedoman Audit berhasil diperbarui!",
+        "updateFailed": "Gagal memperbarui Pedoman Audit.",
+        "deleted": "Pedoman Audit berhasil dihapus!",
+        "deleteFailed": "Gagal menghapus Pedoman Audit."
+      },
+      "sop": {
+        "loadFailed": "Gagal mengambil data Petunjuk Teknis/SOP.",
+        "uploadFailed": "Gagal mengunggah file dokumen.",
+        "added": "Petunjuk Teknis/SOP berhasil ditambahkan!",
+        "addFailed": "Gagal menambahkan Petunjuk Teknis/SOP.",
+        "updated": "Petunjuk Teknis/SOP berhasil diperbarui!",
+        "updateFailed": "Gagal memperbarui Petunjuk Teknis/SOP.",
+        "deleted": "Petunjuk Teknis/SOP berhasil dihapus!",
+        "deleteFailed": "Gagal menghapus Petunjuk Teknis/SOP."
+      }
     },
     "errors": {
       "downloadTitle": "Gagal mengunduh file Audit Charter",
@@ -2738,7 +3113,11 @@
       "description": "Narasi bebas untuk ringkasan eksekutif hasil audit triwulanan.",
       "label": "Teks Narasi Ringkasan",
       "reset": "Reset Ke Template Default",
-      "placeholder": "Isi teks ringkasan naratif..."
+      "placeholder": "Isi teks ringkasan naratif...",
+      "periodPrefix": "Periode {period},",
+      "quarterPeriod": "Kuartal {quarter} {year}",
+      "quarterPeriodNoYear": "Kuartal {quarter}",
+      "templateBody": "SPI telah menerbitkan .... LHA. Total temuan …. dengan .... rekomendasi. Tingkat penyelesaian on-time 95%. Terdapat 5 temuan risiko tinggi overdue/terlambat terkait .... yang perlu arahan Direksi. Temuan berulang tertinggi pada proses …………….."
     },
     "followUp": {
       "title": "Status Tindak Lanjut",
@@ -3092,11 +3471,24 @@
       "deleteConfirm": "Apakah Anda yakin ingin menghapus pernyataan selera risiko ini?",
       "deleteError": "Gagal menghapus pernyataan.",
       "saveError": "Gagal menyimpan pernyataan selera risiko.",
+      "status": {
+        "DRAFT": "Draf",
+        "SUBMITTED": "Diajukan",
+        "APPROVED": "Disetujui"
+      },
+      "toasts": {
+        "created": "Pernyataan selera risiko berhasil dibuat",
+        "updated": "Pernyataan selera risiko berhasil diperbarui",
+        "deleted": "Pernyataan selera risiko berhasil dihapus",
+        "createFailed": "Gagal membuat pernyataan selera risiko",
+        "updateFailed": "Gagal memperbarui pernyataan selera risiko",
+        "deleteFailed": "Gagal menghapus pernyataan selera risiko"
+      },
       "modal": {
         "newTitle": "Tambah Pernyataan Selera Risiko Baru",
         "editTitle": "Edit Pernyataan Selera Risiko",
         "statementLabel": "Teks Kebijakan Pernyataan",
-        "statementPlaceholder": "contoh: Risiko tingkat Low dan Low to Moderate dapat diterima...",
+        "statementPlaceholder": "contoh: Risiko tingkat Rendah dan Rendah-Sedang dapat diterima...",
         "thresholdLabel": "Batas Toleransi (%)",
         "statusLabel": "Status Persetujuan",
         "cancel": "Batal",
@@ -3697,7 +4089,12 @@
         "click": "Klik",
         "emptyInstruction": "untuk menarik temuan dari Kertas Kerja Audit Digital (KKA) dan Pengujian Pengendalian Lapangan penugasan ini.",
         "cancel": "Batal",
-        "signReport": "Tandatangani Laporan"
+        "signReport": "Tandatangani Laporan",
+        "titleCreate": "Buat Laporan Hasil Audit Baru",
+        "titleEdit": "Ubah Laporan Hasil Audit",
+        "statusLocked": "Status terkunci pada Draf. Otorisasi Final LHA merupakan wewenang Manager/CAE.",
+        "reportTitleInvalid": "Judul Laporan wajib diisi dan maksimal 100 karakter",
+        "companyNone": "— Tidak ada (Mengikuti Induk / Bawaan) —"
       },
       "detail": {
         "title": "Detail Laporan Hasil Audit (LHA)",
@@ -3712,7 +4109,9 @@
         "source": "Sumber:",
         "empty": "Belum ada rincian temuan audit pada laporan ini.",
         "downloadDocx": "Unduh DOCX",
-        "print": "Cetak Dokumen LHA"
+        "print": "Cetak Dokumen LHA",
+        "executiveSummaryFallback": "Berdasarkan hasil penugasan audit yang telah diselesaikan sesuai dengan Surat Tugas, ruang lingkup evaluasi pengendalian internal telah dirangkum dalam temuan dan rekomendasi tindak lanjut di bawah ini.",
+        "noAction": "Tidak ada tindakan yang dicatat."
       },
       "print": {
         "title": "Dokumen Laporan Hasil Audit (LHA)",
@@ -4243,7 +4642,8 @@
         "nov": "Nov",
         "dec": "Des"
       },
-      "noData": "Belum ada data tren untuk {year}"
+      "noData": "Belum ada data tren untuk {year}",
+      "noRecentData": "Belum ada data dalam 6 bulan terakhir"
     },
     "table": {
       "title": "Rincian Detail KPI",
@@ -4660,26 +5060,26 @@
       }
     },
     "dimensions": {
-      "design": "Design",
-      "operating": "Operating",
-      "coverage": "Coverage",
-      "timeliness": "Timeliness",
-      "automation": "Automation",
-      "designFullName": "1. Design Effectiveness (20%)",
+      "design": "Desain",
+      "operating": "Operasional",
+      "coverage": "Cakupan",
+      "timeliness": "Ketepatan Waktu",
+      "automation": "Otomasi",
+      "designFullName": "1. Efektivitas Desain (20%)",
       "designDesc": "Kesesuaian rancangan kontrol terhadap risiko & SOP",
-      "operatingFullName": "2. Operating Effectiveness (20%)",
+      "operatingFullName": "2. Efektivitas Operasional (20%)",
       "operatingDesc": "Konsistensi eksekusi dan ketiadaan deviasi kontrol",
-      "coverageFullName": "3. Coverage & Completeness (20%)",
+      "coverageFullName": "3. Cakupan & Kelengkapan (20%)",
       "coverageDesc": "Cakupan kontrol pada seluruh transaksi/aktivitas",
-      "timelinessFullName": "4. Timeliness & Frequency (20%)",
+      "timelinessFullName": "4. Ketepatan Waktu & Frekuensi (20%)",
       "timelinessDesc": "Ketepatan waktu kontrol mendeteksi / mencegah insiden",
-      "automationFullName": "5. Automation & Monitoring (20%)",
+      "automationFullName": "5. Otomasi & Pemantauan (20%)",
       "automationDesc": "Tingkat otomatisasi sistemik & continuous monitoring"
     },
     "interpretationTable": {
       "toggle": "Tabel Standar Interpretasi Rating Efektivitas Kontrol Internal",
       "headers": {
-        "totalWeightedScore": "Total Weighted Score (%)",
+        "totalWeightedScore": "Total Skor Tertimbang (%)",
         "rating": "Rating",
         "interpretation": "Interpretasi"
       },
@@ -4710,12 +5110,12 @@
         "riskCode": "Kode / Risiko",
         "controlCode": "Risk Control ID & Deskripsi Mitigasi",
         "department": "Departemen / PIC",
-        "design": "Design",
-        "operating": "Operating",
-        "coverage": "Coverage",
-        "timeliness": "Timeliness",
-        "automation": "Automation",
-        "totalScore": "Total Score",
+        "design": "Desain",
+        "operating": "Operasional",
+        "coverage": "Cakupan",
+        "timeliness": "Ketepatan Waktu",
+        "automation": "Otomasi",
+        "totalScore": "Skor Total",
         "rating": "Rating Efektivitas",
         "actions": "Aksi"
       },
@@ -4748,7 +5148,7 @@
       "controlDescPlaceholder": "Jelaskan mekanisme kontrol operasional, review, verifikasi, atau sistemik yang dijalankan...",
       "evaluationTitle": "Evaluasi 5 Dimensi Internal Control (COSO 2013)",
       "evaluationWeight": "Bobot Tetap: 20% Tiap Dimensi (Skala 1 - 5)",
-      "totalWeightedScore": "Total Weighted Effectiveness Score:",
+      "totalWeightedScore": "Total Skor Efektivitas Tertimbang:",
       "interpretation": "Interpretasi:",
       "cancel": "Batal",
       "save": "Simpan Kontrol Matrix"
@@ -5039,8 +5439,7 @@
         "company": "Perusahaan",
         "description": "Deskripsi",
         "level": "Level",
-        "status": "Status",
-        "actions": "Aksi"
+        "status": "Status"
       }
     }
   },
@@ -5522,7 +5921,7 @@
       "plan": "Rencana Mitigasi & Kontrol",
       "timeline": "Linimasa",
       "unit": "Unit Penanggung Jawab",
-      "pic": "Person in Charge",
+      "pic": "Penanggung Jawab (PIC)",
       "supervisor": "Supervisor",
       "progress": "Progres Pemantauan",
       "actions": "Aksi"

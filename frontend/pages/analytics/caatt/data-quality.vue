@@ -23,8 +23,53 @@ onMounted(() => {
   fetchCaattAnalytics()
 })
 
+const formatFallbackName = (raw: string): string => {
+  if (!raw) return '-'
+  return raw
+    .replace(/^(gold|silver|bronze|public|dbo)\./i, '')
+    .replace(/^(fact_|dim_|cbs_|cb_)/i, '')
+    .replace(/[._-]+/g, ' ')
+    .trim()
+    .split(' ')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(' ')
+}
+
+const getTableFriendlyName = (rawName: string): string => {
+  if (!rawName) return '-'
+  const i18nKey = `analytics.caattUi.dataQuality.tables.${rawName}`
+  const translated = t(i18nKey)
+  if (translated && translated !== i18nKey) {
+    return translated
+  }
+  return formatFallbackName(rawName)
+}
+
+const getTableChartName = (rawName: string): string => {
+  if (!rawName) return '-'
+  const i18nKey = `analytics.caattUi.dataQuality.chartTables.${rawName}`
+  const translated = t(i18nKey)
+  if (translated && translated !== i18nKey) {
+    return translated
+  }
+  return getTableFriendlyName(rawName)
+}
+
+const getTableIcon = (tableName: string): string => {
+  if (!tableName) return 'i-heroicons-table-cells'
+  if (tableName.includes('transactions')) return 'i-heroicons-banknotes'
+  if (tableName.includes('loans')) return 'i-heroicons-credit-card'
+  if (tableName.includes('accounts')) return 'i-heroicons-wallet'
+  if (tableName.includes('customers')) return 'i-heroicons-user-group'
+  if (tableName.includes('gl_entries') || tableName.includes('gl')) return 'i-heroicons-book-open'
+  if (tableName.includes('branches')) return 'i-heroicons-building-office-2'
+  if (tableName.includes('products')) return 'i-heroicons-cube'
+  if (tableName.includes('failed_logins')) return 'i-heroicons-shield-exclamation'
+  return 'i-heroicons-table-cells'
+}
+
 const dqChartData = computed(() => ({
-  labels: dqState.value.records.map((r: any) => r.tableName.replace('gold.', 'G:').replace('silver.', 'S:').replace('bronze.', 'B:')),
+  labels: dqState.value.records.map((r: any) => getTableChartName(r.tableName)),
   datasets: [
     {
       label: t('analytics.caattUi.dataQuality.completenessDataset'),
@@ -46,8 +91,29 @@ const dqChartOptions = computed(() => ({
   maintainAspectRatio: false,
   plugins: {
     legend: { position: 'top' as const },
+    tooltip: {
+      callbacks: {
+        title: (items: any[]) => {
+          if (!items.length) return ''
+          const index = items[0].dataIndex
+          const rec = dqState.value.records[index]
+          if (rec) {
+            return `${getTableFriendlyName(rec.tableName)} (${rec.tableName})`
+          }
+          return items[0].label
+        }
+      }
+    }
   },
   scales: {
+    x: {
+      ticks: {
+        autoSkip: false,
+        maxRotation: 35,
+        minRotation: 0,
+        font: { size: 10 }
+      }
+    },
     y: { min: 90, max: 100, title: { display: true, text: t('analytics.caattUi.dataQuality.qualityAxis') } }
   }
 }))
@@ -161,7 +227,15 @@ const dqChartOptions = computed(() => ({
               </thead>
               <tbody>
                 <tr v-for="r in dqState.records" :key="r.tableName" class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                  <td class="py-3 px-3 font-mono font-bold">{{ r.tableName }}</td>
+                  <td class="py-3 px-3">
+                    <div class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                      <UIcon :name="getTableIcon(r.tableName)" class="w-4 h-4 text-indigo-500 shrink-0" />
+                      <span>{{ getTableFriendlyName(r.tableName) }}</span>
+                    </div>
+                    <div class="text-[11px] text-gray-400 font-mono mt-0.5 pl-6" :title="`${t('analytics.caattUi.dataQuality.technicalTable')}: ${r.tableName}`">
+                      {{ r.tableName }}
+                    </div>
+                  </td>
                   <td class="text-center py-3 px-3">
                     <UBadge :color="r.zone === 'Gold' ? 'warning' : r.zone === 'Silver' ? 'neutral' : 'primary'" variant="solid" size="sm">
                       {{ r.zone }}

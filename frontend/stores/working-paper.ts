@@ -17,6 +17,7 @@ import { useRiskProfileStore, riskLevelConfig } from './risk-profile'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { RiskLevel, RiskTaxonomy } from '../types/risk'
 import { extractErrorMessage } from '~/utils/error'
+import { resolveAuditPurposeText } from '~/utils/workingPaperAuditPurpose'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 import { toTestResult, toTestResultBoolean } from '~/utils/sampleTestResult'
 import type { StepperItem } from '@nuxt/ui'
@@ -281,16 +282,9 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   // The Assignment Letter form edits its "Audit Purpose" as `purposeList`;
   // only seeded letters carry the single `auditPurpose` string, so letters
-  // created in the UI need the list as a fallback.
-  const resolveAuditPurpose = (letter: AssignmentLetter): string => {
-    const single = String(letter.auditPurpose || '').trim()
-    if (single) return single
-    if (!Array.isArray(letter.purposeList)) return ''
-    return letter.purposeList
-      .map(p => String(p || '').trim())
-      .filter(Boolean)
-      .join('; ')
-  }
+  // created in the UI need the list as a fallback. One purpose per line.
+  const resolveAuditPurpose = (letter: AssignmentLetter): string =>
+    resolveAuditPurposeText(letter)
 
   const toTeamMembers = (letter: AssignmentLetter) =>
     Array.isArray(letter.membersList)
@@ -340,10 +334,17 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     { flush: 'sync' }
   )
 
+  const selectedAssignmentLetter = computed({
+    get: () => headerForm.assignmentLetterId,
+    set: (val: string) => {
+      headerForm.assignmentLetterId = val
+    }
+  })
+
   const riskForm = reactive<WorkingPaperRiskForm>({
     risk: '',
-    taxonomy: '',
-    riskLevel: '',
+    taxonomy: '' as any,
+    riskLevel: '' as any,
     controlDescription: ''
   })
 
@@ -506,10 +507,10 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     }
 
     // 2. Location ID matching via locationStore or riskProfileStore
-    const locId = risk.location_id || (riskProfileStore.riskLocationId && riskProfileStore.riskLocationId(risk))
+    const locId = risk.location_id || ((riskProfileStore as any).riskLocationId && (riskProfileStore as any).riskLocationId(risk))
     if (locId) {
       const locObj = locationStore.locations.find((l: any) => String(l.id) === String(locId))
-        || riskProfileStore.masterLocations?.find((l: any) => String(l.id) === String(locId))
+        || (riskProfileStore as any).masterLocations?.find((l: any) => String(l.id) === String(locId))
       if (locObj && locObj.name?.trim().toLowerCase() === targetLoc) {
         return true
       }
@@ -517,7 +518,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
     // 3. Check if targetLoc corresponds to a master location ID
     const targetMasterLoc = locationStore.locations.find((l: any) => l.name?.trim().toLowerCase() === targetLoc)
-      || riskProfileStore.masterLocations?.find((l: any) => l.name?.trim().toLowerCase() === targetLoc)
+      || (riskProfileStore as any).masterLocations?.find((l: any) => l.name?.trim().toLowerCase() === targetLoc)
     if (targetMasterLoc && locId && String(targetMasterLoc.id) === String(locId)) {
       return true
     }
@@ -557,7 +558,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       if (matched.category) {
         riskForm.taxonomy = matched.category
       }
-      riskForm.riskLevel = resolveRiskLevel(matched)
+      riskForm.riskLevel = resolveRiskLevel(matched) as RiskLevel
     }
   }
 
@@ -1415,6 +1416,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     dataF01, dataF02, dataF03, dataF04, dataF05,
     filteredDataF01, filteredDataF02, filteredDataF03, filteredDataF04, filteredDataF05,
     hasAssignmentLetter,
+    selectedAssignmentLetter,
     addF03,
     updateF01, updateF02, updateF03, updateF04, updateF05,
     deleteF01, deleteF02, deleteF03, deleteF04, deleteF05,

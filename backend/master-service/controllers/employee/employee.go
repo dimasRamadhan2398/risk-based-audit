@@ -1,6 +1,8 @@
 package employee
 
 import (
+	"strconv"
+
 	"master-service/models"
 	"master-service/pkg/base"
 	"master-service/pkg/response"
@@ -13,6 +15,7 @@ import (
 type EmployeeControllerInterface interface {
 	FindAll(ctx *gin.Context)
 	FindById(ctx *gin.Context)
+	FindByCode(ctx *gin.Context)
 	Create(ctx *gin.Context)
 	NextCode(ctx *gin.Context)
 	Update(ctx *gin.Context)
@@ -29,14 +32,34 @@ func NewEmployeeController(employeeSvc employeeSvc.EmployeeServiceInterface, val
 	}
 	return &EmployeeController{BaseController: base.NewBaseController(validator), employeeSvc: employeeSvc}
 }
+
+// FindAll returns one page of employees (GET /employees). Query params: page
+// (default 1), page_size (default 10, max 100) and search (employee_code,
+// full_name or email, case-insensitive). The envelope matches the department
+// list: {"employees": [...], "pagination": {page, page_size, total, total_pages}}.
 func (d *EmployeeController) FindAll(ctx *gin.Context) {
 	baseService := base.NewBaseService().WithContext(ctx.Request.Context())
-	employees, err := d.employeeSvc.FindAll(baseService)
+
+	// A missing or non-numeric value parses to 0, which the service turns into
+	// the default.
+	page, _ := strconv.Atoi(ctx.Query("page"))
+	pageSize, _ := strconv.Atoi(ctx.Query("page_size"))
+
+	result, err := d.employeeSvc.FindPage(baseService, page, pageSize, ctx.Query("search"))
 	if err != nil {
 		d.RespondError(ctx, err)
 		return
 	}
-	response.OK(ctx, "Employees fetched successfully", employees)
+
+	response.OK(ctx, "Employees fetched successfully", gin.H{
+		"employees": result.Employees,
+		"pagination": gin.H{
+			"page":        result.Page,
+			"page_size":   result.PageSize,
+			"total":       result.Total,
+			"total_pages": result.TotalPages,
+		},
+	})
 }
 func (d *EmployeeController) FindById(ctx *gin.Context) {
 	baseService := base.NewBaseService().WithContext(ctx.Request.Context())
@@ -48,6 +71,19 @@ func (d *EmployeeController) FindById(ctx *gin.Context) {
 	}
 	response.OK(ctx, "Employee fetched successfully", employee)
 }
+
+// FindByCode returns one employee by employee_code (GET /employees/by-code/:code).
+func (d *EmployeeController) FindByCode(ctx *gin.Context) {
+	baseService := base.NewBaseService().WithContext(ctx.Request.Context())
+
+	employee, err := d.employeeSvc.FindByCode(baseService, ctx.Param("code"))
+	if err != nil {
+		d.RespondError(ctx, err)
+		return
+	}
+	response.OK(ctx, "Employee fetched successfully", employee)
+}
+
 func (d *EmployeeController) Create(ctx *gin.Context) {
 	var req models.Employee
 	if !d.ValidateRequest(ctx, &req) {

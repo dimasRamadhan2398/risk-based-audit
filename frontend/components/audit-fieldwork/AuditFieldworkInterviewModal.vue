@@ -211,12 +211,9 @@
             </div>
 
             <UFormField :label="t('auditFieldwork.interview.uploadFile')">
-              <UInput
-                type="file"
-                icon="i-heroicons-paper-clip"
-                @change="store.handleInterviewFileChange"
+              <LocalizedFileInput
                 accept=".pdf,.docx,.doc"
-                class="w-full"
+                @change="store.handleInterviewFileChange"
               />
               <div v-if="store.interviewForm.file || store.interviewForm.fileName" class="mt-2 flex items-center gap-2">
                 <UIcon name="i-heroicons-document" />

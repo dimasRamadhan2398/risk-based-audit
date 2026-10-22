@@ -68,4 +68,4 @@ with dl.connect() as conn:
         r = conn.execute(text(f"SELECT COUNT(*) FROM gold.{table}"))
         print(f"  gold.{table}: {r.scalar()} rows")
 
-print("\n✅ ETL Pipeline complete. Gold zone is ready for CAATT analysis.")
+print("\n✓ ETL Pipeline complete. Gold zone is ready for CAATT analysis.")

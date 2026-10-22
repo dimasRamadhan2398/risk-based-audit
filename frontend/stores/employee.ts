@@ -69,7 +69,7 @@ export const useEmployeeStore = defineStore('employee', () => {
     { accessorKey: 'phone', header: t('masterData.employee.columns.phone') },
     { accessorKey: 'level_grade', header: t('masterData.employee.columns.level') },
     { accessorKey: 'is_active', header: t('masterData.employee.columns.status') },
-    { accessorKey: 'actions', header: '' }
+    { accessorKey: 'actions', header: t('common.columns.actions') }
   ])
 
   // ============= Getters =============
