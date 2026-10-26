@@ -1,14 +1,77 @@
 <script setup lang="ts">
-import { normalizeAuditStatus, useAuditExecutionStore } from '~/stores/audit-execution'
+import { normalizeAuditStatus, useAuditExecutionStore, type AuditExecutionSyncResult } from '~/stores/audit-execution'
 import AuditExecutionDetailModal from '~/components/audit-execution/AuditExecutionDetailModal.vue'
 import { AuditCategory, AuditStatus, EXECUTION_PHASES, getExecutionPhase, type AuditExecution } from '~/types/audit'
 import { getProgressValue } from '~/utils/executionSources'
+import { createAutoSyncOnce } from '~/utils/auditExecutionAutoSync'
 import { useI18n } from '~/composables/useI18n'
+import { useRbac } from '~/composables/useRbac'
 
 const { t, locale } = useI18n()
+const toast = useToast()
 const store = useAuditExecutionStore()
-store.fetchAuditExecutions()
-const { auditExecutions, getSummary } = storeToRefs(store)
+const { auditExecutions, getSummary, loading, error, syncing } = storeToRefs(store)
+
+// Executions are created from assignment letters, so syncing needs letter write access (the backend enforces its own rule).
+const { canManageAssignmentLetter } = useRbac()
+const canSyncAudits = computed(() => canManageAssignmentLetter.value)
+
+const showSyncToast = (result: AuditExecutionSyncResult) => {
+  toast.add({
+    title: t('auditExecution.sync.successTitle'),
+    description: result.created > 0
+      ? t('auditExecution.sync.successCreated', { created: result.created, synced: result.synced })
+      : t('auditExecution.sync.successNoneCreated', { synced: result.synced }),
+    color: 'success'
+  })
+  if (result.unmatched > 0) {
+    toast.add({
+      title: t('auditExecution.sync.unmatchedTitle'),
+      description: t('auditExecution.sync.unmatchedWarning', { count: result.unmatched }),
+      color: 'warning'
+    })
+  }
+}
+
+const syncFromAssignmentLetters = async () => {
+  const result = await store.syncFromAssignmentLetters()
+  if (result) {
+    showSyncToast(result)
+  } else if (store.syncError) {
+    toast.add({
+      title: t('auditExecution.sync.failedTitle'),
+      description: store.syncError,
+      color: 'error'
+    })
+  }
+}
+
+// Once per visit, an empty list triggers a silent sync so letters that already exist show up
+// without a manual click. Only a sync that created audits is announced; failures stay quiet.
+const autoSync = createAutoSyncOnce(() => store.syncFromAssignmentLetters())
+
+const loadAudits = async () => {
+  // Always refetch on mount: the store is shared with the dashboard and outlives navigation.
+  await store.fetchAuditExecutions()
+  const result = await autoSync.maybeRun({
+    canSync: canSyncAudits.value,
+    hasError: !!store.error,
+    count: store.auditExecutions.length
+  })
+  if (result && result.created > 0) {
+    toast.add({
+      title: t('auditExecution.sync.autoCreatedTitle'),
+      description: t('auditExecution.sync.autoCreatedDescription', { created: result.created }),
+      color: 'success'
+    })
+  }
+}
+loadAudits()
+
+// While a sync runs (including its refetch) the empty card stays up with a spinner instead of flipping to the table.
+const showEmptyState = computed(() =>
+  !error.value && auditExecutions.value.length === 0 && (syncing.value || !loading.value)
+)
 
 const search = ref('')
 const quarter = ref('')
@@ -125,16 +188,44 @@ const handleRemind = (audit: any) => {
         </p>
       </div>
 
-      <UButton
-        icon="i-lucide-help-circle"
-        :label="t('auditExecution.cycleGuideButton')"
-        color="primary"
-        variant="soft"
-        size="md"
-        class="font-bold w-full sm:w-auto justify-center"
-        @click="() => { isHelpModalOpen = true }"
-      />
+      <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+        <UTooltip
+          v-if="canSyncAudits"
+          :text="t('auditExecution.sync.tooltip')"
+        >
+          <UButton
+            icon="i-lucide-refresh-cw"
+            :label="t('auditExecution.sync.button')"
+            color="primary"
+            variant="outline"
+            size="md"
+            class="font-bold w-full sm:w-auto justify-center"
+            :loading="syncing"
+            :disabled="syncing || loading"
+            @click="syncFromAssignmentLetters"
+          />
+        </UTooltip>
+        <UButton
+          icon="i-lucide-help-circle"
+          :label="t('auditExecution.cycleGuideButton')"
+          color="primary"
+          variant="soft"
+          size="md"
+          class="font-bold w-full sm:w-auto justify-center"
+          @click="() => { isHelpModalOpen = true }"
+        />
+      </div>
     </div>
+
+    <UAlert
+      v-if="error"
+      :title="t('auditExecution.loadError.title')"
+      :description="error"
+      color="error"
+      variant="soft"
+      icon="i-lucide-alert-circle"
+      :actions="[{ label: t('auditExecution.loadError.retry'), icon: 'i-lucide-rotate-ccw', color: 'error', variant: 'outline', loading: loading, onClick: loadAudits }]"
+    />
 
     <!-- Summary Section -->
     <div class="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800 shadow-sm flex flex-wrap items-center justify-between gap-4">
@@ -192,9 +283,59 @@ const handleRemind = (audit: any) => {
       />
     </div>
 
+    <!-- Empty State: executions come from assignment letters -->
+    <div
+      v-if="showEmptyState"
+      class="bg-white dark:bg-gray-900 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 shadow-sm px-6 py-12 flex flex-col items-center text-center"
+    >
+      <template v-if="syncing">
+        <UIcon
+          name="i-lucide-loader-2"
+          class="w-10 h-10 text-primary-500 animate-spin mb-3"
+        />
+        <p class="text-sm font-medium text-gray-600 dark:text-gray-300">
+          {{ t('auditExecution.emptyState.syncing') }}
+        </p>
+      </template>
+      <template v-else>
+        <div class="p-3 rounded-full bg-primary-50 dark:bg-primary-950/50 text-primary-600 dark:text-primary-400 mb-4">
+          <UIcon
+            name="i-lucide-file-text"
+            class="w-8 h-8"
+          />
+        </div>
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+          {{ t('auditExecution.emptyState.title') }}
+        </h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 max-w-xl leading-relaxed">
+          {{ canSyncAudits ? t('auditExecution.emptyState.description') : t('auditExecution.emptyState.descriptionReadOnly') }}
+        </p>
+        <div class="flex flex-col sm:flex-row gap-2 mt-5 w-full sm:w-auto">
+          <UButton
+            to="/assignment-letter"
+            icon="i-lucide-file-signature"
+            :label="t('auditExecution.emptyState.goToAssignmentLetter')"
+            color="neutral"
+            variant="outline"
+            class="justify-center"
+          />
+          <UButton
+            v-if="canSyncAudits"
+            icon="i-lucide-refresh-cw"
+            :label="t('auditExecution.sync.button')"
+            color="primary"
+            class="justify-center font-bold"
+            :loading="syncing"
+            :disabled="syncing"
+            @click="syncFromAssignmentLetters"
+          />
+        </div>
+      </template>
+    </div>
+
     <!-- Table Section -->
-    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm">
-      <TableEntities :columns="columns" :data="filteredAudits">
+    <div v-else class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm">
+      <TableEntities :columns="columns" :data="filteredAudits" :loading="loading">
         <template #name-cell="{ row }">
           <div class="flex flex-col">
             <span class="font-bold text-gray-900 dark:text-white">{{ (row.original || row).name }}</span>

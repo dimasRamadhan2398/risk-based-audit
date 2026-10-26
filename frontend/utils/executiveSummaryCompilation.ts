@@ -7,7 +7,7 @@
  * Persisted as risikoHigh / risikoModerateHigh / risikoModerate / risikoLowModerate / risikoLow.
  * The risk data is calculated by the system; the legacy three-level fields are no longer sent.
  *
- * Statistics come from GET /executive-summary/compilation-stats (parseCompilationStats). The backend
+ * Statistics come from GET /executive-summaries/compilation-stats (parseCompilationStats). The backend
  * does the counting; the frontend only maps the response onto the form fields.
  */
 
@@ -102,7 +102,7 @@ export interface CompilationFollowUp {
   overdue: number
 }
 
-/** Statistics of GET /executive-summary/compilation-stats (data payload), already validated. */
+/** Statistics of GET /executive-summaries/compilation-stats (data payload), already validated. */
 export interface CompilationStats {
   year: number
   /** 1-4, or 0 for the whole year */
@@ -145,7 +145,7 @@ const isCount = (value: unknown): value is number =>
   typeof value === 'number' && Number.isInteger(value) && value >= 0
 
 /**
- * Validates the body of GET /executive-summary/compilation-stats and maps it to CompilationStats.
+ * Validates the body of GET /executive-summaries/compilation-stats and maps it to CompilationStats.
  * Throws when a count is missing or not a non-negative integer, or when the follow-up table does not
  * have exactly the three statuses, so that a partial response is never written to the form.
  */

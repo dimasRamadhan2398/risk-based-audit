@@ -23,15 +23,17 @@
         <div class="space-y-6 m-6">
         <div class="grid grid-cols-1 md:grid-cols-4 items-start max-w-full mt-10">
             <UFormField :label="t('workingPaper.headerForm.auditPurpose')" class="font-semibold text-sm text-gray-700  mt-2" />
-            <UTextarea
-                v-model="store.headerForm.auditPurpose"
-                class="md:col-span-3"
-                disabled
-                autoresize
-                :rows="1"
-                :maxrows="5"
-                :placeholder="t('workingPaper.headerForm.auditPurposePlaceholder')"
-            />
+            <div class="md:col-span-3">
+                <NumberedListInput
+                    v-model="auditPurposeItems"
+                    :label="t('workingPaper.headerForm.auditPurpose')"
+                    :disabled="!auditPurposeEditable"
+                    test-id="list-audit-purpose"
+                />
+                <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                    {{ t('workingPaper.headerForm.auditPurposePlaceholder') }}
+                </p>
+            </div>
         </div>
 
         <UFormField 
@@ -182,13 +184,30 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useWorkingPaperStore, headerSchema } from '~/stores/working-paper'
 import { useLocationStore } from '~/stores/location'
+import NumberedListInput from '~/components/shared/NumberedListInput.vue'
+import {
+  auditPurposeItemsFromText,
+  auditPurposeTextFromItems
+} from '~/utils/workingPaperAuditPurpose'
 
 const store = useWorkingPaperStore()
 const locationStore = useLocationStore()
 const { t } = useI18n()
+
+// Audit Purpose comes from the selected assignment letter, so it is read-only for now.
+// Set to true to let the user add, edit and reorder purposes on the working paper.
+const auditPurposeEditable = true
+
+// The store keeps one text value (one purpose per line); the form edits it as a list.
+const auditPurposeItems = computed<string[]>({
+  get: () => auditPurposeItemsFromText(store.headerForm.auditPurpose),
+  set: (items) => {
+    store.headerForm.auditPurpose = auditPurposeTextFromItems(items)
+  }
+})
 
 onMounted(() => {
   if (locationStore.locations.length === 0) {

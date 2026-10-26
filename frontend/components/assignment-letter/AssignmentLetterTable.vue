@@ -1,9 +1,9 @@
 <template>
     <UCard class="rounded-xl shadow-sm overflow-hidden" variant="soft">
       <TableEntities
-        :columns="store.columns"
+        :columns="columns"
         :data="store.assignmentLetterList"
-        :empty-state="{ icon: 'i-heroicons-document-text', label: 'No assignment letters yet. Click Create Assignment Letter to start.' }"
+        :empty-state="{ icon: 'i-heroicons-document-text', label: t('assignmentLetter.table.empty') }"
         class="w-full text-sm"
       >
         <template #letterNumber-cell="{ row }">
@@ -37,7 +37,7 @@
 
         <template #status-cell="{ row }">
           <UBadge :color="row.original.status === 'Published' ? 'success' : 'neutral'" variant="subtle" size="lg" class="font-bold">
-            {{ row.original.status }}
+            {{ statusLabel(row.original.status) }}
           </UBadge>
         </template>
 
@@ -83,6 +83,26 @@ const { t } = useI18n()
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 
 const store = useAssignmentLetterStore()
+
+// Column keys/classes live in the store; headers are resolved here so they follow the active locale.
+const headerKeys: Record<string, string> = {
+  letterNumber: 'assignmentLetter.table.columns.letterNumber',
+  auditTitle: 'assignmentLetter.table.columns.auditTitle',
+  workingUnit: 'assignmentLetter.table.columns.workingUnit',
+  executionPeriod: 'assignmentLetter.table.columns.executionPeriod',
+  auditTeam: 'assignmentLetter.table.columns.auditTeam',
+  status: 'assignmentLetter.table.columns.status',
+  actions: 'common.columns.actions'
+}
+const columns = computed(() =>
+  store.columns.map((col: any) => ({
+    ...col,
+    header: headerKeys[col.accessorKey] ? t(headerKeys[col.accessorKey]) : col.header
+  }))
+)
+
+const statusLabel = (status: string) =>
+  ['Draft', 'Published'].includes(status) ? t(`assignmentLetter.table.status.${status}`) : status
 // Publishing is limited to the roles in the RBAC matrix ("Create / Publish Letter")
 const { canManageAssignmentLetter } = useRbac()
 

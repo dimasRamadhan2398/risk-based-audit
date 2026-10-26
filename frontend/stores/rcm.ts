@@ -7,6 +7,7 @@ import { RiskLevel } from '~/types/risk'
 import { extractErrorMessage } from '~/utils/error'
 import { getRiskServiceBaseUrl } from '~/composables/useApiUrl'
 import { useFiscalYear } from '~/composables/useFiscalYear'
+import { useI18n } from '~/composables/useI18n'
 
 export interface RCMItem {
   id: string
@@ -36,11 +37,11 @@ export interface RCMItem {
 }
 
 export const cosoDimensions = [
-  { key: 'design_effectiveness', label: '1. Design Effectiveness', shortLabel: 'Design', ratingKey: 'design_effectiveness_rating' },
-  { key: 'operating_effectiveness', label: '2. Operating Effectiveness', shortLabel: 'Operating', ratingKey: 'operating_effectiveness_rating' },
-  { key: 'coverage_completeness', label: '3. Coverage & Completeness', shortLabel: 'Coverage', ratingKey: 'coverage_completeness_rating' },
-  { key: 'timeliness', label: '4. Timeliness', shortLabel: 'Timeliness', ratingKey: 'timeliness_rating' },
-  { key: 'automation_monitoring', label: '5. Automation & Monitoring', shortLabel: 'Automation', ratingKey: 'automation_monitoring_rating' }
+  { key: 'design_effectiveness', i18nKey: 'design', label: '1. Design Effectiveness', shortLabel: 'Design', ratingKey: 'design_effectiveness_rating' },
+  { key: 'operating_effectiveness', i18nKey: 'operating', label: '2. Operating Effectiveness', shortLabel: 'Operating', ratingKey: 'operating_effectiveness_rating' },
+  { key: 'coverage_completeness', i18nKey: 'coverage', label: '3. Coverage & Completeness', shortLabel: 'Coverage', ratingKey: 'coverage_completeness_rating' },
+  { key: 'timeliness', i18nKey: 'timeliness', label: '4. Timeliness', shortLabel: 'Timeliness', ratingKey: 'timeliness_rating' },
+  { key: 'automation_monitoring', i18nKey: 'automation', label: '5. Automation & Monitoring', shortLabel: 'Automation', ratingKey: 'automation_monitoring_rating' }
 ]
 
 export interface DepartmentRiskExposure {
@@ -103,6 +104,13 @@ export const computeInherentVsResidualByDepartment = (
     riskCount: g.count
   }))
 }
+
+/** i18n key suffix (rcm.interpretationTable.ratings.* / descriptions.*) for a score, same bands as getEffectivenessInterpretation. */
+export const getEffectivenessKey = (scorePercent: number) =>
+  scorePercent >= 90 ? 'highlyEffective'
+    : scorePercent >= 80 ? 'effective'
+      : scorePercent >= 70 ? 'moderatelyEffective'
+        : scorePercent >= 60 ? 'weak' : 'ineffective'
 
 export const getEffectivenessInterpretation = (scorePercent: number) => {
   if (scorePercent >= 90) {
@@ -168,19 +176,21 @@ export const useRCMStore = defineStore('rcm', () => {
   const loading = ref(false)
   const errorMsg = ref('')
 
-  const columns: (TableColumn<RCMItem> & { class?: string })[] = [
-    { accessorKey: 'risk_code', id: 'risk_code', header: 'Kode / Risiko', class: 'w-[280px] min-w-[280px]' },
-    { accessorKey: 'control_code', id: 'control_code', header: 'Risk Control ID & Deskripsi Mitigasi', class: 'w-[320px] min-w-[320px]' },
-    { accessorKey: 'department', id: 'department', header: 'Departemen / PIC', class: 'w-[170px] min-w-[170px]' },
-    { accessorKey: 'design_effectiveness_rating', id: 'design_effectiveness_rating', header: 'Design', class: 'w-[100px] min-w-[100px] text-center' },
-    { accessorKey: 'operating_effectiveness_rating', id: 'operating_effectiveness_rating', header: 'Operating', class: 'w-[100px] min-w-[100px] text-center' },
-    { accessorKey: 'coverage_completeness_rating', id: 'coverage_completeness_rating', header: 'Coverage', class: 'w-[100px] min-w-[100px] text-center' },
-    { accessorKey: 'timeliness_rating', id: 'timeliness_rating', header: 'Timeliness', class: 'w-[100px] min-w-[100px] text-center' },
-    { accessorKey: 'automation_monitoring_rating', id: 'automation_monitoring_rating', header: 'Automation', class: 'w-[110px] min-w-[110px] text-center' },
-    { accessorKey: 'total_weighted_score', id: 'total_weighted_score', header: 'Total Score', class: 'w-[110px] min-w-[110px] text-center' },
-    { accessorKey: 'rating', id: 'rating', header: 'Rating Efektivitas', class: 'w-[150px] min-w-[150px] text-center' },
-    { accessorKey: 'actions', id: 'actions', header: 'Aksi', class: 'w-[90px] min-w-[90px] text-center' }
-  ]
+  const { t } = useI18n()
+
+  const columns = computed<(TableColumn<RCMItem> & { class?: string })[]>(() => [
+    { accessorKey: 'risk_code', id: 'risk_code', header: t('rcm.table.columns.riskCode'), class: 'w-[280px] min-w-[280px]' },
+    { accessorKey: 'control_code', id: 'control_code', header: t('rcm.table.columns.controlCode'), class: 'w-[320px] min-w-[320px]' },
+    { accessorKey: 'department', id: 'department', header: t('rcm.table.columns.department'), class: 'w-[170px] min-w-[170px]' },
+    { accessorKey: 'design_effectiveness_rating', id: 'design_effectiveness_rating', header: t('rcm.table.columns.design'), class: 'w-[100px] min-w-[100px] text-center' },
+    { accessorKey: 'operating_effectiveness_rating', id: 'operating_effectiveness_rating', header: t('rcm.table.columns.operating'), class: 'w-[100px] min-w-[100px] text-center' },
+    { accessorKey: 'coverage_completeness_rating', id: 'coverage_completeness_rating', header: t('rcm.table.columns.coverage'), class: 'w-[100px] min-w-[100px] text-center' },
+    { accessorKey: 'timeliness_rating', id: 'timeliness_rating', header: t('rcm.table.columns.timeliness'), class: 'w-[100px] min-w-[100px] text-center' },
+    { accessorKey: 'automation_monitoring_rating', id: 'automation_monitoring_rating', header: t('rcm.table.columns.automation'), class: 'w-[110px] min-w-[110px] text-center' },
+    { accessorKey: 'total_weighted_score', id: 'total_weighted_score', header: t('rcm.table.columns.totalScore'), class: 'w-[110px] min-w-[110px] text-center' },
+    { accessorKey: 'rating', id: 'rating', header: t('rcm.table.columns.rating'), class: 'w-[150px] min-w-[150px] text-center' },
+    { accessorKey: 'actions', id: 'actions', header: t('common.columns.actions'), class: 'w-[90px] min-w-[90px] text-center' }
+  ])
 
   // RCM rows come only from the risk-service API (no dummy data, no local cache).
   // Clear the cache older builds kept in localStorage so stale rows can't resurface.

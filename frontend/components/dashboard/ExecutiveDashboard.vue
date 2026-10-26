@@ -280,7 +280,7 @@
         <div>
           <h2 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <UIcon name="i-lucide-shield-check" class="size-5 text-sky-500" />
-            3. Ringkasan Pengendalian Internal Berbasis COSO 2013
+            3. Ringkasan Pengendalian Internal Berbasis COSO
           </h2>
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
             Evaluasi kesehatan sistem pengendalian internal korporasi pada 5 pilar utama COSO Framework.

@@ -36,7 +36,7 @@
                 class="size-4"
               />
             </template>
-            Sync
+            {{ t('dashboard.overview.sync') }}
           </UButton>
         </div>
       </div>
@@ -268,7 +268,7 @@
                     <span class="font-mono text-xs font-bold text-violet-600 dark:text-violet-400">{{ kpi.code }}</span>
                     <span class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ kpi.kpiName }}</span>
                     <UBadge :color="getTrendBadgeColor(kpi.trend) as any" variant="subtle" size="sm" class="font-semibold text-[10px]">
-                      {{ kpi.trend }}
+                      {{ trendLabel(kpi.trend) }}
                     </UBadge>
                   </div>
                   <p class="text-xs text-slate-500 dark:text-slate-400">
@@ -326,7 +326,7 @@
                 <div class="space-y-1 min-w-0">
                   <div class="flex flex-wrap items-center gap-2">
                     <UBadge :color="getSeverityColor(anm.severity) as any" variant="solid" size="sm" class="font-bold text-[10px]">
-                      {{ anm.severity }}
+                      {{ severityLabel(anm.severity) }}
                     </UBadge>
                     <span class="font-mono text-xs font-bold text-slate-900 dark:text-slate-100">{{ anm.id }}</span>
                     <span class="text-xs font-bold text-slate-600 dark:text-slate-400">· {{ anm.entity }}</span>
@@ -391,7 +391,7 @@
             </div>
             <div class="mt-2">
               <span :class="getRatingBadgeClass(rcmStore.effectivenessRating.rating)">
-                {{ rcmStore.effectivenessRating.rating }}
+                {{ effectivenessRatingLabel }}
               </span>
             </div>
           </div>
@@ -412,8 +412,8 @@
               :color="(rcmStore.effectivenessRating.alertColor as any) || 'info'"
               variant="subtle"
               icon="i-lucide-info"
-              :title="'Interpretasi Hasil COSO (' + rcmStore.effectivenessRating.rating + '):'"
-              :description="rcmStore.effectivenessRating.interpretation"
+              :title="t('rcm.cards.effectiveness.cosoInterpretation', { rating: effectivenessRatingLabel })"
+              :description="effectivenessInterpretation"
               class="rounded-xl shadow-xs border-none! bg-transparent! border-transparent!"
             />
           </div>
@@ -438,7 +438,7 @@
           <div class="mt-4 space-y-3">
             <div v-for="dim in cosoDimensions" :key="dim.key" class="space-y-1">
               <div class="flex justify-between text-md">
-                <span class="font-medium text-slate-700 dark:text-slate-300">{{ dim.shortLabel }}</span>
+                <span class="font-medium text-slate-700 dark:text-slate-300">{{ t(`rcm.dimensions.${dim.i18nKey}`) }}</span>
                 <span class="font-bold text-slate-900 dark:text-white">{{ getDimAverage(dim.key) }}%</span>
               </div>
               <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
@@ -607,10 +607,11 @@
                     <div
                       class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-md font-semibold rounded shadow-sm hover:scale-105 transition-transform cursor-pointer"
                       :class="getHeatMapCellColor(x, y)"
-                      :title="`Impact: ${x}, Probability: ${6 - y}, Risk: ${getRiskLevel(
-                        x,
-                        6 - y
-                      )}`"
+                      :title="t('dashboard.registeredRisks.cellTooltip', {
+                        impact: x,
+                        probability: 6 - y,
+                        level: t(`riskProfile.riskLevelLabels.${getRiskLevel(x, 6 - y)}`)
+                      })"
                     ></div>
                   </template>
                 </template>
@@ -657,7 +658,7 @@
               :columns="registeredRiskColumns"
               :empty-state="{
                 icon: 'i-heroicons-circle-stack-20-solid',
-                label: 'Belum ada data yang dimasukkan ke Risk Heat Map.',
+                label: t('dashboard.registeredRisks.empty'),
               }"
               class="w-full"
             />
@@ -956,7 +957,7 @@ import { useAuditExecutionStore } from "~/stores/audit-execution";
 import { getProgressValue } from "~/utils/executionSources";
 import { useAuditResultReportStore } from "~/stores/audit-result-report";
 import { useAuthStore } from "~/stores/auth";
-import { useRCMStore, cosoDimensions } from "~/stores/rcm";
+import { useRCMStore, cosoDimensions, getEffectivenessKey } from "~/stores/rcm";
 import { RiskLevel } from "~/types/risk";
 import { ATR_SLICE_HEX, atrStatusI18nKey, formatAtrDate, type AtrSliceKey } from "~/utils/actionTakenReport";
 import { UBadge } from "#components";
@@ -1000,6 +1001,17 @@ const getDimAverage = (dimKey: string) => {
   };
   return map[dimKey] || 0;
 };
+
+// Control effectiveness rating + interpretation in the active locale (same keys as the RCM page).
+const effectivenessKey = computed(() =>
+  getEffectivenessKey(rcmStore.internalControlEffectiveness)
+);
+const effectivenessRatingLabel = computed(() =>
+  t(`rcm.interpretationTable.ratings.${effectivenessKey.value}`)
+);
+const effectivenessInterpretation = computed(() =>
+  t(`rcm.interpretationTable.descriptions.${effectivenessKey.value}`)
+);
 
 const getRatingBadgeClass = (ratingLabel: string) =>
   `font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block ${getControlEffectivenessColorClass(ratingLabel)}`;
@@ -1273,6 +1285,21 @@ const getSeverityColor = (sev: string) => {
   }
 };
 
+// Backend sends enum-like English values (Improving / Critical ...); show them in the active locale.
+const trendLabel = (trend: string) => {
+  const key = String(trend || "").trim().toLowerCase();
+  return ["improving", "declining", "deteriorating", "stable"].includes(key)
+    ? t(`dashboard.overview.trend.${key}`)
+    : trend;
+};
+
+const severityLabel = (severity: string) => {
+  const key = String(severity || "").trim().toLowerCase();
+  return ["critical", "high", "medium", "low"].includes(key)
+    ? t(`dashboard.overview.severity.${key}`)
+    : severity;
+};
+
 const getTrendBadgeColor = (trend: string) => {
   switch (trend) {
     case "Improving":
@@ -1454,11 +1481,11 @@ const atrTableData = computed(() => {
 
 // Explicit widths: Action Item takes the slack of the full-width card, the rest stay compact.
 const tableColumns = [
-  { accessorKey: "id", header: "Audit ID", class: "min-w-40" },
-  { accessorKey: "name", header: "Action Item", class: "min-w-64 w-full" },
-  { accessorKey: "owner", header: "Owner", class: "min-w-40" },
-  { accessorKey: "date", header: "Due Date", class: "min-w-32" },
-  { accessorKey: "status", header: "Status", class: "min-w-32" },
+  { accessorKey: "id", header: () => t("dashboard.atrTable.columns.auditId"), class: "min-w-40" },
+  { accessorKey: "name", header: () => t("dashboard.atrTable.columns.actionItem"), class: "min-w-64 w-full" },
+  { accessorKey: "owner", header: () => t("dashboard.atrTable.columns.owner"), class: "min-w-40" },
+  { accessorKey: "date", header: () => t("actionTakenReport.table.columns.dueDate"), class: "min-w-32" },
+  { accessorKey: "status", header: () => t("actionTakenReport.table.columns.status"), class: "min-w-32" },
 ];
 
 const registeredRiskHeatMap = computed(() => riskProfileStore.risks.slice(0, 5));
@@ -1466,7 +1493,7 @@ const registeredRiskHeatMap = computed(() => riskProfileStore.risks.slice(0, 5))
 const registeredRiskColumns = [
   {
     accessorKey: "name",
-    header: "Risk Name",
+    header: () => t("dashboard.registeredRisks.columns.name"),
     // Fixed width so long names don't push Score/Level around; name wraps to 2 lines,
     // and clipped text shows a tooltip on hover.
     class: "w-64 min-w-64 max-w-64",
@@ -1486,7 +1513,7 @@ const registeredRiskColumns = [
   },
   {
     accessorKey: "severity",
-    header: "Score",
+    header: () => t("dashboard.registeredRisks.columns.score"),
     cell: (row: any) => {
       const rawObject = row.row.original;
       return h("span", { class: "font-bold" }, rawObject.impact * rawObject.likelihood);

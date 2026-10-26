@@ -27,7 +27,7 @@
             :class="locale === 'id' ? 'bg-primary-500 text-white shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
             @click="setLocale('id')"
           >
-            <span>🇮🇩</span> ID
+            ID
           </button>
           <button
             type="button"
@@ -35,7 +35,7 @@
             :class="locale === 'en' ? 'bg-primary-500 text-white shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
             @click="setLocale('en')"
           >
-            <span>🇬🇧</span> EN
+            EN
           </button>
         </div>
       </div>
@@ -59,7 +59,7 @@
             v-if="showNewDeviceHint"
             class="mb-4 flex items-start gap-3 rounded-xl bg-warning-500/10 border border-warning-500/20 px-4 py-3"
           >
-            <span class="text-warning-500 mt-0.5">⚠</span>
+            <UIcon name="i-lucide-triangle-alert" class="w-5 h-5 shrink-0 text-warning-500 mt-0.5" />
             <p class="text-md text-warning-600 dark:text-warning-400">
               {{ t('auth.login.newDeviceHint') }}
             </p>

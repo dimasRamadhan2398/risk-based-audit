@@ -35,11 +35,36 @@ export function normalizeAuditStatus(status?: string | null, progress?: number):
   return clean || 'planning'
 }
 
+/** Outcome of POST /audit-executions/sync. */
+export interface AuditExecutionSyncResult {
+  /** Executions recomputed by the sync. */
+  synced: number
+  /** Executions newly created from assignment letters that had none. */
+  created: number
+  /** Source rows (fieldwork, working paper, ...) whose letter reference matches no assignment letter. */
+  unmatched: number
+}
+
+/** Body of POST /audit-executions/sync (under `data`). */
+interface SyncResponse {
+  synced?: number
+  created?: number
+  items?: unknown[]
+  unmatched_source_rows?: Record<string, number>
+}
+
+const toCount = (value: unknown): number => {
+  const n = Number(value)
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0
+}
+
 export const useAuditExecutionStore = defineStore('audit-execution', {
   state: () => ({
     auditExecutions: [] as AuditExecution[],
     loading: false,
-    error: null as string | null
+    error: null as string | null,
+    syncing: false,
+    syncError: null as string | null
   }),
 
   getters: {
@@ -111,6 +136,41 @@ export const useAuditExecutionStore = defineStore('audit-execution', {
         throw err
       } finally {
         this.loading = false
+      }
+    },
+
+    /**
+     * Creates the missing executions for every live assignment letter on the server,
+     * recomputes progress, then reloads the list. Returns null when the sync failed
+     * (message in syncError; the current list is left as it is) or one is already running.
+     */
+    async syncFromAssignmentLetters(): Promise<AuditExecutionSyncResult | null> {
+      if (this.syncing) return null
+      this.syncing = true
+      this.syncError = null
+
+      try {
+        const baseUrl = getAuditServiceBaseUrl()
+        const response = await $fetch<SyncResponse | { data?: SyncResponse }>(`${baseUrl}/audit-executions/sync`, {
+          method: 'POST'
+        })
+        const data: SyncResponse = (response && 'data' in response ? response.data : response as SyncResponse) ?? {}
+        const unmatchedRows = data.unmatched_source_rows
+        const result: AuditExecutionSyncResult = {
+          synced: toCount(data.synced),
+          created: toCount(data.created),
+          unmatched: unmatchedRows && typeof unmatchedRows === 'object'
+            ? Object.values(unmatchedRows).reduce<number>((sum, n) => sum + toCount(n), 0)
+            : 0
+        }
+        await this.fetchAuditExecutions()
+        return result
+      } catch (err) {
+        console.error('Failed to sync audit executions from assignment letters:', err)
+        this.syncError = extractErrorMessage(err, 'Failed to sync audits from assignment letters.')
+        return null
+      } finally {
+        this.syncing = false
       }
     }
   }

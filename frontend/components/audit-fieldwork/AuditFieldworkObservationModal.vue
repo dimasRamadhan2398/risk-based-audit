@@ -165,12 +165,9 @@
             </UFormField>
 
             <UFormField :label="t('auditFieldwork.observation.uploadFile')">
-              <UInput
-                type="file"
-                icon="i-heroicons-paper-clip"
-                @change="store.handleObservationFileChange"
+              <LocalizedFileInput
                 accept=".pdf,.docx,.doc"
-                class="w-full"
+                @change="store.handleObservationFileChange"
               />
               <div v-if="store.observationForm.file || store.observationForm.fileName" class="mt-2 flex items-center gap-2">
                 <UIcon name="i-heroicons-document" />

@@ -14,14 +14,73 @@ type KafkaConfig struct {
 	ServiceName string  `mapstructure:"service_name"`
 }
 
+// KafkaConsumerConfig configures the annual plan sync consumer.
+//
+// Env overrides: KAFKA_CONSUMER_ENABLED, KAFKA_CONSUMER_BROKERS (comma
+// separated), KAFKA_CONSUMER_GROUP_ID, KAFKA_CONSUMER_TOPICS, and
+// KAFKA_TOPIC_PREFIX (bound explicitly; the same variable risk-service reads).
+//
+// Every stack sharing the broker needs its own group id: members of one group
+// split the partitions between them, so a tenant's consumer would silently take
+// a share of another stack's events. Load derives a per-prefix group when the
+// prefix is set and the group was left at the default.
 type KafkaConsumerConfig struct {
-	Enabled  bool     `mapstructure:"enabled"`
-	Brokers  []string `mapstructure:"brokers"`
-	GroupID  string   `mapstructure:"group_id"`
-	Topics   []string `mapstructure:"topics"`
-	Version  string   `mapstructure:"version"`
-	Assignor string   `mapstructure:"assignor"` // range, roundrobin, sticky
-	Offset   string   `mapstructure:"offset"`   // oldest (replay retained events) or newest; used when the group has no offset yet
+	Enabled     bool     `mapstructure:"enabled"`
+	Brokers     []string `mapstructure:"brokers"`
+	GroupID     string   `mapstructure:"group_id"`
+	Topics      []string `mapstructure:"topics"`
+	Version     string   `mapstructure:"version"`
+	Assignor    string   `mapstructure:"assignor"` // range, roundrobin, sticky
+	Offset      string   `mapstructure:"offset"`   // oldest (replay retained events) or newest; used when the group has no offset yet
+	TopicPrefix string   `mapstructure:"topic_prefix"`
+}
+
+const (
+	// KafkaTopicPrefixEnv isolates this stack's business-event topics on the
+	// shared broker. Empty keeps the historical topic names.
+	KafkaTopicPrefixEnv = "KAFKA_TOPIC_PREFIX"
+
+	// DefaultAnnualPlanSyncGroupID is the consumer group of the shared stack.
+	DefaultAnnualPlanSyncGroupID = "audit-service-annual-plan-sync"
+)
+
+// PrefixedTopics lists the subscribed topics whose producer honours
+// KAFKA_TOPIC_PREFIX. Only these are renamed; the rest keep their shared name
+// so the consumer stays subscribed to where the producer actually writes.
+// department.events is not here yet: master-service publishes it unprefixed.
+var PrefixedTopics = []string{"audit-universe.events"}
+
+// TopicName returns base, or "<prefix>.<base>" when prefix is non-empty. It
+// must match risk-service/pkg/kafka.TopicName.
+func TopicName(prefix, base string) string {
+	prefix = strings.Trim(strings.TrimSpace(prefix), ".")
+	if prefix == "" {
+		return base
+	}
+	return prefix + "." + base
+}
+
+// applyTopicPrefix renames the prefixable topics and derives a per-prefix
+// group id when the group is still the shared default.
+func (c *KafkaConsumerConfig) applyTopicPrefix() {
+	prefix := strings.Trim(strings.TrimSpace(c.TopicPrefix), ".")
+	c.TopicPrefix = prefix
+	if prefix == "" {
+		return
+	}
+	topics := make([]string, len(c.Topics))
+	for i, t := range c.Topics {
+		topics[i] = t
+		for _, p := range PrefixedTopics {
+			if t == p {
+				topics[i] = TopicName(prefix, t)
+			}
+		}
+	}
+	c.Topics = topics
+	if c.GroupID == "" || c.GroupID == DefaultAnnualPlanSyncGroupID {
+		c.GroupID = DefaultAnnualPlanSyncGroupID + "-" + prefix
+	}
 }
 
 type Config struct {
@@ -120,7 +179,8 @@ func setDefaults() {
 	viper.SetDefault("kafka.service_name", "auth-service")
 	viper.SetDefault("kafka_consumer.enabled", false)
 	viper.SetDefault("kafka_consumer.brokers", []string{"kafka:29092"})
-	viper.SetDefault("kafka_consumer.group_id", "audit-service-annual-plan-sync")
+	viper.SetDefault("kafka_consumer.group_id", DefaultAnnualPlanSyncGroupID)
+	viper.SetDefault("kafka_consumer.topic_prefix", "")
 	viper.SetDefault("kafka_consumer.topics", []string{"audit-universe.events", "department.events"})
 	viper.SetDefault("kafka_consumer.version", "3.6.0")
 	viper.SetDefault("kafka_consumer.assignor", "roundrobin")
@@ -137,6 +197,10 @@ func Load(configPath string) (*Config, error) {
 	viper.AutomaticEnv()
 	// jwt.secret is bound explicitly so JWT_SECRET overrides the file even when the file has no secret key.
 	_ = viper.BindEnv("jwt.secret", JWTSecretEnv)
+	// The replacer would map kafka_consumer.topic_prefix to
+	// KAFKA_CONSUMER_TOPIC_PREFIX; bind the variable risk-service reads instead,
+	// so one env key names the topic on both sides.
+	_ = viper.BindEnv("kafka_consumer.topic_prefix", KafkaTopicPrefixEnv)
 
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("failed to read config: %w", err)
@@ -146,6 +210,7 @@ func Load(configPath string) (*Config, error) {
 	if err := viper.Unmarshal(&config); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
 	}
+	config.KafkaConsumer.applyTopicPrefix()
 
 	return &config, nil
 }

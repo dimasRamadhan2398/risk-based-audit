@@ -41,14 +41,14 @@ export const useLocationStore = defineStore('location', () => {
   })
 
   // Table Columns
-  const columns: TableColumn<Location>[] = [
+  const columns = computed<TableColumn<Location>[]>(() => [
     { accessorKey: 'name', header: t('masterData.location.columns.name') },
     { accessorKey: 'city', header: t('masterData.location.columns.city') },
     { accessorKey: 'province', header: t('masterData.location.columns.province') },
     { accessorKey: 'address', header: t('masterData.location.columns.address') },
     { accessorKey: 'is_active', header: t('masterData.location.columns.status') },
-    { accessorKey: 'actions', header: '' }
-  ]
+    { accessorKey: 'actions', header: t('common.columns.actions') }
+  ])
 
   // ============= Getters =============
   const filteredLocations = computed(() => {

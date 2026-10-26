@@ -70,3 +70,37 @@ func TestRequireRolesForStatusChange(t *testing.T) {
 		}
 	}
 }
+
+func TestRequireAnyRole(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	withRoles := func(c *gin.Context) {
+		if roles := c.GetHeader("X-Test-Roles"); roles != "" {
+			c.Set("roles", strings.Split(roles, ","))
+		}
+	}
+	r.POST("/sync", withRoles, RequireAnyRole("ADMIN", "EXECUTIVE"), func(c *gin.Context) { c.Status(http.StatusOK) })
+
+	cases := []struct {
+		roles string
+		want  int
+	}{
+		{"ADMIN", 200},
+		{"executive", 200},
+		{"AUDITOR,EXECUTIVE", 200},
+		{"AUDITOR", 403},
+		{"VIEWER", 403},
+		{"", 403},
+	}
+	for _, tc := range cases {
+		req := httptest.NewRequest(http.MethodPost, "/sync", nil)
+		if tc.roles != "" {
+			req.Header.Set("X-Test-Roles", tc.roles)
+		}
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, req)
+		if w.Code != tc.want {
+			t.Errorf("roles %q: got %d, want %d", tc.roles, w.Code, tc.want)
+		}
+	}
+}

@@ -231,11 +231,21 @@ func buildDocumentXML(
 ) (string, error) {
 	var body bytes.Buffer
 
-	companyName := "PT AIFL Indonesia"
+	// No hardcoded company: an unresolved name renders as "-" on the cover
+	// and is left out of the "AUDIT INTERNAL" signature line.
+	companyName := ""
 	if report != nil && report.CompanyName != "" {
 		companyName = report.CompanyName
 	} else if st != nil && st.CompanyName != "" {
 		companyName = st.CompanyName
+	}
+	coverCompanyName := companyName
+	if strings.TrimSpace(coverCompanyName) == "" {
+		coverCompanyName = "-"
+	}
+	auditInternalLine := "AUDIT INTERNAL"
+	if strings.TrimSpace(companyName) != "" {
+		auditInternalLine += " " + strings.ToUpper(companyName)
 	}
 
 	repNumber := xmlEsc(report.ReportNumber)
@@ -292,7 +302,7 @@ func buildDocumentXML(
 
 	body.WriteString(`<w:p><w:pPr><w:jc w:val="center"/></w:pPr></w:p>`)
 	body.WriteString(`<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="24"/><w:color w:val="003366"/></w:rPr><w:t xml:space="preserve">SATUAN INTERNAL AUDIT</w:t></w:r></w:p>`)
-	body.WriteString(fmt.Sprintf(`<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="24"/><w:color w:val="003366"/></w:rPr><w:t xml:space="preserve">%s</w:t></w:r></w:p>`, xmlEsc(companyName)))
+	body.WriteString(fmt.Sprintf(`<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="24"/><w:color w:val="003366"/></w:rPr><w:t xml:space="preserve">%s</w:t></w:r></w:p>`, xmlEsc(coverCompanyName)))
 	body.WriteString(`<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:sz w:val="20"/></w:rPr><w:t xml:space="preserve">Sistem Pengendalian Intern &amp; Audit Internal</w:t></w:r></w:p>`)
 
 	// Page Break
@@ -575,7 +585,7 @@ func buildDocumentXML(
 		sigDateStr = report.SignatureDate.Format("02 January 2006")
 	}
 	body.WriteString(fmt.Sprintf(`<w:p><w:pPr><w:spacing w:before="360"/><w:jc w:val="right"/></w:pPr><w:r><w:rPr><w:b/></w:rPr><w:t xml:space="preserve">%s, %s</w:t></w:r></w:p>`, xmlEsc(sigPlace), sigDateStr))
-	body.WriteString(fmt.Sprintf(`<w:p><w:pPr><w:spacing w:after="240"/><w:jc w:val="right"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="003366"/></w:rPr><w:t xml:space="preserve">AUDIT INTERNAL %s</w:t></w:r></w:p>`, xmlEsc(strings.ToUpper(companyName))))
+	body.WriteString(fmt.Sprintf(`<w:p><w:pPr><w:spacing w:after="240"/><w:jc w:val="right"/></w:pPr><w:r><w:rPr><w:b/><w:color w:val="003366"/></w:rPr><w:t xml:space="preserve">%s</w:t></w:r></w:p>`, xmlEsc(auditInternalLine)))
 
 	body.WriteString(`<w:p><w:pPr><w:spacing w:before="120" w:after="240"/><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="22"/></w:rPr><w:t>LEMBAR PENGESAHAN TIM AUDIT</w:t></w:r></w:p>`)
 

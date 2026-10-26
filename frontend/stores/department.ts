@@ -51,7 +51,7 @@ export const useDepartmentStore = defineStore('department', () => {
     { accessorKey: 'department_description', header: t('masterData.department.columns.description') },
     { accessorKey: 'level', header: t('masterData.department.columns.level') },
     { accessorKey: 'is_active', header: t('masterData.department.columns.status') },
-    { accessorKey: 'actions', header: t('masterData.department.columns.actions') }
+    { accessorKey: 'actions', header: t('common.columns.actions') }
   ])
 
   // ============= Getters =============

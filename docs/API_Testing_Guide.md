@@ -35,18 +35,18 @@ http://localhost:8002/api/v1
 
 Before testing the API, ensure the following:
 
-1. ✅ **PostgreSQL is running** on port 5432
-2. ✅ **Database `master_service`** exists
-3. ✅ **Run database migrations:**
+1. ✓ **PostgreSQL is running** on port 5432
+2. ✓ **Database `master_service`** exists
+3. ✓ **Run database migrations:**
    ```bash
    cd backend/master-service
    go run cmd/migrate.go migrate
    ```
-4. ✅ **Start the master service:**
+4. ✓ **Start the master service:**
    ```bash
    go run cmd/serve.go serve
    ```
-5. ✅ **Required reference data exists:**
+5. ✓ **Required reference data exists:**
    - Companies (for Department & Employee)
    - Job Roles (for Employee)
    - Departments (for Employee relationships)
@@ -171,11 +171,11 @@ Content-Type: application/json
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `department_code` | string | ✅ Yes | Unique department code (e.g., "DEPT001") |
-| `department_name` | string | ✅ Yes | Department name |
-| `pic_id` | UUID | ✅ Yes | Person in Charge ID |
-| `level` | int | ✅ Yes | Department level |
-| `company_id` | UUID | ✅ Yes | Company ID |
+| `department_code` | string | ✓ Yes | Unique department code (e.g., "DEPT001") |
+| `department_name` | string | ✓ Yes | Department name |
+| `pic_id` | UUID | ✓ Yes | Person in Charge ID |
+| `level` | int | ✓ Yes | Department level |
+| `company_id` | UUID | ✓ Yes | Company ID |
 | `department_description` | string | No | Department description |
 | `business_unit_id` | UUID | No | Business Unit ID |
 | `is_active` | boolean | No | Active status (default: true) |
@@ -382,14 +382,14 @@ Content-Type: application/json
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `employee_code` | string | ✅ Yes | Unique employee code (e.g., "EMP001") |
-| `full_name` | string | ✅ Yes | Employee's full name |
-| `email` | string | ✅ Yes | Valid email address |
-| `company_id` | UUID | ✅ Yes | Company ID |
-| `department_id` | UUID | ✅ Yes | Department ID |
-| `job_role_id` | UUID | ✅ Yes | Job Role ID |
-| `level_grade` | int | ✅ Yes | Employee level/grade |
-| `join_date` | string | ✅ Yes | Join date (format: YYYY-MM-DD) |
+| `employee_code` | string | ✓ Yes | Unique employee code (e.g., "EMP001") |
+| `full_name` | string | ✓ Yes | Employee's full name |
+| `email` | string | ✓ Yes | Valid email address |
+| `company_id` | UUID | ✓ Yes | Company ID |
+| `department_id` | UUID | ✓ Yes | Department ID |
+| `job_role_id` | UUID | ✓ Yes | Job Role ID |
+| `level_grade` | int | ✓ Yes | Employee level/grade |
+| `join_date` | string | ✓ Yes | Join date (format: YYYY-MM-DD) |
 | `phone` | string | No | Phone number |
 | `work_location_id` | UUID | No | Work Location ID |
 | `manager_id` | UUID | No | Manager's Employee ID |
@@ -571,11 +571,11 @@ DELETE {{baseUrl}}/employees/123e4567-e89b-12d3-a456-426614174000
 
 ### Collection Features:
 
-- ✅ All CRUD endpoints for Department and Employee
-- ✅ Pre-configured environment variable: `{{baseUrl}}`
-- ✅ Sample request bodies
-- ✅ Auto-save created IDs to collection variables
-- ✅ Test scripts for validation
+- ✓ All CRUD endpoints for Department and Employee
+- ✓ Pre-configured environment variable: `{{baseUrl}}`
+- ✓ Sample request bodies
+- ✓ Auto-save created IDs to collection variables
+- ✓ Test scripts for validation
 
 ### Environment Variables Setup:
 

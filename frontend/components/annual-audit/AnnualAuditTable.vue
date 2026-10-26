@@ -48,7 +48,7 @@
               class="inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold"
               :class="getRiskLevelColorClass(act.riskLevel)"
             >
-              {{ act.riskLevel || '-' }}
+              {{ riskLevelLabel(act.riskLevel) }}
             </span>
           </div>
         </template>
@@ -100,11 +100,17 @@
 <script setup lang="ts">
 import { useAnnualPlanStore } from '~/stores/annual-audit'
 import { useI18n } from '~/composables/useI18n'
-import { getRiskLevelColorClass } from '~/utils/riskLevelBadge'
+import { getRiskLevelColorClass, normalizeRiskLevel, RISK_LEVEL_LABEL_KEYS } from '~/utils/riskLevelBadge'
 
 // Cukup inisialisasi store. Komponen akan otomatis membaca status showModal, data form, dan fungsi dari sini.
 const store = useAnnualPlanStore()
 const { t } = useI18n()
+
+// Risk level text from the backend (e.g. "Medium to High") shown in the active locale.
+const riskLevelLabel = (level?: string | null) => {
+  const key = normalizeRiskLevel(level)
+  return key ? t(RISK_LEVEL_LABEL_KEYS[key]) : (level || '-')
+}
 
 const getRowDepartments = (plan: any): string[] => {
   const depts = new Set<string>()

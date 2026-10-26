@@ -70,4 +70,4 @@ for _, row in df_gaps.iterrows():
 
 if results:
     pd.DataFrame(results).to_sql("caatt_duplicate_gap_results", dl, schema="gold", if_exists="append", index=False)
-    print(f"✅ Saved {len(results)} results to gold.caatt_duplicate_gap_results")
+    print(f"✓ Saved {len(results)} results to gold.caatt_duplicate_gap_results")

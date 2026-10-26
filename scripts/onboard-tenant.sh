@@ -185,6 +185,31 @@ run_svc "audit-service-${SLUG}"  ./audit migrate up
 run_svc "master-service-${SLUG}" ./master migrate
 run_svc "risk-service-${SLUG}"   ./risk up
 
+# Reference catalogs (standard risk factors, standard audit universe), for every
+# tenant. These are product content, not demo data: without them a clean-slate
+# tenant cannot build its Audit Universe. They used to come only from the demo
+# seeder (`./risk seed` -> seedRiskFactorsAndUniverse), which also creates
+# corporate demo rows, so `--empty-data` tenants ended up with none.
+#
+# `./risk seed --catalog-only` must seed the standard catalogs only and be
+# idempotent. Older images lack the flag; probe for it instead of letting
+# `set -e` abort onboarding on "unknown flag".
+# Captured first: piping straight into `grep -q` under pipefail can SIGPIPE
+# compose and read as "flag missing".
+CATALOG_STATUS="seeded"
+RISK_SEED_HELP=$(run_svc "risk-service-${SLUG}" ./risk seed --help 2>/dev/null || true)
+if grep -q -- '--catalog-only' <<<"$RISK_SEED_HELP"; then
+    echo "    -> seeding reference catalogs (standard risk factors, standard audit universe)..."
+    run_svc "risk-service-${SLUG}" ./risk seed --catalog-only
+else
+    CATALOG_STATUS="MISSING (risk image has no 'seed --catalog-only')"
+    echo "    ! this risk-service image has no 'seed --catalog-only': the tenant has NO"
+    echo "      standard risk-factor / audit-universe catalogs. After deploying a risk"
+    echo "      image that has it, run:"
+    echo "      docker compose --project-directory backend/tenants/${SLUG} --env-file backend/tenants/${SLUG}/.env \\"
+    echo "        run --rm --no-deps risk-service-${SLUG} ./risk seed --catalog-only"
+fi
+
 if [ "$EMPTY_DATA" = true ]; then
     echo "    -> empty data state: demo seeders skipped (0 business records)"
 else
@@ -192,6 +217,27 @@ else
     run_svc "audit-service-${SLUG}"  ./audit seed
     run_svc "master-service-${SLUG}" ./master seed
     run_svc "risk-service-${SLUG}"   ./risk seed
+fi
+
+# Kafka topic for this tenant's Audit Universe events. The broker is shared, so
+# the compose file sets KAFKA_TOPIC_PREFIX=${SLUG} on risk-service and
+# audit-service. risk-service's relay creates the topic on first connect and the
+# broker auto-creates on subscribe, so this is belt and braces: it gives the
+# topic the broker's default partitioning before either service starts. Not
+# fatal — a missing Kafka container only delays the topic until the relay runs.
+KAFKA_TOPIC="${SLUG}.audit-universe.events"
+KAFKA_CONTAINER=""
+for candidate in rb_audit_kafka rb_audit_kafka_dev; do
+    if docker ps --format '{{.Names}}' | grep -qx "$candidate"; then
+        KAFKA_CONTAINER="$candidate"
+        break
+    fi
+done
+if [ -n "$KAFKA_CONTAINER" ] && docker exec "$KAFKA_CONTAINER" kafka-topics \
+        --bootstrap-server localhost:29092 --create --if-not-exists --topic "$KAFKA_TOPIC" >/dev/null 2>&1; then
+    echo "    -> Kafka topic ${KAFKA_TOPIC} ready"
+else
+    echo "    ! could not pre-create Kafka topic ${KAFKA_TOPIC}; risk-service will create it on start"
 fi
 
 # -----------------------------------------------------------------------------
@@ -327,7 +373,7 @@ fi
 # -----------------------------------------------------------------------------
 echo ""
 echo "=============================================================="
-echo "🎉 Client $CLIENT_NAME successfully onboarded!"
+echo "Client $CLIENT_NAME successfully onboarded!"
 echo "   Frontend URL : $PROTO://${DOMAIN}"
 if [ "$IS_LOCAL" = true ]; then
 echo "   Direct Local : http://localhost:${FE_PORT}"
@@ -337,12 +383,14 @@ echo "   Stack Dir    : backend/tenants/${SLUG}"
 echo "   Data State   : $([ "$EMPTY_DATA" = true ] && echo "Empty Data / Clean Slate (0 Business Records)" || echo "Demo Pre-seeded")"
 echo "   Databases    : rb_audit_{auth,audit,master,risk}_${SLUG}"
 echo "   Redis DB     : ${REDIS_DB} (isolated logical index)"
+echo "   Kafka        : topic ${KAFKA_TOPIC}, group audit-service-annual-plan-sync-${SLUG}"
+echo "   Risk catalogs: ${CATALOG_STATUS}"
 echo "   Storage Silo : ${STORAGE_DIR}"
 echo "   Google Drive : Blocked / Disabled (Local VPS Storage Active)"
 echo "   Email Svc    : ${EMAIL_STATUS}"
 echo "=============================================================="
 echo ""
-echo "⚠️  Before handing this instance to the client:"
+echo "Before handing this instance to the client:"
 echo "   1. The auth seeder creates the default admin account (admin / password123)."
 echo "      Rotate it — it is identical on every tenant."
 echo "   2. Check email delivery:"

@@ -44,6 +44,36 @@ export const strategicPlanFormFromPlan = (plan: Partial<StrategicAuditPlan>): Pa
 }
 
 /**
+ * What a KPI target/realization input keeps while typing: digits, one decimal point and a leading minus.
+ * A comma is read as the decimal point; letters, spaces, "%" and "Rp" are dropped.
+ */
+export const sanitizeKpiNumberInput = (value: unknown): string => {
+  const raw = String(value ?? '').replace(/,/g, '.')
+  const negative = raw.trimStart().startsWith('-')
+  const [whole = '', ...rest] = raw.replace(/[^\d.]/g, '').split('.')
+  const number = rest.length ? `${whole}.${rest.join('')}` : whole
+  return negative ? `-${number}` : number
+}
+
+/** A stored KPI target/realization: empty (not filled yet) or a plain number, as the backend accepts. */
+export const isKpiNumber = (value: unknown): boolean => {
+  const v = String(value ?? '').trim()
+  return v === '' || /^-?\d+(\.\d+)?$/.test(v)
+}
+
+/** The first target/realization that is not a number, in period order; null when all are valid. */
+export const firstInvalidKpiValue = (
+  form: Pick<Partial<StrategicAuditPlan>, 'kpiTargets' | 'kpiActuals'>
+): { field: 'target' | 'realization', period: string } | null => {
+  for (const [field, values] of [['target', form.kpiTargets], ['realization', form.kpiActuals]] as const) {
+    const periods = Object.keys(values ?? {}).sort()
+    const period = periods.find(p => !isKpiNumber((values as Record<string, unknown>)[p]))
+    if (period !== undefined) return { field, period }
+  }
+  return null
+}
+
+/**
  * Which form field a failed save belongs to: the backend answers an unknown category with
  * 400 "Invalid category ...". Null when the error is not tied to a field.
  */

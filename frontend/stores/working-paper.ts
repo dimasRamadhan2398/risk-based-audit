@@ -17,6 +17,7 @@ import { useRiskProfileStore, riskLevelConfig } from './risk-profile'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { RiskLevel, RiskTaxonomy } from '../types/risk'
 import { extractErrorMessage } from '~/utils/error'
+import { resolveAuditPurposeText } from '~/utils/workingPaperAuditPurpose'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 import { toTestResult, toTestResultBoolean } from '~/utils/sampleTestResult'
 import type { StepperItem } from '@nuxt/ui'
@@ -281,16 +282,9 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   // The Assignment Letter form edits its "Audit Purpose" as `purposeList`;
   // only seeded letters carry the single `auditPurpose` string, so letters
-  // created in the UI need the list as a fallback.
-  const resolveAuditPurpose = (letter: AssignmentLetter): string => {
-    const single = String(letter.auditPurpose || '').trim()
-    if (single) return single
-    if (!Array.isArray(letter.purposeList)) return ''
-    return letter.purposeList
-      .map(p => String(p || '').trim())
-      .filter(Boolean)
-      .join('; ')
-  }
+  // created in the UI need the list as a fallback. One purpose per line.
+  const resolveAuditPurpose = (letter: AssignmentLetter): string =>
+    resolveAuditPurposeText(letter)
 
   const toTeamMembers = (letter: AssignmentLetter) =>
     Array.isArray(letter.membersList)

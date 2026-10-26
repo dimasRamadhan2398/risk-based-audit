@@ -77,7 +77,7 @@ print(df_quality.to_string(index=False))
 
 # %%
 df_quality.to_sql("caatt_data_quality_metrics", dl, schema="gold", if_exists="append", index=False)
-print("✅ Data quality metrics saved to gold.caatt_data_quality_metrics")
+print("✓ Data quality metrics saved to gold.caatt_data_quality_metrics")
 
 overall = df_quality[['completeness_pct', 'accuracy_pct']].mean().mean()
 print(f"Overall Data Quality Score: {overall:.2f}%")

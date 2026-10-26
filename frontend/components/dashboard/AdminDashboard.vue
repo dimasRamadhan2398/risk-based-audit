@@ -436,7 +436,7 @@
       <div class="p-4 sm:p-6 flex flex-col justify-between dashboard-card">
         <div>
           <div class="flex items-center justify-between gap-2">
-            <h3 class="text-base font-bold text-slate-900 dark:text-white">Rata-Rata COSO 2013</h3>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">Rata-Rata COSO</h3>
             <span class="text-md font-bold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/60 px-2.5 py-1 rounded-full border border-primary-100 dark:border-primary-800 whitespace-nowrap shrink-0">
               {{ rcmStore.cosoAverages.totalWeighted }}%
             </span>

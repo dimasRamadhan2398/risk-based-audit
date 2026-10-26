@@ -25,7 +25,7 @@ bash "$SCRIPT_DIR/backend/deploy-backend.sh"
 
 # ── Wait briefly so backend containers stabilise ──────────────────────────────
 echo ""
-echo "⏳ Waiting 10s for backend containers to stabilise..."
+echo "Waiting 10s for backend containers to stabilise..."
 sleep 10
 
 # ── Deploy Production Frontend ────────────────────────────────────────────────
@@ -38,7 +38,7 @@ bash "$SCRIPT_DIR/frontend/deploy-prod.sh"
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo ""
 echo "╔══════════════════════════════════════════════════════════╗"
-echo "║            🎉  PROD Deployment Successful!  🎉            ║"
+echo "║            PROD Deployment Successful!  ║"
 echo "╠══════════════════════════════════════════════════════════╣"
 echo "║                                                          ║"
 echo "║  Frontend (auditsphere.app)                              ║"

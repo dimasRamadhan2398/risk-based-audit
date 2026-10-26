@@ -122,6 +122,13 @@ func NewConsumer(cfg ConsumerConfig, logger *zap.Logger) (*Consumer, error) {
 	}, nil
 }
 
+// Topics returns the topics the consumer subscribes to (nil when disabled).
+// Handlers must be registered under these exact names: a message whose topic
+// has no handler is acknowledged and skipped.
+func (c *Consumer) Topics() []string {
+	return append([]string(nil), c.topics...)
+}
+
 // RegisterHandler registers a message handler for a specific topic
 func (c *Consumer) RegisterHandler(topic string, handler MessageHandler) {
 	c.handlers[topic] = handler

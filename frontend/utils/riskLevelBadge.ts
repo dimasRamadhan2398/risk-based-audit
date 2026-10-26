@@ -28,6 +28,41 @@ export const RISK_LEVEL_LABEL_KEYS: Record<PriorityRiskLevel, string> = {
   'Low': 'riskFactors.priority.levels.low'
 }
 
+// ─── Risk index thresholds ─────────────────────────────────────────
+// Mirrors the risk-service scoring (audit_universe_controller.go): the level is chosen from the risk index
+// and Medium to High / High are audit priorities. Used by the scoring preview and the reference table.
+export interface RiskLevelThreshold {
+  level: PriorityRiskLevel
+  /** inclusive lower bound of the risk index (%) */
+  min: number
+  /** upper bound shown in the reference table (%) */
+  max: number
+  prioritized: boolean
+}
+
+export const RISK_LEVEL_THRESHOLDS: RiskLevelThreshold[] = [
+  { level: 'High', min: 80, max: 100, prioritized: true },
+  { level: 'Medium to High', min: 60, max: 79, prioritized: true },
+  { level: 'Medium', min: 40, max: 59, prioritized: false },
+  { level: 'Low to Medium', min: 20, max: 39, prioritized: false },
+  { level: 'Low', min: 0, max: 19, prioritized: false }
+]
+
+/** Risk level for a risk index (%), using the same thresholds as the backend. */
+export const getRiskLevelForIndex = (riskIndex: number): PriorityRiskLevel => {
+  const value = Number.isFinite(riskIndex) ? riskIndex : 0
+  return (RISK_LEVEL_THRESHOLDS.find(th => value >= th.min) ?? RISK_LEVEL_THRESHOLDS[RISK_LEVEL_THRESHOLDS.length - 1]!).level
+}
+
+/** Whether a risk level makes an entity an audit priority (Medium to High or High). */
+export const isPrioritizedRiskLevel = (level?: string | null): boolean => {
+  const key = normalizeRiskLevel(level)
+  return !!key && !!RISK_LEVEL_THRESHOLDS.find(th => th.level === key)?.prioritized
+}
+
+/** "80 - 100%" style label for the reference table. */
+export const formatRiskLevelRange = (threshold: RiskLevelThreshold): string => `${threshold.min} - ${threshold.max}%`
+
 const RISK_LEVEL_BADGE_BASE_CLASS = 'inline-flex items-center justify-center font-bold px-3 py-1 rounded text-xs w-36 shadow-sm'
 
 export const isPriorityRiskLevel = (level?: string | null): level is PriorityRiskLevel =>

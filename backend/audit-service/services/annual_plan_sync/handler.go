@@ -107,10 +107,17 @@ func withRetry(ctx context.Context, env Envelope, apply func(context.Context) er
 	return fmt.Errorf("annual plan sync: %s %s: %w", env.EventType, env.EventID, err)
 }
 
-// Register attaches the handler to the consumer for both business-event topics.
+// Register attaches the handler to the consumer for every topic it subscribes
+// to. The subscribed names come from config (kafka_consumer.topics, renamed by
+// KAFKA_TOPIC_PREFIX), so they may be "<prefix>.audit-universe.events" rather
+// than TopicAuditUniverse; registering the subscribed names keeps the two from
+// drifting apart, which would make the consumer acknowledge and drop every
+// event. Handler routes by event type, so one handler serves every topic.
+//
 // The consumer must not have started yet (kafka.Consumer.RegisterHandler is not
 // synchronised with the consume loop).
 func Register(consumer *kafka.Consumer, h *Handler) {
-	consumer.RegisterHandler(TopicAuditUniverse, h)
-	consumer.RegisterHandler(TopicDepartments, h)
+	for _, topic := range consumer.Topics() {
+		consumer.RegisterHandler(topic, h)
+	}
 }

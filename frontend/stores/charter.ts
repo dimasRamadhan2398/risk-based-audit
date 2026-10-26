@@ -242,7 +242,7 @@ export const useCharterStore = defineStore('charter', () => {
     // Validasi Ukuran (Max 5MB)
     // Sekarang 'file.size' aman diakses karena file dijamin ada
     if (file.size > 5 * 1024 * 1024) {
-      errorMsg.value = 'File terlalu besar! Maksimal 5MB.'
+      errorMsg.value = t('common.fileInput.tooLarge', { size: 5 })
       form.file = null
 
       // Reset input value agar user bisa pilih file ulang
@@ -258,7 +258,7 @@ export const useCharterStore = defineStore('charter', () => {
     ]
 
     if (!allowedTypes.includes(file.type)) {
-      errorMsg.value = 'Format file tidak valid. Gunakan PDF atau DOCX.'
+      errorMsg.value = t('common.fileInput.invalidPdfDocx')
       form.file = null
       target.value = ''
       return
@@ -348,7 +348,7 @@ export const useCharterStore = defineStore('charter', () => {
       charters.value = items.map(mapBackendToFrontend)
     } catch (error: any) {
       console.error('Failed to fetch audit charters:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal mengambil data Audit Charter.')
+      errorMsg.value = extractErrorMessage(error, t('auditCharter.toasts.charter.loadFailed'))
       charters.value = []
     } finally {
       loading.value = false
@@ -418,15 +418,15 @@ export const useCharterStore = defineStore('charter', () => {
         body: formData,
       })
 
-      toast.showSuccess('Audit Charter berhasil ditambahkan!')
+      toast.showSuccess(t('auditCharter.toasts.charter.added'))
       // Newest first: the charter this one replaced is now at the top of page 1.
       historyPage.value = 1
       await fetchCharters()
     } catch (error: any) {
       console.error('Failed to create audit charter:', error)
-      const detail = extractErrorMessage(error, 'Gagal menambahkan Audit Charter.')
+      const detail = extractErrorMessage(error, t('auditCharter.toasts.charter.addFailed'))
       errorMsg.value = detail
-      toast.showError('Gagal menambahkan Audit Charter.', detail)
+      toast.showError(t('auditCharter.toasts.charter.addFailed'), detail)
       throw error
     } finally {
       loading.value = false
@@ -469,13 +469,13 @@ export const useCharterStore = defineStore('charter', () => {
         body: formData,
       })
 
-      toast.showSuccess('Audit Charter berhasil diubah!')
+      toast.showSuccess(t('auditCharter.toasts.charter.updated'))
       await fetchCharters()
     } catch (error: any) {
       console.error('Failed to update audit charter:', error)
-      const detail = extractErrorMessage(error, 'Gagal memperbarui Audit Charter.')
+      const detail = extractErrorMessage(error, t('auditCharter.toasts.charter.updateFailed'))
       errorMsg.value = detail
-      toast.showError('Gagal memperbarui Audit Charter.', detail)
+      toast.showError(t('auditCharter.toasts.charter.updateFailed'), detail)
       throw error
     } finally {
       loading.value = false
@@ -500,13 +500,13 @@ export const useCharterStore = defineStore('charter', () => {
         }
       })
 
-      toast.showSuccess('Audit Charter berhasil dihapus!')
+      toast.showSuccess(t('auditCharter.toasts.charter.deleted'))
       await fetchCharters()
     } catch (error: any) {
       console.error('Failed to delete audit charter:', error)
-      const detail = extractErrorMessage(error, 'Gagal menghapus Audit Charter.')
+      const detail = extractErrorMessage(error, t('auditCharter.toasts.charter.deleteFailed'))
       errorMsg.value = detail
-      toast.showError('Gagal menghapus Audit Charter.', detail)
+      toast.showError(t('auditCharter.toasts.charter.deleteFailed'), detail)
       throw error
     } finally {
       loading.value = false
@@ -563,7 +563,7 @@ export const useCharterStore = defineStore('charter', () => {
   // Submit Handler
   const handleSubmit = async () => {
     if (!isEditing.value && !form.file) {
-      errorMsg.value = 'Mohon upload file charter.'
+      errorMsg.value = t('auditCharter.form.fileRequired')
       return
     }
 
@@ -571,11 +571,11 @@ export const useCharterStore = defineStore('charter', () => {
       if (isEditing.value && editingId.value) {
         // MODE EDIT
         await updateCharter(editingId.value, { ...form })
-        toast.showSuccess('Audit Charter berhasil diperbarui!')
+        toast.showSuccess(t('auditCharter.toasts.charter.updated'))
       } else {
         // MODE ADD
         await addCharter({ ...form })
-        toast.showSuccess('Audit Charter berhasil diupload!')
+        toast.showSuccess(t('auditCharter.toasts.charter.uploaded'))
       }
       closeModal()
     } catch {

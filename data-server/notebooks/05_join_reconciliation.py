@@ -66,4 +66,4 @@ results = [{
 }]
 
 pd.DataFrame(results).to_sql("caatt_reconciliation_results", dl, schema="gold", if_exists="append", index=False)
-print("✅ Reconciliation results saved")
+print("✓ Reconciliation results saved")

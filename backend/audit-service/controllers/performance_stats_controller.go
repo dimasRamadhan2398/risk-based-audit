@@ -47,11 +47,15 @@ type SummaryCardResponse struct {
 	SubMetrics   []SubMetric  `json:"sub_metrics,omitempty"`
 }
 
+// MonthlyTrendResponse is one point per month of the trend window. Labels are
+// English month abbreviations ("Jan"); Periods are the same months as
+// "YYYY-MM". A series value is null for a month without data.
 type MonthlyTrendResponse struct {
-	Labels               []string  `json:"labels"`
-	CompletionRateSeries []float64 `json:"completion_rate_series"`
-	TimelinessSeries     []float64 `json:"timeliness_series"`
-	CsatSeries           []float64 `json:"csat_series"`
+	Labels               []string   `json:"labels"`
+	Periods              []string   `json:"periods"`
+	CompletionRateSeries []*float64 `json:"completion_rate_series"`
+	TimelinessSeries     []*float64 `json:"timeliness_series"`
+	CsatSeries           []*float64 `json:"csat_series"`
 }
 
 // GetDashboardSummary returns calculated actuals vs strategic plan targets for 4 core KPI cards
@@ -199,17 +203,14 @@ func (c *PerformanceStatsController) GetDashboardSummary(ctx *gin.Context) {
 		var validCount int
 
 		for _, rs := range rScheds {
-			if rs.ReportDate != nil && rs.FinishPeriod != "" {
-				finishTime, err := time.Parse("2006-01-02", strings.TrimSpace(rs.FinishPeriod))
-				if err == nil {
-					diffDays := rs.ReportDate.Sub(finishTime).Hours() / 24.0
-					if diffDays >= 0 {
-						totalDays += diffDays
-						validCount++
-						if diffDays <= 14.0 { // 14-day SLA standard
-							onTimeCount++
-						}
-					}
+			if rs.ReportDate == nil {
+				continue
+			}
+			if diffDays, ok := reportDaysAfterFinish(*rs.ReportDate, rs.FinishPeriod); ok {
+				totalDays += diffDays
+				validCount++
+				if diffDays <= ReportTimelinessSLADays {
+					onTimeCount++
 				}
 			}
 		}
@@ -453,60 +454,22 @@ func (c *PerformanceStatsController) GetCompletionHistory(ctx *gin.Context) {
 	})
 }
 
-// GetMonthlyTrends returns 12-month aggregated trends for Bar and Line charts
+// GetMonthlyTrends returns the last TrendWindowMonths months of completion
+// rate, report timeliness and CSAT for the charts. The window ends at the
+// current month for the current year (so it can reach into the previous year)
+// and at December for a past year. Only stored data is used: a month without
+// data is null (a gap in the chart), never a made-up value.
 func (c *PerformanceStatsController) GetMonthlyTrends(ctx *gin.Context) {
-	currentYear := time.Now().Year()
-	yearStr := ctx.DefaultQuery("year", strconv.Itoa(currentYear))
-	year, err := strconv.Atoi(yearStr)
+	now := time.Now()
+	year, err := strconv.Atoi(ctx.DefaultQuery("year", strconv.Itoa(now.Year())))
 	if err != nil {
-		year = currentYear
+		year = now.Year()
 	}
 
-	labels := []string{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"}
-
-	// Query surveys by month
-	type MonthlyCSAT struct {
-		Month int     `json:"month"`
-		Avg   float64 `json:"avg"`
-	}
-	var csatMonthly []MonthlyCSAT
-	c.db.Model(&models.AuditeeSurvey{}).
-		Where("year = ?", year).
-		Select("month, AVG(overall_score) as avg").
-		Group("month").
-		Scan(&csatMonthly)
-
-	csatMap := make(map[int]float64)
-	for _, m := range csatMonthly {
-		csatMap[m.Month] = math.Round(m.Avg*10) / 10
-	}
-
-	// Default smooth curve baseline when building trends
-	baseCompletion := []float64{82, 85, 90, 88, 95, 97, 94, 96, 98, 97, 99, 100}
-	baseTimeliness := []float64{85, 87, 90, 88, 92, 98, 95, 96, 97, 98, 98, 99}
-	baseCsat := []float64{4.2, 4.3, 4.5, 4.4, 4.6, 4.7, 4.7, 4.8, 4.8, 4.9, 4.9, 5.0}
-
-	completionSeries := make([]float64, 12)
-	timelinessSeries := make([]float64, 12)
-	csatSeries := make([]float64, 12)
-
-	for i := 0; i < 12; i++ {
-		monthNum := i + 1
-		completionSeries[i] = baseCompletion[i]
-		timelinessSeries[i] = baseTimeliness[i]
-
-		if val, exists := csatMap[monthNum]; exists && val > 0 {
-			csatSeries[i] = val
-		} else {
-			csatSeries[i] = baseCsat[i]
-		}
-	}
-
-	resp := MonthlyTrendResponse{
-		Labels:               labels[:6], // First 6 months for clear dashboard display
-		CompletionRateSeries: completionSeries[:6],
-		TimelinessSeries:     timelinessSeries[:6],
-		CsatSeries:           csatSeries[:6],
+	resp, err := buildMonthlyTrends(c.db, year, now)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Failed to load monthly trends"})
+		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{

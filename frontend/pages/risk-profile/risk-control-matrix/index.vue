@@ -98,7 +98,7 @@
               variant="subtle"
               icon="i-lucide-info"
               :title="t('rcm.cards.effectiveness.cosoInterpretation', { rating: getLocalizedRating(rcmStore.internalControlEffectiveness) })"
-              :description="rcmStore.effectivenessRating.interpretation"
+              :description="getLocalizedInterpretation(rcmStore.internalControlEffectiveness)"
               class="rounded-xl shadow-xs border-none! bg-transparent! border-transparent!"
             />
           </div>
@@ -123,7 +123,7 @@
           <div class="mt-4 space-y-3">
             <div v-for="dim in cosoDimensions" :key="dim.key" class="space-y-1">
               <div class="flex justify-between text-md">
-                <span class="font-medium text-slate-700 dark:text-slate-300">{{ dim.shortLabel }}</span>
+                <span class="font-medium text-slate-700 dark:text-slate-300">{{ t(`rcm.dimensions.${dim.i18nKey}`) }}</span>
                 <span class="font-bold text-slate-900 dark:text-white">{{ getDimAverage(dim.key) }}%</span>
               </div>
               <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
@@ -333,7 +333,7 @@
         <template #rating-cell="{ row }">
           <div class="text-center whitespace-nowrap">
             <span :class="getRatingBadgeClass(getItemRating(row.original.total_weighted_score).rating)">
-              {{ getItemRating(row.original.total_weighted_score).rating }}
+              {{ getLocalizedRating(row.original.total_weighted_score) }}
             </span>
           </div>
         </template>
@@ -702,7 +702,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from '~/composables/useI18n'
-import { useRCMStore, cosoDimensions, getEffectivenessInterpretation, type RCMItem } from '~/stores/rcm'
+import { useRCMStore, cosoDimensions, getEffectivenessInterpretation, getEffectivenessKey, type RCMItem } from '~/stores/rcm'
 import { getControlEffectivenessColorClass } from '~/utils/riskLevelBadge'
 import { useRiskProfileStore } from '~/stores/risk-profile'
 import { useMitigationStore } from '~/stores/mitigation-risk'
@@ -756,19 +756,20 @@ const mitigationOptionsForModal = computed(() => {
 
 const yearOptions = computed(() => {
   return fiscalYears.value.map(y => ({
-    label: `Tahun ${y}`,
+    label: t('rcm.filters.yearOption', { year: y }),
     value: y
   }))
 })
 
-const departmentOptions = [
+// Computed so the "All departments" label follows the active locale (branch names are master data).
+const departmentOptions = computed(() => [
   { label: t('rcm.filters.allDepartments'), value: 'All Departments' },
   { label: 'Head Office', value: 'Head Office' },
   { label: 'Jakarta Branch', value: 'Jakarta Branch' },
   { label: 'Surabaya Branch', value: 'Surabaya Branch' },
   { label: 'Bandung Branch', value: 'Bandung Branch' },
   { label: 'Bali Branch', value: 'Bali Branch' }
-]
+])
 
 const formData = ref<Partial<RCMItem>>({
   risk_id: '',
@@ -889,13 +890,11 @@ const getItemRating = (scorePercent: number) => {
   return getEffectivenessInterpretation(scorePercent)
 }
 
-const getLocalizedRating = (scorePercent: number) => {
-  const key = scorePercent >= 90 ? 'highlyEffective'
-    : scorePercent >= 80 ? 'effective'
-    : scorePercent >= 70 ? 'moderatelyEffective'
-    : scorePercent >= 60 ? 'weak' : 'ineffective'
-  return t(`rcm.interpretationTable.ratings.${key}`)
-}
+const getLocalizedRating = (scorePercent: number) =>
+  t(`rcm.interpretationTable.ratings.${getEffectivenessKey(scorePercent)}`)
+
+const getLocalizedInterpretation = (scorePercent: number) =>
+  t(`rcm.interpretationTable.descriptions.${getEffectivenessKey(scorePercent)}`)
 
 const getRatingBadgeClass = (ratingLabel: string) =>
   `font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block ${getControlEffectivenessColorClass(ratingLabel)}`

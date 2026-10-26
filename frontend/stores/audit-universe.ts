@@ -45,6 +45,8 @@ export interface AuditUniverseYear {
   risk_index: number
   risk_level: string
   audit_priority: boolean
+  /** ISO timestamp of the last scoring; null = never scored. Missing on older backends (treated as scored). */
+  scored_at?: string | null
   risk_scores?: AuditUniverseRiskScore[]
 }
 

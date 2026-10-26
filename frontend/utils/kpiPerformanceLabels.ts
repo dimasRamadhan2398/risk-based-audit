@@ -19,6 +19,19 @@ export const kpiMonthLabel = (t: TranslateFn, label: string): string => {
   return raw.length === 3 && MONTH_KEYS.includes(key) ? translateOr(t, `kpiPerformance.charts.months.${key}`, raw) : label
 }
 
+/**
+ * Month labels of the trend charts. The API's window is the last months up to now, so it can cross
+ * a year boundary: then every label carries its year ("Dec 2025", "Jan 2026") taken from `periods`
+ * ("YYYY-MM"). Without `periods` (older backend) the months are shown alone.
+ */
+export const kpiTrendLabels = (t: TranslateFn, labels: string[], periods?: unknown): string[] => {
+  const years = Array.isArray(periods) && periods.length === labels.length
+    ? periods.map(p => /^(\d{4})-\d{2}$/.exec(String(p))?.[1] ?? '')
+    : []
+  const crossesYear = years.every(Boolean) && new Set(years).size > 1
+  return labels.map((label, i) => crossesYear ? `${kpiMonthLabel(t, label)} ${years[i]}` : kpiMonthLabel(t, label))
+}
+
 /** Label for a table category/status value; the value itself is what filters and colour mapping compare. */
 export const kpiValueLabel = (t: TranslateFn, group: 'categories' | 'statuses', value?: string): string =>
   value ? translateOr(t, `kpiPerformance.table.${group}.${value}`, value) : ''
