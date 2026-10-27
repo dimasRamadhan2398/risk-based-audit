@@ -3,6 +3,7 @@ package media
 import (
 	"audit-service/pkg/response"
 	"audit-service/pkg/safefile"
+	"audit-service/pkg/upload"
 	"audit-service/services/media"
 	"fmt"
 	"io/fs"
@@ -24,18 +25,26 @@ func NewMediaController(mediaSvc media.MediaServiceInterface) *MediaController {
 	}
 }
 
+// Upload stores a file (multipart field "file"). The body is capped before it
+// is parsed; the media service validates the name, type, content and malware
+// scan, and the folder is confined to the uploads tree ("..", absolute paths
+// and backslashes are rejected with 400).
 func (ctrl *MediaController) Upload(c *gin.Context) {
-	file, header, err := c.Request.FormFile("file")
+	if e := upload.ParseForm(c, upload.DefaultMaxBytes); e != nil {
+		upload.Respond(c, e)
+		return
+	}
+	header, e := upload.FormFile(c, "file", upload.DefaultMaxBytes)
+	if e != nil {
+		upload.Respond(c, e)
+		return
+	}
+	file, err := header.Open()
 	if err != nil {
-		response.Error(c, http.StatusBadRequest, "BAD_REQUEST", "File is required", err.Error())
+		response.Error(c, http.StatusBadRequest, "BAD_REQUEST", "File is required", "")
 		return
 	}
 	defer file.Close()
-
-	if header.Size > 10*1024*1024 {
-		response.Error(c, http.StatusBadRequest, "BAD_REQUEST", "File size exceeds maximum limit of 10MB", "Max allowed file size is 10MB")
-		return
-	}
 
 	folder := c.PostForm("folder")
 	featureName := c.PostForm("feature_name")
@@ -49,13 +58,20 @@ func (ctrl *MediaController) Upload(c *gin.Context) {
 		} else {
 			folder = "Auditsphere/audit"
 		}
-	} else if !strings.HasPrefix(folder, "Auditsphere/") && folder != "Auditsphere" {
-		folder = "Auditsphere/" + strings.TrimPrefix(folder, "/")
+	}
+	cleanFolder, e := upload.ConfineFolder(folder)
+	if e != nil {
+		upload.Respond(c, e)
+		return
 	}
 
-	attachment, err := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, folder)
+	attachment, err := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, cleanFolder)
 	if err != nil {
-		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to upload file", err.Error())
+		if ue, ok := upload.AsError(err); ok {
+			upload.Respond(c, ue)
+			return
+		}
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to upload file", "")
 		return
 	}
 

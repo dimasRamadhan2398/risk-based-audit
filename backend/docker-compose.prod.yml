@@ -139,6 +139,20 @@ services:
       - rb_audit_network
     restart: unless-stopped
 
+  # Malware scanner for every upload (audit-service and master-service call it
+  # over TCP on port 3310). Not published to the host. freshclam updates the
+  # signatures inside the container; the database lives in clamav_db.
+  clamav:
+    image: clamav/clamav@sha256:982e28f90061d0e66eb03276419f589a47c9fa601e985e472fc2f6c64b497ca0
+    container_name: rb_audit_clamav
+    volumes:
+      - ./clamav/clamd.conf:/etc/clamav/clamd.conf:ro
+      - clamav_db:/var/lib/clamav
+    mem_limit: 1536m
+    networks:
+      - rb_audit_network
+    restart: unless-stopped
+
   audit-service:
     build:
       context: ./audit-service
@@ -158,6 +172,8 @@ services:
       - IMAGEKIT_PUBLIC_KEY=${IMAGEKIT_PUBLIC_KEY:-}
       - IMAGEKIT_PRIVATE_KEY=${IMAGEKIT_PRIVATE_KEY:-}
       - IMAGEKIT_URL_ENDPOINT=${IMAGEKIT_URL_ENDPOINT:-}
+      - CLAMAV_ADDRESS=clamav:3310
+      - CLAMAV_MODE=required
     volumes:
       - ./audit-service/pkg/config:/root/pkg/config
       - audit_uploads:/root/uploads
@@ -175,6 +191,8 @@ services:
       - JWT_SECRET=${JWT_SECRET:?JWT_SECRET missing - every service in the stack must share one signing secret; set it in the deploy env}
       - DATA_HUB_URL=${DATA_HUB_URL:-http://10.0.0.1:8100}
       - DATA_HUB_API_KEY=${DATA_HUB_API_KEY:-auditsphere_dh_key_2026_x87a9b}
+      - CLAMAV_ADDRESS=clamav:3310
+      - CLAMAV_MODE=required
     depends_on:
       postgres:
         condition: service_started
@@ -276,6 +294,7 @@ volumes:
   kafka_data:
   python_ai_models:
   audit_uploads:
+  clamav_db:
 
 networks:
   rb_audit_network:
