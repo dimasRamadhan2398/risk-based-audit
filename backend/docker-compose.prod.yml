@@ -247,6 +247,9 @@ services:
       KONG_NGINX_PROXY_PROXY_BUFFERING: "off"
       KONG_CLIENT_MAX_BODY_SIZE: 100m
       KONG_NGINX_PROXY_CLIENT_MAX_BODY_SIZE: 100m
+    # tmpfs: a stale "we" socket from an unclean stop must not survive a restart or host reboot
+    tmpfs:
+      - /usr/local/kong/sockets
     ports:
       - "8080:8080"
       - "8443:8443"

@@ -247,7 +247,7 @@
                     >
                       <div class="mt-2 flex flex-wrap items-center gap-2">
                         <span class="text-sm font-medium text-gray-700 dark:text-gray-200">
-                          {{ activity.riskName || '-' }}
+                          {{ store.activityRiskName(activity) || '-' }}
                         </span>
                         <span
                           v-if="activity.riskLevel"

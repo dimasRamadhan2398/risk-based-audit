@@ -73,13 +73,13 @@
                     <div class="flex items-center">
                       <span class="font-bold text-gray-600 dark:text-gray-400 w-44 text-sm">{{ t('annualAudit.detail.department') }}</span>
                       <span class="font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-1">
-                        {{ activity.department }}
+                        {{ store.activityDepartmentName(activity) || '-' }}
                       </span>
                     </div>
 
                     <div class="flex items-start">
                       <span class="font-bold text-gray-600 dark:text-gray-400 w-44 text-sm">{{ t('annualAudit.detail.associatedRisk') }}</span>
-                      <span class="font-semibold text-gray-800 dark:text-gray-200 flex-1">{{ activity.riskName || '-' }}</span>
+                      <span class="font-semibold text-gray-800 dark:text-gray-200 flex-1">{{ store.activityRiskName(activity) || '-' }}</span>
                     </div>
 
                     <div class="flex items-center">

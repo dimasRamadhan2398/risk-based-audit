@@ -23,6 +23,13 @@ type KafkaConsumerConfig struct {
 	Assignor string   `mapstructure:"assignor"` // range, roundrobin, sticky
 }
 
+// AuthServiceConfig locates auth-service. Employee creation provisions login
+// accounts there, so URL must be set for @aifl.co.id employees (AUTH_SERVICE_URL).
+type AuthServiceConfig struct {
+	URL            string `mapstructure:"url"`
+	TimeoutSeconds int    `mapstructure:"timeout_seconds"`
+}
+
 type Config struct {
 	Server           ServerConfig        `mapstructure:"server"`
 	Database         DatabaseConfig      `mapstructure:"database"`
@@ -31,6 +38,7 @@ type Config struct {
 	Log              LogConfig           `mapstructure:"log"`
 	Kafka            KafkaConfig         `mapstructure:"kafka"`
 	KafkaConsumer    KafkaConsumerConfig `mapstructure:"kafka_consumer"`
+	AuthService      AuthServiceConfig  `mapstructure:"auth_service"`
 	App              AppMeta             `mapstructure:"app"      json:"app"`
 }
 
@@ -102,6 +110,8 @@ func setDefaults() {
 	viper.SetDefault("kafka_consumer.topics", []string{"events"})
 	viper.SetDefault("kafka_consumer.version", "3.6.0")
 	viper.SetDefault("kafka_consumer.assignor", "roundrobin")
+	viper.SetDefault("auth_service.url", "")
+	viper.SetDefault("auth_service.timeout_seconds", 10)
 }
 
 func Load(configPath string) (*Config, error) {

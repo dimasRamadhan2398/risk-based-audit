@@ -33,9 +33,9 @@
               v-for="(act, idx) in ((row.original || row)?.activities || [])" 
               :key="idx"
               class="text-md font-semibold text-gray-700 dark:text-white truncate max-w-[200px]"
-              :title="act.riskName"
+              :title="store.activityRiskName(act)"
             >
-              {{ act.riskName || '-' }}
+              {{ store.activityRiskName(act) || '-' }}
             </div>
           </div>
         </template>
@@ -119,8 +119,9 @@ const getRowDepartments = (plan: any): string[] => {
   
   if (Array.isArray(plan.activities)) {
     plan.activities.forEach((act: any) => {
-      // Department name snapshot from the server; a row has one department now.
-      if (act.department) depts.add(typeof act.department === 'string' ? act.department : act.department.name)
+      // Server snapshot, else the departmentId resolved against master data; a row has one department now.
+      const name = store.activityDepartmentName(act)
+      if (name) depts.add(name)
     })
   }
   return Array.from(depts).filter(Boolean)

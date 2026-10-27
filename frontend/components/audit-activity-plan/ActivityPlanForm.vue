@@ -15,9 +15,6 @@
             <h3 class="text-lg sm:text-xl font-bold text-[var(--text-main)]">
               {{ store.isEditMode ? t('auditActivityPlan.editPlan') : t('auditActivityPlan.createPlanTitle') }}
             </h3>
-            <p class="mt-0.5 text-xs text-[var(--text-muted)]">
-              {{ t('auditActivityPlan.formTitle') }} — {{ steps[currentStep]?.label }} ({{ t('auditActivityPlan.form.stepNum', { current: currentStep + 1, total: steps.length }) }})
-            </p>
           </div>
           <UButton
             color="neutral"

@@ -285,6 +285,47 @@ func (c *MasterClient) GetCompanyByWorkingUnit(ctx context.Context, authorizatio
 	return c.companyOf(ctx, authorization, match)
 }
 
+// maxDepartmentPages stops ListDepartments from following a pagination that
+// never ends (500 x 200 = 100k departments is far beyond any stack).
+const maxDepartmentPages = 200
+
+// ListDepartments returns every live department of this stack's
+// master-service (GET /api/v1/departments, all pages) using the caller's
+// Authorization header. Nothing is cached: it is for bulk reconciliation
+// (services/annual_plan_sync), not for per-request lookups.
+func (c *MasterClient) ListDepartments(ctx context.Context, authorization string) ([]Department, error) {
+	var all []Department
+	for page := 1; page <= maxDepartmentPages; page++ {
+		q := url.Values{}
+		q.Set("page", fmt.Sprint(page))
+		q.Set("page_size", departmentPageSize)
+		data, err := c.getData(ctx, authorization, "/api/v1/departments", q)
+		if err != nil {
+			return nil, err
+		}
+
+		var wrapper struct {
+			Departments []Department `json:"departments"`
+			Pagination  struct {
+				TotalPages int `json:"total_pages"`
+			} `json:"pagination"`
+		}
+		if err := json.Unmarshal(data, &wrapper); err != nil {
+			// An unpaginated master-service answers with the bare array.
+			var depts []Department
+			if err2 := json.Unmarshal(data, &depts); err2 != nil {
+				return nil, fmt.Errorf("decode departments: %w", err)
+			}
+			return append(all, depts...), nil
+		}
+		all = append(all, wrapper.Departments...)
+		if len(wrapper.Departments) == 0 || page >= wrapper.Pagination.TotalPages {
+			return all, nil
+		}
+	}
+	return nil, fmt.Errorf("departments: more than %d pages", maxDepartmentPages)
+}
+
 // ResolveCompanyName resolves the company name for a report: the report's own
 // name, then the assignment letter's, then master-service (by report company
 // id, letter company id, then working unit / department) using the caller's

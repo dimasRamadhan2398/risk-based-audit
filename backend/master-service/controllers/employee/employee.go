@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"master-service/models"
+	"master-service/pkg/authclient"
 	"master-service/pkg/base"
 	"master-service/pkg/response"
 	"master-service/pkg/validations"
@@ -84,12 +85,17 @@ func (d *EmployeeController) FindByCode(ctx *gin.Context) {
 	response.OK(ctx, "Employee fetched successfully", employee)
 }
 
+// Create adds an employee (POST /employees). An @aifl.co.id email also gets a
+// login account; the admin's Authorization header is forwarded to auth-service
+// for that. The response carries "account" then, with the temporary password
+// once (status "created") or just the linked username (status "linked").
 func (d *EmployeeController) Create(ctx *gin.Context) {
 	var req models.Employee
 	if !d.ValidateRequest(ctx, &req) {
 		return
 	}
-	baseService := base.NewBaseService().WithContext(ctx.Request.Context())
+	reqCtx := authclient.WithAuthorization(ctx.Request.Context(), ctx.GetHeader("Authorization"))
+	baseService := base.NewBaseService().WithContext(reqCtx)
 	employee, err := d.employeeSvc.Create(baseService, &req)
 	if err != nil {
 		d.RespondError(ctx, err)

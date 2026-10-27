@@ -164,6 +164,8 @@ func (r *Registry) users() {
 			// Used by the Employee master page to reset a linked account's password
 			adminOnly.GET("/lookup", r.controller.GetUser().LookupByEmployee)
 			adminOnly.POST("/:id/reset-password", r.controller.GetUser().ResetPassword)
+			// Links an existing account to a master-data employee (employee creation in master-service)
+			adminOnly.POST("/:id/link-employee", r.controller.GetUser().LinkEmployee)
 		}
 	}
 }

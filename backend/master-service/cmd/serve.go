@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"master-service/controllers"
+	"master-service/pkg/authclient"
 	"master-service/pkg/database"
 	"master-service/models"
 	"master-service/pkg/kafka"
@@ -17,6 +18,7 @@ import (
 	"master-service/pkg/validations"
 	"master-service/routes"
 	"master-service/services"
+	employeeSvc "master-service/services/employee"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
@@ -77,7 +79,13 @@ func runServe(cmd *cobra.Command, args []string) error {
 		domainEvents = kafka.NewDomainPublisher(db, cfg.Kafka.ServiceName)
 		go kafka.NewRelay(db, cfg.Kafka.Brokers, kafka.TopicDepartments).Run(context.Background())
 	}
-	serviceRegistry := services.NewServiceRegistry(db, domainEvents)
+	// Employees with an @aifl.co.id email get a login account in auth-service.
+	// Without AUTH_SERVICE_URL those creates are refused, the rest still work.
+	var accountClient employeeSvc.AccountClient
+	if strings.TrimSpace(cfg.AuthService.URL) != "" {
+		accountClient = authclient.NewClient(cfg.AuthService.URL, time.Duration(cfg.AuthService.TimeoutSeconds)*time.Second)
+	}
+	serviceRegistry := services.NewServiceRegistry(db, domainEvents, accountClient)
 	controllerRegistry := controllers.NewControllerRegistry(serviceRegistry, validator)
 
 	mode := strings.ToLower(cfg.Server.Mode)
