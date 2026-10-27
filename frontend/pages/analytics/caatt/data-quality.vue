@@ -165,27 +165,98 @@ const dqChartOptions = computed(() => ({
       </UCard>
 
       <!-- Summary Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <UCard class="border border-indigo-100 dark:border-indigo-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.dataQuality.averageCompleteness') }}</div>
-          <div class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ dqState.summary.avgCompleteness }}%</div>
-          <div class="text-[10px] text-gray-400 mt-0.5">{{ t('analytics.caattUi.dataQuality.noNulls') }}</div>
-        </UCard>
-        <UCard class="border border-emerald-100 dark:border-emerald-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.dataQuality.averageAccuracy') }}</div>
-          <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{{ dqState.summary.avgAccuracy }}%</div>
-          <div class="text-[10px] text-emerald-500 mt-0.5">{{ t('analytics.caattUi.dataQuality.validity') }}</div>
-        </UCard>
-        <UCard class="border border-amber-100 dark:border-amber-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.dataQuality.averageDelay') }}</div>
-          <div class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">{{ dqState.summary.avgTimelinessDays }} {{ t('analytics.isolation.anomalyTypes.fieldworkUnit') }}</div>
-          <div class="text-[10px] text-amber-500 mt-0.5">{{ t('analytics.caattUi.dataQuality.freshness') }}</div>
-        </UCard>
-        <UCard class="border border-violet-100 dark:border-violet-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.dataQuality.profiledTables') }}</div>
-          <div class="text-2xl font-black text-violet-600 dark:text-violet-400 mt-1">{{ dqState.summary.tablesProfiled }} {{ t('analytics.caattUi.dataQuality.tableUnit') }}</div>
-          <div class="text-[10px] text-gray-400 mt-0.5">{{ t('analytics.caattUi.dataQuality.zones') }}</div>
-        </UCard>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <!-- Card 1: Average Completeness -->
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('analytics.caattUi.dataQuality.averageCompleteness') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ dqState.summary.avgCompleteness }}%
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-indigo-50 p-2.5 flex items-center justify-center dark:bg-indigo-500/10">
+              <UIcon name="i-lucide-check-circle-2" class="text-indigo-600 size-5 dark:text-indigo-400" />
+            </div>
+          </div>
+          <div class="mt-3">
+            <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+              <span class="text-indigo-500 font-semibold">100% Valid</span>
+              <span class="ml-1">{{ t('analytics.caattUi.dataQuality.noNulls') }}</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Card 2: Average Accuracy -->
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('analytics.caattUi.dataQuality.averageAccuracy') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ dqState.summary.avgAccuracy }}%
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-emerald-50 p-2.5 flex items-center justify-center dark:bg-emerald-500/10">
+              <UIcon name="i-lucide-shield-check" class="text-emerald-600 size-5 dark:text-emerald-400" />
+            </div>
+          </div>
+          <div class="mt-3">
+            <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+              <span class="text-emerald-500 font-semibold">Akurat</span>
+              <span class="ml-1">{{ t('analytics.caattUi.dataQuality.validity') }}</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Card 3: Average Delay -->
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('analytics.caattUi.dataQuality.averageDelay') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ dqState.summary.avgTimelinessDays }}
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-amber-50 p-2.5 flex items-center justify-center dark:bg-amber-500/10">
+              <UIcon name="i-lucide-clock" class="text-amber-600 size-5 dark:text-amber-400" />
+            </div>
+          </div>
+          <div class="mt-3">
+            <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+              <span class="text-amber-500 font-semibold">{{ t('analytics.isolation.anomalyTypes.fieldworkUnit') }}</span>
+              <span class="ml-1">{{ t('analytics.caattUi.dataQuality.freshness') }}</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Card 4: Profiled Tables -->
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('analytics.caattUi.dataQuality.profiledTables') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ dqState.summary.tablesProfiled }}
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-violet-50 p-2.5 flex items-center justify-center dark:bg-violet-500/10">
+              <UIcon name="i-lucide-database" class="text-violet-600 size-5 dark:text-violet-400" />
+            </div>
+          </div>
+          <div class="mt-3">
+            <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+              <span class="text-violet-500 font-semibold">{{ t('analytics.caattUi.dataQuality.tableUnit') }}</span>
+              <span class="ml-1">{{ t('analytics.caattUi.dataQuality.zones') }}</span>
+            </p>
+          </div>
+        </div>
       </div>
 
       <!-- Chart & Table Grid -->

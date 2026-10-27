@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-4">
     <!-- Advanced Filter Controls Bar (no goal tabs: there is a single corporate goal, so all objectives are listed) -->
-    <UCard variant="soft" class="p-4">
+    
       <div class="flex flex-wrap items-center justify-between gap-3">
         <!-- Search & Filter Options -->
         <div class="flex flex-wrap items-center gap-3 flex-1">
@@ -62,7 +62,7 @@
           </UButton>
         </div>
       </div>
-    </UCard>
+  
 
     <!-- Strategic KPI Table & Pagination -->
     <UCard variant="soft">

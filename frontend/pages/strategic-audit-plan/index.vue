@@ -1,8 +1,6 @@
 <template>
   <div class="space-y-6 min-w-0">
     <!-- Header Section -->
-    <UCard variant="soft">
-      <template #header>
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div class="flex flex-col gap-1">
             <h1 class="text-2xl sm:text-3xl font-bold text-[var(--text-main)]">
@@ -19,7 +17,7 @@
               to="/strategic-audit-plan/upload"
               color="neutral"
               variant="outline"
-              size="sm"
+              size="lg"
               class="w-full sm:w-auto justify-center"
               icon="i-lucide-upload"
             />
@@ -29,14 +27,12 @@
               :label="t('strategicPlan.addObjective')"
               variant="solid"
               color="primary"
-              size="sm"
+              size="lg"
               class="w-full sm:w-auto justify-center"
               @click="store.openModal()"
             />
           </div>
         </div>
-      </template>
-    </UCard>
 
     <!-- Add/Edit Modal -->
     <StrategicPlanForm />

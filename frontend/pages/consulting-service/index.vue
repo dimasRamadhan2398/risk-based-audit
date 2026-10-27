@@ -31,59 +31,73 @@
 
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-      <UCard class="border-l-4 border-primary-500 shadow-md">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider">{{ t('consultingService.dashboard.summary.total') }}</p>
-            <p class="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white mt-1">{{ store.services.length }}</p>
+      <!-- Total -->
+      <div class="rounded-xl p-5 flex flex-col justify-between min-h-[100px] dashboard-card">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+              {{ t('consultingService.dashboard.summary.total') }}
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              {{ store.services.length }}
+            </h4>
           </div>
-          <div class="p-3 bg-primary-50 dark:bg-primary-950 rounded-full text-primary-500">
-            <UIcon name="i-lucide-clipboard-list" class="w-6 h-6" />
+          <div class="shrink-0 rounded-xl bg-indigo-50 p-2.5 flex items-center justify-center dark:bg-indigo-500/10">
+            <UIcon name="i-lucide-clipboard-list" class="text-indigo-600 size-5 dark:text-indigo-400" />
           </div>
         </div>
-      </UCard>
+      </div>
 
-      <UCard class="border-l-4 border-warning-500 shadow-md">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider">{{ t('consultingService.dashboard.summary.inProgress') }}</p>
-            <p class="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white mt-1">
+      <!-- In Progress -->
+      <div class="rounded-xl p-5 flex flex-col justify-between min-h-[100px] dashboard-card">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+              {{ t('consultingService.dashboard.summary.inProgress') }}
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
               {{ store.services.filter(s => s.status === 'In Progress').length }}
-            </p>
+            </h4>
           </div>
-          <div class="p-3 bg-warning-50 dark:bg-warning-950 rounded-full text-warning-500">
-            <UIcon name="i-lucide-refresh-cw" class="w-6 h-6 animate-spin-slow" />
+          <div class="shrink-0 rounded-xl bg-amber-50 p-2.5 flex items-center justify-center dark:bg-amber-500/10">
+            <UIcon name="i-lucide-refresh-cw" class="text-amber-600 size-5 dark:text-amber-400 animate-spin-slow" />
           </div>
         </div>
-      </UCard>
+      </div>
 
-      <UCard class="border-l-4 border-success-500 shadow-md">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider">{{ t('consultingService.dashboard.summary.completed') }}</p>
-            <p class="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white mt-1">
+      <!-- Completed -->
+      <div class="rounded-xl p-5 flex flex-col justify-between min-h-[100px] dashboard-card">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+              {{ t('consultingService.dashboard.summary.completed') }}
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
               {{ store.services.filter(s => s.status === 'Completed').length }}
-            </p>
+            </h4>
           </div>
-          <div class="p-3 bg-success-50 dark:bg-success-950 rounded-full text-success-500">
-            <UIcon name="i-lucide-check-circle" class="w-6 h-6" />
+          <div class="shrink-0 rounded-xl bg-emerald-50 p-2.5 flex items-center justify-center dark:bg-emerald-500/10">
+            <UIcon name="i-lucide-check-circle" class="text-emerald-600 size-5 dark:text-emerald-400" />
           </div>
         </div>
-      </UCard>
+      </div>
 
-      <UCard class="border-l-4 border-gray-500 shadow-md">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider">{{ t('consultingService.dashboard.summary.planned') }}</p>
-            <p class="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white mt-1">
+      <!-- Planned -->
+      <div class="rounded-xl p-5 flex flex-col justify-between min-h-[100px] dashboard-card">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+              {{ t('consultingService.dashboard.summary.planned') }}
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
               {{ store.services.filter(s => s.status === 'Planned').length }}
-            </p>
+            </h4>
           </div>
-          <div class="p-3 bg-gray-50 dark:bg-gray-850 rounded-full text-gray-500">
-            <UIcon name="i-lucide-calendar" class="w-6 h-6" />
+          <div class="shrink-0 rounded-xl bg-sky-50 p-2.5 flex items-center justify-center dark:bg-sky-500/10">
+            <UIcon name="i-lucide-calendar" class="text-sky-600 size-5 dark:text-sky-400" />
           </div>
         </div>
-      </UCard>
+      </div>
     </div>
 
     <!-- Filters -->

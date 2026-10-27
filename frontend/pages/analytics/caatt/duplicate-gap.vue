@@ -41,22 +41,75 @@ onMounted(() => {
       />
 
       <!-- Summary Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <UCard class="border border-rose-100 dark:border-rose-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.duplicateGap.duplicates') }}</div>
-          <div class="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">{{ dupGapState.summary.totalDuplicates }} {{ t('analytics.caattUi.common.cases') }}</div>
-          <div class="text-[10px] text-rose-400 mt-0.5">{{ t('analytics.caattUi.duplicateGap.duplicateHint') }}</div>
-        </UCard>
-        <UCard class="border border-amber-100 dark:border-amber-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.duplicateGap.gaps') }}</div>
-          <div class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">{{ dupGapState.summary.totalGaps }} {{ t('analytics.caattUi.duplicateGap.missingNumbers') }}</div>
-          <div class="text-[10px] text-amber-400 mt-0.5">{{ t('analytics.caattUi.duplicateGap.gapHint') }}</div>
-        </UCard>
-        <UCard class="border border-indigo-100 dark:border-indigo-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.common.affectedBranches') }}</div>
-          <div class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ dupGapState.summary.branchesAffected }} {{ t('analytics.caattUi.common.branches') }}</div>
-          <div class="text-[10px] text-gray-400 mt-0.5">{{ t('analytics.caattUi.duplicateGap.branchHint') }}</div>
-        </UCard>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+        <!-- Card 1: Duplicates -->
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('analytics.caattUi.duplicateGap.duplicates') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ dupGapState.summary.totalDuplicates }}
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-rose-50 p-2.5 flex items-center justify-center dark:bg-rose-500/10">
+              <UIcon name="i-lucide-copy-x" class="text-rose-600 size-5 dark:text-rose-400" />
+            </div>
+          </div>
+          <div class="mt-3">
+            <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+              <span class="text-rose-500 font-semibold">{{ t('analytics.caattUi.common.cases') }}</span>
+              <span class="ml-1">{{ t('analytics.caattUi.duplicateGap.duplicateHint') }}</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Card 2: Gaps -->
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('analytics.caattUi.duplicateGap.gaps') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ dupGapState.summary.totalGaps }}
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-amber-50 p-2.5 flex items-center justify-center dark:bg-amber-500/10">
+              <UIcon name="i-lucide-binary" class="text-amber-600 size-5 dark:text-amber-400" />
+            </div>
+          </div>
+          <div class="mt-3">
+            <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+              <span class="text-amber-500 font-semibold">{{ t('analytics.caattUi.duplicateGap.missingNumbers') }}</span>
+              <span class="ml-1">{{ t('analytics.caattUi.duplicateGap.gapHint') }}</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Card 3: Affected Branches -->
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('analytics.caattUi.common.affectedBranches') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ dupGapState.summary.branchesAffected }}
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-indigo-50 p-2.5 flex items-center justify-center dark:bg-indigo-500/10">
+              <UIcon name="i-lucide-building-2" class="text-indigo-600 size-5 dark:text-indigo-400" />
+            </div>
+          </div>
+          <div class="mt-3">
+            <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+              <span class="text-indigo-500 font-semibold">{{ t('analytics.caattUi.common.branches') }}</span>
+              <span class="ml-1">{{ t('analytics.caattUi.duplicateGap.branchHint') }}</span>
+            </p>
+          </div>
+        </div>
       </div>
 
       <!-- Table -->

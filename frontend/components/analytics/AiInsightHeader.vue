@@ -75,103 +75,95 @@ const {
         : t('analytics.warningDescDisconnected')"
     />
 
-    <!-- AI Summary Stats Cards (Transferred from index.vue:L1205-L1250) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+    <!-- AI Summary Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
       <!-- Card 1: Risk Scoring -->
-      <NuxtLink to="/analytics/ai/risk-scoring" class="block group">
-        <UCard
-          class="border transition-all duration-200 h-full"
-          :class="props.currentSubModule === 'risk-scoring'
-            ? 'border-indigo-500 dark:border-indigo-400 ring-2 ring-indigo-500/20 shadow-md bg-indigo-50/30 dark:bg-indigo-950/20'
-            : 'border-indigo-100 dark:border-indigo-900/50 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-sm'"
-        >
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-              <UIcon name="i-heroicons-chart-bar-square" class="w-5 h-5 text-indigo-500" />
-            </div>
-            <div class="min-w-0">
-              <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 truncate">
-                {{ t('analytics.summary.entitiesScored') }}
-              </div>
-              <div class="text-2xl font-black text-indigo-600 dark:text-indigo-400">
-                {{ xgboostState.predictions.length }}
-              </div>
-            </div>
+      <div
+        class="rounded-xl p-5 flex flex-col justify-between min-h-[100px] transition-all duration-200 dashboard-card"
+        :class="props.currentSubModule === 'risk-scoring'
+          ? 'ring-2 ring-indigo-500/30 border-indigo-500 dark:border-indigo-400 bg-indigo-50/40 dark:bg-indigo-950/20 shadow-sm'
+          : ''"
+      >
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+              {{ t('analytics.summary.entitiesScored') }}
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              {{ xgboostState.predictions.length }}
+            </h4>
           </div>
-        </UCard>
-      </NuxtLink>
+          <div class="shrink-0 rounded-xl bg-indigo-50 p-2.5 flex items-center justify-center dark:bg-indigo-500/10">
+            <UIcon name="i-heroicons-chart-bar-square" class="text-indigo-600 size-5 dark:text-indigo-400" />
+          </div>
+        </div>
+      </div>
 
       <!-- Card 2: Anomaly Detection -->
-      <NuxtLink to="/analytics/ai/anomaly-detection" class="block group">
-        <UCard
-          class="border transition-all duration-200 h-full"
-          :class="props.currentSubModule === 'anomaly-detection'
-            ? 'border-rose-500 dark:border-rose-400 ring-2 ring-rose-500/20 shadow-md bg-rose-50/30 dark:bg-rose-950/20'
-            : 'border-rose-100 dark:border-rose-900/50 hover:border-rose-300 dark:hover:border-rose-700 hover:shadow-sm'"
-        >
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-lg bg-rose-500/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-              <UIcon name="i-heroicons-shield-exclamation" class="w-5 h-5 text-rose-500" />
-            </div>
-            <div class="min-w-0">
-              <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 truncate">
-                {{ t('analytics.summary.anomaliesDetected') }}
-              </div>
-              <div class="text-2xl font-black text-rose-600 dark:text-rose-400">
-                {{ isolationState.summary?.anomaliesFound || summary.anomaliesDetected || 150 }}
-              </div>
-            </div>
+      <div
+        class="rounded-xl p-5 flex flex-col justify-between min-h-[100px] transition-all duration-200 dashboard-card"
+        :class="props.currentSubModule === 'anomaly-detection'
+          ? 'ring-2 ring-rose-500/30 border-rose-500 dark:border-rose-400 bg-rose-50/40 dark:bg-rose-950/20 shadow-sm'
+          : ''"
+      >
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+              {{ t('analytics.summary.anomaliesDetected') }}
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              {{ isolationState.summary?.anomaliesFound || summary.anomaliesDetected || 150 }}
+            </h4>
           </div>
-        </UCard>
-      </NuxtLink>
+          <div class="shrink-0 rounded-xl bg-rose-50 p-2.5 flex items-center justify-center dark:bg-rose-500/10">
+            <UIcon name="i-heroicons-shield-exclamation" class="text-rose-600 size-5 dark:text-rose-400" />
+          </div>
+        </div>
+      </div>
 
       <!-- Card 3: NLP Analysis -->
-      <NuxtLink to="/analytics/ai/nlp" class="block group">
-        <UCard
-          class="border transition-all duration-200 h-full"
-          :class="props.currentSubModule === 'nlp'
-            ? 'border-amber-500 dark:border-amber-400 ring-2 ring-amber-500/20 shadow-md bg-amber-50/30 dark:bg-amber-950/20'
-            : 'border-amber-100 dark:border-amber-900/50 hover:border-amber-300 dark:hover:border-amber-700 hover:shadow-sm'"
-        >
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-              <UIcon name="i-heroicons-document-magnifying-glass" class="w-5 h-5 text-amber-500" />
-            </div>
-            <div class="min-w-0">
-              <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 truncate">
-                {{ t('analytics.summary.docsAnalyzed') }}
-              </div>
-              <div class="text-2xl font-black text-amber-600 dark:text-amber-400">
-                {{ nlpState.documents.length }}
-              </div>
-            </div>
+      <div
+        class="rounded-xl p-5 flex flex-col justify-between min-h-[100px] transition-all duration-200 dashboard-card"
+        :class="props.currentSubModule === 'nlp'
+          ? 'ring-2 ring-amber-500/30 border-amber-500 dark:border-amber-400 bg-amber-50/40 dark:bg-amber-950/20 shadow-sm'
+          : ''"
+      >
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+              {{ t('analytics.summary.docsAnalyzed') }}
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              {{ nlpState.documents.length }}
+            </h4>
           </div>
-        </UCard>
-      </NuxtLink>
+          <div class="shrink-0 rounded-xl bg-amber-50 p-2.5 flex items-center justify-center dark:bg-amber-500/10">
+            <UIcon name="i-heroicons-document-magnifying-glass" class="text-amber-600 size-5 dark:text-amber-400" />
+          </div>
+        </div>
+      </div>
 
       <!-- Card 4: KPI Forecast -->
-      <NuxtLink to="/analytics/ai/kpi-forecast" class="block group">
-        <UCard
-          class="border transition-all duration-200 h-full"
-          :class="props.currentSubModule === 'kpi-forecast'
-            ? 'border-violet-500 dark:border-violet-400 ring-2 ring-violet-500/20 shadow-md bg-violet-50/30 dark:bg-violet-950/20'
-            : 'border-violet-100 dark:border-violet-900/50 hover:border-violet-300 dark:hover:border-violet-700 hover:shadow-sm'"
-        >
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-              <UIcon name="i-heroicons-bell-alert" class="w-5 h-5 text-violet-500" />
-            </div>
-            <div class="min-w-0">
-              <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 truncate">
-                {{ t('analytics.summary.kpiForecasts') }}
-              </div>
-              <div class="text-2xl font-black text-violet-600 dark:text-violet-400">
-                {{ timeseriesState.kpiForecasts.length }}
-              </div>
-            </div>
+      <div
+        class="rounded-xl p-5 flex flex-col justify-between min-h-[100px] transition-all duration-200 dashboard-card"
+        :class="props.currentSubModule === 'kpi-forecast'
+          ? 'ring-2 ring-violet-500/30 border-violet-500 dark:border-violet-400 bg-violet-50/40 dark:bg-violet-950/20 shadow-sm'
+          : ''"
+      >
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+              {{ t('analytics.summary.kpiForecasts') }}
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              {{ timeseriesState.kpiForecasts.length }}
+            </h4>
           </div>
-        </UCard>
-      </NuxtLink>
+          <div class="shrink-0 rounded-xl bg-violet-50 p-2.5 flex items-center justify-center dark:bg-violet-500/10">
+            <UIcon name="i-heroicons-bell-alert" class="text-violet-600 size-5 dark:text-violet-400" />
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>

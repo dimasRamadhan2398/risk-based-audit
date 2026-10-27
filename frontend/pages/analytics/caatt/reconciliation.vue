@@ -81,22 +81,75 @@ const reconChartOptions = computed(() => ({
       />
 
       <!-- Summary Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <UCard class="border border-emerald-100 dark:border-emerald-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.reconciliation.averageMatch') }}</div>
-          <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{{ reconState.summary.avgMatchRate }}%</div>
-          <div class="text-[10px] text-emerald-500 mt-0.5">{{ t('analytics.caattUi.reconciliation.sla') }}</div>
-        </UCard>
-        <UCard class="border border-rose-100 dark:border-rose-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.reconciliation.unmatched') }}</div>
-          <div class="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">{{ reconState.summary.totalUnmatched }} {{ t('analytics.caattUi.common.transactions') }}</div>
-          <div class="text-[10px] text-rose-400 mt-0.5">{{ t('analytics.caattUi.reconciliation.journalAdjustment') }}</div>
-        </UCard>
-        <UCard class="border border-amber-100 dark:border-amber-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.reconciliation.difference') }}</div>
-          <div class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">{{ formatIDR(reconState.summary.totalDifference) }}</div>
-          <div class="text-[10px] text-amber-400 mt-0.5">{{ t('analytics.caattUi.reconciliation.clearing') }}</div>
-        </UCard>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+        <!-- Card 1: Average Match Rate -->
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('analytics.caattUi.reconciliation.averageMatch') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ reconState.summary.avgMatchRate }}%
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-emerald-50 p-2.5 flex items-center justify-center dark:bg-emerald-500/10">
+              <UIcon name="i-lucide-check-check" class="text-emerald-600 size-5 dark:text-emerald-400" />
+            </div>
+          </div>
+          <div class="mt-3">
+            <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+              <span class="text-emerald-500 font-semibold">{{ reconState.summary.avgMatchRate >= 99 ? 'SLA Passed' : 'Under Review' }}</span>
+              <span class="ml-1">{{ t('analytics.caattUi.reconciliation.sla') }}</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Card 2: Unmatched Transactions -->
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('analytics.caattUi.reconciliation.unmatched') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ reconState.summary.totalUnmatched }}
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-rose-50 p-2.5 flex items-center justify-center dark:bg-rose-500/10">
+              <UIcon name="i-lucide-file-x" class="text-rose-600 size-5 dark:text-rose-400" />
+            </div>
+          </div>
+          <div class="mt-3">
+            <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+              <span class="text-rose-500 font-semibold">{{ t('analytics.caattUi.common.transactions') }}</span>
+              <span class="ml-1">{{ t('analytics.caattUi.reconciliation.journalAdjustment') }}</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Card 3: Total Difference -->
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('analytics.caattUi.reconciliation.difference') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ formatIDR(reconState.summary.totalDifference) }}
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-amber-50 p-2.5 flex items-center justify-center dark:bg-amber-500/10">
+              <UIcon name="i-lucide-scale" class="text-amber-600 size-5 dark:text-amber-400" />
+            </div>
+          </div>
+          <div class="mt-3">
+            <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+              <span class="text-amber-500 font-semibold">Selisih</span>
+              <span class="ml-1">{{ t('analytics.caattUi.reconciliation.clearing') }}</span>
+            </p>
+          </div>
+        </div>
       </div>
 
       <!-- Chart & Table Grid -->

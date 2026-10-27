@@ -42,80 +42,96 @@
       </div>
 
     <!-- Main Metrics Cards Section (First Row) -->
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
       <!-- Card 1: Total Risks -->
-      <div
-        class="p-5 sm:p-6 flex flex-col justify-between min-h-[135px] dashboard-card"
-      >
-        <div class="flex justify-between items-start">
-          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">{{ t('riskAppetite.kpi.totalRisks') }}</p>
-          <div class="rounded-xl bg-indigo-50 p-2.5 flex items-center justify-center dark:bg-indigo-500/10">
+      <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+              {{ t('riskAppetite.kpi.totalRisks') }}
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              {{ totalRisks }}
+            </h4>
+          </div>
+          <div class="shrink-0 rounded-xl bg-indigo-50 p-2.5 flex items-center justify-center dark:bg-indigo-500/10">
             <UIcon name="i-lucide-shield" class="text-indigo-600 size-5 dark:text-indigo-400" />
           </div>
         </div>
-        <div class="mt-2">
-          <h3 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight dark:text-white">
-            {{ totalRisks }}
-          </h3>
+        <div class="mt-3">
+          <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+            <span class="text-emerald-500 font-semibold">↑ 12%</span>
+            <span class="ml-1">{{ t('dashboard.overview.fromLastMonth') }}</span>
+          </p>
         </div>
       </div>
 
       <!-- Card 2: High Risk -->
-      <div
-        class="p-5 sm:p-6 flex flex-col justify-between min-h-[135px] dashboard-card"
-      >
-        <div class="flex justify-between items-start">
-          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">{{ t('auditActivityPlan.form.highRisk') }}</p>
-          <div class="rounded-xl bg-red-50 p-2.5 flex items-center justify-center dark:bg-red-500/10">
-            <UIcon name="i-lucide-alert-triangle" class="text-red-600 size-5" />
+      <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+              {{ t('auditActivityPlan.form.highRisk') }}
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              {{ highRisks }}
+            </h4>
+          </div>
+          <div class="shrink-0 rounded-xl bg-red-50 p-2.5 flex items-center justify-center dark:bg-red-500/10">
+            <UIcon name="i-lucide-alert-triangle" class="text-red-600 size-5 dark:text-red-400" />
           </div>
         </div>
-        <div class="mt-2">
-          <h3 class="text-2xl sm:text-3xl font-bold text-red-600 tracking-tight">{{ highRisks }}</h3>
+        <div class="mt-3">
+          <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+            <span class="text-red-500 font-semibold">↑ 3</span>
+            <span class="ml-1">{{ t('dashboard.overview.requiresAttention') }}</span>
+          </p>
         </div>
       </div>
 
       <!-- Card 3: Audit Plans -->
-      <div
-        class="p-5 sm:p-6 flex flex-col justify-between min-h-[135px] dashboard-card"
-      >
-        <div class="flex justify-between items-start">
-          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">{{ t('dashboard.overview.auditPlans') }}</p>
-          <div class="rounded-xl bg-sky-50 p-2.5 flex items-center justify-center dark:bg-sky-500/10">
-            <UIcon name="i-lucide-calendar" class="text-sky-600 size-5" />
+      <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+              {{ t('dashboard.overview.auditPlans') }}
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              {{ auditPlansCount }}
+            </h4>
+          </div>
+          <div class="shrink-0 rounded-xl bg-sky-50 p-2.5 flex items-center justify-center dark:bg-sky-500/10">
+            <UIcon name="i-lucide-calendar" class="text-sky-600 size-5 dark:text-sky-400" />
           </div>
         </div>
-        <div class="mt-2">
-          <h3 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight dark:text-white">
-            {{ auditPlansCount }}
-          </h3>
-          <div class="flex items-center gap-1 text-md font-semibold text-sky-500 mt-1">
-            <span>{{ t('auditCharter.form.active') }}</span>
-            <span class="text-slate-400 font-normal">{{ t('dashboard.overview.thisQuarter') }}</span>
-          </div>
+        <div class="mt-3">
+          <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+            <span class="text-sky-500 font-semibold">{{ t('auditCharter.form.active') }}</span>
+            <span class="ml-1">{{ t('dashboard.overview.thisQuarter') }}</span>
+          </p>
         </div>
       </div>
 
       <!-- Card 4: Completed -->
-      <div
-        class="p-5 sm:p-6 flex flex-col justify-between min-h-[135px] dashboard-card"
-      >
-        <div class="flex justify-between items-start">
-          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">{{ t('auditExecution.phases.6.shortLabel') }}</p>
-          <div class="rounded-xl bg-emerald-50 p-2.5 flex items-center justify-center dark:bg-emerald-500/10">
+      <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+              {{ t('auditExecution.phases.6.shortLabel') }}
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              {{ completedAuditsCount }}
+            </h4>
+          </div>
+          <div class="shrink-0 rounded-xl bg-emerald-50 p-2.5 flex items-center justify-center dark:bg-emerald-500/10">
             <UIcon name="i-lucide-check-circle" class="text-emerald-600 size-5 dark:text-emerald-400" />
           </div>
         </div>
-        <div class="mt-2">
-          <h3 class="text-2xl sm:text-3xl font-bold text-emerald-600 tracking-tight dark:text-emerald-400">
-            {{ completedAuditsCount }}
-          </h3>
-          <div
-            class="flex flex-wrap items-center gap-1 text-md font-semibold text-emerald-500 mt-1"
-          >
-            <span>{{ t('dashboard.overview.updated') }}</span>
-            <span class="text-slate-400 font-normal">{{ t('dashboard.overview.thisMonth') }}</span>
-          </div>
+        <div class="mt-3">
+          <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+            <span class="text-emerald-500 font-semibold">{{ t('dashboard.overview.updated') }}</span>
+            <span class="ml-1">{{ t('dashboard.overview.thisMonth') }}</span>
+          </p>
         </div>
       </div>
     </div>
@@ -127,85 +143,93 @@
       </div>
       <div class="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <!-- Planned Audits -->
-        <div
-          class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard"
-        >
-          <div class="flex justify-between items-start">
-            <span class="text-md font-semibold text-slate-500 dark:text-slate-200">{{ t('dashboard.overview.plannedAudits') }}</span>
-            <div class="rounded-lg bg-indigo-50 p-1.5 flex items-center justify-center dark:bg-indigo-500/10">
-              <UIcon name="i-lucide-info" class="text-indigo-600 size-4 dark:text-indigo-400" />
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('dashboard.overview.plannedAudits') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ auditMainStats.plannedAudit }}
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-indigo-50 p-2.5 flex items-center justify-center dark:bg-indigo-500/10">
+              <UIcon name="i-lucide-info" class="text-indigo-600 size-5 dark:text-indigo-400" />
             </div>
           </div>
-          <div class="mt-1">
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">
-              {{ auditMainStats.plannedAudit }}
-            </h4>
-            <p class="text-[11px] mt-1" :class="plannedAuditTrend.color">
-              {{ plannedAuditTrend.icon }} {{ plannedAuditTrend.value }}
-              <span class="text-slate-400 dark:text-slate-300 font-normal">{{ t('dashboard.overview.fromLastMonth') }}</span>
+          <div class="mt-3">
+            <p class="text-[11px] font-normal leading-normal" :class="plannedAuditTrend.color">
+              <span class="font-semibold">{{ plannedAuditTrend.icon }} {{ plannedAuditTrend.value }}</span>
+              <span class="ml-1 text-slate-400 dark:text-slate-300">{{ t('dashboard.overview.fromLastMonth') }}</span>
             </p>
           </div>
         </div>
 
         <!-- Open Findings -->
-        <div
-          class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard"
-        >
-          <div class="flex justify-between items-start">
-            <span class="text-md font-semibold text-slate-500 dark:text-slate-200">{{ t('dashboard.overview.openFindings') }}</span>
-            <div class="rounded-lg bg-amber-50 p-1.5 flex items-center justify-center dark:bg-amber-500/10">
-              <UIcon name="i-lucide-alert-triangle" class="text-amber-600 size-4" />
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('dashboard.overview.openFindings') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ auditMainStats.openFinding }}
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-amber-50 p-2.5 flex items-center justify-center dark:bg-amber-500/10">
+              <UIcon name="i-lucide-alert-triangle" class="text-amber-600 size-5 dark:text-amber-400" />
             </div>
           </div>
-          <div class="mt-1">
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">
-              {{ auditMainStats.openFinding }}
-            </h4>
-            <p class="text-[11px] mt-1" :class="openFindingTrend.color">
-              {{ openFindingTrend.icon }} {{ openFindingTrend.value }}
-              <span class="text-slate-400 dark:text-slate-300 font-normal">{{ t('dashboard.overview.fromLastMonth') }}</span>
+          <div class="mt-3">
+            <p class="text-[11px] font-normal leading-normal" :class="openFindingTrend.color">
+              <span class="font-semibold">{{ openFindingTrend.icon }} {{ openFindingTrend.value }}</span>
+              <span class="ml-1 text-slate-400 dark:text-slate-300">{{ t('dashboard.overview.fromLastMonth') }}</span>
             </p>
           </div>
         </div>
 
         <!-- Execution Status -->
-        <div
-          class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard"
-        >
-          <div class="flex justify-between items-start">
-            <span class="text-md font-semibold text-slate-500 dark:text-slate-200">{{ t('dashboard.overview.executionStatus') }}</span>
-            <div class="rounded-lg bg-sky-50 p-1.5 flex items-center justify-center dark:bg-sky-500/10">
-              <UIcon name="i-lucide-play" class="text-sky-600 size-4" />
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('dashboard.overview.executionStatus') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ (auditMainStats.executionStatus * 100).toFixed(0) }}%
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-sky-50 p-2.5 flex items-center justify-center dark:bg-sky-500/10">
+              <UIcon name="i-lucide-play" class="text-sky-600 size-5 dark:text-sky-400" />
             </div>
           </div>
-          <div class="mt-1">
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">
-              {{ (auditMainStats.executionStatus * 100).toFixed(0) }}%
-            </h4>
-            <p class="text-[11px] mt-1" :class="executionStatusTrend.color">
-              {{ executionStatusTrend.icon }} {{ executionStatusTrend.value }}
-              <span class="text-slate-400 dark:text-slate-300 font-normal">{{ t('dashboard.overview.fromLastMonth') }}</span>
+          <div class="mt-3">
+            <p class="text-[11px] font-normal leading-normal" :class="executionStatusTrend.color">
+              <span class="font-semibold">{{ executionStatusTrend.icon }} {{ executionStatusTrend.value }}</span>
+              <span class="ml-1 text-slate-400 dark:text-slate-300">{{ t('dashboard.overview.fromLastMonth') }}</span>
             </p>
           </div>
         </div>
 
         <!-- ATR Compliance -->
-        <div
-          class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard"
-        >
-          <div class="flex justify-between items-start">
-            <span class="text-md font-semibold text-slate-500 dark:text-slate-200">{{ t('dashboard.overview.atrCompliance') }}</span>
-            <div class="rounded-lg bg-emerald-50 p-1.5 flex items-center justify-center dark:bg-emerald-500/10">
-              <UIcon name="i-lucide-check-square" class="text-emerald-600 size-4 dark:text-emerald-400" />
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('dashboard.overview.atrCompliance') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ (auditMainStats.atrCompliance * 100).toFixed(0) }}%
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-emerald-50 p-2.5 flex items-center justify-center dark:bg-emerald-500/10">
+              <UIcon name="i-lucide-check-square" class="text-emerald-600 size-5 dark:text-emerald-400" />
             </div>
           </div>
-          <div class="mt-1">
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">
-              {{ (auditMainStats.atrCompliance * 100).toFixed(0) }}%
-            </h4>
-            <p class="text-[11px] mt-1" :class="atrComplianceTrend.color">
-              {{ atrComplianceTrend.icon }} {{ atrComplianceTrend.value }}
-              <span class="text-slate-400 dark:text-slate-300 font-normal">{{ t('dashboard.overview.fromLastMonth') }}</span>
+          <div class="mt-3">
+            <p class="text-[11px] font-normal leading-normal" :class="atrComplianceTrend.color">
+              <span class="font-semibold">{{ atrComplianceTrend.icon }} {{ atrComplianceTrend.value }}</span>
+              <span class="ml-1 text-slate-400 dark:text-slate-300">{{ t('dashboard.overview.fromLastMonth') }}</span>
             </p>
           </div>
         </div>
