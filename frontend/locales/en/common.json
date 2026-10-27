@@ -394,8 +394,31 @@
       },
       "calendar": {
         "title": "Important dates",
-        "description": "Engagement dates and action plan due dates for your unit.",
-        "placeholder": "The calendar for your unit is not connected yet."
+        "description": "Engagement periods for your unit and the due dates of your action plans.",
+        "scope": "Engagement periods appear when the audit plan has planned dates. Interview and observation dates will follow once the calendar service is available."
+      }
+    },
+    "calendarWidget": {
+      "upcoming": "Next {days} days",
+      "showUpcoming": "Back to upcoming",
+      "noUpcoming": "Nothing scheduled in the next {days} days.",
+      "noEventsOnDay": "Nothing scheduled on this day.",
+      "overdue": "{count} overdue",
+      "overdueBadge": "Overdue",
+      "more": "+{count} more",
+      "previousMonth": "Previous month",
+      "nextMonth": "Next month",
+      "today": "Go to today",
+      "period": "{start} – {end}",
+      "loadError": "The dates could not be loaded.",
+      "kinds": {
+        "engagement": "Engagement period",
+        "atrDue": "ATR due",
+        "interview": "Interview (planned)",
+        "observation": "Observation (planned)",
+        "sample": "Sampling (planned)",
+        "pbcDue": "PBC due",
+        "testControlDue": "Test of controls due"
       }
     },
     "auditor": {
@@ -504,8 +527,8 @@
     },
     "calendar": {
       "title": "Important dates",
-      "description": "Engagement start and end dates, and ATR due dates for engagements you are on.",
-      "notConnected": "Calendar is not connected yet.",
+      "description": "Surat Tugas periods, planned fieldwork dates, PBC and test-of-controls due dates, and ATR due dates.",
+      "scope": "Shows every published Surat Tugas until team scoping is available. Fieldwork dates are shown for the Surat Tugas loaded on this page.",
       "notLinked": "Your account is not linked to an employee record yet, so engagement dates cannot be filtered to you."
     },
     "notifications": {

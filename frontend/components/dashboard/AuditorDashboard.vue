@@ -598,32 +598,17 @@
             {{ t('dashboard.auditor.calendar.description') }}
           </p>
         </div>
-        <UBadge
-          color="warning"
-          variant="subtle"
-          size="xs"
-          class="shrink-0 self-start"
-        >
-          {{ t('dashboard.auditor.placeholder') }}
-        </UBadge>
       </div>
 
-      <!-- TODO(B4): replace with GET /api/v1/me/calendar?from&to (audit-service). Needs the employee link (B1) for team membership. -->
-      <div class="py-4 px-4 rounded-lg border border-dashed border-gray-300 dark:border-gray-700 text-center text-gray-500 dark:text-gray-400">
-        <UIcon
-          name="i-lucide-calendar-off"
-          class="size-8 mx-auto text-gray-300 dark:text-gray-600 mb-2"
-        />
-        <p class="text-sm font-medium">
-          {{ t('dashboard.auditor.calendar.notConnected') }}
-        </p>
-        <p
-          v-if="!employeeLinked"
-          class="text-xs text-gray-400 mt-1 max-w-xl mx-auto"
-        >
-          {{ t('dashboard.auditor.calendar.notLinked') }}
-        </p>
-      </div>
+      <!-- TODO(B4): replace calendarEvents with GET /api/v1/me/calendar?from&to (audit-service), scoped to the user's team. -->
+      <CalendarWidget
+        :events="calendarEvents"
+        :loading="!initialLoadDone"
+        :error-text="calendarErrorText"
+        :retry-label="t('dashboard.auditor.states.retry')"
+        :note="employeeLinked ? t('dashboard.auditor.calendar.scope') : t('dashboard.auditor.calendar.notLinked')"
+        @retry="reloadCalendarSources"
+      />
     </section>
 
     <!-- 6. Notifications and reminders -->
@@ -1269,8 +1254,10 @@ import {
   isAtrClosed,
   jakartaToday
 } from '~/utils/actionTakenReport'
+import { makeCalendarEvent, type CalendarEvent } from '~/utils/calendarEvents'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import AuditorWidgetState from './AuditorWidgetState.vue'
+import CalendarWidget from './CalendarWidget.vue'
 
 type WidgetState = 'loading' | 'error' | 'empty' | 'ready'
 type FieldworkStatusKey = 'preparation' | 'fieldwork' | 'reporting'
@@ -1581,6 +1568,60 @@ const daysUntil = (value: unknown): number => {
   if (!due) return Number.NaN
   return Math.round((Date.parse(`${due}T00:00:00Z`) - Date.parse(`${jakartaToday()}T00:00:00Z`)) / DAY_MS)
 }
+
+// ─── Calendar of important dates (interim sources) ────────────────────────
+// TODO(B4): replace with GET /api/v1/me/calendar. Interim: published Surat Tugas periods, the fieldwork dates of the
+// letters already loaded on this page, and open ATR due dates. Unparseable dates are skipped.
+const calendarEvents = computed<CalendarEvent[]>(() => {
+  const events: CalendarEvent[] = []
+  const push = (event: CalendarEvent | null) => {
+    if (event) events.push(event)
+  }
+
+  for (const st of combinedFieldworkList.value) {
+    push(makeCalendarEvent(
+      { id: `letter:${st.letterNumber}`, kind: 'engagement', title: st.auditTitle || st.letterNumber, subtitle: st.letterNumber, to: '/assignment-letter' },
+      st.startPeriod,
+      st.finishPeriod
+    ))
+  }
+
+  const fieldworkData = fieldworkStore.fieldworkData || {}
+  for (const [letter, fw] of Object.entries(fieldworkData)) {
+    if (!fw) continue
+    const base = (kind: CalendarEvent['kind'], id: unknown, title: string) =>
+      ({ id: `${kind}:${letter}:${id}`, kind, title: title || letter, subtitle: letter, to: '/audit-fieldwork' })
+    fw.interviews?.forEach(i => push(makeCalendarEvent(base('interview', i.id, i.topic || i.interviewee), i.date)))
+    fw.observations?.forEach(o => push(makeCalendarEvent(base('observation', o.id, o.activity), o.date)))
+    fw.samples?.forEach(s => push(makeCalendarEvent(base('sample', s.id, s.documentName), s.date)))
+    fw.documents?.forEach(d => push(makeCalendarEvent(base('pbcDue', d.id, d.documentName), d.requiredDate)))
+    fw.testControls?.forEach(c => push(makeCalendarEvent(base('testControlDue', c.id, c.controlName), c.dueDate)))
+  }
+
+  for (const item of openAtrItems.value) {
+    push(makeCalendarEvent(
+      {
+        id: `atr:${item.id}`,
+        kind: 'atrDue',
+        title: item.finding_title || item.report_number || '-',
+        subtitle: item.report_number || undefined,
+        overdue: item.is_overdue,
+        to: '/action-taken-report'
+      },
+      item.due_date
+    ))
+  }
+  return events
+})
+
+// Only an error when every source failed; one failed source still leaves a usable calendar.
+const calendarErrorText = computed(() =>
+  assignmentLetterStore.errorMsg && atrStore.summaryError
+    ? t('dashboard.calendarWidget.loadError')
+    : ''
+)
+
+const reloadCalendarSources = () => Promise.allSettled([reloadLetters(), reloadAtr()])
 
 // TODO(B9): replace with GET /api/v1/notifications?unread=true (audit-service). Interim: derived from ATR data.
 // Only ATR-based types are derived here; PBC requests, comments and revisions are not available yet.

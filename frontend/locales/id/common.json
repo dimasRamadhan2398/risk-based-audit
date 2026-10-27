@@ -394,8 +394,31 @@
       },
       "calendar": {
         "title": "Tanggal penting",
-        "description": "Tanggal penugasan dan tenggat rencana tindak lanjut untuk unit Anda.",
-        "placeholder": "Kalender untuk unit Anda belum terhubung."
+        "description": "Periode penugasan untuk unit Anda dan tenggat rencana tindak lanjut Anda.",
+        "scope": "Periode penugasan muncul jika rencana audit memiliki tanggal rencana. Tanggal wawancara dan observasi akan menyusul setelah layanan kalender tersedia."
+      }
+    },
+    "calendarWidget": {
+      "upcoming": "{days} hari ke depan",
+      "showUpcoming": "Kembali ke jadwal mendatang",
+      "noUpcoming": "Tidak ada jadwal dalam {days} hari ke depan.",
+      "noEventsOnDay": "Tidak ada jadwal pada hari ini.",
+      "overdue": "{count} terlambat",
+      "overdueBadge": "Terlambat",
+      "more": "+{count} lainnya",
+      "previousMonth": "Bulan sebelumnya",
+      "nextMonth": "Bulan berikutnya",
+      "today": "Ke hari ini",
+      "period": "{start} – {end}",
+      "loadError": "Tanggal tidak dapat dimuat.",
+      "kinds": {
+        "engagement": "Periode penugasan",
+        "atrDue": "Tenggat ATR",
+        "interview": "Wawancara (rencana)",
+        "observation": "Observasi (rencana)",
+        "sample": "Pengambilan sampel (rencana)",
+        "pbcDue": "Tenggat PBC",
+        "testControlDue": "Tenggat uji pengendalian"
       }
     },
     "auditor": {
@@ -504,8 +527,8 @@
     },
     "calendar": {
       "title": "Tanggal penting",
-      "description": "Tanggal mulai dan selesai penugasan, serta tenggat ATR untuk penugasan yang Anda ikuti.",
-      "notConnected": "Kalender belum terhubung.",
+      "description": "Periode Surat Tugas, tanggal rencana pekerjaan lapangan, tenggat PBC dan uji pengendalian, serta tenggat ATR.",
+      "scope": "Menampilkan semua Surat Tugas yang terbit sampai penyaringan per tim tersedia. Tanggal pekerjaan lapangan ditampilkan untuk Surat Tugas yang dimuat di halaman ini.",
       "notLinked": "Akun Anda belum terhubung ke data pegawai, sehingga tanggal penugasan belum dapat difilter untuk Anda."
     },
     "notifications": {
