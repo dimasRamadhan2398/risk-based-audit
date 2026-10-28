@@ -105,13 +105,13 @@ func (ctrl *MediaController) Download(c *gin.Context) {
 		rel = strings.TrimPrefix(strings.TrimPrefix(filepath.ToSlash(reqPath), "/"), "uploads/")
 	}
 
-	found := ""
-	if !safefile.IsPrivatePath(rel) {
-		if full, err := safefile.ResolveUnder(uploadsRoot, rel); err == nil {
-			found = full
-		}
-	}
-	if found == "" {
+	found := resolveUpload(rel)
+	// Without an explicit path, a bare stored name may be looked up in the
+	// uploads tree (the fieldwork media store keeps files in sub-folders). An
+	// explicit path never gets this fallback: it names one file, and a file with
+	// the same base name in another folder is a different document. A name with
+	// a separator is not searched by base name either.
+	if found == "" && reqPath == "" && !strings.ContainsAny(id, `/\`) {
 		found = findUploadByName(uploadsRoot, id)
 	}
 	if found == "" {
@@ -123,6 +123,19 @@ func (ctrl *MediaController) Download(c *gin.Context) {
 	if err := safefile.ServeFile(c, found, filepath.Base(found), download); err != nil {
 		response.Error(c, http.StatusNotFound, "NOT_FOUND", "File not found", "")
 	}
+}
+
+// resolveUpload maps rel onto uploadsRoot. It returns "" for private paths,
+// paths outside the root, and anything that does not exist as a regular file.
+func resolveUpload(rel string) string {
+	if safefile.IsPrivatePath(rel) {
+		return ""
+	}
+	full, err := safefile.ResolveUnder(uploadsRoot, rel)
+	if err != nil {
+		return ""
+	}
+	return full
 }
 
 // findUploadByName looks for a file called name (or ending in /name) under root.
@@ -148,6 +161,9 @@ func findUploadByName(root, name string) string {
 			return nil
 		}
 		if d.Type()&fs.ModeSymlink != 0 {
+			return nil
+		}
+		if safefile.IsPrivatePath(rel) {
 			return nil
 		}
 		if d.Name() == name || strings.HasSuffix(filepath.ToSlash(p), "/"+name) {

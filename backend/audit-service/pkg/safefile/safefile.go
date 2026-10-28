@@ -22,9 +22,15 @@ import (
 var ErrOutsideRoot = errors.New("path is outside the uploads root")
 
 // PrivateDirs are subdirectories of the uploads root that are never served by
-// the generic file routes. Their files are reachable only through authorised
-// endpoints (for example ATR evidence).
+// the generic file routes (/media/download, /uploads). Their files are reachable
+// only through authorised endpoints (for example ATR evidence).
 var PrivateDirs = []string{"action-taken-reports"}
+
+// PrivatePrefixes make every top-level directory whose name starts with one of
+// these private. The feature document stores (uploaded-*, imported-*) write
+// under such directories, so a new one is private by default: its files are
+// served only by the owning feature's endpoints.
+var PrivatePrefixes = []string{"uploaded-", "imported-"}
 
 const octetStream = "application/octet-stream"
 
@@ -72,13 +78,20 @@ func IsInline(contentType string) bool {
 }
 
 // IsPrivatePath reports whether a path (relative to the uploads root) falls in a
-// private subdirectory. The comparison is case-insensitive and runs after
-// cleaning, so "..", doubled slashes and backslashes do not get around it.
+// private top-level directory (see PrivateDirs and PrivatePrefixes). It is also
+// true for the directory itself, so a walker can prune it. The comparison is
+// case-insensitive and runs after cleaning, so "..", doubled slashes and
+// backslashes do not get around it.
 func IsPrivatePath(rel string) bool {
 	cleaned := strings.ToLower(path.Clean("/" + strings.ReplaceAll(rel, `\`, "/")))
+	top, _, _ := strings.Cut(strings.TrimPrefix(cleaned, "/"), "/")
 	for _, dir := range PrivateDirs {
-		d := "/" + strings.ToLower(dir)
-		if cleaned == d || strings.HasPrefix(cleaned, d+"/") {
+		if top == strings.ToLower(dir) {
+			return true
+		}
+	}
+	for _, prefix := range PrivatePrefixes {
+		if top != "" && strings.HasPrefix(top, strings.ToLower(prefix)) {
 			return true
 		}
 	}

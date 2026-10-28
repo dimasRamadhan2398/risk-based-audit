@@ -115,6 +115,29 @@ func TestUploadsPrivateDirectoryIsNotServed(t *testing.T) {
 	}
 }
 
+// Feature document stores are private by default: /uploads refuses them even
+// to an authenticated caller who knows the stored name.
+func TestUploadsFeatureDocumentsAreNotServed(t *testing.T) {
+	r, root := uploadsTestRouter(t)
+	tok := uploadsTestToken(t)
+	for dir, name := range map[string]string{
+		"uploaded-assignment-letters": "letter-abc123.pdf",
+		"imported-working-papers":     "paper-ghi789.xlsx",
+	} {
+		d := filepath.Join(root, dir)
+		if err := os.MkdirAll(d, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(d, name), []byte("feature-body"), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		target := "/uploads/" + dir + "/" + name
+		if w := getUpload(r, target, tok); w.Code != http.StatusNotFound {
+			t.Fatalf("%s: got %d, want 404", target, w.Code)
+		}
+	}
+}
+
 func TestUploadsTraversalStaysInsideRoot(t *testing.T) {
 	r, _ := uploadsTestRouter(t)
 	tok := uploadsTestToken(t)
