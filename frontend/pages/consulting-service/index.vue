@@ -11,7 +11,7 @@
         </p>
       </div>
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
-        <UButton
+        <UButton v-if="canWrite"
           color="neutral"
           variant="outline"
           :label="t('consultingService.dashboard.importDocument')"
@@ -19,7 +19,7 @@
           class="px-5 py-2.5 font-bold rounded-lg shadow w-full sm:w-auto"
           to="/consulting-service/upload"
         />
-        <UButton
+        <UButton v-if="canWrite"
           color="primary"
           :label="t('consultingService.dashboard.newAssignment')"
           icon="i-lucide-plus"
@@ -134,7 +134,8 @@
 
         <!-- Attachment Cell -->
         <template #attachment-cell="{ row }">
-          <div v-if="(row.original as any).attachment" class="flex items-center gap-1.5">
+          <span v-if="(row.original as any).attachment && !canAccessFiles" class="text-md">{{ (row.original as any).attachment.name }}</span>
+          <div v-else-if="(row.original as any).attachment" class="flex items-center gap-1.5">
             <UButton
               icon="i-lucide-download"
               color="primary"
@@ -160,7 +161,7 @@
               />
             </UTooltip>
 
-            <UTooltip :text="t('consultingService.dashboard.actions.edit')">
+            <UTooltip v-if="canWrite" :text="t('consultingService.dashboard.actions.edit')">
               <UButton
                 icon="i-lucide-edit"
                 color="warning"
@@ -170,7 +171,7 @@
             />
             </UTooltip>
 
-            <UTooltip :text="t('consultingService.dashboard.actions.delete')">
+            <UTooltip v-if="canWrite" :text="t('consultingService.dashboard.actions.delete')">
               <UButton
                 icon="i-lucide-trash-2"
                 color="error"
@@ -366,7 +367,7 @@
                     <span class="text-md text-gray-400 block">{{ store.selectedService.attachment.size }} · {{ t('consultingService.dashboard.detail.uploadedAt', { date: store.selectedService.attachment.uploadedAt }) }}</span>
                   </div>
                 </div>
-                <UButton
+                <UButton v-if="canAccessFiles"
                   icon="i-heroicons-document-arrow-down"
                   :label="t('consultingService.dashboard.actions.download')"
                   color="primary"
@@ -394,11 +395,13 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { ref, reactive, computed } from 'vue'
 import { useConsultingServiceStore } from '~/stores/consulting-service'
 
 const store = useConsultingServiceStore()
 const { t } = useI18n()
+const { canWrite, canAccessFiles } = useRbac()
 store.fetchServices()
 
 const columns = computed(() => [

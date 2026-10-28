@@ -53,7 +53,7 @@
                 @click="store.publishLetter(row.original)"
               />
             </UTooltip>
-            <UTooltip :text="t('assignmentLetter.formExtra.edit')">
+            <UTooltip v-if="canWrite" :text="t('assignmentLetter.formExtra.edit')">
               <UButton
                 size="md"
                 color="warning"
@@ -62,7 +62,7 @@
                 @click="store.openEditModal(row.original)"
               />
             </UTooltip>
-            <UTooltip :text="t('assignmentLetter.formExtra.delete')">
+            <UTooltip v-if="canWrite" :text="t('assignmentLetter.formExtra.delete')">
               <UButton
                 size="md"
                 color="error"
@@ -104,6 +104,6 @@ const columns = computed(() =>
 const statusLabel = (status: string) =>
   ['Draft', 'Published'].includes(status) ? t(`assignmentLetter.table.status.${status}`) : status
 // Publishing is limited to the roles in the RBAC matrix ("Create / Publish Letter")
-const { canManageAssignmentLetter } = useRbac()
+const { canManageAssignmentLetter, canWrite } = useRbac()
 
 </script>

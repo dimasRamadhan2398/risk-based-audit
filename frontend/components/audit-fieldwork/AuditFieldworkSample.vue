@@ -6,7 +6,7 @@
         <h3 class="text-lg font-semibold">{{ t('auditFieldwork.sample.title') }}</h3>
         <p class="text-sm text-gray-500">{{ t('auditFieldwork.sample.subtitle') }}</p>
       </div>
-      <UButton color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.sample.addBtn')" @click="store.openSampleModal()" />
+      <UButton v-if="canWrite" color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.sample.addBtn')" @click="store.openSampleModal()" />
     </div>
 
     <!-- Sample List via TableEntities -->
@@ -38,7 +38,8 @@
         </div>
       </template>
       <template #file-cell="{ row }">
-        <div v-if="row.original.file || row.original.fileName" class="flex items-center gap-1">
+        <span v-if="(row.original.file || row.original.fileName) && !canAccessFiles" class="text-sm">{{ row.original.file?.name || row.original.fileName }}</span>
+        <div v-else-if="row.original.file || row.original.fileName" class="flex items-center gap-1">
           <UTooltip :text="t('common.actions.download') || 'Unduh Berkas'">
             <UButton
               icon="i-heroicons-document-arrow-down"
@@ -64,7 +65,7 @@
               size="sm" 
               @click="store.viewSample(row.original)" />
           </UTooltip>
-          <UTooltip :text="t('common.actions.edit') || 'Ubah'">
+          <UTooltip v-if="canWrite" :text="t('common.actions.edit') || 'Ubah'">
             <UButton 
               icon="i-heroicons-pencil-square" 
               color="primary" 
@@ -72,7 +73,7 @@
               size="sm" 
               @click="store.editSample(row.original)" />
           </UTooltip>
-          <UTooltip :text="t('common.actions.delete') || 'Hapus'">
+          <UTooltip v-if="canWrite" :text="t('common.actions.delete') || 'Hapus'">
             <UButton 
               icon="i-heroicons-trash" 
               color="error" 
@@ -90,6 +91,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { computed } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
@@ -99,6 +101,7 @@ import AuditFieldworkSampleModal from '~/components/audit-fieldwork/AuditFieldwo
 
 const store = useAuditFieldworkStore()
 const { t } = useI18n()
+const { canWrite, canAccessFiles } = useRbac()
 
 const columns = computed(() => [
   { key: 'documentName', accessorKey: 'documentName', header: t('auditFieldwork.sample.columns.name'), class: 'w-52 min-w-[170px]' },

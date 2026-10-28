@@ -17,7 +17,7 @@
             </p>
           </div>
           <div class="flex items-center gap-2">
-            <UButton
+            <UButton v-if="canExport"
               :label="t('settings.permission.exportMatrix')"
               icon="i-lucide-download"
               color="neutral"
@@ -207,10 +207,12 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { ref, computed } from 'vue'
 import { matrixData, type MatrixItem, getBadgeClass } from '~/utils/rbacMatrix'
 
 const { t } = useI18n()
+const { canExport } = useRbac()
 
 // Role columns use the backend role names (auth-service seeder). The values are the static
 // matrix as previously published; EXECUTIVE and DEPARTMENT_HEAD reuse the former merged columns

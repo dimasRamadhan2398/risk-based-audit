@@ -26,7 +26,7 @@
             </p>
           </div>
         </div>
-        <UTooltip :text="t('actionTakenReport.evidence.download')">
+        <UTooltip v-if="canAccessFiles" :text="t('actionTakenReport.evidence.download')">
           <UButton
             icon="i-lucide-download"
             color="neutral"
@@ -49,6 +49,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import type { AtrEvidence } from '~/types/audit'
 import { useI18n } from '~/composables/useI18n'
 import { useActionTakenReportStore } from '~/stores/action-taken-report'
@@ -57,5 +58,6 @@ import { formatAtrDateTime } from '~/utils/actionTakenReport'
 defineProps<{ atrId: string, evidence: AtrEvidence[] }>()
 
 const { t, locale } = useI18n()
+const { canAccessFiles } = useRbac()
 const store = useActionTakenReportStore()
 </script>

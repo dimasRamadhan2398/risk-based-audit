@@ -368,7 +368,7 @@
                       @update:model-value="fetchYearlyUniverse"
                     />
                   </div>
-                  <UButton
+                  <UButton v-if="canWrite"
                     size="sm"
                     color="primary"
                     variant="solid"
@@ -435,7 +435,7 @@ const riskFactorsStore = useRiskFactorsStore()
 const route = useRoute()
 const toast = useToastNotification()
 const { t } = useI18n()
-const { canEditAuditUniverse } = useRbac()
+const { canEditAuditUniverse, canWrite } = useRbac()
 
 const syncingMaster = ref(false)
 const masterCompanies = ref<string[]>([])

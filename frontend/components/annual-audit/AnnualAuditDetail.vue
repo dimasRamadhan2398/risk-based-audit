@@ -205,7 +205,7 @@
                           <span class="font-semibold text-gray-800 dark:text-gray-200">{{ file.name }}</span>
                           <UBadge color="neutral" variant="soft" size="md">{{ file.size }}</UBadge>
                         </div>
-                        <UButton :to="file.url" target="_blank" icon="i-heroicons-arrow-down-tray" size="sm" color="primary" variant="link" :label="t('annualAudit.detail.download')" />
+                        <UButton v-if="canAccessFiles" :to="file.url" target="_blank" icon="i-heroicons-arrow-down-tray" size="sm" color="primary" variant="link" :label="t('annualAudit.detail.download')" />
                       </li>
                     </ul>
                     <p v-else class="text-gray-500 dark:text-gray-400 italic mt-2">{{ t('annualAudit.detail.noFiles') }}</p>
@@ -218,7 +218,7 @@
                   <div class="flex items-center justify-between">
                     <h3 class="text-lg font-bold text-gray-800 dark:text-white">{{ t('annualAudit.detail.revisionHistory') }}</h3>
                     <UButton 
-                      v-if="isApproved && !isCreatingRevision"
+                      v-if="canWrite && (isApproved && !isCreatingRevision)"
                       color="primary" 
                       variant="soft" 
                       icon="i-heroicons-document-duplicate" 
@@ -321,6 +321,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from '~/composables/useI18n'
 import { useAnnualPlanStore } from '~/stores/annual-audit'
@@ -333,6 +334,7 @@ import { AnnualAuditPlanStatus } from '~/types/audit'
 const store = useAnnualPlanStore()
 const authStore = useAuthStore()
 const { t } = useI18n()
+const { canWrite, canAccessFiles } = useRbac()
 
 // Team figures are the sum of the activity rows: the plan has no team-level totals.
 const teamSize = computed(() => (store.selectedPlan?.activities || []).reduce((sum: number, a: { auditorCount?: number }) => sum + (Number(a.auditorCount) || 0), 0))

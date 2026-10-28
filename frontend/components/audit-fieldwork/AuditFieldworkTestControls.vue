@@ -11,7 +11,7 @@
           <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium" :class="getControlEffectivenessColorClass('Effective')">{{ t('auditFieldwork.testControls.effectiveCount', { count: store.effectiveControls }) }}</span>
           <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium" :class="getControlEffectivenessColorClass('Ineffective')">{{ t('auditFieldwork.testControls.ineffectiveCount', { count: store.ineffectiveControls }) }}</span>
         </div>
-        <UButton color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.testControls.addBtn')" @click="store.openTestControlModal()" />
+        <UButton v-if="canWrite" color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.testControls.addBtn')" @click="store.openTestControlModal()" />
       </div>
     </div>
 
@@ -64,7 +64,7 @@
               size="sm"  
               @click="store.viewTestControl(row.original)" />
           </UTooltip>
-          <UTooltip :text="t('common.actions.edit') || 'Ubah'">
+          <UTooltip v-if="canWrite" :text="t('common.actions.edit') || 'Ubah'">
             <UButton 
               icon="i-heroicons-pencil-square" 
               color="primary" 
@@ -72,7 +72,7 @@
               size="sm"
               @click="store.editTestControl(row.original)" />
           </UTooltip>
-          <UTooltip :text="t('common.actions.delete') || 'Hapus'">
+          <UTooltip v-if="canWrite" :text="t('common.actions.delete') || 'Hapus'">
             <UButton 
               icon="i-heroicons-trash" 
               color="error" 
@@ -90,6 +90,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { computed } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
@@ -100,6 +101,7 @@ import AuditFieldworkTestControlsModal from '~/components/audit-fieldwork/AuditF
 
 const store = useAuditFieldworkStore()
 const { t } = useI18n()
+const { canWrite } = useRbac()
 
 const columns = computed(() => [
   { key: 'controlName', accessorKey: 'controlName', header: t('auditFieldwork.testControls.columns.name'), class: 'w-56 min-w-[180px]' },

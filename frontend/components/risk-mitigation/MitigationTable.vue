@@ -11,7 +11,7 @@
           <p class="text-md text-gray-400">{{ t('riskMitigation.listSubtitle') }}</p>
         </div>
       </div>
-      <UButton
+      <UButton v-if="canWrite"
         :label="t('riskMitigation.add')"
         icon="i-heroicons-plus"
         color="primary"
@@ -102,14 +102,14 @@
                   <!-- Actions -->
                   <td class="py-4 px-4 text-center" @click.stop>
                     <div class="flex gap-2 justify-center">
-                      <UButton
+                      <UButton v-if="canWrite"
                         icon="i-heroicons-pencil-square"
                         size="sm"
                         color="warning"
                         variant="ghost"
                         @click="store.openForm(row)"
                       />
-                      <UButton
+                      <UButton v-if="canWrite"
                         icon="i-heroicons-trash"
                         size="sm"
                         color="error"
@@ -224,12 +224,14 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { ref, computed, watchEffect } from 'vue'
 import { useMitigationStore } from '~/stores/mitigation-risk'
 
 const store = useMitigationStore()
 const toast = useToast()
 const { t, locale } = useI18n()
+const { canWrite } = useRbac()
 
 const props = defineProps<{
   currentRiskId: string

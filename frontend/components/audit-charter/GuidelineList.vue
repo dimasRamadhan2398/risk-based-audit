@@ -105,7 +105,7 @@
         <!-- Actions slot -->
         <template #actions-cell="{ row }">
           <div class="flex justify-center items-center gap-1">
-            <UTooltip :text="t('auditCharter.tooltips.viewGuideline')">
+            <UTooltip v-if="canAccessFiles" :text="t('auditCharter.tooltips.viewGuideline')">
             <UButton
               v-if="row.original.file_url && row.original.file_url !== '#'"
               icon="i-lucide-eye"
@@ -154,7 +154,7 @@ import ReadMoreText from '~/components/shared/ReadMoreText.vue'
 
 const { t, locale } = useI18n()
 const store = useGuidelineStore()
-const { canManageCharter } = useRbac()
+const { canManageCharter, canAccessFiles } = useRbac()
 
 const columns = computed(() => store.columns)
 
