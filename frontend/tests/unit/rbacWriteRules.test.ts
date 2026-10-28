@@ -103,6 +103,31 @@ describe('scoped audit universe flag (DEPARTMENT_HEAD, own department only)', ()
     }
   })
 
+  it('matches by department_id first: another id wins over an equal name', () => {
+    const f = as(['DEPARTMENT_HEAD'], dh)
+    expect(f.scoped({ department_id: 'dep-2', department_name: 'Finance' })).toBe(false)
+    expect(f.scoped({ department_id: 'dep-1', department_name: 'Other' })).toBe(true)
+  })
+
+  it('falls back to the name only when an id is missing on one side', () => {
+    expect(as(['DEPARTMENT_HEAD'], dh).scoped({ department_id: null, department_name: ' FINANCE ' })).toBe(true)
+    expect(as(['DEPARTMENT_HEAD'], { department: 'Finance' }).scoped({ department_id: 'dep-9', department_name: 'finance' })).toBe(true)
+    expect(as(['DEPARTMENT_HEAD'], { department: 'Finance' }).scoped({ department_id: 'dep-9', department_name: 'HR' })).toBe(false)
+  })
+
+  it('a row with a null department is not editable by DEPARTMENT_HEAD but is by full writers', () => {
+    expect(as(['DEPARTMENT_HEAD'], dh).scoped({ department_id: null, department_name: null })).toBe(false)
+    expect(as(['DEPARTMENT_HEAD'], dh).scoped({ department_id: null })).toBe(false)
+    expect(as(['EXECUTIVE']).scoped({ department_id: null })).toBe(true)
+  })
+
+  it('the corporate UI sends department_id and the store type carries it', () => {
+    expect(read('stores/audit-universe.ts')).toContain('department_id?: string | null')
+    const page = read('pages/risk-profile/audit-universe/index.vue')
+    expect(page).toContain('department_id: toDepartmentPayload(')
+    expect(page).toContain('departmentLocked')
+  })
+
   it('isOwnDepartment ignores blanks on both sides', () => {
     expect(isOwnDepartment({ departmentId: ' ', department: '' }, { department: '' })).toBe(false)
     expect(isOwnDepartment(null, 'x')).toBe(false)
