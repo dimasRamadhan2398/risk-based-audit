@@ -99,7 +99,7 @@
                 @click="store.openViewModal(row.original)"
               />
             </UTooltip>
-            <UTooltip :text="t('strategicPlan.actions.edit')">
+            <UTooltip v-if="canWrite" :text="t('strategicPlan.actions.edit')">
               <UButton
                 icon="i-lucide-edit"
                 color="warning"
@@ -108,7 +108,7 @@
                 @click="store.handleEdit(row.original)"
               />
             </UTooltip>
-            <UTooltip :text="t('strategicPlan.actions.delete')">
+            <UTooltip v-if="canWrite" :text="t('strategicPlan.actions.delete')">
               <UButton
                 icon="i-lucide-trash-2"
                 color="error"
@@ -272,7 +272,7 @@ const filteredObjectives = computed(() => {
   return list
 })
 
-const { canManageStrategicPlan } = useRbac()
+const { canManageStrategicPlan, canWrite } = useRbac()
 
 const getActions = (item: StrategicAuditPlan) => {
   const actions: any[] = [

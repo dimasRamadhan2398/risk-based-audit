@@ -3,7 +3,7 @@
     <template #header>
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h2 class="text-lg font-bold">{{ t('masterData.employee.listTitle') }}</h2>
-        <UButton
+        <UButton v-if="canWriteMasterData"
           :label="t('masterData.employee.add')"
           icon="i-heroicons-plus"
           color="primary"
@@ -101,7 +101,7 @@
 
       <template #actions-cell="{ row }">
         <div class="flex gap-1">
-          <UButton
+          <UButton v-if="canWriteMasterData"
             icon="i-heroicons-pencil"
             color="primary"
             variant="ghost"
@@ -117,7 +117,7 @@
             :title="t('masterData.employee.resetPassword')"
             @click="openResetPassword(row.original)"
           />
-          <UButton
+          <UButton v-if="canWriteMasterData"
             icon="i-heroicons-trash"
             color="error"
             variant="ghost"
@@ -143,7 +143,7 @@ import type { Employee } from '~/types/master'
 import { useI18n } from '~/composables/useI18n'
 
 const store = useEmployeeStore()
-const { isAdmin } = useRbac()
+const { isAdmin, canWriteMasterData } = useRbac()
 const { t } = useI18n()
 
 // Admin-only: reset the password of the login account linked to an employee

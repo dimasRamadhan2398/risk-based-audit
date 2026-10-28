@@ -12,7 +12,7 @@
       </div>
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
         <UButton
-          v-if="canImportPlanDocs"
+          v-if="canWrite && (canImportPlanDocs)"
           icon="i-lucide-upload"
           :label="t('auditActivityPlan.importDocument')"
           variant="outline"
@@ -21,7 +21,7 @@
           class="w-full sm:w-auto font-bold shadow w-full"
           to="/audit-activity-plan/upload"
         />
-        <UButton
+        <UButton v-if="canWrite"
           icon="i-heroicons-plus"
           :label="t('auditActivityPlan.createPlan')"
           variant="solid"
@@ -54,7 +54,7 @@ import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
 
 const { t } = useI18n()
-const { canImportPlanDocs } = useRbac()
+const { canImportPlanDocs, canWrite } = useRbac()
 const store = useActivityPlanStore()
 store.fetchPlans()
 </script>

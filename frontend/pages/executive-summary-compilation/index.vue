@@ -12,7 +12,7 @@
         </p>
       </div>
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
-        <UButton
+        <UButton v-if="canWrite"
           color="neutral"
           variant="outline"
           icon="i-lucide-upload"
@@ -20,7 +20,7 @@
           to="/executive-summary-compilation/upload"
           class="font-bold shadow w-full sm:w-auto justify-center"
         />
-        <UButton
+        <UButton v-if="canWrite"
           color="primary"
           icon="i-lucide-plus"
           :label="t('executiveSummary.createNew')"
@@ -186,8 +186,8 @@
             
             <div class="flex gap-2 shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
               <UButton color="neutral" variant="ghost" icon="i-lucide-eye" size="sm" @click="store.openView(item)" :title="t('executiveSummary.actions.view')" />
-              <UButton v-if="item.status !== 'Approved' || isHigherAuthority" color="primary" variant="ghost" icon="i-lucide-edit" size="sm" @click="store.openEditForm(item as any)" :title="t('executiveSummary.actions.edit')" />
-              <UButton v-if="item.status !== 'Approved' || isHigherAuthority" color="error" variant="ghost" icon="i-lucide-trash-2" size="sm" @click="store.deleteSummary(item.id)" :title="t('executiveSummary.actions.delete')" />
+              <UButton v-if="canWrite && (item.status !== 'Approved' || isHigherAuthority)" color="primary" variant="ghost" icon="i-lucide-edit" size="sm" @click="store.openEditForm(item as any)" :title="t('executiveSummary.actions.edit')" />
+              <UButton v-if="canWrite && (item.status !== 'Approved' || isHigherAuthority)" color="error" variant="ghost" icon="i-lucide-trash-2" size="sm" @click="store.deleteSummary(item.id)" :title="t('executiveSummary.actions.delete')" />
               
             </div>
           </div>
@@ -265,7 +265,7 @@
         <p class="text-gray-500 dark:text-gray-400 mt-1 max-w-sm mx-auto mb-6">
           {{ t('executiveSummary.empty.desc', { quarter: activeQuarter, year: 2026 }) }}
         </p>
-        <UButton
+        <UButton v-if="canWrite"
           color="primary"
           icon="i-lucide-plus"
           :label="t('executiveSummary.empty.button')"
@@ -300,6 +300,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { ref, computed } from 'vue'
 import { useExecutiveSummaryStore, loadPersistedExecutiveSummaryOverrides } from '~/stores/executive-summary'
 import { useAuthStore } from '~/stores/auth'
@@ -315,6 +316,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+const { canWrite } = useRbac()
 const store = useExecutiveSummaryStore()
 const authStore = useAuthStore()
 const assignmentLetterStore = useAssignmentLetterStore()

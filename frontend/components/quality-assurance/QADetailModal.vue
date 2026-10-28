@@ -185,7 +185,7 @@
                 class="flex items-center space-x-2"
               >
                 <UButton
-                  v-if="store.selectedReport.attachment.filePath"
+                  v-if="canAccessFiles && (store.selectedReport.attachment.filePath)"
                   icon="i-lucide-download"
                   :label="t('qualityAssurance.detailModal.download')"
                   color="neutral"
@@ -216,6 +216,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { useQualityAssuranceStore } from '~/stores/quality-assurance'
 import type { QAStatus } from '~/types/quality-assurance'
 import { QAType } from '~/types/quality-assurance'
@@ -223,6 +224,7 @@ import { useI18n } from '~/composables/useI18n'
 
 const store = useQualityAssuranceStore()
 const { t } = useI18n()
+const { canAccessFiles } = useRbac()
 
 const getTypeLabel = (type: string) => {
   if (!type) return '-'

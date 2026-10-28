@@ -6,7 +6,7 @@
         <h3 class="text-lg font-semibold">{{ t('auditFieldwork.document.title') }}</h3>
         <p class="text-sm text-gray-500">{{ t('auditFieldwork.document.subtitle') }}</p>
       </div>
-      <UButton color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.document.addBtn')" @click="store.openDocumentModal()" />
+      <UButton v-if="canWrite" color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.document.addBtn')" @click="store.openDocumentModal()" />
     </div>
 
     <!-- Document List via TableEntities -->
@@ -36,7 +36,7 @@
       </template>
       <template #file-cell="{ row }">
         <UButton
-          v-if="row.original.file || row.original.fileName"
+          v-if="(row.original.file || row.original.fileName) && canAccessFiles"
           icon="i-heroicons-document-arrow-down"
           color="neutral"
           variant="ghost"
@@ -45,6 +45,7 @@
         >
           {{ row.original.file?.name || row.original.fileName }}
         </UButton>
+        <span v-else-if="row.original.file || row.original.fileName" class="text-sm">{{ row.original.file?.name || row.original.fileName }}</span>
         <span v-else class="text-gray-400 text-sm">-</span>
       </template>
       <template #actions-cell="{ row }">
@@ -57,7 +58,7 @@
               size="sm" 
               @click="store.viewDocument(row.original)" />
           </UTooltip>
-          <UTooltip :text="t('common.actions.edit') || 'Ubah'">
+          <UTooltip v-if="canWrite" :text="t('common.actions.edit') || 'Ubah'">
             <UButton 
               icon="i-heroicons-pencil-square" 
               color="primary" 
@@ -65,7 +66,7 @@
               size="sm" 
               @click="store.editDocument(row.original)" />
           </UTooltip>
-          <UTooltip :text="t('common.actions.delete') || 'Hapus'">
+          <UTooltip v-if="canWrite" :text="t('common.actions.delete') || 'Hapus'">
             <UButton 
               icon="i-heroicons-trash" 
               color="error" 
@@ -83,6 +84,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { computed } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
@@ -92,6 +94,7 @@ import AuditFieldworkDocumentModal from '~/components/audit-fieldwork/AuditField
 
 const store = useAuditFieldworkStore()
 const { t } = useI18n()
+const { canWrite, canAccessFiles } = useRbac()
 
 const columns = computed(() => [
   { key: 'documentName', accessorKey: 'documentName', header: t('auditFieldwork.document.columns.name'), class: 'w-56 min-w-[180px]' },

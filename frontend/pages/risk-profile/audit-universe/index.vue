@@ -146,8 +146,11 @@
                   class="border border-slate-150 dark:border-slate-800/70 rounded-xl p-3 bg-white dark:bg-slate-900/40 space-y-2"
                 >
                   <div class="flex items-center justify-between">
-                    <span class="font-bold text-md text-slate-800 dark:text-slate-200">{{ node.name }}</span>
-                    <div v-if="canEditAuditUniverse" class="flex items-center gap-1">
+                    <span class="font-bold text-md text-slate-800 dark:text-slate-200">
+                      {{ node.name }}
+                      <UBadge v-if="departmentLabel(node)" color="neutral" variant="subtle" size="sm" class="ml-2 align-middle">{{ departmentLabel(node) }}</UBadge>
+                    </span>
+                    <div v-if="canEditNode(node)" class="flex items-center gap-1">
                       <UTooltip :text="t('auditUniverse.library.addSubEntity')">
                         <UButton
                           icon="i-lucide-plus"
@@ -185,8 +188,11 @@
                       :key="sub.id"
                       class="flex items-center justify-between p-1 hover:bg-slate-50 dark:hover:bg-slate-800/30 rounded"
                     >
-                      <span class="text-md text-slate-600 dark:text-slate-400">{{ sub.name }}</span>
-                      <div class="flex items-center gap-1">
+                      <span class="text-md text-slate-600 dark:text-slate-400">
+                        {{ sub.name }}
+                        <UBadge v-if="departmentLabel(sub)" color="neutral" variant="subtle" size="sm" class="ml-2 align-middle">{{ departmentLabel(sub) }}</UBadge>
+                      </span>
+                      <div v-if="canEditNode(sub)" class="flex items-center gap-1">
                         <UTooltip :text="t('auditUniverse.library.renameSubEntity')">
                           <UButton
                             icon="i-lucide-edit"
@@ -234,6 +240,16 @@
                 <h3 class="font-bold text-base text-slate-800 dark:text-slate-100">{{ t('auditUniverse.modals.renameTitle') }}</h3>
               </template>
               <div class="space-y-4">
+                <UFormField :label="t('auditUniverse.modals.departmentLabel')" class="space-y-1">
+                  <USelectMenu
+                    v-model="renameDepartmentId"
+                    :items="departmentItems"
+                    value-key="value"
+                    :disabled="departmentLocked"
+                    class="w-full"
+                  />
+                  <p v-if="departmentLocked" class="text-xs text-gray-500 mt-1">{{ t('auditUniverse.modals.departmentLockedHint') }}</p>
+                </UFormField>
                 <UFormField :label="t('auditUniverse.modals.entityNameLabel')" class="space-y-2">
                   <UInput
                     v-model="renameNodeName"
@@ -283,6 +299,16 @@
                 </h3>
               </template>
               <div class="space-y-4">
+                <UFormField :label="t('auditUniverse.modals.departmentLabel')" class="space-y-1">
+                  <USelectMenu
+                    v-model="addCustomDepartmentId"
+                    :items="departmentItems"
+                    value-key="value"
+                    :disabled="departmentLocked"
+                    class="w-full"
+                  />
+                  <p v-if="departmentLocked" class="text-xs text-gray-500 mt-1">{{ t('auditUniverse.modals.departmentLockedHint') }}</p>
+                </UFormField>
                 <UFormField :label="t('auditUniverse.modals.nameLabel')" class="space-y-1">
                   <UInput
                     v-model="addCustomNodeName"
@@ -368,7 +394,7 @@
                       @update:model-value="fetchYearlyUniverse"
                     />
                   </div>
-                  <UButton
+                  <UButton v-if="canWriteAuditUniverse"
                     size="sm"
                     color="primary"
                     variant="solid"
@@ -429,13 +455,54 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { useFiscalYear } from '~/composables/useFiscalYear'
 import { useCompanyApi } from '~/composables/useCompanyApi'
 import { useLocationApi } from '~/composables/useLocationApi'
+import { useDepartmentApi } from '~/composables/useDepartmentApi'
+import { useAuthStore } from '~/stores/auth'
 
 const store = useAuditUniverseStore()
 const riskFactorsStore = useRiskFactorsStore()
 const route = useRoute()
 const toast = useToastNotification()
 const { t } = useI18n()
-const { canEditAuditUniverse } = useRbac()
+const authStore = useAuthStore()
+const { canEditAuditUniverse, canWriteAuditUniverse, canWriteAuditUniverseFor } = useRbac()
+
+// Departments for the selector (what the user can read) and the fixed department of a DEPARTMENT_HEAD.
+const NO_DEPARTMENT = '__none__'
+const departments = ref<{ id: string, department_name: string }[]>([])
+const ownDepartmentId = computed(() => authStore.user?.departmentId || '')
+// Only full writers choose freely; everyone else who can edit here is scoped to their own department.
+const departmentLocked = computed(() => !canWriteAuditUniverse.value)
+const departmentItems = computed(() => {
+  const items = departments.value.map(d => ({ label: d.department_name, value: d.id }))
+  if (departmentLocked.value) {
+    const own = ownDepartmentId.value
+    const label = items.find(i => i.value === own)?.label || authStore.user?.department || own
+    return own ? [{ label, value: own }] : []
+  }
+  return [{ label: t('auditUniverse.modals.noDepartment'), value: NO_DEPARTMENT }, ...items]
+})
+const departmentLabel = (node: any): string => {
+  if (node?.department_name) return node.department_name
+  const id = node?.department_id
+  return id ? (departments.value.find(d => d.id === id)?.department_name || '') : ''
+}
+// Value sent as department_id: DEPARTMENT_HEAD is forced to its own department.
+const toDepartmentPayload = (selected: string): string | null => {
+  if (departmentLocked.value) return ownDepartmentId.value || null
+  return selected && selected !== NO_DEPARTMENT ? selected : null
+}
+const loadDepartments = async () => {
+  try {
+    const res = await useDepartmentApi().getDepartments({ page_size: 1000 })
+    departments.value = res?.departments || []
+  } catch (err) {
+    console.warn('Could not load departments:', err)
+  }
+}
+
+// DEPARTMENT_HEAD may edit only rows of its own department. Audit universe rows currently carry no department
+// field, so for that role this stays false until the backend sends one (department_id / department).
+const canEditNode = (node: any) => canWriteAuditUniverseFor(node)
 
 const syncingMaster = ref(false)
 const masterCompanies = ref<string[]>([])
@@ -475,10 +542,12 @@ const selectedYearlyIDs = ref<string[]>([])
 const renameModalOpen = ref(false)
 const renameNode = ref<any>(null)
 const renameNodeName = ref('')
+const renameDepartmentId = ref(NO_DEPARTMENT)
 
 const addCustomModalOpen = ref(false)
 const addCustomParentID = ref<string | null>(null)
 const addCustomNodeName = ref('')
+const addCustomDepartmentId = ref(NO_DEPARTMENT)
 
 // Lifecycle
 onMounted(async () => {
@@ -491,6 +560,10 @@ onMounted(async () => {
   await riskFactorsStore.fetchCorporateFactors()
   await fetchYearlyUniverse()
   await loadMasterData()
+  await loadDepartments()
+  if (departmentLocked.value && !authStore.user?.departmentId) {
+    try { await authStore.fetchEmployeeLink() } catch (err) { console.warn('Could not link employee department:', err) }
+  }
 })
 
 const loadMasterData = async () => {
@@ -636,6 +709,7 @@ const toggleStandardSelection = async (stdNode: any) => {
 const openRenameModal = (node: any) => {
   renameNode.value = node
   renameNodeName.value = node.name
+  renameDepartmentId.value = departmentLocked.value ? ownDepartmentId.value : (node.department_id || NO_DEPARTMENT)
   renameModalOpen.value = true
 }
 
@@ -645,16 +719,27 @@ const saveRenameNode = async () => {
     id: renameNode.value.id,
     name: renameNodeName.value,
     parent_id: renameNode.value.parent_id,
-    standard_audit_universe_id: renameNode.value.standard_audit_universe_id
+    standard_audit_universe_id: renameNode.value.standard_audit_universe_id,
+    department_id: toDepartmentPayload(renameDepartmentId.value)
   })
   renameModalOpen.value = false
   toast.showSuccess(t('auditUniverse.messages.entityRenamed'))
 }
 
 // Adding custom nodes
+const findCorporateNode = (nodes: any[], id: string): any => {
+  for (const n of nodes) {
+    if (n.id === id || n.standard_audit_universe_id === id) return n
+    const found = n.children ? findCorporateNode(n.children, id) : null
+    if (found) return found
+  }
+  return null
+}
 const openAddCustomModal = (parentID: string | null) => {
   addCustomParentID.value = parentID
   addCustomNodeName.value = ''
+  const parent = parentID ? findCorporateNode(store.corporateUniverse, parentID) : null
+  addCustomDepartmentId.value = departmentLocked.value ? ownDepartmentId.value : (parent?.department_id || NO_DEPARTMENT)
   addCustomModalOpen.value = true
 }
 
@@ -679,7 +764,8 @@ const saveAddCustomNode = async () => {
 
   await store.saveCorporateNode({
     name: addCustomNodeName.value,
-    parent_id: corpParentID
+    parent_id: corpParentID,
+    department_id: toDepartmentPayload(addCustomDepartmentId.value)
   })
   addCustomModalOpen.value = false
   toast.showSuccess(t('auditUniverse.messages.entityAdded'))
