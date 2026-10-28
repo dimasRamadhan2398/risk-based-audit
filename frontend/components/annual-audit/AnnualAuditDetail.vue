@@ -266,10 +266,13 @@
                 <UStepper 
                   :model-value="approvalStep"
                   :items="store.approvalStepperItems" 
+                  value-key="value"
+                  disabled
+                  :ui="{ trigger: 'cursor-default pointer-events-none' }"
                   class="w-full"
                 >
                   <template #draft>
-                    <UFormField v-if="authStore.user?.roles?.includes(UserRole.AUDITOR)" :label="t('annualAudit.detail.staffNoteLabel')" class="p-4 mt-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg text-center border dark:border-gray-700">
+                    <UFormField v-if="canApproveDraft" :label="t('annualAudit.detail.staffNoteLabel')" class="p-4 mt-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg text-center border dark:border-gray-700">
                       <UTextarea v-model="store.selectedPlan.staffApprovalNote" :placeholder="t('annualAudit.detail.approvalNotePlaceholder')" class="w-full"/>
                       <div class="mt-4 flex gap-2">
                         <UButton color="primary" icon="i-heroicons-check" @click="store.handleStaffApprove()">{{ t('annualAudit.detail.approve') }}</UButton>
@@ -282,8 +285,7 @@
                   </template>
 
                   <template #review>
-                    <!-- No manager role is seeded by the backend, so this approval step stays on the waiting message. -->
-                    <UFormField v-if="false" :label="t('annualAudit.detail.managerNoteLabel')" class="p-4 mt-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg text-center border dark:border-gray-700">
+                    <UFormField v-if="canApproveReview" :label="t('annualAudit.detail.managerNoteLabel')" class="p-4 mt-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg text-center border dark:border-gray-700">
                       <UTextarea v-model="store.selectedPlan.managerApprovalNote" :placeholder="t('annualAudit.detail.approvalNotePlaceholder')" class="w-full"/>
                       <div class="mt-4 flex gap-2">
                         <UButton color="primary" icon="i-heroicons-check" @click="store.handleManagerApprove()">{{ t('annualAudit.detail.approve') }}</UButton>
@@ -296,7 +298,7 @@
                   </template>
 
                   <template #approval>
-                    <UFormField v-if="authStore.user?.roles?.includes(UserRole.EXECUTIVE)" :label="t('annualAudit.detail.chiefNoteLabel')" class="p-4 mt-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg text-center border dark:border-gray-700">
+                    <UFormField v-if="canApproveChief" :label="t('annualAudit.detail.chiefNoteLabel')" class="p-4 mt-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg text-center border dark:border-gray-700">
                       <UTextarea v-model="store.selectedPlan.chiefApprovalNote" :placeholder="t('annualAudit.detail.approvalNotePlaceholder')" class="w-full"/>
                       <div class="mt-4 flex gap-2">
                         <UButton color="primary" icon="i-heroicons-check" @click="store.handleChiefApprove()">{{ t('annualAudit.detail.approve') }}</UButton>
@@ -309,7 +311,12 @@
                   </template>
 
                   <template #approved>
-                    <UAlert :title="t('annualAudit.detail.approvedAlert')" icon="i-heroicons-check-circle" color="success" />
+                    <UAlert
+                      :title="t('annualAudit.detail.approvedAlert')"
+                      :description="`${t('annualAudit.status.approved')} (${t('annualAudit.approvalRole.system')})`"
+                      icon="i-heroicons-check-circle"
+                      color="success"
+                    />
                   </template>
                 </UStepper>
               </UCard>
@@ -326,13 +333,27 @@ import { useI18n } from '~/composables/useI18n'
 import { useAnnualPlanStore } from '~/stores/annual-audit'
 import { getRiskLevelColorClass } from '~/utils/riskLevelBadge'
 import { useAuthStore } from '~/stores/auth'
+import { useRbac } from '~/composables/useRbac'
 import { UserRole } from '~/types/auth'
 import { AnnualAuditPlanStatus } from '~/types/audit'
 
 // Cukup inisialisasi store. Komponen akan otomatis membaca status showModal, data form, dan fungsi dari sini.
 const store = useAnnualPlanStore()
 const authStore = useAuthStore()
+const { isAdmin, hasAnyRole } = useRbac()
 const { t } = useI18n()
+
+const canApproveDraft = computed(() =>
+  isAdmin.value || hasAnyRole([UserRole.AUDITOR, 'auditstaff', 'auditor'])
+)
+
+const canApproveReview = computed(() =>
+  isAdmin.value || hasAnyRole([UserRole.DEPARTMENT_HEAD, 'manager', 'auditmanager', 'audit_manager', 'dept_head'])
+)
+
+const canApproveChief = computed(() =>
+  isAdmin.value || hasAnyRole([UserRole.EXECUTIVE, 'cae', 'chiefauditexecutive', 'chief_audit_executive', 'executive'])
+)
 
 // Team figures are the sum of the activity rows: the plan has no team-level totals.
 const teamSize = computed(() => (store.selectedPlan?.activities || []).reduce((sum: number, a: { auditorCount?: number }) => sum + (Number(a.auditorCount) || 0), 0))
@@ -344,7 +365,7 @@ const revisionNote = ref('')
 
 const isApproved = computed(() => store.selectedPlan?.status === AnnualAuditPlanStatus.APPROVED)
 
-// Stepper slot for the current status. Draft and Revised both sit with Audit Staff (draft slot).
+// Stepper slot for the current status. Draft and Revised both sit with Auditor (draft slot).
 const approvalStep = computed(() => {
   switch (store.selectedPlan?.status) {
     case AnnualAuditPlanStatus.APPROVED: return 'approved'

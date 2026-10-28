@@ -54,7 +54,15 @@
         </template>
 
         <template #status-cell="{ row }">
-          <span class="whitespace-nowrap">{{ store.getStatusLabel((row.original || row)?.status) }}</span>
+          <UBadge
+            :color="store.getStatusBadgeColor((row.original || row)?.status)"
+            variant="soft"
+            size="sm"
+            class="whitespace-nowrap inline-flex items-center gap-1.5"
+          >
+            <span class="size-1.5 rounded-full" :class="store.getStatusColor((row.original || row)?.status)" />
+            {{ store.getStatusLabel((row.original || row)?.status) }}
+          </UBadge>
         </template>
 
         <template #actions-cell="{ row }">

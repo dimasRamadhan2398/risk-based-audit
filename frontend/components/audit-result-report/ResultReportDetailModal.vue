@@ -156,13 +156,6 @@
               size="sm"
               @click="store.downloadDocx(report.id, report.reportNumber)"
             />
-            <UButton
-              :label="t('auditResultReport.editor.detail.print')"
-              color="primary"
-              icon="i-lucide-printer"
-              size="sm"
-              @click="handleOpenPrint"
-            />
           </div>
         </div>
       </div>

@@ -52,24 +52,36 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   const approvalStepperItems = computed(() => [
     {
       slot: 'draft' as const,
+      value: 'draft',
+      title: t('annualAudit.status.draft'),
       label: t('annualAudit.status.draft'),
       description: t('annualAudit.approvalRole.staff'),
-      icon: 'i-lucide-check'
+      icon: 'i-lucide-check',
+      disabled: true
     }, {
       slot: 'review' as const,
+      value: 'review',
+      title: t('annualAudit.status.pendingReview'),
       label: t('annualAudit.status.pendingReview'),
       description: t('annualAudit.approvalRole.manager'),
-      icon: 'i-lucide-clock'
+      icon: 'i-lucide-clock',
+      disabled: true
     }, {
       slot: 'approval' as const,
+      value: 'approval',
+      title: t('annualAudit.status.pendingApproval'),
       label: t('annualAudit.status.pendingApproval'),
       description: t('annualAudit.approvalRole.chief'),
-      icon: 'i-lucide-clock'
+      icon: 'i-lucide-clock',
+      disabled: true
     }, {
       slot: 'approved' as const,
+      value: 'approved',
+      title: t('annualAudit.status.approved'),
       label: t('annualAudit.status.approved'),
       description: t('annualAudit.approvalRole.system'),
-      icon: 'i-lucide-check-circle'
+      icon: 'i-lucide-check-circle',
+      disabled: true
     }
   ]) as any
 
@@ -240,6 +252,21 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       case AnnualAuditPlanStatus.REVISED: return 'bg-red-500'
       case AnnualAuditPlanStatus.DRAFT: return 'bg-gray-400'
       default: return 'bg-gray-200'
+    }
+  }
+
+  const getStatusBadgeColor = (status?: string): 'success' | 'warning' | 'error' | 'neutral' => {
+    switch (status) {
+      case AnnualAuditPlanStatus.APPROVED:
+        return 'success'
+      case AnnualAuditPlanStatus.PENDING_REVIEW:
+      case AnnualAuditPlanStatus.PENDING_APPROVAL:
+        return 'warning'
+      case AnnualAuditPlanStatus.REVISED:
+        return 'error'
+      case AnnualAuditPlanStatus.DRAFT:
+      default:
+        return 'neutral'
     }
   }
 
@@ -855,19 +882,23 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     }
   }
 
-  const updatePlanStatus = async (id: string, status: AnnualAuditPlanStatus) => {
+  const updatePlanStatus = async (id: string, status: AnnualAuditPlanStatus, extraPayload: Record<string, any> = {}) => {
     const plan = plans.value.find(p => p.id === id)
     if (!plan) return
 
     const baseUrl = getAuditServiceBaseUrl()
-    // PUT is partial: only the status is sent.
-    const payload = { status: status }
+    // PUT is partial: only the status and optional notes are sent.
+    const payload = { status: status, ...extraPayload }
     try {
       await $fetch(`${baseUrl}/annual-audit-plans/${id}`, {
         method: 'PUT',
         body: payload
       })
       await fetchPlans()
+      if (selectedPlan.value && selectedPlan.value.id === id) {
+        selectedPlan.value = plans.value.find(p => p.id === id) || { ...selectedPlan.value, status, ...extraPayload }
+      }
+      toast.showSuccess(`Status Rencana Audit berhasil diperbarui menjadi ${getStatusLabel(status)}`)
     } catch (error: any) {
       console.error('Failed to update plan status:', error)
       const detail = extractErrorMessage(error, 'Gagal memperbarui status rencana audit.')
@@ -877,11 +908,13 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     }
   }
 
-  // Transitions: Draft|Revised -> submit (staff) -> Pending Review
+  // Transitions: Draft|Revised -> submit (auditor) -> Pending Review
   const handleStaffApprove = async () => {
     if (selectedPlan.value) {
-      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.PENDING_REVIEW)
-      selectedPlan.value = plans.value.find(p => p.id === selectedPlan.value.id)
+      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.PENDING_REVIEW, {
+        staffApprovalNote: selectedPlan.value.staffApprovalNote || ''
+      })
+      selectedPlan.value = plans.value.find(p => p.id === selectedPlan.value.id) || selectedPlan.value
     }
   }
 
@@ -893,32 +926,40 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   const handleManagerApprove = async () => {
     if (selectedPlan.value) {
-      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.PENDING_APPROVAL)
-      selectedPlan.value = plans.value.find(p => p.id === selectedPlan.value.id)
+      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.PENDING_APPROVAL, {
+        managerApprovalNote: selectedPlan.value.managerApprovalNote || ''
+      })
+      selectedPlan.value = plans.value.find(p => p.id === selectedPlan.value.id) || selectedPlan.value
     }
   }
 
   // Pending Review -> manager reject -> Revised
   const handleManagerReject = async () => {
     if (selectedPlan.value) {
-      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.REVISED)
-      selectedPlan.value = plans.value.find(p => p.id === selectedPlan.value.id)
+      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.REVISED, {
+        managerApprovalNote: selectedPlan.value.managerApprovalNote || ''
+      })
+      selectedPlan.value = plans.value.find(p => p.id === selectedPlan.value.id) || selectedPlan.value
     }
   }
 
   // Pending Approval -> CAE approve -> Approved
   const handleChiefApprove = async () => {
     if (selectedPlan.value) {
-      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.APPROVED)
-      selectedPlan.value = plans.value.find(p => p.id === selectedPlan.value.id)
+      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.APPROVED, {
+        chiefApprovalNote: selectedPlan.value.chiefApprovalNote || ''
+      })
+      selectedPlan.value = plans.value.find(p => p.id === selectedPlan.value.id) || selectedPlan.value
     }
   }
 
   // Pending Approval -> CAE reject -> Revised
   const handleChiefReject = async () => {
     if (selectedPlan.value) {
-      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.REVISED)
-      selectedPlan.value = plans.value.find(p => p.id === selectedPlan.value.id)
+      await updatePlanStatus(selectedPlan.value.id, AnnualAuditPlanStatus.REVISED, {
+        chiefApprovalNote: selectedPlan.value.chiefApprovalNote || ''
+      })
+      selectedPlan.value = plans.value.find(p => p.id === selectedPlan.value.id) || selectedPlan.value
     }
   }
 
@@ -931,7 +972,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     clearFilters, openViewModal, closeViewModal, departmentOptions, departments, departmentOptionsLoading, fetchDepartmentOptions, statusOptions,
     toggleMonth, addActivity, removeActivity, handleDownload,
     openModal, closeModal, handleSubmit, handleEdit, handleEditFromView, handleDelete,
-    getStatusColor, getStatusLabel, handleFileChange, fetchPlans, fetchAnnualPlans: fetchPlans,
+    getStatusColor, getStatusBadgeColor, getStatusLabel, handleFileChange, fetchPlans, fetchAnnualPlans: fetchPlans,
     handleStaffApprove, handleStaffReject, handleManagerApprove, handleManagerReject, handleChiefApprove, handleChiefReject,
     createRevision, getRiskLevelColor
   }

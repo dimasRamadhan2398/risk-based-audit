@@ -7,14 +7,6 @@
       </div>
       <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
         <UButton
-          v-if="store.hasSelectedAssignmentLetter"
-          color="primary"
-          icon="i-heroicons-plus"
-          :label="t('auditResultReport.dashboard.createReport')"
-          class="w-full sm:w-auto font-bold shadow"
-          @click="store.openModal"
-        />
-        <UButton
           v-if="canImportPlanDocs"
           color="neutral"
           variant="outline"
@@ -157,7 +149,10 @@
                   :label="followUpLabel((row.original as any).id)"
                 />
               </UTooltip>
-              <UTooltip :text="t('auditResultReport.dashboard.actions.syncTooltip')">
+              <UTooltip
+                v-if="!isLhaApproved(row.original.status)"
+                :text="t('auditResultReport.dashboard.actions.syncTooltip')"
+              >
                 <UButton
                   color="primary"
                   variant="soft"
@@ -177,6 +172,20 @@
                   @click="store.downloadDocx((row.original as any).id, (row.original as any).reportNumber)"
                 />
               </UTooltip>
+              <!-- Edit button: only displayed when report status is draft -->
+              <UTooltip
+                v-if="!isLhaApproved(row.original.status)"
+                :text="t('auditResultReport.editLha') || t('common.edit')"
+              >
+                <UButton
+                  color="warning"
+                  variant="ghost"
+                  icon="i-lucide-edit"
+                  size="md"
+                  @click="store.editReport(row.original as any)"
+                />
+              </UTooltip>
+              <!-- View button: eye icon (when final, form cannot be edited and only view icon is displayed) -->
               <UTooltip :text="t('auditResultReport.viewLhaDetail')">
                 <UButton
                   color="info"

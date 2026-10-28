@@ -143,8 +143,29 @@
       "nextMonth": "Next month",
       "today": "Today",
       "clear": "Clear",
-      "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-      "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+      "months": [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+      ],
+      "weekdays": [
+        "Sun",
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat"
+      ]
     },
     "signaturePad": {
       "draw": "Draw",
@@ -398,125 +419,125 @@
       }
     },
     "auditor": {
-    "roleBadge": "Role: Auditor",
-    "title": "Auditor Dashboard",
-    "welcome": "Welcome, {name}. Working view for fieldwork execution, working papers and draft findings.",
-    "previewMode": "Mode:",
-    "previewAuditor": "Auditor",
-    "previewReset": "(Reset)",
-    "previewResetTitle": "Back to the full dashboard view",
-    "sync": "Sync data",
-    "syncSuccess": "Auditor data synced",
-    "syncError": "Failed to sync auditor data",
-    "notice": {
-      "label": "Auditor view principle:",
-      "text": "The dashboard prioritizes active audit engagements, working papers, and client-provided evidence (PBC), while keeping corporate-level risk metrics in the background."
-    },
-    "states": {
-      "loading": "Loading...",
-      "loadError": "This section could not be loaded.",
-      "retry": "Retry",
-      "noData": "No data for this period."
-    },
-    "stats": {
-      "title": "Audit statistics",
-      "scope": "Scope: all ATR and audit data you can access (interim)",
-      "plannedAudits": "Planned audits",
-      "plannedAuditsHint": "Annual plans not yet approved",
-      "openFindings": "Open findings",
-      "openFindingsHint": "ATR items not completed or cancelled",
-      "executionProgress": "Execution progress",
-      "executionProgressHint": "Average progress of audit executions",
-      "atrCompliance": "ATR compliance",
-      "atrComplianceHint": "Completed share of ATR items"
-    },
-    "coverage": {
-      "title": "Audit planning & coverage",
-      "description": "Coverage of the annual audit plan (PKAT).",
-      "scope": "Scope: all annual audit plans (interim)",
-      "overallProgress": "Overall progress",
-      "planned": "Planned",
-      "approved": "Approved",
-      "remaining": "Remaining",
-      "empty": "No annual audit plan yet.",
-      "openPlan": "Open annual audit"
-    },
-    "status": {
-      "title": "Audit status and progress",
-      "description": "Published assignment letters, fieldwork stage and working paper completion.",
-      "scope": "Scope: all published assignment letters (interim)",
-      "searchPlaceholder": "Search letter / unit...",
-      "allAssignments": "All assignments",
-      "colLetter": "Assignment letter & title",
-      "colUnit": "Audited unit",
-      "colPeriod": "Fieldwork period",
-      "colStages": "Fieldwork stages",
-      "colWorkingPapers": "Working paper completeness",
-      "colStatus": "Status",
-      "colActions": "Actions",
-      "team": "Team",
-      "formsCount": "{count}/5 forms",
-      "currentStage": "Current stage:",
-      "openWorkingPaper": "Working paper",
-      "openFieldwork": "Testing & PBC",
-      "openLha": "Draft LHA",
-      "empty": "No published assignment letter yet.",
-      "emptyFiltered": "No engagement matches your search.",
-      "emptyHint": "Make sure the assignment letter is Published in the Assignment Letter module.",
-      "stepper": {
-        "entry": "1. Entry",
-        "testing": "2. Testing",
-        "workingPapers": "3. Working papers",
-        "exit": "4. Exit"
+      "roleBadge": "Role: Auditor",
+      "title": "Auditor Dashboard",
+      "welcome": "Welcome, {name}. Working view for fieldwork execution, working papers and draft findings.",
+      "previewMode": "Mode:",
+      "previewAuditor": "Auditor",
+      "previewReset": "(Reset)",
+      "previewResetTitle": "Back to the full dashboard view",
+      "sync": "Sync data",
+      "syncSuccess": "Auditor data synced",
+      "syncError": "Failed to sync auditor data",
+      "notice": {
+        "label": "Auditor view principle:",
+        "text": "The dashboard prioritizes active audit engagements, working papers, and client-provided evidence (PBC), while keeping corporate-level risk metrics in the background."
       },
-      "stage": {
-        "preparation": "Entry meeting & preparation",
-        "testing": "Sampling & evidence testing",
-        "workingPapers": "Preparing working papers",
-        "reporting": "Drafting LHA & exit"
+      "states": {
+        "loading": "Loading...",
+        "loadError": "This section could not be loaded.",
+        "retry": "Retry",
+        "noData": "No data for this period."
       },
-      "statusLabel": {
-        "preparation": "Preparation",
-        "fieldwork": "Fieldwork active",
-        "reporting": "Reporting (LHA)"
+      "stats": {
+        "title": "Audit statistics",
+        "scope": "Scope: all ATR and audit data you can access (interim)",
+        "plannedAudits": "Planned audits",
+        "plannedAuditsHint": "Annual plans not yet approved",
+        "openFindings": "Open findings",
+        "openFindingsHint": "ATR items not completed or cancelled",
+        "executionProgress": "Execution progress",
+        "executionProgressHint": "Average progress of audit executions",
+        "atrCompliance": "ATR compliance",
+        "atrComplianceHint": "Completed share of ATR items"
       },
-      "deadline": {
-        "none": "No schedule set",
-        "today": "Last day",
-        "overdue": "{days} days overdue",
-        "remaining": "{days} days left"
+      "coverage": {
+        "title": "Audit planning & coverage",
+        "description": "Coverage of the annual audit plan (PKAT).",
+        "scope": "Scope: all annual audit plans (interim)",
+        "overallProgress": "Overall progress",
+        "planned": "Planned",
+        "approved": "Approved",
+        "remaining": "Remaining",
+        "empty": "No annual audit plan yet.",
+        "openPlan": "Open annual audit"
       },
-      "periodTo": "to",
-      "unitFallback": "Audited unit"
-    },
-    "tasks": {
-      "title": "Task list with deadlines",
-      "description": "Open ATR items you need to review or follow up.",
-      "scope": "Scope: ATR items you can access (interim)",
-      "kindReview": "Review ATR action plan",
-      "kindFollowUp": "Follow up ATR action plan",
-      "dueOn": "Due {date}",
-      "noDueDate": "No due date",
-      "overdueDays": "{days} days overdue",
-      "empty": "No open tasks. Nothing is waiting on you.",
-      "placeholder": "Tasks for KKA, PBC and LHA are not connected yet."
-    },
-    "calendar": {
-      "title": "Important dates",
-      "description": "Engagement start and end dates, and ATR due dates for engagements you are on.",
-      "notConnected": "Calendar is not connected yet.",
-      "notLinked": "Your account is not linked to an employee record yet, so engagement dates cannot be filtered to you."
-    },
-    "notifications": {
-      "title": "Notifications and reminders",
-      "description": "In-app reminders derived from ATR data.",
-      "empty": "You have no new notifications.",
-      "typeOverdue": "ATR overdue by {days} days",
-      "typePendingReview": "ATR waiting for review",
-      "typeDueSoon": "ATR due in {days} days",
-      "placeholder": "PBC requests, comments and revisions are not connected yet."
-    },
-    "placeholder": "Placeholder"
+      "status": {
+        "title": "Audit status and progress",
+        "description": "Published assignment letters, fieldwork stage and working paper completion.",
+        "scope": "Scope: all published assignment letters (interim)",
+        "searchPlaceholder": "Search letter / unit...",
+        "allAssignments": "All assignments",
+        "colLetter": "Assignment letter & title",
+        "colUnit": "Audited unit",
+        "colPeriod": "Fieldwork period",
+        "colStages": "Fieldwork stages",
+        "colWorkingPapers": "Working paper completeness",
+        "colStatus": "Status",
+        "colActions": "Actions",
+        "team": "Team",
+        "formsCount": "{count}/5 forms",
+        "currentStage": "Current stage:",
+        "openWorkingPaper": "Working paper",
+        "openFieldwork": "Testing & PBC",
+        "openLha": "Draft LHA",
+        "empty": "No published assignment letter yet.",
+        "emptyFiltered": "No engagement matches your search.",
+        "emptyHint": "Make sure the assignment letter is Published in the Assignment Letter module.",
+        "stepper": {
+          "entry": "1. Entry",
+          "testing": "2. Testing",
+          "workingPapers": "3. Working papers",
+          "exit": "4. Exit"
+        },
+        "stage": {
+          "preparation": "Entry meeting & preparation",
+          "testing": "Sampling & evidence testing",
+          "workingPapers": "Preparing working papers",
+          "reporting": "Drafting LHA & exit"
+        },
+        "statusLabel": {
+          "preparation": "Preparation",
+          "fieldwork": "Fieldwork active",
+          "reporting": "Reporting (LHA)"
+        },
+        "deadline": {
+          "none": "No schedule set",
+          "today": "Last day",
+          "overdue": "{days} days overdue",
+          "remaining": "{days} days left"
+        },
+        "periodTo": "to",
+        "unitFallback": "Audited unit"
+      },
+      "tasks": {
+        "title": "Task list with deadlines",
+        "description": "Open ATR items you need to review or follow up.",
+        "scope": "Scope: ATR items you can access (interim)",
+        "kindReview": "Review ATR action plan",
+        "kindFollowUp": "Follow up ATR action plan",
+        "dueOn": "Due {date}",
+        "noDueDate": "No due date",
+        "overdueDays": "{days} days overdue",
+        "empty": "No open tasks. Nothing is waiting on you.",
+        "placeholder": "Tasks for KKA, PBC and LHA are not connected yet."
+      },
+      "calendar": {
+        "title": "Important dates",
+        "description": "Engagement start and end dates, and ATR due dates for engagements you are on.",
+        "notConnected": "Calendar is not connected yet.",
+        "notLinked": "Your account is not linked to an employee record yet, so engagement dates cannot be filtered to you."
+      },
+      "notifications": {
+        "title": "Notifications and reminders",
+        "description": "In-app reminders derived from ATR data.",
+        "empty": "You have no new notifications.",
+        "typeOverdue": "ATR overdue by {days} days",
+        "typePendingReview": "ATR waiting for review",
+        "typeDueSoon": "ATR due in {days} days",
+        "placeholder": "PBC requests, comments and revisions are not connected yet."
+      },
+      "placeholder": "Placeholder"
     }
   },
   "auditExecution": {
@@ -2091,7 +2112,7 @@
     },
     "xgboost": {
       "alertTitle": "Department & Entity Risk Scoring ML Model",
-      "alertDesc": "The Machine Learning model dynamically predicts department/branch Impact and Likelihood based on KPI achievement, past audit findings, and volatility.",
+      "alertDesc": "The Machine Learning model dynamically predicts branch Impact and Likelihood based on KPI achievement, past audit findings, and volatility.",
       "chartPredictedVsActual": "Predicted vs Actual Risk Score",
       "chartFeatureImportance": "Feature Importance (Top Predictors)",
       "tableTitle": "Entity Risk Score Predictions",
@@ -2216,7 +2237,7 @@
       "revised": "Revised"
     },
     "approvalRole": {
-      "staff": "Audit Staff",
+      "staff": "Auditor",
       "manager": "Audit Manager",
       "chief": "Chief Audit Executive",
       "system": "System"
@@ -2297,6 +2318,12 @@
       "uploadDescription": "You can upload multiple files (max. 2MB each)",
       "savePlan": "Save plan",
       "updatePlan": "Update plan",
+      "stepper": {
+        "header": "Plan Header",
+        "activities": "Activities",
+        "timelineNotes": "Timeline & Notes",
+        "attachments": "Attachment"
+      },
       "sectionPlanHeader": "1. Plan header",
       "planTitle": "PKAT title",
       "planTitlePlaceholder": "e.g. Annual Audit Plan 2026",
@@ -2362,13 +2389,13 @@
       "submitRevision": "Submit revision",
       "noRevisions": "No revisions yet.",
       "approvalStatus": "Approval status",
-      "staffNoteLabel": "Audit Staff note / reason",
+      "staffNoteLabel": "Auditor note / reason",
       "managerNoteLabel": "Audit Manager note / reason",
       "chiefNoteLabel": "Chief Audit Executive note / reason",
       "approvalNotePlaceholder": "Write your note or reason to approve",
       "approve": "Approve",
       "reject": "Reject",
-      "waitingStaff": "Waiting for Audit Staff approval...",
+      "waitingStaff": "Waiting for Auditor approval...",
       "waitingManager": "Waiting for Audit Manager approval...",
       "waitingChief": "Waiting for Chief Audit Executive approval...",
       "approvedAlert": "This document has been approved.",
@@ -2995,10 +3022,18 @@
       "chartFollowUpProgress": "Follow-up Progress (%)",
       "revertConfirm": "Are you sure you want to unlock this document and revert it to Draft?",
       "months": {
-        "Januari": "January", "Februari": "February", "Maret": "March",
-        "April": "April", "Mei": "May", "Juni": "June",
-        "Juli": "July", "Agustus": "August", "September": "September",
-        "Oktober": "October", "November": "November", "Desember": "December"
+        "Januari": "January",
+        "Februari": "February",
+        "Maret": "March",
+        "April": "April",
+        "Mei": "May",
+        "Juni": "June",
+        "Juli": "July",
+        "Agustus": "August",
+        "September": "September",
+        "Oktober": "October",
+        "November": "November",
+        "Desember": "December"
       }
     },
     "navTitle": "Report Sections",
@@ -3970,8 +4005,13 @@
   },
   "auditResultReport": {
     "viewLhaDetail": "View Audit Report Details",
+    "editLha": "Edit LHA",
     "editor": {
       "form": {
+        "stepper": {
+          "reportInfo": "Report Information",
+          "auditFindings": "Audit Findings"
+        },
         "assignmentLetter": "Assignment Letter:",
         "reportNumber": "LHA Number (Report Number)",
         "reportNumberExample": "e.g. LHA-026/SKAI/2026",
@@ -4004,6 +4044,8 @@
         "emptyInstruction": "to import findings from this assignment's Digital Working Papers (KKA) and Fieldwork Test Controls.",
         "cancel": "Cancel",
         "signReport": "Sign Report",
+        "saveDraft": "Save Draft Report",
+        "proceedToSignature": "Proceed to Signatures & Approval",
         "titleCreate": "Create New Audit Result Report",
         "titleEdit": "Edit Audit Result Report",
         "statusLocked": "Status is locked to Draft. Final LHA authorization belongs to the Manager/CAE.",
@@ -4079,7 +4121,17 @@
         "of": "of",
         "completed": "signatures completed",
         "back": "Back to Form",
-        "confirm": "Confirm and Save Report"
+        "confirm": "Confirm and Save Report",
+        "warningModal": {
+          "title": "Report Confirmation Warning",
+          "finalWarningTitle": "Final Status Notice",
+          "finalWarningMessage": "Once this report is confirmed and saved with Final status, the data cannot be edited or deleted.",
+          "draftNoticeTitle": "Draft Status Notice",
+          "draftNoticeMessage": "This report will be saved as Draft. You can still modify it later via the edit button in the table.",
+          "reminder": "Please ensure all findings, recommendations, and team signatures are accurate before proceeding.",
+          "confirmButton": "Yes, Save Report",
+          "cancelButton": "Cancel"
+        }
       }
     },
     "form": {
@@ -4947,7 +4999,7 @@
     },
     "header": {
       "title": "Risk Control Matrix (RCM)",
-      "subtitle": "Internal control effectiveness measurement based on 5 COSO 2013 dimensions & integrated risk evaluation.",
+      "subtitle": "Internal control effectiveness measurement based on 5 COSO dimensions & integrated risk evaluation.",
       "addControlMatrix": "Add Control Matrix"
     },
     "filters": {
@@ -4968,7 +5020,7 @@
         "syncNote": "Inherent & Residual Risk data is automatically integrated directly from Corporate Risk Profile."
       },
       "coso": {
-        "title": "COSO 2013 Average",
+        "title": "COSO Average",
         "totalControls": "Total Controls Evaluated:",
         "itemsCount": "{count} Items"
       }
@@ -5014,7 +5066,7 @@
     },
     "table": {
       "title": "Risk Control Matrix List",
-      "subtitle": "Evaluation results of 5 COSO 2013 Dimensions (Rating 1 - 5 represents 4% - 20% per dimension)",
+      "subtitle": "Evaluation results of 5 COSO Dimensions (Rating 1 - 5 represents 4% - 20% per dimension)",
       "searchPlaceholder": "Search risk / control...",
       "empty": {
         "label": "No Risk Control Matrix Data",
@@ -5045,22 +5097,30 @@
       "manageTitle": "Manage Risk Control Matrix",
       "editTitle": "Edit Risk Control Matrix",
       "addTitle": "Add New Risk Control Matrix",
+      "steps": {
+        "riskProfile": "Corporate Risk Profile",
+        "controlMitigation": "Mitigation Plan & Control",
+        "cosoEvaluation": "COSO 5 Dimensions Evaluation"
+      },
+      "previous": "Previous",
+      "next": "Next Step",
+      "stepNum": "Step {current} of {total}",
       "branchLabel": "Branch / Department",
       "branchPlaceholder": "Select Branch...",
       "riskSelectLabel": "Select Risk Name (Corporate Risk Profile)",
       "riskSelectPlaceholder": "Select Risk Name...",
       "riskCodeLabel": "Risk Code (Synchronized)",
-      "departmentLabel": "Department / Branch (Synchronized)",
+      "departmentLabel": "Branch (Synchronized)",
       "riskEventLabel": "Risk Event (Synchronized)",
       "controlSelectLabel": "Select Risk Control ID (Mitigation Plan & Control)",
       "controlSelectPlaceholder": "Select Risk Control ID...",
-      "controlCodeLabel": "Control Code (Risk Control ID)",
+      "controlCodeLabel": "Control Code (Synchronized)",
       "controlCodePlaceholder": "e.g. CTL-FIN-001",
       "controlOwnerLabel": "PIC / Control Owner (Synchronized)",
       "controlOwnerPlaceholder": "Finance Manager",
-      "controlDescLabel": "Internal Control Activity Description",
+      "controlDescLabel": "Internal Control Activity Description (Synchronized)",
       "controlDescPlaceholder": "Explain operational control mechanism, review, verification, or systemic execution...",
-      "evaluationTitle": "Evaluation of 5 Internal Control Dimensions (COSO 2013)",
+      "evaluationTitle": "Evaluation of 5 Internal Control Dimensions (COSO)",
       "evaluationWeight": "Fixed Weight: 20% Each Dimension (Scale 1 - 5)",
       "totalWeightedScore": "Total Weighted Effectiveness Score:",
       "interpretation": "Interpretation:",

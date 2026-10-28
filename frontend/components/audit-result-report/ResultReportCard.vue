@@ -23,23 +23,13 @@
         <span>{{ row.findingsCount }} {{ t('executiveSummaryCompilation.findingsUnit') }}</span>
       </div>
       <div class="flex gap-1">
-        <UTooltip :text="t('common.edit')">
+        <UTooltip v-if="!isLhaApproved(row.status)" :text="t('auditResultReport.editLha') || t('common.edit')">
           <UButton
             color="warning"
             variant="ghost"
             icon="i-lucide-edit"
             size="md"
             @click="$emit('edit', row)"
-          />
-        </UTooltip>
-
-        <UTooltip :text="t('auditResultReport.dashboard.actions.print')">
-          <UButton
-            color="neutral"
-            variant="ghost"
-            icon="i-lucide-printer"
-            size="md"
-            @click="$emit('print', row)"
           />
         </UTooltip>
       </div>
@@ -50,6 +40,7 @@
 <script setup lang="ts">
 const { t } = useI18n()
 import type { AuditResultReport } from '~/stores/audit-result-report'
+import { isLhaApproved } from '~/utils/actionTakenReport'
 
 defineProps<{
   row: AuditResultReport
