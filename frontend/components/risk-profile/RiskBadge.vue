@@ -56,8 +56,8 @@
     <div
       :id="`risk-badge-${risk.id}`"
       :class="[
-        'relative w-9 h-9 rounded-full flex items-center justify-center shrink-0 select-none cursor-grab transition-all duration-200 ease-in-out',
-        'shadow-[0_4px_12px_rgba(0,0,0,0.4)]',
+        'relative w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center shrink-0 select-none cursor-grab transition-all duration-200 ease-in-out',
+        'shadow-[0_2px_8px_rgba(0,0,0,0.3)] md:shadow-[0_4px_12px_rgba(0,0,0,0.4)]',
         'hover:scale-[1.15] hover:shadow-[0_8px_24px_rgba(0,0,0,0.5)] hover:ring-4 hover:ring-white/15',
         'active:cursor-grabbing active:scale-105',
         { 'ring-2 ring-white/20': isPriority, 'opacity-40 scale-90': isDragging }
@@ -66,8 +66,9 @@
       :draggable="true"
       @dragstart="onDragStart"
       @dragend="onDragEnd"
+      @click.stop="onClick"
     >
-      <span class="text-[13px] font-extrabold text-white [text-shadow:0_2px_4px_rgba(0,0,0,0.4)] leading-none">{{ risk.displayId || risk.id }}</span>
+      <span class="text-[9px] sm:text-[11px] md:text-[13px] font-extrabold text-white [text-shadow:0_2px_4px_rgba(0,0,0,0.4)] leading-none">{{ risk.displayId || risk.id }}</span>
       <div v-if="isPriority" class="absolute -inset-1 rounded-full border-2 pointer-events-none animate-badge-pulse" :style="{ borderColor: config.color }"></div>
     </div>
   </UTooltip>
@@ -89,7 +90,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['drag-start', 'drag-end'])
+const emit = defineEmits(['drag-start', 'drag-end', 'click'])
 
 const store = useRiskProfileStore()
 const isDragging = ref(false)
@@ -100,6 +101,11 @@ const isPriority = computed(() => config.value.priority)
 const categoryIcon = computed(() => getCategoryIcon(props.risk.category))
 
 const formattedId = computed(() => store.getFormattedId(props.risk))
+
+function onClick(e) {
+  if (isDragging.value) return
+  emit('click', props.risk)
+}
 
 function onDragStart(e) {
   isDragging.value = true

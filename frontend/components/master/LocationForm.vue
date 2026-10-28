@@ -113,14 +113,14 @@
               :label="t('common.cancel')"
               color="neutral"
               variant="soft"
-              class="w-full sm:w-auto"
+              class="w-full sm:w-auto justify-center text-center"
               @click="store.closeModal"
             />
             <UButton
               :label="store.isEditing ? t('common.update') : t('common.create')"
               color="primary"
               :loading="store.loading"
-              class="w-full sm:w-auto font-bold"
+              class="w-full sm:w-auto font-bold justify-center text-center"
               type="submit"
             />
           </div>

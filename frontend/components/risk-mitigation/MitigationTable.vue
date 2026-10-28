@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Title Card -->
-    <div class="flex flex-col sm:flex-row justify-between items-center bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-md">
+    <div class="flex flex-col sm:flex-row justify-between items-center bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-md gap-4">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-lg bg-primary-50 dark:bg-primary-950 flex items-center justify-center">
           <UIcon name="i-heroicons-shield-check" class="text-primary-600 dark:text-primary-400 text-xl font-bold" />
@@ -15,13 +15,14 @@
         :label="t('riskMitigation.add')"
         icon="i-heroicons-plus"
         color="primary"
-        class="font-black shadow-md shadow-primary/20"
+        class="font-black shadow-md shadow-primary/20 w-full sm:w-auto justify-center text-center"
         @click="store.openForm()"
       />
     </div>
 
     <!-- Mitigation List Table -->
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
+    <!-- Desktop View (>= md): Full Table -->
+    <div class="hidden md:block bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse text-md">
           <thead>
@@ -218,6 +219,199 @@
             </template>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- Mobile & Tablet View (< md): Stacked Cards List with Expandable Monitoring -->
+    <div class="block md:hidden">
+      <!-- Empty State -->
+      <div
+        v-if="!filteredMitigations.length"
+        class="py-8 px-4 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900"
+      >
+        <UIcon name="i-heroicons-inbox" class="size-8 mx-auto text-gray-400 mb-2" />
+        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400">{{ t('riskMitigation.empty') }}</p>
+      </div>
+
+      <!-- Cards List -->
+      <div v-else class="space-y-3">
+        <div
+          v-for="(row, idx) in filteredMitigations"
+          :key="row.id"
+          class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xs overflow-hidden transition-all duration-200"
+          :class="{ 'ring-2 ring-primary-500/20 border-primary-500/40': expandedRowId === row.id }"
+        >
+          <!-- Card Header & Main Info -->
+          <div class="p-4 space-y-3">
+            <!-- Header Row: Index, Control ID, Actions -->
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-bold text-xs text-gray-400">#{{ idx + 1 }}</span>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300 font-bold rounded text-[10px] border border-primary-200/50 dark:border-primary-800/40">
+                  <UIcon name="i-heroicons-shield-check" class="size-3" />
+                  {{ row.riskControlId || ('CTL-RSK-' + (idx + 1)) }}
+                </span>
+              </div>
+
+              <!-- Action buttons -->
+              <div class="flex items-center gap-1">
+                <UButton
+                  icon="i-heroicons-pencil-square"
+                  size="xs"
+                  color="warning"
+                  variant="soft"
+                  @click.stop="store.openForm(row)"
+                />
+                <UButton
+                  icon="i-heroicons-trash"
+                  size="xs"
+                  color="error"
+                  variant="soft"
+                  @click.stop="store.deleteMitigation(row.id, props.currentRiskId)"
+                />
+              </div>
+            </div>
+
+            <!-- Mitigation Plan Description -->
+            <div>
+              <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-0.5">
+                {{ t('riskMitigation.columns.plan') }}
+              </p>
+              <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-snug">
+                {{ row.mitigationPlan }}
+              </h4>
+            </div>
+
+            <!-- Timeline -->
+            <div class="flex items-center justify-between gap-2 text-xs py-2 px-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
+              <div class="flex items-center gap-1.5 text-gray-700 dark:text-gray-300 font-semibold min-w-0">
+                <UIcon name="i-heroicons-calendar" class="size-3.5 text-primary-500 shrink-0" />
+                <span class="truncate">{{ formatDate(row.start_date) }} - {{ formatDate(row.end_date) }}</span>
+              </div>
+              <span class="text-[9px] uppercase font-black text-primary-600 dark:text-primary-400 shrink-0">
+                {{ t('riskMitigation.monitoring.label', { unit: getMonitoringUnit(row) }) }}
+              </span>
+            </div>
+
+            <!-- Metadata Details: Unit, PIC, Supervisor -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs pt-1 text-gray-600 dark:text-gray-400 border-t border-gray-100 dark:border-gray-800">
+              <div class="flex items-center gap-1.5 min-w-0">
+                <UIcon name="i-heroicons-building-office" class="size-3.5 text-gray-400 shrink-0" />
+                <span class="text-[11px] truncate"><strong class="font-bold text-gray-700 dark:text-gray-300">{{ t('riskMitigation.columns.unit') }}:</strong> {{ row.unitInCharge }}</span>
+              </div>
+              <div class="flex items-center gap-1.5 min-w-0">
+                <UIcon name="i-heroicons-user" class="size-3.5 text-gray-400 shrink-0" />
+                <span class="text-[11px] truncate"><strong class="font-bold text-gray-700 dark:text-gray-300">{{ t('riskMitigation.columns.pic') }}:</strong> {{ row.pic }}</span>
+              </div>
+              <div class="flex items-center gap-1.5 min-w-0">
+                <UIcon name="i-heroicons-user-circle" class="size-3.5 text-gray-400 shrink-0" />
+                <span class="text-[11px] truncate"><strong class="font-bold text-gray-700 dark:text-gray-300">{{ t('riskMitigation.columns.supervisor') }}:</strong> {{ row.supervisor }}</span>
+              </div>
+            </div>
+
+            <!-- Progress Bar Section -->
+            <div class="space-y-1.5 pt-2 border-t border-gray-100 dark:border-gray-800">
+              <div class="flex justify-between items-center text-xs font-bold">
+                <span class="text-gray-500 dark:text-gray-400 text-[11px]">
+                  {{ getActualCount(row) }} / {{ getTargetCount(row) }} {{ getMonitoringUnit(row) }}
+                </span>
+                <span class="text-primary-500 font-black">{{ getProgressPercent(row) }}%</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
+                <div
+                  class="h-full bg-gradient-to-r from-success-500 to-primary-500 transition-all duration-300"
+                  :style="{ width: `${getProgressPercent(row)}%` }"
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expand / Collapse Toggle Bar -->
+          <button
+            type="button"
+            class="w-full py-2.5 px-4 bg-gray-50 dark:bg-gray-800/60 hover:bg-gray-100 dark:hover:bg-gray-800 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs font-bold text-gray-700 dark:text-gray-200 transition-colors cursor-pointer"
+            @click="toggleRow(row.id)"
+          >
+            <span class="flex items-center gap-1.5 text-primary-600 dark:text-primary-400">
+              <UIcon name="i-heroicons-clipboard-document-check" class="size-4" />
+              {{ t('riskMitigation.monitoring.checklistTitle') }}
+            </span>
+            <div class="flex items-center gap-1 text-[11px] text-gray-500">
+              <span>{{ expandedRowId === row.id ? (locale === 'id' ? 'Tutup Checklist' : 'Close Checklist') : (locale === 'id' ? 'Buka Checklist' : 'Open Checklist') }}</span>
+              <UIcon :name="expandedRowId === row.id ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'" class="size-4 text-gray-500 transition-transform duration-200" />
+            </div>
+          </button>
+
+          <!-- Collapsible Monitoring Checklist Panel -->
+          <div v-if="expandedRowId === row.id" class="p-4 bg-gray-50/70 dark:bg-gray-950/40 border-t border-gray-100 dark:border-gray-800 space-y-4">
+            <!-- Monitoring Header & Stats -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div>
+                <h4 class="text-xs font-black uppercase tracking-wider text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                  <UIcon name="i-heroicons-clipboard-document-check" class="text-primary-500" />
+                  {{ t('riskMitigation.monitoring.checklistTitle') }}
+                </h4>
+                <p class="text-[10px] text-gray-400 mt-0.5">
+                  {{ t('riskMitigation.monitoring.checklistDesc') }}
+                </p>
+              </div>
+
+              <!-- Realization badge -->
+              <div class="flex items-center gap-2.5 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-xs shrink-0 w-full sm:w-auto justify-between sm:justify-start">
+                <span class="text-[10px] font-bold text-gray-600 dark:text-gray-300">
+                  {{ t('riskMitigation.monitoring.monitored', { actual: getActualCount(row), target: getTargetCount(row), unit: getMonitoringUnit(row) }) }}
+                </span>
+                <span class="font-black text-xs text-primary-500">{{ getProgressPercent(row) }}%</span>
+              </div>
+            </div>
+
+            <!-- Checklist Items -->
+            <div class="space-y-2.5">
+              <div
+                v-for="check in row.monitoring"
+                :key="check.id"
+                class="p-3 bg-white dark:bg-gray-800 rounded-xl border flex flex-col gap-2.5 shadow-xs transition-shadow duration-200"
+                :class="[
+                  check.checked ? 'border-success-500/30 bg-success-500/5' : 'border-gray-200 dark:border-gray-700',
+                  isOverdue(check) ? 'border-error-500/30 bg-error-500/5' : '',
+                  !isCheckable(check) ? 'opacity-50 pointer-events-none' : ''
+                ]"
+              >
+                <div class="flex items-start justify-between gap-3">
+                  <UCheckbox
+                    v-model="check.checked"
+                    :label="check.label"
+                    class="font-bold text-xs text-gray-700 dark:text-gray-200"
+                    color="success"
+                    :disabled="!isCheckable(check)"
+                    @change="saveMonitoring(row.id, row.monitoring || [])"
+                  />
+                  <UBadge
+                    :color="getCheckStatusColor(check)"
+                    variant="subtle"
+                    size="xs"
+                    class="font-black uppercase tracking-wider text-[8px] shrink-0"
+                  >
+                    {{ getCheckStatus(check) }}
+                  </UBadge>
+                </div>
+
+                <!-- Notes input -->
+                <div class="space-y-1">
+                  <UInput
+                    v-model="check.notes"
+                    :placeholder="t('riskMitigation.monitoring.notesPlaceholder')"
+                    size="xs"
+                    class="w-full text-xs"
+                    icon="i-heroicons-chat-bubble-bottom-center-text"
+                    :disabled="!isCheckable(check)"
+                    @change="saveMonitoring(row.id, row.monitoring || [])"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

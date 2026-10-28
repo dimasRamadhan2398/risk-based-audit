@@ -65,8 +65,17 @@
           </div>
 
           <div class="px-4 sm:px-6 py-4 rounded-b-xl border-t border-[var(--border-main)] flex flex-col-reverse sm:flex-row justify-end gap-3">
-            <UButton :label="t('common.cancel')" color="neutral" variant="outline" class="w-full sm:w-auto" @click="store.closeForm" />
-            <UButton :label="store.isEditing ? t('riskMitigation.form.saveChanges') : t('riskMitigation.form.save')" color="primary" class="w-full sm:w-auto font-bold" type="submit" />
+            <UButton 
+            :label="t('common.cancel')" 
+            color="neutral" 
+            variant="outline" 
+            class="w-full sm:w-auto justify-center text-center" 
+            @click="store.closeForm" />
+            <UButton 
+            :label="store.isEditing ? t('riskMitigation.form.saveChanges') : t('riskMitigation.form.save')" 
+            color="primary" 
+            class="w-full sm:w-auto font-bold justify-center text-center" 
+            type="submit" />
           </div>
 
         </div>

@@ -182,48 +182,60 @@
     </div>
 
     <!-- Heat Map Grid -->
-    <div class="w-full overflow-x-auto pb-4">
-      <div class="min-w-[850px] relative pl-12 mb-16 select-none">
-        <!-- Y-axis Label -->
-        <div class="absolute -left-20 top-1/2 -translate-y-1/2 -rotate-90 origin-center whitespace-nowrap text-[10px] font-black uppercase tracking-[0.3em]">
+    <div class="w-full pb-4">
+      <div class="w-full relative pl-0 sm:pl-10 md:pl-12 mb-8 sm:mb-16 select-none">
+        <!-- Y-axis Label (Desktop/Tablet: Rotated left, Mobile: Compact Header) -->
+        <div class="hidden sm:block absolute -left-16 md:-left-20 top-1/2 -translate-y-1/2 -rotate-90 origin-center whitespace-nowrap text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em]">
           {{ t('riskProfile.likelihoodLevel') }}
         </div>
+        
+        <!-- Mobile Axis Direction Indicator -->
+        <div class="flex sm:hidden items-center justify-between text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 px-1">
+          <span class="flex items-center gap-1">
+            <UIcon name="i-lucide-arrow-up" class="w-3.5 h-3.5 text-primary" />
+            {{ t('riskProfile.likelihoodLevel') }}
+          </span>
+          <span class="flex items-center gap-1">
+            {{ t('riskProfile.impactLevel') }}
+            <UIcon name="i-lucide-arrow-right" class="w-3.5 h-3.5 text-primary" />
+          </span>
+        </div>
 
-        <div class="flex gap-4">
+        <div class="flex gap-1.5 sm:gap-3 md:gap-4">
           <!-- Y-axis Ticks -->
-          <div class="flex flex-col w-28 shrink-0">
-            <div v-for="l in likelihoodLevels" :key="`y-${l}`" class="flex-1 flex items-center justify-end gap-3 pr-2 min-h-[110px]">
-              <span class="text-md font-bold text-right leading-tight max-w-[70px] uppercase">{{ getLikelihoodLabel(l) }}</span>
-              <span class="text-xl font-black">{{ l }}</span>
+          <div class="flex flex-col w-5 sm:w-20 md:w-28 shrink-0">
+            <div v-for="l in likelihoodLevels" :key="`y-${l}`" class="flex-1 flex items-center justify-end gap-1 sm:gap-2 md:gap-3 pr-1 sm:pr-2 min-h-[52px] sm:min-h-[85px] md:min-h-[110px]">
+              <span class="hidden sm:inline text-xs md:text-md font-bold text-right leading-tight max-w-[70px] uppercase truncate">{{ getLikelihoodLabel(l) }}</span>
+              <span class="text-xs sm:text-lg md:text-xl font-black">{{ l }}</span>
             </div>
           </div>
 
           <!-- Main Grid Area -->
-          <div class="flex-1">
-            <div class=" p-1 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700">
-              <div class="grid grid-rows-5 gap-1 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-                <div v-for="l in likelihoodLevels" :key="`row-${l}`" class="grid grid-cols-5 gap-1">
+          <div class="flex-1 min-w-0">
+            <div class="p-0.5 sm:p-1 rounded-xl shadow-lg sm:shadow-2xl border border-gray-200 dark:border-gray-700">
+              <div class="grid grid-rows-5 gap-0.5 sm:gap-1 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                <div v-for="l in likelihoodLevels" :key="`row-${l}`" class="grid grid-cols-5 gap-0.5 sm:gap-1">
                   <div
                     v-for="i in impactLevels"
                     :key="`cell-${l}-${i}`"
                     :id="`cell-${l}-${i}`"
-                    class="relative min-h-[110px] p-2 flex flex-col items-center justify-center transition-all duration-300 group"
+                    class="relative min-h-[52px] sm:min-h-[85px] md:min-h-[110px] p-0.5 sm:p-1.5 md:p-2 flex flex-col items-center justify-center transition-all duration-300 group"
                     :class="[
                       getCellBgClass(l, i),
-                      dragOverCell === `${l}-${i}` ? 'ring-4 ring-primary ring-inset z-10 scale-[1.02] shadow-2xl' : ''
+                      dragOverCell === `${l}-${i}` ? 'ring-2 sm:ring-4 ring-primary ring-inset z-10 scale-[1.02] shadow-2xl' : ''
                     ]"
                     @dragover.prevent="onDragOver($event, l, i)"
                     @dragleave="onDragLeave"
                     @drop="onDrop($event, l, i)"
                   >
                     <!-- Cell Labels -->
-                    <div class="absolute inset-x-2 top-2 flex justify-between items-start pointer-events-none opacity-20 group-hover:opacity-40 transition-opacity">
-                      <span class="text-[8px] font-black lowercase tracking-wider max-w-[60%] leading-tight">{{ getRiskLevelLabel(getRiskLevel(l, i)) }}</span>
-                      <span class="text-[10px] font-black">{{ getRiskScore(l, i) }}</span>
+                    <div class="absolute inset-x-0.5 top-0.5 sm:inset-x-2 sm:top-2 flex justify-between items-start pointer-events-none opacity-30 group-hover:opacity-60 transition-opacity">
+                      <span class="hidden sm:inline text-[7px] md:text-[8px] font-black lowercase tracking-wider max-w-[60%] leading-tight">{{ getRiskLevelLabel(getRiskLevel(l, i)) }}</span>
+                      <span class="text-[7px] sm:text-[9px] md:text-[10px] font-black ml-auto">{{ getRiskScore(l, i) }}</span>
                     </div>
 
                     <!-- Badges Container -->
-                    <div class="flex flex-wrap gap-1.5 justify-center items-center py-4">
+                    <div class="flex flex-wrap gap-0.5 sm:gap-1.5 justify-center items-center py-0.5 sm:py-2 md:py-4">
                       <RiskBadge
                         v-for="(risk, idx) in getCellRisks(l, i)"
                         :key="risk.id"
@@ -231,6 +243,7 @@
                         :z-index="getCellRisks(l, i).length - idx"
                         @drag-start="onRiskDragStart"
                         @drag-end="onRiskDragEnd"
+                        @click="onBadgeClick"
                       />
                     </div>
                   </div>
@@ -239,15 +252,15 @@
             </div>
 
             <!-- X-axis Ticks -->
-            <div class="flex mt-4 ml-0">
-              <div v-for="i in impactLevels" :key="`x-${i}`" class="flex-1 flex flex-col items-center gap-1">
-                <span class="text-xl font-black">{{ i }}</span>
-                <span class="text-[10px] font-bold uppercase tracking-tighter text-center max-w-[80px] leading-tight">{{ getImpactLabel(i) }}</span>
+            <div class="flex mt-1.5 sm:mt-3 md:mt-4 ml-0">
+              <div v-for="i in impactLevels" :key="`x-${i}`" class="flex-1 flex flex-col items-center gap-0.5 sm:gap-1">
+                <span class="text-xs sm:text-lg md:text-xl font-black">{{ i }}</span>
+                <span class="text-[7px] sm:text-[9px] md:text-[10px] font-bold uppercase tracking-tighter text-center max-w-[48px] sm:max-w-[70px] md:max-w-[80px] leading-tight truncate sm:whitespace-normal">{{ getImpactLabel(i) }}</span>
               </div>
             </div>
 
-            <!-- X-axis Label -->
-            <div class="mt-8 text-center text-[10px] font-black uppercase tracking-[0.3em]">
+            <!-- X-axis Label (Desktop/Tablet) -->
+            <div class="hidden sm:block mt-4 sm:mt-6 md:mt-8 text-center text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em]">
               {{ t('riskProfile.impactLevel') }}
             </div>
           </div>
@@ -263,7 +276,8 @@
             
             <!-- Tab: Progress spreadsheet-like table -->
             <div v-if="item.key === 'progress'">
-              <div class="overflow-x-auto border border-gray-200 dark:border-gray-800 rounded-xl shadow-inner bg-white dark:bg-gray-900">
+              <!-- Desktop View (>= md): Full 14-Column Matrix Table -->
+              <div class="hidden md:block overflow-x-auto border border-gray-200 dark:border-gray-800 rounded-xl shadow-inner bg-white dark:bg-gray-900">
                 <table class="w-full text-left border-collapse text-md font-sans">
                   <thead>
                     <tr class="bg-gray-100/80 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-800 font-bold uppercase tracking-wider text-[9px] text-gray-500 text-center">
@@ -346,6 +360,57 @@
                     </tr>
                   </tbody>
                 </table>
+              </div>
+
+              <!-- Mobile & Tablet View (< md): Stacked Quarterly Progress Cards -->
+              <div class="block md:hidden">
+                <div v-if="filteredRisks.length === 0" class="text-center py-12 px-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/30">
+                  <UIcon name="i-heroicons-inbox" class="w-8 h-8 mx-auto text-gray-400 mb-2" />
+                  <p class="font-medium text-sm text-gray-700 dark:text-gray-300">{{ t('riskProfile.emptyTitle', { year: store.selectedYear }) }}</p>
+                  <p class="text-xs text-gray-400 mt-1">{{ emptyDescText }}</p>
+                </div>
+                <div v-else class="space-y-4">
+                  <div
+                    v-for="(risk, index) in filteredRisks"
+                    :key="risk.id"
+                    class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xs space-y-3"
+                  >
+                    <!-- Card Top: Number & Risk Event Name -->
+                    <div class="flex items-start gap-2.5">
+                      <span class="shrink-0 inline-flex items-center justify-center font-mono text-[11px] font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-200/80 dark:border-slate-700">
+                        #{{ index + 1 }}
+                      </span>
+                      <h4 class="text-sm font-bold text-gray-800 dark:text-gray-100 leading-snug flex-1">
+                        {{ risk.name }}
+                      </h4>
+                    </div>
+
+                    <!-- Card Body: 4 Quarters Progress Grid -->
+                    <div class="grid grid-cols-4 gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+                      <div
+                        v-for="q in ['q1', 'q2', 'q3', 'q4']"
+                        :key="q"
+                        class="flex flex-col items-center justify-between p-2 rounded-lg border border-gray-100 dark:border-gray-800 text-center"
+                        :style="getQLevelCellStyle(risk, q)"
+                      >
+                        <span class="text-[10px] font-black uppercase text-gray-500 mb-1">{{ q.toUpperCase() }}</span>
+                        <!-- Skala Dampak & Kemungkinan -->
+                        <div class="text-[10px] text-gray-500 dark:text-gray-400 mb-1 leading-tight">
+                          <span>D:{{ getQVal(risk, 'impact', q) }}</span>
+                          <span class="mx-0.5">·</span>
+                          <span>K:{{ getQVal(risk, 'likelihood', q) }}</span>
+                        </div>
+                        <!-- Level Badge -->
+                        <span
+                          class="inline-block px-1.5 py-0.5 rounded text-[8px] font-black tracking-tight leading-tight w-full truncate"
+                          :class="getQLevelBadgeClass(risk, q)"
+                        >
+                          {{ getQLevelLabel(risk, q) }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -515,6 +580,17 @@
                         </template>
                       </UModal>
 
+                      <!-- Move Position Button (Mobile only) -->
+                      <UTooltip class="md:hidden" :text="t('riskProfile.moveModal.buttonTooltip')">
+                        <UButton
+                          icon="i-lucide-move"
+                          color="primary"
+                          variant="ghost"
+                          size="md"
+                          @click="openMoveModal(risk)"
+                        />
+                      </UTooltip>
+
                       <!-- Edit Risk Button -->
                       <UTooltip :text="t('riskProfile.editModal.titleDefault')">
                         <UButton
@@ -630,6 +706,146 @@
       </template>
     </UModal>
 
+    <!-- Quick Move Risk Position Modal -->
+    <UModal 
+      v-model:open="isMoveModalOpen"
+      :ui="{
+        content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-lg max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-4 sm:p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
+    >
+      <template #header>
+        <div class="flex items-center justify-between w-full">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <UIcon name="i-lucide-move" class="w-4 h-4" />
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-gray-900 dark:text-white leading-tight">
+                {{ t('riskProfile.moveModal.title') }}
+              </h3>
+              <p class="text-xs text-gray-500 font-normal">
+                {{ t('riskProfile.moveModal.desc') }}
+              </p>
+            </div>
+          </div>
+          <UButton color="neutral" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1" @click="isMoveModalOpen = false" />
+        </div>
+      </template>
+
+      <template #body>
+        <div v-if="selectedMoveRisk" class="space-y-4">
+          <!-- Selected Risk Info Banner -->
+          <div class="flex items-center gap-3 p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/70 dark:bg-gray-800/40">
+            <div
+              class="w-10 h-10 shrink-0 rounded-lg flex flex-col items-center justify-center font-mono font-bold text-white shadow-xs text-xs"
+              :style="{ background: riskLevelConfig[getRiskLevel(selectedMoveRisk.likelihood, selectedMoveRisk.impact)]?.color || '#6366f1' }"
+            >
+              {{ store.getFormattedId(selectedMoveRisk) }}
+            </div>
+            <div class="min-w-0 flex-1">
+              <h4 class="text-sm font-bold text-gray-900 dark:text-white truncate">
+                {{ selectedMoveRisk.name }}
+              </h4>
+              <p class="text-xs text-gray-500 mt-0.5">
+                {{ t('riskProfile.period') }}: <span class="font-bold text-primary-600 dark:text-primary-400">{{ store.selectedPeriod }} {{ store.selectedYear }}</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Impact Selector (X-axis) -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-bold text-gray-700 dark:text-gray-300">
+                {{ t('riskProfile.addModal.impact') }} (X):
+              </label>
+              <span class="text-xs font-semibold text-primary-600 dark:text-primary-400">
+                {{ moveImpact }} - {{ getImpactLabel(moveImpact) }}
+              </span>
+            </div>
+            <div class="grid grid-cols-5 gap-1.5 sm:gap-2">
+              <button
+                v-for="val in impactLevels"
+                :key="`impact-${val}`"
+                type="button"
+                @click="moveImpact = val"
+                class="py-2.5 px-1 rounded-xl text-center border font-bold transition-all text-xs sm:text-sm flex flex-col items-center justify-center cursor-pointer"
+                :class="moveImpact === val ? 'bg-primary text-white border-primary shadow-sm scale-[1.02]' : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-750'"
+              >
+                <span class="text-base font-black">{{ val }}</span>
+                <span class="text-[9px] font-medium truncate max-w-full opacity-85 leading-tight">{{ getImpactLabel(val) }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Likelihood Selector (Y-axis) -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-bold text-gray-700 dark:text-gray-300">
+                {{ t('riskProfile.addModal.likelihood') }} (Y):
+              </label>
+              <span class="text-xs font-semibold text-primary-600 dark:text-primary-400">
+                {{ moveLikelihood }} - {{ getLikelihoodLabel(moveLikelihood) }}
+              </span>
+            </div>
+            <div class="grid grid-cols-5 gap-1.5 sm:gap-2">
+              <button
+                v-for="val in likelihoodLevels"
+                :key="`likelihood-${val}`"
+                type="button"
+                @click="moveLikelihood = val"
+                class="py-2.5 px-1 rounded-xl text-center border font-bold transition-all text-xs sm:text-sm flex flex-col items-center justify-center cursor-pointer"
+                :class="moveLikelihood === val ? 'bg-primary text-white border-primary shadow-sm scale-[1.02]' : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-750'"
+              >
+                <span class="text-base font-black">{{ val }}</span>
+                <span class="text-[9px] font-medium truncate max-w-full opacity-85 leading-tight">{{ getLikelihoodLabel(val) }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Position & Level Preview -->
+          <div class="flex items-center justify-between p-3 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/40 text-xs">
+            <div class="flex items-center gap-2">
+              <UIcon name="i-lucide-activity" class="w-4 h-4 text-primary-500" />
+              <span class="font-semibold text-gray-600 dark:text-gray-300">{{ t('riskProfile.moveModal.targetCell') }}:</span>
+              <span class="font-mono font-bold text-gray-800 dark:text-gray-100">D: {{ moveImpact }} × K: {{ moveLikelihood }} = {{ moveImpact * moveLikelihood }}</span>
+            </div>
+            <div>
+              <span
+                class="inline-block px-2.5 py-1 rounded text-[10px] font-black"
+                :class="getRiskLevelColorClass(getRiskLevel(moveLikelihood, moveImpact))"
+              >
+                {{ getRiskLevelLabel(getRiskLevel(moveLikelihood, moveImpact)) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <template #footer>
+        <div class="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 w-full">
+          <UButton
+            :label="t('common.cancel')"
+            color="neutral"
+            variant="ghost"
+            class="w-full sm:w-auto"
+            @click="isMoveModalOpen = false"
+          />
+          <UButton
+            :label="t('riskProfile.moveModal.saveBtn')"
+            color="primary"
+            icon="i-lucide-move"
+            :loading="isMoving"
+            class="w-full sm:w-auto font-bold"
+            @click="submitMoveRisk"
+          />
+        </div>
+      </template>
+    </UModal>
+
     <!-- Delete Confirmation Modal -->
     <UModal 
       v-model:open="isDeleteModalOpen"
@@ -700,6 +916,63 @@ const activeRiskTab = ref('priority')
 const isAddModalOpen = ref(false)
 const isDeleteModalOpen = ref(false)
 const riskToDelete = ref(null)
+
+// Quick move state
+const isMoveModalOpen = ref(false)
+const selectedMoveRisk = ref(null)
+const moveImpact = ref(1)
+const moveLikelihood = ref(1)
+const isMoving = ref(false)
+
+function onBadgeClick(risk) {
+  // Hanya buka dialog pemindahan pada mode mobile / tablet kecil (< 768px),
+  // sedangkan di desktop (>= 768px) pengguna cukup drag & drop dengan mouse
+  if (typeof window !== 'undefined' && window.innerWidth < 768) {
+    openMoveModal(risk)
+  }
+}
+
+function openMoveModal(risk) {
+  selectedMoveRisk.value = risk
+  moveImpact.value = risk.impact
+  moveLikelihood.value = risk.likelihood
+  isMoveModalOpen.value = true
+}
+
+async function submitMoveRisk() {
+  if (!selectedMoveRisk.value) return
+  if (selectedMoveRisk.value.impact === moveImpact.value && selectedMoveRisk.value.likelihood === moveLikelihood.value) {
+    isMoveModalOpen.value = false
+    return
+  }
+
+  isMoving.value = true
+  try {
+    const ok = await store.updateRisk({
+      ...selectedMoveRisk.value,
+      likelihood: moveLikelihood.value,
+      impact: moveImpact.value
+    })
+
+    if (!ok) {
+      toast.showError(store.errorMsg || t('riskProfile.toasts.positionUpdateFailed'))
+      return
+    }
+
+    toast.showSuccess(t('riskProfile.toasts.positionUpdated', {
+      name: selectedMoveRisk.value.name,
+      l: moveLikelihood.value,
+      i: moveImpact.value,
+      period: store.selectedPeriod
+    }))
+    isMoveModalOpen.value = false
+  } catch (err) {
+    console.error('Move failed:', err)
+    toast.showError(t('riskProfile.toasts.positionUpdateFailed'))
+  } finally {
+    isMoving.value = false
+  }
+}
 
 // Form state for new risk. location_id is a Location master ID (no default
 // branch: the user picks one from the master data).

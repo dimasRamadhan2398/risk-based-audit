@@ -168,82 +168,221 @@
               </div>
             </div>
 
-            <!-- Table -->
-            <TableEntities
-              :data="filteredComplianceRisks"
-              :columns="appetiteStore.columns"
-              :loading="loading"
-            >
-              <template #id-cell="{ row }">
-                <span class="font-mono text-md font-bold text-gray-500 dark:text-gray-400">
-                  {{ profileStore.getFormattedId(row.original) }}
-                </span>
-              </template>
+            <!-- Desktop View (>= md): Full Table Entities -->
+            <div class="hidden md:block">
+              <TableEntities
+                v-model:page="compliancePage"
+                :data="filteredComplianceRisks"
+                :columns="appetiteStore.columns"
+                :loading="loading"
+                :items-per-page="complianceItemsPerPage"
+                :show-pagination="true"
+              >
+                <template #id-cell="{ row }">
+                  <span class="font-mono text-md font-bold text-gray-500 dark:text-gray-400">
+                    {{ profileStore.getFormattedId(row.original) }}
+                  </span>
+                </template>
 
-              <template #name-cell="{ row }">
-                <div class="max-w-md whitespace-normal">
-                  <p class="font-bold text-gray-900 dark:text-white text-md">{{ row.original.name }}</p>
-                  <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">{{ row.original.category }} · {{ row.original.branch || 'Head Office' }}</p>
+                <template #name-cell="{ row }">
+                  <div class="max-w-md whitespace-normal">
+                    <p class="font-bold text-gray-900 dark:text-white text-md">{{ row.original.name }}</p>
+                    <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">{{ row.original.category }} · {{ row.original.branch || 'Head Office' }}</p>
+                  </div>
+                </template>
+
+                <template #level-cell="{ row }">
+                  <span
+                    class="inline-block px-2 py-0.5 rounded text-[10px] font-black"
+                    :class="getRiskLevelBadgeColorClass(row.original)"
+                  >
+                    {{ getRiskLevelLabel(row.original) }}
+                  </span>
+                </template>
+
+                <template #appetite-cell="{ row }">
+                  <UBadge 
+                    :color="isAppetiteAcceptable(row.original) ? 'success' : 'warning'" 
+                    variant="subtle"
+                    class="font-black text-[9px]"
+                  >
+                    {{ isAppetiteAcceptable(row.original) ? t('riskAppetite.compliance.acceptableBadge') : t('riskAppetite.compliance.requiredBadge') }}
+                  </UBadge>
+                </template>
+
+                <template #mitigationStatus-cell="{ row }">
+                  <div class="flex items-center gap-2">
+                    <template v-if="hasMitigation(row.original.id)">
+                      <UBadge v-if="isMitigationSelesai(row.original.id)" color="success" variant="solid" class="font-black text-[9px]">
+                        {{ t('riskAppetite.compliance.done') }}
+                      </UBadge>
+                      <UBadge v-else color="success" variant="solid" class="font-black text-[9px]">
+                        {{ t('riskAppetite.compliance.activePlan', { count: getMitigationCount(row.original.id) }) }}
+                      </UBadge>
+                    </template>
+                    <template v-else-if="isAppetiteAcceptable(row.original)">
+                      <span class="text-md text-gray-400 dark:text-gray-500 italic">{{ t('riskAppetite.compliance.noneRequired') }}</span>
+                    </template>
+                    <template v-else>
+                      <div class="flex items-center gap-1.5 text-red-600 dark:text-red-500 animate-pulse">
+                        <UIcon name="i-heroicons-exclamation-triangle" class="w-4 h-4" />
+                        <span class="text-[10px] font-bold uppercase tracking-wider">{{ t('riskAppetite.compliance.missingPlan') }}</span>
+                      </div>
+                    </template>
+                  </div>
+                </template>
+
+                <template #actions-cell="{ row }">
+                  <div class="flex items-center gap-2">
+                    <UButton 
+                      v-if="!isAppetiteAcceptable(row.original)"
+                      :icon="hasMitigation(row.original.id) ? 'i-heroicons-eye' : 'i-heroicons-plus-circle'" 
+                      :label="hasMitigation(row.original.id) ? t('riskAppetite.compliance.viewMitigation') : t('riskAppetite.compliance.addMitigation')" 
+                      :color="hasMitigation(row.original.id) ? 'primary' : 'error'" 
+                      variant="soft" 
+                      size="md" 
+                      class="font-bold"
+                      :to="`/mitigation?id=${row.original.id}`" 
+                    />
+                    <span v-else class="text-md text-gray-400 dark:text-gray-500">-</span>
+                  </div>
+                </template>
+              </TableEntities>
+            </div>
+
+            <!-- Mobile & Tablet View (< md): Stacked Cards List -->
+            <div class="block md:hidden">
+              <!-- Loading Skeleton -->
+              <div v-if="loading" class="space-y-3">
+                <div
+                  v-for="i in 3"
+                  :key="i"
+                  class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] animate-pulse space-y-2.5"
+                >
+                  <div class="flex justify-between items-center">
+                    <div class="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div class="h-5 w-16 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                  </div>
+                  <div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div class="h-8 bg-gray-100 dark:bg-gray-800 rounded-lg"></div>
                 </div>
-              </template>
+              </div>
 
-              <template #level-cell="{ row }">
-                <span
-                  class="inline-block px-2 py-0.5 rounded text-[10px] font-black"
-                  :class="getRiskLevelBadgeColorClass(row.original)"
+              <!-- Empty State -->
+              <div
+                v-else-if="!filteredComplianceRisks.length"
+                class="py-8 px-4 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+              >
+                <UIcon name="i-heroicons-circle-stack-20-solid" class="size-8 mx-auto text-gray-400 mb-2" />
+                <p class="text-xs text-[var(--text-muted)]">{{ t('riskAppetite.compliance.empty') }}</p>
+              </div>
+
+              <!-- Cards List -->
+              <div v-else class="space-y-3">
+                <div
+                  v-for="(risk, index) in paginatedComplianceRisks"
+                  :key="risk.id || index"
+                  class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3"
                 >
-                  {{ getRiskLevelLabel(row.original) }}
-                </span>
-              </template>
-
-              <template #appetite-cell="{ row }">
-                <UBadge 
-                  :color="isAppetiteAcceptable(row.original) ? 'success' : 'warning'" 
-                  variant="subtle"
-                  class="font-black text-[9px]"
-                >
-                  {{ isAppetiteAcceptable(row.original) ? t('riskAppetite.compliance.acceptableBadge') : t('riskAppetite.compliance.requiredBadge') }}
-                </UBadge>
-              </template>
-
-              <template #mitigationStatus-cell="{ row }">
-                <div class="flex items-center gap-2">
-                  <template v-if="hasMitigation(row.original.id)">
-                    <UBadge v-if="isMitigationSelesai(row.original.id)" color="success" variant="solid" class="font-black text-[9px]">
-                      {{ t('riskAppetite.compliance.done') }}
-                    </UBadge>
-                    <UBadge v-else color="success" variant="solid" class="font-black text-[9px]">
-                      {{ t('riskAppetite.compliance.activePlan', { count: getMitigationCount(row.original.id) }) }}
-                    </UBadge>
-                  </template>
-                  <template v-else-if="isAppetiteAcceptable(row.original)">
-                    <span class="text-md text-gray-400 dark:text-gray-500 italic">{{ t('riskAppetite.compliance.noneRequired') }}</span>
-                  </template>
-                  <template v-else>
-                    <div class="flex items-center gap-1.5 text-red-600 dark:text-red-500 animate-pulse">
-                      <UIcon name="i-heroicons-exclamation-triangle" class="w-4 h-4" />
-                      <span class="text-[10px] font-bold uppercase tracking-wider">{{ t('riskAppetite.compliance.missingPlan') }}</span>
+                  <!-- Card Header: Formatted ID + Appetite Rule Badge & Level Badge -->
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/40 px-2 py-0.5 rounded-md border border-primary-200/50 dark:border-primary-800/40">
+                        <UIcon name="i-lucide-file-text" class="size-3" />
+                        {{ profileStore.getFormattedId(risk) }}
+                      </span>
+                      <UBadge 
+                        :color="isAppetiteAcceptable(risk) ? 'success' : 'warning'" 
+                        variant="subtle"
+                        class="font-black text-[9px]"
+                      >
+                        {{ isAppetiteAcceptable(risk) ? t('riskAppetite.compliance.acceptableBadge') : t('riskAppetite.compliance.requiredBadge') }}
+                      </UBadge>
                     </div>
-                  </template>
-                </div>
-              </template>
+                    <span
+                      class="inline-block px-2 py-0.5 rounded text-[10px] font-black shrink-0"
+                      :class="getRiskLevelBadgeColorClass(risk)"
+                    >
+                      {{ getRiskLevelLabel(risk) }}
+                    </span>
+                  </div>
 
-              <template #actions-cell="{ row }">
-                <div class="flex items-center gap-2">
-                  <UButton 
-                    v-if="!isAppetiteAcceptable(row.original)"
-                    :icon="hasMitigation(row.original.id) ? 'i-heroicons-eye' : 'i-heroicons-plus-circle'" 
-                    :label="hasMitigation(row.original.id) ? t('riskAppetite.compliance.viewMitigation') : t('riskAppetite.compliance.addMitigation')" 
-                    :color="hasMitigation(row.original.id) ? 'primary' : 'error'" 
-                    variant="soft" 
-                    size="md" 
-                    class="font-bold"
-                    :to="`/mitigation?id=${row.original.id}`" 
-                  />
-                  <span v-else class="text-md text-gray-400 dark:text-gray-500">-</span>
+                  <!-- Card Body: Risk Name & Category / Branch -->
+                  <div>
+                    <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-snug">
+                      {{ risk.name }}
+                    </h4>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      <UIcon name="i-lucide-tag" class="size-3 text-slate-400 shrink-0" />
+                      <span class="truncate">{{ risk.category }} · {{ risk.branch || 'Head Office' }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Mitigation Status Box -->
+                  <div class="p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs">
+                    <span class="text-slate-500 dark:text-slate-400 font-medium text-[11px]">
+                      {{ t('riskAppetite.compliance.columns.status') }}:
+                    </span>
+                    <div class="flex items-center gap-2">
+                      <template v-if="hasMitigation(risk.id)">
+                        <UBadge v-if="isMitigationSelesai(risk.id)" color="success" variant="solid" class="font-black text-[9px]">
+                          {{ t('riskAppetite.compliance.done') }}
+                        </UBadge>
+                        <UBadge v-else color="success" variant="solid" class="font-black text-[9px]">
+                          {{ t('riskAppetite.compliance.activePlan', { count: getMitigationCount(risk.id) }) }}
+                        </UBadge>
+                      </template>
+                      <template v-else-if="isAppetiteAcceptable(risk)">
+                        <span class="text-xs text-gray-400 dark:text-gray-500 italic">{{ t('riskAppetite.compliance.noneRequired') }}</span>
+                      </template>
+                      <template v-else>
+                        <div class="flex items-center gap-1 text-red-600 dark:text-red-500 animate-pulse">
+                          <UIcon name="i-heroicons-exclamation-triangle" class="w-3.5 h-3.5 shrink-0" />
+                          <span class="text-[10px] font-bold uppercase tracking-wider">{{ t('riskAppetite.compliance.missingPlan') }}</span>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+
+                  <!-- Card Footer: Index & Action Button -->
+                  <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
+                    <span class="text-xs text-slate-400 font-mono">
+                      #{{ (compliancePage - 1) * complianceItemsPerPage + index + 1 }}
+                    </span>
+                    <div>
+                      <UButton 
+                        v-if="!isAppetiteAcceptable(risk)"
+                        :icon="hasMitigation(risk.id) ? 'i-heroicons-eye' : 'i-heroicons-plus-circle'" 
+                        :label="hasMitigation(risk.id) ? t('riskAppetite.compliance.viewMitigation') : t('riskAppetite.compliance.addMitigation')" 
+                        :color="hasMitigation(risk.id) ? 'primary' : 'error'" 
+                        variant="soft" 
+                        size="xs" 
+                        class="font-bold"
+                        :to="`/mitigation?id=${risk.id}`" 
+                      />
+                      <span v-else class="text-xs text-gray-400 dark:text-gray-500 italic">-</span>
+                    </div>
+                  </div>
                 </div>
-              </template>
-            </TableEntities>
+
+                <!-- Mobile Pagination Controls -->
+                <div v-if="filteredComplianceRisks.length > complianceItemsPerPage" class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                  <span class="text-xs text-slate-500 dark:text-slate-400">
+                    {{ (compliancePage - 1) * complianceItemsPerPage + 1 }}-{{ Math.min(compliancePage * complianceItemsPerPage, filteredComplianceRisks.length) }} of {{ filteredComplianceRisks.length }}
+                  </span>
+                  <UPagination
+                    v-model:page="compliancePage"
+                    :items-per-page="complianceItemsPerPage"
+                    :total="filteredComplianceRisks.length"
+                    size="sm"
+                    active-color="primary"
+                    color="neutral"
+                    variant="outline"
+                    class="max-w-full overflow-x-auto"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Tab 3: Statements Registry (CRUD) -->
@@ -395,7 +534,7 @@
               color="neutral"
               variant="outline"
               size="md"
-              class="w-full sm:w-auto font-bold"
+              class="w-full sm:w-auto font-bold justify-center text-center"
               @click="() => { isModalOpen = false }"
             >
               {{ t('riskAppetite.statements.modal.cancel') }}
@@ -406,7 +545,7 @@
               color="primary"
               variant="solid"
               size="md"
-              class="w-full sm:w-auto font-bold"
+              class="w-full sm:w-auto font-bold justify-center text-center"
             >
               {{ isEditing ? t('riskAppetite.statements.modal.save') : t('riskAppetite.statements.modal.create') }}
             </UButton>
@@ -418,7 +557,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import TableEntities from '~/components/shared/TableEntities.vue'
 import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
@@ -596,6 +735,19 @@ const filteredComplianceRisks = computed(() => {
     }
     return true
   })
+})
+
+// Pagination for compliance table
+const compliancePage = ref(1)
+const complianceItemsPerPage = ref(10)
+
+const paginatedComplianceRisks = computed(() => {
+  const start = (compliancePage.value - 1) * complianceItemsPerPage.value
+  return filteredComplianceRisks.value.slice(start, start + complianceItemsPerPage.value)
+})
+
+watch(complianceFilter, () => {
+  compliancePage.value = 1
 })
 
 // CRUD actions

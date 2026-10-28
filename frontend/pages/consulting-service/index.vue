@@ -100,9 +100,10 @@
       </div>
     </div>
 
-    <!-- Filters -->
-    <UCard class="shadow-sm">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Consulting Services Section (Filters + Table/Cards in 1 Card) -->
+    <UCard class="shadow-sm border border-gray-200 dark:border-gray-800" :ui="{ body: 'p-4 sm:p-6 space-y-4' }">
+      <!-- Filters -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
         <UFormField :label="t('consultingService.dashboard.filters.searchTitle')">
           <UInput v-model="filters.search" :placeholder="t('consultingService.dashboard.filters.searchPlaceholder')" icon="i-lucide-search" class="w-full" />
         </UFormField>
@@ -116,72 +117,201 @@
           <USelectMenu v-model="filters.dept" :items="departmentFilterOptions" value-key="value" :placeholder="t('consultingService.dashboard.filters.selectDepartment')" class="w-full" />
         </UFormField>
       </div>
-    </UCard>
 
-    <!-- Data Table -->
-    <UCard class="shadow-md overflow-hidden">
-      <TableEntities :data="filteredServices" :columns="columns" class="w-full">
-        <!-- Status Cell -->
-        <template #status-cell="{ row }">
-          <UBadge :color="store.getStatusColor((row.original as any).status)" variant="subtle" size="md">
-            {{ getStatusLabel((row.original as any).status) }}
-          </UBadge>
-        </template>
+      <!-- Desktop View (>= md): Full Table Entities -->
+      <div class="hidden md:block">
+        <TableEntities
+          v-model:page="currentPage"
+          :data="filteredServices"
+          :columns="columns"
+          :items-per-page="itemsPerPage"
+          :show-pagination="true"
+          class="w-full"
+        >
+          <!-- Status Cell -->
+          <template #status-cell="{ row }">
+            <UBadge :color="store.getStatusColor((row.original as any).status)" variant="subtle" size="md">
+              {{ getStatusLabel((row.original as any).status) }}
+            </UBadge>
+          </template>
 
-        <template #category-cell="{ row }">
-          {{ getCategoryLabel((row.original as any).category) }}
-        </template>
+          <template #category-cell="{ row }">
+            {{ getCategoryLabel((row.original as any).category) }}
+          </template>
 
-        <!-- Attachment Cell -->
-        <template #attachment-cell="{ row }">
-          <div v-if="(row.original as any).attachment" class="flex items-center gap-1.5">
-            <UButton
-              icon="i-lucide-download"
-              color="primary"
-              variant="ghost"
+          <!-- Attachment Cell -->
+          <template #attachment-cell="{ row }">
+            <div v-if="(row.original as any).attachment" class="flex items-center gap-1.5">
+              <UButton
+                icon="i-lucide-download"
+                color="primary"
+                variant="ghost"
+                size="sm"
+                :label="(row.original as any).attachment.name"
+                @click="store.viewAttachment((row.original as any).id, (row.original as any).attachment.name)"
+              />
+            </div>
+            <span v-else class="text-gray-400 italic text-md">{{ t('consultingService.dashboard.noFile') }}</span>
+          </template>
+
+          <!-- Actions Cell -->
+          <template #actions-cell="{ row }">
+            <div class="flex items-center gap-1">
+              <UTooltip :text="t('consultingService.dashboard.actions.viewDetails')">
+                <UButton
+                  icon="i-lucide-eye"
+                  color="neutral"
+                  variant="ghost"
+                  size="md"
+                  @click="store.openDetail(row.original as any)"
+                />
+              </UTooltip>
+
+              <UTooltip :text="t('consultingService.dashboard.actions.edit')">
+                <UButton
+                  icon="i-lucide-edit"
+                  color="warning"
+                  variant="ghost"
+                  size="md"
+                  @click="store.editService(row.original as any)"
+                />
+              </UTooltip>
+
+              <UTooltip :text="t('consultingService.dashboard.actions.delete')">
+                <UButton
+                  icon="i-lucide-trash-2"
+                  color="error"
+                  variant="ghost"
+                  size="md"
+                  @click="confirmDelete(row.original as any)"
+                />
+              </UTooltip>
+            </div>
+          </template>
+        </TableEntities>
+      </div>
+
+      <!-- Mobile & Tablet View (< md): Stacked Cards List -->
+      <div class="block md:hidden space-y-3">
+        <!-- Empty State -->
+        <div
+          v-if="!filteredServices.length"
+          class="py-8 px-4 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+        >
+          <UIcon name="i-lucide-inbox" class="size-8 mx-auto text-gray-400 mb-2" />
+          <p class="text-sm font-medium text-slate-700 dark:text-slate-200">
+            {{ t('consultingService.dashboard.emptyFiltered') }}
+          </p>
+        </div>
+
+        <!-- Cards List -->
+        <div v-else class="space-y-3">
+          <div
+            v-for="(service, index) in paginatedServices"
+            :key="service.id || index"
+            class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3"
+          >
+            <!-- Card Header: Category & Status Badge -->
+            <div class="flex items-center justify-between gap-2">
+              <span class="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700">
+                <UIcon name="i-lucide-tag" class="size-3 text-primary-500" />
+                {{ getCategoryLabel(service.category) }}
+              </span>
+              <UBadge :color="store.getStatusColor(service.status)" variant="subtle" size="sm" class="font-semibold">
+                {{ getStatusLabel(service.status) }}
+              </UBadge>
+            </div>
+
+            <!-- Card Body: Title & Period -->
+            <div class="space-y-1">
+              <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-snug">
+                {{ service.title }}
+              </h4>
+              <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                <UIcon name="i-lucide-calendar" class="size-3.5 text-slate-400 shrink-0" />
+                <span>{{ service.period }}</span>
+              </div>
+            </div>
+
+            <!-- Metadata: Department & Consultant Lead -->
+            <div class="flex flex-wrap items-center justify-between gap-2 text-xs pt-2 border-t border-gray-100 dark:border-gray-800/80 text-slate-600 dark:text-slate-400">
+              <div class="flex items-center gap-1.5 min-w-0">
+                <UIcon name="i-lucide-building-2" class="size-3.5 text-gray-400 shrink-0" />
+                <span class="truncate font-medium text-gray-700 dark:text-gray-300">{{ service.requestorDept }}</span>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <UIcon name="i-lucide-user" class="size-3.5 text-gray-400 shrink-0" />
+                <span>{{ service.consultantName }}</span>
+              </div>
+            </div>
+
+            <!-- Attachment if exists -->
+            <div v-if="service.attachment" class="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 text-xs">
+              <div class="flex items-center gap-1.5 truncate pr-2">
+                <UIcon name="i-lucide-paperclip" class="size-3.5 text-primary-500 shrink-0" />
+                <span class="truncate text-gray-700 dark:text-gray-300 font-medium">{{ service.attachment.name }}</span>
+              </div>
+              <UButton
+                icon="i-lucide-download"
+                color="primary"
+                variant="ghost"
+                size="xs"
+                @click="store.viewAttachment(service.id, service.attachment.name)"
+              />
+            </div>
+
+            <!-- Card Footer: Index & Action Buttons -->
+            <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
+              <span class="text-xs text-slate-400 font-mono">
+                #{{ (currentPage - 1) * itemsPerPage + index + 1 }}
+              </span>
+              <div class="flex items-center gap-1">
+                <UButton
+                  icon="i-lucide-eye"
+                  color="neutral"
+                  variant="soft"
+                  size="xs"
+                  :label="t('consultingService.dashboard.actions.viewDetails')"
+                  @click="store.openDetail(service)"
+                />
+                <UButton
+                  icon="i-lucide-edit"
+                  color="warning"
+                  variant="soft"
+                  size="xs"
+                  :label="t('consultingService.dashboard.actions.edit')"
+                  @click="store.editService(service)"
+                />
+                <UButton
+                  icon="i-lucide-trash-2"
+                  color="error"
+                  variant="soft"
+                  size="xs"
+                  :label="t('consultingService.dashboard.actions.delete')"
+                  @click="confirmDelete(service)"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Mobile Pagination Controls -->
+          <div v-if="filteredServices.length > itemsPerPage" class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <span class="text-xs text-slate-500 dark:text-slate-400">
+              {{ (currentPage - 1) * itemsPerPage + 1 }}-{{ Math.min(currentPage * itemsPerPage, filteredServices.length) }} of {{ filteredServices.length }}
+            </span>
+            <UPagination
+              v-model:page="currentPage"
+              :items-per-page="itemsPerPage"
+              :total="filteredServices.length"
               size="sm"
-              :label="(row.original as any).attachment.name"
-              @click="store.viewAttachment((row.original as any).id, (row.original as any).attachment.name)"
+              active-color="primary"
+              color="neutral"
+              variant="outline"
+              class="max-w-full overflow-x-auto"
             />
           </div>
-          <span v-else class="text-gray-400 italic text-md">{{ t('consultingService.dashboard.noFile') }}</span>
-        </template>
-
-        <!-- Actions Cell -->
-        <template #actions-cell="{ row }">
-          <div class="flex items-center gap-1">
-            <UTooltip :text="t('consultingService.dashboard.actions.viewDetails')" >
-              <UButton
-                icon="i-lucide-eye"
-                color="neutral"
-                variant="ghost"
-                size="md"
-                @click="store.openDetail(row.original as any)"
-              />
-            </UTooltip>
-
-            <UTooltip :text="t('consultingService.dashboard.actions.edit')">
-              <UButton
-                icon="i-lucide-edit"
-                color="warning"
-                variant="ghost"
-                size="md"
-              @click="store.editService(row.original as any)"
-            />
-            </UTooltip>
-
-            <UTooltip :text="t('consultingService.dashboard.actions.delete')">
-              <UButton
-                icon="i-lucide-trash-2"
-                color="error"
-                variant="ghost"
-                size="md"
-                @click="confirmDelete(row.original as any)"
-              />
-            </UTooltip>
-          </div>
-        </template>
-      </TableEntities>
+        </div>
+      </div>
     </UCard>
 
     <!-- Form Modal -->
@@ -394,23 +524,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { useConsultingServiceStore } from '~/stores/consulting-service'
+import { useGlobalModalStore } from '~/stores/global-modal'
 
 const store = useConsultingServiceStore()
 const { t } = useI18n()
 store.fetchServices()
-
-const columns = computed(() => [
-  { accessorKey: 'title', header: t('consultingService.dashboard.columns.projectTitle') },
-  { accessorKey: 'category', header: t('consultingService.dashboard.columns.category') },
-  { accessorKey: 'requestorDept', header: t('consultingService.dashboard.columns.department') },
-  { accessorKey: 'period', header: t('consultingService.dashboard.columns.period') },
-  { accessorKey: 'consultantName', header: t('consultingService.dashboard.columns.consultantLead') },
-  { accessorKey: 'status', header: t('consultingService.dashboard.columns.status') },
-  { accessorKey: 'attachment', header: t('consultingService.dashboard.columns.document') },
-  { accessorKey: 'actions', header: t('consultingService.dashboard.columns.actions') }
-])
 
 const statusKeys: Record<string, string> = {
   Planned: 'planned',
@@ -463,6 +583,29 @@ const filteredServices = computed(() => {
     return matchesSearch && matchesCategory && matchesStatus && matchesDept
   })
 })
+
+const currentPage = ref(1)
+const itemsPerPage = ref(10)
+
+const paginatedServices = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  return filteredServices.value.slice(start, start + itemsPerPage.value)
+})
+
+watch(() => [filters.search, filters.category, filters.status, filters.dept], () => {
+  currentPage.value = 1
+}, { deep: true })
+
+const columns = computed(() => [
+  { accessorKey: 'title', header: t('consultingService.dashboard.columns.projectTitle') },
+  { accessorKey: 'category', header: t('consultingService.dashboard.columns.category') },
+  { accessorKey: 'requestorDept', header: t('consultingService.dashboard.columns.department') },
+  { accessorKey: 'period', header: t('consultingService.dashboard.columns.period') },
+  { accessorKey: 'consultantName', header: t('consultingService.dashboard.columns.consultantLead') },
+  { accessorKey: 'status', header: t('consultingService.dashboard.columns.status') },
+  { accessorKey: 'attachment', header: t('consultingService.dashboard.columns.document') },
+  { accessorKey: 'actions', header: t('consultingService.dashboard.columns.actions') }
+])
 
 const confirmDelete = async (service: any) => {
   if (await useGlobalModalStore().confirmDelete({ description: t('consultingService.dashboard.deleteConfirm') })) {

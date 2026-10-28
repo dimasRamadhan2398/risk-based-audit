@@ -156,8 +156,9 @@
         <UIcon :name="showRatingTable ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'" class="size-5 text-slate-400 dark:text-slate-500" />
       </button>
 
-      <div v-if="showRatingTable" class="px-6 pb-6 border-t border-slate-100 dark:border-slate-800 pt-4">
-        <div class="overflow-x-auto">
+      <div v-if="showRatingTable" class="px-4 sm:px-6 pb-4 sm:pb-6 border-t border-slate-100 dark:border-slate-800 pt-4">
+        <!-- Desktop View (>= md): Full Reference Table -->
+        <div class="hidden md:block overflow-x-auto">
           <table class="w-full text-left text-md border-collapse">
             <thead>
               <tr class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold">
@@ -205,6 +206,49 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Mobile & Tablet View (< md): Stacked Interpretation Cards List -->
+        <div class="block md:hidden space-y-2.5">
+          <div class="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold text-sm text-green-700 dark:text-green-400">90 – 100%</span>
+              <span class="font-bold px-2.5 py-1 rounded-md text-xs whitespace-nowrap inline-block" :class="getControlEffectivenessColorClass('Highly Effective')">{{ t('rcm.interpretationTable.ratings.highlyEffective') }}</span>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{{ t('rcm.interpretationTable.descriptions.highlyEffective') }}</p>
+          </div>
+
+          <div class="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold text-sm text-lime-700 dark:text-lime-400">80 – 89%</span>
+              <span class="font-bold px-2.5 py-1 rounded-md text-xs whitespace-nowrap inline-block" :class="getControlEffectivenessColorClass('Effective')">{{ t('rcm.interpretationTable.ratings.effective') }}</span>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{{ t('rcm.interpretationTable.descriptions.effective') }}</p>
+          </div>
+
+          <div class="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold text-sm text-yellow-700 dark:text-yellow-400">70 – 79%</span>
+              <span class="font-bold px-2.5 py-1 rounded-md text-xs whitespace-nowrap inline-block" :class="getControlEffectivenessColorClass('Moderately Effective')">{{ t('rcm.interpretationTable.ratings.moderatelyEffective') }}</span>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{{ t('rcm.interpretationTable.descriptions.moderatelyEffective') }}</p>
+          </div>
+
+          <div class="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold text-sm text-orange-700 dark:text-orange-400">60 – 69%</span>
+              <span class="font-bold px-2.5 py-1 rounded-md text-xs whitespace-nowrap inline-block" :class="getControlEffectivenessColorClass('Weak')">{{ t('rcm.interpretationTable.ratings.weak') }}</span>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{{ t('rcm.interpretationTable.descriptions.weak') }}</p>
+          </div>
+
+          <div class="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold text-sm text-red-700 dark:text-red-400">&lt; 60%</span>
+              <span class="font-bold px-2.5 py-1 rounded-md text-xs whitespace-nowrap inline-block" :class="getControlEffectivenessColorClass('Ineffective')">{{ t('rcm.interpretationTable.ratings.ineffective') }}</span>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{{ t('rcm.interpretationTable.descriptions.ineffective') }}</p>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -226,144 +270,283 @@
         </div>
       </div>
 
-      <div class="rcm-table w-full min-w-0">
-      <TableEntities
-        :data="filteredList"
-        :columns="rcmStore.columns"
-        :items-per-page="10"
-        table-layout="auto"
-        min-width="1630px"
-        :ui="{
-          root: 'relative overflow-visible',
-          tr: 'hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors group'
-        }"
-        :empty-state="{
-          icon: 'i-lucide-shield-alert',
-          label: t('rcm.table.empty.label'),
-          description: t('rcm.table.empty.description')
-        }"
-      >
-        <!-- Risk Code & Event -->
-        <template #risk_code-cell="{ row }">
-          <div class="w-full whitespace-normal break-words space-y-1 pr-1">
-            <span class="inline-block px-2 py-0.5 bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 font-bold rounded text-xs">
-              {{ row.original.risk_code }}
+      <!-- Desktop View (>= md): Full Table Entities with horizontal scroll -->
+      <div class="hidden md:block rcm-table w-full min-w-0">
+        <TableEntities
+          v-model:page="currentPage"
+          :data="filteredList"
+          :columns="rcmStore.columns"
+          :items-per-page="itemsPerPage"
+          :show-pagination="true"
+          table-layout="auto"
+          min-width="1630px"
+          :ui="{
+            root: 'relative overflow-visible',
+            tr: 'hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors group'
+          }"
+          :empty-state="{
+            icon: 'i-lucide-shield-alert',
+            label: t('rcm.table.empty.label'),
+            description: t('rcm.table.empty.description')
+          }"
+        >
+          <!-- Risk Code & Event -->
+          <template #risk_code-cell="{ row }">
+            <div class="w-full whitespace-normal break-words space-y-1 pr-1">
+              <span class="inline-block px-2 py-0.5 bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 font-bold rounded text-xs">
+                {{ row.original.risk_code }}
+              </span>
+              <p class="font-medium text-slate-900 dark:text-white text-sm leading-snug break-words" :title="row.original.risk_event">
+                {{ row.original.risk_event }}
+              </p>
+            </div>
+          </template>
+
+          <!-- Control Code & Description -->
+          <template #control_code-cell="{ row }">
+            <div class="w-full whitespace-normal break-words space-y-1 pr-1">
+              <span class="inline-block px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-extrabold rounded text-xs border border-slate-200 dark:border-slate-700">
+                {{ row.original.control_code }}
+              </span>
+              <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed break-words" :title="row.original.control_description">
+                {{ row.original.control_description }}
+              </p>
+            </div>
+          </template>
+
+          <!-- Department & PIC -->
+          <template #department-cell="{ row }">
+            <div class="min-w-[140px] whitespace-normal break-words">
+              <p class="text-sm text-slate-800 dark:text-slate-100 font-semibold mb-0.5">{{ row.original.department }}</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400">{{ t('rcm.table.cells.pic') }} <strong class="text-slate-700 dark:text-slate-200">{{ row.original.control_owner }}</strong></p>
+            </div>
+          </template>
+
+          <!-- Design Rating (1-5) -->
+          <template #design_effectiveness_rating-cell="{ row }">
+            <div class="text-center font-bold text-slate-700 dark:text-slate-200">
+              <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.design_effectiveness_rating * 4}%`">
+                {{ row.original.design_effectiveness_rating }}
+              </span>
+            </div>
+          </template>
+
+          <!-- Operating Rating (1-5) -->
+          <template #operating_effectiveness_rating-cell="{ row }">
+            <div class="text-center font-bold text-slate-700 dark:text-slate-200">
+              <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.operating_effectiveness_rating * 4}%`">
+                {{ row.original.operating_effectiveness_rating }}
+              </span>
+            </div>
+          </template>
+
+          <!-- Coverage Rating (1-5) -->
+          <template #coverage_completeness_rating-cell="{ row }">
+            <div class="text-center font-bold text-slate-700 dark:text-slate-200">
+              <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.coverage_completeness_rating * 4}%`">
+                {{ row.original.coverage_completeness_rating }}
+              </span>
+            </div>
+          </template>
+
+          <!-- Timeliness Rating (1-5) -->
+          <template #timeliness_rating-cell="{ row }">
+            <div class="text-center font-bold text-slate-700 dark:text-slate-200">
+              <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.timeliness_rating * 4}%`">
+                {{ row.original.timeliness_rating }}
+              </span>
+            </div>
+          </template>
+
+          <!-- Automation Rating (1-5) -->
+          <template #automation_monitoring_rating-cell="{ row }">
+            <div class="text-center font-bold text-slate-700 dark:text-slate-200">
+              <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.automation_monitoring_rating * 4}%`">
+                {{ row.original.automation_monitoring_rating }}
+              </span>
+            </div>
+          </template>
+
+          <!-- Total Score (%) -->
+          <template #total_weighted_score-cell="{ row }">
+            <div class="text-center">
+              <span class="text-xs font-extrabold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/60 px-2.5 py-1 rounded-lg border border-primary-100 dark:border-primary-800 inline-block">
+                {{ row.original.total_weighted_score }}%
+              </span>
+            </div>
+          </template>
+
+          <!-- Rating Efektivitas Column -->
+          <template #rating-cell="{ row }">
+            <div class="text-center whitespace-nowrap">
+              <span :class="getRatingBadgeClass(getItemRating(row.original.total_weighted_score).rating)">
+                {{ getLocalizedRating(row.original.total_weighted_score) }}
+              </span>
+            </div>
+          </template>
+
+          <!-- Actions -->
+          <template #actions-cell="{ row }">
+            <div class="flex items-center justify-end gap-1">
+              <UTooltip :text="t('rcm.table.actions.edit')">
+              <UButton
+                icon="i-lucide-edit-3"
+                color="neutral"
+                variant="ghost"
+                size="xs"
+                :title="t('rcm.table.actions.edit')"
+                @click="openEditModal(row.original)"
+              />
+              </UTooltip>  
+              <UTooltip :text="t('rcm.table.actions.delete')">
+              <UButton
+                icon="i-lucide-trash-2"
+                color="error"
+                variant="ghost"
+                size="xs"
+                :title="t('rcm.table.actions.delete')"
+                @click="confirmDelete(row.original.id)"
+              />
+              </UTooltip>
+            </div>
+          </template>
+        </TableEntities>
+      </div>
+
+      <!-- Mobile & Tablet View (< md): Stacked Cards List -->
+      <div class="block md:hidden space-y-3">
+        <!-- Empty State -->
+        <div
+          v-if="!filteredList.length"
+          class="py-8 px-4 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+        >
+          <UIcon name="i-lucide-shield-alert" class="size-8 mx-auto text-gray-400 mb-2" />
+          <p class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ t('rcm.table.empty.label') }}</p>
+          <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">{{ t('rcm.table.empty.description') }}</p>
+        </div>
+
+        <!-- Cards List -->
+        <div v-else class="space-y-3">
+          <div
+            v-for="(row, index) in paginatedRCMList"
+            :key="row.id || index"
+            class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3"
+          >
+            <!-- Card Header: Codes & Rating Badge -->
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="inline-block px-2 py-0.5 bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 font-bold rounded text-xs border border-primary-200/50 dark:border-primary-800/40">
+                  {{ row.risk_code }}
+                </span>
+                <span class="inline-block px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-extrabold rounded text-xs border border-slate-200 dark:border-slate-700">
+                  {{ row.control_code }}
+                </span>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <span class="text-xs font-extrabold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/60 px-2 py-0.5 rounded border border-primary-200 dark:border-primary-800">
+                  {{ row.total_weighted_score }}%
+                </span>
+                <span :class="getRatingBadgeClass(getItemRating(row.total_weighted_score).rating)">
+                  {{ getLocalizedRating(row.total_weighted_score) }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Risk Event & Control Description -->
+            <div class="space-y-1.5">
+              <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-snug">
+                {{ row.risk_event }}
+              </h4>
+              <div class="flex items-start gap-2 text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                <UIcon name="i-lucide-shield-check" class="size-4 text-primary-500 shrink-0 mt-0.5" />
+                <span class="leading-relaxed">{{ row.control_description }}</span>
+              </div>
+            </div>
+
+            <!-- Department & PIC -->
+            <div class="flex flex-wrap items-center justify-between gap-2 text-xs pt-1 border-t border-gray-100 dark:border-gray-800 text-slate-600 dark:text-slate-400">
+              <div class="flex items-center gap-1.5">
+                <UIcon name="i-lucide-building-2" class="size-3.5 text-slate-400" />
+                <span class="font-medium text-slate-700 dark:text-slate-200">{{ row.department }}</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <UIcon name="i-lucide-user" class="size-3.5 text-slate-400" />
+                <span>{{ t('rcm.table.cells.pic') }} <strong class="text-slate-700 dark:text-slate-200">{{ row.control_owner }}</strong></span>
+              </div>
+            </div>
+
+            <!-- 5 COSO Dimension Ratings Grid -->
+            <div class="bg-slate-50 dark:bg-slate-800/60 rounded-lg p-2.5 border border-slate-200/60 dark:border-slate-700/60 space-y-1.5">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                {{ t('rcm.cards.coso.title') }}
+              </div>
+              <div class="grid grid-cols-5 gap-1.5 text-center">
+                <div class="p-1 rounded bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700">
+                  <div class="text-[9px] text-slate-400 uppercase truncate" title="Design">{{ t('rcm.dimensions.design') }}</div>
+                  <div class="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">{{ row.design_effectiveness_rating }}</div>
+                </div>
+                <div class="p-1 rounded bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700">
+                  <div class="text-[9px] text-slate-400 uppercase truncate" title="Operating">{{ t('rcm.dimensions.operating') }}</div>
+                  <div class="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">{{ row.operating_effectiveness_rating }}</div>
+                </div>
+                <div class="p-1 rounded bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700">
+                  <div class="text-[9px] text-slate-400 uppercase truncate" title="Coverage">{{ t('rcm.dimensions.coverage') }}</div>
+                  <div class="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">{{ row.coverage_completeness_rating }}</div>
+                </div>
+                <div class="p-1 rounded bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700">
+                  <div class="text-[9px] text-slate-400 uppercase truncate" title="Timeliness">{{ t('rcm.dimensions.timeliness') }}</div>
+                  <div class="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">{{ row.timeliness_rating }}</div>
+                </div>
+                <div class="p-1 rounded bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700">
+                  <div class="text-[9px] text-slate-400 uppercase truncate" title="Automation">{{ t('rcm.dimensions.automation') }}</div>
+                  <div class="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">{{ row.automation_monitoring_rating }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Footer: Actions & Index -->
+            <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
+              <span class="text-xs text-slate-400 font-mono">
+                #{{ (currentPage - 1) * itemsPerPage + index + 1 }}
+              </span>
+              <div class="flex items-center gap-1.5">
+                <UButton
+                  icon="i-lucide-edit-3"
+                  color="neutral"
+                  variant="soft"
+                  size="xs"
+                  :label="t('rcm.table.actions.edit')"
+                  @click="openEditModal(row)"
+                />
+                <UButton
+                  icon="i-lucide-trash-2"
+                  color="error"
+                  variant="soft"
+                  size="xs"
+                  :label="t('rcm.table.actions.delete')"
+                  @click="confirmDelete(row.id)"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Mobile Pagination Controls -->
+          <div v-if="filteredList.length > itemsPerPage" class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <span class="text-xs text-slate-500 dark:text-slate-400">
+              {{ (currentPage - 1) * itemsPerPage + 1 }}-{{ Math.min(currentPage * itemsPerPage, filteredList.length) }} of {{ filteredList.length }}
             </span>
-            <p class="font-medium text-slate-900 dark:text-white text-sm leading-snug break-words" :title="row.original.risk_event">
-              {{ row.original.risk_event }}
-            </p>
-          </div>
-        </template>
-
-        <!-- Control Code & Description -->
-        <template #control_code-cell="{ row }">
-          <div class="w-full whitespace-normal break-words space-y-1 pr-1">
-            <span class="inline-block px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-extrabold rounded text-xs border border-slate-200 dark:border-slate-700">
-              {{ row.original.control_code }}
-            </span>
-            <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed break-words" :title="row.original.control_description">
-              {{ row.original.control_description }}
-            </p>
-          </div>
-        </template>
-
-        <!-- Department & PIC -->
-        <template #department-cell="{ row }">
-          <div class="min-w-[140px] whitespace-normal break-words">
-            <p class="text-sm text-slate-800 dark:text-slate-100 font-semibold mb-0.5">{{ row.original.department }}</p>
-            <p class="text-xs text-slate-500 dark:text-slate-400">{{ t('rcm.table.cells.pic') }} <strong class="text-slate-700 dark:text-slate-200">{{ row.original.control_owner }}</strong></p>
-          </div>
-        </template>
-
-        <!-- Design Rating (1-5) -->
-        <template #design_effectiveness_rating-cell="{ row }">
-          <div class="text-center font-bold text-slate-700 dark:text-slate-200">
-            <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.design_effectiveness_rating * 4}%`">
-              {{ row.original.design_effectiveness_rating }}
-            </span>
-          </div>
-        </template>
-
-        <!-- Operating Rating (1-5) -->
-        <template #operating_effectiveness_rating-cell="{ row }">
-          <div class="text-center font-bold text-slate-700 dark:text-slate-200">
-            <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.operating_effectiveness_rating * 4}%`">
-              {{ row.original.operating_effectiveness_rating }}
-            </span>
-          </div>
-        </template>
-
-        <!-- Coverage Rating (1-5) -->
-        <template #coverage_completeness_rating-cell="{ row }">
-          <div class="text-center font-bold text-slate-700 dark:text-slate-200">
-            <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.coverage_completeness_rating * 4}%`">
-              {{ row.original.coverage_completeness_rating }}
-            </span>
-          </div>
-        </template>
-
-        <!-- Timeliness Rating (1-5) -->
-        <template #timeliness_rating-cell="{ row }">
-          <div class="text-center font-bold text-slate-700 dark:text-slate-200">
-            <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.timeliness_rating * 4}%`">
-              {{ row.original.timeliness_rating }}
-            </span>
-          </div>
-        </template>
-
-        <!-- Automation Rating (1-5) -->
-        <template #automation_monitoring_rating-cell="{ row }">
-          <div class="text-center font-bold text-slate-700 dark:text-slate-200">
-            <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.automation_monitoring_rating * 4}%`">
-              {{ row.original.automation_monitoring_rating }}
-            </span>
-          </div>
-        </template>
-
-        <!-- Total Score (%) -->
-        <template #total_weighted_score-cell="{ row }">
-          <div class="text-center">
-            <span class="text-xs font-extrabold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/60 px-2.5 py-1 rounded-lg border border-primary-100 dark:border-primary-800 inline-block">
-              {{ row.original.total_weighted_score }}%
-            </span>
-          </div>
-        </template>
-
-        <!-- Rating Efektivitas Column -->
-        <template #rating-cell="{ row }">
-          <div class="text-center whitespace-nowrap">
-            <span :class="getRatingBadgeClass(getItemRating(row.original.total_weighted_score).rating)">
-              {{ getLocalizedRating(row.original.total_weighted_score) }}
-            </span>
-          </div>
-        </template>
-
-        <!-- Actions -->
-        <template #actions-cell="{ row }">
-          <div class="flex items-center justify-end gap-1">
-            <UTooltip :text="t('rcm.table.actions.edit')">
-            <UButton
-              icon="i-lucide-edit-3"
+            <UPagination
+              v-model:page="currentPage"
+              :items-per-page="itemsPerPage"
+              :total="filteredList.length"
+              size="sm"
+              active-color="primary"
               color="neutral"
-              variant="ghost"
-              size="xs"
-              :title="t('rcm.table.actions.edit')"
-              @click="openEditModal(row.original)"
+              variant="outline"
+              class="max-w-full overflow-x-auto"
             />
-            </UTooltip>  
-            <UTooltip :text="t('rcm.table.actions.delete')">
-            <UButton
-              icon="i-lucide-trash-2"
-              color="error"
-              variant="ghost"
-              size="xs"
-              :title="t('rcm.table.actions.delete')"
-              @click="confirmDelete(row.original.id)"
-            />
-            </UTooltip>
           </div>
-        </template>
-      </TableEntities>
+        </div>
       </div>
     </div>
 
@@ -700,7 +883,7 @@
 </style>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from '~/composables/useI18n'
 import { useRCMStore, cosoDimensions, getEffectivenessInterpretation, getEffectivenessKey, type RCMItem } from '~/stores/rcm'
 import { getControlEffectivenessColorClass } from '~/utils/riskLevelBadge'
@@ -728,6 +911,18 @@ const isModalOpen = ref(false)
 const isEditMode = ref(false)
 const selectedRiskId = ref('')
 const selectedMitigationId = ref('')
+
+const currentPage = ref(1)
+const itemsPerPage = ref(10)
+
+const paginatedRCMList = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  return filteredList.value.slice(start, start + itemsPerPage.value)
+})
+
+watch([searchQuery, () => rcmStore.selectedYear, () => rcmStore.selectedDepartment], () => {
+  currentPage.value = 1
+})
 
 // Every risk in the Corporate Risk Profile; the department follows from the chosen risk.
 const riskOptionsForModal = computed(() => {

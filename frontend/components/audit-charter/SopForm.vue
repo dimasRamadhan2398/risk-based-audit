@@ -9,7 +9,7 @@
   >
     <template #content>
       <UForm @submit.prevent="handleSubmit" class="flex flex-col max-h-[90vh] overflow-hidden flex-1 min-h-0">
-        <div class="px-4 py-4 sm:px-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center shrink-0">
+        <div class="px-4 py-4 sm:px-6 border-b border-gray-100 dark:border-gray-800 flex justify-between shrink-0">
           <h3 class="text-lg leading-6 font-bold" id="modal-title">
             {{ store.isEditing ? t('auditCharter.sopForm.editTitle') : t('auditCharter.sopForm.addTitle') }}
           </h3>
@@ -18,6 +18,7 @@
             variant="ghost"
             icon="i-lucide-x"
             @click="store.closeModal"
+            
           />
         </div>
 
@@ -125,19 +126,23 @@
             color="primary"
             variant="solid"
             size="md"
-            class="w-full sm:w-auto font-bold"
+            class="w-full sm:w-auto min-w-[120px] font-bold justify-center text-center"
           >
-            {{ store.isEditing ? t('auditCharter.sopForm.saveChanges') : t('auditCharter.sopForm.addSop') }}
+            <span class="w-full text-center">
+              {{ store.isEditing ? t('auditCharter.sopForm.saveChanges') : t('auditCharter.sopForm.addSop') }}
+            </span>
           </UButton>
           <UButton
             type="button"
             color="neutral"
             variant="outline"
             size="md"
-            class="w-full sm:w-auto font-bold"
+            class="w-full sm:w-auto min-w-[120px] font-bold justify-center text-center"
             @click="store.closeModal"
           >
-            {{ t('common.cancel') }}
+            <span class="w-full text-center">
+              {{ t('common.cancel') }}
+            </span>
           </UButton>
         </div>
       </UForm>

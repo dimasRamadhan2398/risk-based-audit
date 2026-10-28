@@ -5,14 +5,14 @@
         color="neutral"
         variant="subtle"
         size="sm"
-        class="rounded-xl border border-[var(--border-main)] bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-hover)] shadow-xs transition-all duration-200 flex items-center gap-1.5 px-2.5 py-1.5"
+        class="rounded-xl border border-[var(--border-main)] bg-[var(--bg-surface)] hover:bg-[var(--bg-surface-hover)] shadow-xs transition-all duration-200 flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5"
       >
         <div class="flex items-center gap-1.5">
           <UIcon
             :name="isAllSources ? 'i-lucide-layers' : 'i-lucide-database'"
             class="w-4 h-4 text-primary-500 shrink-0"
           />
-          <span class="text-xs font-semibold text-[var(--text-main)] max-w-[120px] sm:max-w-[160px] truncate">
+          <span class="hidden sm:inline text-xs font-semibold text-[var(--text-main)] max-w-[120px] sm:max-w-[160px] truncate">
             {{ isAllSources ? t('common.sourceSelector.allSources') : (selectedSource?.name || t('common.sourceSelector.dataSource')) }}
           </span>
           <span

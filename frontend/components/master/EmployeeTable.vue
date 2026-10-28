@@ -7,7 +7,7 @@
           :label="t('masterData.employee.add')"
           icon="i-heroicons-plus"
           color="primary"
-          class="w-full sm:w-auto"
+          class="w-full sm:w-auto justify-center text-center"
           @click="store.openCreateModal"
         />
       </div>
@@ -21,19 +21,18 @@
         icon="i-heroicons-magnifying-glass"
         class="w-full sm:w-64"
         @keyup.enter="handleSearch"
-      />
-      <UButton
-        :label="t('common.search')"
-        color="primary"
-        variant="soft"
-        @click="handleSearch"
-      />
-      <UButton
-        :label="t('masterData.employee.reset')"
-        color="neutral"
-        variant="ghost"
-        @click="resetSearch"
-      />
+      >
+        <template v-if="searchInput" #trailing>
+          <UButton
+            color="neutral"
+            variant="ghost"
+            size="xs"
+            icon="i-heroicons-x-mark"
+            aria-label="Clear search"
+            @click="resetSearch"
+          />
+        </template>
+      </UInput>
     </div>
 
     <!-- Loading State -->
@@ -58,75 +57,171 @@
     </div>
 
     <!-- Table & Pagination via TableEntities -->
-    <TableEntities
-      v-else
-      :data="store.employees"
-      :columns="store.columns"
-      :loading="store.loading"
-      :server-side="true"
-      :total="store.pagination.total"
-      :items-per-page="store.pagination.page_size"
-      :page="store.pagination.page"
-      @update:page="(p) => store.fetchEmployees(p)"
-      @update:items-per-page="(size) => store.setPageSize(size)"
-    >
-      <template #employee_code-cell="{ row }">
-        <span class="font-medium text-primary-600">{{ row.original.employee_code }}</span>
-      </template>
-
-      <template #full_name-cell="{ row }">
-        <div class="font-medium">{{ row.original.full_name }}</div>
-      </template>
-
-      <template #email-cell="{ row }">
-        <a :href="`mailto:${row.original.email}`" class="text-blue-600 hover:underline">
-          {{ row.original.email }}
-        </a>
-      </template>
-
-      <template #level_grade-cell="{ row }">
-        <UBadge color="neutral" variant="soft">
-          {{ t('masterData.employee.level', { level: row.original.level_grade }) }}
-        </UBadge>
-      </template>
-
-      <template #is_active-cell="{ row }">
-        <UBadge
-          :color="row.original.is_active ? 'success' : 'error'"
-          variant="subtle"
+    <div v-else class="space-y-4">
+      <!-- Desktop View (>= md): Full Table Entities -->
+      <div class="hidden md:block">
+        <TableEntities
+          :data="store.employees"
+          :columns="store.columns"
+          :loading="store.loading"
+          :server-side="true"
+          :total="store.pagination.total"
+          :items-per-page="store.pagination.page_size"
+          :page="store.pagination.page"
+          @update:page="(p) => store.fetchEmployees(p)"
+          @update:items-per-page="(size) => store.setPageSize(size)"
         >
-          {{ row.original.is_active ? t('masterData.employee.active') : t('masterData.employee.inactive') }}
-        </UBadge>
-      </template>
+          <template #employee_code-cell="{ row }">
+            <span class="font-medium text-primary-600">{{ row.original.employee_code }}</span>
+          </template>
 
-      <template #actions-cell="{ row }">
-        <div class="flex gap-1">
-          <UButton
-            icon="i-heroicons-pencil"
-            color="primary"
-            variant="ghost"
+          <template #full_name-cell="{ row }">
+            <div class="font-medium">{{ row.original.full_name }}</div>
+          </template>
+
+          <template #email-cell="{ row }">
+            <a :href="`mailto:${row.original.email}`" class="text-blue-600 hover:underline">
+              {{ row.original.email }}
+            </a>
+          </template>
+
+          <template #level_grade-cell="{ row }">
+            <UBadge color="neutral" variant="soft">
+              {{ t('masterData.employee.level', { level: row.original.level_grade }) }}
+            </UBadge>
+          </template>
+
+          <template #is_active-cell="{ row }">
+            <UBadge
+              :color="row.original.is_active ? 'success' : 'error'"
+              variant="subtle"
+            >
+              {{ row.original.is_active ? t('masterData.employee.active') : t('masterData.employee.inactive') }}
+            </UBadge>
+          </template>
+
+          <template #actions-cell="{ row }">
+            <div class="flex gap-1">
+              <UButton
+                icon="i-heroicons-pencil"
+                color="primary"
+                variant="ghost"
+                size="sm"
+                @click="store.handleEdit(row.original)"
+              />
+              <UButton
+                v-if="isAdmin"
+                icon="i-heroicons-key"
+                color="warning"
+                variant="ghost"
+                size="sm"
+                :title="t('masterData.employee.resetPassword')"
+                @click="openResetPassword(row.original)"
+              />
+              <UButton
+                icon="i-heroicons-trash"
+                color="error"
+                variant="ghost"
+                size="sm"
+                @click="store.handleDelete(row.original)"
+              />
+            </div>
+          </template>
+        </TableEntities>
+      </div>
+
+      <!-- Mobile & Tablet View (< md): Stacked Cards List -->
+      <div class="block md:hidden space-y-3">
+        <div
+          v-for="(emp, index) in store.employees"
+          :key="emp.id || index"
+          class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3"
+        >
+          <!-- Card Header: Code Badge + Active & Level Grade Badges -->
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/40 px-2 py-0.5 rounded-md border border-primary-200/50 dark:border-primary-800/40">
+                <UIcon name="i-heroicons-user" class="size-3" />
+                {{ emp.employee_code }}
+              </span>
+              <UBadge
+                :color="emp.is_active ? 'success' : 'error'"
+                variant="subtle"
+                size="xs"
+              >
+                {{ emp.is_active ? t('masterData.employee.active') : t('masterData.employee.inactive') }}
+              </UBadge>
+            </div>
+            <UBadge color="neutral" variant="soft" size="xs">
+              {{ t('masterData.employee.level', { level: emp.level_grade }) }}
+            </UBadge>
+          </div>
+
+          <!-- Card Body: Full Name & Email -->
+          <div>
+            <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-snug">
+              {{ emp.full_name }}
+            </h4>
+            <div v-if="emp.email" class="flex items-center gap-1.5 text-xs text-primary-600 dark:text-primary-400 mt-1">
+              <UIcon name="i-heroicons-envelope" class="size-3.5 shrink-0" />
+              <a :href="`mailto:${emp.email}`" class="truncate hover:underline">
+                {{ emp.email }}
+              </a>
+            </div>
+          </div>
+
+          <!-- Card Footer: Index & Action Buttons -->
+          <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
+            <span class="text-xs text-slate-400 font-mono">
+              #{{ (store.pagination.page - 1) * store.pagination.page_size + index + 1 }}
+            </span>
+            <div class="flex items-center gap-1">
+              <UButton
+                icon="i-heroicons-pencil"
+                color="primary"
+                variant="soft"
+                size="xs"
+                @click="store.handleEdit(emp)"
+              />
+              <UButton
+                v-if="isAdmin"
+                icon="i-heroicons-key"
+                color="warning"
+                variant="soft"
+                size="xs"
+                :title="t('masterData.employee.resetPassword')"
+                @click="openResetPassword(emp)"
+              />
+              <UButton
+                icon="i-heroicons-trash"
+                color="error"
+                variant="soft"
+                size="xs"
+                @click="store.handleDelete(emp)"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Pagination Controls -->
+        <div v-if="store.pagination.total > store.pagination.page_size" class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+          <span class="text-xs text-slate-500 dark:text-slate-400">
+            {{ (store.pagination.page - 1) * store.pagination.page_size + 1 }}-{{ Math.min(store.pagination.page * store.pagination.page_size, store.pagination.total) }} of {{ store.pagination.total }}
+          </span>
+          <UPagination
+            :page="store.pagination.page"
+            :items-per-page="store.pagination.page_size"
+            :total="store.pagination.total"
             size="sm"
-            @click="store.handleEdit(row.original)"
-          />
-          <UButton
-            v-if="isAdmin"
-            icon="i-heroicons-key"
-            color="warning"
-            variant="ghost"
-            size="sm"
-            :title="t('masterData.employee.resetPassword')"
-            @click="openResetPassword(row.original)"
-          />
-          <UButton
-            icon="i-heroicons-trash"
-            color="error"
-            variant="ghost"
-            size="sm"
-            @click="store.handleDelete(row.original)"
+            active-color="primary"
+            color="neutral"
+            variant="outline"
+            class="max-w-full overflow-x-auto"
+            @update:page="(p) => store.fetchEmployees(p)"
           />
         </div>
-      </template>
-    </TableEntities>
+      </div>
+    </div>
 
     <EmployeeResetPasswordModal
       v-if="isAdmin"

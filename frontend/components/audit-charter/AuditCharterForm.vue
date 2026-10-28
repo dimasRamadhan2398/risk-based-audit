@@ -136,7 +136,7 @@
             color="primary"
             variant="solid"
             size="md"
-            class="w-full sm:w-auto font-bold"
+            class="w-full sm:w-auto min-w-[120px] font-bold justify-center text-center"
           >
             {{ store.isEditing ? t('common.save') : t('common.submit') }}
           </UButton>
@@ -145,7 +145,7 @@
             color="neutral"
             variant="outline"
             size="md"
-            class="w-full sm:w-auto font-bold"
+            class="w-full sm:w-auto min-w-[120px] font-bold justify-center text-center"
             @click="store.closeModal"
           >
             {{ t('common.cancel') }}

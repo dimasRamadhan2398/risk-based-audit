@@ -11,7 +11,7 @@
         <span class="text-orange-600">Audit</span>
         <span class="text-indigo-700 dark:text-indigo-400">Sphere</span>
       </div>
-      <span v-if="!hideSubtitle" class="text-[8px] sm:text-[9px] text-gray-500 dark:text-gray-400 uppercase tracking-tight font-semibold whitespace-nowrap leading-tight mt-0.5">{{ t('brand.tagline') }}</span>
+      <span v-if="!hideSubtitle" class="hidden sm:inline-block text-[8px] sm:text-[9px] text-gray-500 dark:text-gray-400 uppercase tracking-tight font-semibold whitespace-nowrap leading-tight mt-0.5">{{ t('brand.tagline') }}</span>
     </div>
   </div>
 </template>

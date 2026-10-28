@@ -35,7 +35,7 @@
         @click="() => { store.showModal = true }"
         color="primary"
         size="lg"
-        class="rounded-xl px-6 py-3 font-semibold transition-all duration-200"
+        class="rounded-xl px-6 py-3 font-semibold transition-all duration-200 justify-center text-center"
         icon="i-lucide-plus"
       />
     </div>
@@ -58,7 +58,7 @@
             @click="() => { store.showModal = true }"
             color="primary"
             icon="i-lucide-plus"
-            class="w-full sm:w-auto"
+            class="w-full sm:w-auto justify-center text-center"
           >
           </UButton>
         </div>
@@ -124,7 +124,7 @@
               size="md"
               color="primary"
               variant="solid"
-              class="w-full sm:w-auto"
+              class="w-full sm:w-auto justify-center text-center"
               :label="t('auditCharter.card.download')"
             />
           </UTooltip>
@@ -135,7 +135,7 @@
               color="primary"
               icon="i-lucide-edit"
               variant="ghost"
-              class="w-full sm:w-auto"
+              class="w-full sm:w-auto justify-center text-center"
               :label="t('auditCharter.card.edit')"
             />
           </UTooltip>
