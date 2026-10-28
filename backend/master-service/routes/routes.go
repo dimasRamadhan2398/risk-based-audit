@@ -39,6 +39,9 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 	// for this service, so without this the employee roster, companies and
 	// departments were reachable anonymously.
 	api.Use(authMiddleware.Authenticate())
+	// VIEWER gets no master data at all (reads, writes, QA/consulting files,
+	// data sources). Mounted on the group so new routes are covered by default.
+	api.Use(middleware.DenyViewer())
 
 	// Organizational structure
 	companies := api.Group("/companies")

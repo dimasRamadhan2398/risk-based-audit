@@ -58,6 +58,9 @@ func (r *RiskRoute) Run() {
 	// this service, so without this the risk register and RCM were readable and
 	// writable by anyone who could reach the gateway.
 	apiV1.Use(r.authMiddleware.Authenticate())
+	// VIEWER is read-only: every POST/PUT/PATCH/DELETE is refused by default.
+	// No risk-service POST is a read, so there is no exemption.
+	apiV1.Use(middleware.DenyViewerWrites())
 	{
 		log.Printf("[RiskRoute] Registered routes under /api/v1/risks:")
 		log.Printf("  GET    /api/v1/risks")

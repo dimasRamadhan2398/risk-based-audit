@@ -184,7 +184,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 	// routes.Run, so they need the middleware applied explicitly - otherwise
 	// the appetite thresholds stay anonymously writable.
 	riskAppetite := r.Group("/api/v1/risk-appetite")
-	riskAppetite.Use(authMiddleware.Authenticate())
+	riskAppetite.Use(authMiddleware.Authenticate(), middleware.DenyViewerWrites())
 
 	riskAppetite.GET("", func(c *gin.Context) {
 		var appetites []models.RiskAppetite
