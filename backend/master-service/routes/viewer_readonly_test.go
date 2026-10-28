@@ -92,6 +92,11 @@ func TestViewerRefusedOnMasterData(t *testing.T) {
 			}
 		}
 		for name, tok := range map[string]string{"ADMIN": admin, "AUDITOR": auditor, "VIEWER+AUDITOR": mixed} {
+			// AUDITOR-only writes on master data are refused by the auditor
+			// guard (see auditor_readonly_test.go), not the viewer guard.
+			if name == "AUDITOR" && tc.method != "GET" && strings.HasPrefix(tc.path, "/api/v1/companies") {
+				continue
+			}
 			if c := doViewerReq(engine, tc.method, tc.path, tok); c == http.StatusForbidden || c == http.StatusUnauthorized {
 				t.Errorf("%s %s %s = %d, want it to pass the viewer guard", name, tc.method, tc.path, c)
 			}
