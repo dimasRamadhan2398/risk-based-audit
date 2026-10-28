@@ -11,6 +11,8 @@ import (
 	"audit-service/models"
 	pkgErrors "audit-service/pkg/errors"
 	"audit-service/pkg/response"
+	"audit-service/pkg/safefile"
+	"audit-service/pkg/upload"
 	svcCharter "audit-service/services/audit_charter"
 	svcMedia "audit-service/services/media"
 
@@ -63,6 +65,10 @@ func (ctrl *AuditCharterController) CreateCharter(c *gin.Context) {
 
 	contentType := c.ContentType()
 	if contentType == "multipart/form-data" {
+		if e := upload.ParseForm(c, upload.DefaultMaxBytes); e != nil {
+			upload.Respond(c, e)
+			return
+		}
 		title := c.PostForm("title")
 		version := c.PostForm("version")
 		approvedBy := c.PostForm("approvedBy")
@@ -93,17 +99,17 @@ func (ctrl *AuditCharterController) CreateCharter(c *gin.Context) {
 			response.BadRequest(c, "Charter document file is required")
 			return
 		}
-		if header.Size > 10*1024*1024 {
-			response.BadRequest(c, "File size exceeds maximum limit of 10MB")
+		if header.Size > upload.DefaultMaxBytes {
+			upload.Respond(c, upload.ErrTooLarge(upload.DefaultMaxBytes))
 			return
 		}
 		defer file.Close()
 		attachment, errUpload := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, "Auditsphere/charter")
 		if errUpload != nil {
-			response.Error(c, 500, "UPLOAD_ERROR", "Failed to upload file to GDrive", errUpload.Error())
+			respondUploadError(c, errUpload)
 			return
 		}
-		req.Filename = header.Filename
+		req.Filename = upload.DisplayName(header.Filename)
 		req.FileUrl = attachment.FilePath
 		req.FileSize = attachment.FileSize
 
@@ -152,6 +158,10 @@ func (ctrl *AuditCharterController) UpdateCharter(c *gin.Context) {
 	var req models.UpdateAuditCharterRequest
 	contentType := c.ContentType()
 	if contentType == "multipart/form-data" {
+		if e := upload.ParseForm(c, upload.DefaultMaxBytes); e != nil {
+			upload.Respond(c, e)
+			return
+		}
 		title := c.PostForm("title")
 		approvedBy := c.PostForm("approvedBy")
 		if approvedBy == "" {
@@ -182,17 +192,17 @@ func (ctrl *AuditCharterController) UpdateCharter(c *gin.Context) {
 		// Process optional file upload
 		file, header, err := c.Request.FormFile("file")
 		if err == nil { // file is present
-			if header.Size > 10*1024*1024 {
-				response.BadRequest(c, "File size exceeds maximum limit of 10MB")
+			if header.Size > upload.DefaultMaxBytes {
+				upload.Respond(c, upload.ErrTooLarge(upload.DefaultMaxBytes))
 				return
 			}
 			defer file.Close()
 			attachment, err := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, "Auditsphere/charter")
 			if err != nil {
-				response.Error(c, 500, "UPLOAD_ERROR", "Failed to upload file to GDrive", err.Error())
+				respondUploadError(c, err)
 				return
 			}
-			filename := header.Filename
+			filename := upload.DisplayName(header.Filename)
 			req.Filename = &filename
 			req.FileUrl = &attachment.FilePath
 			req.FileSize = &attachment.FileSize
@@ -423,13 +433,7 @@ func (ctrl *AuditCharterController) DownloadCharter(c *gin.Context) {
 			relativePath = decodedPath
 		}
 
-		filePath := filepath.Join("uploads", relativePath)
-		if _, err := os.Stat(filePath); err == nil {
-			downloadName := result.Filename
-			if downloadName == "" {
-				downloadName = filepath.Base(filePath)
-			}
-			c.FileAttachment(filePath, downloadName)
+		if serveCharterFile(c, relativePath, result.Filename) {
 			return
 		}
 	} else if strings.Contains(fileUrl, "/media/download/") {
@@ -443,13 +447,7 @@ func (ctrl *AuditCharterController) DownloadCharter(c *gin.Context) {
 			safeFileName = decodedPath
 		}
 		
-		filePath := filepath.Join("uploads", safeFileName)
-		if _, err := os.Stat(filePath); err == nil {
-			downloadName := result.Filename
-			if downloadName == "" {
-				downloadName = filepath.Base(filePath)
-			}
-			c.FileAttachment(filePath, downloadName)
+		if serveCharterFile(c, safeFileName, result.Filename) {
 			return
 		}
 	}
@@ -460,6 +458,36 @@ func (ctrl *AuditCharterController) DownloadCharter(c *gin.Context) {
 	}
 
 	c.Redirect(http.StatusTemporaryRedirect, result.FileUrl)
+}
+
+// serveCharterFile sends uploads/<rel> as an attachment. rel comes from the
+// stored FileUrl, which a JSON create/update can set, so it is resolved inside
+// the uploads root (".." cannot climb out, private directories are refused).
+// It returns false when there is no such file, so the caller can fall through.
+func serveCharterFile(c *gin.Context, rel, displayName string) bool {
+	if safefile.IsPrivatePath(rel) {
+		return false
+	}
+	full, err := safefile.ResolveUnder(upload.UploadsRoot, rel)
+	if err != nil {
+		return false
+	}
+	if info, err := os.Stat(full); err != nil || !info.Mode().IsRegular() {
+		return false
+	}
+	if displayName == "" {
+		displayName = filepath.Base(full)
+	}
+	return safefile.ServeFile(c, full, upload.DisplayName(displayName), true) == nil
+}
+
+// respondUploadError maps an upload rejection to its status; anything else is a 500.
+func respondUploadError(c *gin.Context, err error) {
+	if ue, ok := upload.AsError(err); ok {
+		upload.Respond(c, ue)
+		return
+	}
+	response.Error(c, http.StatusInternalServerError, "UPLOAD_ERROR", "Failed to upload file", "")
 }
 
 // getContentType returns the MIME type based on file extension

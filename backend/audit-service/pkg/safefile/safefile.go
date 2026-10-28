@@ -150,6 +150,12 @@ func ServeFile(c *gin.Context, fullPath, displayName string, forceAttachment boo
 	return nil
 }
 
+// DispositionHeader builds a Content-Disposition value ("inline" or
+// "attachment") with an ASCII fallback filename plus an RFC 5987 UTF-8 form.
+func DispositionHeader(disposition, name string) string {
+	return dispositionHeader(disposition, name)
+}
+
 // dispositionHeader builds an ASCII fallback filename plus an RFC 5987 UTF-8 form.
 func dispositionHeader(disposition, name string) string {
 	var b strings.Builder
