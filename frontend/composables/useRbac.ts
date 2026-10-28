@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 import { UserRole } from '~/types/auth'
-import { isViewerOnly } from '~/utils/viewerPolicy'
+import { isViewerOnly, MASTER_DATA_WRITE_ROLES, QA_CONSULTING_WRITE_ROLES, AUDIT_UNIVERSE_WRITE_ROLES, AUDIT_UNIVERSE_OWN_DEPT_ROLES, isOwnDepartment } from '~/utils/viewerPolicy'
 
 // Module-level singleton to share active preview role across all components and pages
 const activeRoleView = ref<string | null>(null)
@@ -202,6 +202,20 @@ export const useRbac = () => {
   const canAccessFiles = computed(() => !isViewer.value)
   /** Export buttons (Excel, CSV, PDF, JSON, report download). */
   const canExport = computed(() => !isViewer.value)
+  /** Master data create / edit / delete / import (ADMIN only). */
+  const canWriteMasterData = computed(() => hasAnyRole(MASTER_DATA_WRITE_ROLES))
+  /** QA reports and consulting services add / edit / delete / import / upload. */
+  const canWriteQaConsulting = computed(() => hasAnyRole(QA_CONSULTING_WRITE_ROLES))
+  /** Audit universe establish / sync / add / rename / remove. */
+  const canWriteAuditUniverse = computed(() => hasAnyRole(AUDIT_UNIVERSE_WRITE_ROLES))
+  /**
+   * Scoped audit universe / library edit: full writers always pass; DEPARTMENT_HEAD passes only for a row of
+   * its own department (row.department_id, row.departmentId or row.department; or an id/name string).
+   */
+  const canWriteAuditUniverseFor = (target: Parameters<typeof isOwnDepartment>[1]): boolean => {
+    if (canWriteAuditUniverse.value) return true
+    return hasAnyRole(AUDIT_UNIVERSE_OWN_DEPT_ROLES) && isOwnDepartment(getCurrentUser(), target)
+  }
   /** Master data menu items and pages. */
   const canAccessMasterData = computed(() => !isViewer.value)
 
@@ -232,7 +246,7 @@ export const useRbac = () => {
   const canManageSop = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE]))
   const canEditRiskAppetite = computed(() => isAdmin.value)
   const canEditRiskFactors = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE]))
-  const canEditAuditUniverse = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE]))
+  const canEditAuditUniverse = canWriteAuditUniverse
   const canManageStrategicPlan = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE]))
   const canManageAnnualPlan = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE]))
   const canManageAssignmentLetter = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE]))
@@ -346,6 +360,10 @@ export const useRbac = () => {
     canAccessFiles,
     canExport,
     canAccessMasterData,
+    canWriteMasterData,
+    canWriteQaConsulting,
+    canWriteAuditUniverse,
+    canWriteAuditUniverseFor,
     isAuditor,
     isPureAuditor,
     isAuditorView,

@@ -11,7 +11,7 @@
         </p>
       </div>
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
-        <UButton v-if="canWrite"
+        <UButton v-if="canWriteQaConsulting"
           color="neutral"
           variant="outline"
           :label="t('consultingService.dashboard.importDocument')"
@@ -19,7 +19,7 @@
           class="px-5 py-2.5 font-bold rounded-lg shadow w-full sm:w-auto"
           to="/consulting-service/upload"
         />
-        <UButton v-if="canWrite"
+        <UButton v-if="canWriteQaConsulting"
           color="primary"
           :label="t('consultingService.dashboard.newAssignment')"
           icon="i-lucide-plus"
@@ -161,7 +161,7 @@
               />
             </UTooltip>
 
-            <UTooltip v-if="canWrite" :text="t('consultingService.dashboard.actions.edit')">
+            <UTooltip v-if="canWriteQaConsulting" :text="t('consultingService.dashboard.actions.edit')">
               <UButton
                 icon="i-lucide-edit"
                 color="warning"
@@ -171,7 +171,7 @@
             />
             </UTooltip>
 
-            <UTooltip v-if="canWrite" :text="t('consultingService.dashboard.actions.delete')">
+            <UTooltip v-if="canWriteQaConsulting" :text="t('consultingService.dashboard.actions.delete')">
               <UButton
                 icon="i-lucide-trash-2"
                 color="error"
@@ -401,7 +401,7 @@ import { useConsultingServiceStore } from '~/stores/consulting-service'
 
 const store = useConsultingServiceStore()
 const { t } = useI18n()
-const { canWrite, canAccessFiles } = useRbac()
+const { canWriteQaConsulting, canAccessFiles } = useRbac()
 store.fetchServices()
 
 const columns = computed(() => [

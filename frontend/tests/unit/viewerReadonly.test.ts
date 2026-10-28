@@ -145,7 +145,7 @@ describe('static RBAC grid, VIEWER column', () => {
     expect(find('Dashboard').viewer).toBe('READ')
     expect(find('Annual Audit Plan', 'Create / Manage Plan').viewer).toBe('READ')
     expect(find('Annual Audit Plan', 'Import Plan Document').viewer).toBe('NONE')
-    expect(find('Master Data', 'Company, Department, Location').viewer).toBe('NONE')
+    expect(find('Master Data', 'Company, Business Unit, Department, Location, Job Role, Vision-Mission-Goals').viewer).toBe('NONE')
     expect(find('Master Data', 'Employee Management').viewer).toBe('NONE')
     expect(find('Settings & User Management').viewer).toBe('NONE')
     expect(find('Account Settings').viewer).toBe('READ')

@@ -64,7 +64,7 @@
               @click="store.openDetail(row.original)"
             />
             </UTooltip>
-            <UTooltip v-if="canWrite" :text="t('qualityAssurance.dashboard.table.editReport')">
+            <UTooltip v-if="canWriteQaConsulting" :text="t('qualityAssurance.dashboard.table.editReport')">
             <UButton
               icon="i-lucide-edit"
               color="warning"
@@ -73,7 +73,7 @@
               @click="store.editReport(row.original)"
             />
             </UTooltip>
-            <UTooltip v-if="canWrite" :text="t('qualityAssurance.dashboard.table.deleteReport')">
+            <UTooltip v-if="canWriteQaConsulting" :text="t('qualityAssurance.dashboard.table.deleteReport')">
             <UButton
               icon="i-lucide-trash-2"
               color="error"
@@ -94,7 +94,7 @@ import { useQualityAssuranceStore, QAStatus, QAType } from '~/stores/quality-ass
 
 const store = useQualityAssuranceStore()
 const { t } = useI18n()
-const { canWrite, canAccessFiles } = useRbac()
+const { canWriteQaConsulting, canAccessFiles } = useRbac()
 
 const formatStatus = (status: string) => {
   if (status === QAStatus.COMPLETED) return t('qualityAssurance.statuses.completed')

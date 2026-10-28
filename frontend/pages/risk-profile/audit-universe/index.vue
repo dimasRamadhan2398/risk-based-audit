@@ -147,7 +147,7 @@
                 >
                   <div class="flex items-center justify-between">
                     <span class="font-bold text-md text-slate-800 dark:text-slate-200">{{ node.name }}</span>
-                    <div v-if="canEditAuditUniverse" class="flex items-center gap-1">
+                    <div v-if="canEditNode(node)" class="flex items-center gap-1">
                       <UTooltip :text="t('auditUniverse.library.addSubEntity')">
                         <UButton
                           icon="i-lucide-plus"
@@ -186,7 +186,7 @@
                       class="flex items-center justify-between p-1 hover:bg-slate-50 dark:hover:bg-slate-800/30 rounded"
                     >
                       <span class="text-md text-slate-600 dark:text-slate-400">{{ sub.name }}</span>
-                      <div class="flex items-center gap-1">
+                      <div v-if="canEditNode(sub)" class="flex items-center gap-1">
                         <UTooltip :text="t('auditUniverse.library.renameSubEntity')">
                           <UButton
                             icon="i-lucide-edit"
@@ -368,7 +368,7 @@
                       @update:model-value="fetchYearlyUniverse"
                     />
                   </div>
-                  <UButton v-if="canWrite"
+                  <UButton v-if="canWriteAuditUniverse"
                     size="sm"
                     color="primary"
                     variant="solid"
@@ -435,7 +435,11 @@ const riskFactorsStore = useRiskFactorsStore()
 const route = useRoute()
 const toast = useToastNotification()
 const { t } = useI18n()
-const { canEditAuditUniverse, canWrite } = useRbac()
+const { canEditAuditUniverse, canWriteAuditUniverse, canWriteAuditUniverseFor } = useRbac()
+
+// DEPARTMENT_HEAD may edit only rows of its own department. Audit universe rows currently carry no department
+// field, so for that role this stays false until the backend sends one (department_id / department).
+const canEditNode = (node: any) => canWriteAuditUniverseFor(node)
 
 const syncingMaster = ref(false)
 const masterCompanies = ref<string[]>([])

@@ -5,7 +5,7 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 import { useAuthStore } from '~/stores/auth'
 import { useI18n } from '~/composables/useI18n'
 import { triggerScrollReset } from '~/utils/scroll'
-import { isViewerBlockedPath } from '~/utils/viewerPolicy'
+import { isViewerBlockedPath, isQaConsultingWritePath } from '~/utils/viewerPolicy'
 import SourceSelectorDropdown from '~/components/common/SourceSelectorDropdown.vue'
 
 const route = useRoute()
@@ -512,7 +512,7 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
 ]])
 
 const searchQuery = ref('')
-const { isAdmin, canManageAudits, isAuditorView, isViewer } = useRbac()
+const { isAdmin, canManageAudits, isAuditorView, isViewer, canWriteQaConsulting } = useRbac()
 
 // Pre-collected set of all explicit menu paths to avoid prefix matching when navigating to a registered menu route
 // A nav item's `to` may be a path string or a route-location object; both must
@@ -601,6 +601,7 @@ const checkItemActive = (item: NavigationMenuItem): boolean => {
 const processMenuItem = (item: NavigationMenuItem, q: string): NavigationMenuItem | null => {
   // VIEWER read-only policy: no master data, no import/upload screens
   if (isViewer.value && typeof item.to === 'string' && isViewerBlockedPath(item.to)) return null
+  if (!canWriteQaConsulting.value && typeof item.to === 'string' && isQaConsultingWritePath(item.to)) return null
   if (isViewer.value && item.type === 'trigger' && item.label === t('navigation.masterData')) return null
 
   // Master data permission check

@@ -10,7 +10,7 @@ import { useQualityAssuranceStore } from '~/stores/quality-assurance'
 
 const store = useQualityAssuranceStore()
 const { t } = useI18n()
-const { canWrite } = useRbac()
+const { canWriteQaConsulting } = useRbac()
 
 </script>
 
@@ -27,7 +27,7 @@ const { canWrite } = useRbac()
         </p>
       </div>
       <div class="flex items-center gap-3 w-full sm:w-auto">
-        <UButton v-if="canWrite"
+        <UButton v-if="canWriteQaConsulting"
           color="primary"
           :label="t('qualityAssurance.dashboard.addReport')"
           icon="i-lucide-plus"

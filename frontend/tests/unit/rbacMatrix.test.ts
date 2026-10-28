@@ -76,8 +76,8 @@ describe('RBAC Permission Matrix & Onboarding Alignment', () => {
 
     const consultingPerm = perms.find(p => p.module === 'Consulting Service')
     expect(consultingPerm).toBeDefined()
-    expect(consultingPerm?.accessLevel).toBe('REQUEST')
-    expect(consultingPerm?.badgeClass).toContain('bg-amber-500')
+    expect(consultingPerm?.accessLevel).toBe('READ')
+    expect(consultingPerm?.badgeClass).toContain('bg-sky-600')
 
     // Features with NONE must NOT be in the permissions list
     expect(perms.some(p => p.module === 'Settings & User Management')).toBe(false)
