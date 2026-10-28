@@ -98,9 +98,14 @@ func (r *RiskRoute) Run() {
 		universe := apiV1.Group("/audit-universe", middleware.RequireAnyRoleOnWrites(auditUniverseWriters...))
 		universe.GET("/standard", r.auditUniverseCtrl.ListStandardAuditUniverse)
 		universe.GET("/corporate", r.auditUniverseCtrl.ListCorporateAuditUniverse)
-		universe.POST("/corporate", r.auditUniverseCtrl.CreateOrUpdateCorporateNode)
 		universe.POST("/corporate/sync-master", r.auditUniverseCtrl.SyncMasterData)
-		universe.DELETE("/corporate/:id", r.auditUniverseCtrl.DeleteCorporateNode)
+		// Corporate entries are the only audit-universe routes DEPARTMENT_HEAD
+		// reaches; the controller scopes it to its own department. A sibling group
+		// with the same prefix keeps every other (and future) universe route on the
+		// full-writer list by default.
+		corporate := apiV1.Group("/audit-universe/corporate", middleware.RequireAnyRoleOnWrites(corporateWriters...))
+		corporate.POST("", r.auditUniverseCtrl.CreateOrUpdateCorporateNode)
+		corporate.DELETE("/:id", r.auditUniverseCtrl.DeleteCorporateNode)
 
 		universe.GET("/year/:year", r.auditUniverseCtrl.ListYearlyAuditUniverse)
 		universe.POST("/year/:year", r.auditUniverseCtrl.EstablishYearlyUniverse)

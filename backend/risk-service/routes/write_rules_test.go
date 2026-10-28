@@ -38,9 +38,6 @@ func TestUniverseWriteAllowList(t *testing.T) {
 	refused := map[string][]string{
 		"AUDITOR": {"AUDITOR"}, "AUDITEE": {"AUDITEE"}, "VIEWER": {"VIEWER"},
 		"AUDITOR+VIEWER": {"AUDITOR", "VIEWER"},
-		// Fail closed until department scoping exists (see write_roles.go).
-		"DEPARTMENT_HEAD":        {"DEPARTMENT_HEAD"},
-		"DEPARTMENT_HEAD+VIEWER": {"DEPARTMENT_HEAD", "VIEWER"},
 		"AUDIT_MANAGER":          {"AUDIT_MANAGER"},
 		"no roles":               {},
 	}
@@ -55,7 +52,24 @@ func TestUniverseWriteAllowList(t *testing.T) {
 				t.Errorf("%s %s %s = %d, want 403", name, tc[0], tc[1], c)
 			}
 		}
+		for name, roles := range map[string][]string{"DEPARTMENT_HEAD": {"DEPARTMENT_HEAD"}, "DEPARTMENT_HEAD+VIEWER": {"DEPARTMENT_HEAD", "VIEWER"}} {
+			c := doViewerReq(engine, tc[0], tc[1], viewerTestToken(t, roles...))
+			if deptHeadRoutes[tc[0]+" "+tc[1]] && guarded(c) {
+				t.Errorf("%s %s %s = %d, want it to reach the controller", name, tc[0], tc[1], c)
+			}
+			if !deptHeadRoutes[tc[0]+" "+tc[1]] && c != http.StatusForbidden {
+				t.Errorf("%s %s %s = %d, want 403", name, tc[0], tc[1], c)
+			}
+		}
 	}
+}
+
+// The only write routes DEPARTMENT_HEAD reaches (department scoping happens in
+// the controller). sync-master, year establish/score, events/resync and the
+// standard risk factor library stay closed to it.
+var deptHeadRoutes = map[string]bool{
+	"POST /api/v1/audit-universe/corporate":     true,
+	"DELETE /api/v1/audit-universe/corporate/x": true,
 }
 
 func TestUniverseReadsUnchanged(t *testing.T) {
@@ -70,13 +84,14 @@ func TestUniverseReadsUnchanged(t *testing.T) {
 }
 
 // Every non-GET route under audit-universe and risk-factors/standard must
-// refuse AUDITOR, AUDITEE and DEPARTMENT_HEAD, including routes added later.
+// refuse AUDITOR, AUDITEE and DEPARTMENT_HEAD (except deptHeadRoutes), including routes added later.
 func TestEveryUniverseWriteRouteRefusesNonWriters(t *testing.T) {
 	engine := viewerTestEngine(t)
 	toks := map[string]string{
 		"AUDITOR": viewerTestToken(t, "AUDITOR"), "AUDITEE": viewerTestToken(t, "AUDITEE"),
 		"DEPARTMENT_HEAD": viewerTestToken(t, "DEPARTMENT_HEAD"),
 	}
+	deptHead := toks["DEPARTMENT_HEAD"]
 	seen := 0
 	for _, r := range engine.Routes() {
 		if r.Method == http.MethodGet || r.Method == http.MethodHead || r.Method == http.MethodOptions {
@@ -93,6 +108,9 @@ func TestEveryUniverseWriteRouteRefusesNonWriters(t *testing.T) {
 			}
 		}
 		for name, tok := range toks {
+			if tok == deptHead && deptHeadRoutes[r.Method+" "+path] {
+				continue
+			}
 			if c := doViewerReq(engine, r.Method, path, tok); c != http.StatusForbidden {
 				t.Errorf("%s %s %s = %d, want 403", name, r.Method, r.Path, c)
 			}

@@ -150,6 +150,13 @@ func runServe(cmd *cobra.Command, args []string) error {
 		time.Duration(cfg.MasterService.CacheTTLSeconds)*time.Second,
 	)
 	log.Printf("Location master: %s/api/v1/locations", locationClient.BaseURL())
+	// Caller department (for department-scoped audit universe edits) and
+	// department names, from the same master-service, cached 60s.
+	deptClient := masterclient.NewDepartmentClient(
+		cfg.MasterService.BaseURL(),
+		time.Duration(cfg.MasterService.TimeoutSeconds)*time.Second,
+		time.Duration(cfg.MasterService.CacheTTLSeconds)*time.Second,
+	)
 
 	riskServ := services.NewRiskService(riskRepo, locationClient)
 	mitigationServ := services.NewMitigationService(mitigationRepo)
@@ -169,7 +176,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 		universeEvents = kafka.NewPublisher(db, cfg.Kafka.ServiceName)
 		go kafka.NewRelay(db, cfg.Kafka.Brokers, kafka.TopicAuditUniverse).Run(context.Background())
 	}
-	auditUniverseCtrl := controllers.NewAuditUniverseController(db, universeEvents)
+	auditUniverseCtrl := controllers.NewAuditUniverseController(db, universeEvents, deptClient)
 	// Weight changes re-score year rows, so this controller publishes too.
 	riskFactorCtrl := controllers.NewRiskFactorController(db, universeEvents)
 	rcmCtrl := controllers.NewRCMController(db)

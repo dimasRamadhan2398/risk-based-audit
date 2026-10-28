@@ -18,6 +18,11 @@ const (
 	RoleDepartmentHead      = "DEPARTMENT_HEAD"
 )
 
+// UniverseFullWriters may write the whole audit universe and the standard
+// libraries without department scoping. Controllers use it to tell a full
+// writer from a department-scoped caller.
+var UniverseFullWriters = []string{RoleAdmin, RoleExecutive, RoleChiefAuditExecutive}
+
 // HasAnyRole reports whether any role on the token equals one of allowed
 // (case-insensitive). A caller's rights are the union of their roles' rights,
 // and VIEWER is never in an allow-list, so it contributes nothing:
