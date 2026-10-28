@@ -111,6 +111,11 @@ func TestViewerRiskRoutes(t *testing.T) {
 			}
 		}
 		for name, tok := range map[string]string{"ADMIN": admin, "AUDITOR": auditor} {
+			// Audit-universe writes are refused for AUDITOR by the write
+			// allow-list (see write_rules_test.go), not the viewer guard.
+			if name == "AUDITOR" && strings.HasPrefix(tc.path, "/api/v1/audit-universe/") {
+				continue
+			}
 			if c := doViewerReq(engine, tc.method, tc.path, tok); c == http.StatusForbidden || c == http.StatusUnauthorized {
 				t.Errorf("%s %s %s = %d, want it to pass the viewer guard", name, tc.method, tc.path, c)
 			}

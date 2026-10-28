@@ -43,13 +43,12 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 	// data sources). Mounted on the group so new routes are covered by default.
 	api.Use(middleware.DenyViewer())
 
-	// AUDITOR reads master data but cannot create, update or delete it. The
-	// guard is mounted per master-data group below; QA reports, consulting
-	// services and data sources are business features and are not covered.
+	// Write allow-lists per group are in write_roles.go and apply to non-GET
+	// methods only. Data sources are intentionally not guarded yet.
 
 	// Organizational structure
 	companies := api.Group("/companies")
-	companies.Use(middleware.DenyAuditorWrites())
+	companies.Use(middleware.RequireAnyRoleOnWrites(masterDataWriters...))
 	{
 		companies.GET("", controller.GetCompany().FindAll)
 		companies.GET("/:id", controller.GetCompany().FindById)
@@ -59,7 +58,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 	}
 
 	businessUnits := api.Group("/business-units")
-	businessUnits.Use(middleware.DenyAuditorWrites())
+	businessUnits.Use(middleware.RequireAnyRoleOnWrites(masterDataWriters...))
 	{
 		businessUnits.GET("", controller.GetBusinessUnit().FindAll)
 		businessUnits.GET("/:id", controller.GetBusinessUnit().FindById)
@@ -69,7 +68,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 	}
 
 	departments := api.Group("/departments")
-	departments.Use(middleware.DenyAuditorWrites())
+	departments.Use(middleware.RequireAnyRoleOnWrites(masterDataWriters...))
 	{
 		departments.GET("", controller.GetDepartment().List)
 		departments.GET("/:id", controller.GetDepartment().FindById)
@@ -82,7 +81,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 	}
 
 	employees := api.Group("/employees")
-	employees.Use(middleware.DenyAuditorWrites())
+	employees.Use(middleware.RequireAnyRoleOnWrites(masterDataWriters...))
 	{
 		employees.GET("", controller.GetEmployee().FindAll)
 		employees.GET("/next-code", controller.GetEmployee().NextCode)
@@ -94,7 +93,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 	}
 
 	jobRoles := api.Group("/job-roles")
-	jobRoles.Use(middleware.DenyAuditorWrites())
+	jobRoles.Use(middleware.RequireAnyRoleOnWrites(masterDataWriters...))
 	{
 		jobRoles.GET("", controller.GetJobRole().FindAll)
 		jobRoles.GET("/:id", controller.GetJobRole().FindById)
@@ -104,7 +103,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 	}
 
 	locations := api.Group("/locations")
-	locations.Use(middleware.DenyAuditorWrites())
+	locations.Use(middleware.RequireAnyRoleOnWrites(masterDataWriters...))
 	{
 		locations.GET("", controller.GetLocation().FindAll)
 		locations.GET("/:id", controller.GetLocation().FindById)
@@ -114,6 +113,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 	}
 
 	qa := api.Group("/quality-assurance")
+	qa.Use(middleware.RequireAnyRoleOnWrites(auditReportWriters...))
 	{
 		qa.GET("", func(c *gin.Context) {
 			var reports []models.QAReport
@@ -413,6 +413,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 	}
 
 	consulting := api.Group("/consulting-services")
+	consulting.Use(middleware.RequireAnyRoleOnWrites(auditReportWriters...))
 	{
 		consulting.GET("", func(c *gin.Context) {
 			var services []models.ConsultingService
@@ -624,7 +625,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 
 	// Vision, Mission & Goals routes
 	vmgs := api.Group("/vision-mission-goals")
-	vmgs.Use(middleware.DenyAuditorWrites())
+	vmgs.Use(middleware.RequireAnyRoleOnWrites(masterDataWriters...))
 	{
 		vmgs.GET("", controller.GetVisionMissionGoals().List)
 		vmgs.GET("/:id", controller.GetVisionMissionGoals().FindById)

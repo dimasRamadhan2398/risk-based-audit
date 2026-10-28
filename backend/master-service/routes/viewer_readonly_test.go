@@ -92,9 +92,10 @@ func TestViewerRefusedOnMasterData(t *testing.T) {
 			}
 		}
 		for name, tok := range map[string]string{"ADMIN": admin, "AUDITOR": auditor, "VIEWER+AUDITOR": mixed} {
-			// AUDITOR-only writes on master data are refused by the auditor
-			// guard (see auditor_readonly_test.go), not the viewer guard.
-			if name == "AUDITOR" && tc.method != "GET" && strings.HasPrefix(tc.path, "/api/v1/companies") {
+			// Master-data and QA/consulting writes are refused for AUDITOR by
+			// the write allow-lists (see write_rules_test.go), not the viewer
+			// guard. Only data-sources writes are still open to AUDITOR.
+			if name != "ADMIN" && tc.method != "GET" && !strings.HasPrefix(tc.path, "/api/v1/data-sources") {
 				continue
 			}
 			if c := doViewerReq(engine, tc.method, tc.path, tok); c == http.StatusForbidden || c == http.StatusUnauthorized {

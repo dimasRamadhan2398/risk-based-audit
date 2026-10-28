@@ -85,26 +85,29 @@ func (r *RiskRoute) Run() {
 		apiV1.DELETE("/mitigations/:id", r.mitigationCtrl.DeleteMitigation)
 
 		// New routes for Risk Factors
-		apiV1.GET("/risk-factors/standard", r.riskFactorCtrl.ListStandardRiskFactors)
-		apiV1.POST("/risk-factors/standard", r.riskFactorCtrl.CreateStandardRiskFactor)
-		apiV1.PUT("/risk-factors/standard/:id", r.riskFactorCtrl.UpdateStandardRiskFactor)
-		apiV1.DELETE("/risk-factors/standard/:id", r.riskFactorCtrl.DeleteStandardRiskFactor)
+		// Standard risk factor library: writes limited to auditUniverseWriters.
+		stdFactors := apiV1.Group("/risk-factors/standard", middleware.RequireAnyRoleOnWrites(auditUniverseWriters...))
+		stdFactors.GET("", r.riskFactorCtrl.ListStandardRiskFactors)
+		stdFactors.POST("", r.riskFactorCtrl.CreateStandardRiskFactor)
+		stdFactors.PUT("/:id", r.riskFactorCtrl.UpdateStandardRiskFactor)
+		stdFactors.DELETE("/:id", r.riskFactorCtrl.DeleteStandardRiskFactor)
 		apiV1.GET("/risk-factors/corporate", r.riskFactorCtrl.ListCorporateRiskFactors)
 		apiV1.POST("/risk-factors/corporate", r.riskFactorCtrl.UpdateCorporateRiskFactors)
 
-		// New routes for Audit Universe
-		apiV1.GET("/audit-universe/standard", r.auditUniverseCtrl.ListStandardAuditUniverse)
-		apiV1.GET("/audit-universe/corporate", r.auditUniverseCtrl.ListCorporateAuditUniverse)
-		apiV1.POST("/audit-universe/corporate", r.auditUniverseCtrl.CreateOrUpdateCorporateNode)
-		apiV1.POST("/audit-universe/corporate/sync-master", r.auditUniverseCtrl.SyncMasterData)
-		apiV1.DELETE("/audit-universe/corporate/:id", r.auditUniverseCtrl.DeleteCorporateNode)
+		// Audit Universe: writes limited to auditUniverseWriters (non-GET only).
+		universe := apiV1.Group("/audit-universe", middleware.RequireAnyRoleOnWrites(auditUniverseWriters...))
+		universe.GET("/standard", r.auditUniverseCtrl.ListStandardAuditUniverse)
+		universe.GET("/corporate", r.auditUniverseCtrl.ListCorporateAuditUniverse)
+		universe.POST("/corporate", r.auditUniverseCtrl.CreateOrUpdateCorporateNode)
+		universe.POST("/corporate/sync-master", r.auditUniverseCtrl.SyncMasterData)
+		universe.DELETE("/corporate/:id", r.auditUniverseCtrl.DeleteCorporateNode)
 
-		apiV1.GET("/audit-universe/year/:year", r.auditUniverseCtrl.ListYearlyAuditUniverse)
-		apiV1.POST("/audit-universe/year/:year", r.auditUniverseCtrl.EstablishYearlyUniverse)
-		apiV1.POST("/audit-universe/year/:year/score", r.auditUniverseCtrl.ScoreYearlyEntity)
+		universe.GET("/year/:year", r.auditUniverseCtrl.ListYearlyAuditUniverse)
+		universe.POST("/year/:year", r.auditUniverseCtrl.EstablishYearlyUniverse)
+		universe.POST("/year/:year/score", r.auditUniverseCtrl.ScoreYearlyEntity)
 
 		// Re-emits the full universe state to Kafka (see pkg/kafka/events.go).
-		apiV1.POST("/audit-universe/events/resync", r.auditUniverseCtrl.ResyncEvents)
+		universe.POST("/events/resync", r.auditUniverseCtrl.ResyncEvents)
 
 		// Routes for Risk Control Matrix (RCM)
 		apiV1.GET("/rcm", r.rcmCtrl.ListRCM)
