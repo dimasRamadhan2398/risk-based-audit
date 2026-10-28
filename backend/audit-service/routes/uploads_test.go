@@ -21,7 +21,7 @@ var uploadsTestSecret = "uploads-test-" + strings.Repeat("u", 64)
 func uploadsTestToken(t *testing.T) string {
 	t.Helper()
 	claims := &middleware.Claims{
-		UserID: "user-1", Username: "tester", Roles: []string{"VIEWER"},
+		UserID: "user-1", Username: "tester", Roles: []string{"AUDITOR"}, // VIEWER is refused on /uploads, see viewer_readonly_test.go
 		RegisteredClaims: jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour))},
 	}
 	tok, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(uploadsTestSecret))
