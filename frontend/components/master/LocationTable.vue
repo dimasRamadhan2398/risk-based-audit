@@ -130,7 +130,7 @@
             <UBadge
               :color="loc.is_active ? 'success' : 'error'"
               variant="subtle"
-              size="xs"
+              size="sm"
             >
               {{ loc.is_active ? t('masterData.location.active') : t('masterData.location.inactive') }}
             </UBadge>
@@ -158,16 +158,16 @@
             <div class="flex items-center gap-1">
               <UButton
                 icon="i-heroicons-pencil"
-                color="primary"
-                variant="soft"
-                size="xs"
+                color="warning"
+                variant="ghost"
+                size="md"
                 @click="store.handleEdit(loc)"
               />
               <UButton
                 icon="i-heroicons-trash"
                 color="error"
-                variant="soft"
-                size="xs"
+                variant="ghost"
+                size="md"
                 @click="handleDelete(loc)"
               />
             </div>

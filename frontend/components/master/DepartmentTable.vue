@@ -112,14 +112,14 @@
                 icon="i-heroicons-pencil"
                 color="primary"
                 variant="ghost"
-                size="sm"
+                size="md"
                 @click="store.handleEdit(row.original)"
               />
               <UButton
                 icon="i-heroicons-trash"
                 color="error"
                 variant="ghost"
-                size="sm"
+                size="md"
                 @click="store.handleDelete(row.original)"
               />
             </div>
@@ -144,12 +144,12 @@
               <UBadge
                 :color="dept.is_active ? 'success' : 'error'"
                 variant="subtle"
-                size="xs"
+                size="sm"
               >
                 {{ dept.is_active ? t('masterData.department.active') : t('masterData.department.inactive') }}
               </UBadge>
             </div>
-            <UBadge color="neutral" variant="soft" size="xs">
+            <UBadge color="neutral" variant="soft" size="sm">
               {{ t('masterData.department.level', { level: dept.level }) }}
             </UBadge>
           </div>
@@ -177,15 +177,15 @@
               <UButton
                 icon="i-heroicons-pencil"
                 color="primary"
-                variant="soft"
-                size="xs"
+                variant="ghost"
+                size="md"
                 @click="store.handleEdit(dept)"
               />
               <UButton
                 icon="i-heroicons-trash"
                 color="error"
-                variant="soft"
-                size="xs"
+                variant="ghost"
+                size="md"
                 @click="store.handleDelete(dept)"
               />
             </div>

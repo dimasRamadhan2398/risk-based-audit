@@ -232,7 +232,7 @@
             <UButton
               :label="t('masterData.employee.form.cancel')"
               color="neutral"
-              variant="soft"
+              variant="ghost"
               class="w-full sm:w-auto justify-center text-center"
               @click="store.closeModal"
             />

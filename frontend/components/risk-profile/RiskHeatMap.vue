@@ -42,7 +42,7 @@
               :label="t('riskProfile.addRisk')"
               color="primary"
               size="lg"
-              class="font-bold shadow-md shadow-primary/20 w-full sm:w-auto"
+              class="font-bold shadow-md shadow-primary/20 w-full sm:w-auto justify-center text-center"
             />
 
             <template #body>
@@ -101,9 +101,20 @@
             </template>
 
             <template #footer>
-              <div class="flex justify-end gap-3 w-full">
-                <UButton :label="t('common.cancel')" color="neutral" variant="ghost" @click="isAddModalOpen = false" />
-                <UButton :label="t('riskProfile.addModal.saveBtn')" color="primary" @click="submitNewRisk" />
+              <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 w-full">
+                <UButton
+                  :label="t('common.cancel')"
+                  color="neutral"
+                  variant="ghost"
+                  class="w-full sm:w-auto justify-center text-center"
+                  @click="isAddModalOpen = false"
+                />
+                <UButton
+                  :label="t('riskProfile.addModal.saveBtn')"
+                  color="primary"
+                  class="w-full sm:w-auto font-bold justify-center text-center"
+                  @click="submitNewRisk"
+                />
               </div>
             </template>
           </UModal>
@@ -690,16 +701,18 @@
       </template>
 
       <template #footer>
-        <div class="flex justify-end gap-3 w-full">
+        <div class="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 w-full">
           <UButton 
             :label="t('common.cancel')" 
             color="neutral" 
             variant="ghost" 
+            class="w-full sm:w-auto justify-center text-cente"
             @click="store.isFormOpen = false" 
           />
           <UButton 
             :label="t('riskProfile.editModal.updateBtn')" 
             color="primary" 
+            class="w-full sm:w-auto justify-center text-center"
             @click="submitEditRisk" 
           />
         </div>
@@ -831,7 +844,7 @@
             :label="t('common.cancel')"
             color="neutral"
             variant="ghost"
-            class="w-full sm:w-auto"
+            class="w-full sm:w-auto justify-center text-center"
             @click="isMoveModalOpen = false"
           />
           <UButton
@@ -839,7 +852,7 @@
             color="primary"
             icon="i-lucide-move"
             :loading="isMoving"
-            class="w-full sm:w-auto font-bold"
+            class="w-full sm:w-auto font-bold justify-center text-center"
             @click="submitMoveRisk"
           />
         </div>

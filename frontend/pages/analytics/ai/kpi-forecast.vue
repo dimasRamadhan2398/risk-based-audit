@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Line } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -104,6 +104,14 @@ const timeSeriesOptions = computed(() => ({
     y: { title: { display: true, text: t('analytics.timeseries.axisKPIScore') } }
   }
 }))
+
+const mobilePage = ref(1)
+const mobilePageSize = ref(10)
+
+const paginatedKpiForecasts = computed<any[]>(() => {
+  const start = (mobilePage.value - 1) * mobilePageSize.value
+  return timeseriesState.value.kpiForecasts.slice(start, start + mobilePageSize.value)
+})
 </script>
 
 <template>
@@ -186,7 +194,8 @@ const timeSeriesOptions = computed(() => ({
             <h3 class="font-bold">{{ t('analytics.timeseries.tableTitle') }}</h3>
           </div>
         </template>
-        <div class="overflow-x-auto">
+        <!-- Desktop View (>= md): Full Table -->
+        <div class="hidden md:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
               <tr class="border-b border-gray-200 dark:border-gray-700">
@@ -231,6 +240,121 @@ const timeSeriesOptions = computed(() => ({
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Mobile & Tablet View (< md): Stacked Cards List -->
+        <div class="block md:hidden">
+          <!-- Empty State -->
+          <div
+            v-if="!timeseriesState.kpiForecasts.length"
+            class="py-8 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+          >
+            <UIcon name="i-heroicons-table-cells" class="size-8 mx-auto text-gray-400 mb-2" />
+            <p class="text-xs text-[var(--text-muted)]">{{ t('analytics.timeseries.empty') || 'Tidak ada data perkiraan KPI' }}</p>
+          </div>
+
+          <!-- Cards List -->
+          <div v-else class="space-y-3">
+            <div
+              v-for="(kpi, index) in paginatedKpiForecasts"
+              :key="kpi.code || index"
+              class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3"
+            >
+              <!-- Card Header: Code & Risk Level Badge -->
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-200/80 dark:border-slate-700">
+                    <UIcon name="i-heroicons-chart-bar" class="size-3 text-indigo-500" />
+                    {{ kpi.code }}
+                  </span>
+                  <UBadge :color="(kpi.entityType || kpi.type) === 'Branch' ? 'primary' : 'warning'" variant="subtle" size="sm">
+                    {{ kpi.entityType || kpi.type || '-' }}
+                  </UBadge>
+                  <UBadge color="info" variant="subtle" size="sm" class="font-bold">
+                    {{ kpi.targetHorizon || 'Q3 2026' }}
+                  </UBadge>
+                </div>
+                <UBadge
+                  :class="getRiskConfig(kpi.riskLevel).badgeClass"
+                  variant="solid"
+                  size="sm"
+                  class="font-bold shrink-0"
+                >
+                  {{ getRiskConfig(kpi.riskLevel).label }}
+                </UBadge>
+              </div>
+
+              <!-- Card Body: KPI Name & Entity -->
+              <div class="space-y-1">
+                <div class="font-bold text-sm text-gray-900 dark:text-white leading-snug">
+                  {{ kpi.kpiName }}
+                </div>
+                <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                  <UIcon name="i-lucide-building-2" class="size-3.5 text-slate-400 shrink-0" />
+                  <span>{{ kpi.entity || '-' }}</span>
+                </div>
+              </div>
+
+              <!-- Comparison Grid: Current vs Forecast -->
+              <div class="grid grid-cols-2 gap-2 pt-1">
+                <div class="p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800 space-y-1">
+                  <span class="text-[10px] uppercase font-bold tracking-wider text-gray-400 block truncate text-center">{{ t('analytics.timeseries.colCurrent') }}</span>
+                  <div class="font-mono font-bold text-sm text-neutral-900 dark:text-neutral-100 text-center">
+                    {{ formatNum(kpi.currentValue, 1) }}{{ kpi.unit === '%' ? '%' : '' }}
+                  </div>
+                </div>
+                <div class="p-2.5 rounded-lg bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 space-y-1">
+                  <span class="text-[10px] uppercase font-bold tracking-wider text-secondary-700 dark:text-secondary-400 block truncate text-center">{{ t('analytics.timeseries.colForecast') }}</span>
+                  <div class="font-mono font-bold text-sm text-secondary-700 dark:text-secondary-400 text-center">
+                    {{ formatNum(kpi.forecastedValue, 1) }}{{ kpi.unit === '%' ? '%' : '' }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Trend Row -->
+              <div class="flex items-center justify-between px-2.5 py-1.5 bg-gray-50/80 dark:bg-gray-800/40 rounded-md border border-gray-100 dark:border-gray-800 text-xs">
+                <span class="text-[11px] text-gray-500 dark:text-gray-400 font-medium">{{ t('analytics.timeseries.colTrend') }}</span>
+                <div class="flex items-center gap-1.5 font-bold" :class="trendColor(kpi.trend)">
+                  <UIcon :name="trendIcon(kpi.trend)" class="w-4 h-4 shrink-0" />
+                  <span>{{ kpi.trend }}</span>
+                </div>
+              </div>
+
+              <!-- Recommended Action -->
+              <div v-if="kpi.recommendedAction" class="p-2.5 rounded-lg bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/40 text-xs text-amber-900 dark:text-amber-300 leading-relaxed">
+                <span class="font-bold text-amber-950 dark:text-amber-200">{{ t('analytics.timeseries.colRecommendedAction') }}: </span>
+                <span>{{ kpi.recommendedAction }}</span>
+              </div>
+
+              <!-- Card Footer: Index & Horizon -->
+              <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800/80 text-xs text-slate-500 dark:text-slate-400">
+                <span class="text-xs text-slate-400 font-mono">
+                  #{{ (mobilePage - 1) * mobilePageSize + Number(index) + 1 }}
+                </span>
+                <span class="text-[11px] text-gray-400">{{ kpi.targetHorizon || 'Q3 2026' }}</span>
+              </div>
+            </div>
+
+            <!-- Mobile Pagination Controls -->
+            <div
+              v-if="timeseriesState.kpiForecasts.length > mobilePageSize"
+              class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800"
+            >
+              <span class="text-xs text-slate-500 dark:text-slate-400">
+                {{ (mobilePage - 1) * mobilePageSize + 1 }}-{{ Math.min(mobilePage * mobilePageSize, timeseriesState.kpiForecasts.length) }} of {{ timeseriesState.kpiForecasts.length }}
+              </span>
+              <UPagination
+                v-model:page="mobilePage"
+                :items-per-page="mobilePageSize"
+                :total="timeseriesState.kpiForecasts.length"
+                size="md"
+                active-color="primary"
+                color="neutral"
+                variant="outline"
+                class="max-w-full overflow-x-auto"
+              />
+            </div>
+          </div>
         </div>
       </UCard>
     </div>

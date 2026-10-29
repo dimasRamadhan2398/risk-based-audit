@@ -178,13 +178,14 @@ const stratChartOptions = computed(() => ({
           <template #header>
             <div>
               <div class="flex items-center gap-2">
-                <UIcon name="i-heroicons-table-cells" class="text-indigo-500" />
+                <UIcon name="i-heroicons-table-cells" class="text-primary-500" />
                 <h3 class="font-bold">{{ t('analytics.caattUi.stratification.distribution') }}</h3>
               </div>
               <p class="text-xs text-gray-400 mt-1">{{ t('analytics.caattUi.stratification.distributionDescription') }}</p>
             </div>
           </template>
-          <div class="overflow-x-auto">
+          <!-- Desktop View (>= md): Full Table -->
+          <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="border-b border-gray-200 dark:border-gray-700">
@@ -198,15 +199,82 @@ const stratChartOptions = computed(() => ({
               </thead>
               <tbody>
                 <tr v-for="r in stratState.records" :key="r.stratumLabel" class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                  <td class="py-3 px-3 font-bold text-indigo-600 dark:text-indigo-400">{{ r.stratumLabel }}</td>
+                  <td class="py-3 px-3 font-bold text-primary-600 dark:text-primary-400">{{ r.stratumLabel }}</td>
                   <td class="py-3 px-3"><UBadge color="neutral" variant="subtle" size="sm">{{ r.category }}</UBadge></td>
                   <td class="text-right py-3 px-3 font-mono">{{ Number(r.trxCount).toLocaleString('id-ID') }}</td>
                   <td class="text-right py-3 px-3 font-mono font-bold">{{ formatIDR(r.totalAmount) }}</td>
                   <td class="text-right py-3 px-3 font-mono">{{ r.pctCount }}%</td>
-                  <td class="text-right py-3 px-3 font-mono font-bold text-violet-500">{{ r.pctAmount }}%</td>
+                  <td class="text-right py-3 px-3 font-mono font-bold text-primary-600 dark:text-primary-400">{{ r.pctAmount }}%</td>
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Mobile & Tablet View (< md): Stacked Cards List (Option A: Direct render) -->
+          <div class="block md:hidden">
+            <!-- Empty State -->
+            <div
+              v-if="!stratState.records.length"
+              class="py-8 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+            >
+              <UIcon name="i-heroicons-table-cells" class="size-8 mx-auto text-gray-400 mb-2" />
+              <p class="text-xs text-[var(--text-muted)]">{{ t('analytics.caattUi.stratification.empty') || 'Tidak ada data stratifikasi' }}</p>
+            </div>
+
+            <!-- Cards List -->
+            <div v-else class="space-y-3">
+              <div
+                v-for="(r, index) in stratState.records"
+                :key="r.stratumLabel || index"
+                class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3"
+              >
+                <!-- Card Header: Stratum Label & Segment Badge -->
+                <div class="flex items-center justify-between gap-2">
+                  <span class="font-bold text-sm text-primary-600 dark:text-primary-400">
+                    {{ r.stratumLabel }}
+                  </span>
+                  <UBadge color="neutral" variant="subtle" size="sm">
+                    {{ r.category }}
+                  </UBadge>
+                </div>
+
+                <!-- Stat Grid: Trx Count vs Total Amount -->
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                  <div class="dashboard-subcard p-2.5 space-y-0.5 min-w-0 overflow-hidden">
+                    <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block truncate">{{ t('analytics.caattUi.common.transactionCount') }}</span>
+                    <div class="font-mono font-bold text-xs sm:text-sm text-gray-900 dark:text-white break-words leading-tight">
+                      {{ Number(r.trxCount).toLocaleString('id-ID') }}
+                    </div>
+                  </div>
+                  <div class="dashboard-subcard p-2.5 space-y-0.5 min-w-0 overflow-hidden">
+                    <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block truncate">{{ t('analytics.caattUi.stratification.accumulated') }}</span>
+                    <div class="font-mono font-bold text-xs sm:text-sm text-gray-900 dark:text-white break-words leading-tight">
+                      {{ formatIDR(r.totalAmount) }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Percentages Row -->
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  <div class="flex items-center justify-between px-2.5 py-1.5 dashboard-subcard min-w-0 overflow-hidden">
+                    <span class="text-[11px] text-slate-500 dark:text-slate-400 truncate">{{ t('analytics.caattUi.stratification.transactionPercent') }}</span>
+                    <span class="font-mono font-bold text-slate-700 dark:text-slate-300 ml-1">{{ r.pctCount }}%</span>
+                  </div>
+                  <div class="flex items-center justify-between px-2.5 py-1.5 bg-primary-50/70 dark:bg-primary-950/20 rounded-xl border border-primary-100 dark:border-primary-900/40 min-w-0 overflow-hidden">
+                    <span class="text-[11px] text-primary-600 dark:text-primary-400 truncate">{{ t('analytics.caattUi.stratification.valuePercent') }}</span>
+                    <span class="font-mono font-bold text-primary-600 dark:text-primary-400 ml-1">{{ r.pctAmount }}%</span>
+                  </div>
+                </div>
+
+                <!-- Card Footer: Index & Segment -->
+                <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800/80 text-xs text-slate-500 dark:text-slate-400">
+                  <span class="text-xs text-slate-400 font-mono">
+                    #{{ Number(index) + 1 }}
+                  </span>
+                  <span class="text-[11px] text-gray-400">{{ r.category }}</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Interpretation Guide Note -->

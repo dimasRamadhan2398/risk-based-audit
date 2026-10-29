@@ -15,9 +15,11 @@ gdrive-credentials.json
 # hold no secrets and are meant to be committed.
 backend/tenants/*/.env
 
-# OS files
+# OS & Editor files
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
 
 # Large binaries and archives
 *.zip

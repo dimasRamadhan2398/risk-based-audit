@@ -175,7 +175,7 @@
             <UButton
               :label="t('masterData.company.cancel')"
               color="neutral"
-              variant="soft"
+              variant="ghost"
               class="w-full sm:w-auto justify-center text-center"
               type="button"
               @click="store.closeModal"

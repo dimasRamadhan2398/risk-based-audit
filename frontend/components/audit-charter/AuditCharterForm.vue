@@ -130,6 +130,17 @@
             </div>
           </div>
         <div class="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-3 sm:px-6 flex flex-col-reverse sm:flex-row-reverse gap-3 rounded-b-2xl shrink-0">
+         
+         <UButton
+            type="button"
+            color="neutral"
+            variant="ghost"
+            size="md"
+            class="w-full sm:w-auto min-w-[120px] font-bold justify-center text-center"
+            @click="store.closeModal"
+          >
+            {{ t('common.cancel') }}
+          </UButton>
           <UButton
             type="submit"
             :loading="store.loading"
@@ -140,16 +151,7 @@
           >
             {{ store.isEditing ? t('common.save') : t('common.submit') }}
           </UButton>
-          <UButton
-            type="button"
-            color="neutral"
-            variant="outline"
-            size="md"
-            class="w-full sm:w-auto min-w-[120px] font-bold justify-center text-center"
-            @click="store.closeModal"
-          >
-            {{ t('common.cancel') }}
-          </UButton>
+          
         </div>
       </UForm>
     </template>

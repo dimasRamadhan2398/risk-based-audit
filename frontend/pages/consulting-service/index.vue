@@ -269,25 +269,22 @@
                 <UButton
                   icon="i-lucide-eye"
                   color="neutral"
-                  variant="soft"
-                  size="xs"
-                  :label="t('consultingService.dashboard.actions.viewDetails')"
+                  variant="ghost"
+                  size="md"
                   @click="store.openDetail(service)"
                 />
                 <UButton
                   icon="i-lucide-edit"
                   color="warning"
-                  variant="soft"
-                  size="xs"
-                  :label="t('consultingService.dashboard.actions.edit')"
+                  variant="ghost"
+                  size="md"
                   @click="store.editService(service)"
                 />
                 <UButton
                   icon="i-lucide-trash-2"
                   color="error"
-                  variant="soft"
-                  size="xs"
-                  :label="t('consultingService.dashboard.actions.delete')"
+                  variant="ghost"
+                  size="md"
                   @click="confirmDelete(service)"
                 />
               </div>

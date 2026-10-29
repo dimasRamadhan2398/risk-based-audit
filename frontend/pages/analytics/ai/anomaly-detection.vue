@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watchEffect, onMounted } from 'vue'
+import { ref, computed, watch, watchEffect, onMounted } from 'vue'
 import { Scatter } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -55,6 +55,29 @@ const filteredTableAnomalies = computed(() => {
   return isolationState.value.anomalies.filter((a: any) => a.type === tableCategoryFilter.value)
 })
 
+const mobileAnomalyPage = ref(1)
+const mobileAnomalyPageSize = ref(10)
+
+const paginatedMobileAnomalies = computed<any[]>(() => {
+  const start = (mobileAnomalyPage.value - 1) * mobileAnomalyPageSize.value
+  return filteredTableAnomalies.value.slice(start, start + mobileAnomalyPageSize.value)
+})
+
+watch(tableCategoryFilter, () => {
+  mobileAnomalyPage.value = 1
+})
+
+const anomalyFilterOptions = computed(() => [
+  {
+    label: `${t('analytics.all')} (${isolationState.value.anomalies.length})`,
+    value: 'All'
+  },
+  ...availableAnomalyTypes.value.map((cat: string) => ({
+    label: `${cat} (${isolationState.value.anomalies.filter((a: any) => a.type === cat).length})`,
+    value: cat
+  }))
+])
+
 const getCategoryBadgeColor = (type: string) => {
   switch (type) {
     case 'Funding': return 'success'
@@ -81,6 +104,16 @@ watchEffect(() => {
     }
   }
 })
+
+watch(selectedAnomalyType, (newType) => {
+  if (newType) {
+    tableCategoryFilter.value = newType
+  }
+})
+
+const selectAnomalyType = (type: string): void => {
+  selectedAnomalyType.value = type
+}
 
 const getScatterChartForType = (typeFilter: string) => {
   const { normalPoints, anomalyPoints } = buildAnomalyScatterPoints(
@@ -209,20 +242,31 @@ const scatterOptions = computed(() => {
       <!-- Scatter Chart Card with Type Filter Tabs -->
       <UCard>
         <template #header>
-          <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center gap-2">
               <UIcon name="i-heroicons-chart-bar" class="text-blue-500" />
               <h3 class="font-bold">{{ t('analytics.isolation.chartTitle') }}</h3>
             </div>
-            <!-- Anomaly Type Selector Buttons -->
-            <div class="flex flex-wrap gap-1">
+            
+            <!-- Mobile & Tablet View (< md): Dropdown USelect -->
+            <div class="block md:hidden w-full sm:w-auto">
+              <USelect
+                v-model="selectedAnomalyType"
+                :items="availableAnomalyTypes"
+                size="md"
+                class="w-full sm:w-56"
+              />
+            </div>
+
+            <!-- Desktop View (>= md): Anomaly Type Selector Buttons -->
+            <div class="hidden md:flex flex-wrap gap-1">
               <UButton
                 v-for="at in availableAnomalyTypes"
                 :key="at"
                 :color="selectedAnomalyType === at ? 'primary' : 'neutral'"
                 :variant="selectedAnomalyType === at ? 'solid' : 'ghost'"
                 size="md"
-                @click="() => { selectedAnomalyType = at; tableCategoryFilter = at; }"
+                @click="selectAnomalyType(at)"
               >
                 {{ at }}
               </UButton>
@@ -237,13 +281,25 @@ const scatterOptions = computed(() => {
       <!-- Anomalies Table -->
       <UCard>
         <template #header>
-          <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center gap-2">
               <UIcon name="i-heroicons-table-cells" class="text-rose-500" />
               <h3 class="font-bold">{{ t('analytics.isolation.tableTitle') }}</h3>
             </div>
-            <!-- Filter Kategori Tabel -->
-            <div class="flex flex-wrap items-center gap-1.5">
+            
+            <!-- Mobile & Tablet View (< md): Dropdown USelect -->
+            <div class="block md:hidden w-full sm:w-auto">
+              <USelect
+                v-model="tableCategoryFilter"
+                :items="anomalyFilterOptions"
+                value-key="value"
+                size="md"
+                class="w-full sm:w-56"
+              />
+            </div>
+
+            <!-- Desktop View (>= md): Interactive Filter Pills -->
+            <div class="hidden md:flex items-center gap-1.5 flex-wrap">
               <span class="text-xs text-gray-400 font-medium mr-1">{{ t('analytics.anomalyFilter') }}</span>
               <UButton
                 size="xs"
@@ -266,7 +322,8 @@ const scatterOptions = computed(() => {
             </div>
           </div>
         </template>
-        <div class="overflow-x-auto">
+        <!-- Desktop View (>= md): Full Table -->
+        <div class="hidden md:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
               <tr class="border-b border-gray-200 dark:border-gray-700">
@@ -300,6 +357,90 @@ const scatterOptions = computed(() => {
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Mobile & Tablet View (< md): Stacked Cards List -->
+        <div class="block md:hidden">
+          <!-- Empty State -->
+          <div
+            v-if="!filteredTableAnomalies.length"
+            class="py-8 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+          >
+            <UIcon name="i-heroicons-table-cells" class="size-8 mx-auto text-gray-400 mb-2" />
+            <p class="text-xs text-[var(--text-muted)]">{{ t('analytics.isolation.empty') || 'Tidak ada data anomali' }}</p>
+          </div>
+
+          <!-- Cards List -->
+          <div v-else class="space-y-3">
+            <div
+              v-for="(a, index) in paginatedMobileAnomalies"
+              :key="a.id || index"
+              class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3"
+            >
+              <!-- Card Header: ID & Type Badge + Risk Level Badge -->
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-200/80 dark:border-slate-700">
+                    <UIcon name="i-lucide-fingerprint" class="size-3 text-rose-500" />
+                    {{ a.id }}
+                  </span>
+                  <UBadge :color="getCategoryBadgeColor(a.type)" variant="subtle" size="sm">
+                    {{ a.type }}
+                  </UBadge>
+                </div>
+                <UBadge
+                  :class="getRiskConfig(a.riskLevel).badgeClass"
+                  variant="solid"
+                  size="sm"
+                  class="font-bold"
+                >
+                  {{ getRiskConfig(a.riskLevel).label }}
+                </UBadge>
+              </div>
+
+              <!-- Card Body: Entity & Description -->
+              <div class="space-y-1">
+                <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                  <UIcon name="i-lucide-building-2" class="size-3.5 text-slate-400 shrink-0" />
+                  <span class="font-bold text-gray-900 dark:text-white text-sm truncate">{{ a.entity }}</span>
+                </div>
+                <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed pt-1">
+                  {{ a.description }}
+                </p>
+              </div>
+
+              <!-- Card Footer: Index & Date -->
+              <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800/80 text-xs text-slate-500 dark:text-slate-400">
+                <span class="text-xs text-slate-400 font-mono">
+                  #{{ (mobileAnomalyPage - 1) * mobileAnomalyPageSize + Number(index) + 1 }}
+                </span>
+                <div class="flex items-center gap-1.5">
+                  <UIcon name="i-lucide-calendar" class="size-3.5 text-slate-400 shrink-0" />
+                  <span>{{ a.date }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mobile Pagination Controls -->
+            <div
+              v-if="filteredTableAnomalies.length > mobileAnomalyPageSize"
+              class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800"
+            >
+              <span class="text-xs text-slate-500 dark:text-slate-400">
+                {{ (mobileAnomalyPage - 1) * mobileAnomalyPageSize + 1 }}-{{ Math.min(mobileAnomalyPage * mobileAnomalyPageSize, filteredTableAnomalies.length) }} of {{ filteredTableAnomalies.length }}
+              </span>
+              <UPagination
+                v-model:page="mobileAnomalyPage"
+                :items-per-page="mobileAnomalyPageSize"
+                :total="filteredTableAnomalies.length"
+                size="md"
+                active-color="primary"
+                color="neutral"
+                variant="outline"
+                class="max-w-full overflow-x-auto"
+              />
+            </div>
+          </div>
         </div>
       </UCard>
     </div>

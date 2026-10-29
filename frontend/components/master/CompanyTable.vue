@@ -75,16 +75,16 @@
         >
           <template #company_code-cell="{ row }">
             <span class="font-semibold text-primary-600 dark:text-primary-400">
-              {{ row.original.company_code || row.original.code }}
+              {{ row.original.company_code }}
             </span>
           </template>
 
           <template #company_name-cell="{ row }">
             <div>
               <div class="font-medium text-gray-900 dark:text-white">
-                {{ row.original.company_name || row.original.name }}
+                {{ row.original.company_name }}
               </div>
-              <div v-if="row.original.legal_name && row.original.legal_name !== (row.original.company_name || row.original.name)" class="text-xs text-gray-500">
+              <div v-if="row.original.legal_name && row.original.legal_name !== row.original.company_name" class="text-xs text-gray-500">
                 {{ row.original.legal_name }}
               </div>
             </div>
@@ -128,14 +128,14 @@
                 icon="i-heroicons-pencil"
                 color="primary"
                 variant="ghost"
-                size="sm"
+                size="md"
                 @click="store.handleEdit(row.original)"
               />
               <UButton
                 icon="i-heroicons-trash"
                 color="error"
                 variant="ghost"
-                size="sm"
+                size="md"
                 @click="store.handleDelete(row.original)"
               />
             </div>
@@ -155,12 +155,12 @@
             <div class="flex items-center gap-1.5 flex-wrap">
               <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/40 px-2 py-0.5 rounded-md border border-primary-200/50 dark:border-primary-800/40">
                 <UIcon name="i-heroicons-building-office-2" class="size-3" />
-                {{ company.company_code || company.code }}
+                {{ company.company_code }}
               </span>
               <UBadge
                 :color="company.is_active ? 'success' : 'error'"
                 variant="subtle"
-                size="xs"
+                size="sm"
               >
                 {{ company.is_active ? t('masterData.company.active') : t('masterData.company.inactive') }}
               </UBadge>
@@ -168,7 +168,7 @@
             <UBadge
               :color="getTypeBadgeColor(company.company_type)"
               variant="subtle"
-              size="xs"
+              size="sm"
             >
               {{ t(`masterData.company.types.${company.company_type}`) }}
             </UBadge>
@@ -177,9 +177,9 @@
           <!-- Card Body: Name & Legal Name -->
           <div>
             <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-snug">
-              {{ company.company_name || company.name }}
+              {{ company.company_name }}
             </h4>
-            <p v-if="company.legal_name && company.legal_name !== (company.company_name || company.name)" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            <p v-if="company.legal_name && company.legal_name !== company.company_name" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
               {{ company.legal_name }}
             </p>
           </div>
@@ -198,16 +198,16 @@
             <div class="flex items-center gap-1">
               <UButton
                 icon="i-heroicons-pencil"
-                color="primary"
-                variant="soft"
-                size="xs"
+                color="warning"
+                variant="ghost"
+                size="md"
                 @click="store.handleEdit(company)"
               />
               <UButton
                 icon="i-heroicons-trash"
                 color="error"
-                variant="soft"
-                size="xs"
+                variant="ghost"
+                size="md"
                 @click="store.handleDelete(company)"
               />
             </div>
@@ -223,7 +223,7 @@
             :page="store.pagination.page"
             :items-per-page="store.pagination.page_size"
             :total="store.pagination.total"
-            size="sm"
+            size="md"
             active-color="primary"
             color="neutral"
             variant="outline"

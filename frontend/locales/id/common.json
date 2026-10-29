@@ -767,7 +767,6 @@
     },
     "profile": {
       "avatarAlt": "Avatar",
-      "emailPlaceholder": "Masukkan email Anda",
       "title": "Profil Saya",
       "subtitle": "Kelola detail akun pribadi dan preferensi Anda.",
       "changePhoto": "Ubah Foto",
@@ -845,8 +844,6 @@
       "enabledDesc": "Autentikasi Dua Faktor berhasil diaktifkan.",
       "disabledToast": "MFA Dinonaktifkan",
       "disabledDesc": "Autentikasi dua faktor akun Anda telah dinonaktifkan.",
-      "generatingQr": "Membuat QR Code...",
-      "scanQr": "Pindai QR Code",
       "setupFailedTitle": "Setup Gagal",
       "setupFailedDesc": "Gagal memulai setup MFA.",
       "verifyFailedTitle": "Verifikasi Gagal",

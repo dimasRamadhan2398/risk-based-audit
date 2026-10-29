@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useCaattAnalytics } from '~/composables/useCaattAnalytics'
 import { useI18n } from '~/composables/useI18n'
 import CaattHeader from '~/components/analytics/CaattHeader.vue'
@@ -9,6 +9,14 @@ const { loading, fptState, formatIDR, fetchCaattAnalytics } = useCaattAnalytics(
 
 onMounted(() => {
   fetchCaattAnalytics()
+})
+
+const mobilePage = ref(1)
+const mobilePageSize = ref(10)
+
+const paginatedRecords = computed<any[]>(() => {
+  const start = (mobilePage.value - 1) * mobilePageSize.value
+  return (fptState.value?.records || []).slice(start, start + mobilePageSize.value)
 })
 </script>
 
@@ -169,7 +177,8 @@ onMounted(() => {
             <UBadge color="primary" variant="subtle" size="sm">{{ t('analytics.caattUi.fullPopulation.badge') }}</UBadge>
           </div>
         </template>
-        <div class="overflow-x-auto">
+        <!-- Desktop View (>= md): Full Table -->
+        <div class="hidden md:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
               <tr class="border-b border-gray-200 dark:border-gray-700">
@@ -208,6 +217,114 @@ onMounted(() => {
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Mobile & Tablet View (< md): Stacked Cards List -->
+        <div class="block md:hidden">
+          <!-- Empty State -->
+          <div
+            v-if="!fptState.records.length"
+            class="py-8 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+          >
+            <UIcon name="i-heroicons-table-cells" class="size-8 mx-auto text-gray-400 mb-2" />
+            <p class="text-xs text-[var(--text-muted)]">{{ t('analytics.caattUi.fullPopulation.empty') || 'Tidak ada data temuan' }}</p>
+          </div>
+
+          <!-- Cards List -->
+          <div v-else class="space-y-3">
+            <div
+              v-for="(r, index) in paginatedRecords"
+              :key="r.id || index"
+              class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3"
+            >
+              <!-- Card Header: ID, Category & Status Badge -->
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-200/80 dark:border-slate-700">
+                    <UIcon name="i-lucide-file-text" class="size-3 text-primary-500" />
+                    {{ r.id }}
+                  </span>
+                  <UBadge color="neutral" variant="subtle" size="sm">{{ r.category }}</UBadge>
+                </div>
+                <UBadge :color="r.status === 'FLAGGED' ? 'error' : 'warning'" variant="solid" size="sm">
+                  {{ r.status }}
+                </UBadge>
+              </div>
+
+              <!-- Card Body: Customer & Account Info -->
+              <div class="space-y-1">
+                <div class="font-bold text-sm text-gray-900 dark:text-white leading-snug">
+                  {{ r.customerName }}
+                </div>
+                <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 flex-wrap gap-1">
+                  <div class="flex items-center gap-1">
+                    <UIcon name="i-lucide-building-2" class="size-3.5 text-slate-400 shrink-0" />
+                    <span>{{ r.branchName }}</span>
+                  </div>
+                  <span class="font-mono text-[11px] text-slate-400">Acc: {{ r.accountId }}</span>
+                </div>
+              </div>
+
+              <!-- Stat Comparison Grid: Amount vs Limit -->
+              <div class="grid grid-cols-2 gap-2 pt-1">
+                <div class="dashboard-subcard p-2.5 space-y-0.5 min-w-0 overflow-hidden">
+                  <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block truncate">{{ t('analytics.caattUi.fullPopulation.amount') }}</span>
+                  <div class="font-mono font-bold text-xs sm:text-sm text-gray-900 dark:text-white break-words leading-tight">
+                    {{ formatIDR(r.transactionAmount) }}
+                  </div>
+                </div>
+                <div class="dashboard-subcard p-2.5 space-y-0.5 min-w-0 overflow-hidden">
+                  <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block truncate">{{ t('analytics.caattUi.fullPopulation.limit') }}</span>
+                  <div class="font-mono font-semibold text-xs sm:text-sm text-slate-500 dark:text-slate-400 break-words leading-tight">
+                    {{ formatIDR(r.thresholdLimit) }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Excess Amount Row -->
+              <div class="flex items-center justify-between px-2.5 py-1.5 bg-rose-50/70 dark:bg-rose-950/20 rounded-md border border-rose-100 dark:border-rose-900/40 text-xs min-w-0 overflow-hidden">
+                <span class="text-[11px] text-rose-600 dark:text-rose-400 font-medium shrink-0">{{ t('analytics.caattUi.fullPopulation.excess') }}</span>
+                <span class="font-mono font-bold text-xs sm:text-sm text-rose-600 dark:text-rose-400 break-words text-right">+{{ formatIDR(r.excessAmount) }}</span>
+              </div>
+
+              <!-- Violation Type -->
+              <div v-if="r.violationType" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed dashboard-subcard p-2.5">
+                <span class="font-semibold text-slate-700 dark:text-slate-200">{{ t('analytics.caattUi.fullPopulation.violationType') }}: </span>
+                <span>{{ r.violationType }}</span>
+              </div>
+
+              <!-- Card Footer: Index & Date -->
+              <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800/80 text-xs text-slate-500 dark:text-slate-400">
+                <span class="text-xs text-slate-400 font-mono">
+                  #{{ (mobilePage - 1) * mobilePageSize + Number(index) + 1 }}
+                </span>
+                <div class="flex items-center gap-1.5">
+                  <UIcon name="i-lucide-calendar" class="size-3.5 text-slate-400 shrink-0" />
+                  <span>{{ r.testDate }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mobile Pagination Controls -->
+            <div
+              v-if="fptState.records.length > mobilePageSize"
+              class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800"
+            >
+              <span class="text-xs text-slate-500 dark:text-slate-400">
+                {{ (mobilePage - 1) * mobilePageSize + 1 }}-{{ Math.min(mobilePage * mobilePageSize, fptState.records.length) }} of {{ fptState.records.length }}
+              </span>
+              <UPagination
+                v-model:page="mobilePage"
+                :items-per-page="mobilePageSize"
+                :total="fptState.records.length"
+                size="md"
+                active-color="primary"
+                color="neutral"
+                variant="outline"
+                class="max-w-full overflow-x-auto"
+              />
+            </div>
+          </div>
         </div>
       </UCard>
     </div>

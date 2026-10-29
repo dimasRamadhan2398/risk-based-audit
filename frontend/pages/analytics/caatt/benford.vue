@@ -118,11 +118,12 @@ const benfordChartOptions = computed(() => ({
         <UCard>
           <template #header>
             <div class="flex items-center gap-2">
-              <UIcon name="i-heroicons-table-cells" class="text-indigo-500" />
+              <UIcon name="i-heroicons-table-cells" class="text-primary-500" />
               <h3 class="font-bold">{{ t('analytics.caattUi.benford.chiSquare') }}</h3>
             </div>
           </template>
-          <div class="overflow-x-auto">
+          <!-- Desktop View: Table -->
+          <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="border-b border-gray-200 dark:border-gray-700">
@@ -136,7 +137,7 @@ const benfordChartOptions = computed(() => ({
               </thead>
               <tbody>
                 <tr v-for="r in benfordState.records" :key="r.digit" :class="r.isSignificant ? 'bg-rose-50/50 dark:bg-rose-950/20' : ''" class="border-b border-gray-100 dark:border-gray-800">
-                  <td class="text-center py-3 px-3 font-bold text-lg text-indigo-600 dark:text-indigo-400">{{ r.digit }}</td>
+                  <td class="text-center py-3 px-3 font-bold text-lg text-primary-600 dark:text-primary-400">{{ r.digit }}</td>
                   <td class="text-right py-3 px-3 font-mono">{{ Number(r.actualCount).toLocaleString('id-ID') }}</td>
                   <td class="text-right py-3 px-3 font-mono font-bold">{{ r.actualPct }}%</td>
                   <td class="text-right py-3 px-3 font-mono text-gray-400">{{ r.expectedPct }}%</td>
@@ -151,6 +152,64 @@ const benfordChartOptions = computed(() => ({
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Mobile View: Card List -->
+          <div class="block md:hidden">
+            <div v-if="!benfordState.records.length" class="text-center py-8 text-gray-400">
+              <UIcon name="i-heroicons-inbox" class="w-10 h-10 mx-auto mb-2 text-gray-300 dark:text-gray-600" />
+              <p class="text-sm">{{ t('common.noData') }}</p>
+            </div>
+            <div v-else class="space-y-3">
+              <div
+                v-for="(r, index) in benfordState.records"
+                :key="r.digit"
+                class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3"
+                :class="r.isSignificant ? 'ring-1 ring-rose-500/30 bg-rose-50/30 dark:bg-rose-950/10' : ''"
+              >
+                <!-- Card Header -->
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-primary-50 dark:bg-primary-950/50 text-primary-600 dark:text-primary-400 font-bold text-base">
+                      {{ r.digit }}
+                    </span>
+                    <div>
+                      <span class="text-xs font-semibold text-gray-900 dark:text-gray-100">Digit {{ r.digit }}</span>
+                      <span class="block text-[11px] text-gray-400 font-mono">{{ Number(r.actualCount).toLocaleString('id-ID') }} tx</span>
+                    </div>
+                  </div>
+                  <UBadge :color="r.isSignificant ? 'error' : 'success'" variant="subtle" size="xs">
+                    {{ r.isSignificant ? 'Signifikan' : 'Normal' }}
+                  </UBadge>
+                </div>
+
+                <!-- Percentages Grid -->
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  <div class="dashboard-subcard p-2 space-y-0.5 min-w-0 overflow-hidden">
+                    <span class="text-slate-400 block text-[10px] uppercase font-bold truncate">{{ t('analytics.caattUi.benford.actualPercent') }}</span>
+                    <span class="font-mono font-bold text-xs sm:text-sm text-gray-900 dark:text-gray-100 break-words leading-tight block">{{ r.actualPct }}%</span>
+                  </div>
+                  <div class="dashboard-subcard p-2 space-y-0.5 min-w-0 overflow-hidden">
+                    <span class="text-slate-400 block text-[10px] uppercase font-bold truncate">{{ t('analytics.caattUi.benford.benfordPercent') }}</span>
+                    <span class="font-mono font-semibold text-xs sm:text-sm text-slate-500 dark:text-slate-400 break-words leading-tight block">{{ r.expectedPct }}%</span>
+                  </div>
+                </div>
+
+                <!-- Deviation Row -->
+                <div class="flex items-center justify-between text-xs px-2.5 py-1.5 dashboard-subcard min-w-0 overflow-hidden">
+                  <span class="text-slate-400 text-[10px] uppercase font-bold shrink-0">{{ t('analytics.caattUi.benford.deviation') }}</span>
+                  <span class="font-mono font-bold text-xs sm:text-sm ml-1" :class="r.deviationPct > 0 ? 'text-rose-500' : 'text-emerald-500'">
+                    {{ r.deviationPct > 0 ? '+' : '' }}{{ r.deviationPct }}%
+                  </span>
+                </div>
+
+                <!-- Card Footer -->
+                <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800 text-[11px] text-gray-400">
+                  <span>#{{ Number(index) + 1 }}</span>
+                  <span>{{ r.isSignificant ? 'Chi-Sq Deviation' : 'Within Expected' }}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </UCard>
       </div>

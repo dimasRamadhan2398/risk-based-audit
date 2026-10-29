@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Doughnut } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -68,6 +68,14 @@ const doughnutOptions = {
     legend: { position: 'bottom' as const }
   }
 }
+
+const mobilePage = ref(1)
+const mobilePageSize = ref(10)
+
+const paginatedDocuments = computed<any[]>(() => {
+  const start = (mobilePage.value - 1) * mobilePageSize.value
+  return nlpState.value.documents.slice(start, start + mobilePageSize.value)
+})
 </script>
 
 <template>
@@ -125,7 +133,8 @@ const doughnutOptions = {
             <h3 class="font-bold">{{ t('analytics.nlp.tableTitle') }}</h3>
           </div>
         </template>
-        <div class="overflow-x-auto">
+        <!-- Desktop View (>= md): Full Table -->
+        <div class="hidden md:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
               <tr class="border-b border-gray-200 dark:border-gray-700">
@@ -160,6 +169,102 @@ const doughnutOptions = {
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Mobile & Tablet View (< md): Stacked Cards List -->
+        <div class="block md:hidden">
+          <!-- Empty State -->
+          <div
+            v-if="!nlpState.documents.length"
+            class="py-8 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+          >
+            <UIcon name="i-heroicons-table-cells" class="size-8 mx-auto text-gray-400 mb-2" />
+            <p class="text-xs text-[var(--text-muted)]">{{ t('analytics.nlp.empty') || 'Tidak ada data dokumen' }}</p>
+          </div>
+
+          <!-- Cards List -->
+          <div v-else class="space-y-3">
+            <div
+              v-for="(doc, index) in paginatedDocuments"
+              :key="doc.docId || index"
+              class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3"
+            >
+              <!-- Card Header: Doc ID & Source + Risk Level Badge -->
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-200/80 dark:border-slate-700">
+                    <UIcon name="i-heroicons-document-text" class="size-3 text-violet-500" />
+                    {{ doc.docId }}
+                  </span>
+                  <UBadge :color="doc.source === 'Working Paper' ? 'primary' : 'warning'" variant="subtle" size="sm">
+                    {{ doc.source }}
+                  </UBadge>
+                </div>
+                <UBadge
+                  :class="getRiskConfig(doc.riskLevel).badgeClass"
+                  variant="solid"
+                  size="sm"
+                  class="font-bold shrink-0"
+                >
+                  {{ getRiskConfig(doc.riskLevel).label }}
+                </UBadge>
+              </div>
+
+              <!-- Card Body: Title & Excerpt -->
+              <div class="space-y-1.5">
+                <div class="font-bold text-sm text-gray-900 dark:text-white leading-snug">
+                  {{ doc.title }}
+                </div>
+                <p v-if="doc.excerpt" class="text-xs text-gray-500 dark:text-gray-400 italic bg-gray-50 dark:bg-gray-800/40 p-2.5 rounded-lg border border-gray-100 dark:border-gray-800 leading-relaxed">
+                  "{{ doc.excerpt }}"
+                </p>
+              </div>
+
+              <!-- Badges Row: Category & Sentiment -->
+              <div class="flex items-center gap-2 flex-wrap pt-0.5">
+                <div class="flex items-center gap-1.5 text-xs">
+                  <span class="text-[11px] text-gray-400 uppercase font-semibold tracking-wider">{{ t('analytics.nlp.colCategory') }}:</span>
+                  <UBadge :color="riskCategoryColor(doc.autoCategory)" variant="subtle" size="sm">
+                    {{ doc.autoCategory }}
+                  </UBadge>
+                </div>
+                <div class="flex items-center gap-1.5 text-xs">
+                  <span class="text-[11px] text-gray-400 uppercase font-semibold tracking-wider">{{ t('analytics.nlp.colSentiment') }}:</span>
+                  <UBadge :color="sentimentColor(doc.sentiment)" variant="subtle" size="sm">
+                    {{ doc.sentiment }}
+                  </UBadge>
+                </div>
+              </div>
+
+              <!-- Card Footer: Index & Source -->
+              <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800/80 text-xs text-slate-500 dark:text-slate-400">
+                <span class="text-xs text-slate-400 font-mono">
+                  #{{ (mobilePage - 1) * mobilePageSize + Number(index) + 1 }}
+                </span>
+                <span class="text-[11px] text-gray-400">{{ doc.source }}</span>
+              </div>
+            </div>
+
+            <!-- Mobile Pagination Controls -->
+            <div
+              v-if="nlpState.documents.length > mobilePageSize"
+              class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800"
+            >
+              <span class="text-xs text-slate-500 dark:text-slate-400">
+                {{ (mobilePage - 1) * mobilePageSize + 1 }}-{{ Math.min(mobilePage * mobilePageSize, nlpState.documents.length) }} of {{ nlpState.documents.length }}
+              </span>
+              <UPagination
+                v-model:page="mobilePage"
+                :items-per-page="mobilePageSize"
+                :total="nlpState.documents.length"
+                size="md"
+                active-color="primary"
+                color="neutral"
+                variant="outline"
+                class="max-w-full overflow-x-auto"
+              />
+            </div>
+          </div>
         </div>
       </UCard>
     </div>

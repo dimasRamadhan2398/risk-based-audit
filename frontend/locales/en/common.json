@@ -767,7 +767,6 @@
     },
     "profile": {
       "avatarAlt": "Avatar",
-      "emailPlaceholder": "Enter your email",
       "title": "My Profile",
       "subtitle": "Manage your personal account details and preferences.",
       "changePhoto": "Change Photo",
@@ -845,8 +844,6 @@
       "enabledDesc": "Two-factor authentication enabled successfully.",
       "disabledToast": "MFA Disabled",
       "disabledDesc": "Two-factor authentication has been disabled.",
-      "generatingQr": "Generating QR Code...",
-      "scanQr": "Scan QR Code",
       "setupFailedTitle": "Setup Failed",
       "setupFailedDesc": "Failed to start MFA setup.",
       "verifyFailedTitle": "Verification Failed",

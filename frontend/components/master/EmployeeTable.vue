@@ -106,7 +106,7 @@
                 icon="i-heroicons-pencil"
                 color="primary"
                 variant="ghost"
-                size="sm"
+                size="md"
                 @click="store.handleEdit(row.original)"
               />
               <UButton
@@ -114,7 +114,7 @@
                 icon="i-heroicons-key"
                 color="warning"
                 variant="ghost"
-                size="sm"
+                size="md"
                 :title="t('masterData.employee.resetPassword')"
                 @click="openResetPassword(row.original)"
               />
@@ -122,7 +122,7 @@
                 icon="i-heroicons-trash"
                 color="error"
                 variant="ghost"
-                size="sm"
+                size="md"
                 @click="store.handleDelete(row.original)"
               />
             </div>
@@ -147,12 +147,12 @@
               <UBadge
                 :color="emp.is_active ? 'success' : 'error'"
                 variant="subtle"
-                size="xs"
+                size="sm"
               >
                 {{ emp.is_active ? t('masterData.employee.active') : t('masterData.employee.inactive') }}
               </UBadge>
             </div>
-            <UBadge color="neutral" variant="soft" size="xs">
+            <UBadge color="neutral" variant="soft" size="sm">
               {{ t('masterData.employee.level', { level: emp.level_grade }) }}
             </UBadge>
           </div>
@@ -179,24 +179,24 @@
               <UButton
                 icon="i-heroicons-pencil"
                 color="primary"
-                variant="soft"
-                size="xs"
+                variant="ghost"
+                size="md"
                 @click="store.handleEdit(emp)"
               />
               <UButton
                 v-if="isAdmin"
                 icon="i-heroicons-key"
                 color="warning"
-                variant="soft"
-                size="xs"
+                variant="ghost"
+                size="md"
                 :title="t('masterData.employee.resetPassword')"
                 @click="openResetPassword(emp)"
               />
               <UButton
                 icon="i-heroicons-trash"
                 color="error"
-                variant="soft"
-                size="xs"
+                variant="ghost"
+                size="md"
                 @click="store.handleDelete(emp)"
               />
             </div>

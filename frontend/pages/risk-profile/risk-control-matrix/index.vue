@@ -569,15 +569,15 @@
             <h3 class="text-lg font-bold text-slate-900 dark:text-white">
               {{ isEditMode ? t('rcm.modal.editTitle') : t('rcm.modal.addTitle') }}
             </h3>
-            <UButton
+            <button
               type="button"
-              icon="i-lucide-x"
-              color="neutral"
-              variant="ghost"
-              :aria-label="t('common.close')"
+              class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors inline-flex items-center justify-center"
+              aria-label="Tutup form Risk Control Matrix"
               :title="t('common.close')"
               @click="isModalOpen = false"
-            />
+            >
+              <UIcon name="i-lucide-x" class="size-5" />
+            </button>
           </div>
 
           <div class="flex-1 min-h-0 overflow-y-auto p-6 space-y-4">
@@ -1219,7 +1219,7 @@ const confirmDelete = async (id: string) => {
   if (await useGlobalModalStore().confirmDelete({ description: t('rcm.confirmDelete.description') })) {
     try {
       await rcmStore.deleteRCMItem(id)
-      toast.showSuccess(t('rcm.toasts.deleteSuccess'))
+      toast.showSuccess(t('rcm.toasts.lSuccess'))
     } catch (err: any) {
       toast.showError(rcmStore.errorMsg || err?.message || 'Gagal menghapus data dari server.')
     }

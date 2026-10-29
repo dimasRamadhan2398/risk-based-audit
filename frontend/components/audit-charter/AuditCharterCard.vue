@@ -165,90 +165,210 @@
         <h3 class="text-lg font-semibold text-[var(--text-main)]">
           {{ t('auditCharter.card.historyTitle') }}
         </h3>
-        <TableEntities
-          :data="store.historyCharters"
-          :columns="columns"
-          :items-per-page="store.historyPageSize"
-          :page="store.historyPage"
-          @update:page="(p: number) => { store.historyPage = p }"
-          :empty-state="{
-            icon: 'i-lucide-folder-open',
-            label: t('auditCharter.card.emptyHistory'),
-          }"
-          class="w-full"
-        >
-          <template #version-cell="{ row }">
-            <span class="font-bold text-[var(--text-main)] whitespace-nowrap">{{
-              row.original.version
-            }}</span>
-          </template>
-          <template #title-cell="{ row }">
-            <div class="font-bold text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
-              <ReadMoreText
-                :text="row.original.title"
-                :max-length="60"
-                text-class="font-bold text-[var(--text-main)]"
+
+        <!-- Desktop View (>= md): Full Table Entities -->
+        <div class="hidden md:block">
+          <TableEntities
+            :data="store.historyCharters"
+            :columns="columns"
+            :items-per-page="store.historyPageSize"
+            :page="store.historyPage"
+            @update:page="(p: number) => { store.historyPage = p }"
+            :empty-state="{
+              icon: 'i-lucide-folder-open',
+              label: t('auditCharter.card.emptyHistory'),
+            }"
+            class="w-full"
+          >
+            <template #version-cell="{ row }">
+              <span class="font-bold text-[var(--text-main)] whitespace-nowrap">{{
+                row.original.version
+              }}</span>
+            </template>
+            <template #title-cell="{ row }">
+              <div class="font-bold text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
+                <ReadMoreText
+                  :text="row.original.title"
+                  :max-length="60"
+                  text-class="font-bold text-[var(--text-main)]"
+                />
+              </div>
+            </template>
+            <template #date-cell="{ row }">
+              <span class="font-medium text-[var(--text-main)] whitespace-nowrap">{{
+                row.original.date
+              }}</span>
+            </template>
+            <template #approvedBy-cell="{ row }">
+              <div class="font-medium text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
+                <ReadMoreText
+                  :text="row.original.approvedBy"
+                  :max-length="35"
+                  text-class="font-medium text-[var(--text-main)]"
+                />
+              </div>
+            </template>
+            <template #uploadedBy-cell="{ row }">
+              <div class="font-medium text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
+                <ReadMoreText
+                  :text="(row.original.uploadedBy && row.original.uploadedBy !== 'Dimas (HIA)') ? row.original.uploadedBy : store.currentUserFullName"
+                  :max-length="35"
+                  text-class="font-medium text-[var(--text-main)]"
+                />
+              </div>
+            </template>
+            <template #actions-cell="{ row }">
+              <div class="flex justify-end gap-1.5 whitespace-nowrap">
+                <UTooltip :text="t('auditCharter.tooltips.downloadCharter')">
+                  <UButton
+                    v-if="row.original.fileUrl && row.original.fileUrl !== '#'"
+                    size="md"
+                    color="primary"
+                    variant="ghost"
+                    icon="i-lucide-download"
+                    @click="store.downloadCharter(row.original.id, row.original.fileName, row.original.fileUrl)"
+                  />
+                </UTooltip>
+                <UTooltip :text="t('auditCharter.tooltips.editCharter')">
+                  <UButton
+                    v-if="canManageCharter"
+                    size="lg"
+                    color="warning"
+                    variant="ghost"
+                    icon="i-lucide-edit"
+                    @click="store.handleEdit(row.original)"
+                  />
+                </UTooltip>
+                <UTooltip :text="t('auditCharter.tooltips.deleteCharter')">
+                  <UButton
+                    v-if="canManageCharter"
+                    size="md"
+                    color="error"
+                    variant="ghost"
+                    icon="i-lucide-trash-2"
+                    @click="confirmDelete(row.original)"
+                  />
+                </UTooltip>
+              </div>
+            </template>
+          </TableEntities>
+        </div>
+
+        <!-- Mobile & Tablet View (< md): Stacked Cards List -->
+        <div class="block md:hidden">
+          <!-- Empty State -->
+          <div
+            v-if="!store.historyCharters.length"
+            class="py-8 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+          >
+            <UIcon name="i-lucide-folder-open" class="size-8 mx-auto text-gray-400 mb-2" />
+            <p class="text-xs text-[var(--text-muted)]">{{ t('auditCharter.card.emptyHistory') }}</p>
+          </div>
+
+          <!-- Cards List -->
+          <div v-else class="space-y-3">
+            <div
+              v-for="(item, index) in paginatedHistoryCharters"
+              :key="item.id || index"
+              class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3"
+            >
+              <!-- Card Header: Version Badge & Date -->
+              <div class="flex items-center justify-between gap-2">
+                <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/40 px-2 py-0.5 rounded-md border border-primary-200/50 dark:border-primary-800/40">
+                  <UIcon name="i-lucide-file-text" class="size-3" />
+                  {{ item.version ? (String(item.version).toLowerCase().startsWith('v') ? item.version : `v${item.version}`) : '-' }}
+                </span>
+                <span class="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                  <UIcon name="i-lucide-calendar" class="size-3.5 text-slate-400 shrink-0" />
+                  <span>{{ item.date || '-' }}</span>
+                </span>
+              </div>
+
+              <!-- Card Body: Charter Title -->
+              <div>
+                <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-snug">
+                  {{ item.title }}
+                </h4>
+              </div>
+
+              <!-- Metadata: Approved By & Uploaded By -->
+              <div class="grid grid-cols-1 gap-2 pt-2 border-t border-gray-100 dark:border-gray-800/80 text-xs text-slate-600 dark:text-slate-400">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <UIcon name="i-lucide-check-circle-2" class="size-3.5 text-success-500 shrink-0" />
+                  <span class="text-slate-400 text-[11px] shrink-0">{{ t('auditCharter.card.columns.approvedBy') }}:</span>
+                  <span class="truncate font-medium text-gray-700 dark:text-gray-300">{{ item.approvedBy || '-' }}</span>
+                </div>
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <UIcon name="i-lucide-user" class="size-3.5 text-gray-400 shrink-0" />
+                  <span class="text-slate-400 text-[11px] shrink-0">{{ t('auditCharter.card.columns.uploadedBy') }}:</span>
+                  <span class="truncate font-medium text-gray-700 dark:text-gray-300">
+                    {{ (item.uploadedBy && item.uploadedBy !== 'Dimas (HIA)') ? item.uploadedBy : store.currentUserFullName }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Card Footer: Index & Action Buttons -->
+              <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
+                <span class="text-xs text-slate-400 font-mono">
+                  #{{ (store.historyPage - 1) * store.historyPageSize + index + 1 }}
+                </span>
+                <div class="flex items-center gap-1">
+                  <UTooltip :text="t('auditCharter.tooltips.downloadCharter')">
+                    <UButton
+                      v-if="item.fileUrl && item.fileUrl !== '#'"
+                      size="md"
+                      color="primary"
+                      variant="ghost"
+                      icon="i-lucide-download"
+                      @click="store.downloadCharter(item.id, item.fileName, item.fileUrl)"
+                    />
+                  </UTooltip>
+                  <UTooltip :text="t('auditCharter.tooltips.editCharter')">
+                    <UButton
+                      v-if="canManageCharter"
+                      size="md"
+                      color="warning"
+                      variant="ghost"
+                      icon="i-lucide-edit"
+                      @click="store.handleEdit(item)"
+                    />
+                  </UTooltip>
+                  <UTooltip :text="t('auditCharter.tooltips.deleteCharter')">
+                    <UButton
+                      v-if="canManageCharter"
+                      size="md"
+                      color="error"
+                      variant="ghost"
+                      icon="i-lucide-trash-2"
+                      @click="confirmDelete(item)"
+                    />
+                  </UTooltip>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mobile Pagination Controls -->
+            <div
+              v-if="store.historyCharters.length > store.historyPageSize"
+              class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800"
+            >
+              <span class="text-xs text-slate-500 dark:text-slate-400">
+                {{ (store.historyPage - 1) * store.historyPageSize + 1 }}-{{ Math.min(store.historyPage * store.historyPageSize, store.historyCharters.length) }} of {{ store.historyCharters.length }}
+              </span>
+              <UPagination
+                :model-value="store.historyPage"
+                @update:model-value="(p: number) => { store.historyPage = p }"
+                :items-per-page="store.historyPageSize"
+                :total="store.historyCharters.length"
+                size="sm"
+                active-color="primary"
+                color="neutral"
+                variant="outline"
+                class="max-w-full overflow-x-auto"
               />
             </div>
-          </template>
-          <template #date-cell="{ row }">
-            <span class="font-medium text-[var(--text-main)] whitespace-nowrap">{{
-              row.original.date
-            }}</span>
-          </template>
-          <template #approvedBy-cell="{ row }">
-            <div class="font-medium text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
-              <ReadMoreText
-                :text="row.original.approvedBy"
-                :max-length="35"
-                text-class="font-medium text-[var(--text-main)]"
-              />
-            </div>
-          </template>
-          <template #uploadedBy-cell="{ row }">
-            <div class="font-medium text-[var(--text-main)] break-words whitespace-normal leading-relaxed min-w-0">
-              <ReadMoreText
-                :text="(row.original.uploadedBy && row.original.uploadedBy !== 'Dimas (HIA)') ? row.original.uploadedBy : store.currentUserFullName"
-                :max-length="35"
-                text-class="font-medium text-[var(--text-main)]"
-              />
-            </div>
-          </template>
-          <template #actions-cell="{ row }">
-            <div class="flex justify-end gap-1.5 whitespace-nowrap">
-              <UTooltip :text="t('auditCharter.tooltips.downloadCharter')">
-                <UButton
-                  v-if="row.original.fileUrl && row.original.fileUrl !== '#'"
-                  size="md"
-                  color="primary"
-                  variant="ghost"
-                  icon="i-lucide-download"
-                  @click="store.downloadCharter(row.original.id, row.original.fileName, row.original.fileUrl)"
-                />
-              </UTooltip>
-              <UTooltip :text="t('auditCharter.tooltips.editCharter')">
-                <UButton
-                  v-if="canManageCharter"
-                  size="md"
-                  color="warning"
-                  variant="ghost"
-                  icon="i-lucide-edit"
-                  @click="store.handleEdit(row.original)"
-                />
-              </UTooltip>
-              <UTooltip :text="t('auditCharter.tooltips.deleteCharter')">
-                <UButton
-                  v-if="canManageCharter"
-                  size="md"
-                  color="error"
-                  variant="ghost"
-                  icon="i-lucide-trash-2"
-                  @click="confirmDelete(row.original)"
-                />
-              </UTooltip>
-            </div>
-          </template>
-        </TableEntities>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -266,6 +386,11 @@ import ReadMoreText from '~/components/shared/ReadMoreText.vue'
 const { t } = useI18n()
 const store = useCharterStore()
 const { canManageCharter } = useRbac()
+
+const paginatedHistoryCharters = computed(() => {
+  const start = (store.historyPage - 1) * store.historyPageSize
+  return store.historyCharters.slice(start, start + store.historyPageSize)
+})
 
 const columns = computed(() => [
   { accessorKey: 'version', header: t('auditCharter.card.columns.version'), class: 'w-16 whitespace-nowrap text-center' },

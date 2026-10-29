@@ -68,7 +68,7 @@
             <UButton 
             :label="t('common.cancel')" 
             color="neutral" 
-            variant="outline" 
+            variant="ghost" 
             class="w-full sm:w-auto justify-center text-center" 
             @click="store.closeForm" />
             <UButton 
