@@ -136,6 +136,7 @@
     }
   },
   "common": {
+    "clearSearch": "Hapus pencarian",
     "datePicker": {
       "clearDate": "Hapus tanggal",
       "openCalendar": "Buka kalender",
@@ -544,7 +545,7 @@
     }
   },
   "auditExecution": {
-    "resetFilter": "Atur Ulang Filter",
+    "resetFilter": "Reset",
     "title": "Audit Execution Status",
     "subtitle": "Transparansi progres & tahapan siklus audit dari perencanaan hingga penyelesaian LHA.",
     "cycleGuideButton": "Panduan Siklus Audit",
@@ -1223,7 +1224,7 @@
       "periodType": "Jenis Periode",
       "selectYear": "Pilih Tahun",
       "selectQuartal": "Pilih Kuartal",
-      "reset": "Reset Filter",
+      "reset": "Reset",
       "allTypes": "Semua Jenis",
       "yearly": "Tahunan",
       "quartal": "Kuartal",
@@ -1572,6 +1573,7 @@
     }
   },
   "auditPriority": {
+    "reset": "Reset",
     "loadingYear": "Memuat data prioritas audit tahun {year}...",
     "emptyFiltered": "Tidak ada entitas audit yang cocok dengan filter Anda.",
     "establishFirst": "Tetapkan dahulu entitas aktif pada tab Penetapan Tahunan di Audit Universe.",
@@ -2521,6 +2523,12 @@
     }
   },
   "assignmentLetter": {
+    "filters": {
+      "searchPlaceholder": "Cari nomor surat, judul, unit kerja, atau ketua...",
+      "status": "Semua Status",
+          "workUnit": "Semua Unit Kerja",
+      "reset": "Reset"
+    },
     "formExtra": {
       "number": "Nomor Surat Tugas:",
       "titleExample": "Contoh: Audit Operasional Keuangan",
@@ -2535,7 +2543,7 @@
       "members": "Anggota Tim",
       "memberName": "Nama Anggota",
       "role": "Peran",
-      "memberHint": "* Templat menyarankan sedikitnya tiga anggota tim.",
+      "memberHint": "* Untuk proses lebih efektif diperlukan sedikitnya tiga anggota tim.",
       "purposePlaceholder": "Masukkan tujuan audit...",
       "addPurpose": "Tambah Tujuan",
       "scopePlaceholder": "Masukkan ruang lingkup audit...",
@@ -2547,6 +2555,24 @@
       "publish": "Terbitkan Surat Tugas",
       "edit": "Ubah Surat Tugas",
       "delete": "Hapus Surat Tugas"
+    },
+    "stepper": {
+      "auditInfo": "Informasi Audit",
+      "unitTeam": "Unit Kerja & Tim",
+      "purposeDistribution": "Tujuan, Ruang Lingkup & Tembusan",
+      "next": "Langkah Berikutnya",
+      "previous": "Sebelumnya"
+    },
+    "validation": {
+      "titleRequired": "Judul Audit wajib diisi.",
+      "categoryRequired": "Kategori Audit wajib dipilih.",
+      "yearRequired": "Tahun Audit wajib dipilih.",
+      "teamRequired": "Tim Audit wajib dipilih.",
+      "periodRequired": "Harap isi periode mulai dan selesai.",
+      "periodOrder": "Tanggal selesai tidak boleh sebelum tanggal mulai.",
+      "workUnitRequired": "Unit kerja wajib diisi.",
+      "membersInvalid": "Semua anggota tim wajib memiliki nama dan peran.",
+      "ccInvalid": "Semua kolom tembusan wajib diisi atau dihapus."
     },
     "title": "Daftar Surat Tugas",
     "table": {
@@ -2560,7 +2586,9 @@
       },
       "status": {
         "Draft": "Draf",
-        "Published": "Diterbitkan"
+        "Waiting Approval": "Menunggu Persetujuan",
+        "Published": "Diterbitkan",
+        "Archived": "Diarsipkan"
       },
       "empty": "Belum ada Surat Tugas. Klik Buat Surat Tugas untuk memulai."
     },
@@ -2734,7 +2762,7 @@
       "year": "Tahun",
       "activityType": "Jenis kegiatan",
       "all": "Semua",
-      "reset": "Atur ulang filter"
+      "reset": "Reset"
     },
     "legacy": {
       "badge": "Format lama",
@@ -4505,7 +4533,7 @@
         "type": "Pilih QA",
         "period": "Pilih Periode",
         "status": "Pilih Status",
-        "reset": "Reset Filter"
+        "reset": "Reset"
       },
       "summary": {
         "regular": "Penilaian Reguler",
@@ -4676,7 +4704,7 @@
       "selectCategory": "Pilih Kategori",
       "selectPeriod": "Pilih Periode",
       "selectStatus": "Pilih Status",
-      "resetFilter": "Reset Filter",
+      "resetFilter": "Reset",
       "editTarget": "Ubah Target KPI",
       "editUnavailable": "Berasal dari laporan kinerja yang diunggah; ubah di sana",
       "deleteTarget": "Hapus Target KPI",
@@ -4803,7 +4831,7 @@
         "selectCategory": "Pilih Kategori",
         "selectPeriod": "Pilih Periode",
         "selectStatus": "Pilih Status",
-        "reset": "Reset Filter",
+        "reset": "Reset",
         "columns": {
           "metric": "Metrik KPI",
           "category": "Kategori",
@@ -5259,7 +5287,7 @@
       "update": "Perbarui Perusahaan",
       "close": "Tutup modal",
       "search": "Cari",
-      "reset": "Atur Ulang",
+      "reset": "Reset",
       "searchPlaceholder": "Cari kode, nama, atau NPWP perusahaan...",
       "empty": "Tidak ada perusahaan yang ditemukan.",
       "codePlaceholder": "mis. AIFL-HQ, SUB-001",
@@ -5364,7 +5392,7 @@
       "listTitle": "Daftar Karyawan",
       "add": "Tambah Karyawan",
       "searchPlaceholder": "Cari karyawan...",
-      "reset": "Atur Ulang",
+      "reset": "Reset",
       "empty": "Tidak ada data karyawan.",
       "autoGenerated": "Dibuat otomatis",
       "codeLoading": "Memuat...",
@@ -5509,7 +5537,7 @@
       "lhaPlaceholder": "Pilih LHA",
       "picPlaceholder": "Pilih PIC",
       "overdueOnly": "Hanya yang terlambat",
-      "reset": "Reset Filter"
+      "reset": "Reset"
     },
     "table": {
       "columns": {
@@ -5737,7 +5765,7 @@
       "searchPlaceholder": "Cari temuan",
       "departmentPlaceholder": "Pilih departemen",
       "statusPlaceholder": "Pilih status",
-      "reset": "Reset Filter"
+      "reset": "Reset"
     },
     "columns": {
       "auditReference": "Referensi Audit",

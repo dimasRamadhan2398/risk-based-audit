@@ -104,7 +104,7 @@
     <UCard class="shadow-sm">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <UFormField :label="t('consultingService.dashboard.filters.searchTitle')">
-          <UInput v-model="filters.search" :placeholder="t('consultingService.dashboard.filters.searchPlaceholder')" icon="i-lucide-search" class="w-full" />
+          <CommonSearchInput v-model="filters.search" :placeholder="t('consultingService.dashboard.filters.searchPlaceholder')" class="w-full" />
         </UFormField>
         <UFormField :label="t('consultingService.dashboard.filters.category')">
           <USelectMenu v-model="filters.category" :items="categoryFilterOptions" value-key="value" :placeholder="t('consultingService.dashboard.filters.selectCategory')" class="w-full" />

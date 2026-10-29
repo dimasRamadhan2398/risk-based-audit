@@ -154,7 +154,7 @@ export default defineAppConfig({
     { color: 'warning', variant: 'none', class: { root: 'bg-transparent ring-0 p-0 pl-0 before:hidden text-warning-700 dark:text-warning-400' } },
 
     // ===== Error =====
-    { color: 'error', variant: 'solid', class: { root: 'bg-error-600 dark:bg-error-500 text-white before:bg-error-300 dark:before:bg-error-200' } },
+    { color: 'error', variant: 'solid', class: { root: 'bg-error-700 dark:bg-error-600 text-white before:bg-error-400 dark:before:bg-error-300' } },
     { color: 'error', variant: 'outline', class: { root: 'bg-white dark:bg-neutral-900 ring-error-500/30 dark:ring-error-400/30 text-error-700 dark:text-error-400 before:bg-error-500 dark:before:bg-error-400' } },
     { color: 'error', variant: 'soft', class: { root: 'bg-error-500/10 dark:bg-error-400/10 text-error-700 dark:text-error-400 before:bg-error-500 dark:before:bg-error-400' } },
     { color: 'error', variant: 'subtle', class: { root: 'bg-error-500/10 dark:bg-error-400/10 ring-error-500/25 dark:ring-error-400/25 text-error-700 dark:text-error-400 before:bg-error-500 dark:before:bg-error-400' } },

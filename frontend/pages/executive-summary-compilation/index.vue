@@ -137,9 +137,8 @@
             </USelectMenu>
           </div>
           <div class="w-full md:w-80">
-            <UInput
+            <CommonSearchInput
               v-model="searchQuery"
-              icon="i-lucide-search"
               :placeholder="t('executiveSummary.searchPlaceholder')"
               class="w-full"
             />

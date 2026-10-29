@@ -1,8 +1,14 @@
 <template>
-  <UCard class="rounded-xl shadow overflow-hidden" variant="soft" color="primary">
+  <UCard
+    class="rounded-xl shadow overflow-hidden"
+    variant="soft"
+    color="primary"
+  >
     <template #header>
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <h2 class="text-lg font-bold">{{ t('masterData.employee.listTitle') }}</h2>
+        <h2 class="text-lg font-bold">
+          {{ t('masterData.employee.listTitle') }}
+        </h2>
         <UButton
           :label="t('masterData.employee.add')"
           icon="i-heroicons-plus"
@@ -14,13 +20,13 @@
     </template>
 
     <!-- Search & Filter -->
-    <div class="mb-4 flex flex-wrap gap-2 sm:gap-4 items-center">
-      <UInput
+    <div class="mb-4 flex flex-wrap gap-2 sm:gap-4 items-center w-full">
+      <CommonSearchInput
         v-model="searchInput"
         :placeholder="t('masterData.employee.searchPlaceholder')"
-        icon="i-heroicons-magnifying-glass"
         class="w-full sm:w-64"
         @keyup.enter="handleSearch"
+        @clear="handleSearch"
       />
       <UButton
         :label="t('common.search')"
@@ -31,18 +37,24 @@
       <UButton
         :label="t('masterData.employee.reset')"
         color="neutral"
-        variant="ghost"
+        variant="outline"
         @click="resetSearch"
       />
     </div>
 
     <!-- Loading State -->
-    <div v-if="store.loading" class="flex justify-center py-8">
+    <div
+      v-if="store.loading"
+      class="flex justify-center py-8"
+    >
       <ULoadingIcon />
     </div>
 
     <!-- Error State -->
-    <div v-else-if="store.errorMsg" class="py-4">
+    <div
+      v-else-if="store.errorMsg"
+      class="py-4"
+    >
       <UAlert
         color="error"
         variant="soft"
@@ -52,9 +64,17 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="store.employees.length === 0" class="py-8 text-center">
-      <UIcon name="i-heroicons-user-group" class="text-4xl text-gray-400 mb-2" />
-      <p class="text-gray-500">{{ t('masterData.employee.empty') }}</p>
+    <div
+      v-else-if="store.employees.length === 0"
+      class="py-8 text-center"
+    >
+      <UIcon
+        name="i-heroicons-user-group"
+        class="text-4xl text-gray-400 mb-2"
+      />
+      <p class="text-gray-500">
+        {{ t('masterData.employee.empty') }}
+      </p>
     </div>
 
     <!-- Table & Pagination via TableEntities -->
@@ -75,17 +95,25 @@
       </template>
 
       <template #full_name-cell="{ row }">
-        <div class="font-medium">{{ row.original.full_name }}</div>
+        <div class="font-medium">
+          {{ row.original.full_name }}
+        </div>
       </template>
 
       <template #email-cell="{ row }">
-        <a :href="`mailto:${row.original.email}`" class="text-blue-600 hover:underline">
+        <a
+          :href="`mailto:${row.original.email}`"
+          class="text-blue-600 hover:underline"
+        >
           {{ row.original.email }}
         </a>
       </template>
 
       <template #level_grade-cell="{ row }">
-        <UBadge color="neutral" variant="soft">
+        <UBadge
+          color="neutral"
+          variant="soft"
+        >
           {{ t('masterData.employee.level', { level: row.original.level_grade }) }}
         </UBadge>
       </template>

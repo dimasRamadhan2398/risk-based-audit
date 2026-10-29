@@ -88,8 +88,10 @@ const statusOptions = computed(() => [
   { label: locale.value === 'id' ? 'Fieldwork (Fieldwork & Pengujian Pengendalian)' : 'Fieldwork (Fieldwork & Control Testing)', value: 'fieldwork' },
   { label: locale.value === 'id' ? 'Draft Findings (Draft Temuan & Rekomendasi)' : 'Draft Findings (Draft Findings & Recommendations)', value: 'draft findings' },
   { label: locale.value === 'id' ? 'Reporting (Pelaporan & Exit Meeting)' : 'Reporting (Reporting & Exit Meeting)', value: 'reporting' },
-  { label: locale.value === 'id' ? 'Completed (Audit Selesai)' : 'Completed (Audit Completed)', value: 'completed' },
+  { label: locale.value === 'id' ? 'Completed (Audit Selesai)' : 'Completed (Audit Completed)', value: 'completed' }
 ])
+
+const hasFilters = computed(() => !!(search.value || quarter.value || category.value || status.value))
 
 const resetFilters = () => {
   search.value = ''
@@ -124,23 +126,23 @@ const getQuarterFromDate = (dateStr?: string): string => {
 }
 
 const filteredAudits = computed(() => {
-  return auditExecutions.value.filter(audit => {
-    const matchesSearch = !search.value || 
-                          (audit.name && audit.name.toLowerCase().includes(search.value.toLowerCase())) || 
-                          (audit.category && audit.category.toLowerCase().includes(search.value.toLowerCase())) ||
-                          (audit.ref && audit.ref.toLowerCase().includes(search.value.toLowerCase()))
-    const matchesCategory = !category.value || 
-                            (audit.category && audit.category.toLowerCase() === category.value.toLowerCase())
+  return auditExecutions.value.filter((audit) => {
+    const matchesSearch = !search.value
+      || (audit.name && audit.name.toLowerCase().includes(search.value.toLowerCase()))
+      || (audit.category && audit.category.toLowerCase().includes(search.value.toLowerCase()))
+      || (audit.ref && audit.ref.toLowerCase().includes(search.value.toLowerCase()))
+    const matchesCategory = !category.value
+      || (audit.category && audit.category.toLowerCase() === category.value.toLowerCase())
     const matchesStatus = isStatusMatch(audit, status.value)
-    const matchesQuarter = !quarter.value || 
-                           getQuarterFromDate((audit as any).created_at || (audit as any).createdAt) === quarter.value
+    const matchesQuarter = !quarter.value
+      || getQuarterFromDate((audit as any).created_at || (audit as any).createdAt) === quarter.value
     return matchesSearch && matchesCategory && matchesStatus && matchesQuarter
   })
 })
 
 const phaseBreakdown = computed(() => {
   const counts: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }
-  auditExecutions.value.forEach(audit => {
+  auditExecutions.value.forEach((audit) => {
     const phase = getExecutionPhase(audit.progress)
     counts[phase.step] = (counts[phase.step] || 0) + 1
   })
@@ -182,7 +184,9 @@ const handleRemind = (audit: any) => {
   <div class="p-4 sm:p-6 space-y-6 min-w-0">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ t('auditExecution.title') }}</h1>
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+          {{ t('auditExecution.title') }}
+        </h1>
         <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
           {{ t('auditExecution.subtitle') }}
         </p>
@@ -232,15 +236,15 @@ const handleRemind = (audit: any) => {
       <div class="flex flex-wrap items-center gap-4 sm:gap-6">
         <span class="text-md font-bold text-gray-500 tracking-tight">{{ t('auditExecution.summary.title') }}</span>
         <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+          <span class="w-3 h-3 rounded-full bg-emerald-500" />
           <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('auditExecution.summary.completed', { count: getSummary.completed }) }}</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-full bg-sky-500"></span>
+          <span class="w-3 h-3 rounded-full bg-sky-500" />
           <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('auditExecution.summary.inProgress', { count: getSummary.inProgress }) }}</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-full bg-gray-300 dark:bg-gray-600"></span>
+          <span class="w-3 h-3 rounded-full bg-gray-300 dark:bg-gray-600" />
           <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('auditExecution.summary.planned', { count: getSummary.planned }) }}</span>
         </div>
       </div>
@@ -248,11 +252,10 @@ const handleRemind = (audit: any) => {
 
     <!-- Filters Section -->
     <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 w-full">
-      <UInput
+      <CommonSearchInput
         v-model="search"
-        icon="i-lucide-search"
         :placeholder="t('auditExecution.filters.searchPlaceholder')"
-        class="w-full sm:w-48"
+        class="w-full sm:flex-1 sm:min-w-48"
       />
       <USelectMenu
         v-model="quarter"
@@ -274,6 +277,7 @@ const handleRemind = (audit: any) => {
         class="w-full sm:w-64"
       />
       <UButton
+        v-if="hasFilters"
         :label="t('auditExecution.resetFilter')"
         icon="i-lucide-rotate-ccw"
         color="neutral"
@@ -334,8 +338,15 @@ const handleRemind = (audit: any) => {
     </div>
 
     <!-- Table Section -->
-    <div v-else class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm">
-      <TableEntities :columns="columns" :data="filteredAudits" :loading="loading">
+    <div
+      v-else
+      class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm"
+    >
+      <TableEntities
+        :columns="columns"
+        :data="filteredAudits"
+        :loading="loading"
+      >
         <template #name-cell="{ row }">
           <div class="flex flex-col">
             <span class="font-bold text-gray-900 dark:text-white">{{ (row.original || row).name }}</span>
@@ -344,8 +355,15 @@ const handleRemind = (audit: any) => {
         </template>
 
         <template #phase-cell="{ row }">
-          <UBadge :class="getExecutionPhase(rowProgress(row)).badgeClass" variant="subtle" size="md">
-            <UIcon :name="getExecutionPhase(rowProgress(row)).icon" class="mr-1.5 inline-block text-md" />
+          <UBadge
+            :class="getExecutionPhase(rowProgress(row)).badgeClass"
+            variant="subtle"
+            size="md"
+          >
+            <UIcon
+              :name="getExecutionPhase(rowProgress(row)).icon"
+              class="mr-1.5 inline-block text-md"
+            />
             {{ t(`auditExecution.phases.${getExecutionPhase(rowProgress(row)).step}.shortLabel`) }}
           </UBadge>
         </template>
@@ -357,7 +375,7 @@ const handleRemind = (audit: any) => {
                 class="h-full rounded-full transition-all duration-500 ease-out"
                 :class="getProgressColor(rowProgress(row))"
                 :style="{ width: `${Math.min(100, Math.max(0, rowProgress(row)))}%` }"
-              ></div>
+              />
             </div>
             <span class="text-md font-bold text-gray-700 dark:text-white w-10 text-right">
               {{ rowProgress(row) }}%
@@ -372,12 +390,12 @@ const handleRemind = (audit: any) => {
         <template #actions-cell="{ row }">
           <UTooltip :text="t('qualityAssurance.dashboard.summary.viewDetail')">
             <UButton
-            icon="i-lucide-eye"
-            variant="ghost"
-            color="neutral"
-            size="md"
-            @click="openDetail(row)"
-          />
+              icon="i-lucide-eye"
+              variant="ghost"
+              color="neutral"
+              size="md"
+              @click="openDetail(row)"
+            />
           </UTooltip>
         </template>
       </TableEntities>
@@ -391,31 +409,43 @@ const handleRemind = (audit: any) => {
     />
 
     <!-- Lifecycle Phase Guide Help Modal -->
-    <UModal 
-      v-model:open="isHelpModalOpen" 
+    <UModal
+      v-model:open="isHelpModalOpen"
       :ui="{
-          content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
-          header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
-          body: 'p-4 sm:p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
-          footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
-          overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
-      }" 
+        content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
+        body: 'p-4 sm:p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
+        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
       scrollable
-      >
+    >
       <template #content>
         <UCard>
           <template #header>
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2.5">
                 <div class="p-2 rounded-lg bg-secondary-100 dark:bg-secondary-950/60 text-secondary-600 dark:text-secondary-400">
-                  <UIcon name="i-lucide-route" class="text-xl" />
+                  <UIcon
+                    name="i-lucide-route"
+                    class="text-xl"
+                  />
                 </div>
                 <div>
-                  <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('auditExecution.guideModal.title') }}</h3>
-                  <p class="text-md text-gray-500">{{ t('auditExecution.guideModal.subtitle') }}</p>
+                  <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+                    {{ t('auditExecution.guideModal.title') }}
+                  </h3>
+                  <p class="text-md text-gray-500">
+                    {{ t('auditExecution.guideModal.subtitle') }}
+                  </p>
                 </div>
               </div>
-              <UButton color="neutral" variant="ghost" icon="i-lucide-x" @click="() => { isHelpModalOpen = false }" />
+              <UButton
+                color="neutral"
+                variant="ghost"
+                icon="i-lucide-x"
+                @click="() => { isHelpModalOpen = false }"
+              />
             </div>
           </template>
 
@@ -470,4 +500,3 @@ const handleRemind = (audit: any) => {
     </UModal>
   </div>
 </template>
-

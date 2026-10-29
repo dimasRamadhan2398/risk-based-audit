@@ -84,7 +84,10 @@
             </div>
           </div>
           <div class="p-3 bg-primary-50 dark:bg-primary-950/40 rounded-xl text-primary-600 dark:text-primary-400">
-            <UIcon name="i-lucide-calendar" class="w-6 h-6" />
+            <UIcon
+              name="i-lucide-calendar"
+              class="w-6 h-6"
+            />
           </div>
         </div>
       </UCard>
@@ -99,10 +102,15 @@
             <h3 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mt-1">
               {{ yearlyUniverse.length }}
             </h3>
-            <p class="text-xs text-slate-400 mt-0.5">{{ t('strategicPlan.vmg.year') }} {{ selectedYear }}</p>
+            <p class="text-xs text-slate-400 mt-0.5">
+              {{ t('strategicPlan.vmg.year') }} {{ selectedYear }}
+            </p>
           </div>
           <div class="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-600 dark:text-slate-300">
-            <UIcon name="i-lucide-layers" class="w-6 h-6" />
+            <UIcon
+              name="i-lucide-layers"
+              class="w-6 h-6"
+            />
           </div>
         </div>
       </UCard>
@@ -118,7 +126,10 @@
               <h3 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                 {{ prioritizedCount }}
               </h3>
-              <span v-if="yearlyUniverse.length > 0" class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+              <span
+                v-if="yearlyUniverse.length > 0"
+                class="text-xs font-semibold text-emerald-600 dark:text-emerald-400"
+              >
                 ({{ ((prioritizedCount / yearlyUniverse.length) * 100).toFixed(0) }}%)
               </span>
             </div>
@@ -127,11 +138,13 @@
             </p>
           </div>
           <div class="p-3 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl text-emerald-600 dark:text-emerald-400">
-            <UIcon name="i-lucide-check-circle" class="w-6 h-6" />
+            <UIcon
+              name="i-lucide-check-circle"
+              class="w-6 h-6"
+            />
           </div>
         </div>
       </UCard>
-
     </div>
 
     <!-- Main Table Card -->
@@ -147,22 +160,36 @@
             </p>
           </div>
           <!-- Search & Filter Controls -->
-          <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-            <UInput
+          <div class="flex flex-wrap items-center gap-3 w-full sm:flex-1">
+            <CommonSearchInput
               v-model="searchQuery"
-              icon="i-lucide-search"
               size="sm"
               :placeholder="t('auditPriority.searchPlaceholder') !== 'auditPriority.searchPlaceholder' ? t('auditPriority.searchPlaceholder') : 'Search auditable entities...'"
-              class="w-full sm:w-64"
+              class="w-full sm:flex-1 sm:min-w-64"
             />
             <USelect
               v-model="statusFilter"
               :items="statusFilterOptions"
               size="sm"
+              :aria-label="t('auditPriority.allStatus')"
               class="w-full sm:w-44"
             />
-            <UBadge color="success" variant="subtle" class="font-bold">
-              {{ prioritizedCount }} {{ t('auditPriority.prioritizedEntities') }} </UBadge>
+            <UButton
+              v-if="searchQuery || statusFilter !== 'all'"
+              icon="i-lucide-rotate-ccw"
+              color="neutral"
+              variant="outline"
+              size="sm"
+              :label="t('auditPriority.reset')"
+              @click="resetFilters"
+            />
+            <UBadge
+              color="success"
+              variant="subtle"
+              class="font-bold"
+            >
+              {{ prioritizedCount }} {{ t('auditPriority.prioritizedEntities') }}
+            </UBadge>
           </div>
         </div>
       </template>
@@ -193,31 +220,58 @@
             :class="getRiskLevelBadgeClass(null)"
             :title="t('riskFactors.priority.notScoredHint')"
           >{{ t('riskFactors.priority.notScoredBadge') }}</span>
-          <span v-else :class="getRiskLevelBadgeClass(row.original.risk_level)">{{ formatRiskLevel(row.original.risk_level) }}</span>
+          <span
+            v-else
+            :class="getRiskLevelBadgeClass(row.original.risk_level)"
+          >{{ formatRiskLevel(row.original.risk_level) }}</span>
         </template>
 
         <template #audit_priority-cell="{ row }">
-          <div v-if="isUniverseYearPrioritized(row.original)" class="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
-            <UIcon name="i-lucide-check-circle" class="w-5 h-5 text-emerald-500" />
+          <div
+            v-if="isUniverseYearPrioritized(row.original)"
+            class="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold"
+          >
+            <UIcon
+              name="i-lucide-check-circle"
+              class="w-5 h-5 text-emerald-500"
+            />
             <span>{{ t('riskFactors.priority.priorityBadge') }}</span>
           </div>
-          <span v-else class="text-slate-400 text-sm">-</span>
+          <span
+            v-else
+            class="text-slate-400 text-sm"
+          >-</span>
         </template>
 
         <template #loading>
           <div class="text-center py-12 text-slate-400 text-sm">
-            <UIcon name="i-lucide-loader-2" class="w-8 h-8 mx-auto text-primary-500 animate-spin mb-2" />
+            <UIcon
+              name="i-lucide-loader-2"
+              class="w-8 h-8 mx-auto text-primary-500 animate-spin mb-2"
+            />
             <p>{{ t('auditPriority.loadingYear', { year: selectedYear }) }}</p>
           </div>
         </template>
 
         <template #empty>
-          <div v-if="yearlyUniverse.length > 0" class="text-center py-10 text-slate-400 text-sm">
-            <UIcon name="i-lucide-filter-x" class="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+          <div
+            v-if="yearlyUniverse.length > 0"
+            class="text-center py-10 text-slate-400 text-sm"
+          >
+            <UIcon
+              name="i-lucide-filter-x"
+              class="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600 mb-2"
+            />
             <p>{{ t('auditPriority.emptyFiltered') }}</p>
           </div>
-          <div v-else class="text-center py-12 text-slate-400 text-sm">
-            <UIcon name="i-lucide-inbox" class="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+          <div
+            v-else
+            class="text-center py-12 text-slate-400 text-sm"
+          >
+            <UIcon
+              name="i-lucide-inbox"
+              class="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-2"
+            />
             <p class="font-medium text-slate-600 dark:text-slate-300">
               {{ t('riskFactors.priority.noEntities', { year: selectedYear }) }}
             </p>
@@ -249,7 +303,10 @@
     <UCard class="shadow-sm border border-[var(--border-main)] bg-slate-50/50 dark:bg-slate-900/30">
       <template #header>
         <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-          <UIcon name="i-lucide-book-open" class="w-4 h-4 text-slate-500" />
+          <UIcon
+            name="i-lucide-book-open"
+            class="w-4 h-4 text-slate-500"
+          />
           {{ t('riskFactors.priority.levelInfoTitle') }}
         </h3>
       </template>
@@ -269,17 +326,28 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-            <tr v-for="row in RISK_LEVEL_THRESHOLDS" :key="row.level">
-              <td class="px-4 py-2.5 text-slate-600 dark:text-slate-400 font-medium text-center">{{ formatRiskLevelRange(row) }}</td>
+            <tr
+              v-for="row in RISK_LEVEL_THRESHOLDS"
+              :key="row.level"
+            >
+              <td class="px-4 py-2.5 text-slate-600 dark:text-slate-400 font-medium text-center">
+                {{ formatRiskLevelRange(row) }}
+              </td>
               <td class="px-4 py-2.5 text-center">
                 <span :class="getRiskLevelBadgeClass(row.level)">
                   {{ formatRiskLevel(row.level) }}
                 </span>
               </td>
-              <td v-if="row.prioritized" class="px-4 py-2.5 text-center text-xs font-bold text-emerald-600 dark:text-emerald-400">
+              <td
+                v-if="row.prioritized"
+                class="px-4 py-2.5 text-center text-xs font-bold text-emerald-600 dark:text-emerald-400"
+              >
                 √ {{ t('riskFactors.scoring.priorityYes') }}
               </td>
-              <td v-else class="px-4 py-2.5 text-center text-xs text-slate-400">
+              <td
+                v-else
+                class="px-4 py-2.5 text-center text-xs text-slate-400"
+              >
                 {{ t('riskFactors.scoring.priorityNo') }}
               </td>
             </tr>
@@ -331,8 +399,13 @@ const prioritizedCount = computed(() => {
   return yearlyUniverse.value.filter(ent => isUniverseYearPrioritized(ent)).length
 })
 
+const resetFilters = () => {
+  searchQuery.value = ''
+  statusFilter.value = 'all'
+}
+
 const filteredYearlyUniverse = computed(() => {
-  return sortedYearlyUniverse.value.filter(ent => {
+  return sortedYearlyUniverse.value.filter((ent) => {
     // Search query filter
     if (searchQuery.value) {
       const q = searchQuery.value.toLowerCase().trim()

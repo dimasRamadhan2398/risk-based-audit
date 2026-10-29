@@ -28,7 +28,7 @@
 
         <!-- Stepper -->
         <div class="w-full overflow-x-auto border-b border-[var(--border-main)] bg-[var(--bg-surface)] px-4 py-3 sm:px-6 sm:py-4 scrollbar-thin">
-          <div class="flex min-w-max items-center gap-3 px-1 sm:gap-4">
+          <div class="flex min-w-max items-center justify-center gap-3 px-1 sm:gap-4">
             <template
               v-for="(step, idx) in steps"
               :key="step.key"
@@ -104,11 +104,11 @@
             <UAlert
               v-if="store.formError?.messages.length"
               color="error"
-              variant="subtle"
+              variant="solid"
               icon="i-heroicons-exclamation-triangle"
               :title="t('common.error')"
               :actions="store.formError.code === 'ACTIVITY_PLAN_STALE'
-                ? [{ label: t('auditActivityPlan.reload'), color: 'error', variant: 'outline', onClick: () => store.loadEditing() }]
+                ? [{ label: t('auditActivityPlan.reload'), color: 'neutral', variant: 'solid', onClick: () => store.loadEditing() }]
                 : []"
               close
               class="shadow-sm"
@@ -134,7 +134,7 @@
             >
               <UCard
                 :ui="{ body: 'p-4 sm:p-6' }"
-                class="border border-[var(--border-main)]"
+                class="border border-[var(--border-main)] bg-transparent ring-0 shadow-none"
               >
                 <template #header>
                   <div class="flex items-center gap-2">
@@ -323,7 +323,7 @@
             >
               <UCard
                 :ui="{ body: 'p-4 sm:p-6' }"
-                class="border border-[var(--border-main)]"
+                class="border border-[var(--border-main)] bg-transparent ring-0 shadow-none"
               >
                 <template #header>
                   <div class="flex items-center gap-2">

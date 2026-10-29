@@ -116,9 +116,8 @@
                         {{ t('riskFactors.weighting.addFactor') }}
                       </UButton>
                     </div>
-                    <UInput
+                    <CommonSearchInput
                       v-model="searchQuery"
-                      icon="i-lucide-search"
                       size="sm"
                       :placeholder="t('riskFactors.weighting.searchPlaceholder')"
                       color="neutral"

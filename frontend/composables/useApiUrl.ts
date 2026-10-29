@@ -1,4 +1,13 @@
+const isRemoteUrl = (val: unknown): val is string =>
+  typeof val === 'string' && /^https?:\/\//.test(val) && !/\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(val);
+
 const getDynamicApiUrl = (fallbackConfigKey: string, fallbackPath: string) => {
+  const configured = useRuntimeConfig().public[fallbackConfigKey as keyof ReturnType<typeof useRuntimeConfig>['public']];
+  // An absolute non-localhost URL from .env (e.g. https://api.auditsphere.app/api/v1) wins,
+  // so local dev can target a remote API. Relative values keep the behaviour below.
+  if (isRemoteUrl(configured)) {
+    return configured;
+  }
   if (process.client) {
     const hostname = window.location.hostname;
     if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
