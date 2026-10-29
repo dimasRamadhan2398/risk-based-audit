@@ -58,6 +58,9 @@ func (r *RiskRoute) Run() {
 	// this service, so without this the risk register and RCM were readable and
 	// writable by anyone who could reach the gateway.
 	apiV1.Use(r.authMiddleware.Authenticate())
+	// VIEWER is read-only: every POST/PUT/PATCH/DELETE is refused by default.
+	// No risk-service POST is a read, so there is no exemption.
+	apiV1.Use(middleware.DenyViewerWrites())
 	{
 		log.Printf("[RiskRoute] Registered routes under /api/v1/risks:")
 		log.Printf("  GET    /api/v1/risks")
@@ -82,26 +85,34 @@ func (r *RiskRoute) Run() {
 		apiV1.DELETE("/mitigations/:id", r.mitigationCtrl.DeleteMitigation)
 
 		// New routes for Risk Factors
-		apiV1.GET("/risk-factors/standard", r.riskFactorCtrl.ListStandardRiskFactors)
-		apiV1.POST("/risk-factors/standard", r.riskFactorCtrl.CreateStandardRiskFactor)
-		apiV1.PUT("/risk-factors/standard/:id", r.riskFactorCtrl.UpdateStandardRiskFactor)
-		apiV1.DELETE("/risk-factors/standard/:id", r.riskFactorCtrl.DeleteStandardRiskFactor)
+		// Standard risk factor library: writes limited to auditUniverseWriters.
+		stdFactors := apiV1.Group("/risk-factors/standard", middleware.RequireAnyRoleOnWrites(auditUniverseWriters...))
+		stdFactors.GET("", r.riskFactorCtrl.ListStandardRiskFactors)
+		stdFactors.POST("", r.riskFactorCtrl.CreateStandardRiskFactor)
+		stdFactors.PUT("/:id", r.riskFactorCtrl.UpdateStandardRiskFactor)
+		stdFactors.DELETE("/:id", r.riskFactorCtrl.DeleteStandardRiskFactor)
 		apiV1.GET("/risk-factors/corporate", r.riskFactorCtrl.ListCorporateRiskFactors)
 		apiV1.POST("/risk-factors/corporate", r.riskFactorCtrl.UpdateCorporateRiskFactors)
 
-		// New routes for Audit Universe
-		apiV1.GET("/audit-universe/standard", r.auditUniverseCtrl.ListStandardAuditUniverse)
-		apiV1.GET("/audit-universe/corporate", r.auditUniverseCtrl.ListCorporateAuditUniverse)
-		apiV1.POST("/audit-universe/corporate", r.auditUniverseCtrl.CreateOrUpdateCorporateNode)
-		apiV1.POST("/audit-universe/corporate/sync-master", r.auditUniverseCtrl.SyncMasterData)
-		apiV1.DELETE("/audit-universe/corporate/:id", r.auditUniverseCtrl.DeleteCorporateNode)
+		// Audit Universe: writes limited to auditUniverseWriters (non-GET only).
+		universe := apiV1.Group("/audit-universe", middleware.RequireAnyRoleOnWrites(auditUniverseWriters...))
+		universe.GET("/standard", r.auditUniverseCtrl.ListStandardAuditUniverse)
+		universe.GET("/corporate", r.auditUniverseCtrl.ListCorporateAuditUniverse)
+		universe.POST("/corporate/sync-master", r.auditUniverseCtrl.SyncMasterData)
+		// Corporate entries are the only audit-universe routes DEPARTMENT_HEAD
+		// reaches; the controller scopes it to its own department. A sibling group
+		// with the same prefix keeps every other (and future) universe route on the
+		// full-writer list by default.
+		corporate := apiV1.Group("/audit-universe/corporate", middleware.RequireAnyRoleOnWrites(corporateWriters...))
+		corporate.POST("", r.auditUniverseCtrl.CreateOrUpdateCorporateNode)
+		corporate.DELETE("/:id", r.auditUniverseCtrl.DeleteCorporateNode)
 
-		apiV1.GET("/audit-universe/year/:year", r.auditUniverseCtrl.ListYearlyAuditUniverse)
-		apiV1.POST("/audit-universe/year/:year", r.auditUniverseCtrl.EstablishYearlyUniverse)
-		apiV1.POST("/audit-universe/year/:year/score", r.auditUniverseCtrl.ScoreYearlyEntity)
+		universe.GET("/year/:year", r.auditUniverseCtrl.ListYearlyAuditUniverse)
+		universe.POST("/year/:year", r.auditUniverseCtrl.EstablishYearlyUniverse)
+		universe.POST("/year/:year/score", r.auditUniverseCtrl.ScoreYearlyEntity)
 
 		// Re-emits the full universe state to Kafka (see pkg/kafka/events.go).
-		apiV1.POST("/audit-universe/events/resync", r.auditUniverseCtrl.ResyncEvents)
+		universe.POST("/events/resync", r.auditUniverseCtrl.ResyncEvents)
 
 		// Routes for Risk Control Matrix (RCM)
 		apiV1.GET("/rcm", r.rcmCtrl.ListRCM)

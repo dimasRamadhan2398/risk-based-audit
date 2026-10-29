@@ -62,6 +62,12 @@ else
     STORAGE_DIR="/var/data/auditsphere/storage/${SLUG}"
 fi
 
+# generate-tenant-stack.sh refuses to run without TENANT_STORAGE_ROOT and derives
+# the silo as <TENANT_STORAGE_ROOT>/<slug>. Pass it the parent of STORAGE_DIR so
+# the generator and this script (steps 5 and the summary) use one path.
+TENANT_STORAGE_ROOT="$(dirname "$STORAGE_DIR")"
+export TENANT_STORAGE_ROOT
+
 TENANT_DIR="$ROOT_DIR/backend/tenants/${SLUG}"
 
 # -----------------------------------------------------------------------------
@@ -363,7 +369,7 @@ NGINXCONF
         echo "      Add an A record for ${DOMAIN} and ${API_DOMAIN} -> this host, then run:"
         echo "      certbot --nginx -d ${DOMAIN} -d ${API_DOMAIN} --agree-tos -m admin@auditsphere.app --non-interactive"
     elif command -v certbot > /dev/null 2>&1; then
-        certbot --nginx -d ${DOMAIN} -d ${API_DOMAIN} --agree-tos -m admin@auditsphere.app --non-interactive \
+        certbot --nginx -d "${DOMAIN}" -d "${API_DOMAIN}" --agree-tos -m admin@auditsphere.app --non-interactive \
             || echo "    ! Certbot deferred — the tenant is serving plain HTTP until you re-run it."
     fi
 fi

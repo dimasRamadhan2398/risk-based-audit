@@ -21,7 +21,7 @@ var uploadsTestSecret = "uploads-test-" + strings.Repeat("u", 64)
 func uploadsTestToken(t *testing.T) string {
 	t.Helper()
 	claims := &middleware.Claims{
-		UserID: "user-1", Username: "tester", Roles: []string{"VIEWER"},
+		UserID: "user-1", Username: "tester", Roles: []string{"AUDITOR"}, // VIEWER is refused on /uploads, see viewer_readonly_test.go
 		RegisteredClaims: jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour))},
 	}
 	tok, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(uploadsTestSecret))
@@ -109,6 +109,29 @@ func TestUploadsPrivateDirectoryIsNotServed(t *testing.T) {
 		"/uploads/Action-Taken-Reports/evidence.pdf",
 		"/uploads/docs/../action-taken-reports/evidence.pdf",
 	} {
+		if w := getUpload(r, target, tok); w.Code != http.StatusNotFound {
+			t.Fatalf("%s: got %d, want 404", target, w.Code)
+		}
+	}
+}
+
+// Feature document stores are private by default: /uploads refuses them even
+// to an authenticated caller who knows the stored name.
+func TestUploadsFeatureDocumentsAreNotServed(t *testing.T) {
+	r, root := uploadsTestRouter(t)
+	tok := uploadsTestToken(t)
+	for dir, name := range map[string]string{
+		"uploaded-assignment-letters": "letter-abc123.pdf",
+		"imported-working-papers":     "paper-ghi789.xlsx",
+	} {
+		d := filepath.Join(root, dir)
+		if err := os.MkdirAll(d, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(d, name), []byte("feature-body"), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		target := "/uploads/" + dir + "/" + name
 		if w := getUpload(r, target, tok); w.Code != http.StatusNotFound {
 			t.Fatalf("%s: got %d, want 404", target, w.Code)
 		}

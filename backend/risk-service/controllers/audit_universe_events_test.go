@@ -12,7 +12,7 @@ import (
 
 func TestResyncEventsWithoutKafkaReturns503(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	ctrl := NewAuditUniverseController(nil, nil) // db is never reached when publishing is disabled
+	ctrl := NewAuditUniverseController(nil, nil, nil) // db is never reached when publishing is disabled
 
 	r := gin.New()
 	r.POST("/audit-universe/events/resync", ctrl.ResyncEvents)

@@ -382,34 +382,18 @@ func (p *GDriveProvider) uploadToGDrive(ctx context.Context, fileContent []byte,
 }
 
 // uploadLocal saves the file content in the local filesystem preserving folder structure.
+// The folder is confined to the uploads tree and the file gets a
+// server-generated name (see storeLocal).
 func (p *GDriveProvider) uploadLocal(fileContent []byte, fileName string, folder string) (*models.MediaAttachment, error) {
-	cleanFolder := strings.Trim(folder, "/")
-	if cleanFolder == "" {
-		cleanFolder = "Auditsphere/general"
+	if strings.Trim(folder, "/") == "" {
+		folder = "Auditsphere/general"
 	}
-	uploadsDir := filepath.Join("uploads", cleanFolder)
-	if err := os.MkdirAll(uploadsDir, 0755); err != nil {
-		return nil, fmt.Errorf("failed to create local uploads directory: %w", err)
+	attachment, err := storeLocal(fileContent, fileName, folder)
+	if err != nil {
+		return nil, fmt.Errorf("failed to store local file: %w", err)
 	}
-
-	fileID := uuid.New().String()
-	filePath := filepath.Join(uploadsDir, fileName)
-
-	// Write to file
-	if err := os.WriteFile(filePath, fileContent, 0644); err != nil {
-		return nil, fmt.Errorf("failed to write local file: %w", err)
-	}
-
-	relPath := "/" + filepath.ToSlash(filepath.Join("uploads", cleanFolder, fileName))
-
-	return &models.MediaAttachment{
-		FileID:     fileID,
-		FileName:   fileName,
-		FilePath:   relPath,
-		FileSize:   int64(len(fileContent)),
-		FileType:   "application/octet-stream",
-		UploadedAt: time.Now(),
-	}, nil
+	attachment.FileID = uuid.New().String()
+	return attachment, nil
 }
 
 // makePublic grants "anyone with the link can view" permission on a Drive file.

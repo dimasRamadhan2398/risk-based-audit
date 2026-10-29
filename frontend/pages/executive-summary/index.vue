@@ -12,7 +12,7 @@
         </p>
       </div>
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
-        <UButton
+        <UButton v-if="canWrite"
           color="neutral"
           variant="outline"
           icon="i-lucide-upload"
@@ -20,7 +20,7 @@
           to="/executive-summary/upload"
           class="font-bold shadow w-full sm:w-auto justify-center"
         />
-        <UButton
+        <UButton v-if="canWrite"
           color="primary"
           icon="i-lucide-plus"
           :label="t('executiveSummaryIndividual.page.createButton')"
@@ -175,7 +175,7 @@
                   @click="store.openView(item)" 
                 />
               </UTooltip>
-              <UTooltip :text="t('executiveSummaryIndividual.card.edit')">
+              <UTooltip v-if="canWrite" :text="t('executiveSummaryIndividual.card.edit')">
                 <UButton 
                   v-if="item.status !== 'Approved'" 
                   color="warning" 
@@ -185,7 +185,7 @@
                   @click="store.openEditForm(item as any)" 
                 />
               </UTooltip>
-              <UTooltip :text="t('executiveSummaryIndividual.card.delete')">
+              <UTooltip v-if="canWrite" :text="t('executiveSummaryIndividual.card.delete')">
                 <UButton 
                   color="error" 
                   variant="ghost" 
@@ -250,7 +250,7 @@
         <p class="text-sm text-gray-500 mt-1 max-w-md mx-auto">
           {{ t('executiveSummaryIndividual.empty.description') }}
         </p>
-        <UButton
+        <UButton v-if="canWrite"
           color="primary"
           icon="i-lucide-plus"
           :label="t('executiveSummaryIndividual.page.createButton')"
@@ -310,6 +310,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { ref, computed } from 'vue'
 import { useExecutiveSummaryStore, loadPersistedExecutiveSummaryOverrides, type ExecutiveSummary } from '~/stores/executive-summary'
 import { useI18n } from '~/composables/useI18n'
@@ -318,6 +319,7 @@ import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import ExecutiveSummaryIndividualForm from '~/components/audit-result-report/ExecutiveSummaryIndividualForm.vue'
 
 const { t } = useI18n()
+const { canWrite } = useRbac()
 
 definePageMeta({
   middleware: 'auth'

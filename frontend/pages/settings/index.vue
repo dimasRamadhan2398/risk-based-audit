@@ -145,6 +145,7 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
 import { useAuthStore } from '~/stores/auth'
+import { getSettingsTabs, resolveSettingsTab } from '~/utils/viewerPolicy'
 
 definePageMeta({
   middleware: 'auth',
@@ -163,24 +164,29 @@ const router = useRouter()
 const authStore = useAuthStore()
 const { t } = useI18n()
 
-const validTabs = ['profile', 'settings', 'mfa', 'activity', 'permissions', 'datasource', 'faq']
-const initialTab = computed(() => {
-  const tabQuery = route.query.tab as string
-  return validTabs.includes(tabQuery) ? tabQuery : 'profile'
-})
+// VIEWER only gets profile, activity and faq; other roles keep every tab.
+const { isViewer } = useRbac()
+const validTabs = computed(() => getSettingsTabs(isViewer.value))
+const initialTab = computed(() => resolveSettingsTab(route.query.tab, isViewer.value))
 
 const activeTab = ref(initialTab.value)
 
 watch(
   () => route.query.tab,
   (newTab) => {
-    if (newTab && typeof newTab === 'string' && validTabs.includes(newTab)) {
-      activeTab.value = newTab
+    if (newTab && typeof newTab === 'string') {
+      activeTab.value = resolveSettingsTab(newTab, isViewer.value)
     }
   }
 )
 
+// The role can resolve after first render; re-check the active tab against the allowed list.
+watch(validTabs, (tabs) => {
+  if (!tabs.includes(activeTab.value)) activeTab.value = 'profile'
+})
+
 const selectTab = (tab: string) => {
+  if (!validTabs.value.includes(tab)) tab = 'profile'
   activeTab.value = tab
   router.replace({ query: { ...route.query, tab } })
 }
@@ -198,7 +204,7 @@ const userInitial = computed(() => {
   return name.charAt(0).toUpperCase()
 })
 
-const links = computed<NavigationMenuItem[]>(() => [
+const allLinks = computed<NavigationMenuItem[]>(() => [
   {
     label: t('settings.sidebar.myProfile'),
     icon: 'i-lucide-user',
@@ -245,7 +251,7 @@ const links = computed<NavigationMenuItem[]>(() => [
     slot: 'datasource' as const,
     onSelect: () => selectTab('datasource'),
     onClick: () => selectTab('datasource'),
-    active: activeTab.value === 'datasource'
+    active: activeTab.value === 'datasource',
   },
   {
     label: t('settings.sidebar.faq'),
@@ -257,6 +263,10 @@ const links = computed<NavigationMenuItem[]>(() => [
   }
 ])
 
+const links = computed<NavigationMenuItem[]>(() =>
+  allLinks.value.filter(link => validTabs.value.includes(link.slot as string))
+)
+
 const currentPageTitle = computed(() => {
   const titles: Record<string, string> = {
     profile: t('settings.titles.profile'),
@@ -265,7 +275,7 @@ const currentPageTitle = computed(() => {
     activity: t('settings.titles.activity'),
     permissions: t('settings.titles.permissions'),
     datasource: t('settings.titles.datasource'),
-    faq: t('settings.titles.faq')
+    faq: t('settings.titles.faq'),
   }
   return titles[activeTab.value] || t('settings.titles.settings')
 })

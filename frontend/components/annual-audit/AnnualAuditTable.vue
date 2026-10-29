@@ -69,7 +69,7 @@
               @click="store.openViewModal(row.original || row)"
             />
             </UTooltip>
-            <UTooltip :text="t('annualAudit.table.editTooltip')">
+            <UTooltip v-if="canWrite" :text="t('annualAudit.table.editTooltip')">
             <UButton
               icon="i-lucide-edit"
               color="warning"
@@ -79,7 +79,7 @@
               @click="store.handleEdit(row.original || row)"
             />
             </UTooltip>
-            <UTooltip :text="t('annualAudit.table.deleteTooltip')">
+            <UTooltip v-if="canWrite" :text="t('annualAudit.table.deleteTooltip')">
               <UButton
                 icon="i-lucide-trash-2"
                 color="error"
@@ -98,6 +98,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { useAnnualPlanStore } from '~/stores/annual-audit'
 import { useI18n } from '~/composables/useI18n'
 import { getRiskLevelColorClass, normalizeRiskLevel, RISK_LEVEL_LABEL_KEYS } from '~/utils/riskLevelBadge'
@@ -105,6 +106,7 @@ import { getRiskLevelColorClass, normalizeRiskLevel, RISK_LEVEL_LABEL_KEYS } fro
 // Cukup inisialisasi store. Komponen akan otomatis membaca status showModal, data form, dan fungsi dari sini.
 const store = useAnnualPlanStore()
 const { t } = useI18n()
+const { canWrite } = useRbac()
 
 // Risk level text from the backend (e.g. "Medium to High") shown in the active locale.
 const riskLevelLabel = (level?: string | null) => {

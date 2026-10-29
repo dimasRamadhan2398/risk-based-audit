@@ -244,7 +244,7 @@
                           />
                         </td>
                         <td class="px-4 py-3 text-center">
-                          <UButton
+                          <UButton v-if="canWrite"
                             icon="i-lucide-trash-2"
                             color="error"
                             variant="ghost"
@@ -698,7 +698,7 @@ import {
 const store = useRiskFactorsStore()
 const auditStore = useAuditUniverseStore()
 const { t } = useI18n()
-const { canEditRiskFactors } = useRbac()
+const { canEditRiskFactors, canWrite } = useRbac()
 const toast = useToastNotification()
 
 const tabItems = computed(() => [

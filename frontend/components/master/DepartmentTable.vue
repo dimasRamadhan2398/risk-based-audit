@@ -6,10 +6,8 @@
   >
     <template #header>
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <h2 class="text-lg font-bold">
-          {{ t('masterData.department.listTitle') }}
-        </h2>
-        <UButton
+        <h2 class="text-lg font-bold">{{ t('masterData.department.listTitle') }}</h2>
+        <UButton v-if="canWriteMasterData"
           :label="t('masterData.department.add')"
           icon="i-heroicons-plus"
           color="primary"
@@ -132,14 +130,14 @@
 
       <template #actions-cell="{ row }">
         <div class="flex gap-1">
-          <UButton
+          <UButton v-if="canWriteMasterData"
             icon="i-heroicons-pencil"
             color="primary"
             variant="ghost"
             size="sm"
             @click="store.handleEdit(row.original)"
           />
-          <UButton
+          <UButton v-if="canWriteMasterData"
             icon="i-heroicons-trash"
             color="error"
             variant="ghost"
@@ -153,12 +151,14 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { useDepartmentStore } from '~/stores/department'
 import { useMasterOptionsStore } from '~/stores/master-options'
 
 const store = useDepartmentStore()
 const options = useMasterOptionsStore()
 const { t } = useI18n()
+const { canWriteMasterData } = useRbac()
 
 // Local search state
 const searchInput = ref(store.search)

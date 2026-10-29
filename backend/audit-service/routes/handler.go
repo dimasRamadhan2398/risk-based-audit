@@ -69,6 +69,10 @@ func (h *RouteHandler) RegisterRoutes() {
 	// this service, so without this the whole API was reachable anonymously.
 	apiV1 := h.engine.Group("/api/v1")
 	apiV1.Use(h.authMiddleware.Authenticate())
+	// VIEWER is read-only and file-free: writes are refused by default (no
+	// route in this service is a POST that only reads) and every download,
+	// view, evidence, media and export route answers 403.
+	apiV1.Use(middleware.DenyViewerWrites(), middleware.DenyViewerFiles())
 
 	// Audit Charter routes
 	auditCharters := apiV1.Group("/audit-charters")

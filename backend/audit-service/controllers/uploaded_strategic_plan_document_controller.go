@@ -1,18 +1,13 @@
 package controllers
 
 import (
-	"encoding/base64"
 	"fmt"
-	"io"
 	"net/http"
-	"net/url"
 	"os"
-	"path/filepath"
-	"strings"
-	"time"
 
 	"audit-service/models"
 	"audit-service/pkg/response"
+	"audit-service/pkg/upload"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -23,9 +18,10 @@ type UploadedStrategicPlanDocumentController struct {
 	DB *gorm.DB
 }
 
+const uploadedStrategicPlanDocumentsDir = "./uploads/uploaded-strategic-plan-documents"
+
 func NewUploadedStrategicPlanDocumentController(db *gorm.DB) *UploadedStrategicPlanDocumentController {
-	uploadsDir := "./uploads/uploaded-strategic-plan-documents"
-	if err := os.MkdirAll(uploadsDir, 0755); err != nil {
+	if err := os.MkdirAll(uploadedStrategicPlanDocumentsDir, 0750); err != nil {
 		fmt.Printf("Failed to create uploads directory: %v\n", err)
 	}
 	return &UploadedStrategicPlanDocumentController{DB: db}
@@ -39,31 +35,33 @@ type UploadStrategicPlanRequest struct {
 	FileContent string `json:"fileContent" binding:"required"`
 }
 
+// Upload accepts multipart/form-data with a "file" field, or a JSON body
+// (UploadStrategicPlanRequest) with base64 fileContent.
 func (ctrl *UploadedStrategicPlanDocumentController) Upload(c *gin.Context) {
+	if !beginDocumentUpload(c) {
+		return
+	}
 	title := c.PostForm("title")
 	description := c.PostForm("description")
 	fileName := c.PostForm("fileName")
 	fileType := c.PostForm("fileType")
 
 	var dec []byte
+	clientName := fileName
 
-	file, err := c.FormFile("file")
-	if err == nil {
-		openedFile, err := file.Open()
-		if err != nil {
-			response.InternalServerError(c, "failed to open file: "+err.Error())
-			return
-		}
-		defer openedFile.Close()
-
-		dec, err = io.ReadAll(openedFile)
-		if err != nil {
-			response.InternalServerError(c, "failed to read file: "+err.Error())
+	if _, err := c.FormFile("file"); err == nil {
+		var ok bool
+		dec, clientName, ok = readFormDocument(c, fileName)
+		if !ok {
 			return
 		}
 	} else {
 		var req UploadStrategicPlanRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
+			if upload.IsTooLarge(err) {
+				upload.Respond(c, upload.ErrTooLarge(uploadedDocMaxBytes))
+				return
+			}
 			response.BadRequest(c, "invalid request: "+err.Error())
 			return
 		}
@@ -72,10 +70,10 @@ func (ctrl *UploadedStrategicPlanDocumentController) Upload(c *gin.Context) {
 		description = req.Description
 		fileName = req.FileName
 		fileType = req.FileType
+		clientName = fileName
 
-		dec, err = base64.StdEncoding.DecodeString(req.FileContent)
-		if err != nil {
-			response.BadRequest(c, "invalid base64 fileContent: "+err.Error())
+		var ok bool
+		if dec, ok = decodeBase64Document(c, req.FileContent); !ok {
 			return
 		}
 	}
@@ -85,31 +83,15 @@ func (ctrl *UploadedStrategicPlanDocumentController) Upload(c *gin.Context) {
 		return
 	}
 
-	if int64(len(dec)) > 10*1024*1024 {
-		response.BadRequest(c, "File size exceeds maximum limit of 10MB")
-		return
-	}
-
-	uploadsDir := "./uploads/uploaded-strategic-plan-documents"
-	if err := os.MkdirAll(uploadsDir, 0755); err != nil {
-		response.InternalServerError(c, "Failed to create uploads directory: "+err.Error())
-		return
-	}
-
-	fileExt := filepath.Ext(fileName)
-	baseName := strings.TrimSuffix(fileName, fileExt)
-	uniqueFileName := fmt.Sprintf("%s-%d%s", baseName, time.Now().UnixNano(), fileExt)
-	filePath := filepath.Join(uploadsDir, uniqueFileName)
-
-	if err := os.WriteFile(filePath, dec, 0644); err != nil {
-		response.InternalServerError(c, "Failed to write file to storage: "+err.Error())
+	name, filePath, ok := saveDocument(c, uploadedStrategicPlanDocumentsDir, clientName, dec)
+	if !ok {
 		return
 	}
 
 	doc := models.UploadedStrategicPlanDocument{
 		Title:       title,
 		Description: description,
-		FileName:    fileName,
+		FileName:    name,
 		FilePath:    filePath,
 		FileSize:    int64(len(dec)),
 		FileType:    fileType,
@@ -117,8 +99,8 @@ func (ctrl *UploadedStrategicPlanDocumentController) Upload(c *gin.Context) {
 	}
 
 	if err := ctrl.DB.Create(&doc).Error; err != nil {
-		_ = os.Remove(filePath)
-		response.InternalServerError(c, "Failed to save record to database: "+err.Error())
+		removeDocumentFile(filePath)
+		response.InternalServerError(c, "Failed to save record to database")
 		return
 	}
 
@@ -135,30 +117,36 @@ func (ctrl *UploadedStrategicPlanDocumentController) List(c *gin.Context) {
 	response.OK(c, "Uploaded strategic audit plan documents retrieved successfully", docs)
 }
 
-func (ctrl *UploadedStrategicPlanDocumentController) Delete(c *gin.Context) {
-	idParam := c.Param("id")
-	id, err := uuid.Parse(idParam)
+func (ctrl *UploadedStrategicPlanDocumentController) find(c *gin.Context) (*models.UploadedStrategicPlanDocument, bool) {
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		response.BadRequest(c, "Invalid strategic audit plan document ID")
-		return
+		return nil, false
 	}
-
 	var doc models.UploadedStrategicPlanDocument
 	if err := ctrl.DB.First(&doc, "id = ?", id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			response.NotFound(c, "Uploaded strategic audit plan document not found")
-			return
+			return nil, false
 		}
 		response.InternalServerError(c, "Failed to fetch document")
+		return nil, false
+	}
+	return &doc, true
+}
+
+func (ctrl *UploadedStrategicPlanDocumentController) Delete(c *gin.Context) {
+	doc, ok := ctrl.find(c)
+	if !ok {
 		return
 	}
 
-	if err := ctrl.DB.Delete(&doc).Error; err != nil {
+	if err := ctrl.DB.Delete(doc).Error; err != nil {
 		response.InternalServerError(c, "Failed to delete record: "+err.Error())
 		return
 	}
 
-	_ = os.Remove(doc.FilePath)
+	removeDocumentFile(doc.FilePath)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -167,80 +155,13 @@ func (ctrl *UploadedStrategicPlanDocumentController) Delete(c *gin.Context) {
 }
 
 func (ctrl *UploadedStrategicPlanDocumentController) Download(c *gin.Context) {
-	idParam := c.Param("id")
-	id, err := uuid.Parse(idParam)
-	if err != nil {
-		response.BadRequest(c, "Invalid strategic audit plan document ID")
-		return
+	if doc, ok := ctrl.find(c); ok {
+		upload.Serve(c, doc.FileName, doc.FileContent, doc.FilePath, false)
 	}
-
-	var doc models.UploadedStrategicPlanDocument
-	if err := ctrl.DB.First(&doc, "id = ?", id).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			response.NotFound(c, "Uploaded strategic audit plan document not found")
-			return
-		}
-		response.InternalServerError(c, "Failed to fetch document")
-		return
-	}
-
-	contentType := getDocumentContentType(doc.FileName, doc.FileType)
-	encodedFileName := url.PathEscape(doc.FileName)
-
-	if len(doc.FileContent) > 0 {
-		c.Header("Content-Description", "File Transfer")
-		c.Header("Content-Transfer-Encoding", "binary")
-		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"; filename*=UTF-8''%s", doc.FileName, encodedFileName))
-		c.Header("Content-Type", contentType)
-		c.Data(http.StatusOK, contentType, doc.FileContent)
-		return
-	}
-
-	if _, err := os.Stat(doc.FilePath); os.IsNotExist(err) {
-		response.NotFound(c, "Physical file not found on server")
-		return
-	}
-
-	c.Header("Content-Description", "File Transfer")
-	c.Header("Content-Transfer-Encoding", "binary")
-	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"; filename*=UTF-8''%s", doc.FileName, encodedFileName))
-	c.Header("Content-Type", contentType)
-	c.File(doc.FilePath)
 }
 
 func (ctrl *UploadedStrategicPlanDocumentController) View(c *gin.Context) {
-	idParam := c.Param("id")
-	id, err := uuid.Parse(idParam)
-	if err != nil {
-		response.BadRequest(c, "Invalid strategic audit plan document ID")
-		return
+	if doc, ok := ctrl.find(c); ok {
+		upload.Serve(c, doc.FileName, doc.FileContent, doc.FilePath, true)
 	}
-
-	var doc models.UploadedStrategicPlanDocument
-	if err := ctrl.DB.First(&doc, "id = ?", id).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			response.NotFound(c, "Uploaded strategic audit plan document not found")
-			return
-		}
-		response.InternalServerError(c, "Failed to fetch document")
-		return
-	}
-
-	contentType := getDocumentContentType(doc.FileName, doc.FileType)
-	encodedFileName := url.PathEscape(doc.FileName)
-
-	c.Header("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"; filename*=UTF-8''%s", doc.FileName, encodedFileName))
-	c.Header("Content-Type", contentType)
-
-	if len(doc.FileContent) > 0 {
-		c.Data(http.StatusOK, contentType, doc.FileContent)
-		return
-	}
-
-	if _, err := os.Stat(doc.FilePath); os.IsNotExist(err) {
-		response.NotFound(c, "Physical file not found on server")
-		return
-	}
-
-	c.File(doc.FilePath)
 }

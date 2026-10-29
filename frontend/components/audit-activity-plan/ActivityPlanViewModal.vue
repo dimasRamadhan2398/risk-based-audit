@@ -281,7 +281,7 @@
                           {{ file.size }}
                         </UBadge>
                       </div>
-                      <UButton
+                      <UButton v-if="canAccessFiles"
                         icon="i-heroicons-arrow-down-tray"
                         size="sm"
                         color="primary"
@@ -312,7 +312,7 @@
             @click="store.closeViewModal"
           />
           <UButton
-            v-if="plan && !plan.isLegacy"
+            v-if="canWrite && (plan && !plan.isLegacy)"
             icon="i-lucide-edit"
             :label="t('auditActivityPlan.editPlan')"
             color="warning"
@@ -327,6 +327,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { computed, h } from 'vue'
 import { useActivityPlanStore } from '~/stores/activity-plan'
 import { AnnualAuditPlanStatus, type LegacyPlannedAuditActivity } from '~/types/audit'
@@ -336,6 +337,7 @@ import { formatActivityStatus, sheetFromDetail } from '~/utils/activityPlanForm'
 import ActivityPlanFormSheet from '~/components/audit-activity-plan/ActivityPlanFormSheet.vue'
 
 const { t, locale } = useI18n()
+const { canWrite, canAccessFiles } = useRbac()
 const store = useActivityPlanStore()
 
 const plan = computed(() => store.selectedPlan)

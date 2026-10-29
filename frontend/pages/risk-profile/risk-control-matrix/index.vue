@@ -34,7 +34,7 @@
           class="w-full sm:w-64"
         />
 
-        <UButton
+        <UButton v-if="canWrite"
           color="primary"
           variant="solid"
           class="font-medium shadow-sm w-full sm:w-auto justify-center"
@@ -341,7 +341,7 @@
         <!-- Actions -->
         <template #actions-cell="{ row }">
           <div class="flex items-center justify-end gap-1">
-            <UTooltip :text="t('rcm.table.actions.edit')">
+            <UTooltip v-if="canWrite" :text="t('rcm.table.actions.edit')">
             <UButton
               icon="i-lucide-edit-3"
               color="neutral"
@@ -351,7 +351,7 @@
               @click="openEditModal(row.original)"
             />
             </UTooltip>  
-            <UTooltip :text="t('rcm.table.actions.delete')">
+            <UTooltip v-if="canWrite" :text="t('rcm.table.actions.delete')">
             <UButton
               icon="i-lucide-trash-2"
               color="error"
@@ -700,6 +700,7 @@
 </style>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from '~/composables/useI18n'
 import { useRCMStore, cosoDimensions, getEffectivenessInterpretation, getEffectivenessKey, type RCMItem } from '~/stores/rcm'
@@ -716,6 +717,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+const { canWrite } = useRbac()
 const rcmStore = useRCMStore()
 const riskProfileStore = useRiskProfileStore()
 const mitigationStore = useMitigationStore()

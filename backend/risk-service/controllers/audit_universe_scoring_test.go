@@ -71,8 +71,10 @@ func newScoringFixture(t *testing.T) *scoringFixture {
 
 	events := kafka.NewPublisher(db, "risk-service-test")
 	rf := NewRiskFactorController(db, events)
-	au := NewAuditUniverseController(db, events)
+	au := NewAuditUniverseController(db, events, nil)
 	r := gin.New()
+	// Stand in for Authenticate: these tests exercise the handlers as a full writer.
+	r.Use(func(c *gin.Context) { c.Set("roles", []string{"ADMIN"}) })
 	r.DELETE("/risk-factors/standard/:id", rf.DeleteStandardRiskFactor)
 	r.POST("/risk-factors/corporate", rf.UpdateCorporateRiskFactors)
 	r.DELETE("/audit-universe/corporate/:id", au.DeleteCorporateNode)

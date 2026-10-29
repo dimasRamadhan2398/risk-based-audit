@@ -553,7 +553,7 @@
               </div>
               <div class="flex gap-2 flex-wrap">
                 <UButton
-                  v-if="!isLocked"
+                  v-if="canAccessFiles && (!isLocked)"
                   color="success"
                   variant="outline"
                   icon="i-lucide-download"
@@ -796,6 +796,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useExecutiveSummaryStore } from '~/stores/executive-summary'
 import { useAuthStore } from '~/stores/auth'
@@ -817,6 +818,7 @@ import {
 } from 'chart.js'
 
 const { t } = useI18n()
+const { canAccessFiles } = useRbac()
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler)
 

@@ -3,9 +3,9 @@ package routes
 import (
 	"encoding/base64"
 	"fmt"
+	"io"
 	"math/rand"
 	"net"
-	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -18,6 +18,7 @@ import (
 	"master-service/models"
 	"master-service/pkg/kafka"
 	"master-service/pkg/middleware"
+	uploadguard "master-service/pkg/upload"
 	"master-service/services"
 
 	"github.com/gin-gonic/gin"
@@ -38,9 +39,16 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 	// for this service, so without this the employee roster, companies and
 	// departments were reachable anonymously.
 	api.Use(authMiddleware.Authenticate())
+	// VIEWER gets no master data at all (reads, writes, QA/consulting files,
+	// data sources). Mounted on the group so new routes are covered by default.
+	api.Use(middleware.DenyViewer())
+
+	// Write allow-lists per group are in write_roles.go and apply to non-GET
+	// methods only. Data sources are intentionally not guarded yet.
 
 	// Organizational structure
 	companies := api.Group("/companies")
+	companies.Use(middleware.RequireAnyRoleOnWrites(masterDataWriters...))
 	{
 		companies.GET("", controller.GetCompany().FindAll)
 		companies.GET("/:id", controller.GetCompany().FindById)
@@ -50,6 +58,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 	}
 
 	businessUnits := api.Group("/business-units")
+	businessUnits.Use(middleware.RequireAnyRoleOnWrites(masterDataWriters...))
 	{
 		businessUnits.GET("", controller.GetBusinessUnit().FindAll)
 		businessUnits.GET("/:id", controller.GetBusinessUnit().FindById)
@@ -62,6 +71,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 	registerOrgStructureRoutes(api, controller.GetTenantConfig(), controller.GetOrgLevel(), authMiddleware, org)
 
 	departments := api.Group("/departments")
+	departments.Use(middleware.RequireAnyRoleOnWrites(masterDataWriters...))
 	{
 		departments.GET("", controller.GetDepartment().List)
 		// Flexible tenants only; 404 ORG_STRUCTURE_NOT_ENABLED on legacy.
@@ -80,6 +90,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 	}
 
 	employees := api.Group("/employees")
+	employees.Use(middleware.RequireAnyRoleOnWrites(masterDataWriters...))
 	{
 		employees.GET("", controller.GetEmployee().FindAll)
 		employees.GET("/next-code", controller.GetEmployee().NextCode)
@@ -91,6 +102,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 	}
 
 	jobRoles := api.Group("/job-roles")
+	jobRoles.Use(middleware.RequireAnyRoleOnWrites(masterDataWriters...))
 	{
 		jobRoles.GET("", controller.GetJobRole().FindAll)
 		jobRoles.GET("/:id", controller.GetJobRole().FindById)
@@ -100,6 +112,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 	}
 
 	locations := api.Group("/locations")
+	locations.Use(middleware.RequireAnyRoleOnWrites(masterDataWriters...))
 	{
 		locations.GET("", controller.GetLocation().FindAll)
 		locations.GET("/:id", controller.GetLocation().FindById)
@@ -109,6 +122,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 	}
 
 	qa := api.Group("/quality-assurance")
+	qa.Use(middleware.RequireAnyRoleOnWrites(auditReportWriters...))
 	{
 		qa.GET("", func(c *gin.Context) {
 			var reports []models.QAReport
@@ -197,6 +211,8 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 		})
 
 		qa.POST("/import", func(c *gin.Context) {
+			// Cap the body before any form field is read.
+			uploadguard.Limit(c.Writer, c.Request)
 			assessmentTitle := c.PostForm("assessmentTitle")
 			typeParam := c.PostForm("type")
 			periodQuarter := c.PostForm("periodQuarter")
@@ -215,47 +231,37 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 
 			file, err := c.FormFile("file")
 			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "file is required: " + err.Error()})
+				if uploadguard.IsTooLarge(err) {
+					c.JSON(http.StatusRequestEntityTooLarge, gin.H{"success": false, "message": "File size exceeds maximum limit of 10MB"})
+					return
+				}
+				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "file is required"})
 				return
 			}
 
 			openedFile, err := file.Open()
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "failed to open file: " + err.Error()})
+				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "failed to open file"})
 				return
 			}
 			defer openedFile.Close()
 
-			dec, err := io.ReadAll(openedFile)
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "failed to read file: " + err.Error()})
+			dec, rerr := io.ReadAll(io.LimitReader(openedFile, uploadguard.MaxBytes+1))
+			if rerr != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "failed to read file"})
 				return
 			}
-
-			if int64(len(dec)) > 10*1024*1024 {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "File size exceeds maximum limit of 10MB"})
+			storedName, verr := uploadguard.Validate(c.Request.Context(), fileName, dec)
+			if verr != nil {
+				c.JSON(verr.Status, gin.H{"success": false, "message": verr.Message})
 				return
 			}
-
-			if int64(len(dec)) > 10*1024*1024 {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "File size exceeds maximum limit of 10MB"})
+			filePath, serr := uploadguard.Store("qar-reports", storedName, dec)
+			if serr != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to write file to storage"})
 				return
 			}
-
-			// Save to uploads/qar-reports
-			uploadsDir := "./uploads/qar-reports"
-			if err := os.MkdirAll(uploadsDir, 0755); err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to create uploads directory: " + err.Error()})
-				return
-			}
-			fileExt := filepath.Ext(fileName)
-			baseName := strings.TrimSuffix(fileName, fileExt)
-			uniqueFileName := fmt.Sprintf("%s-%d%s", baseName, time.Now().UnixNano(), fileExt)
-			filePath := filepath.Join(uploadsDir, uniqueFileName)
-			if err := os.WriteFile(filePath, dec, 0644); err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to write file to storage: " + err.Error()})
-				return
-			}
+			fileName = storedName
 
 			// Construct Period
 			period := fmt.Sprintf("%s %s", periodQuarter, periodYear)
@@ -288,7 +294,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 
 			if err := db.Create(&report).Error; err != nil {
 				os.Remove(filePath)
-				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to save QA report record: " + err.Error()})
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to save QA report record"})
 				return
 			}
 
@@ -341,6 +347,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			c.Header("Content-Description", "File Transfer")
 			c.Header("Content-Transfer-Encoding", "binary")
 			c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"; filename*=UTF-8''%s", fileName, encodedFileName))
+			c.Header("X-Content-Type-Options", "nosniff")
 			c.Header("Content-Type", contentType)
 
 			if len(report.FileContent) > 0 {
@@ -376,6 +383,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			encodedFileName := url.PathEscape(fileName)
 
 			c.Header("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"; filename*=UTF-8''%s", fileName, encodedFileName))
+			c.Header("X-Content-Type-Options", "nosniff")
 			c.Header("Content-Type", contentType)
 
 			if len(report.FileContent) > 0 {
@@ -414,6 +422,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 	}
 
 	consulting := api.Group("/consulting-services")
+	consulting.Use(middleware.RequireAnyRoleOnWrites(auditReportWriters...))
 	{
 		consulting.GET("", func(c *gin.Context) {
 			var services []models.ConsultingService
@@ -510,6 +519,8 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 		})
 
 		consulting.POST("/import", func(c *gin.Context) {
+			// base64 inflates the body by 4/3, so the cap allows for that.
+			uploadguard.Limit(c.Writer, c.Request)
 			type ImportConsultingRequest struct {
 				Title          string `json:"title" binding:"required"`
 				Category       string `json:"category" binding:"required"`
@@ -533,28 +544,23 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			if idx := strings.Index(base64Data, ";base64,"); idx != -1 {
 				base64Data = base64Data[idx+8:]
 			}
+			if int64(base64.StdEncoding.DecodedLen(len(base64Data))) > uploadguard.MaxBytes+3 {
+				c.JSON(http.StatusRequestEntityTooLarge, gin.H{"success": false, "message": "File size exceeds maximum limit of 10MB"})
+				return
+			}
 			dec, err := base64.StdEncoding.DecodeString(base64Data)
 			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid base64 file data: " + err.Error()})
+				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid base64 file data"})
 				return
 			}
-
-			if int64(len(dec)) > 10*1024*1024 {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "File size exceeds maximum limit of 10MB"})
+			storedName, verr := uploadguard.Validate(c.Request.Context(), req.FileName, dec)
+			if verr != nil {
+				c.JSON(verr.Status, gin.H{"success": false, "message": verr.Message})
 				return
 			}
-
-			uploadsDir := "./uploads/consulting"
-			if err := os.MkdirAll(uploadsDir, 0755); err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to create uploads directory: " + err.Error()})
-				return
-			}
-			fileExt := filepath.Ext(req.FileName)
-			baseName := strings.TrimSuffix(req.FileName, fileExt)
-			uniqueFileName := fmt.Sprintf("%s-%d%s", baseName, time.Now().UnixNano(), fileExt)
-			filePath := filepath.Join(uploadsDir, uniqueFileName)
-			if err := os.WriteFile(filePath, dec, 0644); err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to write file to storage: " + err.Error()})
+			filePath, serr := uploadguard.Store("consulting", storedName, dec)
+			if serr != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to write file to storage"})
 				return
 			}
 
@@ -569,7 +575,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 				Notes:          req.Notes,
 				FileContent:    dec,
 				Attachment: &models.ConsultingAttachment{
-					Name:       req.FileName,
+					Name:       storedName,
 					Size:       fmt.Sprintf("%.2f MB", float64(len(dec))/(1024*1024)),
 					UploadedAt: time.Now().Format("2006-01-02"),
 					FilePath:   filePath,
@@ -606,6 +612,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 				c.Header("Content-Description", "File Transfer")
 				c.Header("Content-Transfer-Encoding", "binary")
 				c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", service.Attachment.Name))
+				c.Header("X-Content-Type-Options", "nosniff")
 				c.Header("Content-Type", "application/octet-stream")
 				c.Data(http.StatusOK, "application/octet-stream", service.FileContent)
 				return
@@ -619,6 +626,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			c.Header("Content-Description", "File Transfer")
 			c.Header("Content-Transfer-Encoding", "binary")
 			c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", service.Attachment.Name))
+			c.Header("X-Content-Type-Options", "nosniff")
 			c.Header("Content-Type", "application/octet-stream")
 			c.File(service.Attachment.FilePath)
 		})
@@ -626,6 +634,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 
 	// Vision, Mission & Goals routes
 	vmgs := api.Group("/vision-mission-goals")
+	vmgs.Use(middleware.RequireAnyRoleOnWrites(masterDataWriters...))
 	{
 		vmgs.GET("", controller.GetVisionMissionGoals().List)
 		vmgs.GET("/:id", controller.GetVisionMissionGoals().FindById)

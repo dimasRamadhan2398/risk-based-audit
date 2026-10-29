@@ -107,7 +107,7 @@
             />
           </UTooltip>
           <UTooltip
-            v-if="!getOriginal(row).isLegacy"
+            v-if="canWrite && (!getOriginal(row).isLegacy)"
             :text="t('auditActivityPlan.table.editTooltip')"
           >
             <UButton
@@ -120,7 +120,7 @@
               @click="store.handleEdit(getOriginal(row))"
             />
           </UTooltip>
-          <UTooltip :text="t('auditActivityPlan.table.deleteTooltip')">
+          <UTooltip v-if="canWrite" :text="t('auditActivityPlan.table.deleteTooltip')">
             <UButton
               icon="i-lucide-trash-2"
               color="error"
@@ -140,6 +140,7 @@
 
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { computed } from 'vue'
 import { useActivityPlanStore } from '~/stores/activity-plan'
 import ActivityPlanViewModal from '~/components/audit-activity-plan/ActivityPlanViewModal.vue'
@@ -148,6 +149,7 @@ import { formatActivityStatus } from '~/utils/activityPlanForm'
 import type { ActivityPlanSummary } from '~/types/audit'
 
 const { t } = useI18n()
+const { canWrite } = useRbac()
 const store = useActivityPlanStore()
 const getOriginal = (row: any) => (row.original ?? row) as ActivityPlanSummary
 
