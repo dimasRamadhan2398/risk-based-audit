@@ -1,21 +1,21 @@
 <template>
-  <div class="p-4 sm:p-6 min-h-screen overflow-x-hidden">
+  <div class="p-4 min-h-screen overflow-x-hidden">
     <!-- Auditor Specific View (Khusus Pelaksana Audit) -->
-    <div v-if="isAuditorView" key="auditor-dashboard-container" class="space-y-6 sm:space-y-8">
+    <div v-if="isAuditorView" key="auditor-dashboard-container" class="space-y-4">
       <AuditorDashboard />
     </div>
 
     <!-- Auditee View (Unit yang diaudit, scoped to the user's department) -->
-    <div v-else-if="isAuditeeView" key="auditee-dashboard-container" class="space-y-6 sm:space-y-8">
+    <div v-else-if="isAuditeeView" key="auditee-dashboard-container" class="space-y-4">
       <AuditeeDashboard />
     </div>
 
     <!-- General / Admin / Macro View -->
-    <div v-else key="macro-dashboard-container" class="space-y-6 sm:space-y-8">
+    <div v-else key="macro-dashboard-container" class="space-y-4">
       <!-- Header Section -->
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div class="min-w-0">
-          <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight dark:text-white">{{ t('dashboard.overview.dashboard') }}</h1>
+          <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight dark:text-white">{{ t('dashboard.overview.dashboard') }}</h1>
           <p class="text-sm text-slate-500 mt-1.5 dark:text-slate-400">
 {{ t('dashboard.overview.welcome', { name: authStore.getUser?.fullName || 'Andi' }) }}
           </p>
@@ -42,170 +42,182 @@
       </div>
 
     <!-- Main Metrics Cards Section (First Row) -->
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
       <!-- Card 1: Total Risks -->
-      <div
-        class="p-5 sm:p-6 flex flex-col justify-between min-h-[135px] dashboard-card"
-      >
-        <div class="flex justify-between items-start">
-          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">{{ t('riskAppetite.kpi.totalRisks') }}</p>
-          <div class="rounded-xl bg-indigo-50 p-2.5 flex items-center justify-center dark:bg-indigo-500/10">
+      <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+              {{ t('riskAppetite.kpi.totalRisks') }}
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              {{ totalRisks }}
+            </h4>
+          </div>
+          <div class="shrink-0 rounded-xl bg-indigo-50 p-2.5 flex items-center justify-center dark:bg-indigo-500/10">
             <UIcon name="i-lucide-shield" class="text-indigo-600 size-5 dark:text-indigo-400" />
           </div>
-        </div>
-        <div class="mt-2">
-          <h3 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight dark:text-white">
-            {{ totalRisks }}
-          </h3>
         </div>
       </div>
 
       <!-- Card 2: High Risk -->
-      <div
-        class="p-5 sm:p-6 flex flex-col justify-between min-h-[135px] dashboard-card"
-      >
-        <div class="flex justify-between items-start">
-          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">{{ t('auditActivityPlan.form.highRisk') }}</p>
-          <div class="rounded-xl bg-red-50 p-2.5 flex items-center justify-center dark:bg-red-500/10">
-            <UIcon name="i-lucide-alert-triangle" class="text-red-600 size-5" />
+      <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+              {{ t('auditActivityPlan.form.highRisk') }}
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              {{ highRisks }}
+            </h4>
           </div>
-        </div>
-        <div class="mt-2">
-          <h3 class="text-2xl sm:text-3xl font-bold text-red-600 tracking-tight">{{ highRisks }}</h3>
+          <div class="shrink-0 rounded-xl bg-red-50 p-2.5 flex items-center justify-center dark:bg-red-500/10">
+            <UIcon name="i-lucide-alert-triangle" class="text-red-600 size-5 dark:text-red-400" />
+          </div>
         </div>
       </div>
 
       <!-- Card 3: Audit Plans -->
-      <div
-        class="p-5 sm:p-6 flex flex-col justify-between min-h-[135px] dashboard-card"
-      >
-        <div class="flex justify-between items-start">
-          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">{{ t('dashboard.overview.auditPlans') }}</p>
-          <div class="rounded-xl bg-sky-50 p-2.5 flex items-center justify-center dark:bg-sky-500/10">
-            <UIcon name="i-lucide-calendar" class="text-sky-600 size-5" />
+      <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+              {{ t('dashboard.overview.auditPlans') }}
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              {{ auditPlansCount }}
+            </h4>
+          </div>
+          <div class="shrink-0 rounded-xl bg-sky-50 p-2.5 flex items-center justify-center dark:bg-sky-500/10">
+            <UIcon name="i-lucide-calendar" class="text-sky-600 size-5 dark:text-sky-400" />
           </div>
         </div>
-        <div class="mt-2">
-          <h3 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight dark:text-white">
-            {{ auditPlansCount }}
-          </h3>
-          <div class="flex items-center gap-1 text-md font-semibold text-sky-500 mt-1">
-            <span>{{ t('auditCharter.form.active') }}</span>
-            <span class="text-slate-400 font-normal">{{ t('dashboard.overview.thisQuarter') }}</span>
-          </div>
+        <div class="mt-3">
+          <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+            <span class="text-sky-500 font-semibold">{{ t('auditCharter.form.active') }}</span>
+            <span class="ml-1">{{ t('dashboard.overview.thisQuarter') }}</span>
+          </p>
         </div>
       </div>
 
       <!-- Card 4: Completed -->
-      <div
-        class="p-5 sm:p-6 flex flex-col justify-between min-h-[135px] dashboard-card"
-      >
-        <div class="flex justify-between items-start">
-          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">{{ t('auditExecution.phases.6.shortLabel') }}</p>
-          <div class="rounded-xl bg-emerald-50 p-2.5 flex items-center justify-center dark:bg-emerald-500/10">
+      <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+              {{ t('auditExecution.phases.6.shortLabel') }}
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              {{ completedAuditsCount }}
+            </h4>
+          </div>
+          <div class="shrink-0 rounded-xl bg-emerald-50 p-2.5 flex items-center justify-center dark:bg-emerald-500/10">
             <UIcon name="i-lucide-check-circle" class="text-emerald-600 size-5 dark:text-emerald-400" />
           </div>
         </div>
-        <div class="mt-2">
-          <h3 class="text-2xl sm:text-3xl font-bold text-emerald-600 tracking-tight dark:text-emerald-400">
-            {{ completedAuditsCount }}
-          </h3>
-          <div
-            class="flex flex-wrap items-center gap-1 text-md font-semibold text-emerald-500 mt-1"
-          >
-            <span>{{ t('dashboard.overview.updated') }}</span>
-            <span class="text-slate-400 font-normal">{{ t('dashboard.overview.thisMonth') }}</span>
-          </div>
+        <div class="mt-3">
+          <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+            <span class="text-emerald-500 font-semibold">{{ t('dashboard.overview.updated') }}</span>
+            <span class="ml-1">{{ t('dashboard.overview.thisMonth') }}</span>
+          </p>
         </div>
       </div>
     </div>
 
     <!-- Audit Statistics Section (Second Row) -->
-    <div class="p-4 sm:p-6 space-y-6 dashboard-card">
+    <div class="p-4 space-y-3 dashboard-card">
       <div class="flex items-center justify-between">
-        <h3 class="text-lg font-bold text-slate-800 dark:text-white">{{ t('dashboard.overview.auditStatistics') }}</h3>
+        <h3 class="text-base font-bold text-slate-800 dark:text-white">{{ t('dashboard.overview.auditStatistics') }}</h3>
       </div>
-      <div class="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <!-- Planned Audits -->
-        <div
-          class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard"
-        >
-          <div class="flex justify-between items-start">
-            <span class="text-md font-semibold text-slate-500 dark:text-slate-200">{{ t('dashboard.overview.plannedAudits') }}</span>
-            <div class="rounded-lg bg-indigo-50 p-1.5 flex items-center justify-center dark:bg-indigo-500/10">
-              <UIcon name="i-lucide-info" class="text-indigo-600 size-4 dark:text-indigo-400" />
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('dashboard.overview.plannedAudits') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ auditMainStats.plannedAudit }}
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-indigo-50 p-2.5 flex items-center justify-center dark:bg-indigo-500/10">
+              <UIcon name="i-lucide-info" class="text-indigo-600 size-5 dark:text-indigo-400" />
             </div>
           </div>
-          <div class="mt-1">
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">
-              {{ auditMainStats.plannedAudit }}
-            </h4>
-            <p class="text-[11px] mt-1" :class="plannedAuditTrend.color">
-              {{ plannedAuditTrend.icon }} {{ plannedAuditTrend.value }}
-              <span class="text-slate-400 dark:text-slate-300 font-normal">{{ t('dashboard.overview.fromLastMonth') }}</span>
+          <div class="mt-3">
+            <p class="text-[11px] font-normal leading-normal" :class="plannedAuditTrend.color">
+              <span class="font-semibold">{{ plannedAuditTrend.icon }} {{ plannedAuditTrend.value }}</span>
+              <span class="ml-1 text-slate-400 dark:text-slate-300">{{ t('dashboard.overview.fromLastMonth') }}</span>
             </p>
           </div>
         </div>
 
         <!-- Open Findings -->
-        <div
-          class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard"
-        >
-          <div class="flex justify-between items-start">
-            <span class="text-md font-semibold text-slate-500 dark:text-slate-200">{{ t('dashboard.overview.openFindings') }}</span>
-            <div class="rounded-lg bg-amber-50 p-1.5 flex items-center justify-center dark:bg-amber-500/10">
-              <UIcon name="i-lucide-alert-triangle" class="text-amber-600 size-4" />
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('dashboard.overview.openFindings') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ auditMainStats.openFinding }}
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-amber-50 p-2.5 flex items-center justify-center dark:bg-amber-500/10">
+              <UIcon name="i-lucide-alert-triangle" class="text-amber-600 size-5 dark:text-amber-400" />
             </div>
           </div>
-          <div class="mt-1">
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">
-              {{ auditMainStats.openFinding }}
-            </h4>
-            <p class="text-[11px] mt-1" :class="openFindingTrend.color">
-              {{ openFindingTrend.icon }} {{ openFindingTrend.value }}
-              <span class="text-slate-400 dark:text-slate-300 font-normal">{{ t('dashboard.overview.fromLastMonth') }}</span>
+          <div class="mt-3">
+            <p class="text-[11px] font-normal leading-normal" :class="openFindingTrend.color">
+              <span class="font-semibold">{{ openFindingTrend.icon }} {{ openFindingTrend.value }}</span>
+              <span class="ml-1 text-slate-400 dark:text-slate-300">{{ t('dashboard.overview.fromLastMonth') }}</span>
             </p>
           </div>
         </div>
 
         <!-- Execution Status -->
-        <div
-          class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard"
-        >
-          <div class="flex justify-between items-start">
-            <span class="text-md font-semibold text-slate-500 dark:text-slate-200">{{ t('dashboard.overview.executionStatus') }}</span>
-            <div class="rounded-lg bg-sky-50 p-1.5 flex items-center justify-center dark:bg-sky-500/10">
-              <UIcon name="i-lucide-play" class="text-sky-600 size-4" />
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('dashboard.overview.executionStatus') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ (auditMainStats.executionStatus * 100).toFixed(0) }}%
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-sky-50 p-2.5 flex items-center justify-center dark:bg-sky-500/10">
+              <UIcon name="i-lucide-play" class="text-sky-600 size-5 dark:text-sky-400" />
             </div>
           </div>
-          <div class="mt-1">
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">
-              {{ (auditMainStats.executionStatus * 100).toFixed(0) }}%
-            </h4>
-            <p class="text-[11px] mt-1" :class="executionStatusTrend.color">
-              {{ executionStatusTrend.icon }} {{ executionStatusTrend.value }}
-              <span class="text-slate-400 dark:text-slate-300 font-normal">{{ t('dashboard.overview.fromLastMonth') }}</span>
+          <div class="mt-3">
+            <p class="text-[11px] font-normal leading-normal" :class="executionStatusTrend.color">
+              <span class="font-semibold">{{ executionStatusTrend.icon }} {{ executionStatusTrend.value }}</span>
+              <span class="ml-1 text-slate-400 dark:text-slate-300">{{ t('dashboard.overview.fromLastMonth') }}</span>
             </p>
           </div>
         </div>
 
         <!-- ATR Compliance -->
-        <div
-          class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard"
-        >
-          <div class="flex justify-between items-start">
-            <span class="text-md font-semibold text-slate-500 dark:text-slate-200">{{ t('dashboard.overview.atrCompliance') }}</span>
-            <div class="rounded-lg bg-emerald-50 p-1.5 flex items-center justify-center dark:bg-emerald-500/10">
-              <UIcon name="i-lucide-check-square" class="text-emerald-600 size-4 dark:text-emerald-400" />
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('dashboard.overview.atrCompliance') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ (auditMainStats.atrCompliance * 100).toFixed(0) }}%
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-emerald-50 p-2.5 flex items-center justify-center dark:bg-emerald-500/10">
+              <UIcon name="i-lucide-check-square" class="text-emerald-600 size-5 dark:text-emerald-400" />
             </div>
           </div>
-          <div class="mt-1">
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">
-              {{ (auditMainStats.atrCompliance * 100).toFixed(0) }}%
-            </h4>
-            <p class="text-[11px] mt-1" :class="atrComplianceTrend.color">
-              {{ atrComplianceTrend.icon }} {{ atrComplianceTrend.value }}
-              <span class="text-slate-400 dark:text-slate-300 font-normal">{{ t('dashboard.overview.fromLastMonth') }}</span>
+          <div class="mt-3">
+            <p class="text-[11px] font-normal leading-normal" :class="atrComplianceTrend.color">
+              <span class="font-semibold">{{ atrComplianceTrend.icon }} {{ atrComplianceTrend.value }}</span>
+              <span class="ml-1 text-slate-400 dark:text-slate-300">{{ t('dashboard.overview.fromLastMonth') }}</span>
             </p>
           </div>
         </div>
@@ -213,12 +225,12 @@
     </div>
 
     <!-- Dedicated AI Section: KPI Forecasting & Anomaly Detection -->
-    <div class="space-y-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
+    <div class="space-y-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
         <div>
           <div class="flex items-center gap-2">
             <UIcon name="i-heroicons-sparkles" class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-            <h2 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight"> {{ t('dashboard.overview.predictiveTitle') }} </h2>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white tracking-tight"> {{ t('dashboard.overview.predictiveTitle') }} </h2>
           </div>
           <p class="text-sm text-slate-500 dark:text-slate-400 mt-1"> {{ t('dashboard.overview.predictiveDescription') }} </p>
         </div>
@@ -233,15 +245,15 @@
       </div>
 
       <!-- Grid of 2 Main Analytics Cards -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
         <!-- CARD 1: KPI FORECASTING (PyTorch LSTM) -->
-        <div class="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm rounded-2xl p-4 sm:p-6 flex flex-col justify-between space-y-6 min-w-0">
+        <div class="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm rounded-xl p-4 flex flex-col justify-between space-y-3 min-w-0">
           <div>
             <!-- Card Header -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
               <div class="min-w-0">
                 <div class="flex items-center gap-2">
-                  <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white"> {{ t('dashboard.overview.kpiForecasting') }} </h3>
+                  <h3 class="text-base font-bold text-slate-900 dark:text-white"> {{ t('dashboard.overview.kpiForecasting') }} </h3>
                 </div>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5"> {{ t('dashboard.overview.forecastPeriod') }} </p>
               </div>
@@ -255,13 +267,13 @@
             </div>
 
             <!-- Forecast Highlights Table / Cards -->
-            <div class="mt-6 space-y-3">
+            <div class="mt-3 space-y-2">
               <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2"> {{ t('dashboard.overview.atRiskKpi') }} </h4>
 
               <div
                 v-for="kpi in (timeseriesState.kpiForecasts || []).slice(0, 3)"
                 :key="kpi.code"
-                class="p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                class="px-3 py-2 rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
               >
                 <div class="space-y-1 min-w-0">
                   <div class="flex flex-wrap items-center gap-2">
@@ -287,7 +299,7 @@
           </div>
 
           <!-- Bottom Footer Info -->
-          <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-500">
+          <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-500">
             <span class="flex items-center gap-1.5">
               <UIcon name="i-heroicons-information-circle" class="w-4 h-4 text-violet-500" />
               {{ t('dashboard.overview.predictionInterval') }}
@@ -297,13 +309,13 @@
         </div>
 
         <!-- CARD 2: ANOMALY DETECTION (Isolation Forest) -->
-        <div class="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm rounded-2xl p-4 sm:p-6 flex flex-col justify-between space-y-6 min-w-0">
+        <div class="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm rounded-xl p-4 flex flex-col justify-between space-y-3 min-w-0">
           <div>
             <!-- Card Header -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
               <div>
                 <div class="flex items-center gap-2">
-                  <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white"> {{ t('dashboard.overview.transactionAnomalies') }} </h3>
+                  <h3 class="text-base font-bold text-slate-900 dark:text-white"> {{ t('dashboard.overview.transactionAnomalies') }} </h3>
                 </div>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5"> {{ t('dashboard.overview.transactionAnomaliesDescription') }} </p>
               </div>
@@ -315,13 +327,13 @@
             </div>
 
             <!-- Top Detected Anomaly List -->
-            <div class="mt-6 space-y-3">
+            <div class="mt-3 space-y-2">
               <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2"> {{ t('dashboard.overview.criticalAnomalies') }} </h4>
 
               <div
                 v-for="anm in filteredAnomalies.slice(0, 3)"
                 :key="anm.id"
-                class="p-3.5 rounded-xl border border-rose-100 dark:border-rose-900/40 bg-rose-50/40 dark:bg-rose-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                class="px-3 py-2 rounded-lg border border-rose-100 dark:border-rose-900/40 bg-rose-50/40 dark:bg-rose-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
               >
                 <div class="space-y-1 min-w-0">
                   <div class="flex flex-wrap items-center gap-2">
@@ -348,7 +360,7 @@
           </div>
 
           <!-- Bottom Footer Info -->
-          <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-500">
+          <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-500">
             <span class="flex items-center gap-1.5">
               <UIcon name="i-heroicons-shield-exclamation" class="w-4 h-4 text-rose-500" /> {{ t('dashboard.overview.contaminationRate') }} {{ ((isolationState.summary?.contaminationRate || 0) * 100).toFixed(1) }}%
             </span>
@@ -360,10 +372,10 @@
     </div>
 
     <!-- Internal Control Effectiveness Section (COSO 2013) -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
       <!-- Card 1: Yearly Internal Control Effectiveness (2 Cols) -->
-      <div class="lg:col-span-2 p-4 sm:p-6 flex flex-col justify-between dashboard-card">
+      <div class="lg:col-span-2 p-4 flex flex-col justify-between dashboard-card">
         <div>
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div class="flex items-center gap-2 min-w-0">
@@ -377,10 +389,10 @@
               </UButton>
             </div>
           </div>
-          <h2 class="text-xl font-bold text-slate-900 dark:text-white mt-1">{{ t('dashboard.overview.controlEffectiveness') }}</h2>
+          <h2 class="text-base font-bold text-slate-900 dark:text-white mt-0.5">{{ t('dashboard.overview.controlEffectiveness') }}</h2>
         </div>
 
-        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-4 border border-slate-100 dark:border-slate-700/60">
+        <div class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3 bg-slate-50 dark:bg-slate-800/60 rounded-lg p-3 border border-slate-100 dark:border-slate-700/60">
           <!-- Big Score % -->
           <div class="flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 pb-3 md:pb-0 md:pr-4">
             <span class="text-sm text-slate-500 dark:text-slate-400 font-medium">{{ t('rcm.cards.effectiveness.realScore') }}</span>
@@ -419,14 +431,14 @@
           </div>
         </div>
 
-        <div class="mt-3 text-sm text-slate-400 dark:text-slate-400 flex items-center gap-3 sm:gap-4">
-          <UIcon name="i-lucide-check-circle-2" class="size-8 sm:size-10 shrink-0 text-emerald-500" />
+        <div class="mt-2 text-xs text-slate-400 dark:text-slate-400 flex items-center gap-2">
+          <UIcon name="i-lucide-check-circle-2" class="size-5 shrink-0 text-emerald-500" />
           <span>{{ t('rcm.cards.effectiveness.syncNote') }}</span>
         </div>
       </div>
 
       <!-- Card 2: COSO 2013 5 Dimensions Summary (1 Col) -->
-      <div class="p-4 sm:p-6 flex flex-col justify-between dashboard-card">
+      <div class="p-4 flex flex-col justify-between dashboard-card">
         <div>
           <div class="flex items-center justify-between gap-2">
             <h3 class="text-base font-bold text-slate-900 dark:text-white">{{ t('rcm.cards.coso.title') }}</h3>
@@ -435,7 +447,7 @@
             </span>
           </div>
 
-          <div class="mt-4 space-y-3">
+          <div class="mt-3 space-y-2">
             <div v-for="dim in cosoDimensions" :key="dim.key" class="space-y-1">
               <div class="flex justify-between text-md">
                 <span class="font-medium text-slate-700 dark:text-slate-300">{{ t(`rcm.dimensions.${dim.i18nKey}`) }}</span>
@@ -451,7 +463,7 @@
           </div>
         </div>
 
-        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-md text-slate-500 dark:text-slate-400">
+        <div class="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-md text-slate-500 dark:text-slate-400">
           <span>{{ t('rcm.cards.coso.totalControls') }}</span>
           <span class="font-bold text-slate-900 dark:text-white">{{ rcmStore.filteredRCMList.length }} {{ t('dashboard.overview.item') }}</span>
         </div>
@@ -459,14 +471,14 @@
     </div>
 
     <!-- Charts Section (Third Row) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
       <!-- Inherent vs Residual Risk by Department Chart -->
       <div
-        class="lg:col-span-8 min-w-0 p-4 sm:p-6 flex flex-col justify-between dashboard-card"
+        class="lg:col-span-8 min-w-0 p-4 flex flex-col justify-between dashboard-card"
       >
         <div>
-          <div class="flex items-center justify-between mb-6">
-            <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white"> {{ t('dashboard.overview.departmentRisk') }} </h3>
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-base font-bold text-slate-800 dark:text-white"> {{ t('dashboard.overview.departmentRisk') }} </h3>
           </div>
           <div class="w-full" :style="{ height: `${barChartHeight}px` }">
             <BarChart
@@ -490,7 +502,7 @@
           </div>
         </div>
         <!-- Custom Legend -->
-        <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-4 border-t border-slate-50 pt-4 dark:border-slate-800">
+        <div class="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-3 border-t border-slate-50 pt-3 dark:border-slate-800">
           <div class="flex items-center gap-2">
             <span class="w-3 h-3 rounded-full bg-[#ff5c02]"></span>
             <span class="text-md font-semibold text-slate-600 dark:text-slate-300">{{ t('dashboard.overview.inherentRisk') }}</span>
@@ -504,11 +516,11 @@
 
       <!-- Action Taken Report Donut Chart -->
       <div
-        class="lg:col-span-4 min-w-0 p-4 sm:p-6 flex flex-col justify-between dashboard-card"
+        class="lg:col-span-4 min-w-0 p-4 flex flex-col justify-between dashboard-card"
       >
         <div>
-          <div class="flex items-center justify-between gap-2 mb-6">
-            <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white">{{ t('actionTakenReport.title') }}</h3>
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">{{ t('actionTakenReport.title') }}</h3>
             <UButton to="/action-taken-report" variant="ghost" color="neutral" size="sm"
               >{{ t('dashboard.overview.details') }}</UButton
             >
@@ -562,7 +574,7 @@
         <!-- Custom Legend -->
         <div
           v-if="atrStore.stats.total > 0"
-          class="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4 px-2 border-t border-slate-50 pt-4 dark:border-slate-800"
+          class="flex flex-wrap justify-center gap-x-3 gap-y-1 mt-3 px-2 border-t border-slate-50 pt-3 dark:border-slate-800"
         >
           <div v-for="slice in atrDonutData" :key="slice.key" class="flex items-center gap-1.5">
             <span
@@ -578,20 +590,20 @@
     </div>
 
     <!-- Risk Heat Map & Registered Risk (Fourth Row) -->
-    <div class="p-4 sm:p-6 space-y-6 dashboard-card">
+    <div class="p-4 space-y-3 dashboard-card">
       <div class="flex items-center justify-between gap-2">
-        <h2 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight dark:text-white">{{ t('dashboard.overview.riskProfiles') }}</h2>
+        <h2 class="text-base font-bold text-slate-900 tracking-tight dark:text-white">{{ t('dashboard.overview.riskProfiles') }}</h2>
         <UButton to="/risk-profile" variant="ghost" color="neutral" size="sm"
           >{{ t('dashboard.planningExecution.configure') }}</UButton
         >
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
         <!-- Heat Map Grid on the left (stretches to the Registered Risks card height) -->
         <div
-          class="lg:col-span-5 min-w-0 h-full flex flex-col items-center rounded-2xl p-4 sm:p-6 dashboard-subcard"
+          class="lg:col-span-5 min-w-0 h-full flex flex-col items-center rounded-xl p-3 dashboard-subcard"
         >
-          <h4 class="text-sm font-semibold text-slate-700 mb-6 w-full text-left dark:text-slate-200"> {{ t('dashboard.overview.riskHeatMap') }} </h4>
+          <h4 class="text-sm font-semibold text-slate-700 mb-3 w-full text-left dark:text-slate-200"> {{ t('dashboard.overview.riskHeatMap') }} </h4>
           <div class="flex-1 flex flex-row gap-2 sm:gap-4 items-center w-full justify-center">
             <!-- Y-axis label (narrow box: the rotated text would otherwise reserve its unrotated width) -->
             <div class="flex flex-col items-center justify-center shrink-0 w-5">
@@ -625,7 +637,7 @@
             </div>
           </div>
           <!-- Legend -->
-          <div class="flex flex-wrap justify-center gap-x-3 gap-y-1.5 mt-6 max-w-[320px]">
+          <div class="flex flex-wrap justify-center gap-x-3 gap-y-1 mt-3 max-w-[320px]">
             <div class="flex items-center gap-1.5">
               <div class="w-3 h-3 rounded bg-green-400"></div>
               <span class="text-[11px] font-medium text-slate-600 dark:text-slate-300">{{ t('dashboard.overview.low') }}</span>
@@ -650,8 +662,8 @@
         </div>
 
         <!-- Registered Risks Table on the right -->
-        <div class="lg:col-span-7 min-w-0 rounded-2xl p-4 sm:p-6 dashboard-subcard">
-          <h4 class="text-sm font-semibold text-slate-700 mb-4 dark:text-slate-200">{{ t('dashboard.overview.registeredRisks') }}</h4>
+        <div class="lg:col-span-7 min-w-0 rounded-xl p-3 dashboard-subcard">
+          <h4 class="text-sm font-semibold text-slate-700 mb-3 dark:text-slate-200">{{ t('dashboard.overview.registeredRisks') }}</h4>
           <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ body: 'p-0' }">
             <TableEntities
               :data="registeredRiskHeatMap"
@@ -669,22 +681,22 @@
 
     <!-- Fifth Row: Audit Planning & Execution (merged) -->
     <div
-      class="min-w-0 p-4 sm:p-6 space-y-6 dashboard-card"
+      class="min-w-0 p-4 space-y-3 dashboard-card"
     >
-      <h2 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight dark:text-white">
+      <h2 class="text-base font-bold text-slate-900 tracking-tight dark:text-white">
         {{ t("dashboard.planningExecution.title") }}
       </h2>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-0 lg:divide-x lg:divide-slate-100 dark:lg:divide-slate-800">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-0 lg:divide-x lg:divide-slate-100 dark:lg:divide-slate-800">
         <!-- Audit Planning Coverage -->
-        <div class="min-w-0 flex flex-col justify-between lg:pr-8">
+        <div class="min-w-0 flex flex-col justify-between lg:pr-6">
           <div>
-            <div class="flex items-center justify-between gap-2 mb-6">
-              <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white">{{ t("dashboard.planningExecution.coverageTitle") }}</h3>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <h3 class="text-base font-bold text-slate-800 dark:text-white">{{ t("dashboard.planningExecution.coverageTitle") }}</h3>
               <UButton to="/annual-audit" variant="ghost" color="neutral" size="sm"
                 >{{ t("dashboard.planningExecution.configure") }}</UButton
               >
             </div>
-            <div class="space-y-4">
+            <div class="space-y-2">
               <div class="flex flex-wrap justify-between items-center gap-x-3 gap-y-1">
                 <span class="text-md font-semibold text-slate-500 dark:text-slate-400">{{ t('dashboard.overview.overallProgress') }}</span>
                 <h5 class="text-base font-bold text-indigo-600 whitespace-nowrap dark:text-indigo-400">
@@ -698,23 +710,23 @@
             </div>
           </div>
           <div
-            class="grid grid-cols-3 gap-2 border-t border-slate-50 pt-6 mt-6 text-center dark:border-slate-800"
+            class="grid grid-cols-3 gap-2 border-t border-slate-50 pt-3 mt-3 text-center dark:border-slate-800"
           >
             <div>
               <p class="text-[11px] text-slate-400 font-semibold uppercase">{{ t('strategicPlan.status.planned') }}</p>
-              <h4 class="text-lg font-bold text-slate-800 mt-1 dark:text-white">
+              <h4 class="text-base font-bold text-slate-800 dark:text-white">
                 {{ auditCoverage.plannedAudits }}
               </h4>
             </div>
             <div>
               <p class="text-[11px] text-slate-400 font-semibold uppercase">{{ t('auditExecution.phases.6.shortLabel') }}</p>
-              <h4 class="text-lg font-bold text-slate-800 mt-1 dark:text-white">
+              <h4 class="text-base font-bold text-slate-800 dark:text-white">
                 {{ auditCoverage.completedAudits }}
               </h4>
             </div>
             <div>
               <p class="text-[11px] text-slate-400 font-semibold uppercase">{{ t('dashboard.overview.remaining') }}</p>
-              <h4 class="text-lg font-bold text-slate-800 mt-1 dark:text-white">
+              <h4 class="text-base font-bold text-slate-800 dark:text-white">
                 {{ auditCoverage.remainingAudits }}
               </h4>
             </div>
@@ -722,22 +734,22 @@
         </div>
 
         <!-- Audit Execution Status -->
-        <div class="min-w-0 space-y-6 border-t border-slate-100 pt-6 lg:border-t-0 lg:pt-0 lg:pl-8 dark:border-slate-800">
-          <div class="flex items-center justify-between gap-2 mb-6">
-            <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
+        <div class="min-w-0 space-y-3 border-t border-slate-100 pt-4 lg:border-t-0 lg:pt-0 lg:pl-6 dark:border-slate-800">
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">
               {{ t("dashboard.planningExecution.executionTitle") }}
             </h3>
             <UBadge color="primary" :label="executionPeriodLabel" variant="soft"></UBadge>
           </div>
           <p
             v-if="auditExecutionStore.loading && dashboardExecutionStatus.length === 0"
-            class="text-sm text-slate-500 dark:text-slate-400 py-6 text-center"
+            class="text-sm text-slate-500 dark:text-slate-400 py-4 text-center"
           >
             {{ t("common.loading") }}
           </p>
           <div
             v-else-if="auditExecutionStore.error"
-            class="flex flex-col items-center gap-1 py-6 text-center"
+            class="flex flex-col items-center gap-1 py-4 text-center"
           >
             <UIcon name="i-heroicons-exclamation-triangle" class="size-6 text-error-500" />
             <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">
@@ -747,14 +759,14 @@
           </div>
           <div
             v-else-if="dashboardExecutionStatus.length === 0"
-            class="flex flex-col items-center gap-1 py-6 text-center"
+            class="flex flex-col items-center gap-1 py-4 text-center"
           >
             <UIcon name="i-heroicons-circle-stack-20-solid" class="size-6 text-slate-400" />
             <p class="text-sm text-slate-500 dark:text-slate-400">
               {{ t("dashboard.planningExecution.executionEmpty") }}
             </p>
           </div>
-          <div v-else class="space-y-5 max-h-80 overflow-y-auto pr-1">
+          <div v-else class="space-y-3 max-h-80 overflow-y-auto pr-1">
             <div
               v-for="(item, index) in dashboardExecutionStatus"
               :key="index"
@@ -778,13 +790,13 @@
     </div>
 
     <!-- Sixth Row: Action Taken Reports Table (full width) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
       <!-- Action Taken Reports Table -->
       <div
-        class="lg:col-span-12 min-w-0 p-4 sm:p-6 dashboard-card"
+        class="lg:col-span-12 min-w-0 p-4 dashboard-card"
       >
-        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-          <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white">{{ t('dashboard.overview.actionTakenReports') }}</h3>
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <h3 class="text-base font-bold text-slate-800 dark:text-white">{{ t('dashboard.overview.actionTakenReports') }}</h3>
           <UButton to="/action-taken-report" variant="ghost" color="neutral" size="sm"
             >{{ t('dashboard.overview.viewFullReport') }}</UButton
           >
@@ -805,11 +817,11 @@
     </div>
 
     <!-- Seventh Row: Recent Finding Issues (full width) -->
-    <div class="grid grid-cols-1 gap-6">
+    <div class="grid grid-cols-1 gap-4">
       <!-- Recent Finding Issues -->
-      <div class="min-w-0 p-4 sm:p-6 dashboard-card">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight dark:text-white">
+      <div class="min-w-0 p-4 dashboard-card">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-base font-bold text-slate-900 tracking-tight dark:text-white">
             {{ t("dashboard.recentFindings.title") }}
           </h2>
         </div>
@@ -826,13 +838,13 @@
     </div>
 
     <!-- Eighth Row: Recent Risk Profiles & Upcoming Audits -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <!-- Recent Risk Profiles -->
-      <div class="min-w-0 p-4 sm:p-6 space-y-6 dashboard-card">
+      <div class="min-w-0 p-4 space-y-3 dashboard-card">
         <div class="flex items-center justify-between gap-2">
           <div class="min-w-0">
-            <h3 class="text-lg font-bold text-slate-800 dark:text-white">{{ t('dashboard.overview.recentRiskProfiles') }}</h3>
-            <p class="text-md text-slate-400 mt-1">{{ t('dashboard.overview.latestRiskAssessments') }}</p>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">{{ t('dashboard.overview.recentRiskProfiles') }}</h3>
+            <p class="text-md text-slate-400 mt-0.5">{{ t('dashboard.overview.latestRiskAssessments') }}</p>
           </div>
           <UTooltip :text="t('dashboard.overview.viewAllRiskProfiles')">
             <UButton
@@ -844,11 +856,11 @@
             />
           </UTooltip>
         </div>
-        <div class="space-y-3">
+        <div class="space-y-2">
           <div
             v-for="(risk, index) in riskProfileStore.risks.slice(0, 4)"
             :key="risk.id"
-            class="flex items-center justify-between gap-3 p-3.5 rounded-xl dashboard-subcard"
+            class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg dashboard-subcard"
           >
             <div class="flex items-center gap-3 min-w-0">
               <div
@@ -876,11 +888,11 @@
       </div>
 
       <!-- Upcoming Audits -->
-      <div class="min-w-0 p-4 sm:p-6 space-y-6 dashboard-card">
+      <div class="min-w-0 p-4 space-y-3 dashboard-card">
         <div class="flex items-center justify-between gap-2">
           <div class="min-w-0">
-            <h3 class="text-lg font-bold text-slate-800 dark:text-white">{{ t('dashboard.overview.upcomingAudits') }}</h3>
-            <p class="text-md text-slate-400 mt-1">{{ t('dashboard.overview.scheduledActivities') }}</p>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">{{ t('dashboard.overview.upcomingAudits') }}</h3>
+            <p class="text-md text-slate-400 mt-0.5">{{ t('dashboard.overview.scheduledActivities') }}</p>
           </div>
           <UTooltip :text="t('dashboard.overview.viewAllAnnualAudits')">
             <UButton
@@ -892,11 +904,11 @@
             />
           </UTooltip>
         </div>
-        <div class="space-y-3">
+        <div class="space-y-2">
           <div
             v-for="plan in annualPlanStore.plans.slice(0, 4)"
             :key="plan.id"
-            class="flex items-center justify-between gap-3 p-3.5 rounded-xl dashboard-subcard"
+            class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg dashboard-subcard"
           >
             <div class="flex items-center gap-3 min-w-0">
               <div class="rounded-lg bg-sky-50 w-8 h-8 shrink-0 flex items-center justify-center dark:bg-sky-500/10">
@@ -913,7 +925,7 @@
           </div>
           <div
             v-if="annualPlanStore.plans.length === 0"
-            class="text-center py-6 text-slate-400 text-sm"
+            class="text-center py-4 text-slate-400 text-sm"
           > {{ t('dashboard.overview.noUpcomingAudits') }} </div>
         </div>
       </div>

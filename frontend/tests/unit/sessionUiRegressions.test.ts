@@ -30,7 +30,7 @@ describe('Dashboard: Registered Risks table and Risk Heat Map card', () => {
     expect(src).toMatch(/lg:grid-cols-12[^"]*items-stretch/)
     expect(src).toMatch(/lg:col-span-5[^"]*h-full[^"]*flex-col/)
     expect(src).toMatch(/flex-1 flex flex-row[^"]*items-center/)
-    expect(src).toMatch(/shrink-0 w-5">\s*<span[^>]*>\s*Probability/)
+    expect(src).toMatch(/shrink-0 w-5">\s*<span[^>]*>\s*(Probability|\{\{\s*t\('dashboard\.overview\.probability'\)\s*\}\})/)
   })
 
   it('loads the cards from the stores instead of seed data', () => {

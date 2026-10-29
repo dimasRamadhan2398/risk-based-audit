@@ -16,90 +16,88 @@
     </div>
 
     <!-- Main Metrics Cards Section (First Row) -->
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
       <!-- Card 1: Total Risks -->
       <div
-        class="p-5 sm:p-6 flex flex-col justify-between min-h-[135px] dashboard-card"
+        class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card"
       >
         <div class="flex justify-between items-start">
-          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Total Risks</p>
+          <span class="text-md font-semibold text-slate-500 dark:text-slate-200">Total Risks</span>
           <div class="rounded-xl bg-indigo-50 p-2.5 flex items-center justify-center dark:bg-indigo-500/10">
             <UIcon name="i-lucide-shield" class="text-indigo-600 size-5 dark:text-indigo-400" />
           </div>
         </div>
-        <div class="mt-2">
-          <h3 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight dark:text-white">
+        <div class="mt-1">
+          <h4 class="text-2xl font-bold text-slate-900 dark:text-white">
             {{ totalRisks }}
-          </h3>
-          <div
-            class="flex flex-wrap items-center gap-1 text-md font-semibold text-emerald-500 mt-1"
-          >
-            <span>↑ 12%</span>
-            <span class="text-slate-400 font-normal">from last month</span>
-          </div>
+          </h4>
+          <p class="text-[11px] mt-1 text-slate-400 dark:text-slate-300 font-normal">
+            <span class="text-emerald-500 font-semibold">↑ 12%</span>
+            <span class="ml-1">from last month</span>
+          </p>
         </div>
       </div>
 
       <!-- Card 2: High Risk -->
       <div
-        class="p-5 sm:p-6 flex flex-col justify-between min-h-[135px] dashboard-card"
+        class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card"
       >
         <div class="flex justify-between items-start">
-          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">High Risk</p>
+          <span class="text-md font-semibold text-slate-500 dark:text-slate-200">High Risk</span>
           <div class="rounded-xl bg-red-50 p-2.5 flex items-center justify-center dark:bg-red-500/10">
-            <UIcon name="i-lucide-alert-triangle" class="text-red-600 size-5" />
+            <UIcon name="i-lucide-alert-triangle" class="text-red-600 size-5 dark:text-red-400" />
           </div>
         </div>
-        <div class="mt-2">
-          <h3 class="text-2xl sm:text-3xl font-bold text-red-600 tracking-tight">{{ highRisks }}</h3>
-          <div class="flex flex-wrap items-center gap-1 text-md font-semibold text-red-500 mt-1">
-            <span>↑ 3</span>
-            <span class="text-slate-400 font-normal">requires attention</span>
-          </div>
+        <div class="mt-1">
+          <h4 class="text-2xl font-bold text-slate-900 dark:text-white">
+            {{ highRisks }}
+          </h4>
+          <p class="text-[11px] mt-1 text-slate-400 dark:text-slate-300 font-normal">
+            <span class="text-red-500 font-semibold">↑ 3</span>
+            <span class="ml-1">requires attention</span>
+          </p>
         </div>
       </div>
 
       <!-- Card 3: Audit Plans -->
       <div
-        class="p-5 sm:p-6 flex flex-col justify-between min-h-[135px] dashboard-card"
+        class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card"
       >
         <div class="flex justify-between items-start">
-          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Audit Plans</p>
+          <span class="text-md font-semibold text-slate-500 dark:text-slate-200">Audit Plans</span>
           <div class="rounded-xl bg-sky-50 p-2.5 flex items-center justify-center dark:bg-sky-500/10">
-            <UIcon name="i-lucide-calendar" class="text-sky-600 size-5" />
+            <UIcon name="i-lucide-calendar" class="text-sky-600 size-5 dark:text-sky-400" />
           </div>
         </div>
-        <div class="mt-2">
-          <h3 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight dark:text-white">
+        <div class="mt-1">
+          <h4 class="text-2xl font-bold text-slate-900 dark:text-white">
             {{ auditPlansCount }}
-          </h3>
-          <div class="flex items-center gap-1 text-md font-semibold text-sky-500 mt-1">
-            <span>Active</span>
-            <span class="text-slate-400 font-normal">this quarter</span>
-          </div>
+          </h4>
+          <p class="text-[11px] mt-1 text-slate-400 dark:text-slate-300 font-normal">
+            <span class="text-sky-500 font-semibold">Active</span>
+            <span class="ml-1">this quarter</span>
+          </p>
         </div>
       </div>
 
       <!-- Card 4: Completed -->
       <div
-        class="p-5 sm:p-6 flex flex-col justify-between min-h-[135px] dashboard-card"
+        class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card"
       >
         <div class="flex justify-between items-start">
-          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Completed</p>
+          <span class="text-md font-semibold text-slate-500 dark:text-slate-200">Completed</span>
           <div class="rounded-xl bg-emerald-50 p-2.5 flex items-center justify-center dark:bg-emerald-500/10">
             <UIcon name="i-lucide-check-circle" class="text-emerald-600 size-5 dark:text-emerald-400" />
           </div>
         </div>
-        <div class="mt-2">
-          <h3 class="text-2xl sm:text-3xl font-bold text-emerald-600 tracking-tight dark:text-emerald-400">
+        <div class="mt-1">
+          <h4 class="text-2xl font-bold text-slate-900 dark:text-white">
             {{ completedAuditsCount }}
-          </h3>
-          <div
-            class="flex flex-wrap items-center gap-1 text-md font-semibold text-emerald-500 mt-1"
-          >
-            <span>Updated</span>
-            <span class="text-slate-400 font-normal">this month</span>
-          </div>
+          </h4>
+          <p class="text-[11px] mt-1 text-slate-400 dark:text-slate-300 font-normal">
+            <span class="text-emerald-500 font-semibold">Updated</span>
+            <span class="ml-1">this month</span>
+          </p>
         </div>
       </div>
     </div>

@@ -162,7 +162,7 @@
                   @click="syncReportFindings(row.original as any)"
                 />
               </UTooltip>
-              <UTooltip :text="t('auditResultReport.dashboard.actions.generateDocx')">
+              <UTooltip v-if="canExport" :text="t('auditResultReport.dashboard.actions.generateDocx')">
                 <UButton
                   color="success"
                   variant="soft"
@@ -209,7 +209,7 @@
           {{ t('auditResultReport.dashboard.empty.description') }}
         </p>
         <div class="flex justify-center gap-3">
-          <UButton
+          <UButton v-if="canWrite"
             color="secondary"
             icon="i-heroicons-sparkles"
             :label="t('auditResultReport.dashboard.empty.create')"
@@ -263,7 +263,7 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 const store = useAuditResultReportStore()
 const assignmentLetterStore = useAssignmentLetterStore()
-const { canImportPlanDocs } = useRbac()
+const { canImportPlanDocs, canWrite, canExport } = useRbac()
 const toast = useToastNotification()
 const atrStore = useActionTakenReportStore()
 const { t } = useI18n()

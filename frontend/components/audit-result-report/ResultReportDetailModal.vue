@@ -148,7 +148,7 @@
 
           <div class="flex items-center gap-2">
             <UButton
-              v-if="report?.id"
+              v-if="canExport && (report?.id)"
               :label="t('auditResultReport.editor.detail.downloadDocx')"
               color="success"
               variant="outline"
@@ -164,7 +164,9 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 const { t, locale } = useI18n()
+const { canExport } = useRbac()
 import { useAuditResultReportStore, type AuditResultReport } from '~/stores/audit-result-report'
 
 const props = defineProps<{

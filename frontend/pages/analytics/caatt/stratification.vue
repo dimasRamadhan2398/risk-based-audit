@@ -84,22 +84,75 @@ const stratChartOptions = computed(() => ({
       />
 
       <!-- Summary Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <UCard class="border border-indigo-100 dark:border-indigo-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.stratification.transactions') }}</div>
-          <div class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ Number(stratState.summary.totalTransactions).toLocaleString('id-ID') }} {{ t('analytics.caattUi.common.transactions') }}</div>
-          <div class="text-[10px] text-gray-400 mt-0.5">{{ t('analytics.caattUi.stratification.allCustomers') }}</div>
-        </UCard>
-        <UCard class="border border-violet-100 dark:border-violet-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.stratification.portfolioValue') }}</div>
-          <div class="text-2xl font-black text-violet-600 dark:text-violet-400 mt-1">{{ formatIDR(stratState.summary.totalAmount) }}</div>
-          <div class="text-[10px] text-violet-400 mt-0.5">{{ t('analytics.caattUi.stratification.fullExposure') }}</div>
-        </UCard>
-        <UCard class="border border-emerald-100 dark:border-emerald-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.stratification.strataCount') }}</div>
-          <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{{ stratState.summary.totalStrata }} {{ t('analytics.caattUi.stratification.strataUnit') }}</div>
-          <div class="text-[10px] text-gray-400 mt-0.5">{{ t('analytics.caattUi.stratification.segmentRange') }}</div>
-        </UCard>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+        <!-- Card 1: Transactions -->
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('analytics.caattUi.stratification.transactions') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ Number(stratState.summary.totalTransactions).toLocaleString('id-ID') }}
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-indigo-50 p-2.5 flex items-center justify-center dark:bg-indigo-500/10">
+              <UIcon name="i-lucide-receipt" class="text-indigo-600 size-5 dark:text-indigo-400" />
+            </div>
+          </div>
+          <div class="mt-3">
+            <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+              <span class="text-indigo-500 font-semibold">{{ t('analytics.caattUi.common.transactions') }}</span>
+              <span class="ml-1">{{ t('analytics.caattUi.stratification.allCustomers') }}</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Card 2: Portfolio Value -->
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('analytics.caattUi.stratification.portfolioValue') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ formatIDR(stratState.summary.totalAmount) }}
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-violet-50 p-2.5 flex items-center justify-center dark:bg-violet-500/10">
+              <UIcon name="i-lucide-banknote" class="text-violet-600 size-5 dark:text-violet-400" />
+            </div>
+          </div>
+          <div class="mt-3">
+            <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+              <span class="text-violet-500 font-semibold">100%</span>
+              <span class="ml-1">{{ t('analytics.caattUi.stratification.fullExposure') }}</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Card 3: Strata Count -->
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('analytics.caattUi.stratification.strataCount') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ stratState.summary.totalStrata }}
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-emerald-50 p-2.5 flex items-center justify-center dark:bg-emerald-500/10">
+              <UIcon name="i-lucide-layers" class="text-emerald-600 size-5 dark:text-emerald-400" />
+            </div>
+          </div>
+          <div class="mt-3">
+            <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+              <span class="text-emerald-500 font-semibold">{{ t('analytics.caattUi.stratification.strataUnit') }}</span>
+              <span class="ml-1">{{ t('analytics.caattUi.stratification.segmentRange') }}</span>
+            </p>
+          </div>
+        </div>
       </div>
 
       <!-- Chart & Table Grid -->

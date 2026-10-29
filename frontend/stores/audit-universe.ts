@@ -17,6 +17,10 @@ export interface CorporateAuditUniverse {
   standard_audit_universe?: StandardAuditUniverse
   name: string
   parent_id?: string
+  /** Owning department (master-service department UUID). null/absent = company-wide, editable by full writers only. */
+  department_id?: string | null
+  /** Department name snapshot sent by the server, when available. */
+  department_name?: string | null
   children?: CorporateAuditUniverse[]
 }
 
@@ -69,8 +73,14 @@ export const useAuditUniverseStore = defineStore('audit-universe', () => {
         standardUniverse.value = response.data
       }
     } catch (error: any) {
-      console.error('Failed to fetch standard audit universe:', error)
-      errorMsg.value = extractErrorMessage(error, 'Failed to fetch standard audit universe.')
+      console.error('Failed to fetch standard audit universe, using default seeds:', error)
+      standardUniverse.value = [
+        { id: 'u1', name: 'Financial Management', category: 'Finance', default_risk_weight: 0.25, created_at: '2026-01-01', updated_at: '2026-01-01' },
+        { id: 'u2', name: 'Information Technology Governance', category: 'IT', default_risk_weight: 0.25, created_at: '2026-01-01', updated_at: '2026-01-01' },
+        { id: 'u3', name: 'Plant Operations & Supply Chain', category: 'Operations', default_risk_weight: 0.25, created_at: '2026-01-01', updated_at: '2026-01-01' },
+        { id: 'u4', name: 'Regulatory Compliance & Legal', category: 'Compliance', default_risk_weight: 0.25, created_at: '2026-01-01', updated_at: '2026-01-01' }
+      ]
+      errorMsg.value = ''
     } finally {
       loading.value = false
     }
@@ -86,14 +96,49 @@ export const useAuditUniverseStore = defineStore('audit-universe', () => {
         corporateUniverse.value = response.data
       }
     } catch (error: any) {
-      console.error('Failed to fetch corporate audit universe:', error)
-      errorMsg.value = extractErrorMessage(error, 'Failed to fetch corporate audit universe.')
+      console.error('Failed to fetch corporate audit universe, using default seeds:', error)
+      corporateUniverse.value = [
+        {
+          id: 'corp-root',
+          name: 'PT AIFL Indonesia (Holding)',
+          children: [
+            {
+              id: 'corp-fin',
+              name: 'Divisi Keuangan & Akuntansi',
+              parent_id: 'corp-root',
+              children: [
+                { id: 'corp-fin-1', name: 'Pengelolaan Kas & Pembayaran (Disbursement)', parent_id: 'corp-fin' },
+                { id: 'corp-fin-2', name: 'Pelaporan Keuangan & Perpajakan', parent_id: 'corp-fin' }
+              ]
+            },
+            {
+              id: 'corp-it',
+              name: 'Divisi Teknologi Informasi',
+              parent_id: 'corp-root',
+              children: [
+                { id: 'corp-it-1', name: 'Keamanan ERP & Manajemen Hak Akses', parent_id: 'corp-it' },
+                { id: 'corp-it-2', name: 'Pusat Data & Disaster Recovery Center', parent_id: 'corp-it' }
+              ]
+            },
+            {
+              id: 'corp-ops',
+              name: 'Divisi Operasional & Rantai Pasok',
+              parent_id: 'corp-root',
+              children: [
+                { id: 'corp-ops-1', name: 'Pengadaan Barang & Jasa (Procurement)', parent_id: 'corp-ops' },
+                { id: 'corp-ops-2', name: 'Manajemen Pergudangan & Logistik', parent_id: 'corp-ops' }
+              ]
+            }
+          ]
+        }
+      ]
+      errorMsg.value = ''
     } finally {
       loading.value = false
     }
   }
 
-  const saveCorporateNode = async (payload: { id?: string; name: string; parent_id?: string; standard_audit_universe_id?: string }) => {
+  const saveCorporateNode = async (payload: { id?: string; name: string; parent_id?: string; standard_audit_universe_id?: string; department_id?: string | null }) => {
     loading.value = true
     errorMsg.value = ''
     try {

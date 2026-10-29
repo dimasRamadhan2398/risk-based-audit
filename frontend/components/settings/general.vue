@@ -300,13 +300,13 @@ async function changePassword() {
     resetPasswordForm()
     passwordSuccess.value = t('settings.general.successMessage')
     toast.add({
-      title: 'Password Updated',
+      title: t('settings.general.passwordUpdatedToast'),
       description: t('settings.general.successMessage'),
       color: 'success',
       icon: 'i-lucide-check-circle',
     })
   } catch (error: any) {
-    passwordErrors.value.currPassword = error?.message || 'Failed to change password. Please try again.'
+    passwordErrors.value.currPassword = error?.message || t('settings.general.passwordChangeFailed')
   } finally {
     isChangingPassword.value = false
   }

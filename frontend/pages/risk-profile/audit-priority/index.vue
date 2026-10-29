@@ -338,7 +338,8 @@ const filteredYearlyUniverse = computed(() => {
       const q = searchQuery.value.toLowerCase().trim()
       const name = (ent.corporate_audit_universe?.name || '').toLowerCase()
       const level = (isUniverseYearScored(ent) ? ent.risk_level || '' : t('riskFactors.priority.notScoredBadge')).toLowerCase()
-      if (!name.includes(q) && !level.includes(q)) {
+      const indexStr = (ent.risk_index?.toString() || '').toLowerCase()
+      if (!name.includes(q) && !level.includes(q) && !indexStr.includes(q)) {
         return false
       }
     }

@@ -2237,7 +2237,7 @@
       "revised": "Direvisi"
     },
     "approvalRole": {
-      "staff": "Auditor",
+      "staff": "Staf Audit",
       "manager": "Manajer Audit",
       "chief": "Chief Audit Executive",
       "system": "Sistem"
@@ -2389,13 +2389,13 @@
       "submitRevision": "Kirim Revisi",
       "noRevisions": "Belum ada revisi.",
       "approvalStatus": "Status Persetujuan",
-      "staffNoteLabel": "Catatan / Alasan Auditor",
+      "staffNoteLabel": "Catatan / Alasan Audit Staff",
       "managerNoteLabel": "Catatan / Alasan Audit Manager",
       "chiefNoteLabel": "Catatan / Alasan Chief Audit Executive",
       "approvalNotePlaceholder": "Tuliskan catatan atau alasan persetujuan Anda",
       "approve": "Setujui",
       "reject": "Tolak",
-      "waitingStaff": "Menunggu persetujuan Auditor...",
+      "waitingStaff": "Menunggu persetujuan Audit Staff...",
       "waitingManager": "Menunggu persetujuan Audit Manager...",
       "waitingChief": "Menunggu persetujuan Chief Audit Executive...",
       "approvedAlert": "Dokumen ini telah disetujui.",
@@ -4008,10 +4008,6 @@
     "editLha": "Ubah LHA",
     "editor": {
       "form": {
-        "stepper": {
-          "reportInfo": "Informasi Laporan",
-          "auditFindings": "Temuan Audit"
-        },
         "assignmentLetter": "Surat Tugas:",
         "reportNumber": "Nomor LHA",
         "reportNumberExample": "Contoh: LHA-026/SKAI/2026",
@@ -4044,8 +4040,6 @@
         "emptyInstruction": "untuk menarik temuan dari Kertas Kerja Audit Digital (KKA) dan Pengujian Pengendalian Lapangan penugasan ini.",
         "cancel": "Batal",
         "signReport": "Tandatangani Laporan",
-        "saveDraft": "Simpan Draf Laporan",
-        "proceedToSignature": "Lanjut ke Tanda Tangan & Pengesahan",
         "titleCreate": "Buat Laporan Hasil Audit Baru",
         "titleEdit": "Ubah Laporan Hasil Audit",
         "statusLocked": "Status terkunci pada Draf. Otorisasi Final LHA merupakan wewenang Manager/CAE.",

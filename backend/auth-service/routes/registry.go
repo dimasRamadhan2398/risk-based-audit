@@ -41,6 +41,29 @@ func (r *Registry) SetController(controller controllers.IControllerRegistry) {
 	r.controller = controller
 }
 
+// viewerRoutes is the whole of auth-service a VIEWER-only account may use after
+// logging in: its own profile (read), changing its own password, logout, and
+// the confidentiality gate the frontend forces after login. Everything else
+// (user list, assignable/contacts, roles, permissions, MFA, devices, profile
+// update, any route added later) answers 403 until listed here.
+func (r *Registry) viewerRoutes() []middleware.ViewerRoute {
+	p := r.group.BasePath()
+	return []middleware.ViewerRoute{
+		{Method: "GET", Path: p + "/auth/me"},
+		{Method: "POST", Path: p + "/auth/logout"},
+		{Method: "POST", Path: p + "/auth/change-password"},
+		{Method: "GET", Path: p + "/users/:id", SelfParam: "id"},
+		{Method: "GET", Path: p + "/confidentiality/status"},
+		{Method: "POST", Path: p + "/confidentiality/accept"},
+	}
+}
+
+// authenticated is the middleware every protected group starts with: a valid
+// JWT, then the VIEWER allow-list.
+func (r *Registry) authenticated() []gin.HandlerFunc {
+	return []gin.HandlerFunc{r.authMiddleware.Authenticate(), middleware.ViewerAllowlist(r.viewerRoutes()...)}
+}
+
 func (r *Registry) Serve() {
 	r.auth()
 	r.users()
@@ -61,7 +84,7 @@ func (r *Registry) auth() {
 
 		// Protected routes
 		protected := auth.Group("")
-		protected.Use(r.authMiddleware.Authenticate())
+		protected.Use(r.authenticated()...)
 		{
 			protected.POST("/logout", r.controller.GetAuth().Logout)
 			protected.POST("/change-password", r.controller.GetAuth().ChangePassword)
@@ -73,7 +96,7 @@ func (r *Registry) auth() {
 // roles registers role management routes
 func (r *Registry) roles() {
 	roles := r.group.Group("/roles")
-	roles.Use(r.authMiddleware.Authenticate())
+	roles.Use(r.authenticated()...)
 	{
 		roles.GET("", r.controller.GetRole().GetRoles)
 		roles.GET("/all", r.controller.GetRole().GetAllRoles)
@@ -94,7 +117,7 @@ func (r *Registry) roles() {
 // permissions registers permission routes
 func (r *Registry) permissions() {
 	permissions := r.group.Group("/permissions")
-	permissions.Use(r.authMiddleware.Authenticate())
+	permissions.Use(r.authenticated()...)
 	{
 		permissions.GET("", r.controller.GetRole().ListPermissions)
 	}
@@ -103,7 +126,7 @@ func (r *Registry) permissions() {
 // mfa registers MFA routes
 func (r *Registry) mfa() {
 	mfa := r.group.Group("/mfa")
-	mfa.Use(r.authMiddleware.Authenticate())
+	mfa.Use(r.authenticated()...)
 	{
 		mfa.GET("/status", r.controller.GetMfa().GetMFAStatus)
 		mfa.POST("/enroll", r.controller.GetMfa().EnrollMFA)
@@ -117,7 +140,7 @@ func (r *Registry) mfa() {
 // trustedDevices registers trusted devices routes
 func (r *Registry) trustedDevices() {
 	devices := r.group.Group("/devices")
-	devices.Use(r.authMiddleware.Authenticate())
+	devices.Use(r.authenticated()...)
 	{
 		devices.GET("", r.controller.GetTrustedDevices().GetTrustedDevices)
 		devices.POST("/enroll", r.controller.GetTrustedDevices().GenerateEnrollmentQR)
@@ -142,7 +165,7 @@ var AssignableUserRoles = []string{
 // users registers user management routes
 func (r *Registry) users() {
 	users := r.group.Group("/users")
-	users.Use(r.authMiddleware.Authenticate())
+	users.Use(r.authenticated()...)
 	{
 		// Must stay before /:id. Minimal fields of active users, for the ATR PIC picker.
 		users.GET("/assignable", r.authMiddleware.RequireRoles(AssignableUserRoles...), r.controller.GetUser().ListAssignableUsers)
@@ -164,6 +187,8 @@ func (r *Registry) users() {
 			// Used by the Employee master page to reset a linked account's password
 			adminOnly.GET("/lookup", r.controller.GetUser().LookupByEmployee)
 			adminOnly.POST("/:id/reset-password", r.controller.GetUser().ResetPassword)
+			// Links an existing account to a master-data employee (employee creation in master-service)
+			adminOnly.POST("/:id/link-employee", r.controller.GetUser().LinkEmployee)
 		}
 	}
 }
@@ -171,7 +196,7 @@ func (r *Registry) users() {
 // confidentiality registers confidentiality agreement routes
 func (r *Registry) confidentiality() {
 	confidentiality := r.group.Group("/confidentiality")
-	confidentiality.Use(r.authMiddleware.Authenticate())
+	confidentiality.Use(r.authenticated()...)
 	{
 		confidentiality.GET("/status", r.controller.GetConfidentiality().GetStatus)
 		confidentiality.POST("/accept", r.controller.GetConfidentiality().Accept)

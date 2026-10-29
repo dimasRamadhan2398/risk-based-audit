@@ -41,4 +41,17 @@ type Employee struct {
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+
+	// Account describes the login account provisioned while this employee was
+	// created. It is set only on the create response and is never stored.
+	Account *EmployeeAccount `gorm:"-" json:"account,omitempty"`
+}
+
+// EmployeeAccount is the login account linked to an employee at creation time.
+// Status is "created" (new account, TemporaryPassword set once) or "linked"
+// (an account with the same email already existed; its password is unchanged).
+type EmployeeAccount struct {
+	Status            string `json:"status"`
+	Username          string `json:"username"`
+	TemporaryPassword string `json:"temporary_password,omitempty"`
 }

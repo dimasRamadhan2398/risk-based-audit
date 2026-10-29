@@ -6,7 +6,7 @@
         <p class="text-sm text-gray-500">{{ t('auditFieldwork.interview.subtitle') }}</p>
         <h2 class="text-lg font-semibold">{{ t('auditFieldwork.interview.title') }}</h2>
       </div>
-      <UButton color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.extra.addInterview')" @click="store.openInterviewModal()" />
+      <UButton v-if="canWrite" color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.extra.addInterview')" @click="store.openInterviewModal()" />
     </div>
 
     <!-- Interview List via TableEntities -->
@@ -45,7 +45,8 @@
         </div>
       </template>
       <template #file-cell="{ row }">
-        <div v-if="row.original.file || row.original.fileName || row.original.fileUrl || row.original.filePath" class="flex items-center gap-1">
+        <span v-if="(row.original.file || row.original.fileName) && !canAccessFiles" class="text-sm">{{ row.original.fileName || row.original.file?.name }}</span>
+        <div v-else-if="row.original.file || row.original.fileName || row.original.fileUrl || row.original.filePath" class="flex items-center gap-1">
           <UButton
             icon="i-heroicons-document-text"
             color="neutral"
@@ -80,7 +81,7 @@
               @click="store.viewInterview(row.original)"
             />
           </UTooltip>
-          <UTooltip :text="t('common.actions.edit') || 'Ubah'">
+          <UTooltip v-if="canWrite" :text="t('common.actions.edit') || 'Ubah'">
             <UButton
               icon="i-heroicons-pencil-square"
               color="primary"
@@ -89,7 +90,7 @@
               @click="store.editInterview(row.original)"
             />
           </UTooltip>
-          <UTooltip :text="t('common.actions.delete') || 'Hapus'">
+          <UTooltip v-if="canWrite" :text="t('common.actions.delete') || 'Hapus'">
             <UButton
               icon="i-heroicons-trash"
               color="error"
@@ -108,6 +109,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { computed } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
@@ -117,6 +119,7 @@ import AuditFieldworkInterviewModal from '~/components/audit-fieldwork/AuditFiel
 
 const store = useAuditFieldworkStore()
 const { t } = useI18n()
+const { canWrite, canAccessFiles } = useRbac()
 
 const columns = computed(() => [
   { accessorKey: 'interviewee', header: t('auditFieldwork.interview.columns.interviewee'), class: 'w-52 min-w-[180px]' },

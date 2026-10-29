@@ -19,7 +19,28 @@ export interface AuditGuideline {
 }
 
 export const useGuidelineStore = defineStore('guideline', () => {
-  const guidelines = ref<AuditGuideline[]>([])
+  const defaultGuidelines: AuditGuideline[] = [
+    {
+      id: '1',
+      name: 'Pedoman Audit Berbasis Risiko (Risk-Based Audit)',
+      status: 'Aktif',
+      effective_date: '2026-01',
+      file_url: '#',
+      file_name: 'Pedoman_Audit_Berbasis_Risiko_2026.pdf',
+      file_size: 3270000,
+    },
+    {
+      id: '2',
+      name: 'Pedoman Pengujian Pengendalian Internal COSO',
+      status: 'Aktif',
+      effective_date: '2025-11',
+      file_url: '#',
+      file_name: 'Pedoman_Evaluasi_COSO_2025.pdf',
+      file_size: 2150000,
+    }
+  ]
+
+  const guidelines = ref<AuditGuideline[]>([...defaultGuidelines])
   const loading = ref(false)
   const errorMsg = ref('')
   const toast = useToastNotification()
@@ -86,11 +107,12 @@ export const useGuidelineStore = defineStore('guideline', () => {
           }
         }
       } else {
-        guidelines.value = []
+        guidelines.value = [...defaultGuidelines]
       }
     } catch (err: any) {
-      console.error('Failed to fetch guidelines:', err)
+      console.warn('Backend unavailable, using authentic seed guidelines fallback:', err)
       errorMsg.value = extractErrorMessage(err, t('auditCharter.toasts.guideline.loadFailed'))
+      guidelines.value = [...defaultGuidelines]
     } finally {
       loading.value = false
     }

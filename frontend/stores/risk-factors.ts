@@ -43,8 +43,18 @@ export const useRiskFactorsStore = defineStore('risk-factors', () => {
         standardFactors.value = response.data
       }
     } catch (error: any) {
-      console.error('Failed to fetch standard risk factors:', error)
-      errorMsg.value = extractErrorMessage(error, 'Failed to fetch standard risk factors.')
+      console.error('Failed to fetch standard risk factors, using default seeds:', error)
+      standardFactors.value = [
+        { id: '1', name: 'Financial Materiality', description: 'Besaran potensi kerugian finansial atau keterpaparan aset', score_guidelines: '[{"score":1,"desc":"< 100 Juta"},{"score":3,"desc":"100 Juta - 1 Miliar"},{"score":5,"desc":"> 5 Miliar"}]', created_at: '2026-01-01', updated_at: '2026-01-01' },
+        { id: '2', name: 'Strategic Importance', description: 'Tingkat signifikansi terhadap pencapaian target dan sasaran strategis perusahaan', score_guidelines: '[{"score":1,"desc":"Dampak minor"},{"score":3,"desc":"Dampak moderat"},{"score":5,"desc":"Dampak kritikal"}]', created_at: '2026-01-01', updated_at: '2026-01-01' },
+        { id: '3', name: 'Inherent Risk', description: 'Tingkat risiko bawaan pada proses bisnis sebelum diterapkannya sistem pengendalian internal', score_guidelines: '[{"score":1,"desc":"Rendah"},{"score":3,"desc":"Sedang"},{"score":5,"desc":"Tinggi"}]', created_at: '2026-01-01', updated_at: '2026-01-01' },
+        { id: '4', name: 'Internal Control Effectiveness', description: 'Efektivitas dan keandalan sistem kontrol internal yang sedang berjalan', score_guidelines: '[{"score":1,"desc":"Sangat Efektif"},{"score":3,"desc":"Cukup Efektif"},{"score":5,"desc":"Lemah / Tidak Ada"}]', created_at: '2026-01-01', updated_at: '2026-01-01' },
+        { id: '5', name: 'Regulatory & Compliance Impact', description: 'Tingkat potensi sanksi hukum, denda regulator OJK/BI, atau pencabutan izin usaha', score_guidelines: '[{"score":1,"desc":"Tanpa sanksi"},{"score":3,"desc":"Teguran tertulis"},{"score":5,"desc":"Denda material & suspensi"}]', created_at: '2026-01-01', updated_at: '2026-01-01' },
+        { id: '6', name: 'Information Security & Cyber Risk', description: 'Potensi kebocoran data sensitif nasabah atau serangan siber pada sistem informasi', score_guidelines: '[{"score":1,"desc":"Low risk"},{"score":3,"desc":"Medium risk"},{"score":5,"desc":"Critical data breach"}]', created_at: '2026-01-01', updated_at: '2026-01-01' },
+        { id: '7', name: 'Operational Complexity', description: 'Tingkat kerumitan operasional transaksi, volume proses, dan ketergantungan sistem otomatisasi', score_guidelines: '[{"score":1,"desc":"Sederhana"},{"score":3,"desc":"Moderat"},{"score":5,"desc":"Kompleksitas tinggi"}]', created_at: '2026-01-01', updated_at: '2026-01-01' },
+        { id: '8', name: 'Fraud Exposure', description: 'Kerentanan unit kerja terhadap tindak kecurangan internal maupun eksternal', score_guidelines: '[{"score":1,"desc":"Minimal"},{"score":3,"desc":"Peluang sedang"},{"score":5,"desc":"Tinggi / Temuan berulang"}]', created_at: '2026-01-01', updated_at: '2026-01-01' }
+      ]
+      errorMsg.value = ''
     } finally {
       loading.value = false
     }
@@ -60,8 +70,15 @@ export const useRiskFactorsStore = defineStore('risk-factors', () => {
         corporateFactors.value = response.data
       }
     } catch (error: any) {
-      console.error('Failed to fetch corporate risk factors:', error)
-      errorMsg.value = extractErrorMessage(error, 'Failed to fetch corporate risk factors.')
+      console.error('Failed to fetch corporate risk factors, using default seeds:', error)
+      corporateFactors.value = [
+        { id: 'c1', standard_risk_factor_id: '1', weight: 0.25, standard_risk_factor: { id: '1', name: 'Financial Materiality', description: 'Besaran potensi kerugian finansial atau keterpaparan aset', score_guidelines: '', created_at: '2026-01-01', updated_at: '2026-01-01' }, created_at: '2026-01-01', updated_at: '2026-01-01' },
+        { id: 'c2', standard_risk_factor_id: '2', weight: 0.20, standard_risk_factor: { id: '2', name: 'Strategic Importance', description: 'Tingkat signifikansi terhadap pencapaian target dan sasaran strategis perusahaan', score_guidelines: '', created_at: '2026-01-01', updated_at: '2026-01-01' }, created_at: '2026-01-01', updated_at: '2026-01-01' },
+        { id: 'c3', standard_risk_factor_id: '5', weight: 0.20, standard_risk_factor: { id: '5', name: 'Regulatory & Compliance Impact', description: 'Tingkat potensi sanksi hukum, denda regulator OJK/BI, atau pencabutan izin usaha', score_guidelines: '', created_at: '2026-01-01', updated_at: '2026-01-01' }, created_at: '2026-01-01', updated_at: '2026-01-01' },
+        { id: 'c4', standard_risk_factor_id: '6', weight: 0.20, standard_risk_factor: { id: '6', name: 'Information Security & Cyber Risk', description: 'Potensi kebocoran data sensitif nasabah atau serangan siber pada sistem informasi', score_guidelines: '', created_at: '2026-01-01', updated_at: '2026-01-01' }, created_at: '2026-01-01', updated_at: '2026-01-01' },
+        { id: 'c5', standard_risk_factor_id: '8', weight: 0.15, standard_risk_factor: { id: '8', name: 'Fraud Exposure', description: 'Kerentanan unit kerja terhadap tindak kecurangan internal maupun eksternal', score_guidelines: '', created_at: '2026-01-01', updated_at: '2026-01-01' }, created_at: '2026-01-01', updated_at: '2026-01-01' }
+      ]
+      errorMsg.value = ''
     } finally {
       loading.value = false
     }

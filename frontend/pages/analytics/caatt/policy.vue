@@ -41,27 +41,98 @@ onMounted(() => {
       />
 
       <!-- Summary Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <UCard class="border border-indigo-100 dark:border-indigo-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.common.violationCount') }}</div>
-          <div class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ policyState.summary.totalViolations }} {{ t('analytics.caattUi.common.cases') }}</div>
-          <div class="text-[10px] text-gray-400 mt-0.5">{{ t('analytics.caattUi.policy.violatedRules') }}</div>
-        </UCard>
-        <UCard class="border border-rose-100 dark:border-rose-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.policy.criticalLevel') }}</div>
-          <div class="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">{{ policyState.summary.critical }} {{ t('analytics.caattUi.common.cases') }}</div>
-          <div class="text-[10px] text-rose-400 mt-0.5">{{ t('analytics.caattUi.policy.criticalHint') }}</div>
-        </UCard>
-        <UCard class="border border-amber-100 dark:border-amber-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.policy.highLevel') }}</div>
-          <div class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">{{ policyState.summary.high }} {{ t('analytics.caattUi.common.cases') }}</div>
-          <div class="text-[10px] text-amber-400 mt-0.5">{{ t('analytics.caattUi.policy.highHint') }}</div>
-        </UCard>
-        <UCard class="border border-emerald-100 dark:border-emerald-900/50">
-          <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.common.affectedBranches') }}</div>
-          <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{{ policyState.summary.branchesAffected }} {{ t('analytics.caattUi.common.branches') }}</div>
-          <div class="text-[10px] text-gray-400 mt-0.5">{{ t('analytics.caattUi.policy.branchHint') }}</div>
-        </UCard>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <!-- Card 1: Total Violations -->
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('analytics.caattUi.common.violationCount') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ policyState.summary.totalViolations }}
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-indigo-50 p-2.5 flex items-center justify-center dark:bg-indigo-500/10">
+              <UIcon name="i-lucide-shield-alert" class="text-indigo-600 size-5 dark:text-indigo-400" />
+            </div>
+          </div>
+          <div class="mt-3">
+            <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+              <span class="text-indigo-500 font-semibold">{{ t('analytics.caattUi.common.cases') }}</span>
+              <span class="ml-1">{{ t('analytics.caattUi.policy.violatedRules') }}</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Card 2: Critical Level -->
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('analytics.caattUi.policy.criticalLevel') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ policyState.summary.critical }}
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-rose-50 p-2.5 flex items-center justify-center dark:bg-rose-500/10">
+              <UIcon name="i-lucide-alert-octagon" class="text-rose-600 size-5 dark:text-rose-400" />
+            </div>
+          </div>
+          <div class="mt-3">
+            <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+              <span class="text-rose-500 font-semibold">{{ t('analytics.caattUi.common.cases') }}</span>
+              <span class="ml-1">{{ t('analytics.caattUi.policy.criticalHint') }}</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Card 3: High Level -->
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('analytics.caattUi.policy.highLevel') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ policyState.summary.high }}
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-amber-50 p-2.5 flex items-center justify-center dark:bg-amber-500/10">
+              <UIcon name="i-lucide-alert-triangle" class="text-amber-600 size-5 dark:text-amber-400" />
+            </div>
+          </div>
+          <div class="mt-3">
+            <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+              <span class="text-amber-500 font-semibold">{{ t('analytics.caattUi.common.cases') }}</span>
+              <span class="ml-1">{{ t('analytics.caattUi.policy.highHint') }}</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Card 4: Affected Branches -->
+        <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-card">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+                {{ t('analytics.caattUi.common.affectedBranches') }}
+              </span>
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+                {{ policyState.summary.branchesAffected }}
+              </h4>
+            </div>
+            <div class="shrink-0 rounded-xl bg-emerald-50 p-2.5 flex items-center justify-center dark:bg-emerald-500/10">
+              <UIcon name="i-lucide-building-2" class="text-emerald-600 size-5 dark:text-emerald-400" />
+            </div>
+          </div>
+          <div class="mt-3">
+            <p class="text-[11px] text-slate-400 dark:text-slate-300 font-normal leading-normal">
+              <span class="text-emerald-500 font-semibold">{{ t('analytics.caattUi.common.branches') }}</span>
+              <span class="ml-1">{{ t('analytics.caattUi.policy.branchHint') }}</span>
+            </p>
+          </div>
+        </div>
       </div>
 
       <!-- Table -->

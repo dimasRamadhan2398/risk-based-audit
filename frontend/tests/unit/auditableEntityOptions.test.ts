@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   buildAuditableEntityOptions,
+  buildCorporateUniverseNameMap,
   findAuditableEntityForActivity,
   resolveAuditableEntitySelection
 } from '~/utils/auditableEntityOptions'
@@ -174,5 +175,24 @@ describe('buildAuditableEntityOptions', () => {
       ]
       expect(buildAuditableEntityOptions(yearly, [])[0]).toMatchObject({ auditPriority: true, riskLevel: 'High', riskIndex: 81 })
     })
+  })
+})
+
+describe('buildCorporateUniverseNameMap', () => {
+  it('maps every node of the tree by lower-case id and skips nodes without id or name', () => {
+    const names = buildCorporateUniverseNameMap([
+      { id: 'Corp-1', name: 'Finance', children: [{ id: 'corp-2', name: 'Treasury', children: [{ id: 'corp-4', name: 'Cash' }] }, { name: 'No id' }] },
+      { id: 'corp-3', children: [] }
+    ])
+    expect(names.get('corp-1')).toBe('Finance')
+    expect(names.get('corp-2')).toBe('Treasury')
+    expect(names.get('corp-4')).toBe('Cash')
+    expect(names.has('corp-3')).toBe(false)
+    expect(names.size).toBe(3)
+  })
+
+  it('returns an empty map for no data', () => {
+    expect(buildCorporateUniverseNameMap(null).size).toBe(0)
+    expect(buildCorporateUniverseNameMap(undefined).size).toBe(0)
   })
 })

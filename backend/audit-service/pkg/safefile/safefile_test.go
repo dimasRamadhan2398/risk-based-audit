@@ -83,6 +83,18 @@ func TestIsPrivatePath(t *testing.T) {
 	if IsPrivatePath("/docs/plan.pdf") {
 		t.Fatal("ordinary path must not be private")
 	}
+	// Feature document stores are private by prefix, in any case.
+	for _, p := range []string{"uploaded-assignment-letters/a.pdf", "/Uploaded-Plan-Documents/b.docx", "imported-working-papers/c.xlsx"} {
+		if !IsPrivatePath(p) {
+			t.Fatalf("IsPrivatePath(%q) = false, want true", p)
+		}
+	}
+	// Media uploads are not private.
+	for _, p := range []string{"Auditsphere/fieldwork/x.pdf", "fieldwork/x.pdf", "Auditsphere/uploaded-x/y.pdf"} {
+		if IsPrivatePath(p) {
+			t.Fatalf("IsPrivatePath(%q) = true, want false", p)
+		}
+	}
 }
 
 func serveOnce(t *testing.T, fullPath, name string, force bool) *httptest.ResponseRecorder {

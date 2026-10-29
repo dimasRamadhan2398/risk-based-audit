@@ -170,9 +170,12 @@ const caattModules = computed(() => [
           v-for="mod in aiModules"
           :key="mod.to"
           :to="mod.to"
-          class="block group"
+          class="flex flex-col h-full group"
         >
-          <UCard class="h-full border border-gray-100 dark:border-gray-800 hover:border-indigo-400 dark:hover:border-indigo-600 hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+          <UCard
+            class="h-full border border-gray-100 dark:border-gray-800 hover:border-indigo-400 dark:hover:border-indigo-600 hover:shadow-md transition-all duration-200 flex flex-col"
+            :ui="{ body: 'p-4 sm:p-6 flex flex-col justify-between flex-1 h-full' }"
+          >
             <div class="space-y-3">
               <div class="flex items-center justify-between">
                 <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -189,7 +192,7 @@ const caattModules = computed(() => [
                 {{ mod.description }}
               </p>
             </div>
-            <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+            <div class="mt-auto pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs font-semibold text-indigo-600 dark:text-indigo-400">
               <span>{{ t('analytics.hub.openModule') }}</span>
               <UIcon name="i-heroicons-arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </div>
@@ -217,9 +220,12 @@ const caattModules = computed(() => [
           v-for="mod in caattModules"
           :key="mod.to"
           :to="mod.to"
-          class="block group"
+          class="flex flex-col h-full group"
         >
-          <UCard class="h-full border border-gray-100 dark:border-gray-800 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+          <UCard
+            class="h-full border border-gray-100 dark:border-gray-800 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-md transition-all duration-200 flex flex-col"
+            :ui="{ body: 'p-4 sm:p-6 flex flex-col justify-between flex-1 h-full' }"
+          >
             <div class="space-y-3">
               <div class="flex items-center justify-between">
                 <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -236,7 +242,7 @@ const caattModules = computed(() => [
                 {{ mod.description }}
               </p>
             </div>
-            <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+            <div class="mt-auto pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs font-semibold text-emerald-600 dark:text-emerald-400">
               <span>{{ t('analytics.hub.openModule') }}</span>
               <UIcon name="i-heroicons-arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </div>

@@ -15,6 +15,7 @@ type IEmployeeRepository interface {
 	Create(employee *models.Employee) error
 	Update(employee *models.Employee) error
 	Delete(id uuid.UUID) error
+	HardDelete(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*models.Employee, error)
 	FindByEmail(email string) (*models.Employee, error)
 	FindByCode(code string) (*models.Employee, error)
@@ -36,6 +37,13 @@ func (r *EmployeeRepository) Update(employee *models.Employee) error {
 }
 func (r *EmployeeRepository) Delete(id uuid.UUID) error {
 	return r.BaseRepository.Delete(&models.Employee{ID: id})
+}
+
+// HardDelete removes the row permanently. Used to roll back an employee whose
+// login account could not be created: a soft-deleted row would still hold the
+// unique employee_code and email.
+func (r *EmployeeRepository) HardDelete(id uuid.UUID) error {
+	return r.GetDB().Unscoped().Delete(&models.Employee{ID: id}).Error
 }
 func (r *EmployeeRepository) FindByID(id uuid.UUID) (*models.Employee, error) {
 	var employee models.Employee

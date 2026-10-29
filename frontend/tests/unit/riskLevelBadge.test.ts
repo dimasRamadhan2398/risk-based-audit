@@ -145,8 +145,8 @@ describe('Features render risk level and effectiveness badges through the shared
     ['components/annual-audit/AnnualAuditTable.vue', ['getRiskLevelColorClass(act.riskLevel)']],
     ['components/annual-audit/AnnualAuditDetail.vue', ['getRiskLevelColorClass(activity.riskLevel)']],
     ['components/annual-audit/AnnualAuditForm.vue', ['getRiskLevelColorClass(activity.riskLevel)', 'getRiskLevelDotClass(item.riskLevel)']],
-    ['components/audit-activity-plan/ActivityPlanTable.vue', ['getRiskLevelColorClass(act.riskLevel)']],
-    ['components/audit-activity-plan/ActivityPlanForm.vue', ['getRiskLevelColorClass(activity.riskLevel)']],
+    ['components/audit-activity-plan/AnnualActivityPicker.vue', ['getRiskLevelColorClass(option.auditUniverse?.riskLevel)']],
+    ['components/audit-activity-plan/ActivityPlanRowCard.vue', ['getRiskLevelColorClass(row.pkat.auditUniverse?.riskLevel)']],
     ['components/audit-fieldwork/AuditFieldworkTestControls.vue', ['getControlEffectivenessColorClass(row.original.testResult)']],
     ['components/audit-fieldwork/AuditFieldworkTestControlsModal.vue', ['getControlEffectivenessColorClass(store.testControlForm.testResult)']],
     ['components/working-paper/WorkingPaperSampleTable.vue', ['getControlEffectivenessColorClass(']],
@@ -197,7 +197,7 @@ describe('Audit Priority page uses the shared risk level badge', () => {
 
   it('renders both the main table and the reference table through getRiskLevelBadgeClass', () => {
     expect(content).toContain('from \'~/utils/riskLevelBadge\'')
-    expect(content).toContain(':class="getRiskLevelBadgeClass(ent.risk_level)"')
+    expect(content).toMatch(/:class="getRiskLevelBadgeClass\((ent|row\.original)\.risk_level\)"/)
     expect(content).toContain(':class="getRiskLevelBadgeClass(row.level)"')
   })
 

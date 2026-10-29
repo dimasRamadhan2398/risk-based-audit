@@ -1,17 +1,17 @@
 <template>
-  <div class="space-y-6 sm:space-y-8 animate-fade-in">
+  <div class="space-y-4 animate-fade-in">
     <!-- Header: Auditor Profile & Context Bar -->
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-5 sm:p-6 bg-gradient-to-r from-emerald-900/10 via-primary-500/5 to-transparent border border-emerald-500/20 rounded-2xl shadow-xs">
-      <div class="flex items-start sm:items-center gap-4">
-        <div class="size-14 rounded-2xl bg-emerald-600/10 dark:bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-xs">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 px-4 py-3 bg-gradient-to-r from-emerald-900/10 via-primary-500/5 to-transparent border border-emerald-500/20 rounded-xl shadow-xs">
+      <div class="flex items-start sm:items-center gap-3">
+        <div class="size-10 rounded-xl bg-emerald-600/10 dark:bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-xs">
           <UIcon
             name="i-lucide-clipboard-check"
-            class="size-7"
+            class="size-5"
           />
         </div>
         <div>
           <div class="flex flex-wrap items-center gap-2">
-            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+            <h1 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white tracking-tight">
               {{ t('dashboard.auditor.title') }}
             </h1>
             <!-- <UBadge
@@ -23,7 +23,7 @@
               {{ t('dashboard.auditor.roleBadge') }}
             </UBadge> -->
           </div>
-          <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 max-w-3xl">
+          <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5 max-w-3xl">
             {{ t('dashboard.auditor.welcome', { name: currentUserFullName }) }}
           </p>
         </div>
@@ -73,10 +73,10 @@
     </div>
 
     <!-- Notice -->
-    <div class="flex items-start gap-3 p-4 rounded-xl bg-secondary-500/10 border border-secondary-500/20 text-secondary-900 dark:text-secondary-200 text-xs sm:text-sm">
+    <div class="flex items-start gap-2 px-3 py-2 rounded-lg bg-secondary-500/10 border border-secondary-500/20 text-secondary-900 dark:text-secondary-200 text-xs sm:text-sm">
       <UIcon
         name="i-lucide-info"
-        class="size-5 text-secondary-600 dark:text-secondary-400 shrink-0"
+        class="size-4 mt-0.5 text-secondary-600 dark:text-secondary-400 shrink-0"
       />
       <div>
         <span class="font-bold">{{ t('dashboard.auditor.notice.label') }}</span>
@@ -86,13 +86,13 @@
 
     <!-- 1. Audit statistics -->
     <section
-      class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-5"
+      class="p-4 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-xl shadow-xs space-y-3"
       aria-labelledby="auditor-stats-title"
     >
       <div>
         <h2
           id="auditor-stats-title"
-          class="text-lg font-bold text-gray-900 dark:text-white"
+          class="text-base font-bold text-gray-900 dark:text-white"
         >
           {{ t('dashboard.auditor.stats.title') }}
         </h2>
@@ -100,16 +100,16 @@
           {{ t('dashboard.auditor.stats.scope') }}
         </p>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <div
           v-for="card in statCards"
           :key="card.key"
-          class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] border border-gray-200/80 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30"
+          class="rounded-lg p-3 flex flex-col justify-between border border-gray-200/80 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30"
         >
           <div class="flex items-start justify-between gap-2">
             <span class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ card.label }}</span>
             <div
-              class="p-2 rounded-lg shrink-0"
+              class="p-1.5 rounded-md shrink-0"
               :class="card.iconBg"
             >
               <UIcon
@@ -125,11 +125,11 @@
             :retry-label="t('dashboard.auditor.states.retry')"
             @retry="card.retry"
           >
-            <div class="mt-2">
-              <h4 class="text-2xl font-extrabold text-gray-900 dark:text-white">
+            <div class="mt-1">
+              <h4 class="text-xl font-extrabold leading-tight text-gray-900 dark:text-white">
                 {{ card.value }}
               </h4>
-              <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+              <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
                 {{ card.hint }}
               </p>
               <p
@@ -146,14 +146,14 @@
 
     <!-- 2. Audit planning & coverage -->
     <section
-      class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-5"
+      class="p-4 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-xl shadow-xs space-y-3"
       aria-labelledby="auditor-coverage-title"
     >
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
           <h2
             id="auditor-coverage-title"
-            class="text-lg font-bold text-gray-900 dark:text-white"
+            class="text-base font-bold text-gray-900 dark:text-white"
           >
             {{ t('dashboard.auditor.coverage.title') }}
           </h2>
@@ -187,7 +187,7 @@
         >
           {{ t('dashboard.auditor.coverage.empty') }}
         </p>
-        <div class="space-y-4">
+        <div class="space-y-2">
           <div class="flex flex-wrap justify-between items-center gap-x-3 gap-y-1">
             <span class="text-sm font-semibold text-gray-500 dark:text-gray-400">{{ t('dashboard.auditor.coverage.overallProgress') }}</span>
             <h5 class="text-base font-bold text-indigo-600 dark:text-indigo-400 whitespace-nowrap">
@@ -200,12 +200,12 @@
             class="h-2 rounded"
           />
         </div>
-        <div class="grid grid-cols-3 gap-2 border-t border-gray-100 dark:border-gray-800 pt-5 mt-5 text-center">
+        <div class="grid grid-cols-3 gap-2 border-t border-gray-100 dark:border-gray-800 pt-3 mt-3 text-center">
           <div>
             <p class="text-[11px] text-gray-400 font-semibold uppercase">
               {{ t('dashboard.auditor.coverage.planned') }}
             </p>
-            <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-1">
+            <h4 class="text-base font-bold text-gray-800 dark:text-white">
               {{ auditCoverage.plannedAudits }}
             </h4>
           </div>
@@ -213,7 +213,7 @@
             <p class="text-[11px] text-gray-400 font-semibold uppercase">
               {{ t('dashboard.auditor.coverage.approved') }}
             </p>
-            <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-1">
+            <h4 class="text-base font-bold text-gray-800 dark:text-white">
               {{ auditCoverage.completedAudits }}
             </h4>
           </div>
@@ -221,7 +221,7 @@
             <p class="text-[11px] text-gray-400 font-semibold uppercase">
               {{ t('dashboard.auditor.coverage.remaining') }}
             </p>
-            <h4 class="text-lg font-bold text-gray-800 dark:text-white mt-1">
+            <h4 class="text-base font-bold text-gray-800 dark:text-white">
               {{ auditCoverage.remainingAudits }}
             </h4>
           </div>
@@ -231,14 +231,14 @@
 
     <!-- 3. Audit status and progress (active fieldwork) -->
     <section
-      class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-5"
+      class="p-4 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-xl shadow-xs space-y-3"
       aria-labelledby="auditor-status-title"
     >
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2
             id="auditor-status-title"
-            class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2"
+            class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2"
           >
             <UIcon
               name="i-lucide-briefcase"
@@ -246,7 +246,7 @@
             />
             {{ t('dashboard.auditor.status.title') }}
           </h2>
-          <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
             {{ t('dashboard.auditor.status.description') }}
           </p>
           <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
@@ -283,11 +283,11 @@
       >
         <div
           v-if="statusState === 'empty'"
-          class="py-8 text-center text-gray-500 dark:text-gray-400"
+          class="py-5 text-center text-gray-500 dark:text-gray-400"
         >
           <UIcon
             name="i-lucide-folder-open"
-            class="size-10 mx-auto text-gray-300 dark:text-gray-600 mb-2"
+            class="size-8 mx-auto text-gray-300 dark:text-gray-600 mb-2"
           />
           <p class="font-medium text-sm">
             {{ t('dashboard.auditor.status.empty') }}
@@ -304,25 +304,25 @@
           <table class="w-full text-left text-sm">
             <thead class="bg-gray-50 dark:bg-gray-800/80 text-gray-700 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 text-xs uppercase font-bold tracking-wider">
               <tr>
-                <th class="py-3 px-4 min-w-[200px]">
+                <th class="py-2 px-3 min-w-[200px]">
                   {{ t('dashboard.auditor.status.colLetter') }}
                 </th>
-                <th class="py-3 px-4 min-w-[130px]">
+                <th class="py-2 px-3 min-w-[130px]">
                   {{ t('dashboard.auditor.status.colUnit') }}
                 </th>
-                <th class="py-3 px-4 min-w-[170px]">
+                <th class="py-2 px-3 min-w-[170px]">
                   {{ t('dashboard.auditor.status.colPeriod') }}
                 </th>
-                <th class="py-3 px-4 min-w-[240px]">
+                <th class="py-2 px-3 min-w-[240px]">
                   {{ t('dashboard.auditor.status.colStages') }}
                 </th>
-                <th class="py-3 px-4 min-w-[120px] text-center">
+                <th class="py-2 px-3 min-w-[120px] text-center">
                   {{ t('dashboard.auditor.status.colWorkingPapers') }}
                 </th>
-                <th class="py-3 px-4 min-w-[120px] text-center">
+                <th class="py-2 px-3 min-w-[120px] text-center">
                   {{ t('dashboard.auditor.status.colStatus') }}
                 </th>
-                <th class="py-3 px-4 min-w-[160px] text-center">
+                <th class="py-2 px-3 min-w-[160px] text-center">
                   {{ t('dashboard.auditor.status.colActions') }}
                 </th>
               </tr>
@@ -335,9 +335,9 @@
                 :class="{ 'bg-emerald-50/20 dark:bg-emerald-950/20': selectedLetterNumber === item.letterNumber }"
               >
                 <!-- Letter Number & Title -->
-                <td class="py-3.5 px-4">
+                <td class="py-2.5 px-3">
                   <div class="flex items-start gap-2.5">
-                    <div class="size-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <div class="size-7 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
                       <UIcon
                         name="i-lucide-file-text"
                         class="size-4"
@@ -358,7 +358,7 @@
                 </td>
 
                 <!-- Auditee Unit -->
-                <td class="py-3.5 px-4">
+                <td class="py-2.5 px-3">
                   <div class="flex items-center gap-1.5 font-medium text-xs text-gray-800 dark:text-gray-200">
                     <UIcon
                       name="i-lucide-building"
@@ -369,7 +369,7 @@
                 </td>
 
                 <!-- Execution Period -->
-                <td class="py-3.5 px-4 text-xs">
+                <td class="py-2.5 px-3 text-xs">
                   <div class="space-y-1">
                     <div class="flex items-center gap-1 text-gray-700 dark:text-gray-300">
                       <UIcon
@@ -390,7 +390,7 @@
                 </td>
 
                 <!-- Fieldwork Milestones Stepper -->
-                <td class="py-3.5 px-4">
+                <td class="py-2.5 px-3">
                   <div class="space-y-1.5">
                     <div class="flex items-center justify-between text-[11px] font-semibold text-gray-500 dark:text-gray-400">
                       <span :class="{ 'text-emerald-600 dark:text-emerald-400 font-bold': item.stageStep >= 1 }">{{ t('dashboard.auditor.status.stepper.entry') }}</span>
@@ -413,7 +413,7 @@
                 </td>
 
                 <!-- KKA Progress Bar -->
-                <td class="py-3.5 px-4 text-center">
+                <td class="py-2.5 px-3 text-center">
                   <div class="inline-flex flex-col items-center gap-1">
                     <span class="font-bold text-xs text-gray-900 dark:text-gray-100">
                       {{ t('dashboard.auditor.status.formsCount', { count: item.kkaCompleted }) }}
@@ -429,7 +429,7 @@
                 </td>
 
                 <!-- Status Badge -->
-                <td class="py-3.5 px-4 text-center">
+                <td class="py-2.5 px-3 text-center">
                   <UBadge
                     :color="getFieldworkStatusColor(item.statusKey)"
                     variant="subtle"
@@ -441,7 +441,7 @@
                 </td>
 
                 <!-- Operational Actions -->
-                <td class="py-3.5 px-4 text-center">
+                <td class="py-2.5 px-3 text-center">
                   <div class="flex items-center justify-center gap-1.5">
                     <UButton
                       size="xs"
@@ -479,7 +479,7 @@
               <tr v-if="filteredFieldworkList.length === 0">
                 <td
                   colspan="7"
-                  class="py-8 text-center text-gray-500 dark:text-gray-400"
+                  class="py-5 text-center text-gray-500 dark:text-gray-400"
                 >
                   <p class="font-medium">
                     {{ t('dashboard.auditor.status.emptyFiltered') }}
@@ -494,14 +494,14 @@
 
     <!-- 4. Task list with deadlines -->
     <section
-      class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-4"
+      class="p-4 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-xl shadow-xs space-y-3"
       aria-labelledby="auditor-tasks-title"
     >
       <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
         <div>
           <h2
             id="auditor-tasks-title"
-            class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2"
+            class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2"
           >
             <UIcon
               name="i-lucide-list-checks"
@@ -529,7 +529,7 @@
           <li
             v-for="item in taskRows"
             :key="item.id"
-            class="flex flex-wrap items-center justify-between gap-3 p-3.5 text-xs"
+            class="flex flex-wrap items-center justify-between gap-3 px-3 py-2 text-xs"
           >
             <div class="min-w-0">
               <p class="font-semibold text-gray-900 dark:text-white line-clamp-1">
@@ -571,7 +571,7 @@
             </div>
           </li>
         </ul>
-        <p class="mt-3 text-[11px] text-gray-400 dark:text-gray-500">
+        <p class="mt-2 text-[11px] text-gray-400 dark:text-gray-500">
           {{ t('dashboard.auditor.tasks.placeholder') }}
         </p>
       </AuditorWidgetState>
@@ -579,14 +579,14 @@
 
     <!-- 5. Calendar of important dates -->
     <section
-      class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-4"
+      class="p-4 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-xl shadow-xs space-y-3"
       aria-labelledby="auditor-calendar-title"
     >
       <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
         <div>
           <h2
             id="auditor-calendar-title"
-            class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2"
+            class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2"
           >
             <UIcon
               name="i-lucide-calendar-days"
@@ -598,44 +598,29 @@
             {{ t('dashboard.auditor.calendar.description') }}
           </p>
         </div>
-        <UBadge
-          color="warning"
-          variant="subtle"
-          size="xs"
-          class="shrink-0 self-start"
-        >
-          {{ t('dashboard.auditor.placeholder') }}
-        </UBadge>
       </div>
 
-      <!-- TODO(B4): replace with GET /api/v1/me/calendar?from&to (audit-service). Needs the employee link (B1) for team membership. -->
-      <div class="py-8 px-4 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 text-center text-gray-500 dark:text-gray-400">
-        <UIcon
-          name="i-lucide-calendar-off"
-          class="size-8 mx-auto text-gray-300 dark:text-gray-600 mb-2"
-        />
-        <p class="text-sm font-medium">
-          {{ t('dashboard.auditor.calendar.notConnected') }}
-        </p>
-        <p
-          v-if="!employeeLinked"
-          class="text-xs text-gray-400 mt-1 max-w-xl mx-auto"
-        >
-          {{ t('dashboard.auditor.calendar.notLinked') }}
-        </p>
-      </div>
+      <!-- TODO(B4): replace calendarEvents with GET /api/v1/me/calendar?from&to (audit-service), scoped to the user's team. -->
+      <CalendarWidget
+        :events="calendarEvents"
+        :loading="!initialLoadDone"
+        :error-text="calendarErrorText"
+        :retry-label="t('dashboard.auditor.states.retry')"
+        :note="employeeLinked ? t('dashboard.auditor.calendar.scope') : t('dashboard.auditor.calendar.notLinked')"
+        @retry="reloadCalendarSources"
+      />
     </section>
 
     <!-- 6. Notifications and reminders -->
     <section
-      class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-4"
+      class="p-4 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-xl shadow-xs space-y-3"
       aria-labelledby="auditor-notifications-title"
     >
       <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
         <div>
           <h2
             id="auditor-notifications-title"
-            class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2"
+            class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2"
           >
             <UIcon
               name="i-lucide-bell"
@@ -660,7 +645,7 @@
           <li
             v-for="n in derivedNotifications"
             :key="`${n.kind}-${n.id}`"
-            class="flex items-center justify-between gap-3 p-3.5 text-xs"
+            class="flex items-center justify-between gap-3 px-3 py-2 text-xs"
           >
             <div class="flex items-center gap-2.5 min-w-0">
               <UIcon
@@ -686,24 +671,24 @@
             />
           </li>
         </ul>
-        <p class="mt-3 text-[11px] text-gray-400 dark:text-gray-500">
+        <p class="mt-2 text-[11px] text-gray-400 dark:text-gray-500">
           {{ t('dashboard.auditor.notifications.placeholder') }}
         </p>
       </AuditorWidgetState>
     </section>
 
     <!-- KKA FORMS (F-01 to F-05) -->
-    <div class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="p-4 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-xl shadow-xs space-y-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <h2 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <UIcon
               name="i-lucide-file-signature"
               class="size-5 text-primary-600 dark:text-primary-400"
             />
             Kertas Kerja & Template
           </h2>
-          <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
             Akses cepat pembuatan atau kelanjutan formulir kertas kerja pengujian audit dan upload kertas kerja pendukung.
           </p>
         </div>
@@ -742,7 +727,7 @@
       </div>
 
       <!-- Selected Audit Context Banner -->
-      <div class="p-3.5 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+      <div class="px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
         <div class="flex items-center gap-2">
           <UIcon
             name="i-lucide-target"
@@ -758,10 +743,10 @@
       </div>
 
       <!-- 5 Interactive KKA Cards (F-01 s/d F-05) -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
         <!-- F-01: Header & Latar Belakang -->
-        <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between space-y-4 hover:border-primary-500 transition-all group">
-          <div class="space-y-2">
+        <div class="p-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between space-y-2.5 hover:border-primary-500 transition-all group">
+          <div class="space-y-1">
             <div class="flex items-center justify-between">
               <UBadge
                 :color="kkaFormStatus.f01 ? 'success' : 'neutral'"
@@ -791,8 +776,8 @@
         </div>
 
         <!-- F-02: Identifikasi Risiko & Pengendalian -->
-        <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between space-y-4 hover:border-primary-500 transition-all group">
-          <div class="space-y-2">
+        <div class="p-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between space-y-2.5 hover:border-primary-500 transition-all group">
+          <div class="space-y-1">
             <div class="flex items-center justify-between">
               <UBadge
                 :color="kkaFormStatus.f02 ? 'success' : 'neutral'"
@@ -822,8 +807,8 @@
         </div>
 
         <!-- F-03: Pengujian Sampel & Bukti -->
-        <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between space-y-4 hover:border-primary-500 transition-all group">
-          <div class="space-y-2">
+        <div class="p-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between space-y-2.5 hover:border-primary-500 transition-all group">
+          <div class="space-y-1">
             <div class="flex items-center justify-between">
               <UBadge
                 :color="kkaFormStatus.f03 ? 'success' : 'neutral'"
@@ -853,8 +838,8 @@
         </div>
 
         <!-- F-04: Analisis Sebab & Kondisi -->
-        <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between space-y-4 hover:border-primary-500 transition-all group">
-          <div class="space-y-2">
+        <div class="p-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between space-y-2.5 hover:border-primary-500 transition-all group">
+          <div class="space-y-1">
             <div class="flex items-center justify-between">
               <UBadge
                 :color="kkaFormStatus.f04 ? 'success' : 'neutral'"
@@ -884,8 +869,8 @@
         </div>
 
         <!-- F-05: Rencana Aksi & Rekomendasi -->
-        <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between space-y-4 hover:border-primary-500 transition-all group">
-          <div class="space-y-2">
+        <div class="p-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col justify-between space-y-2.5 hover:border-primary-500 transition-all group">
+          <div class="space-y-1">
             <div class="flex items-center justify-between">
               <UBadge
                 :color="kkaFormStatus.f05 ? 'success' : 'neutral'"
@@ -919,13 +904,13 @@
     <!-- 2 COLUMN LAYOUT: DRAFT FINDINGS & PBC TRACKER (hidden in auditor view, see showDraftAndPbcWidgets) -->
     <div
       v-if="showDraftAndPbcWidgets"
-      class="grid grid-cols-1 lg:grid-cols-12 gap-6"
+      class="grid grid-cols-1 lg:grid-cols-12 gap-4"
     >
       <!-- Draft Findings & LHA (7 COLS) -->
-      <div class="lg:col-span-7 p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-5">
+      <div class="lg:col-span-7 p-4 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-xl shadow-xs space-y-3">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <h2 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <UIcon
                 name="i-lucide-alert-triangle"
                 class="size-5 text-amber-500"
@@ -947,7 +932,7 @@
         </div>
 
         <!-- Warning Callout: Wewenang Auditor (No Publish Button) -->
-        <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200 text-xs flex items-start gap-2.5">
+        <div class="px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200 text-xs flex items-start gap-2.5">
           <UIcon
             name="i-lucide-lock"
             class="size-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"
@@ -1061,7 +1046,7 @@
           </table>
         </div>
 
-        <div class="flex items-center justify-between pt-2">
+        <div class="flex items-center justify-between">
           <span class="text-xs text-gray-500 dark:text-gray-400">
             Draft siap diajukan ke review supervisor/manager saat Kertas Kerja selesai.
           </span>
@@ -1079,10 +1064,10 @@
       </div>
 
       <!-- PBC TRACKER & DOKUMEN BUKTI (5 COLS) -->
-      <div class="lg:col-span-5 p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-5">
+      <div class="lg:col-span-5 p-4 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-xl shadow-xs space-y-3">
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <h2 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <UIcon
                 name="i-lucide-folder-check"
                 class="size-5 text-sky-500"
@@ -1120,11 +1105,11 @@
         </div>
 
         <!-- PBC Item List -->
-        <div class="space-y-2.5 max-h-[290px] overflow-y-auto pr-1">
+        <div class="space-y-2 max-h-[290px] overflow-y-auto pr-1">
           <div
             v-for="(pbc, idx) in pbcItemsList"
             :key="idx"
-            class="p-3 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/40 flex items-start justify-between gap-3 text-xs"
+            class="px-3 py-2 rounded-lg border border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/40 flex items-start justify-between gap-3 text-xs"
           >
             <div class="min-w-0">
               <span class="font-semibold text-gray-900 dark:text-white block line-clamp-1">
@@ -1150,7 +1135,7 @@
 
           <div
             v-if="pbcItemsList.length === 0"
-            class="py-8 text-center text-gray-500 dark:text-gray-400"
+            class="py-5 text-center text-gray-500 dark:text-gray-400"
           >
             <UIcon
               name="i-lucide-folder-open"
@@ -1181,10 +1166,10 @@
     </div>
 
     <!-- RCM QUICK REFERENCE (READ-ONLY) -->
-    <div class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-4">
+    <div class="p-4 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-xl shadow-xs space-y-3">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
-          <h2 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <h2 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <UIcon
               name="i-lucide-book-open"
               class="size-5 text-indigo-500"
@@ -1208,7 +1193,7 @@
         <div
           v-for="(rcm, idx) in rcmQuickReferences"
           :key="idx"
-          class="p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 text-xs space-y-1.5"
+          class="p-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 text-xs space-y-1"
         >
           <div class="flex items-center justify-between">
             <span class="font-mono font-bold text-primary-600 dark:text-primary-400 text-[11px]">{{ rcm.code }}</span>
@@ -1230,7 +1215,7 @@
 
         <div
           v-if="rcmQuickReferences.length === 0"
-          class="col-span-full py-6 text-center text-gray-500 dark:text-gray-400"
+          class="col-span-full py-4 text-center text-gray-500 dark:text-gray-400"
         >
           <UIcon
             name="i-lucide-book-open"
@@ -1269,8 +1254,10 @@ import {
   isAtrClosed,
   jakartaToday
 } from '~/utils/actionTakenReport'
+import { makeCalendarEvent, type CalendarEvent } from '~/utils/calendarEvents'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import AuditorWidgetState from './AuditorWidgetState.vue'
+import CalendarWidget from './CalendarWidget.vue'
 
 type WidgetState = 'loading' | 'error' | 'empty' | 'ready'
 type FieldworkStatusKey = 'preparation' | 'fieldwork' | 'reporting'
@@ -1581,6 +1568,60 @@ const daysUntil = (value: unknown): number => {
   if (!due) return Number.NaN
   return Math.round((Date.parse(`${due}T00:00:00Z`) - Date.parse(`${jakartaToday()}T00:00:00Z`)) / DAY_MS)
 }
+
+// ─── Calendar of important dates (interim sources) ────────────────────────
+// TODO(B4): replace with GET /api/v1/me/calendar. Interim: published Surat Tugas periods, the fieldwork dates of the
+// letters already loaded on this page, and open ATR due dates. Unparseable dates are skipped.
+const calendarEvents = computed<CalendarEvent[]>(() => {
+  const events: CalendarEvent[] = []
+  const push = (event: CalendarEvent | null) => {
+    if (event) events.push(event)
+  }
+
+  for (const st of combinedFieldworkList.value) {
+    push(makeCalendarEvent(
+      { id: `letter:${st.letterNumber}`, kind: 'engagement', title: st.auditTitle || st.letterNumber, subtitle: st.letterNumber, to: '/assignment-letter' },
+      st.startPeriod,
+      st.finishPeriod
+    ))
+  }
+
+  const fieldworkData = fieldworkStore.fieldworkData || {}
+  for (const [letter, fw] of Object.entries(fieldworkData)) {
+    if (!fw) continue
+    const base = (kind: CalendarEvent['kind'], id: unknown, title: string) =>
+      ({ id: `${kind}:${letter}:${id}`, kind, title: title || letter, subtitle: letter, to: '/audit-fieldwork' })
+    fw.interviews?.forEach(i => push(makeCalendarEvent(base('interview', i.id, i.topic || i.interviewee), i.date)))
+    fw.observations?.forEach(o => push(makeCalendarEvent(base('observation', o.id, o.activity), o.date)))
+    fw.samples?.forEach(s => push(makeCalendarEvent(base('sample', s.id, s.documentName), s.date)))
+    fw.documents?.forEach(d => push(makeCalendarEvent(base('pbcDue', d.id, d.documentName), d.requiredDate)))
+    fw.testControls?.forEach(c => push(makeCalendarEvent(base('testControlDue', c.id, c.controlName), c.dueDate)))
+  }
+
+  for (const item of openAtrItems.value) {
+    push(makeCalendarEvent(
+      {
+        id: `atr:${item.id}`,
+        kind: 'atrDue',
+        title: item.finding_title || item.report_number || '-',
+        subtitle: item.report_number || undefined,
+        overdue: item.is_overdue,
+        to: '/action-taken-report'
+      },
+      item.due_date
+    ))
+  }
+  return events
+})
+
+// Only an error when every source failed; one failed source still leaves a usable calendar.
+const calendarErrorText = computed(() =>
+  assignmentLetterStore.errorMsg && atrStore.summaryError
+    ? t('dashboard.calendarWidget.loadError')
+    : ''
+)
+
+const reloadCalendarSources = () => Promise.allSettled([reloadLetters(), reloadAtr()])
 
 // TODO(B9): replace with GET /api/v1/notifications?unread=true (audit-service). Interim: derived from ATR data.
 // Only ATR-based types are derived here; PBC requests, comments and revisions are not available yet.

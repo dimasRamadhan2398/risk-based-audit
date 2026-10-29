@@ -6,7 +6,7 @@
         <h2 class="text-lg font-semibold">{{ t('auditFieldwork.observation.title') }}</h2>
         <p class="text-sm text-gray-500">{{ t('auditFieldwork.observation.subtitle') }}</p>
       </div>
-      <UButton color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.observation.addBtn')" @click="store.openObservationModal()" />
+      <UButton v-if="canWrite" color="primary" icon="i-heroicons-plus" :label="t('auditFieldwork.observation.addBtn')" @click="store.openObservationModal()" />
     </div>
 
     <!-- Observation List via TableEntities -->
@@ -40,7 +40,7 @@
       </template>
       <template #file-cell="{ row }">
         <UButton
-          v-if="row.original.file || row.original.fileName || row.original.fileUrl || row.original.filePath"
+          v-if="(row.original.file || row.original.fileName || row.original.fileUrl || row.original.filePath) && canAccessFiles"
           icon="i-heroicons-document-arrow-down"
           color="neutral"
           variant="ghost"
@@ -49,13 +49,14 @@
         >
           {{ row.original.fileName || row.original.file?.name }}
         </UButton>
+        <span v-else-if="row.original.file || row.original.fileName" class="text-sm">{{ row.original.fileName || row.original.file?.name }}</span>
         <span v-else class="text-gray-400 text-sm">-</span>
       </template>
       <template #actions-cell="{ row }">
         <div class="flex items-center justify-center gap-1">
           <UButton icon="i-heroicons-eye" color="neutral" variant="ghost" size="sm" :title="t('common.actions.view') || 'Lihat'" @click="store.viewObservation(row.original)" />
-          <UButton icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" :title="t('common.actions.edit') || 'Ubah'" @click="store.editObservation(row.original)" />
-          <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" :title="t('common.actions.delete') || 'Hapus'" @click="store.deleteObservation(row.index)" />
+          <UButton v-if="canWrite" icon="i-heroicons-pencil-square" color="primary" variant="ghost" size="sm" :title="t('common.actions.edit') || 'Ubah'" @click="store.editObservation(row.original)" />
+          <UButton v-if="canWrite" icon="i-heroicons-trash" color="error" variant="ghost" size="sm" :title="t('common.actions.delete') || 'Hapus'" @click="store.deleteObservation(row.index)" />
         </div>
       </template>
     </TableEntities>
@@ -66,6 +67,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { computed } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
@@ -75,6 +77,7 @@ import AuditFieldworkObservationModal from '~/components/audit-fieldwork/AuditFi
 
 const store = useAuditFieldworkStore()
 const { t } = useI18n()
+const { canWrite, canAccessFiles } = useRbac()
 
 const columns = computed(() => [
   {

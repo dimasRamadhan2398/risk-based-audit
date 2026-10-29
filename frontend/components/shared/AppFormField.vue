@@ -235,6 +235,7 @@
 
 <script setup lang="ts">
 import { computed, useId } from 'vue'
+import { useI18n } from '~/composables/useI18n'
 
 const { t } = useI18n()
 

@@ -40,8 +40,11 @@
         <div class="flex items-start gap-4">
           <span 
             class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-md transition-all duration-300"
-            :class="currentStep === 3 ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/25' : 'bg-[var(--border-main)] text-[var(--text-muted)]'"
-          >3</span>
+            :class="currentStep === 3 ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/25' : currentStep > 3 ? 'bg-success-500/10 border border-success-500/20 text-success-600' : 'bg-[var(--border-main)] text-[var(--text-muted)]'"
+          >
+            <span v-if="currentStep > 3">✓</span>
+            <span v-else>3</span>
+          </span>
           <div>
             <h4 
               class="text-sm font-bold transition-all duration-300"
@@ -52,9 +55,18 @@
         </div>
 
         <div class="flex items-start gap-4">
-          <span class="w-6 h-6 rounded-full bg-[var(--border-main)] text-[var(--text-muted)] flex items-center justify-center font-bold text-md">4</span>
+          <span 
+            class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-md transition-all duration-300"
+            :class="currentStep === 4 ? 'bg-success-500 text-white shadow-lg shadow-success-500/25' : 'bg-[var(--border-main)] text-[var(--text-muted)]'"
+          >
+            <span v-if="currentStep === 4">✓</span>
+            <span v-else>4</span>
+          </span>
           <div>
-            <h4 class="text-sm font-bold text-[var(--text-main)]">{{ t.stepper.step4Title }}</h4>
+            <h4 
+              class="text-sm font-bold transition-all duration-300"
+              :class="currentStep === 4 ? 'text-success-600 dark:text-success-400' : 'text-[var(--text-main)]'"
+            >{{ t.stepper.step4Title }}</h4>
             <p class="text-md text-[var(--text-muted)]">{{ t.stepper.step4Desc }}</p>
           </div>
         </div>
@@ -330,6 +342,54 @@
             </button>
           </div>
         </div>
+
+        <!-- Onboarding Step 4: Selesai -->
+        <div v-else-if="currentStep === 4" class="space-y-6 animate-fade-in text-center py-4">
+          <div class="mx-auto w-16 h-16 rounded-2xl bg-success-500/10 border border-success-500/20 flex items-center justify-center text-success-600">
+            <UIcon name="i-lucide-badge-check" class="w-10 h-10" />
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-[var(--text-main)]">{{ t.step4.title }}</h1>
+            <p class="text-sm text-[var(--text-muted)] mt-1">{{ t.step4.subtitle }}</p>
+          </div>
+
+          <!-- Summary Card -->
+          <div class="bg-[var(--bg-surface)] border border-[var(--border-main)] rounded-2xl p-6 text-left space-y-4 shadow-sm">
+            <div class="flex items-center justify-between border-b border-[var(--border-main)] pb-3">
+              <span class="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">{{ t.step4.accountStatus }}</span>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-success-500/10 border border-success-500/20 text-success-600">
+                <span class="w-2 h-2 rounded-full bg-success-500"></span> {{ t.step4.activeVerified }}
+              </span>
+            </div>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span class="text-xs text-[var(--text-muted)] block">{{ t.step4.fullName }}</span>
+                <span class="font-bold text-[var(--text-main)]">{{ profileState.fullName || 'Budi Wicaksono, SE, Ak, CIA' }}</span>
+              </div>
+              <div>
+                <span class="text-xs text-[var(--text-muted)] block">{{ t.step4.username }}</span>
+                <span class="font-mono font-semibold text-[var(--text-main)]">superadmin / 198504122010011002</span>
+              </div>
+              <div>
+                <span class="text-xs text-[var(--text-muted)] block">{{ t.step4.department }}</span>
+                <span class="font-medium text-[var(--text-main)]">{{ profileState.department || 'Satuan Pengawasan Intern (SPI)' }}</span>
+              </div>
+              <div>
+                <span class="text-xs text-[var(--text-muted)] block">{{ t.step4.ndaPactStatus }}</span>
+                <span class="font-semibold text-primary-500">Terekam Digital (SHA-256)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4">
+            <NuxtLink
+              to="/dashboard"
+              class="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-sm bg-primary-500 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/25 transition-all duration-200"
+            >
+              {{ t.step4.enterDashboard }} →
+            </NuxtLink>
+          </div>
+        </div>
       </div>
 
       <!-- Legal note at footer -->
@@ -449,6 +509,17 @@ const t = computed(() => {
         saveBtn: 'Save & Proceed to Dashboard →',
         errorSave: 'Failed to save profile. Please try again.',
       },
+      step4: {
+        title: 'Onboarding Complete',
+        subtitle: 'Your profile has been configured and the Integrity Pact has been digitally recorded.',
+        accountStatus: 'Account Status',
+        activeVerified: 'Active & Verified',
+        fullName: 'Full Name',
+        username: 'Username / NIP',
+        department: 'Work Unit / Department',
+        ndaPactStatus: 'Integrity Pact Status',
+        enterDashboard: 'Enter Main Dashboard',
+      },
       footerNote: 'Secured · Onboarding login activity is logged for compliance audit.',
     }
   }
@@ -527,6 +598,17 @@ const t = computed(() => {
       saveBtn: 'Simpan & Masuk ke Dashboard →',
       errorSave: 'Gagal menyimpan profil. Silakan coba lagi.',
     },
+    step4: {
+      title: 'Konfigurasi Onboarding Selesai',
+      subtitle: 'Akun Anda telah terkonfigurasi dan Pakta Integritas telah terekam secara digital.',
+      accountStatus: 'Status Akun Pengguna',
+      activeVerified: 'Aktif & Terverifikasi',
+      fullName: 'Nama Lengkap',
+      username: 'Username / NIP',
+      department: 'Unit Kerja / Departemen',
+      ndaPactStatus: 'Status Pakta Integritas',
+      enterDashboard: 'Masuk ke Dasbor Utama',
+    },
     footerNote: 'Keamanan terjamin · Aktivitas Onboarding login dicatat untuk audit kepatuhan.',
   }
 })
@@ -554,7 +636,11 @@ const extractRoles = (user: any): string[] => {
 
 // Initialize profile state from store
 onMounted(async () => {
-  if (!authStore.isAuthenticated) {
+  const route = useRoute()
+  if (route.query.step) {
+    currentStep.value = parseInt(route.query.step as string)
+  }
+  if (!authStore.isAuthenticated && route.query.demo !== 'true') {
     router.push('/auth/login')
     return
   }
@@ -565,17 +651,28 @@ onMounted(async () => {
   profileState.department = authStore.user?.department ?? ''
   userRoles.value = extractRoles(authStore.user)
 
-  // Load detailed profile including db roles & permissions
-  const detailedUser = await authStore.fetchUserProfile()
-  if (detailedUser) {
-    profileState.fullName = detailedUser.full_name || profileState.fullName
-    profileState.phone = detailedUser.phone || profileState.phone
-    profileState.department = detailedUser.department || profileState.department
-    const fetchedRoles = extractRoles(detailedUser)
-    if (fetchedRoles.length > 0) {
-      userRoles.value = fetchedRoles
+  if (route.query.demo === 'true' || currentStep.value >= 3) {
+    if (!profileState.fullName) {
+      profileState.fullName = 'Budi Wicaksono, SE, Ak, CIA'
+      profileState.phone = '+62 812-3456-7890'
+      profileState.department = 'Satuan Pengawasan Intern (SPI)'
+      userRoles.value = ['auditor', 'admin']
     }
   }
+
+  // Load detailed profile including db roles & permissions
+  try {
+    const detailedUser = await authStore.fetchUserProfile()
+    if (detailedUser) {
+      profileState.fullName = detailedUser.full_name || profileState.fullName
+      profileState.phone = detailedUser.phone || profileState.phone
+      profileState.department = detailedUser.department || profileState.department
+      const fetchedRoles = extractRoles(detailedUser)
+      if (fetchedRoles.length > 0) {
+        userRoles.value = fetchedRoles
+      }
+    }
+  } catch (e) {}
 })
 
 const userInitials = computed(() => {

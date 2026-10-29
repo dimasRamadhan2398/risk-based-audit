@@ -11,7 +11,7 @@
         </p>
       </div>
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
-        <UButton
+        <UButton v-if="canWriteQaConsulting"
           color="neutral"
           variant="outline"
           :label="t('consultingService.dashboard.importDocument')"
@@ -19,7 +19,7 @@
           class="px-5 py-2.5 font-bold rounded-lg shadow w-full sm:w-auto"
           to="/consulting-service/upload"
         />
-        <UButton
+        <UButton v-if="canWriteQaConsulting"
           color="primary"
           :label="t('consultingService.dashboard.newAssignment')"
           icon="i-lucide-plus"
@@ -31,59 +31,73 @@
 
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-      <UCard class="border-l-4 border-primary-500 shadow-md">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider">{{ t('consultingService.dashboard.summary.total') }}</p>
-            <p class="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white mt-1">{{ store.services.length }}</p>
+      <!-- Total -->
+      <div class="rounded-xl p-5 flex flex-col justify-between min-h-[100px] dashboard-card">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+              {{ t('consultingService.dashboard.summary.total') }}
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              {{ store.services.length }}
+            </h4>
           </div>
-          <div class="p-3 bg-primary-50 dark:bg-primary-950 rounded-full text-primary-500">
-            <UIcon name="i-lucide-clipboard-list" class="w-6 h-6" />
+          <div class="shrink-0 rounded-xl bg-indigo-50 p-2.5 flex items-center justify-center dark:bg-indigo-500/10">
+            <UIcon name="i-lucide-clipboard-list" class="text-indigo-600 size-5 dark:text-indigo-400" />
           </div>
         </div>
-      </UCard>
+      </div>
 
-      <UCard class="border-l-4 border-warning-500 shadow-md">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider">{{ t('consultingService.dashboard.summary.inProgress') }}</p>
-            <p class="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white mt-1">
+      <!-- In Progress -->
+      <div class="rounded-xl p-5 flex flex-col justify-between min-h-[100px] dashboard-card">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+              {{ t('consultingService.dashboard.summary.inProgress') }}
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
               {{ store.services.filter(s => s.status === 'In Progress').length }}
-            </p>
+            </h4>
           </div>
-          <div class="p-3 bg-warning-50 dark:bg-warning-950 rounded-full text-warning-500">
-            <UIcon name="i-lucide-refresh-cw" class="w-6 h-6 animate-spin-slow" />
+          <div class="shrink-0 rounded-xl bg-amber-50 p-2.5 flex items-center justify-center dark:bg-amber-500/10">
+            <UIcon name="i-lucide-refresh-cw" class="text-amber-600 size-5 dark:text-amber-400 animate-spin-slow" />
           </div>
         </div>
-      </UCard>
+      </div>
 
-      <UCard class="border-l-4 border-success-500 shadow-md">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider">{{ t('consultingService.dashboard.summary.completed') }}</p>
-            <p class="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white mt-1">
+      <!-- Completed -->
+      <div class="rounded-xl p-5 flex flex-col justify-between min-h-[100px] dashboard-card">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+              {{ t('consultingService.dashboard.summary.completed') }}
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
               {{ store.services.filter(s => s.status === 'Completed').length }}
-            </p>
+            </h4>
           </div>
-          <div class="p-3 bg-success-50 dark:bg-success-950 rounded-full text-success-500">
-            <UIcon name="i-lucide-check-circle" class="w-6 h-6" />
+          <div class="shrink-0 rounded-xl bg-emerald-50 p-2.5 flex items-center justify-center dark:bg-emerald-500/10">
+            <UIcon name="i-lucide-check-circle" class="text-emerald-600 size-5 dark:text-emerald-400" />
           </div>
         </div>
-      </UCard>
+      </div>
 
-      <UCard class="border-l-4 border-gray-500 shadow-md">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider">{{ t('consultingService.dashboard.summary.planned') }}</p>
-            <p class="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white mt-1">
+      <!-- Planned -->
+      <div class="rounded-xl p-5 flex flex-col justify-between min-h-[100px] dashboard-card">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
+              {{ t('consultingService.dashboard.summary.planned') }}
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
               {{ store.services.filter(s => s.status === 'Planned').length }}
-            </p>
+            </h4>
           </div>
-          <div class="p-3 bg-gray-50 dark:bg-gray-850 rounded-full text-gray-500">
-            <UIcon name="i-lucide-calendar" class="w-6 h-6" />
+          <div class="shrink-0 rounded-xl bg-sky-50 p-2.5 flex items-center justify-center dark:bg-sky-500/10">
+            <UIcon name="i-lucide-calendar" class="text-sky-600 size-5 dark:text-sky-400" />
           </div>
         </div>
-      </UCard>
+      </div>
     </div>
 
     <!-- Filters -->
@@ -120,7 +134,8 @@
 
         <!-- Attachment Cell -->
         <template #attachment-cell="{ row }">
-          <div v-if="(row.original as any).attachment" class="flex items-center gap-1.5">
+          <span v-if="(row.original as any).attachment && !canAccessFiles" class="text-md">{{ (row.original as any).attachment.name }}</span>
+          <div v-else-if="(row.original as any).attachment" class="flex items-center gap-1.5">
             <UButton
               icon="i-lucide-download"
               color="primary"
@@ -146,7 +161,7 @@
               />
             </UTooltip>
 
-            <UTooltip :text="t('consultingService.dashboard.actions.edit')">
+            <UTooltip v-if="canWriteQaConsulting" :text="t('consultingService.dashboard.actions.edit')">
               <UButton
                 icon="i-lucide-edit"
                 color="warning"
@@ -156,7 +171,7 @@
             />
             </UTooltip>
 
-            <UTooltip :text="t('consultingService.dashboard.actions.delete')">
+            <UTooltip v-if="canWriteQaConsulting" :text="t('consultingService.dashboard.actions.delete')">
               <UButton
                 icon="i-lucide-trash-2"
                 color="error"
@@ -352,7 +367,7 @@
                     <span class="text-md text-gray-400 block">{{ store.selectedService.attachment.size }} · {{ t('consultingService.dashboard.detail.uploadedAt', { date: store.selectedService.attachment.uploadedAt }) }}</span>
                   </div>
                 </div>
-                <UButton
+                <UButton v-if="canAccessFiles"
                   icon="i-heroicons-document-arrow-down"
                   :label="t('consultingService.dashboard.actions.download')"
                   color="primary"
@@ -380,11 +395,13 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { ref, reactive, computed } from 'vue'
 import { useConsultingServiceStore } from '~/stores/consulting-service'
 
 const store = useConsultingServiceStore()
 const { t } = useI18n()
+const { canWriteQaConsulting, canAccessFiles } = useRbac()
 store.fetchServices()
 
 const columns = computed(() => [

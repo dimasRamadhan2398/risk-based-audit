@@ -21,8 +21,10 @@ const (
 //
 // It is a cache, not a source of truth: a missing row means "no value known
 // yet" and never fails a save. Rows are only written (upserted) by the event
-// handler and never deleted, so a deleted source keeps the last name it had,
-// like the plan snapshots do.
+// handler and by the operator reconcile ("audit migrate
+// backfill-annual-snapshots --from-source", same upsert rules), and never
+// deleted, so a deleted source keeps the last name it had, like the plan
+// snapshots do.
 //
 // Links are by business key (RefID is the other service's id), not by foreign
 // key, because the source tables live in other databases.

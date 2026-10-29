@@ -206,6 +206,7 @@
     "back": "Back",
     "readMore": "Read more",
     "readLess": "Show less",
+    "unknown": "Unknown",
     "create": "Create",
     "quickTip": {
       "title": "Quick Tip",
@@ -414,8 +415,31 @@
       },
       "calendar": {
         "title": "Important dates",
-        "description": "Engagement dates and action plan due dates for your unit.",
-        "placeholder": "The calendar for your unit is not connected yet."
+        "description": "Engagement periods for your unit and the due dates of your action plans.",
+        "scope": "Engagement periods appear when the audit plan has planned dates. Interview and observation dates will follow once the calendar service is available."
+      }
+    },
+    "calendarWidget": {
+      "upcoming": "Next {days} days",
+      "showUpcoming": "Back to upcoming",
+      "noUpcoming": "Nothing scheduled in the next {days} days.",
+      "noEventsOnDay": "Nothing scheduled on this day.",
+      "overdue": "{count} overdue",
+      "overdueBadge": "Overdue",
+      "more": "+{count} more",
+      "previousMonth": "Previous month",
+      "nextMonth": "Next month",
+      "today": "Go to today",
+      "period": "{start} – {end}",
+      "loadError": "The dates could not be loaded.",
+      "kinds": {
+        "engagement": "Engagement period",
+        "atrDue": "ATR due",
+        "interview": "Interview (planned)",
+        "observation": "Observation (planned)",
+        "sample": "Sampling (planned)",
+        "pbcDue": "PBC due",
+        "testControlDue": "Test of controls due"
       }
     },
     "auditor": {
@@ -759,6 +783,8 @@
       "cancel": "Cancel",
       "submitChangePassword": "Change Password",
       "successMessage": "Password changed successfully!",
+      "passwordUpdatedToast": "Password Updated",
+      "passwordChangeFailed": "Failed to change password. Please try again.",
       "languageUpdatedToast": "Language Updated",
       "languageSetToast": "System language set to {lang}."
     },
@@ -776,6 +802,7 @@
       "username": "Username",
       "email": "Email",
       "emailHelp": "Email connected to your account.",
+      "emailPlaceholder": "Enter your email",
       "phone": "Phone Number",
       "phonePlaceholder": "Enter your phone number",
       "department": "Department",
@@ -789,6 +816,9 @@
       "toastSuccessDesc": "Your profile information has been saved successfully to the server.",
       "toastErrorTitle": "Save Failed",
       "toastErrorDesc": "An error occurred while saving profile.",
+      "unsupportedFormat": "Unsupported format. Accepted: {formats}",
+      "fileTooLarge": "File too large. Maximum allowed size is {size}MB.",
+      "readFileFailed": "Failed to read the file. Please try again.",
       "avatarInvalidType": "Unsupported format. Please choose a JPG, PNG or WebP image.",
       "avatarTooLargeInput": "File too large. Maximum allowed size is {size}MB.",
       "avatarReadFailed": "Failed to read the image. Please try another file.",
@@ -837,7 +867,15 @@
       "enabledToast": "MFA Enabled",
       "enabledDesc": "Two-factor authentication enabled successfully.",
       "disabledToast": "MFA Disabled",
-      "disabledDesc": "Two-factor authentication has been disabled."
+      "disabledDesc": "Two-factor authentication has been disabled.",
+      "generatingQr": "Generating QR Code...",
+      "scanQr": "Scan QR Code",
+      "setupFailedTitle": "Setup Failed",
+      "setupFailedDesc": "Failed to start MFA setup.",
+      "verifyFailedTitle": "Verification Failed",
+      "verifyFailedDesc": "Invalid verification code.",
+      "disableFailedTitle": "Failed to Disable",
+      "disableFailedDesc": "The password you entered is incorrect."
     },
     "activity": {
       "fingerprintLabel": "Fingerprint:",
@@ -869,7 +907,9 @@
       "confirmRemove": "Remove Access",
       "cancelRemove": "Cancel",
       "deviceRemovedToast": "Device Removed",
-      "deviceRemovedDesc": "Trusted access for device \"{name}\" has been removed."
+      "deviceRemovedDesc": "Trusted access for device \"{name}\" has been removed.",
+      "removeFailedTitle": "Failed to Remove",
+      "removeFailedDesc": "Failed to remove trusted device."
     },
     "permission": {
       "matrix": {
@@ -897,6 +937,23 @@
       },
       "title": "Access Rights & Role Settings",
       "subtitle": "Manage specific permissions for each user group within the system.",
+      "rbacTitle": "AuditSphere Role-Based Access Control (RBAC) Matrix",
+      "rbacSubtitle": "Official permission matrix defining access rights and operational authority across system modules.",
+      "exportMatrix": "Export Matrix",
+      "legendTitle": "Access Level Legend",
+      "legendFull": "Full Access (Create, Read, Update, Delete, Approval)",
+      "legendLimited": "Restricted operational action (Draft, Edit, Respond, Review, etc.)",
+      "legendRead": "Read-Only access",
+      "legendNone": "No access / Hidden from navigation",
+      "searchPlaceholder": "Search module or feature...",
+      "showingCount": "Showing {count} of {total} module features",
+      "thModule": "Sidebar Module / Feature",
+      "thAdmin": "Admin / CAE",
+      "thManager": "Audit Manager",
+      "thAuditor": "Auditor",
+      "thAuditee": "Auditee / Dept. Head",
+      "thViewer": "Viewer",
+      "noMatch": "No matching features found for \"{query}\".",
       "currentRole": "Current Role :",
       "tableModule": "Module",
       "tableDescription": "Description",
@@ -1078,6 +1135,49 @@
       "removeConfirm": "Are you sure you want to remove this trusted device?",
       "removed": "Device Removed",
       "removeFailed": "Failed to remove device"
+    },
+    "email": {
+      "cardTitle": "Email Service Dispatcher (Resend API)",
+      "cardSubtitle": "Manage transactional email delivery, provision sending domains, and inspect DNS verification records.",
+      "badgeConnected": "Resend API Connected",
+      "activeDispatcher": "Active Dispatcher",
+      "cloudEngine": "Resend Cloud Engine",
+      "replacesLegacy": "Replaces legacy Mailtrap SMTP",
+      "backendEndpoint": "Backend Endpoint",
+      "kongProxyActive": "Kong Gateway Proxy Active",
+      "deliveryMode": "Delivery Mode",
+      "dkimSpfEnforced": "DKIM & SPF Enforced",
+      "highDeliverability": "High deliverability inbox rate",
+      "provisionTitle": "Provision Client Sending Domain",
+      "autoDnsGen": "Automatic DNS generation",
+      "clientName": "Client Name",
+      "clientNameHint": "e.g. Acme Corp",
+      "clientNamePlaceholder": "e.g. Acme Corporation",
+      "tenantSlug": "Tenant Slug",
+      "tenantSlugHint": "Short alphanumeric",
+      "tenantSlugPlaceholder": "e.g. acme",
+      "sendingDomain": "Sending Domain",
+      "sendingDomainHint": "Auditsphere or custom",
+      "sendingDomainPlaceholder": "e.g. acme.auditsphere.id",
+      "provisionDesc": "Registers domain on Resend and automatically creates a tenant-scoped API key.",
+      "provisionButton": "Provision Domain via API",
+      "domainProvisioned": "Domain Provisioned: {domain}",
+      "domainId": "Domain ID: {id}",
+      "scopedApiKey": "Scoped Tenant API Key",
+      "copy": "Copy",
+      "requiredDns": "Required DNS Records for Verification (DKIM, SPF, MX)",
+      "addDnsHint": "Add these records to your DNS provider",
+      "thType": "Type",
+      "thHostName": "Host / Name",
+      "thValue": "Value / Destination",
+      "thPriority": "Priority",
+      "thAction": "Action",
+      "copiedToast": "Copied",
+      "copiedDesc": "{name} copied to clipboard",
+      "provisionSuccessToast": "Domain Provisioned",
+      "provisionSuccessDesc": "Domain {domain} registered with {count} DNS verification records.",
+      "provisionFailedToast": "Provisioning Failed",
+      "provisionFailedDesc": "Failed to provision domain."
     }
   },
   "strategicPlan": {
@@ -1149,8 +1249,7 @@
       "yearly": "Yearly",
       "quartal": "Quartal",
       "allYears": "All Years",
-      "allQuarters": "All Quarters",
-      "allObjectives": "All Strategic Objectives"
+      "allQuarters": "All Quarters"
     },
     "columns": {
       "code": "Objective ID",
@@ -1207,9 +1306,7 @@
       "submit": "Submit",
       "update": "Update",
       "category": "Category",
-      "selectCategory": "Select a category (optional)",
-      "corporateGoal": "Corporate Goal",
-      "selectCorporateGoal": "Select Corporate Goal"
+      "selectCategory": "Select a category (optional)"
     },
     "viewModal": {
       "title": "Strategic Objective Details",
@@ -1368,7 +1465,15 @@
       }
     },
     "guidelines": {
-      "modalTitle": "Scoring Scale Guidelines: {name}"
+      "modalTitle": "Scoring Scale Guidelines: {name}",
+      "factorDescription": "Factor Description:"
+    },
+    "defaultScores": {
+      "1": "Low – Administrative or routine activity with minimal risk",
+      "2": "Low to Medium – Low risk operations with minimal impact",
+      "3": "Medium – Moderate risk exposure with limited enterprise impact",
+      "4": "Medium to High – Significant risk affecting key operations",
+      "5": "High – Major contributor to enterprise risk"
     },
     "messages": {
       "scoresSaved": "Risk scores saved and priority calculated successfully.",
@@ -1381,7 +1486,11 @@
       "factorDeleted": "Standard risk factor deleted successfully.",
       "factorCreateFailed": "Failed to create standard risk factor.",
       "factorUpdateFailed": "Failed to update standard risk factor.",
-      "factorDeleteFailed": "Failed to delete standard risk factor."
+      "factorDeleteFailed": "Failed to delete standard risk factor.",
+      "factorRemoved": "Factor successfully removed from corporate list.",
+      "nameRequired": "Factor name is required.",
+      "operationFailed": "Operation failed.",
+      "deleteFailed": "Failed to delete factor."
     },
     "scoreLabels": {
       "1": "Low (1)",
@@ -1432,6 +1541,9 @@
       "addCustomEntityTitle": "Add Custom Corporate Entity",
       "nameLabel": "Name",
       "namePlaceholder": "Enter name...",
+      "departmentLabel": "Department",
+      "noDepartment": "No department (company-wide)",
+      "departmentLockedHint": "Fixed to your own department.",
       "masterSuggestions": "Suggestions from Master Data:",
       "addNode": "Add Node",
       "cancel": "Cancel",
@@ -2558,7 +2670,7 @@
       "annualPlanPlaceholder": "Select a PKAT",
       "annualPlanEmpty": "No active PKAT yet. Create the Annual Audit Plan first.",
       "annualPlanLocked": "The PKAT cannot be changed after the plan is created.",
-      "annualPlanNotApproved": "This PKAT is still {status}. You can draft the plan; it follows any later PKAT change.",
+      "annualPlanNotApproved": "This PKAT is still {status}. You can draft the plan. it follows any later PKAT change.",
       "changeAnnualPlanConfirm": "Change the PKAT? The assignments added so far will be removed.",
       "changeAnnualPlanConfirmLabel": "Change PKAT",
       "year": "Year",
@@ -2708,6 +2820,7 @@
       "approver": "Approved By",
       "attachment": "Attachment",
       "attachmentCategory": "File Category:",
+      "basicInfo": "Basic Information",
       "budgetNotes": "Budget Notes:",
       "budgetPlanning": "Budget Planning",
       "close": "Close",
@@ -5507,6 +5620,7 @@
       "recommendation": "Recommendation",
       "lha": "Audit Result Report (LHA)",
       "showLhaFollowUps": "Show all follow-ups of this LHA",
+      "openLha": "Open LHA",
       "followUpSection": "Follow-up",
       "pic": "PIC",
       "dueDate": "Due date",
@@ -5531,7 +5645,7 @@
       "lhaReviewedBy": "Reviewed by (LHA)",
       "approvedBy": "Approved by",
       "referenceStatus": "Ref: {reference} | Status:",
-      "assignmentInfo": "Assignment Letter Information",
+      "assignmentInfo": "Assignment Information",
       "auditTitle": "Audit Title",
       "workingUnit": "Working Unit",
       "auditLeader": "Audit Leader",

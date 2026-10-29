@@ -73,13 +73,13 @@
                     <div class="flex items-center">
                       <span class="font-bold text-gray-600 dark:text-gray-400 w-44 text-sm">{{ t('annualAudit.detail.department') }}</span>
                       <span class="font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-1">
-                        {{ activity.department }}
+                        {{ store.activityDepartmentName(activity) || '-' }}
                       </span>
                     </div>
 
                     <div class="flex items-start">
                       <span class="font-bold text-gray-600 dark:text-gray-400 w-44 text-sm">{{ t('annualAudit.detail.associatedRisk') }}</span>
-                      <span class="font-semibold text-gray-800 dark:text-gray-200 flex-1">{{ activity.riskName || '-' }}</span>
+                      <span class="font-semibold text-gray-800 dark:text-gray-200 flex-1">{{ store.activityRiskName(activity) || '-' }}</span>
                     </div>
 
                     <div class="flex items-center">
@@ -205,7 +205,7 @@
                           <span class="font-semibold text-gray-800 dark:text-gray-200">{{ file.name }}</span>
                           <UBadge color="neutral" variant="soft" size="md">{{ file.size }}</UBadge>
                         </div>
-                        <UButton :to="file.url" target="_blank" icon="i-heroicons-arrow-down-tray" size="sm" color="primary" variant="link" :label="t('annualAudit.detail.download')" />
+                        <UButton v-if="canAccessFiles" :to="file.url" target="_blank" icon="i-heroicons-arrow-down-tray" size="sm" color="primary" variant="link" :label="t('annualAudit.detail.download')" />
                       </li>
                     </ul>
                     <p v-else class="text-gray-500 dark:text-gray-400 italic mt-2">{{ t('annualAudit.detail.noFiles') }}</p>
@@ -218,7 +218,7 @@
                   <div class="flex items-center justify-between">
                     <h3 class="text-lg font-bold text-gray-800 dark:text-white">{{ t('annualAudit.detail.revisionHistory') }}</h3>
                     <UButton 
-                      v-if="isApproved && !isCreatingRevision"
+                      v-if="canWrite && (isApproved && !isCreatingRevision)"
                       color="primary" 
                       variant="soft" 
                       icon="i-heroicons-document-duplicate" 
@@ -328,12 +328,12 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from '~/composables/useI18n'
 import { useAnnualPlanStore } from '~/stores/annual-audit'
 import { getRiskLevelColorClass } from '~/utils/riskLevelBadge'
 import { useAuthStore } from '~/stores/auth'
-import { useRbac } from '~/composables/useRbac'
 import { UserRole } from '~/types/auth'
 import { AnnualAuditPlanStatus } from '~/types/audit'
 
@@ -342,6 +342,7 @@ const store = useAnnualPlanStore()
 const authStore = useAuthStore()
 const { isAdmin, hasAnyRole } = useRbac()
 const { t } = useI18n()
+const { canWrite, canAccessFiles } = useRbac()
 
 const canApproveDraft = computed(() =>
   isAdmin.value || hasAnyRole([UserRole.AUDITOR, 'auditstaff', 'auditor'])

@@ -10,15 +10,15 @@
                 name="i-lucide-shield-check"
                 class="w-6 h-6 text-primary-600 dark:text-primary-400"
               />
-              AuditSphere Role-Based Access Control (RBAC) Matrix
+              {{ t('settings.permission.rbacTitle') }}
             </h3>
             <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Official permission matrix defining access rights and operational authority across system modules.
+              {{ t('settings.permission.rbacSubtitle') }}
             </p>
           </div>
           <div class="flex items-center gap-2">
-            <UButton
-              label="Export Matrix"
+            <UButton v-if="canExport"
+              :label="t('settings.permission.exportMatrix')"
               icon="i-lucide-download"
               color="neutral"
               variant="outline"
@@ -34,32 +34,32 @@
         <!-- Legend Pill Container -->
         <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800">
           <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">
-            Access Level Legend
+            {{ t('settings.permission.legendTitle') }}
           </h4>
           <div class="flex flex-wrap items-center gap-4 text-xs">
             <div class="flex items-center gap-2">
               <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-bold text-xs leading-none transition-colors bg-emerald-600 text-white shadow-xs">
                 FULL
               </span>
-              <span class="text-gray-600 dark:text-gray-300">Full Access (Create, Read, Update, Delete, Approval)</span>
+              <span class="text-gray-600 dark:text-gray-300">{{ t('settings.permission.legendFull') }}</span>
             </div>
             <div class="flex items-center gap-2">
               <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-bold text-xs leading-none transition-colors bg-amber-500 text-white shadow-xs">
                 LIMITED / ACTION
               </span>
-              <span class="text-gray-600 dark:text-gray-300">Restricted operational action (Draft, Edit, Respond, Review, etc.)</span>
+              <span class="text-gray-600 dark:text-gray-300">{{ t('settings.permission.legendLimited') }}</span>
             </div>
             <div class="flex items-center gap-2">
               <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-bold text-xs leading-none transition-colors bg-sky-600 text-white shadow-xs">
                 READ
               </span>
-              <span class="text-gray-600 dark:text-gray-300">Read-Only access</span>
+              <span class="text-gray-600 dark:text-gray-300">{{ t('settings.permission.legendRead') }}</span>
             </div>
             <div class="flex items-center gap-2">
               <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md font-bold text-xs leading-none transition-colors bg-slate-500 text-white shadow-xs">
                 NONE
               </span>
-              <span class="text-gray-600 dark:text-gray-300">No access / Hidden from navigation</span>
+              <span class="text-gray-600 dark:text-gray-300">{{ t('settings.permission.legendNone') }}</span>
             </div>
           </div>
         </div>
@@ -70,12 +70,12 @@
             <UInput
               v-model="searchQuery"
               icon="i-lucide-search"
-              placeholder="Search module or feature..."
+              :placeholder="t('settings.permission.searchPlaceholder')"
               class="w-full"
             />
           </div>
           <div class="flex items-center gap-2 w-full sm:w-auto text-xs text-gray-500 dark:text-gray-400 font-medium">
-            Showing {{ filteredMatrix.length }} of {{ matrixData.length }} module features
+            {{ t('settings.permission.showingCount', { count: filteredMatrix.length, total: matrixData.length }) }}
           </div>
         </div>
       </div>
@@ -89,7 +89,7 @@
                 #
               </th>
               <th class="py-3.5 px-4 font-bold min-w-[240px]">
-                Sidebar Module / Feature
+                {{ t('settings.permission.thModule') }}
               </th>
               <th class="py-3.5 px-4 font-bold text-center min-w-[130px] bg-emerald-50/50 dark:bg-emerald-950/20">
                 ADMIN
@@ -196,7 +196,7 @@
                 colspan="8"
                 class="py-8 text-center text-gray-500 dark:text-gray-400"
               >
-                No matching features found for "{{ searchQuery }}".
+                {{ t('settings.permission.noMatch', { query: searchQuery }) }}
               </td>
             </tr>
           </tbody>
@@ -207,8 +207,12 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { ref, computed } from 'vue'
 import { matrixData, type MatrixItem, getBadgeClass } from '~/utils/rbacMatrix'
+
+const { t } = useI18n()
+const { canExport } = useRbac()
 
 // Role columns use the backend role names (auth-service seeder). The values are the static
 // matrix as previously published; EXECUTIVE and DEPARTMENT_HEAD reuse the former merged columns

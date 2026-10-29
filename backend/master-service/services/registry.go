@@ -119,7 +119,7 @@ type Registry struct {
 	visionMissionGoals  vmgsSvc.VisionMissionGoalsServiceInterface
 }
 
-func NewServiceRegistry(db *gorm.DB, departmentEvents departmentSvc.EventPublisher) IServiceRegistry {
+func NewServiceRegistry(db *gorm.DB, departmentEvents departmentSvc.EventPublisher, accounts employeeSvc.AccountClient) IServiceRegistry {
 	return &Registry{
 		annualAuditPlan:     annualAuditPlanSvc.NewAnnualAuditPlanService(annualAuditPlanRepo.NewAnnualAuditPlanRepository(db)),
 		auditFinding:        auditFindingSvc.NewAuditFindingService(auditFindingRepo.NewAuditFindingRepository(db)),
@@ -134,7 +134,7 @@ func NewServiceRegistry(db *gorm.DB, departmentEvents departmentSvc.EventPublish
 		control:             controlSvc.NewControlService(controlRepo.NewControlRepository(db)),
 		controlAssessment:   controlAssessmentSvc.NewControlAssessmentService(controlAssessmentRepo.NewControlAssessmentRepository(db)),
 		department:          departmentSvc.NewDepartmentService(departmentRepo.NewDepartmentRepository(db), departmentEvents),
-		employee:            employeeSvc.NewEmployeeService(employeeRepo.NewEmployeeRepository(db)),
+		employee:            employeeSvc.NewEmployeeServiceWithAccounts(employeeRepo.NewEmployeeRepository(db), accounts),
 		impact:              impactSvc.NewImpactService(impactRepo.NewImpactRepository(db)),
 		jobRole:             jobRoleSvc.NewJobRoleService(jobRoleRepo.NewJobRoleRepository(db)),
 		likelihood:          likelihoodSvc.NewLikelihoodService(likelihoodRepo.NewLikelihoodRepository(db)),

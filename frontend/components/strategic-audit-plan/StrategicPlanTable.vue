@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-4">
     <!-- Advanced Filter Controls Bar (no goal tabs: there is a single corporate goal, so all objectives are listed) -->
-    <UCard variant="soft" class="p-4">
+    
       <div class="flex flex-wrap items-center justify-between gap-3">
         <!-- Search & Filter Options -->
         <div class="flex flex-wrap items-center gap-3 flex-1">
@@ -62,7 +62,7 @@
           </UButton>
         </div>
       </div>
-    </UCard>
+  
 
     <!-- Strategic KPI Table & Pagination -->
     <UCard variant="soft">
@@ -99,7 +99,7 @@
                 @click="store.openViewModal(row.original)"
               />
             </UTooltip>
-            <UTooltip :text="t('strategicPlan.actions.edit')">
+            <UTooltip v-if="canWrite" :text="t('strategicPlan.actions.edit')">
               <UButton
                 icon="i-lucide-edit"
                 color="warning"
@@ -108,7 +108,7 @@
                 @click="store.handleEdit(row.original)"
               />
             </UTooltip>
-            <UTooltip :text="t('strategicPlan.actions.delete')">
+            <UTooltip v-if="canWrite" :text="t('strategicPlan.actions.delete')">
               <UButton
                 icon="i-lucide-trash-2"
                 color="error"
@@ -272,7 +272,7 @@ const filteredObjectives = computed(() => {
   return list
 })
 
-const { canManageStrategicPlan } = useRbac()
+const { canManageStrategicPlan, canWrite } = useRbac()
 
 const getActions = (item: StrategicAuditPlan) => {
   const actions: any[] = [

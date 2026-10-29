@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { ref, computed, watch, onMounted } from 'vue'
 import KpiSummaryCards from '~/components/kpi-performance/KpiSummaryCards.vue'
 import KpiCharts from '~/components/kpi-performance/KpiCharts.vue'
@@ -13,6 +14,7 @@ import { useI18n } from '~/composables/useI18n'
 import { getFiscalYearStrings } from '~/composables/useFiscalYear'
 
 const { t, locale } = useI18n()
+const { canWrite, canExport } = useRbac()
 
 const perfStore = usePerformanceStore()
 const spStore = useStrategicPlanStore()
@@ -128,7 +130,7 @@ const exportPDF = async () => {
           class="w-full sm:w-28"
         />
         <!-- Upload Laporan Kinerja Button -->
-        <UButton
+        <UButton v-if="canWrite"
           :label="t('kpiPerformance.upload.submitButton')"
           icon="i-lucide-upload"
           color="primary"
@@ -137,7 +139,7 @@ const exportPDF = async () => {
         />
 
         <!-- Export Button -->
-        <UButton
+        <UButton v-if="canExport"
           :label="t('kpiPerformance.page.exportPdf')"
           icon="i-lucide-download"
           color="warning"
@@ -164,7 +166,7 @@ const exportPDF = async () => {
             </div>
           </div>
         </div>
-        <UButton
+        <UButton v-if="canWrite"
           :label="t('kpiPerformance.page.manageDocuments')"
           icon="i-lucide-arrow-right"
           color="primary"

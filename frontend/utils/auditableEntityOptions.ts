@@ -135,6 +135,25 @@ export const buildAuditableEntityOptions = (
 }
 
 /**
+ * Corporate audit universe id (lower-case) -> entity name, over the whole tree (parents and
+ * sub-entities). The PKAT row stores this id as auditUniverseId.
+ */
+export const buildCorporateUniverseNameMap = (
+  corporate: CorporateUniverseNode[] | null | undefined
+): Map<string, string> => {
+  const names = new Map<string, string>()
+  const collect = (node: CorporateUniverseNode) => {
+    if (!node) return
+    if (node.id && node.name) names.set(node.id.trim().toLowerCase(), node.name)
+    if (Array.isArray(node.children)) {
+      for (const child of node.children) collect(child as CorporateUniverseNode)
+    }
+  }
+  for (const node of corporate || []) collect(node)
+  return names
+}
+
+/**
  * Resolves what the picker emitted (an option object or its value) to an option, by corporate id.
  * Never matches by name, so entities sharing a name cannot be confused.
  */

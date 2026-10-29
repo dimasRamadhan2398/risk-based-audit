@@ -116,7 +116,7 @@
           </div>
         </div>
         <div class="flex flex-col sm:flex-row-reverse gap-3 sm:gap-4">
-          <UTooltip :text="t('auditCharter.tooltips.downloadCharter')" class="w-full sm:w-auto">
+          <UTooltip v-if="canAccessFiles" :text="t('auditCharter.tooltips.downloadCharter')" class="w-full sm:w-auto">
             <UButton
               v-if="store.activeCharter.fileUrl && store.activeCharter.fileUrl !== '#'"
               @click="store.downloadCharter(store.activeCharter.id, store.activeCharter.fileName || 'audit-charter.pdf', store.activeCharter.fileUrl)"
@@ -216,7 +216,7 @@
           </template>
           <template #actions-cell="{ row }">
             <div class="flex justify-end gap-1.5 whitespace-nowrap">
-              <UTooltip :text="t('auditCharter.tooltips.downloadCharter')">
+              <UTooltip v-if="canAccessFiles" :text="t('auditCharter.tooltips.downloadCharter')">
                 <UButton
                   v-if="row.original.fileUrl && row.original.fileUrl !== '#'"
                   size="md"
@@ -265,7 +265,7 @@ import ReadMoreText from '~/components/shared/ReadMoreText.vue'
 
 const { t } = useI18n()
 const store = useCharterStore()
-const { canManageCharter } = useRbac()
+const { canManageCharter, canAccessFiles } = useRbac()
 
 const columns = computed(() => [
   { accessorKey: 'version', header: t('auditCharter.card.columns.version'), class: 'w-16 whitespace-nowrap text-center' },

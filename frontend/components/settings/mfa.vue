@@ -299,8 +299,8 @@ const handleSetup = async () => {
     }
   } catch (err: any) {
     toast.add({
-      title: 'Setup Gagal',
-      description: extractErrorMessage(err, 'Gagal memulai setup MFA.'),
+      title: t('settings.mfa.setupFailedTitle'),
+      description: extractErrorMessage(err, t('settings.mfa.setupFailedDesc')),
       color: 'error',
       icon: 'i-lucide-alert-triangle'
     })
@@ -342,8 +342,8 @@ const handleVerifySetup = async () => {
     await fetchStatus()
   } catch (err: any) {
     toast.add({
-      title: 'Verifikasi Gagal',
-      description: extractErrorMessage(err, 'Kode verifikasi tidak valid.'),
+      title: t('settings.mfa.verifyFailedTitle'),
+      description: extractErrorMessage(err, t('settings.mfa.verifyFailedDesc')),
       color: 'error',
       icon: 'i-lucide-alert-triangle'
     })
@@ -379,8 +379,8 @@ const handleDisable = async () => {
     await fetchStatus()
   } catch (err: any) {
     toast.add({
-      title: 'Gagal Menonaktifkan',
-      description: extractErrorMessage(err, 'Password yang Anda masukkan salah.'),
+      title: t('settings.mfa.disableFailedTitle'),
+      description: extractErrorMessage(err, t('settings.mfa.disableFailedDesc')),
       color: 'error',
       icon: 'i-lucide-alert-triangle'
     })

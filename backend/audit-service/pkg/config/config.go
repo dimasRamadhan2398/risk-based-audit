@@ -42,7 +42,17 @@ const (
 
 	// DefaultAnnualPlanSyncGroupID is the consumer group of the shared stack.
 	DefaultAnnualPlanSyncGroupID = "audit-service-annual-plan-sync"
+
+	// AnnualSnapshotReconcileOnStartEnv turns the start-up reconcile of
+	// annual_snapshot_refs off ("false"). On by default.
+	AnnualSnapshotReconcileOnStartEnv = "ANNUAL_SNAPSHOT_RECONCILE_ON_START"
 )
+
+// AnnualSnapshotReconcileConfig controls the background reconcile that "serve"
+// runs after start-up (services/annual_plan_sync.RunStartupReconcile).
+type AnnualSnapshotReconcileConfig struct {
+	OnStart bool `mapstructure:"on_start"`
+}
 
 // PrefixedTopics lists the subscribed topics whose producer honours
 // KAFKA_TOPIC_PREFIX. Only these are renamed; the rest keep their shared name
@@ -91,7 +101,10 @@ type Config struct {
 	Log           LogConfig           `mapstructure:"log"`
 	Kafka         KafkaConfig         `mapstructure:"kafka"`
 	KafkaConsumer KafkaConsumerConfig `mapstructure:"kafka_consumer"`
-	ImageKit      ImageKitConfig      `mapstructure:"imagekit"`
+	// AnnualSnapshotReconcile: annual_snapshot_reconcile.on_start, env
+	// ANNUAL_SNAPSHOT_RECONCILE_ON_START.
+	AnnualSnapshotReconcile AnnualSnapshotReconcileConfig `mapstructure:"annual_snapshot_reconcile"`
+	ImageKit     ImageKitConfig      `mapstructure:"imagekit"`
 	GDrive        GDriveConfig        `mapstructure:"gdrive"`
 	App           AppMeta             `mapstructure:"app"      json:"app"`
 }
@@ -185,6 +198,7 @@ func setDefaults() {
 	viper.SetDefault("kafka_consumer.version", "3.6.0")
 	viper.SetDefault("kafka_consumer.assignor", "roundrobin")
 	viper.SetDefault("kafka_consumer.offset", "oldest")
+	viper.SetDefault("annual_snapshot_reconcile.on_start", true)
 }
 
 func Load(configPath string) (*Config, error) {
@@ -201,6 +215,7 @@ func Load(configPath string) (*Config, error) {
 	// KAFKA_CONSUMER_TOPIC_PREFIX; bind the variable risk-service reads instead,
 	// so one env key names the topic on both sides.
 	_ = viper.BindEnv("kafka_consumer.topic_prefix", KafkaTopicPrefixEnv)
+	_ = viper.BindEnv("annual_snapshot_reconcile.on_start", AnnualSnapshotReconcileOnStartEnv)
 
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("failed to read config: %w", err)

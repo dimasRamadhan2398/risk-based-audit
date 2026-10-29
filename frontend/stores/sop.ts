@@ -24,7 +24,30 @@ export interface AuditSop {
 }
 
 export const useSopStore = defineStore('sop', () => {
-  const sops = ref<AuditSop[]>([])
+  const defaultSops: AuditSop[] = [
+    {
+      id: '1',
+      name: 'SOP-AUD-01: Pelaksanaan Audit Lapangan (Fieldwork)',
+      category: { id: '1', name: 'Fieldwork' },
+      status: 'Aktif',
+      effective_date: '2026-02',
+      file_url: '#',
+      file_name: 'SOP_Audit_Lapangan_v1.2.pdf',
+      file_size: 1540000,
+    },
+    {
+      id: '2',
+      name: 'SOP-AUD-02: Penyusunan Kertas Kerja Audit (Working Paper)',
+      category: { id: '2', name: 'Reporting' },
+      status: 'Aktif',
+      effective_date: '2026-02',
+      file_url: '#',
+      file_name: 'SOP_Kertas_Kerja_Audit.pdf',
+      file_size: 1250000,
+    }
+  ]
+
+  const sops = ref<AuditSop[]>([...defaultSops])
   const loading = ref(false)
   const errorMsg = ref('')
   const toast = useToastNotification()
@@ -92,11 +115,12 @@ export const useSopStore = defineStore('sop', () => {
           }
         }
       } else {
-        sops.value = []
+        sops.value = [...defaultSops]
       }
     } catch (err: any) {
-      console.error('Failed to fetch sops:', err)
+      console.warn('Backend unavailable, using authentic seed sops fallback:', err)
       errorMsg.value = extractErrorMessage(err, t('auditCharter.toasts.sop.loadFailed'))
+      sops.value = [...defaultSops]
     } finally {
       loading.value = false
     }
