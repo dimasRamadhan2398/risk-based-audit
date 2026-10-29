@@ -13,12 +13,18 @@ import (
 	"gorm.io/gorm"
 )
 
+// ContextRoles returns the caller's roles from the JWT "roles" claim, as set
+// by Authenticate (nil when absent)
+func ContextRoles(c *gin.Context) []string {
+	userRoles, _ := c.Get("roles")
+	roleList, _ := userRoles.([]string)
+	return roleList
+}
+
 // HasAnyRole reports whether the authenticated caller has one of the given
 // roles (case-insensitive). Requires Authenticate to have run first.
 func HasAnyRole(c *gin.Context, roles ...string) bool {
-	userRoles, _ := c.Get("roles")
-	roleList, _ := userRoles.([]string)
-	for _, userRole := range roleList {
+	for _, userRole := range ContextRoles(c) {
 		for _, role := range roles {
 			if strings.EqualFold(userRole, role) {
 				return true
@@ -48,9 +54,20 @@ func RequireAnyRole(roles ...string) gin.HandlerFunc {
 // than initialStatus, or change the status of an existing record.
 //
 // table is the database table used to look up the current status on PUT.
+// Roles are compared literally (case-insensitive); use
+// RequireStatusChangeAllowed to match role aliases.
 func RequireRolesForStatusChange(db *gorm.DB, table, initialStatus string, roles ...string) gin.HandlerFunc {
+	return RequireStatusChangeAllowed(db, table, initialStatus, func(c *gin.Context) bool {
+		return HasAnyRole(c, roles...)
+	})
+}
+
+// RequireStatusChangeAllowed is RequireRolesForStatusChange with the role
+// check supplied by the caller: callers for whom allowed returns true may set
+// any status; everyone else may not change it.
+func RequireStatusChangeAllowed(db *gorm.DB, table, initialStatus string, allowed func(c *gin.Context) bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if HasAnyRole(c, roles...) {
+		if allowed(c) {
 			c.Next()
 			return
 		}
