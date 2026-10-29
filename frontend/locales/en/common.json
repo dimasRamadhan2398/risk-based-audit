@@ -802,7 +802,6 @@
       "username": "Username",
       "email": "Email",
       "emailHelp": "Email connected to your account.",
-      "emailPlaceholder": "Enter your email",
       "phone": "Phone Number",
       "phonePlaceholder": "Enter your phone number",
       "department": "Department",
@@ -834,8 +833,8 @@
     },
     "mfa": {
       "qrAlt": "MFA QR Code",
-      "generatingQr": "Generating QR code...",
-      "scanQr": "Scan QR code",
+      "generatingQr": "Generating QR Code...",
+      "scanQr": "Scan QR Code",
       "title": "Two-Factor Authentication (2FA / MFA)",
       "subtitle": "Enhance your account security using a TOTP authenticator application.",
       "activeProtected": "Active & Protected",
@@ -868,8 +867,6 @@
       "enabledDesc": "Two-factor authentication enabled successfully.",
       "disabledToast": "MFA Disabled",
       "disabledDesc": "Two-factor authentication has been disabled.",
-      "generatingQr": "Generating QR Code...",
-      "scanQr": "Scan QR Code",
       "setupFailedTitle": "Setup Failed",
       "setupFailedDesc": "Failed to start MFA setup.",
       "verifyFailedTitle": "Verification Failed",
@@ -1824,7 +1821,18 @@
         "mitigation": "Mitigation Plan",
         "dueDate": "Target Due Date",
         "actions": "Actions"
-      }
+      },
+      "stepper": {
+        "controlInfo": "Control Information",
+        "testProcedure": "Test Procedure",
+        "findingRecommendation": "Finding and Recommendation",
+        "mitigationPlan": "Mitigation Plan"
+      },
+      "nameRequired": "Control name is required",
+      "typeRequired": "Control type is required",
+      "descriptionRequired": "Control description is required",
+      "stepsRequired": "Test steps are required",
+      "resultRequired": "Test result is required"
     }
   },
   "riskProfile": {
@@ -3701,7 +3709,16 @@
       "why3Validation": "Why 3 must be at most 100 characters and is required",
       "addRootCause": "Add Root Cause Analysis",
       "updateData": "Update Data",
-      "submit": "Submit"
+      "submit": "Submit",
+      "stepper": {
+        "conditionAndImpact": "Condition & Impact",
+        "rootCauseAnalysis": "Root Cause Analysis"
+      },
+      "conditionRequired": "Condition (Field Impact) is required",
+      "criteriaRequired": "Criteria (Related Rules/SOP) is required",
+      "impactRequired": "Impact (Risk Impact) is required",
+      "emptyRootCause": "No root cause analysis added yet",
+      "emptyRootCauseHint": "Click the button below to add a root cause analysis."
     },
     "planForm": {
       "title": "Recommendations & Responses",
@@ -3716,7 +3733,17 @@
       "picPlaceholder": "Search Employee Name Ex: Dimas - IT",
       "periodAction": "Planning Period",
       "updateData": "Update Data",
-      "submit": "Submit"
+      "submit": "Submit",
+      "editTitle": "Edit Recommendations & Responses",
+      "stepper": {
+        "recommendationAndResponse": "Recommendations & Responses",
+        "actionPlanDetails": "Action Plan Details"
+      },
+      "recommendationRequired": "Auditor Recommendation (Solution) is required",
+      "responseRequired": "Auditee Response (Management Response) is required",
+      "actionDescriptionRequired": "Action Description is required",
+      "picRequired": "PIC is required",
+      "periodActionRequired": "Planning Period is required"
     },
     "sampleTable": {
       "emptyState": "No data saved yet.",
@@ -3775,7 +3802,13 @@
       "positionPlaceholder": "Position",
       "addMember": "Add Member",
       "update": "Update Data",
-      "submit": "Submit"
+      "submit": "Submit",
+      "stepper": {
+        "purposeAndActivities": "Purpose & Activities",
+        "periodAndTeam": "Period & Team"
+      },
+      "periodRequired": "Audit period is required",
+      "locationRequired": "Location is required"
     },
     "sampleForm": {
       "title": "Samples",
@@ -3942,7 +3975,13 @@
         "cancel": "Cancel",
         "save": "Save Assignment",
         "titleValidation": "The title is required and must not exceed 100 characters",
-        "consultantValidation": "The consultant is required and must not exceed 50 characters"
+        "consultantValidation": "The consultant is required and must not exceed 50 characters",
+        "stepper": {
+          "assignmentInfo": "Project & Consultant Information",
+          "statusAndDocument": "Status & Supporting Documents"
+        },
+        "titleRequired": "Project Title is required",
+        "consultantRequired": "Consultant / Lead Auditor is required"
       },
       "detail": {
         "title": "Assignment Details",
@@ -4511,7 +4550,12 @@
       "updateReport": "Update Report",
       "saveReport": "Save Report",
       "validationErrorTitle": "Validation Error",
-      "validationErrorDesc": "Please fill in all required fields (marked in red)."
+      "validationErrorDesc": "Please fill in all required fields (marked in red).",
+      "stepper": {
+        "assessmentType": "Assessment Type",
+        "generalInfoAndStatus": "General Info & Status",
+        "detailsAndDocuments": "Details & Documents"
+      }
     },
     "detailModal": {
       "title": "Detail: {title}",

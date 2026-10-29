@@ -229,7 +229,6 @@
                         size="sm"
                         color="secondary"
                         variant="solid"
-                        icon="i-heroicons-sparkles"
                         :loading="store.isAutoDetecting"
                         @click="store.runAutoDetectFindings('replace')"
                       />
@@ -261,28 +260,28 @@
                 <UBadge
                   color="error"
                   variant="subtle"
-                  size="xs"
+                  size="md"
                 >
                   {{ t('auditResultReport.editor.form.verySignificant') }} {{ countCategory('Very Significant') }}
                 </UBadge>
                 <UBadge
                   color="warning"
                   variant="subtle"
-                  size="xs"
+                  size="md"
                 >
                   {{ t('auditResultReport.editor.form.significant') }} {{ countCategory('Significant') }}
                 </UBadge>
                 <UBadge
                   color="info"
                   variant="subtle"
-                  size="xs"
+                  size="md"
                 >
                   {{ t('auditResultReport.editor.form.quiteSignificant') }} {{ countCategory('Quite Significant') }}
                 </UBadge>
                 <UBadge
                   color="success"
                   variant="subtle"
-                  size="xs"
+                  size="md"
                 >
                   {{ t('auditResultReport.editor.form.notSignificant') }} {{ countCategory('Not Significant') }}
                 </UBadge>
@@ -298,13 +297,13 @@
                   <div class="flex-1 space-y-3">
                     <!-- Card Header (Index & Source Badge) -->
                     <div class="flex justify-between items-center border-b border-secondary-100 dark:border-secondary-900/40 pb-2">
-                      <span class="text-xs font-bold text-secondary-700 dark:text-secondary-300">
+                      <span class="text-md font-bold text-secondary-700 dark:text-secondary-300">
                         {{ t('auditResultReport.editor.form.findingNumber') }}{{ idx + 1 }}
                       </span>
                       <UBadge
                         :color="getSourceColor(finding.source)"
                         variant="subtle"
-                        size="xs"
+                        size="md"
                         class="flex items-center gap-1 font-medium"
                       >
                         <UIcon

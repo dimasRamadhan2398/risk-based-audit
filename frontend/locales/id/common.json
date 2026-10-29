@@ -1712,7 +1712,18 @@
         "mitigation": "Rencana Mitigasi",
         "dueDate": "Target Tenggat Waktu",
         "actions": "Aksi"
-      }
+      },
+      "stepper": {
+        "controlInfo": "Informasi Pengendalian",
+        "testProcedure": "Prosedur Pengujian",
+        "findingRecommendation": "Temuan & Rekomendasi",
+        "mitigationPlan": "Rencana Mitigasi"
+      },
+      "nameRequired": "Nama pengendalian wajib diisi",
+      "typeRequired": "Jenis pengendalian wajib dipilih",
+      "descriptionRequired": "Deskripsi pengendalian wajib diisi",
+      "stepsRequired": "Langkah pengujian wajib diisi",
+      "resultRequired": "Hasil pengujian wajib dipilih"
     }
   },
   "riskProfile": {
@@ -3588,7 +3599,16 @@
       "why3Validation": "Why 3 maksimal 100 karakter dan wajib diisi",
       "addRootCause": "Tambah Analisa Akar Masalah",
       "updateData": "Perbarui Data",
-      "submit": "Kirim"
+      "submit": "Kirim",
+      "stepper": {
+        "conditionAndImpact": "Kondisi & Dampak",
+        "rootCauseAnalysis": "Analisis Akar Masalah"
+      },
+      "conditionRequired": "Kondisi (Dampak di Lapangan) wajib diisi",
+      "criteriaRequired": "Kriteria (Aturan/SOP Terkait) wajib dipilih",
+      "impactRequired": "Dampak (Risk Impact) wajib diisi",
+      "emptyRootCause": "Belum ada analisis akar masalah",
+      "emptyRootCauseHint": "Klik tombol Tambah Analisa Akar Masalah di bawah untuk mulai menambahkan analisis."
     },
     "planForm": {
       "title": "Rekomendasi & Tanggapan",
@@ -3603,7 +3623,17 @@
       "picPlaceholder": "Cari Nama Karyawan Contoh: Dimas - IT",
       "periodAction": "Periode Perencanaan",
       "updateData": "Perbarui Data",
-      "submit": "Kirim"
+      "submit": "Kirim",
+      "editTitle": "Edit Rekomendasi & Tanggapan",
+      "stepper": {
+        "recommendationAndResponse": "Rekomendasi & Tanggapan",
+        "actionPlanDetails": "Detail Rencana Aksi"
+      },
+      "recommendationRequired": "Rekomendasi Auditor (Solusi) wajib diisi",
+      "responseRequired": "Tanggapan Auditi (Tanggapan Manajemen) wajib diisi",
+      "actionDescriptionRequired": "Deskripsi Aksi wajib diisi",
+      "picRequired": "PIC (Penanggung Jawab) wajib dipilih",
+      "periodActionRequired": "Periode Perencanaan wajib dipilih"
     },
     "sampleTable": {
       "emptyState": "Belum ada data tersimpan.",
@@ -3662,7 +3692,13 @@
       "positionPlaceholder": "Jabatan",
       "addMember": "Tambah Anggota",
       "update": "Perbarui Data",
-      "submit": "Kirim"
+      "submit": "Kirim",
+      "stepper": {
+        "purposeAndActivities": "Tujuan & Aktivitas",
+        "periodAndTeam": "Periode & Tim"
+      },
+      "periodRequired": "Periode audit wajib diisi lengkap",
+      "locationRequired": "Lokasi audit wajib dipilih"
     },
     "sampleForm": {
       "title": "Sampel",
@@ -3829,7 +3865,13 @@
         "cancel": "Batal",
         "save": "Simpan Penugasan",
         "titleValidation": "Judul wajib diisi dan maksimal 100 karakter",
-        "consultantValidation": "Konsultan wajib diisi dan maksimal 50 karakter"
+        "consultantValidation": "Konsultan wajib diisi dan maksimal 50 karakter",
+        "stepper": {
+          "assignmentInfo": "Informasi Proyek & Konsultan",
+          "statusAndDocument": "Status & Dokumen Pendukung"
+        },
+        "titleRequired": "Judul Proyek wajib diisi",
+        "consultantRequired": "Konsultan / Ketua Auditor wajib diisi"
       },
       "detail": {
         "title": "Detail Penugasan",
@@ -4392,7 +4434,12 @@
       "updateReport": "Perbarui Laporan",
       "saveReport": "Simpan Laporan",
       "validationErrorTitle": "Kesalahan Validasi",
-      "validationErrorDesc": "Mohon isi semua kolom yang wajib diisi (berwarna merah)."
+      "validationErrorDesc": "Mohon isi semua kolom yang wajib diisi (berwarna merah).",
+      "stepper": {
+        "assessmentType": "Jenis Penilaian",
+        "generalInfoAndStatus": "Informasi & Status",
+        "detailsAndDocuments": "Detail & Dokumen"
+      }
     },
     "detailModal": {
       "title": "Detail: {title}",
