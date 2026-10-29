@@ -30,6 +30,12 @@ type fakeAuthControllers struct {
 
 func (fakeAuthControllers) GetAuth() authCtrl.AuthControllerInterface { return fakeAuthHandlers{} }
 
+type fakeStepUpHandlers struct{}
+
+func (fakeStepUpHandlers) VerifyPassword(c *gin.Context) { c.Status(http.StatusOK) }
+
+func (fakeAuthControllers) GetStepUp() authCtrl.StepUpControllerInterface { return fakeStepUpHandlers{} }
+
 // Self-registration was open and created active users with no role. It must not
 // be routed at all, whether or not the caller is authenticated.
 func TestPublicRegisterRouteIsRemoved(t *testing.T) {
