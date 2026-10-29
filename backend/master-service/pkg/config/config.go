@@ -30,6 +30,24 @@ type AuthServiceConfig struct {
 	TimeoutSeconds int    `mapstructure:"timeout_seconds"`
 }
 
+// OrgStructureEnv is the opt-in flag for the flexible organisation structure
+// (docs/org-structure-model-plan.md section 3.2). It is written only into a NEW
+// tenant's compose file. Unset (the default) means legacy: flat departments and
+// no org-structure DDL at all.
+const OrgStructureEnv = "ORG_STRUCTURE_MODE"
+
+// OrgStructureConfig carries the raw flag. Use FlexibleRequested to read it;
+// the effective mode also needs the org_levels table (pkg/orgmode).
+type OrgStructureConfig struct {
+	Mode string `mapstructure:"mode"`
+}
+
+// FlexibleRequested reports whether ORG_STRUCTURE_MODE asks for the flexible
+// structure. Only the exact word "flexible" (any case) turns it on.
+func (c OrgStructureConfig) FlexibleRequested() bool {
+	return strings.EqualFold(strings.TrimSpace(c.Mode), "flexible")
+}
+
 type Config struct {
 	Server           ServerConfig        `mapstructure:"server"`
 	Database         DatabaseConfig      `mapstructure:"database"`
@@ -39,6 +57,7 @@ type Config struct {
 	Kafka            KafkaConfig         `mapstructure:"kafka"`
 	KafkaConsumer    KafkaConsumerConfig `mapstructure:"kafka_consumer"`
 	AuthService      AuthServiceConfig  `mapstructure:"auth_service"`
+	OrgStructure     OrgStructureConfig  `mapstructure:"org_structure"`
 	App              AppMeta             `mapstructure:"app"      json:"app"`
 }
 
@@ -112,6 +131,7 @@ func setDefaults() {
 	viper.SetDefault("kafka_consumer.assignor", "roundrobin")
 	viper.SetDefault("auth_service.url", "")
 	viper.SetDefault("auth_service.timeout_seconds", 10)
+	viper.SetDefault("org_structure.mode", "")
 }
 
 func Load(configPath string) (*Config, error) {
@@ -128,6 +148,9 @@ func Load(configPath string) (*Config, error) {
 	viper.AutomaticEnv()
 	// jwt.secret is bound explicitly so JWT_SECRET overrides the file even when the file has no secret key.
 	_ = viper.BindEnv("jwt.secret", JWTSecretEnv)
+	// Bound explicitly for the same reason: config.yaml has no org_structure
+	// section, so AutomaticEnv alone would never see the variable on Unmarshal.
+	_ = viper.BindEnv("org_structure.mode", OrgStructureEnv)
 
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("failed to read config: %w", err)

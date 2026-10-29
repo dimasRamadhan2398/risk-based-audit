@@ -57,7 +57,19 @@ import (
 	riskMatrixCellSvc "master-service/services/risk_matrix_cell"
 	riskRegisterSvc "master-service/services/risk_register"
 	vmgsSvc "master-service/services/vision_mission_goals"
+
+	"master-service/pkg/orgmode"
+	orgLevelSvc "master-service/services/org_level"
+	tenantConfigSvc "master-service/services/tenant_config"
 )
+
+// OrgOptions configures the organisation structure services. Mode is the
+// effective mode (orgmode.Resolve); Events records flexible department events
+// in the outbox inside the write transaction (nil disables them).
+type OrgOptions struct {
+	Mode   orgmode.Mode
+	Events departmentSvc.OrgEventPublisher
+}
 
 type IServiceRegistry interface {
 	GetAnnualAuditPlan() annualAuditPlanSvc.AnnualAuditPlanServiceInterface
@@ -87,6 +99,11 @@ type IServiceRegistry interface {
 	GetRiskMatrixCell() riskMatrixCellSvc.RiskMatrixCellServiceInterface
 	GetRiskRegister() riskRegisterSvc.RiskRegisterServiceInterface
 	GetVisionMissionGoals() vmgsSvc.VisionMissionGoalsServiceInterface
+
+	// Organisation structure. GetOrgLevel is nil on legacy tenants.
+	GetOrgMode() orgmode.Mode
+	GetOrgLevel() orgLevelSvc.ServiceInterface
+	GetTenantConfig() tenantConfigSvc.ServiceInterface
 }
 
 type Registry struct {
@@ -117,10 +134,17 @@ type Registry struct {
 	riskMatrixCell      riskMatrixCellSvc.RiskMatrixCellServiceInterface
 	riskRegister        riskRegisterSvc.RiskRegisterServiceInterface
 	visionMissionGoals  vmgsSvc.VisionMissionGoalsServiceInterface
+
+	orgMode      orgmode.Mode
+	orgLevel     orgLevelSvc.ServiceInterface
+	tenantConfig tenantConfigSvc.ServiceInterface
 }
 
-func NewServiceRegistry(db *gorm.DB, departmentEvents departmentSvc.EventPublisher, accounts employeeSvc.AccountClient) IServiceRegistry {
-	return &Registry{
+func NewServiceRegistry(db *gorm.DB, departmentEvents departmentSvc.EventPublisher, accounts employeeSvc.AccountClient, org OrgOptions) IServiceRegistry {
+	if org.Mode == "" {
+		org.Mode = orgmode.Legacy
+	}
+	r := &Registry{
 		annualAuditPlan:     annualAuditPlanSvc.NewAnnualAuditPlanService(annualAuditPlanRepo.NewAnnualAuditPlanRepository(db)),
 		auditFinding:        auditFindingSvc.NewAuditFindingService(auditFindingRepo.NewAuditFindingRepository(db)),
 		auditIssue:          auditIssueSvc.NewAuditIssueService(auditIssueRepo.NewAuditIssueRepository(db)),
@@ -148,8 +172,22 @@ func NewServiceRegistry(db *gorm.DB, departmentEvents departmentSvc.EventPublish
 		riskMatrixCell:      riskMatrixCellSvc.NewRiskMatrixCellService(riskMatrixCellRepo.NewRiskMatrixCellRepository(db)),
 		riskRegister:        riskRegisterSvc.NewRiskRegisterService(riskRegisterRepo.NewRiskRegisterRepository(db)),
 		visionMissionGoals:  vmgsSvc.NewVisionMissionGoalsService(vmgsRepo.NewVisionMissionGoalsRepository(db)),
+		orgMode:             org.Mode,
+		tenantConfig:        tenantConfigSvc.NewService(db, org.Mode),
 	}
+	// Flexible tenants get the tree-aware department service and the level
+	// editor. Legacy tenants keep the original service and never touch the
+	// org tables.
+	if org.Mode.IsFlexible() {
+		r.department = departmentSvc.NewOrgDepartmentService(departmentRepo.NewDepartmentRepository(db), departmentRepo.NewOrgRepository(db), org.Events)
+		r.orgLevel = orgLevelSvc.NewService(db, org.Events)
+	}
+	return r
 }
+
+func (r *Registry) GetOrgMode() orgmode.Mode                          { return r.orgMode }
+func (r *Registry) GetOrgLevel() orgLevelSvc.ServiceInterface         { return r.orgLevel }
+func (r *Registry) GetTenantConfig() tenantConfigSvc.ServiceInterface { return r.tenantConfig }
 
 func (r *Registry) GetAnnualAuditPlan() annualAuditPlanSvc.AnnualAuditPlanServiceInterface {
 	return r.annualAuditPlan

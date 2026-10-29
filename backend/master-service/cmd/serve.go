@@ -15,9 +15,12 @@ import (
 	"master-service/pkg/kafka"
 	"master-service/pkg/logger"
 	"master-service/pkg/middleware"
+	"master-service/pkg/orgmode"
+	redisclient "master-service/pkg/redis"
 	"master-service/pkg/validations"
 	"master-service/routes"
 	"master-service/services"
+	departmentSvc "master-service/services/department"
 	employeeSvc "master-service/services/employee"
 
 	"github.com/gin-gonic/gin"
@@ -85,7 +88,30 @@ func runServe(cmd *cobra.Command, args []string) error {
 	if strings.TrimSpace(cfg.AuthService.URL) != "" {
 		accountClient = authclient.NewClient(cfg.AuthService.URL, time.Duration(cfg.AuthService.TimeoutSeconds)*time.Second)
 	}
-	serviceRegistry := services.NewServiceRegistry(db, domainEvents, accountClient)
+	// Organisation structure mode, resolved once per process: flexible only
+	// with ORG_STRUCTURE_MODE=flexible AND an existing org_levels table. No DDL here.
+	orgMode := orgmode.Resolve(db, cfg.OrgStructure.FlexibleRequested(), func(msg string) {
+		logger.Warn(msg)
+	})
+	logger.Info("Organisation structure mode", zap.String("mode", string(orgMode)))
+	orgRoutes := routes.OrgRouteOptions{Flexible: orgMode.IsFlexible()}
+	if orgMode.IsFlexible() {
+		// Step-up token ids are consumed once in this tenant's own Redis DB.
+		// Without Redis the level apply answers 503; nothing else depends on it.
+		if rc, err := redisclient.NewRedisConnection(&cfg.Redis); err != nil {
+			logger.Warn("redis unavailable: org level changes will answer 503", zap.Error(err))
+		} else {
+			orgRoutes.StepUpStore = middleware.RedisJTIStore{Client: rc.Client}
+		}
+	}
+	var orgEvents departmentSvc.OrgEventPublisher
+	if domainEvents != nil { // avoid a typed-nil interface
+		orgEvents = domainEvents
+	}
+	serviceRegistry := services.NewServiceRegistry(db, domainEvents, accountClient, services.OrgOptions{Mode: orgMode, Events: orgEvents})
+	if orgSvc, ok := serviceRegistry.GetDepartment().(departmentSvc.OrgDepartmentServiceInterface); ok {
+		orgRoutes.Resync = orgSvc.Resync
+	}
 	controllerRegistry := controllers.NewControllerRegistry(serviceRegistry, validator)
 
 	mode := strings.ToLower(cfg.Server.Mode)
@@ -103,7 +129,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 		middleware.CORSMiddleware(),
 		middleware.ResponseCache(),
 	)
-	routes.RegisterRoutes(router, controllerRegistry, db, authMiddleware, domainEvents)
+	routes.RegisterRoutes(router, controllerRegistry, db, authMiddleware, domainEvents, orgRoutes)
 
 	addr := fmt.Sprintf(":%d", cfg.Server.Port)
 	logger.Info("Starting master-service server", zap.String("addr", addr))

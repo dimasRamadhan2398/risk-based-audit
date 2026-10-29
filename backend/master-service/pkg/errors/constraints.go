@@ -18,6 +18,22 @@ var constraintRegistry = map[string]ConstraintInfo{
 	"idx_departments_department_name": {
 		Code: CodeDepartmentNameAlreadyExists, Message: "A department with this name already exists.", Field: "department_name",
 	},
+	// Flexible org structure (gated DDL, pkg/database/orgstructure)
+	"uq_departments_company_parent_name": {
+		Code: CodeDepartmentNameAlreadyExists, Message: "A unit with this name already exists under the same parent.", Field: "department_name",
+	},
+	"uq_departments_code_live": {
+		Code: CodeDepartmentCodeAlreadyExists, Message: "A department with this code already exists.", Field: "department_code",
+	},
+	"uq_departments_company_code_live": {
+		Code: CodeDepartmentCodeAlreadyExists, Message: "A department with this code already exists in this company.", Field: "department_code",
+	},
+	"uq_org_levels_level": {
+		Code: CodeOrgLevelAlreadyExists, Message: "An organisation level with this number already exists.", Field: "level",
+	},
+	"uq_org_levels_name": {
+		Code: CodeOrgLevelNameAlreadyExists, Message: "An organisation level with this name already exists.", Field: "name",
+	},
 	"idx_companies_company_code": {
 		Code: CodeCompanyCodeAlreadyExists, Message: "A company with this code already exists.", Field: "code",
 	},
@@ -33,6 +49,7 @@ var constraintRegistry = map[string]ConstraintInfo{
 	"fk_employees_manager":         {Field: "manager_id"},
 	"fk_departments_company":       {Field: "company_id"},
 	"fk_departments_business_unit": {Field: "business_unit_id"},
+	"fk_departments_parent":        {Field: "parent_department_id"},
 	"fk_companies_location":        {Field: "location_id"},
 	"fk_companies_children":        {Field: "parent_id"},
 }

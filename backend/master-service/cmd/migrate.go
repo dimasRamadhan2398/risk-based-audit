@@ -8,6 +8,7 @@ import (
 	"master-service/models"
 	"master-service/pkg/config"
 	"master-service/pkg/database"
+	"master-service/pkg/database/orgstructure"
 	"master-service/pkg/database/seeders"
 	"master-service/pkg/logger"
 
@@ -22,10 +23,13 @@ var (
 )
 
 // departmentMigration breaks Department<->Employee FK cycle during initial table creation.
+// Code and name have no uniqueIndex tag: the legacy unique indexes are created
+// by orgstructure.Migrate (only when missing on a legacy DB), so a flexible
+// migrate does not re-create the global name index it replaces.
 type departmentMigration struct {
 	ID                    uuid.UUID  `gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	DepartmentCode        string     `gorm:"type:varchar(50);uniqueIndex;not null"`
-	DepartmentName        string     `gorm:"type:varchar(100);uniqueIndex;not null"`
+	DepartmentCode        string     `gorm:"type:varchar(50);not null"`
+	DepartmentName        string     `gorm:"type:varchar(100);not null"`
 	DepartmentDescription string     `gorm:"type:text"`
 	PicID                 *uuid.UUID `gorm:"type:uuid;index"`
 	Level                 int        `gorm:"type:int;not null"`
@@ -118,8 +122,9 @@ func runMigrate(cmd *cobra.Command, args []string) error {
 
 	fmt.Println("Running database migrations...")
 
-	// Auto-migrate all models
-	if err := autoMigrate(db); err != nil {
+	// Auto-migrate all models, then the org-structure step (gated DDL only
+	// when ORG_STRUCTURE_MODE=flexible).
+	if err := migrateAll(db); err != nil {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
@@ -144,13 +149,13 @@ func runSeed(cmd *cobra.Command, args []string) error {
 
 	// First run migrations
 	fmt.Println("Running migrations before seeding...")
-	if err := autoMigrate(db); err != nil {
+	if err := migrateAll(db); err != nil {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
 	// Run seeders
 	fmt.Println("\nSeeding database...")
-	seeder := seeders.NewSeeder(db)
+	seeder := seeders.NewSeeder(db).WithOrgStructure(cfg.OrgStructure.FlexibleRequested())
 	if err := seeder.RunAll(); err != nil {
 		return fmt.Errorf("failed to run seeders: %w", err)
 	}
@@ -175,25 +180,47 @@ func runFresh(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Println("Dropping all tables...")
+	if cfg.OrgStructure.FlexibleRequested() {
+		for _, stmt := range orgstructure.DropStatements() {
+			if err := db.Exec(stmt).Error; err != nil {
+				return fmt.Errorf("failed to drop org structure tables: %w", err)
+			}
+		}
+	}
 	if err := dropAllTables(db); err != nil {
 		return fmt.Errorf("failed to drop tables: %w", err)
 	}
 
 	// Run migrations
 	fmt.Println("\nRunning migrations...")
-	if err := autoMigrate(db); err != nil {
+	if err := migrateAll(db); err != nil {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
 	// Run seeders
 	fmt.Println("\nSeeding database...")
-	seeder := seeders.NewSeeder(db)
+	seeder := seeders.NewSeeder(db).WithOrgStructure(cfg.OrgStructure.FlexibleRequested())
 	if err := seeder.RunAll(); err != nil {
 		return fmt.Errorf("failed to run seeders: %w", err)
 	}
 
 	fmt.Println("\nFresh migration and seeding completed successfully!")
 	return nil
+}
+
+// migrateAll is what every migrate path runs: the regular AutoMigrate, then
+// the org-structure step. With ORG_STRUCTURE_MODE unset the second step only
+// re-creates the legacy unique indexes when they are missing (never on an
+// existing tenant); with it set to flexible it runs the gated DDL.
+func migrateAll(db *gorm.DB) error {
+	if err := autoMigrate(db); err != nil {
+		return err
+	}
+	flexible := cfg != nil && cfg.OrgStructure.FlexibleRequested()
+	if flexible {
+		fmt.Println("ORG_STRUCTURE_MODE=flexible: applying org structure schema")
+	}
+	return orgstructure.Migrate(db, flexible)
 }
 
 func autoMigrate(db *gorm.DB) error {
