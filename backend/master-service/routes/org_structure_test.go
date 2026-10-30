@@ -121,8 +121,9 @@ func TestFlexibleLevelChangesAreAdminOrExecutiveOnly(t *testing.T) {
 		if code, _ := send(t, r, http.MethodGet, "/api/v1/org-levels/changes", accessToken(t, role), ""); code != http.StatusForbidden {
 			t.Fatalf("%s change log: %d", role, code)
 		}
-		if code, _ := send(t, r, http.MethodPost, "/api/v1/org-levels/changes/apply", accessToken(t, role), preview); code != http.StatusForbidden {
-			t.Fatalf("%s apply: %d", role, code)
+		// Step-up failures are 403 too, so check the role guard answered.
+		if code, body := send(t, r, http.MethodPost, "/api/v1/org-levels/changes/apply", accessToken(t, role), preview); code != http.StatusForbidden || body["code"] != "FORBIDDEN" {
+			t.Fatalf("%s apply: %d %v", role, code, body)
 		}
 	}
 	for _, role := range []string{"ADMIN", "executive"} {
@@ -133,9 +134,9 @@ func TestFlexibleLevelChangesAreAdminOrExecutiveOnly(t *testing.T) {
 		if code, _ := send(t, r, http.MethodGet, "/api/v1/org-levels/changes", accessToken(t, role), ""); code != 200 {
 			t.Fatalf("%s change log: %d", role, code)
 		}
-		// Apply without a step-up token: 401.
+		// Apply without a step-up token: 403 (not 401, which signs the user out).
 		code, body = send(t, r, http.MethodPost, "/api/v1/org-levels/changes/apply", accessToken(t, role), preview)
-		if code != http.StatusUnauthorized || body["code"] != "STEP_UP_REQUIRED" {
+		if code != http.StatusForbidden || body["code"] != "STEP_UP_REQUIRED" {
 			t.Fatalf("%s apply without step-up: %d %v", role, code, body)
 		}
 	}

@@ -233,6 +233,7 @@ describe('mounted components', () => {
     app.component('UFormField', FormFieldStub)
     app.component('UButton', ButtonStub)
     app.component('UInput', InputStub)
+    app.component('CommonSearchInput', InputStub)
     app.component('USelectMenu', SelectMenuStub)
     app.component('TableEntities', TableStub)
     app.mount(container)
