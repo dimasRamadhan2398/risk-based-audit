@@ -1,7 +1,14 @@
+const isRemoteUrl = (val: unknown): val is string =>
+  typeof val === 'string' && /^https?:\/\//.test(val) && !/\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(val);
+
 const getDynamicApiUrl = (fallbackConfigKey: string, fallbackPath: string) => {
   const config = useRuntimeConfig();
+  const configured = config.public[fallbackConfigKey as keyof typeof config.public] as string | undefined;
+  if (isRemoteUrl(configured)) {
+    return configured;
+  }
   const val =
-    (config.public[fallbackConfigKey as keyof typeof config.public] as string | undefined) ||
+    configured ||
     (!fallbackPath.includes('analytics') && !fallbackPath.includes('python-ai')
       ? (config.public.apiBase as string | undefined)
       : undefined);

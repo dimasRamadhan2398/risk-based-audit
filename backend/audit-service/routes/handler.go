@@ -69,6 +69,10 @@ func (h *RouteHandler) RegisterRoutes() {
 	// this service, so without this the whole API was reachable anonymously.
 	apiV1 := h.engine.Group("/api/v1")
 	apiV1.Use(h.authMiddleware.Authenticate())
+	// VIEWER is read-only and file-free: writes are refused by default (no
+	// route in this service is a POST that only reads) and every download,
+	// view, evidence, media and export route answers 403.
+	apiV1.Use(middleware.DenyViewerWrites(), middleware.DenyViewerFiles())
 
 	// Audit Charter routes
 	auditCharters := apiV1.Group("/audit-charters")
@@ -180,10 +184,11 @@ func (h *RouteHandler) RegisterRoutes() {
 	{
 		assignmentLetters.GET("", crud.List(h.db, "AssignmentLetter", func() interface{} { return &[]models.AssignmentLetter{} }))
 		assignmentLetters.GET("/:id", crud.GetByID(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }))
-		// Only the roles allowed by the RBAC matrix ("Create / Publish Letter")
-		// may publish or otherwise change a letter's status
-		letterStatusGuard := middleware.RequireRolesForStatusChange(h.db, "assignment_letters", "Draft",
-			"ADMIN", "AUDIT_MANAGER", "CHIEF_AUDIT_EXECUTIVE")
+		// Only Admin, Audit Manager and the CAE (seeded as EXECUTIVE) may publish
+		// or otherwise change a letter's status; role spellings are resolved by
+		// atrsvc.CanonicalRole, see ctrlAssignmentLetter.PublisherRoles
+		letterStatusGuard := middleware.RequireStatusChangeAllowed(h.db, "assignment_letters", "Draft",
+			func(c *gin.Context) bool { return ctrlAssignmentLetter.CanPublish(middleware.ContextRoles(c)) })
 		// Each live letter has one audit execution: created with the letter, following
 		// it on update and soft-deleted with it, see controllers/audit_execution/write_sync.go
 		assignmentLetters.POST("", letterStatusGuard, crud.CreateWithHooks(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }, nil, ctrlAuditExecution.SyncLetterAfterCreate()))

@@ -2,16 +2,12 @@ package controllers
 
 import (
 	"fmt"
-	"io"
 	"net/http"
-	"net/url"
 	"os"
-	"path/filepath"
-	"strings"
-	"time"
 
 	"audit-service/models"
 	"audit-service/pkg/response"
+	"audit-service/pkg/upload"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -22,9 +18,10 @@ type UploadedAuditResultReportController struct {
 	DB *gorm.DB
 }
 
+const uploadedAuditResultReportsDir = "./uploads/uploaded-audit-result-reports"
+
 func NewUploadedAuditResultReportController(db *gorm.DB) *UploadedAuditResultReportController {
-	uploadsDir := "./uploads/uploaded-audit-result-reports"
-	if err := os.MkdirAll(uploadsDir, 0755); err != nil {
+	if err := os.MkdirAll(uploadedAuditResultReportsDir, 0750); err != nil {
 		fmt.Printf("Failed to create uploads directory: %v\n", err)
 	}
 	return &UploadedAuditResultReportController{DB: db}
@@ -39,6 +36,9 @@ type UploadAuditResultReportRequest struct {
 }
 
 func (ctrl *UploadedAuditResultReportController) Upload(c *gin.Context) {
+	if !beginDocumentUpload(c) {
+		return
+	}
 	title := c.PostForm("title")
 	description := c.PostForm("description")
 	fileName := c.PostForm("fileName")
@@ -49,42 +49,12 @@ func (ctrl *UploadedAuditResultReportController) Upload(c *gin.Context) {
 		return
 	}
 
-	file, err := c.FormFile("file") // Will use "file" as frontend will send "file"
-	if err != nil {
-		response.BadRequest(c, "file is required: "+err.Error())
+	dec, clientName, ok := readFormDocument(c, fileName)
+	if !ok {
 		return
 	}
-
-	openedFile, err := file.Open()
-	if err != nil {
-		response.InternalServerError(c, "failed to open file: "+err.Error())
-		return
-	}
-	defer openedFile.Close()
-
-	dec, err := io.ReadAll(openedFile)
-	if err != nil {
-		response.InternalServerError(c, "failed to read file: "+err.Error())
-		return
-	}
-
-	fileExt := filepath.Ext(fileName)
-	baseName := strings.TrimSuffix(fileName, fileExt)
-	if int64(len(dec)) > 10*1024*1024 {
-		response.BadRequest(c, "File size exceeds maximum limit of 10MB")
-		return
-	}
-
-	uniqueFileName := fmt.Sprintf("%s-%d%s", baseName, time.Now().UnixNano(), fileExt)
-
-	uploadsDir := "./uploads/uploaded-audit-result-reports"
-	if err := os.MkdirAll(uploadsDir, 0755); err != nil {
-		response.InternalServerError(c, "Failed to create uploads directory: "+err.Error())
-		return
-	}
-	filePath := filepath.Join(uploadsDir, uniqueFileName)
-	if err := os.WriteFile(filePath, dec, 0644); err != nil {
-		response.InternalServerError(c, "Failed to write file to storage: "+err.Error())
+	name, filePath, ok := saveDocument(c, uploadedAuditResultReportsDir, clientName, dec)
+	if !ok {
 		return
 	}
 
@@ -92,7 +62,7 @@ func (ctrl *UploadedAuditResultReportController) Upload(c *gin.Context) {
 		ID:          uuid.New(),
 		Title:       title,
 		Description: description,
-		FileName:    fileName,
+		FileName:    name,
 		FilePath:    filePath,
 		FileSize:    int64(len(dec)),
 		FileContent: dec,
@@ -100,8 +70,8 @@ func (ctrl *UploadedAuditResultReportController) Upload(c *gin.Context) {
 	}
 
 	if err := ctrl.DB.Create(&doc).Error; err != nil {
-		os.Remove(filePath)
-		response.InternalServerError(c, "Failed to save record to database: "+err.Error())
+		removeDocumentFile(filePath)
+		response.InternalServerError(c, "Failed to save record to database")
 		return
 	}
 
@@ -117,32 +87,36 @@ func (ctrl *UploadedAuditResultReportController) List(c *gin.Context) {
 	response.OK(c, "Uploaded audit result report documents retrieved successfully", docs)
 }
 
-func (ctrl *UploadedAuditResultReportController) Delete(c *gin.Context) {
-	idParam := c.Param("id")
-	id, err := uuid.Parse(idParam)
+func (ctrl *UploadedAuditResultReportController) find(c *gin.Context) (*models.UploadedAuditResultReport, bool) {
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		response.BadRequest(c, "Invalid document ID")
-		return
+		return nil, false
 	}
-
 	var doc models.UploadedAuditResultReport
 	if err := ctrl.DB.First(&doc, "id = ?", id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			response.NotFound(c, "Uploaded audit result report document not found")
-			return
+			return nil, false
 		}
 		response.InternalServerError(c, "Failed to fetch document")
+		return nil, false
+	}
+	return &doc, true
+}
+
+func (ctrl *UploadedAuditResultReportController) Delete(c *gin.Context) {
+	doc, ok := ctrl.find(c)
+	if !ok {
 		return
 	}
 
-	if err := ctrl.DB.Delete(&doc).Error; err != nil {
+	if err := ctrl.DB.Delete(doc).Error; err != nil {
 		response.InternalServerError(c, "Failed to delete document record")
 		return
 	}
 
-	if err := os.Remove(doc.FilePath); err != nil {
-		fmt.Printf("Warning: Failed to delete physical file %s: %v\n", doc.FilePath, err)
-	}
+	removeDocumentFile(doc.FilePath)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -150,78 +124,16 @@ func (ctrl *UploadedAuditResultReportController) Delete(c *gin.Context) {
 	})
 }
 
+// Download always sends the file as an attachment.
 func (ctrl *UploadedAuditResultReportController) Download(c *gin.Context) {
-	idParam := c.Param("id")
-	id, err := uuid.Parse(idParam)
-	if err != nil {
-		response.BadRequest(c, "Invalid document ID")
-		return
+	if doc, ok := ctrl.find(c); ok {
+		upload.Serve(c, doc.FileName, doc.FileContent, doc.FilePath, false)
 	}
-
-	var doc models.UploadedAuditResultReport
-	if err := ctrl.DB.First(&doc, "id = ?", id).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			response.NotFound(c, "Uploaded audit result report document not found")
-			return
-		}
-		response.InternalServerError(c, "Failed to fetch document")
-		return
-	}
-
-	contentType := getDocumentContentType(doc.FileName, doc.FileType)
-	encodedFileName := url.PathEscape(doc.FileName)
-
-	c.Header("Content-Description", "File Transfer")
-	c.Header("Content-Transfer-Encoding", "binary")
-	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"; filename*=UTF-8''%s", doc.FileName, encodedFileName))
-	c.Header("Content-Type", contentType)
-
-	if len(doc.FileContent) > 0 {
-		c.Data(http.StatusOK, contentType, doc.FileContent)
-		return
-	}
-
-	if _, err := os.Stat(doc.FilePath); os.IsNotExist(err) {
-		response.NotFound(c, "Physical file not found on server")
-		return
-	}
-
-	c.File(doc.FilePath)
 }
 
+// View shows PDF, images and plain text inline; other types are downloaded.
 func (ctrl *UploadedAuditResultReportController) View(c *gin.Context) {
-	idParam := c.Param("id")
-	id, err := uuid.Parse(idParam)
-	if err != nil {
-		response.BadRequest(c, "Invalid audit result report document ID")
-		return
+	if doc, ok := ctrl.find(c); ok {
+		upload.Serve(c, doc.FileName, doc.FileContent, doc.FilePath, true)
 	}
-
-	var doc models.UploadedAuditResultReport
-	if err := ctrl.DB.First(&doc, "id = ?", id).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			response.NotFound(c, "Uploaded audit result report document not found")
-			return
-		}
-		response.InternalServerError(c, "Failed to fetch document")
-		return
-	}
-
-	contentType := getDocumentContentType(doc.FileName, doc.FileType)
-	encodedFileName := url.PathEscape(doc.FileName)
-
-	c.Header("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"; filename*=UTF-8''%s", doc.FileName, encodedFileName))
-	c.Header("Content-Type", contentType)
-
-	if len(doc.FileContent) > 0 {
-		c.Data(http.StatusOK, contentType, doc.FileContent)
-		return
-	}
-
-	if _, err := os.Stat(doc.FilePath); os.IsNotExist(err) {
-		response.NotFound(c, "Physical file not found on server")
-		return
-	}
-
-	c.File(doc.FilePath)
 }

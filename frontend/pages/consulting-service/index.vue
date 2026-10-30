@@ -11,7 +11,7 @@
         </p>
       </div>
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
-        <UButton
+        <UButton v-if="canWriteQaConsulting"
           color="neutral"
           variant="outline"
           :label="t('consultingService.dashboard.importDocument')"
@@ -19,7 +19,7 @@
           class="px-5 py-2.5 font-bold rounded-lg shadow w-full sm:w-auto"
           to="/consulting-service/upload"
         />
-        <UButton
+        <UButton v-if="canWriteQaConsulting"
           color="primary"
           :label="t('consultingService.dashboard.newAssignment')"
           icon="i-lucide-plus"
@@ -105,7 +105,7 @@
       <!-- Filters -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
         <UFormField :label="t('consultingService.dashboard.filters.searchTitle')">
-          <UInput v-model="filters.search" :placeholder="t('consultingService.dashboard.filters.searchPlaceholder')" icon="i-lucide-search" class="w-full" />
+          <CommonSearchInput v-model="filters.search" :placeholder="t('consultingService.dashboard.filters.searchPlaceholder')" class="w-full" />
         </UFormField>
         <UFormField :label="t('consultingService.dashboard.filters.category')">
           <USelectMenu v-model="filters.category" :items="categoryFilterOptions" value-key="value" :placeholder="t('consultingService.dashboard.filters.selectCategory')" class="w-full" />
@@ -141,7 +141,8 @@
 
           <!-- Attachment Cell -->
           <template #attachment-cell="{ row }">
-            <div v-if="(row.original as any).attachment" class="flex items-center gap-1.5">
+            <span v-if="(row.original as any).attachment && !canAccessFiles" class="text-md">{{ (row.original as any).attachment.name }}</span>
+            <div v-else-if="(row.original as any).attachment" class="flex items-center gap-1.5">
               <UButton
                 icon="i-lucide-download"
                 color="primary"
@@ -167,7 +168,7 @@
                 />
               </UTooltip>
 
-              <UTooltip :text="t('consultingService.dashboard.actions.edit')">
+              <UTooltip v-if="canWriteQaConsulting" :text="t('consultingService.dashboard.actions.edit')">
                 <UButton
                   icon="i-lucide-edit"
                   color="warning"
@@ -177,7 +178,7 @@
                 />
               </UTooltip>
 
-              <UTooltip :text="t('consultingService.dashboard.actions.delete')">
+              <UTooltip v-if="canWriteQaConsulting" :text="t('consultingService.dashboard.actions.delete')">
                 <UButton
                   icon="i-lucide-trash-2"
                   color="error"
@@ -252,6 +253,7 @@
                 <span class="truncate text-gray-700 dark:text-gray-300 font-medium">{{ service.attachment.name }}</span>
               </div>
               <UButton
+                v-if="canAccessFiles"
                 icon="i-lucide-download"
                 color="primary"
                 variant="ghost"
@@ -274,6 +276,7 @@
                   @click="store.openDetail(service)"
                 />
                 <UButton
+                  v-if="canWriteQaConsulting"
                   icon="i-lucide-edit"
                   color="warning"
                   variant="ghost"
@@ -281,6 +284,7 @@
                   @click="store.editService(service)"
                 />
                 <UButton
+                  v-if="canWriteQaConsulting"
                   icon="i-lucide-trash-2"
                   color="error"
                   variant="ghost"
@@ -309,6 +313,7 @@
           </div>
         </div>
       </div>
+    </UCard>
     </UCard>
 
     <!-- Form Modal -->
@@ -493,7 +498,7 @@
                     <span class="text-md text-gray-400 block">{{ store.selectedService.attachment.size }} · {{ t('consultingService.dashboard.detail.uploadedAt', { date: store.selectedService.attachment.uploadedAt }) }}</span>
                   </div>
                 </div>
-                <UButton
+                <UButton v-if="canAccessFiles"
                   icon="i-heroicons-document-arrow-down"
                   :label="t('consultingService.dashboard.actions.download')"
                   color="primary"
@@ -522,11 +527,13 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch } from 'vue'
+import { useRbac } from '~/composables/useRbac'
 import { useConsultingServiceStore } from '~/stores/consulting-service'
 import { useGlobalModalStore } from '~/stores/global-modal'
 
 const store = useConsultingServiceStore()
 const { t } = useI18n()
+const { canWriteQaConsulting, canAccessFiles } = useRbac()
 store.fetchServices()
 
 const statusKeys: Record<string, string> = {

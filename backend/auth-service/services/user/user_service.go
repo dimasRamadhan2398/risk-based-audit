@@ -19,7 +19,8 @@ import (
 
 // UserServiceInterface defines the user service interface
 type UserServiceInterface interface {
-	CreateUser(ctx context.Context, req *models.CreateUserRequest) error
+	CreateUser(ctx context.Context, req *models.CreateUserRequest) (*models.CreateUserResponse, error)
+	LinkEmployee(ctx context.Context, id uuid.UUID, employeeCode string) (*models.UserResponse, error)
 	UpdateUser(ctx context.Context, id uuid.UUID, req *models.UpdateUserRequest) (*models.UserResponse, error)
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	GetUser(ctx context.Context, id uuid.UUID) (*models.UserResponse, error)
@@ -120,7 +121,7 @@ func NewUserService(userRepo repositories.UserRepositoryInterface, kafkaProducer
 }
 
 // CreateUser creates a new user
-func (s *UserService) CreateUser(ctx context.Context, req *models.CreateUserRequest) error {
+func (s *UserService) CreateUser(ctx context.Context, req *models.CreateUserRequest) (*models.CreateUserResponse, error) {
 	// An account is never created without at least one role.
 	roles := make([]string, 0, len(req.Roles))
 	for _, r := range req.Roles {
@@ -129,40 +130,73 @@ func (s *UserService) CreateUser(ctx context.Context, req *models.CreateUserRequ
 		}
 	}
 	if len(roles) == 0 {
-		return errors.New("ROLE_REQUIRED", "At least one role is required", http.StatusBadRequest)
+		return nil, errors.New("ROLE_REQUIRED", "At least one role is required", http.StatusBadRequest)
+	}
+
+	// Either the admin supplies the password, or a temporary one is generated and
+	// the user must replace it at first login. Both at once is ambiguous.
+	if req.GeneratePassword && req.Password != "" {
+		return nil, errors.New("PASSWORD_NOT_ALLOWED", "password must be empty when generate_password is true", http.StatusBadRequest)
+	}
+	if !req.GeneratePassword && len(req.Password) < 6 {
+		return nil, errors.New("PASSWORD_REQUIRED", "password is required (at least 6 characters) unless generate_password is true", http.StatusBadRequest)
+	}
+
+	employeeID := strings.TrimSpace(req.EmployeeID)
+	if employeeID != "" {
+		if _, err := s.userRepo.FindByEmployeeID(employeeID); err == nil {
+			return nil, errors.New("EMPLOYEE_ALREADY_LINKED", "This employee is already linked to a login account", http.StatusConflict)
+		} else if !errors.Is(err, errors.ErrNotFound) {
+			s.LogError("Failed to check employee link", utils.LogField("error", err))
+			return nil, errors.ErrInternalServer
+		}
 	}
 
 	// Check if username exists
 	if _, err := s.userRepo.FindByUsername(req.Username); err == nil {
-		return errors.Wrap(errors.ErrDuplicateEntry.Code, "Username already exists", errors.ErrDuplicateEntry.StatusCode, nil)
+		return nil, errors.Wrap(errors.ErrDuplicateEntry.Code, "Username already exists", errors.ErrDuplicateEntry.StatusCode, nil)
 	}
 
 	// Check if email exists
 	if _, err := s.userRepo.FindByEmail(req.Email); err == nil {
-		return errors.Wrap(errors.ErrDuplicateEntry.Code, "Email already exists", errors.ErrDuplicateEntry.StatusCode, nil)
+		return nil, errors.Wrap(errors.ErrDuplicateEntry.Code, "Email already exists", errors.ErrDuplicateEntry.StatusCode, nil)
+	}
+
+	password := req.Password
+	if req.GeneratePassword {
+		generated, err := utils.GenerateTemporaryPassword()
+		if err != nil {
+			s.LogError("Failed to generate temporary password", utils.LogField("error", err))
+			return nil, errors.ErrInternalServer
+		}
+		password = generated
 	}
 
 	// Hash password
-	hashedPassword, err := utils.HashPassword(req.Password)
+	hashedPassword, err := utils.HashPassword(password)
 	if err != nil {
 		s.LogError("Failed to hash password", utils.LogField("error", err))
-		return errors.ErrInternalServer
+		return nil, errors.ErrInternalServer
 	}
 
 	// Create user
 	user := &models.User{
-		Username:   req.Username,
-		Email:      req.Email,
-		PasswordHash:   hashedPassword,
-		FullName:   req.FullName,
-		Phone:      req.Phone,
-		Department: req.Department,
-		IsActive:   true,
+		Username:           req.Username,
+		Email:              req.Email,
+		PasswordHash:       hashedPassword,
+		FullName:           req.FullName,
+		Phone:              req.Phone,
+		Department:         req.Department,
+		IsActive:           true,
+		MustChangePassword: req.GeneratePassword,
+	}
+	if employeeID != "" {
+		user.EmployeeID = &employeeID
 	}
 
 	if err := s.userRepo.Create(user); err != nil {
 		s.LogError("Failed to create user", utils.LogField("error", err))
-		return errors.ErrInternalServer
+		return nil, errors.ErrInternalServer
 	}
 
 	// Roles are assigned straight after creation. If none of the requested names
@@ -170,16 +204,67 @@ func (s *UserService) CreateUser(ctx context.Context, req *models.CreateUserRequ
 	if err := s.userRepo.AssignRoles(user.ID, roles); err != nil {
 		s.LogError("Failed to assign roles to new user", utils.LogField("error", err))
 		_ = s.userRepo.Delete(user.ID)
-		return errors.ErrInternalServer
+		return nil, errors.ErrInternalServer
 	}
 	assigned, err := s.userRepo.FindByID(user.ID)
 	if err != nil || assigned == nil || len(assigned.Roles) == 0 {
 		_ = s.userRepo.Delete(user.ID)
-		return errors.New("ROLE_NOT_FOUND", "None of the requested roles exist", http.StatusBadRequest)
+		return nil, errors.New("ROLE_NOT_FOUND", "None of the requested roles exist", http.StatusBadRequest)
 	}
 
 	s.LogInfo("User created successfully", utils.LogField("user_id", user.ID))
-	return nil
+
+	result := &models.CreateUserResponse{
+		ID:       user.ID.String(),
+		Username: user.Username,
+	}
+	if req.GeneratePassword {
+		// Returned to the caller once. It is never logged or stored in plain text.
+		result.TemporaryPassword = password
+	}
+	return result, nil
+}
+
+// LinkEmployee sets users.employee_id on an existing account. Re-linking to the
+// same employee is a no-op. Linking an account that belongs to another employee,
+// or an employee that already has another account, is a conflict.
+func (s *UserService) LinkEmployee(ctx context.Context, id uuid.UUID, employeeCode string) (*models.UserResponse, error) {
+	code := strings.TrimSpace(employeeCode)
+	if code == "" || len(code) > 50 {
+		return nil, errors.New("VALIDATION_ERROR", "employee_code is required (at most 50 characters)", http.StatusBadRequest)
+	}
+
+	user, err := s.userRepo.FindByID(id)
+	if err != nil {
+		if errors.Is(err, errors.ErrNotFound) {
+			return nil, errors.Wrap(errors.ErrNotFound.Code, "User not found", errors.ErrNotFound.StatusCode, nil)
+		}
+		s.LogError("Failed to find user for employee link", utils.LogField("error", err))
+		return nil, errors.ErrInternalServer
+	}
+
+	if user.EmployeeID != nil {
+		if *user.EmployeeID == code {
+			return s.userToResponse(user), nil
+		}
+		return nil, errors.New("ACCOUNT_ALREADY_LINKED", "This account is already linked to another employee", http.StatusConflict)
+	}
+
+	if other, err := s.userRepo.FindByEmployeeID(code); err == nil && other != nil {
+		return nil, errors.New("EMPLOYEE_ALREADY_LINKED", "This employee is already linked to a login account", http.StatusConflict)
+	} else if err != nil && !errors.Is(err, errors.ErrNotFound) {
+		s.LogError("Failed to check employee link", utils.LogField("error", err))
+		return nil, errors.ErrInternalServer
+	}
+
+	user.EmployeeID = &code
+	if err := s.userRepo.Update(user); err != nil {
+		s.LogError("Failed to link employee", utils.LogField("error", err))
+		return nil, errors.ErrInternalServer
+	}
+
+	s.LogInfo("Account linked to employee", utils.LogField("user_id", user.ID))
+	return s.userToResponse(user), nil
 }
 
 // MaxAvatarDataURLLength caps the avatar data URL string (about 220 KB of image bytes).

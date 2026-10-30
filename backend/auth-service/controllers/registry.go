@@ -19,6 +19,7 @@ type Registry struct {
 
 type IControllerRegistry interface {
 	GetAuth() authCtrl.AuthControllerInterface
+	GetStepUp() authCtrl.StepUpControllerInterface
 	GetUser() userCtrl.UserControllerInterface
 	GetRole() roleCtrl.RoleControllerInterface
 	GetMfa() mfaCtrl.MfaControllerInterface
@@ -36,6 +37,10 @@ func NewControllerRegistry(service services.IServiceRegistry, validator *validat
 
 func (r *Registry) GetAuth() authCtrl.AuthControllerInterface {
 	return authCtrl.NewAuthController(r.validator, r.service.GetAuthService())
+}
+
+func (r *Registry) GetStepUp() authCtrl.StepUpControllerInterface {
+	return authCtrl.NewStepUpController(r.validator, r.service.GetStepUpService())
 }
 
 func (r *Registry) GetUser() userCtrl.UserControllerInterface {

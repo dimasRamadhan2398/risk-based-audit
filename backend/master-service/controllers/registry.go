@@ -20,6 +20,7 @@ import (
 	likelihoodCtrl "master-service/controllers/likelihood"
 	locationCtrl "master-service/controllers/location"
 	mitigationActionCtrl "master-service/controllers/mitigation_action"
+	orgLevelCtrl "master-service/controllers/org_level"
 	riskCategoryCtrl "master-service/controllers/risk_category"
 	riskCauseCtrl "master-service/controllers/risk_cause"
 	riskEffectCtrl "master-service/controllers/risk_effect"
@@ -27,6 +28,7 @@ import (
 	riskLevelCtrl "master-service/controllers/risk_level"
 	riskMatrixCellCtrl "master-service/controllers/risk_matrix_cell"
 	riskRegisterCtrl "master-service/controllers/risk_register"
+	tenantConfigCtrl "master-service/controllers/tenant_config"
 	vmgsCtrl "master-service/controllers/vision_mission_goals"
 	"master-service/pkg/validations"
 	"master-service/services"
@@ -65,6 +67,10 @@ type IControllerRegistry interface {
 	GetRiskMatrixCell() riskMatrixCellCtrl.RiskMatrixCellControllerInterface
 	GetRiskRegister() riskRegisterCtrl.RiskRegisterControllerInterface
 	GetVisionMissionGoals() vmgsCtrl.VisionMissionGoalsControllerInterface
+
+	// GetOrgLevel is nil on legacy tenants (routes answer 404 before it).
+	GetOrgLevel() orgLevelCtrl.OrgLevelControllerInterface
+	GetTenantConfig() tenantConfigCtrl.TenantConfigControllerInterface
 }
 
 func NewControllerRegistry(service services.IServiceRegistry, validator *validations.Validator) IControllerRegistry {
@@ -155,4 +161,16 @@ func (r *Registry) GetRiskRegister() riskRegisterCtrl.RiskRegisterControllerInte
 
 func (r *Registry) GetVisionMissionGoals() vmgsCtrl.VisionMissionGoalsControllerInterface {
 	return vmgsCtrl.NewVisionMissionGoalsController(r.service.GetVisionMissionGoals(), r.validator)
+}
+
+func (r *Registry) GetOrgLevel() orgLevelCtrl.OrgLevelControllerInterface {
+	svc := r.service.GetOrgLevel()
+	if svc == nil {
+		return nil
+	}
+	return orgLevelCtrl.NewOrgLevelController(svc, r.validator)
+}
+
+func (r *Registry) GetTenantConfig() tenantConfigCtrl.TenantConfigControllerInterface {
+	return tenantConfigCtrl.NewTenantConfigController(r.service.GetTenantConfig(), r.validator)
 }

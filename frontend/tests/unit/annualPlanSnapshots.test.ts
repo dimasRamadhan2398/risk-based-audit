@@ -2,6 +2,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useAnnualPlanStore } from '~/stores/annual-audit'
+import { useAuditUniverseStore } from '~/stores/audit-universe'
 
 vi.mock('~/components/shared/ToastNotification.vue', () => ({
   useToastNotification: () => ({
@@ -63,6 +64,43 @@ describe('Annual plan store: server snapshots and partial PUT bodies', () => {
     expect(row.department).toBe('Finance (refreshed)')
     expect(row.departmentId).toBe('dept-fin')
     expect(row.auditUniverseId).toBe('au-fin')
+  })
+
+  it('shows the snapshot names when the server sent them', async () => {
+    await store.fetchPlans()
+
+    const row = store.plans[0].activities[0]
+    expect(store.activityDepartmentName(row)).toBe('Finance (refreshed)')
+    expect(store.activityRiskName(row)).toBe('Risiko Kas (refreshed)')
+  })
+
+  it('resolves blank snapshots from departmentId and auditUniverseId, without changing the row', async () => {
+    // What the list returns while the server lookup has no department / entity names yet.
+    const blankRow = { ...serverPlan.activities[0], department: '', riskName: '', departmentId: 'DEPT-FIN', auditUniverseId: 'au-tax' }
+    fetchMock.mockImplementation(async (url: string, opts?: { method?: string }) => {
+      if (opts?.method === 'PUT' || opts?.method === 'POST') return { success: true, data: {} }
+      return pagedResponse([{ ...serverPlan, activities: [blankRow] }])
+    })
+    await store.fetchPlans()
+    const row = store.plans[0].activities[0]
+
+    // Nothing to resolve against yet.
+    expect(store.activityDepartmentName(row)).toBe('')
+    expect(store.activityRiskName(row)).toBe('')
+
+    store.departments = [{ id: 'dept-fin', name: 'Finance' }]
+    useAuditUniverseStore().corporateUniverse = [
+      { id: 'au-fin', name: 'Keuangan', children: [{ id: 'au-tax', name: 'Pajak', children: [] }] }
+    ]
+
+    expect(store.activityDepartmentName(row)).toBe('Finance')
+    expect(store.activityRiskName(row)).toBe('Pajak')
+    expect(row.department).toBe('')
+    expect(row.riskName).toBe('')
+
+    // The department filter matches the resolved name.
+    store.selectedDepartment = 'Finance'
+    expect(store.filteredPlans).toHaveLength(1)
   })
 
   it('an edit PUT keeps the row id and does not resend the snapshots', async () => {

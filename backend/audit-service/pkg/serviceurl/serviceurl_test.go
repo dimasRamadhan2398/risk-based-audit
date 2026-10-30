@@ -54,6 +54,27 @@ func TestMasterAndAuthFromEnv(t *testing.T) {
 			t.Fatalf("Auth() = %q", got)
 		}
 	})
+	t.Run("risk: tenant, prod and explicit", func(t *testing.T) {
+		t.Setenv(RiskServiceURLEnv, "")
+		t.Setenv(ServiceNameEnv, "audit-service-bai")
+		if got := Risk(); got != "http://risk-service-bai:8002" {
+			t.Fatalf("tenant Risk() = %q", got)
+		}
+		t.Setenv(ServiceNameEnv, "")
+		if got := Risk(); got != "http://risk-service:8002" {
+			t.Fatalf("prod Risk() = %q", got)
+		}
+		t.Setenv(RiskServiceURLEnv, "http://localhost:8004/")
+		t.Setenv(ServiceNameEnv, "audit-service-bai")
+		if got := Risk(); got != "http://localhost:8004" {
+			t.Fatalf("explicit Risk() = %q", got)
+		}
+		t.Setenv(RiskServiceURLEnv, "")
+		t.Setenv(ServiceNameEnv, "audit-service-bai.example.com")
+		if got := Risk(); got != "" {
+			t.Fatalf("malformed tenant slug Risk() = %q, want empty", got)
+		}
+	})
 	t.Run("explicit env per target", func(t *testing.T) {
 		t.Setenv(MasterServiceURLEnv, "http://localhost:8003/")
 		t.Setenv(AuthServiceURLEnv, "http://localhost:8001")

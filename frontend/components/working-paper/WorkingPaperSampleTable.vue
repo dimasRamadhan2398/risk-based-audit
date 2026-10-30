@@ -76,7 +76,7 @@
 
         <template #actions-cell="{ row }">
           <div class="flex gap-2">
-            <UTooltip :text="t('workingPaper.sampleTable.editSample')">
+            <UTooltip v-if="canWrite" :text="t('workingPaper.sampleTable.editSample')">
               <UButton 
                 size="md" 
                 color="warning" 
@@ -85,7 +85,7 @@
                 @click="store.handleEditF03(row.original)" 
               />
             </UTooltip>
-            <UTooltip :text="t('workingPaper.sampleTable.deleteSample')">
+            <UTooltip v-if="canWrite" :text="t('workingPaper.sampleTable.deleteSample')">
               <UButton 
                 size="md" 
                 color="error" 
@@ -102,6 +102,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { computed } from 'vue'
 import { useI18n } from '~/composables/useI18n'
 import { useWorkingPaperStore } from '~/stores/working-paper'
@@ -109,6 +110,7 @@ import { getControlEffectivenessColorClass } from '~/utils/riskLevelBadge'
 import { formatTestResult } from '~/utils/sampleTestResult'
 
 const { t } = useI18n()
+const { canWrite } = useRbac()
 const store = useWorkingPaperStore()
 
 const columns = computed(() => [

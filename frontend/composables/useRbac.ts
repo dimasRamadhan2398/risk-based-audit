@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 import { UserRole } from '~/types/auth'
+import { isViewerOnly, MASTER_DATA_WRITE_ROLES, QA_CONSULTING_WRITE_ROLES, AUDIT_UNIVERSE_WRITE_ROLES, AUDIT_UNIVERSE_OWN_DEPT_ROLES, isOwnDepartment } from '~/utils/viewerPolicy'
 
 // Module-level singleton to share active preview role across all components and pages
 const activeRoleView = ref<string | null>(null)
@@ -76,6 +77,10 @@ export const useRbac = () => {
     // EXECUTIVE is the seeded role that acts as the Chief Audit Executive (CAE); the backend aliases mirror this.
     const executiveAliases = ['executive', 'chiefauditexecutive', 'cae']
     if (executiveAliases.includes(t) && executiveAliases.includes(u)) return true
+
+    // VIEWER is read-only: it must never satisfy a privileged target (it used to pass as EXECUTIVE through the
+    // keyword list below), and only an exact VIEWER role satisfies a VIEWER target.
+    if (u === 'viewer' || t === 'viewer') return false
 
     // Target is CAE / Executive / Viewer
     if (t === 'chiefauditexecutive' || t === 'cae' || t === 'executive' || t === 'viewer' || t === 'direksi' || t === 'komiteaudit' || t === 'kepalaspi' || t === 'headofskai') {
@@ -187,6 +192,34 @@ export const useRbac = () => {
   ]))
 
   /**
+   * VIEWER read-only policy. Strict check (matchesRole('viewer') also matches executives, so it is not used here).
+   * The backend is authoritative; these only hide UI. Use them instead of comparing role strings.
+   */
+  const isViewer = computed(() => isViewerOnly(getUserRoles()))
+  /** Create / edit / delete / approve / publish / import / upload actions. */
+  const canWrite = computed(() => !isViewer.value)
+  /** Download, preview, open-attachment and file-link actions. */
+  const canAccessFiles = computed(() => !isViewer.value)
+  /** Export buttons (Excel, CSV, PDF, JSON, report download). */
+  const canExport = computed(() => !isViewer.value)
+  /** Master data create / edit / delete / import (ADMIN only). */
+  const canWriteMasterData = computed(() => hasAnyRole(MASTER_DATA_WRITE_ROLES))
+  /** QA reports and consulting services add / edit / delete / import / upload. */
+  const canWriteQaConsulting = computed(() => hasAnyRole(QA_CONSULTING_WRITE_ROLES))
+  /** Audit universe establish / sync / add / rename / remove. */
+  const canWriteAuditUniverse = computed(() => hasAnyRole(AUDIT_UNIVERSE_WRITE_ROLES))
+  /**
+   * Scoped audit universe / library edit: full writers always pass; DEPARTMENT_HEAD passes only for a row of
+   * its own department (row.department_id, row.departmentId or row.department; or an id/name string).
+   */
+  const canWriteAuditUniverseFor = (target: Parameters<typeof isOwnDepartment>[1]): boolean => {
+    if (canWriteAuditUniverse.value) return true
+    return hasAnyRole(AUDIT_UNIVERSE_OWN_DEPT_ROLES) && isOwnDepartment(getCurrentUser(), target)
+  }
+  /** Master data menu items and pages. */
+  const canAccessMasterData = computed(() => !isViewer.value)
+
+  /**
    * Get the user's primary display role (highest privilege).
    */
   const primaryRole = computed((): string => {
@@ -213,7 +246,7 @@ export const useRbac = () => {
   const canManageSop = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE]))
   const canEditRiskAppetite = computed(() => isAdmin.value)
   const canEditRiskFactors = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE]))
-  const canEditAuditUniverse = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE]))
+  const canEditAuditUniverse = canWriteAuditUniverse
   const canManageStrategicPlan = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE]))
   const canManageAnnualPlan = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE]))
   const canManageAssignmentLetter = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE]))
@@ -229,7 +262,8 @@ export const useRbac = () => {
    *  AUDITOR: view all, assign, review | AUDITEE/PIC: own items, action plan, evidence, submit
    * Per item, useAtrActions also requires the action in the server's `allowed_actions` when present.
    */
-  const canViewAllAtr = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE, UserRole.AUDITOR]))
+  // VIEWER keeps its existing ATR list scope (view only; every ATR write action stays hidden by the checks below).
+  const canViewAllAtr = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE, UserRole.AUDITOR, UserRole.VIEWER]))
   const canAssignAtr = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.AUDITOR]))
   const canReviewAtr = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE, UserRole.AUDITOR]))
   const canCancelAtr = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE]))
@@ -321,6 +355,15 @@ export const useRbac = () => {
     hasAnyRole,
     hasAllRoles,
     isAdmin,
+    isViewer,
+    canWrite,
+    canAccessFiles,
+    canExport,
+    canAccessMasterData,
+    canWriteMasterData,
+    canWriteQaConsulting,
+    canWriteAuditUniverse,
+    canWriteAuditUniverseFor,
     isAuditor,
     isPureAuditor,
     isAuditorView,

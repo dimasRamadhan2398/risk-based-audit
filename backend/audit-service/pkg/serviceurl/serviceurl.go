@@ -1,5 +1,5 @@
 // Package serviceurl picks the base URL audit-service uses to reach a sibling
-// service (master-service, auth-service) of its own stack.
+// service (master-service, auth-service, risk-service) of its own stack.
 //
 // Tenant stacks share the rb_audit_network bridge with the control plane, so
 // the bare alias "master-service" resolves to the *control plane's*
@@ -23,10 +23,12 @@ const (
 	// Container ports inside the docker network (control plane and tenants)
 	MasterServicePort = "8002"
 	AuthServicePort   = "8001"
+	RiskServicePort   = "8002"
 
 	// Env vars
 	MasterServiceURLEnv = "MASTER_SERVICE_URL"
 	AuthServiceURLEnv   = "AUTH_SERVICE_URL"
+	RiskServiceURLEnv   = "RISK_SERVICE_URL"
 	ServiceNameEnv      = "KAFKA_SERVICE_NAME"
 )
 
@@ -69,4 +71,9 @@ func Master() string {
 // Auth returns this stack's auth-service base URL from the environment
 func Auth() string {
 	return Resolve(os.Getenv(AuthServiceURLEnv), os.Getenv(ServiceNameEnv), "auth-service", AuthServicePort)
+}
+
+// Risk returns this stack's risk-service base URL from the environment
+func Risk() string {
+	return Resolve(os.Getenv(RiskServiceURLEnv), os.Getenv(ServiceNameEnv), "risk-service", RiskServicePort)
 }

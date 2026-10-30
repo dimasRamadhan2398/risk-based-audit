@@ -1,10 +1,9 @@
 <template>
   <div class="flex flex-wrap items-center gap-3 sm:gap-4">
-    <UInput
+    <CommonSearchInput
       v-model="store.searchQuery"
-      icon="i-lucide-search"
       :placeholder="t('qualityAssurance.dashboard.filters.search')"
-      class="w-full sm:max-w-md"
+      class="w-full sm:flex-1 sm:min-w-64"
       size="md"
     />
 

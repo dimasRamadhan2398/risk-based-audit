@@ -35,6 +35,27 @@ const (
 	CodeBusinessUnitCompanyMismatch = "BUSINESS_UNIT_COMPANY_MISMATCH"
 	CodePICNotFound                 = "PIC_NOT_FOUND"
 	CodePICCompanyMismatch          = "PIC_COMPANY_MISMATCH"
+
+	// Organisation structure (flexible tenants, docs/org-structure-model-plan.md)
+	CodeOrgStructureNotEnabled            = "ORG_STRUCTURE_NOT_ENABLED"
+	CodeOrgLevelInvalid                   = "ORG_LEVEL_INVALID"
+	CodeParentDepartmentNotFound          = "PARENT_DEPARTMENT_NOT_FOUND"
+	CodeParentDepartmentCompanyMismatch   = "PARENT_DEPARTMENT_COMPANY_MISMATCH"
+	CodeDepartmentLevelNotBelowParent     = "DEPARTMENT_LEVEL_NOT_BELOW_PARENT"
+	CodeDepartmentLevelChildConflict      = "DEPARTMENT_LEVEL_CHILD_CONFLICT"
+	CodeDepartmentParentCycle             = "DEPARTMENT_PARENT_CYCLE"
+	CodeDepartmentHasChildren             = "DEPARTMENT_HAS_CHILDREN"
+	CodeDepartmentChildrenCompanyMismatch = "DEPARTMENT_CHILDREN_COMPANY_MISMATCH"
+	CodeOrgDepthExceeded                  = "ORG_DEPTH_EXCEEDED"
+	CodeOrgLevelAlreadyExists             = "ORG_LEVEL_ALREADY_EXISTS"
+	CodeOrgLevelNameAlreadyExists         = "ORG_LEVEL_NAME_ALREADY_EXISTS"
+	CodeOrgLevelsVersionConflict          = "ORG_LEVELS_VERSION_CONFLICT"
+	CodeOrgLevelChangeInvalid             = "ORG_LEVEL_CHANGE_INVALID"
+
+	// Step-up (re-entered password) for privileged changes
+	CodeStepUpRequired    = "STEP_UP_REQUIRED"
+	CodeStepUpInvalid     = "STEP_UP_INVALID"
+	CodeStepUpUnavailable = "STEP_UP_UNAVAILABLE"
 )
 
 // Field-level codes used in the `fields` map of VALIDATION_FAILED responses.
@@ -69,6 +90,10 @@ var (
 	ErrEmployeeNotFound   = New(CodeEmployeeNotFound, "Employee not found.", http.StatusNotFound)
 	ErrDepartmentNotFound = New(CodeDepartmentNotFound, "Department not found.", http.StatusNotFound)
 	ErrCompanyNotFound    = New(CodeCompanyNotFound, "Company not found.", http.StatusNotFound)
+
+	// ErrOrgStructureNotEnabled: a flexible-only route or field on a legacy tenant.
+	ErrOrgStructureNotEnabled = New(CodeOrgStructureNotEnabled,
+		"The organisation structure is not enabled for this tenant.", http.StatusNotFound)
 )
 
 // InvalidID builds a 400 for a malformed path ID.

@@ -28,11 +28,21 @@ type EmployeeServiceInterface interface {
 
 type EmployeeService struct {
 	employeeRepo repo.IEmployeeRepository
+	// accounts creates the login account for @aifl.co.id employees. Nil when
+	// auth-service is not configured; such creates are refused up front.
+	accounts AccountClient
 }
 
 func NewEmployeeService(employeeRepo repo.IEmployeeRepository) EmployeeServiceInterface {
+	return NewEmployeeServiceWithAccounts(employeeRepo, nil)
+}
+
+// NewEmployeeServiceWithAccounts builds the employee service with the
+// auth-service client used to provision login accounts.
+func NewEmployeeServiceWithAccounts(employeeRepo repo.IEmployeeRepository, accounts AccountClient) EmployeeServiceInterface {
 	return &EmployeeService{
 		employeeRepo: employeeRepo,
+		accounts:     accounts,
 	}
 }
 
@@ -174,6 +184,13 @@ func (s *EmployeeService) Create(ctx *base.BaseService, employee *models.Employe
 		employee.LevelGrade = defaultLevelGrade
 	}
 
+	needsAccount := requiresLoginAccount(employee.Email)
+	if needsAccount {
+		if err := s.checkLoginAccountPreflight(employee.Email); err != nil {
+			return nil, err
+		}
+	}
+
 	generateCode := employee.EmployeeCode == ""
 	if !generateCode {
 		if _, err := s.employeeRepo.FindByCode(employee.EmployeeCode); err == nil {
@@ -190,11 +207,21 @@ func (s *EmployeeService) Create(ctx *base.BaseService, employee *models.Employe
 	}
 
 	if generateCode {
-		return s.createWithGeneratedCode(employee)
+		created, err := s.createWithGeneratedCode(employee)
+		if err != nil {
+			return nil, err
+		}
+		employee = created
+	} else if err := s.employeeRepo.Create(employee); err != nil {
+		return nil, apperrors.DB(err, apperrors.OpCreate, "Failed to create the employee.")
 	}
 
-	if err := s.employeeRepo.Create(employee); err != nil {
-		return nil, apperrors.DB(err, apperrors.OpCreate, "Failed to create the employee.")
+	if needsAccount {
+		account, err := s.provisionLoginAccount(ctx, employee)
+		if err != nil {
+			return nil, err
+		}
+		employee.Account = account
 	}
 
 	return employee, nil

@@ -37,9 +37,8 @@
       <!-- Filter Controls -->
       <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-6">
         <div class="w-full sm:w-72">
-          <UInput
+          <CommonSearchInput
             v-model="searchQuery"
-            icon="i-lucide-search"
             :placeholder="t('settings.dataSource.searchPlaceholder')"
             size="md"
             class="w-full"
@@ -470,9 +469,8 @@
           <!-- Filter & Search Tables -->
           <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
             <div class="w-full sm:w-80">
-              <UInput
+              <CommonSearchInput
                 v-model="tableSearchQuery"
-                icon="i-lucide-search"
                 :placeholder="t('settings.dataSource.searchTablesPlaceholder')"
                 size="md"
                 class="w-full"

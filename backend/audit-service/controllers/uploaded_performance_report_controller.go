@@ -2,18 +2,13 @@ package controllers
 
 import (
 	"fmt"
-	"io"
-	"net/http"
-	"net/url"
 	"os"
-	"path/filepath"
 	"strconv"
-	"strings"
-	"time"
 
 	"audit-service/models"
 	"audit-service/pkg/response"
 	"audit-service/pkg/safefile"
+	"audit-service/pkg/upload"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -24,9 +19,10 @@ type UploadedPerformanceReportController struct {
 	DB *gorm.DB
 }
 
+const uploadedPerformanceReportsDir = "./uploads/uploaded-performance-reports"
+
 func NewUploadedPerformanceReportController(db *gorm.DB) *UploadedPerformanceReportController {
-	uploadsDir := "./uploads/uploaded-performance-reports"
-	if err := os.MkdirAll(uploadsDir, 0755); err != nil {
+	if err := os.MkdirAll(uploadedPerformanceReportsDir, 0750); err != nil {
 		fmt.Printf("Failed to create uploads directory: %v\n", err)
 	}
 	return &UploadedPerformanceReportController{DB: db}
@@ -43,6 +39,9 @@ type UploadPerformanceReportRequest struct {
 }
 
 func (ctrl *UploadedPerformanceReportController) Upload(c *gin.Context) {
+	if !beginDocumentUpload(c) {
+		return
+	}
 	title := c.PostForm("title")
 	description := c.PostForm("description")
 	fileName := c.PostForm("fileName")
@@ -56,41 +55,12 @@ func (ctrl *UploadedPerformanceReportController) Upload(c *gin.Context) {
 		return
 	}
 
-	file, err := c.FormFile("file") // Will use "file" as frontend will send "file"
-	if err != nil {
-		response.BadRequest(c, "file is required: "+err.Error())
+	dec, clientName, ok := readFormDocument(c, fileName)
+	if !ok {
 		return
 	}
-
-	openedFile, err := file.Open()
-	if err != nil {
-		response.InternalServerError(c, "failed to open file: "+err.Error())
-		return
-	}
-	defer openedFile.Close()
-
-	dec, err := io.ReadAll(openedFile)
-	if err != nil {
-		response.InternalServerError(c, "failed to read file: "+err.Error())
-		return
-	}
-
-	fileExt := filepath.Ext(fileName)
-	baseName := strings.TrimSuffix(fileName, fileExt)
-	if int64(len(dec)) > 10*1024*1024 {
-		response.BadRequest(c, "File size exceeds maximum limit of 10MB")
-		return
-	}
-	uniqueFileName := fmt.Sprintf("%s-%d%s", baseName, time.Now().UnixNano(), fileExt)
-
-	uploadsDir := "./uploads/uploaded-performance-reports"
-	if err := os.MkdirAll(uploadsDir, 0755); err != nil {
-		response.InternalServerError(c, "Failed to create uploads directory: "+err.Error())
-		return
-	}
-	filePath := filepath.Join(uploadsDir, uniqueFileName)
-	if err := os.WriteFile(filePath, dec, 0644); err != nil {
-		response.InternalServerError(c, "Failed to write file to storage: "+err.Error())
+	name, filePath, ok := saveDocument(c, uploadedPerformanceReportsDir, clientName, dec)
+	if !ok {
 		return
 	}
 
@@ -101,7 +71,7 @@ func (ctrl *UploadedPerformanceReportController) Upload(c *gin.Context) {
 		Period:          period,
 		Year:            year,
 		Description:     description,
-		FileName:        fileName,
+		FileName:        name,
 		FilePath:        filePath,
 		FileSize:        int64(len(dec)),
 		FileContent:     dec,
@@ -111,8 +81,8 @@ func (ctrl *UploadedPerformanceReportController) Upload(c *gin.Context) {
 	}
 
 	if err := ctrl.DB.Create(&doc).Error; err != nil {
-		os.Remove(filePath)
-		response.InternalServerError(c, "Failed to save record to database: "+err.Error())
+		removeDocumentFile(filePath)
+		response.InternalServerError(c, "Failed to save record to database")
 		return
 	}
 
@@ -162,9 +132,7 @@ func (ctrl *UploadedPerformanceReportController) Delete(c *gin.Context) {
 		return
 	}
 
-	if doc.FilePath != "" {
-		_ = os.Remove(doc.FilePath)
-	}
+	removeDocumentFile(doc.FilePath)
 
 	response.OK(c, "Uploaded performance report document deleted successfully", nil)
 }
@@ -176,71 +144,30 @@ func getDocumentContentType(fileName, fileType string) string {
 	return safefile.ContentTypeFor(fileName)
 }
 
-func (ctrl *UploadedPerformanceReportController) Download(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := uuid.Parse(idStr)
+func (ctrl *UploadedPerformanceReportController) find(c *gin.Context) (*models.UploadedPerformanceReport, bool) {
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		response.BadRequest(c, "Invalid report ID")
-		return
+		return nil, false
 	}
-
 	var doc models.UploadedPerformanceReport
 	if err := ctrl.DB.First(&doc, "id = ?", id).Error; err != nil {
 		response.NotFound(c, "Uploaded performance report document not found")
-		return
+		return nil, false
 	}
+	return &doc, true
+}
 
-	contentType := getDocumentContentType(doc.FileName, doc.FileType)
-	encodedFileName := url.PathEscape(doc.FileName)
-
-	if len(doc.FileContent) > 0 {
-		c.Header("Content-Description", "File Transfer")
-		c.Header("Content-Transfer-Encoding", "binary")
-		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"; filename*=UTF-8''%s", doc.FileName, encodedFileName))
-		c.Header("Content-Type", contentType)
-		c.Data(http.StatusOK, contentType, doc.FileContent)
-		return
+func (ctrl *UploadedPerformanceReportController) Download(c *gin.Context) {
+	if doc, ok := ctrl.find(c); ok {
+		upload.Serve(c, doc.FileName, doc.FileContent, doc.FilePath, false)
 	}
-
-	if _, err := os.Stat(doc.FilePath); os.IsNotExist(err) {
-		response.NotFound(c, "File not found on server storage")
-		return
-	}
-
-	c.FileAttachment(doc.FilePath, doc.FileName)
 }
 
 func (ctrl *UploadedPerformanceReportController) View(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := uuid.Parse(idStr)
-	if err != nil {
-		response.BadRequest(c, "Invalid report ID")
-		return
+	if doc, ok := ctrl.find(c); ok {
+		upload.Serve(c, doc.FileName, doc.FileContent, doc.FilePath, true)
 	}
-
-	var doc models.UploadedPerformanceReport
-	if err := ctrl.DB.First(&doc, "id = ?", id).Error; err != nil {
-		response.NotFound(c, "Uploaded performance report document not found")
-		return
-	}
-
-	contentType := getDocumentContentType(doc.FileName, doc.FileType)
-	encodedFileName := url.PathEscape(doc.FileName)
-
-	c.Header("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"; filename*=UTF-8''%s", doc.FileName, encodedFileName))
-	c.Header("Content-Type", contentType)
-
-	if len(doc.FileContent) > 0 {
-		c.Data(http.StatusOK, contentType, doc.FileContent)
-		return
-	}
-
-	if _, err := os.Stat(doc.FilePath); os.IsNotExist(err) {
-		response.NotFound(c, "File not found on server storage")
-		return
-	}
-
-	c.File(doc.FilePath)
 }
 
 func (ctrl *UploadedPerformanceReportController) generateKPIAchievementsForReport(doc models.UploadedPerformanceReport) {

@@ -66,6 +66,15 @@ services:
       # is a control-plane privilege. The /api/v1/resend route is absent from
       # this tenant's Kong config; leaving the key empty is the second lock.
       RESEND_MASTER_API_KEY: ""
+      # Outbound email through the shared Resend sending domain, authenticated
+      # with this tenant's own sending-only key. Written to .env by
+      # scripts/provision-tenant-email.sh. Left unset, viper ignores the empty
+      # values and falls back to config.yaml (Mailtrap sandbox, no delivery).
+      SMTP_HOST: ${TENANT_SMTP_HOST:-}
+      SMTP_PORT: ${TENANT_SMTP_PORT:-}
+      SMTP_USERNAME: ${TENANT_SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${TENANT_SMTP_PASSWORD:-}
+      SMTP_FROM: ${TENANT_SMTP_FROM:-}
     # No `seed` here: onboard-tenant.sh already ran migrate + seed against this
     # tenant's database. Re-seeding on every container restart would resurrect
     # deleted rows and reset the admin password.
@@ -93,14 +102,30 @@ services:
       # explicit values make the target visible and survive a rename.
       MASTER_SERVICE_URL: http://master-service-bai:8002
       AUTH_SERVICE_URL: http://auth-service-bai:8001
+      # Kafka is shared. The prefix moves this tenant's Audit Universe events
+      # to bai.audit-universe.events (same key as risk-service below, so
+      # producer and consumer agree), and the group id keeps this consumer out
+      # of the control plane's group — sharing it would split partitions
+      # between stacks and each would silently miss the other's events.
+      # department.events is still shared until master-service honours the
+      # prefix; the per-tenant group at least stops it being split.
+      KAFKA_TOPIC_PREFIX: bai
+      KAFKA_CONSUMER_GROUP_ID: audit-service-annual-plan-sync-bai
       # Evidence stays in this tenant's VPS silo. Google Drive is blocked by
       # architecture policy — the shared service-account credentials would put
       # every tenant's fieldwork in one Drive account.
       GDRIVE_ENABLED: "false"
+      # Malware scanning for every upload. Tenants share the clamav service of
+      # the control-plane stack (backend/docker-compose.prod.yml), reached over
+      # rb_audit_network. The scanner keeps no tenant data, so sharing it does
+      # not cross tenants. If that stack is down, uploads here fail closed (503).
+      CLAMAV_ADDRESS: clamav:3310
+      CLAMAV_MODE: required
     volumes:
-      # Dedicated evidence silo. audit-service writes to ./uploads relative to
-      # its WORKDIR (/root), and serves it back at GET /uploads.
-      - /Users/a/Projects/risk-based-audit/backend/audit-service/uploads/bai:/root/uploads
+      # Dedicated evidence silo, always <TENANT_STORAGE_ROOT>/<slug> (rendered
+      # by generate-tenant-stack.sh). audit-service writes to ./uploads relative
+      # to its WORKDIR (/root), and serves it back at GET /uploads.
+      - /var/data/auditsphere/storage/bai:/root/uploads
     command: ["./audit", "serve"]
     networks:
       - rb_audit_network
@@ -119,6 +144,10 @@ services:
       <<: *tenant-env
       DATABASE_NAME: rb_audit_master_bai
       KAFKA_SERVICE_NAME: master-service-bai
+      # QA and consulting imports are scanned by the shared clamav service (see
+      # the audit-service note above). Fails closed when it is unreachable.
+      CLAMAV_ADDRESS: clamav:3310
+      CLAMAV_MODE: required
     command: ["./master", "serve"]
     networks:
       - rb_audit_network
@@ -139,6 +168,10 @@ services:
       KAFKA_SERVICE_NAME: risk-service-bai
       # This tenant's own master-service (also derived from KAFKA_SERVICE_NAME)
       MASTER_SERVICE_URL: http://master-service-bai:8002
+      # Publishes to bai.audit-universe.events (created by the relay on
+      # first connect; onboard-tenant.sh also pre-creates it). Must match
+      # audit-service-bai above.
+      KAFKA_TOPIC_PREFIX: bai
       # risk-service is the only service that seeds at boot. Left enabled it
       # injects ~570 rows of sample risk data into any empty tenant database
       # the moment the container starts, so a client's "clean slate" instance

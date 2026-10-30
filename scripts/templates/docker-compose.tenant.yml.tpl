@@ -115,9 +115,16 @@ services:
       # architecture policy — the shared service-account credentials would put
       # every tenant's fieldwork in one Drive account.
       GDRIVE_ENABLED: "false"
+      # Malware scanning for every upload. Tenants share the clamav service of
+      # the control-plane stack (backend/docker-compose.prod.yml), reached over
+      # rb_audit_network. The scanner keeps no tenant data, so sharing it does
+      # not cross tenants. If that stack is down, uploads here fail closed (503).
+      CLAMAV_ADDRESS: clamav:3310
+      CLAMAV_MODE: required
     volumes:
-      # Dedicated evidence silo. audit-service writes to ./uploads relative to
-      # its WORKDIR (/root), and serves it back at GET /uploads.
+      # Dedicated evidence silo, always <TENANT_STORAGE_ROOT>/<slug> (rendered
+      # by generate-tenant-stack.sh). audit-service writes to ./uploads relative
+      # to its WORKDIR (/root), and serves it back at GET /uploads.
       - __STORAGE_DIR__:/root/uploads
     command: ["./audit", "serve"]
     networks:
@@ -137,6 +144,10 @@ services:
       <<: *tenant-env
       DATABASE_NAME: rb_audit_master___SLUG__
       KAFKA_SERVICE_NAME: master-service-__SLUG__
+      # QA and consulting imports are scanned by the shared clamav service (see
+      # the audit-service note above). Fails closed when it is unreachable.
+      CLAMAV_ADDRESS: clamav:3310
+      CLAMAV_MODE: required
     command: ["./master", "serve"]
     networks:
       - rb_audit_network

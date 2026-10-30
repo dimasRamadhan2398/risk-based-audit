@@ -34,7 +34,7 @@
           class="w-full sm:w-64"
         />
 
-        <UButton
+        <UButton v-if="canWrite"
           color="primary"
           variant="solid"
           class="font-medium shadow-sm w-full sm:w-auto justify-center"
@@ -388,7 +388,7 @@
           <!-- Actions -->
           <template #actions-cell="{ row }">
             <div class="flex items-center justify-end gap-1">
-              <UTooltip :text="t('rcm.table.actions.edit')">
+              <UTooltip v-if="canWrite" :text="t('rcm.table.actions.edit')">
               <UButton
                 icon="i-lucide-edit-3"
                 color="neutral"
@@ -398,7 +398,7 @@
                 @click="openEditModal(row.original)"
               />
               </UTooltip>  
-              <UTooltip :text="t('rcm.table.actions.delete')">
+              <UTooltip v-if="canWrite" :text="t('rcm.table.actions.delete')">
               <UButton
                 icon="i-lucide-trash-2"
                 color="error"
@@ -511,6 +511,7 @@
               </span>
               <div class="flex items-center gap-1.5">
                 <UButton
+                  v-if="canWrite"
                   icon="i-lucide-edit-3"
                   color="neutral"
                   variant="soft"
@@ -519,6 +520,7 @@
                   @click="openEditModal(row)"
                 />
                 <UButton
+                  v-if="canWrite"
                   icon="i-lucide-trash-2"
                   color="error"
                   variant="soft"
@@ -545,6 +547,10 @@
               variant="outline"
               class="max-w-full overflow-x-auto"
             />
+          </div>
+        </div>
+      </div>
+    </div>
           </div>
         </div>
       </div>
@@ -884,6 +890,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useRbac } from '~/composables/useRbac'
 import { useI18n } from '~/composables/useI18n'
 import { useRCMStore, cosoDimensions, getEffectivenessInterpretation, getEffectivenessKey, type RCMItem } from '~/stores/rcm'
 import { getControlEffectivenessColorClass } from '~/utils/riskLevelBadge'
@@ -899,6 +906,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+const { canWrite } = useRbac()
 const rcmStore = useRCMStore()
 const riskProfileStore = useRiskProfileStore()
 const mitigationStore = useMitigationStore()

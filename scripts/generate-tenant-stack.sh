@@ -12,14 +12,17 @@
 #     .env                 secrets, mode 600, gitignored
 #
 # Usage:
-#   ./scripts/generate-tenant-stack.sh <slug> <client_name> [options]
+#   TENANT_STORAGE_ROOT=/var/data/auditsphere/storage \
+#     ./scripts/generate-tenant-stack.sh <slug> <client_name> [options]
+#
+# The evidence silo is always <TENANT_STORAGE_ROOT>/<slug>. TENANT_STORAGE_ROOT
+# must be set to an absolute path; the generator refuses to run without it.
 #
 # Options:
 #   --local                 Target <slug>.localhost, http, no API subdomain
 #   --fe-port <n>           Pin the frontend host port   (default: auto)
 #   --kong-port <n>         Pin the Kong proxy host port (default: auto)
 #   --kong-admin-port <n>   Pin the Kong admin host port (default: auto)
-#   --storage-dir <path>    Evidence silo host path      (default: per env)
 #   --base-domain <fqdn>    Parent domain for the tenant (default: auditsphere.app)
 #   --force                 Overwrite an existing tenant's generated files
 #
@@ -68,7 +71,6 @@ FORCE=false
 FE_PORT=""
 KONG_PORT=""
 KONG_ADMIN_PORT=""
-STORAGE_DIR=""
 
 while [ $# -gt 0 ]; do
     case $1 in
@@ -77,7 +79,6 @@ while [ $# -gt 0 ]; do
         --fe-port)          FE_PORT=${2:?"--fe-port needs a value"}; shift ;;
         --kong-port)        KONG_PORT=${2:?"--kong-port needs a value"}; shift ;;
         --kong-admin-port)  KONG_ADMIN_PORT=${2:?"--kong-admin-port needs a value"}; shift ;;
-        --storage-dir)      STORAGE_DIR=${2:?"--storage-dir needs a value"}; shift ;;
         --base-domain)      BASE_DOMAIN=${2:?"--base-domain needs a value"}; shift ;;
         *) die "unknown option: $1" ;;
     esac
@@ -91,18 +92,26 @@ done
 
 [ -d "$TEMPLATE_DIR" ] || die "template directory not found: $TEMPLATE_DIR"
 
+# Evidence silo root. Required: there is no default, so a tenant can never
+# silently land in a developer checkout or a path that a prod deploy does not
+# back up. Each tenant gets <root>/<slug> under it.
+[ -n "${TENANT_STORAGE_ROOT:-}" ] \
+    || die "TENANT_STORAGE_ROOT is not set. Set it to the absolute storage root, e.g. /var/data/auditsphere/storage"
+case "$TENANT_STORAGE_ROOT" in
+    /*) ;;
+    *) die "TENANT_STORAGE_ROOT must be an absolute path (got '$TENANT_STORAGE_ROOT')" ;;
+esac
+STORAGE_DIR="${TENANT_STORAGE_ROOT%/}/${SLUG}"
+
 if [ "$IS_LOCAL" = true ]; then
     PROTO="http"
     DOMAIN_HOST="${SLUG}.localhost"
     API_DOMAIN_HOST="localhost"
-    DEFAULT_STORAGE_DIR="$ROOT_DIR/backend/audit-service/uploads/${SLUG}"
 else
     PROTO="https"
     DOMAIN_HOST="${SLUG}.${BASE_DOMAIN}"
     API_DOMAIN_HOST="api-${SLUG}.${BASE_DOMAIN}"
-    DEFAULT_STORAGE_DIR="/var/data/auditsphere/storage/${SLUG}"
 fi
-STORAGE_DIR=${STORAGE_DIR:-$DEFAULT_STORAGE_DIR}
 
 # ── Registry ─────────────────────────────────────────────────────────────────
 # A TSV file is the interim registry. The tenant table in Postgres (step 3 of

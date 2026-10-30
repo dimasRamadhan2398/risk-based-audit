@@ -166,11 +166,10 @@ watch(() => store.isAddModalOpen, (open, wasOpen) => {
     </div>
 
     <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 w-full">
-      <UInput
+      <CommonSearchInput
         v-model="search"
-        icon="i-lucide-search"
         :placeholder="t('kpiPerformance.table.searchPlaceholder')"
-        class="w-full sm:w-64"
+        class="w-full sm:flex-1 sm:min-w-64"
       />
       <USelectMenu
         v-if="categoryItems.length"

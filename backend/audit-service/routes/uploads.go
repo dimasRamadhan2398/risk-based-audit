@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"audit-service/pkg/middleware"
 	"audit-service/pkg/safefile"
 
 	"github.com/gin-gonic/gin"
@@ -31,6 +32,7 @@ func RegisterUploads(engine *gin.Engine, root string, authenticate gin.HandlerFu
 			c.AbortWithStatus(http.StatusNotFound)
 		}
 	}
-	engine.GET("/uploads/*filepath", authenticate, handler)
-	engine.HEAD("/uploads/*filepath", authenticate, handler)
+	// VIEWER accounts may not read files at all.
+	engine.GET("/uploads/*filepath", authenticate, middleware.DenyViewer(), handler)
+	engine.HEAD("/uploads/*filepath", authenticate, middleware.DenyViewer(), handler)
 }

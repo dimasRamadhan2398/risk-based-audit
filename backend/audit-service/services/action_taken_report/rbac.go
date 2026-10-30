@@ -136,6 +136,20 @@ func IsAdmin(roles []string) bool {
 	return false
 }
 
+// HasCanonicalRole reports whether any of roles (as written in the JWT, any
+// spelling, see CanonicalRole) resolves to one of the canonical role names
+func HasCanonicalRole(roles []string, canonical ...string) bool {
+	for _, r := range roles {
+		c := CanonicalRole(r)
+		for _, want := range canonical {
+			if c == want {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 // List returns the held permission keys, sorted
 func (p Perms) List() []string {
 	out := make([]string, 0, len(p))

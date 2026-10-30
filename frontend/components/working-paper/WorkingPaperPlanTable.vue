@@ -27,7 +27,7 @@
 
             <template #actions-cell="{ row }">
                 <div class="flex gap-2">
-                  <UTooltip :text="t('workingPaper.common.edit')">
+                  <UTooltip v-if="canWrite" :text="t('workingPaper.common.edit')">
                     <UButton 
                         size="md" 
                         color="warning" 
@@ -36,7 +36,7 @@
                         @click="store.handleEditF05(row.original)" 
                     />
                   </UTooltip>
-                  <UTooltip :text="t('workingPaper.common.delete')">
+                  <UTooltip v-if="canWrite" :text="t('workingPaper.common.delete')">
                     <UButton 
                         size="md" 
                         color="error" 
@@ -53,10 +53,12 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { useWorkingPaperStore } from '~/stores/working-paper'
 import { useI18n } from '~/composables/useI18n'
 
 // Cukup inisialisasi store. Komponen akan otomatis membaca status showModal, data form, dan fungsi dari sini.
 const { t } = useI18n()
+const { canWrite } = useRbac()
 const store = useWorkingPaperStore()
 </script>

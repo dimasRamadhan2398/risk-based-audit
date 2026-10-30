@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import QAAddModal from '~/components/quality-assurance/QAAddModal.vue';
 
 import QAFilters from '~/components/quality-assurance/QAFilters.vue';
@@ -9,6 +10,7 @@ import { useQualityAssuranceStore } from '~/stores/quality-assurance'
 
 const store = useQualityAssuranceStore()
 const { t } = useI18n()
+const { canWriteQaConsulting } = useRbac()
 
 </script>
 
@@ -25,7 +27,7 @@ const { t } = useI18n()
         </p>
       </div>
       <div class="flex items-center gap-3 w-full sm:w-auto">
-        <UButton
+        <UButton v-if="canWriteQaConsulting"
           color="primary"
           :label="t('qualityAssurance.dashboard.addReport')"
           icon="i-lucide-plus"

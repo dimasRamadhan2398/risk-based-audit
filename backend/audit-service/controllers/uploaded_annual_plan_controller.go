@@ -2,16 +2,12 @@ package controllers
 
 import (
 	"fmt"
-	"io"
 	"net/http"
-	"net/url"
 	"os"
-	"path/filepath"
-	"strings"
-	"time"
 
 	"audit-service/models"
 	"audit-service/pkg/response"
+	"audit-service/pkg/upload"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -22,9 +18,10 @@ type UploadedAnnualPlanController struct {
 	DB *gorm.DB
 }
 
+const uploadedAnnualPlansDir = "./uploads/uploaded-annual-plans"
+
 func NewUploadedAnnualPlanController(db *gorm.DB) *UploadedAnnualPlanController {
-	uploadsDir := "./uploads/uploaded-annual-plans"
-	if err := os.MkdirAll(uploadsDir, 0755); err != nil {
+	if err := os.MkdirAll(uploadedAnnualPlansDir, 0750); err != nil {
 		fmt.Printf("Failed to create uploads directory: %v\n", err)
 	}
 	return &UploadedAnnualPlanController{DB: db}
@@ -42,6 +39,9 @@ type UploadAnnualPlanRequest struct {
 }
 
 func (ctrl *UploadedAnnualPlanController) Upload(c *gin.Context) {
+	if !beginDocumentUpload(c) {
+		return
+	}
 	title := c.PostForm("title")
 	description := c.PostForm("description")
 	fileName := c.PostForm("fileName")
@@ -52,42 +52,12 @@ func (ctrl *UploadedAnnualPlanController) Upload(c *gin.Context) {
 		return
 	}
 
-	file, err := c.FormFile("file") // Will use "file" as frontend will send "file"
-	if err != nil {
-		response.BadRequest(c, "file is required: "+err.Error())
+	dec, clientName, ok := readFormDocument(c, fileName)
+	if !ok {
 		return
 	}
-
-	openedFile, err := file.Open()
-	if err != nil {
-		response.InternalServerError(c, "failed to open file: "+err.Error())
-		return
-	}
-	defer openedFile.Close()
-
-	dec, err := io.ReadAll(openedFile)
-	if err != nil {
-		response.InternalServerError(c, "failed to read file: "+err.Error())
-		return
-	}
-
-	fileExt := filepath.Ext(fileName)
-	baseName := strings.TrimSuffix(fileName, fileExt)
-	if int64(len(dec)) > 10*1024*1024 {
-		response.BadRequest(c, "File size exceeds maximum limit of 10MB")
-		return
-	}
-
-	uniqueFileName := fmt.Sprintf("%s-%d%s", baseName, time.Now().UnixNano(), fileExt)
-
-	uploadsDir := "./uploads/uploaded-annual-plans"
-	if err := os.MkdirAll(uploadsDir, 0755); err != nil {
-		response.InternalServerError(c, "Failed to create uploads directory: "+err.Error())
-		return
-	}
-	filePath := filepath.Join(uploadsDir, uniqueFileName)
-	if err := os.WriteFile(filePath, dec, 0644); err != nil {
-		response.InternalServerError(c, "Failed to write file to storage: "+err.Error())
+	name, filePath, ok := saveDocument(c, uploadedAnnualPlansDir, clientName, dec)
+	if !ok {
 		return
 	}
 
@@ -95,7 +65,7 @@ func (ctrl *UploadedAnnualPlanController) Upload(c *gin.Context) {
 		ID:          uuid.New(),
 		Title:       title,
 		Description: description,
-		FileName:    fileName,
+		FileName:    name,
 		FilePath:    filePath,
 		FileSize:    int64(len(dec)),
 		FileContent: dec,
@@ -103,8 +73,8 @@ func (ctrl *UploadedAnnualPlanController) Upload(c *gin.Context) {
 	}
 
 	if err := ctrl.DB.Create(&doc).Error; err != nil {
-		os.Remove(filePath)
-		response.InternalServerError(c, "Failed to save record to database: "+err.Error())
+		removeDocumentFile(filePath)
+		response.InternalServerError(c, "Failed to save record to database")
 		return
 	}
 
@@ -143,9 +113,7 @@ func (ctrl *UploadedAnnualPlanController) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := os.Remove(doc.FilePath); err != nil {
-		fmt.Printf("Warning: Failed to delete physical file %s: %v\n", doc.FilePath, err)
-	}
+	removeDocumentFile(doc.FilePath)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -153,78 +121,32 @@ func (ctrl *UploadedAnnualPlanController) Delete(c *gin.Context) {
 	})
 }
 
-func (ctrl *UploadedAnnualPlanController) Download(c *gin.Context) {
-	idParam := c.Param("id")
-	id, err := uuid.Parse(idParam)
+func (ctrl *UploadedAnnualPlanController) find(c *gin.Context) (*models.UploadedAnnualPlan, bool) {
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		response.BadRequest(c, "Invalid document ID")
-		return
+		return nil, false
 	}
-
 	var doc models.UploadedAnnualPlan
 	if err := ctrl.DB.First(&doc, "id = ?", id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			response.NotFound(c, "Uploaded annual audit plan document not found")
-			return
+			return nil, false
 		}
 		response.InternalServerError(c, "Failed to fetch document")
-		return
+		return nil, false
 	}
+	return &doc, true
+}
 
-	contentType := getDocumentContentType(doc.FileName, doc.FileType)
-	encodedFileName := url.PathEscape(doc.FileName)
-
-	c.Header("Content-Description", "File Transfer")
-	c.Header("Content-Transfer-Encoding", "binary")
-	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"; filename*=UTF-8''%s", doc.FileName, encodedFileName))
-	c.Header("Content-Type", contentType)
-
-	if len(doc.FileContent) > 0 {
-		c.Data(http.StatusOK, contentType, doc.FileContent)
-		return
+func (ctrl *UploadedAnnualPlanController) Download(c *gin.Context) {
+	if doc, ok := ctrl.find(c); ok {
+		upload.Serve(c, doc.FileName, doc.FileContent, doc.FilePath, false)
 	}
-
-	if _, err := os.Stat(doc.FilePath); os.IsNotExist(err) {
-		response.NotFound(c, "Physical file not found on server")
-		return
-	}
-
-	c.File(doc.FilePath)
 }
 
 func (ctrl *UploadedAnnualPlanController) View(c *gin.Context) {
-	idParam := c.Param("id")
-	id, err := uuid.Parse(idParam)
-	if err != nil {
-		response.BadRequest(c, "Invalid annual audit plan document ID")
-		return
+	if doc, ok := ctrl.find(c); ok {
+		upload.Serve(c, doc.FileName, doc.FileContent, doc.FilePath, true)
 	}
-
-	var doc models.UploadedAnnualPlan
-	if err := ctrl.DB.First(&doc, "id = ?", id).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			response.NotFound(c, "Uploaded annual audit plan document not found")
-			return
-		}
-		response.InternalServerError(c, "Failed to fetch document")
-		return
-	}
-
-	contentType := getDocumentContentType(doc.FileName, doc.FileType)
-	encodedFileName := url.PathEscape(doc.FileName)
-
-	c.Header("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"; filename*=UTF-8''%s", doc.FileName, encodedFileName))
-	c.Header("Content-Type", contentType)
-
-	if len(doc.FileContent) > 0 {
-		c.Data(http.StatusOK, contentType, doc.FileContent)
-		return
-	}
-
-	if _, err := os.Stat(doc.FilePath); os.IsNotExist(err) {
-		response.NotFound(c, "Physical file not found on server")
-		return
-	}
-
-	c.File(doc.FilePath)
 }

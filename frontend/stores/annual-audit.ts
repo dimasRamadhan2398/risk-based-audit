@@ -12,6 +12,8 @@ import { getFiscalYearStrings } from '~/composables/useFiscalYear'
 import { useDepartmentApi } from '~/composables/useDepartmentApi'
 import { buildAnnualPlanPayload, sumActivityMandays, toCount } from '~/utils/annualPlanPayload'
 import { parseApiError, translateApiError } from '~/utils/activityPlanForm'
+import { buildCorporateUniverseNameMap } from '~/utils/auditableEntityOptions'
+import { useAuditUniverseStore } from '~/stores/audit-universe'
 
 /** Outcome of deletePlan: deleted, deactivated (the plan is in use), or null when nothing was done. */
 export type DeletePlanResult = 'deleted' | 'deactivated' | null
@@ -136,6 +138,28 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     }
   }
 
+  // Display fallback for the department and risk name snapshots. The server fills them from a
+  // lookup that only the Department / Audit Universe events feed, so a row can come back with
+  // only departmentId / auditUniverseId. The snapshot wins when set; otherwise the id is resolved
+  // against the master-data departments (fetchDepartmentOptions) and the corporate Audit Universe
+  // (loaded by AnnualAuditForm on mount). Display only: the row and the PUT body are not changed.
+  const auditUniverseStore = useAuditUniverseStore()
+  const normRefId = (id?: string | null) => (id || '').trim().toLowerCase()
+  const departmentNameById = computed(() => new Map(departments.value.map(d => [normRefId(d.id), d.name])))
+  const universeNameById = computed(() => buildCorporateUniverseNameMap(auditUniverseStore.corporateUniverse))
+
+  const activityDepartmentName = (act?: Partial<AuditActivities> | null): string => {
+    if (!act) return ''
+    const dept = act.department as unknown
+    const snapshot = typeof dept === 'string' ? dept : (dept as { name?: string } | null)?.name
+    return snapshot || departmentNameById.value.get(normRefId(act.departmentId)) || ''
+  }
+
+  const activityRiskName = (act?: Partial<AuditActivities> | null): string => {
+    if (!act) return ''
+    return act.riskName || universeNameById.value.get(normRefId(act.auditUniverseId)) || ''
+  }
+
   // riskName, riskLevel and department are server snapshots: they are read as they come
   // and never rewritten here, so a refreshed value from Kafka shows as is.
   // activityCode, justification, auditObjective and auditFocus are legacy values (moved to the
@@ -190,7 +214,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
         || (plan.activities || []).some(act => (act.name || '').toLowerCase().includes(searchCode.value.toLowerCase()))
 
       const matchDept = !selectedDepartment.value
-        || (plan.activities || []).some(act => act.department === selectedDepartment.value)
+        || (plan.activities || []).some(act => activityDepartmentName(act) === selectedDepartment.value)
 
       const matchStatus = !selectedStatus.value || plan.status === selectedStatus.value
 
@@ -929,6 +953,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     filteredPlans, totalMandays, scheduleWarning, utilizationData,
     computedQuarters, paginations, pagination: paginations,
     clearFilters, openViewModal, closeViewModal, departmentOptions, departments, departmentOptionsLoading, fetchDepartmentOptions, statusOptions,
+    activityDepartmentName, activityRiskName,
     toggleMonth, addActivity, removeActivity, handleDownload,
     openModal, closeModal, handleSubmit, handleEdit, handleEditFromView, handleDelete,
     getStatusColor, getStatusLabel, handleFileChange, fetchPlans, fetchAnnualPlans: fetchPlans,

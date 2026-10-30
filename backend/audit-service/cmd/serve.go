@@ -284,12 +284,33 @@ func runServe(cmd *cobra.Command, args []string) error {
 	addr := fmt.Sprintf(":%d", cfg.Server.Port)
 	logger.Info("Starting Audit Service HTTP server", logger.LogField("address", addr))
 
+	// Background only, after an initial delay; never blocks or fails boot.
+	startSnapshotReconcile(db)
+
 	if err := engine.Run(addr); err != nil {
 		logger.Fatal("Failed to start server", logger.LogField("error", err))
 		return err
 	}
 
 	return nil
+}
+
+// startSnapshotReconcile refreshes annual_snapshot_refs from master-service and
+// risk-service and fills empty PKAT snapshots, once, in the background
+// (services/annual_plan_sync.RunStartupReconcile): it waits for the siblings
+// to start, retries with backoff, and only logs a failure. It covers the
+// departments and Audit Universe nodes the seeders insert without publishing
+// events. Off with ANNUAL_SNAPSHOT_RECONCILE_ON_START=false. Only "serve" runs
+// it; migrate and seed never do.
+func startSnapshotReconcile(db *gorm.DB) {
+	if !cfg.AnnualSnapshotReconcile.OnStart {
+		logger.Info("Annual snapshot startup reconcile disabled (annual_snapshot_reconcile.on_start=false)")
+		return
+	}
+	load := startupSnapshotLoader(db, cfg.JWT.Secret)
+	go func() {
+		_ = annualPlanSync.RunStartupReconcile(context.Background(), db, load, annualPlanSync.DefaultStartupOptions())
+	}()
 }
 
 // startAnnualPlanSync consumes Audit Universe and Department events and applies

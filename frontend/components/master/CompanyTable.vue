@@ -1,9 +1,13 @@
 <template>
-  <UCard class="rounded-xl shadow overflow-hidden" variant="soft" color="primary">
+  <UCard
+    class="rounded-xl shadow overflow-hidden"
+    variant="soft"
+    color="primary"
+  >
     <template #header>
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h2 class="text-lg font-bold">{{ t('masterData.company.list') }}</h2>
-        <UButton
+        <UButton v-if="canWriteMasterData"
           :label="t('masterData.company.add')"
           icon="i-heroicons-plus"
           color="primary"
@@ -14,36 +18,42 @@
     </template>
 
     <!-- Search & Filter -->
-    <div class="mb-4 flex flex-wrap gap-2 sm:gap-4 items-center">
-      <UInput
+    <div class="mb-4 flex flex-wrap gap-2 sm:gap-4 items-center w-full">
+      <CommonSearchInput
         v-model="searchInput"
         :placeholder="t('masterData.company.searchPlaceholder')"
-        icon="i-heroicons-magnifying-glass"
         class="w-full sm:w-72"
         @keyup.enter="handleSearch"
-      >
-        <template v-if="searchInput" #trailing>
-          <UButton
-            color="neutral"
-            variant="ghost"
-            size="xs"
-            icon="i-heroicons-x-mark"
-            aria-label="Clear search"
-            @click="resetSearch"
-          />
-        </template>
-      </UInput>
-      
+        @clear="handleSearch"
+      />
+      <UButton
+        :label="t('masterData.company.search')"
+        color="primary"
+        variant="soft"
+        @click="handleSearch"
+      />
+      <UButton
+        :label="t('masterData.company.reset')"
+        color="neutral"
+        variant="outline"
+        @click="resetSearch"
+      />
     </div>
 
 
     <!-- Loading State -->
-    <div v-if="store.loading" class="flex justify-center py-8">
+    <div
+      v-if="store.loading"
+      class="flex justify-center py-8"
+    >
       <ULoadingIcon />
     </div>
 
     <!-- Error State -->
-    <div v-else-if="store.errorMsg" class="py-4">
+    <div
+      v-else-if="store.errorMsg"
+      class="py-4"
+    >
       <UAlert
         color="error"
         variant="soft"
@@ -53,9 +63,17 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="store.companies.length === 0" class="py-8 text-center">
-      <UIcon name="i-heroicons-building-office-2" class="text-4xl text-gray-400 mb-2" />
-      <p class="text-gray-500">{{ t('masterData.company.empty') }}</p>
+    <div
+      v-else-if="store.companies.length === 0"
+      class="py-8 text-center"
+    >
+      <UIcon
+        name="i-heroicons-building-office-2"
+        class="text-4xl text-gray-400 mb-2"
+      />
+      <p class="text-gray-500">
+        {{ t('masterData.company.empty') }}
+      </p>
     </div>
 
     <!-- Table & Pagination via TableEntities -->
@@ -125,17 +143,19 @@
           <template #actions-cell="{ row }">
             <div class="flex gap-1">
               <UButton
+                v-if="canWriteMasterData"
                 icon="i-heroicons-pencil"
                 color="primary"
                 variant="ghost"
-                size="md"
+                size="sm"
                 @click="store.handleEdit(row.original)"
               />
               <UButton
+                v-if="canWriteMasterData"
                 icon="i-heroicons-trash"
                 color="error"
                 variant="ghost"
-                size="md"
+                size="sm"
                 @click="store.handleDelete(row.original)"
               />
             </div>
@@ -197,6 +217,7 @@
             </span>
             <div class="flex items-center gap-1">
               <UButton
+                v-if="canWriteMasterData"
                 icon="i-heroicons-pencil"
                 color="warning"
                 variant="ghost"
@@ -204,6 +225,7 @@
                 @click="store.handleEdit(company)"
               />
               <UButton
+                v-if="canWriteMasterData"
                 icon="i-heroicons-trash"
                 color="error"
                 variant="ghost"
@@ -237,10 +259,12 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { useCompanyStore } from '~/stores/company'
 
 const store = useCompanyStore()
 const { t } = useI18n()
+const { canWriteMasterData } = useRbac()
 
 const searchInput = ref(store.search)
 

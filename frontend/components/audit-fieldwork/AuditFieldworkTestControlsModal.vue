@@ -235,7 +235,7 @@
         <div class="p-4 border-t border-[var(--border-main)] bg-[var(--bg-surface)] flex justify-end gap-2">
           <template v-if="store.isReadOnlyTestControl">
             <UButton color="neutral" variant="soft" :label="t('common.close') || 'Tutup'" @click="store.showTestControlModal = false" />
-            <UButton
+            <UButton v-if="canWrite"
               color="primary"
               icon="i-heroicons-pencil-square"
               :label="t('common.edit') || 'Ubah'"
@@ -253,6 +253,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
 import { formatDate } from '~/utils/dateConverter'
@@ -260,6 +261,7 @@ import { getControlEffectivenessColorClass } from '~/utils/riskLevelBadge'
 
 const store = useAuditFieldworkStore()
 const { t } = useI18n()
+const { canWrite } = useRbac()
 
 const switchToEditMode = () => {
   store.isReadOnlyTestControl = false

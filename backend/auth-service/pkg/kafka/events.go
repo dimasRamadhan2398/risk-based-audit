@@ -47,6 +47,8 @@ const (
 	EventNewDeviceLogin    EventType = "security.new_device"
 	EventTrustedDeviceAdded EventType = "device.trusted_added"
 	EventTrustedDeviceRemoved EventType = "device.trusted_removed"
+	// EventStepUp is emitted for every POST /auth/verify-password attempt.
+	EventStepUp EventType = "security.step_up"
 )
 
 // Event represents a generic auth event

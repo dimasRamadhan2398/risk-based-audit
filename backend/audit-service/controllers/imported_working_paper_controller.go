@@ -2,16 +2,12 @@ package controllers
 
 import (
 	"fmt"
-	"io"
 	"net/http"
-	"net/url"
 	"os"
-	"path/filepath"
-	"strings"
-	"time"
 
 	"audit-service/models"
 	"audit-service/pkg/response"
+	"audit-service/pkg/upload"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -22,9 +18,10 @@ type ImportedWorkingPaperController struct {
 	DB *gorm.DB
 }
 
+const importedWorkingPapersDir = "./uploads/imported-working-papers"
+
 func NewImportedWorkingPaperController(db *gorm.DB) *ImportedWorkingPaperController {
-	uploadsDir := "./uploads/imported-working-papers"
-	if err := os.MkdirAll(uploadsDir, 0755); err != nil {
+	if err := os.MkdirAll(importedWorkingPapersDir, 0750); err != nil {
 		fmt.Printf("Failed to create uploads directory: %v\n", err)
 	}
 	return &ImportedWorkingPaperController{DB: db}
@@ -39,6 +36,9 @@ type ImportRequest struct {
 }
 
 func (ctrl *ImportedWorkingPaperController) Import(c *gin.Context) {
+	if !beginDocumentUpload(c) {
+		return
+	}
 	title := c.PostForm("title")
 	description := c.PostForm("description")
 	fileName := c.PostForm("fileName")
@@ -49,49 +49,12 @@ func (ctrl *ImportedWorkingPaperController) Import(c *gin.Context) {
 		return
 	}
 
-	file, err := c.FormFile("file") // Will use "file" as frontend will send "file"
-	if err != nil {
-		response.BadRequest(c, "file is required: "+err.Error())
+	dec, clientName, ok := readFormDocument(c, fileName)
+	if !ok {
 		return
 	}
-
-	openedFile, err := file.Open()
-	if err != nil {
-		response.InternalServerError(c, "failed to open file: "+err.Error())
-		return
-	}
-	defer openedFile.Close()
-
-	dec, err := io.ReadAll(openedFile)
-	if err != nil {
-		response.InternalServerError(c, "failed to read file: "+err.Error())
-		return
-	}
-
-	if int64(len(dec)) > 10*1024*1024 {
-		response.BadRequest(c, "File size exceeds maximum limit of 10MB")
-		return
-	}
-
-	if int64(len(dec)) > 10*1024*1024 {
-		response.BadRequest(c, "File size exceeds maximum limit of 10MB")
-		return
-	}
-
-	// Generate a unique filename to avoid overwrites
-	fileExt := filepath.Ext(fileName)
-	baseName := strings.TrimSuffix(fileName, fileExt)
-	uniqueFileName := fmt.Sprintf("%s-%d%s", baseName, time.Now().UnixNano(), fileExt)
-
-	// Save file to disk
-	uploadsDir := "./uploads/imported-working-papers"
-	if err := os.MkdirAll(uploadsDir, 0755); err != nil {
-		response.InternalServerError(c, "Failed to create uploads directory: "+err.Error())
-		return
-	}
-	filePath := filepath.Join(uploadsDir, uniqueFileName)
-	if err := os.WriteFile(filePath, dec, 0644); err != nil {
-		response.InternalServerError(c, "Failed to write file to storage: "+err.Error())
+	name, filePath, ok := saveDocument(c, importedWorkingPapersDir, clientName, dec)
+	if !ok {
 		return
 	}
 
@@ -100,7 +63,7 @@ func (ctrl *ImportedWorkingPaperController) Import(c *gin.Context) {
 		ID:          uuid.New(),
 		Title:       title,
 		Description: description,
-		FileName:    fileName,
+		FileName:    name,
 		FilePath:    filePath,
 		FileSize:    int64(len(dec)),
 		FileContent: dec,
@@ -108,8 +71,8 @@ func (ctrl *ImportedWorkingPaperController) Import(c *gin.Context) {
 	}
 
 	if err := ctrl.DB.Create(&paper).Error; err != nil {
-		os.Remove(filePath)
-		response.InternalServerError(c, "Failed to save record to database: "+err.Error())
+		removeDocumentFile(filePath)
+		response.InternalServerError(c, "Failed to save record to database")
 		return
 	}
 
@@ -125,32 +88,36 @@ func (ctrl *ImportedWorkingPaperController) List(c *gin.Context) {
 	response.OK(c, "Imported working papers retrieved successfully", papers)
 }
 
-func (ctrl *ImportedWorkingPaperController) Delete(c *gin.Context) {
-	idParam := c.Param("id")
-	id, err := uuid.Parse(idParam)
+func (ctrl *ImportedWorkingPaperController) find(c *gin.Context) (*models.ImportedWorkingPaper, bool) {
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		response.BadRequest(c, "Invalid working paper ID")
-		return
+		return nil, false
 	}
-
 	var paper models.ImportedWorkingPaper
 	if err := ctrl.DB.First(&paper, "id = ?", id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			response.NotFound(c, "Imported working paper not found")
-			return
+			return nil, false
 		}
 		response.InternalServerError(c, "Failed to fetch imported working paper")
+		return nil, false
+	}
+	return &paper, true
+}
+
+func (ctrl *ImportedWorkingPaperController) Delete(c *gin.Context) {
+	paper, ok := ctrl.find(c)
+	if !ok {
 		return
 	}
 
-	if err := ctrl.DB.Delete(&paper).Error; err != nil {
+	if err := ctrl.DB.Delete(paper).Error; err != nil {
 		response.InternalServerError(c, "Failed to delete imported working paper record")
 		return
 	}
 
-	if err := os.Remove(paper.FilePath); err != nil {
-		fmt.Printf("Warning: Failed to delete physical file %s: %v\n", paper.FilePath, err)
-	}
+	removeDocumentFile(paper.FilePath)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -159,77 +126,13 @@ func (ctrl *ImportedWorkingPaperController) Delete(c *gin.Context) {
 }
 
 func (ctrl *ImportedWorkingPaperController) Download(c *gin.Context) {
-	idParam := c.Param("id")
-	id, err := uuid.Parse(idParam)
-	if err != nil {
-		response.BadRequest(c, "Invalid working paper ID")
-		return
+	if paper, ok := ctrl.find(c); ok {
+		upload.Serve(c, paper.FileName, paper.FileContent, paper.FilePath, false)
 	}
-
-	var paper models.ImportedWorkingPaper
-	if err := ctrl.DB.First(&paper, "id = ?", id).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			response.NotFound(c, "Imported working paper not found")
-			return
-		}
-		response.InternalServerError(c, "Failed to fetch imported working paper")
-		return
-	}
-
-	contentType := getDocumentContentType(paper.FileName, paper.FileType)
-	encodedFileName := url.PathEscape(paper.FileName)
-
-	c.Header("Content-Description", "File Transfer")
-	c.Header("Content-Transfer-Encoding", "binary")
-	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"; filename*=UTF-8''%s", paper.FileName, encodedFileName))
-	c.Header("Content-Type", contentType)
-
-	if len(paper.FileContent) > 0 {
-		c.Data(http.StatusOK, contentType, paper.FileContent)
-		return
-	}
-
-	if _, err := os.Stat(paper.FilePath); os.IsNotExist(err) {
-		response.NotFound(c, "Physical file not found on server")
-		return
-	}
-
-	c.File(paper.FilePath)
 }
 
 func (ctrl *ImportedWorkingPaperController) View(c *gin.Context) {
-	idParam := c.Param("id")
-	id, err := uuid.Parse(idParam)
-	if err != nil {
-		response.BadRequest(c, "Invalid imported working paper ID")
-		return
+	if paper, ok := ctrl.find(c); ok {
+		upload.Serve(c, paper.FileName, paper.FileContent, paper.FilePath, true)
 	}
-
-	var paper models.ImportedWorkingPaper
-	if err := ctrl.DB.First(&paper, "id = ?", id).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			response.NotFound(c, "Imported working paper not found")
-			return
-		}
-		response.InternalServerError(c, "Failed to fetch imported working paper")
-		return
-	}
-
-	contentType := getDocumentContentType(paper.FileName, paper.FileType)
-	encodedFileName := url.PathEscape(paper.FileName)
-
-	c.Header("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"; filename*=UTF-8''%s", paper.FileName, encodedFileName))
-	c.Header("Content-Type", contentType)
-
-	if len(paper.FileContent) > 0 {
-		c.Data(http.StatusOK, contentType, paper.FileContent)
-		return
-	}
-
-	if _, err := os.Stat(paper.FilePath); os.IsNotExist(err) {
-		response.NotFound(c, "Physical file not found on server")
-		return
-	}
-
-	c.File(paper.FilePath)
 }

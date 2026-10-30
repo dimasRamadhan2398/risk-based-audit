@@ -1,16 +1,16 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"time"
 
 	ctrlAnnualPlan "audit-service/controllers/annual_plan"
 	"audit-service/models"
+	"audit-service/pkg/config"
 	"audit-service/pkg/database"
 	"audit-service/pkg/logger"
+	"audit-service/pkg/servicetoken"
 	atrsvc "audit-service/services/action_taken_report"
-	"audit-service/services/annual_plan_sync"
 
 	"github.com/spf13/cobra"
 	"gorm.io/gorm"
@@ -97,16 +97,41 @@ Department and Audit Universe events fill (table annual_snapshot_refs).
 A field that already has a value is never changed. Idempotent: a second run
 changes nothing.
 
-The lookup only knows what the events delivered. Its rows are seeded by the
-resync endpoints of master-service (POST /api/v1/departments/events/resync) and
-risk-service (POST /api/v1/audit-universe/events/resync), which re-publish the
-current state. Run those first, wait for the sync consumer to catch up, then run
-this command. Use --dry-run to report the counts and roll back.
+Without --from-source the lookup only knows what the events delivered, and
+departments / Audit Universe nodes seeded straight into master-service and
+risk-service were never published.
 
-Usage: audit migrate backfill-annual-snapshots [--dry-run]`,
+--from-source first refreshes the lookup from the sources of this stack
+(master-service GET /api/v1/departments, risk-service GET
+/api/v1/audit-universe/corporate and /audit-universe/year/:year for every year
+that has a plan) and then fills the plans. The lookup is upserted with the same
+rules as the event sync: a name / risk level is set to the source's current
+value, a blank value is never written, nothing is deleted. Only
+annual_snapshot_refs and the department / riskName / riskLevel of plan
+activities are written, in one transaction.
+
+Both services require a JWT. By default --from-source signs a 5-minute
+service token (subject system:audit-service, no roles) with this stack's
+jwt.secret, so no token is needed:
+  docker exec <audit container> ./audit migrate backfill-annual-snapshots --from-source --dry-run
+To present a user JWT instead, set ` + servicetoken.OverrideEnv + ` ("Bearer " prefix
+optional) and pass it by name so it stays out of the command line:
+  export ` + servicetoken.OverrideEnv + `=<jwt>
+  docker exec -e ` + servicetoken.OverrideEnv + ` <audit container> ./audit migrate backfill-annual-snapshots --from-source
+If any source call fails nothing is written.
+
+"serve" runs the same reconcile once in the background after start-up
+(disable with ` + config.AnnualSnapshotReconcileOnStartEnv + `=false). Runs are
+serialised by a Postgres advisory lock; a run that finds it taken stops.
+
+Use --dry-run to report the counts and roll back.
+
+Usage: audit migrate backfill-annual-snapshots [--from-source] [--dry-run]`,
 		RunE: runBackfillAnnualSnapshots,
 	}
 	backfillSnapshotsCmd.Flags().BoolVar(&backfillSnapshotsDryRun, "dry-run", false, "Report what would be filled and roll back")
+	backfillSnapshotsCmd.Flags().BoolVar(&backfillSnapshotsFromSource, "from-source", false,
+		"Refresh annual_snapshot_refs from master-service and risk-service first (self-signed service token, or "+servicetoken.OverrideEnv+")")
 
 	migrateCmd.AddCommand(upCmd, downCmd, statusCmd, backfillCmd, backfillSnapshotsCmd)
 
@@ -306,8 +331,6 @@ func migrateATR(db *gorm.DB) error {
 
 var backfillDryRun bool
 
-var backfillSnapshotsDryRun bool
-
 // runBackfillATR creates the missing ATRs of every approved LHA
 func runBackfillATR(cmd *cobra.Command, args []string) error {
 	initLogger()
@@ -345,43 +368,6 @@ func runBackfillATR(cmd *cobra.Command, args []string) error {
 		logger.LogField("approved_reports", res.ApprovedReports),
 		logger.LogField("atrs_created", res.CreatedATRs),
 		logger.LogField("atrs_cancelled_finding_removed", res.CancelledATRs))
-	return nil
-}
-
-func runBackfillAnnualSnapshots(cmd *cobra.Command, args []string) error {
-	initLogger()
-	defer logger.Sync()
-
-	db, err := database.NewPostgresConnection(&cfg.Database)
-	if err != nil {
-		logger.Fatal("Failed to connect to database", logger.LogField("error", err))
-		return err
-	}
-
-	errDryRun := fmt.Errorf("dry run")
-	var res annual_plan_sync.BackfillResult
-	err = db.Transaction(func(tx *gorm.DB) error {
-		var err error
-		res, err = annual_plan_sync.BackfillSnapshots(context.Background(), tx)
-		if err != nil {
-			return err
-		}
-		if backfillSnapshotsDryRun {
-			return errDryRun
-		}
-		return nil
-	})
-	if err != nil && err != errDryRun {
-		logger.Error("Annual snapshot backfill failed", logger.LogField("error", err))
-		return err
-	}
-	msg := "Annual snapshot backfill completed"
-	if backfillSnapshotsDryRun {
-		msg = "Annual snapshot backfill DRY RUN (rolled back, nothing written)"
-	}
-	logger.Info(msg,
-		logger.LogField("plans_changed", res.PlansChanged),
-		logger.LogField("fields_filled", res.FieldsFilled))
 	return nil
 }
 

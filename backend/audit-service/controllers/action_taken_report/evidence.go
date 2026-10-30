@@ -13,6 +13,7 @@ import (
 
 	"audit-service/models"
 	"audit-service/pkg/response"
+	"audit-service/pkg/upload"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -191,6 +192,14 @@ func (ctl *Controller) UploadEvidence(c *gin.Context) {
 		return
 	}
 
+	// Content must match the extension, and the file must pass the malware
+	// scan, before the evidence row (and with it the download) exists.
+	if e := checkStoredEvidence(c, path, ext, name); e != nil {
+		_ = os.Remove(path)
+		upload.Respond(c, e)
+		return
+	}
+
 	contentType := fh.Header.Get("Content-Type")
 	if len(contentType) > 150 {
 		contentType = ""
@@ -212,6 +221,25 @@ func (ctl *Controller) UploadEvidence(c *gin.Context) {
 		return
 	}
 	ctl.respondOne(c, a, r.ID, "Evidence uploaded")
+}
+
+// checkStoredEvidence checks the magic bytes of the written file against its
+// extension and streams it through the malware scanner.
+func checkStoredEvidence(c *gin.Context, path, ext, name string) *upload.Error {
+	f, err := os.Open(path)
+	if err != nil {
+		return &upload.Error{Status: http.StatusInternalServerError, Code: "INTERNAL_ERROR", Message: "Failed to store the file"}
+	}
+	defer f.Close()
+	head := make([]byte, 1024)
+	n, _ := io.ReadFull(f, head)
+	if e := upload.CheckContent(ext, head[:n]); e != nil {
+		return e
+	}
+	if _, err := f.Seek(0, io.SeekStart); err != nil {
+		return &upload.Error{Status: http.StatusInternalServerError, Code: "INTERNAL_ERROR", Message: "Failed to store the file"}
+	}
+	return upload.ScanReader(c.Request.Context(), "ATR evidence "+name, f)
 }
 
 // DownloadEvidence sends an evidence file to a caller who may view the ATR.

@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen flex">
     <UDashboardGroup>
-      <UDashboardSidebar 
+      <UDashboardSidebar
         id="settings-sidebar"
         resizable
         :min-size="12"
@@ -10,7 +10,9 @@
       >
         <template #header>
           <div>
-            <h2 class="text-base font-bold text-gray-900 dark:text-white">{{ t('settings.sidebar.accountSettings') }}</h2>
+            <h2 class="text-base font-bold text-gray-900 dark:text-white">
+              {{ t('settings.sidebar.accountSettings') }}
+            </h2>
           </div>
         </template>
 
@@ -27,16 +29,27 @@
           <div class="w-full border-t border-gray-200 dark:border-gray-800 px-3 py-3">
             <div class="flex items-center gap-2.5 min-w-0">
               <div class="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-extrabold text-xs shrink-0 shadow-xs overflow-hidden">
-                <img v-if="authStore.user?.avatarUrl" :src="authStore.user.avatarUrl" alt="" class="w-full h-full object-cover">
+                <img
+                  v-if="authStore.user?.avatarUrl"
+                  :src="authStore.user.avatarUrl"
+                  alt=""
+                  class="w-full h-full object-cover"
+                >
                 <template v-else>
                   {{ userInitial }}
                 </template>
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-xs font-bold text-gray-900 dark:text-white truncate leading-tight" :title="authStore.user?.fullName || authStore.user?.username || 'User'">
+                <p
+                  class="text-xs font-bold text-gray-900 dark:text-white truncate leading-tight"
+                  :title="authStore.user?.fullName || authStore.user?.username || 'User'"
+                >
                   {{ authStore.user?.fullName || authStore.user?.username || 'User' }}
                 </p>
-                <p class="text-[11px] text-gray-400 dark:text-gray-400 truncate leading-tight mt-0.5" :title="authStore.user?.email || 'user@example.com'">
+                <p
+                  class="text-[11px] text-gray-400 dark:text-gray-400 truncate leading-tight mt-0.5"
+                  :title="authStore.user?.email || 'user@example.com'"
+                >
                   {{ authStore.user?.email || 'user@example.com' }}
                 </p>
               </div>
@@ -59,8 +72,10 @@
               >
                 {{ t('common.back') }}
               </UButton>
-              <div class="h-4 w-px bg-gray-200 dark:bg-gray-700 shrink-0"></div>
-              <h1 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">{{ currentPageTitle }}</h1>
+              <div class="h-4 w-px bg-gray-200 dark:bg-gray-700 shrink-0" />
+              <h1 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white truncate">
+                {{ currentPageTitle }}
+              </h1>
             </div>
           </div>
           <!-- Mobile & Tablet Scrollable Tab Bar (visible on < lg when sidebar is hidden) -->
@@ -75,7 +90,10 @@
                 : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'"
               @click="selectTab(link.slot as string)"
             >
-              <UIcon :name="link.icon" class="size-4" />
+              <UIcon
+                :name="link.icon"
+                class="size-4"
+              />
               <span>{{ link.label }}</span>
             </button>
           </div>
@@ -113,11 +131,6 @@
               <SettingsDataSource />
             </div>
 
-            <!-- Email Service Section -->
-            <div v-if="activeTab === 'email'">
-              <SettingsEmail />
-            </div>
-
             <!-- FAQ Section -->
             <div v-if="activeTab === 'faq'">
               <SettingsFaq />
@@ -132,6 +145,7 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
 import { useAuthStore } from '~/stores/auth'
+import { getSettingsTabs, resolveSettingsTab } from '~/utils/viewerPolicy'
 
 definePageMeta({
   middleware: 'auth',
@@ -141,8 +155,8 @@ definePageMeta({
     mode: 'in-out',
     type: 'animation',
     duration: 500,
-    appear: true,
-  },
+    appear: true
+  }
 })
 
 const route = useRoute()
@@ -150,24 +164,29 @@ const router = useRouter()
 const authStore = useAuthStore()
 const { t } = useI18n()
 
-const validTabs = ['profile', 'settings', 'mfa', 'activity', 'permissions', 'datasource', 'email', 'faq']
-const initialTab = computed(() => {
-  const tabQuery = route.query.tab as string
-  return validTabs.includes(tabQuery) ? tabQuery : 'profile'
-})
+// VIEWER only gets profile, activity and faq; other roles keep every tab.
+const { isViewer } = useRbac()
+const validTabs = computed(() => getSettingsTabs(isViewer.value))
+const initialTab = computed(() => resolveSettingsTab(route.query.tab, isViewer.value))
 
 const activeTab = ref(initialTab.value)
 
 watch(
   () => route.query.tab,
   (newTab) => {
-    if (newTab && typeof newTab === 'string' && validTabs.includes(newTab)) {
-      activeTab.value = newTab
+    if (newTab && typeof newTab === 'string') {
+      activeTab.value = resolveSettingsTab(newTab, isViewer.value)
     }
   }
 )
 
+// The role can resolve after first render; re-check the active tab against the allowed list.
+watch(validTabs, (tabs) => {
+  if (!tabs.includes(activeTab.value)) activeTab.value = 'profile'
+})
+
 const selectTab = (tab: string) => {
+  if (!validTabs.value.includes(tab)) tab = 'profile'
   activeTab.value = tab
   router.replace({ query: { ...route.query, tab } })
 }
@@ -185,14 +204,14 @@ const userInitial = computed(() => {
   return name.charAt(0).toUpperCase()
 })
 
-const links = computed<NavigationMenuItem[]>(() => [
+const allLinks = computed<NavigationMenuItem[]>(() => [
   {
     label: t('settings.sidebar.myProfile'),
     icon: 'i-lucide-user',
     slot: 'profile' as const,
     onSelect: () => selectTab('profile'),
     onClick: () => selectTab('profile'),
-    active: activeTab.value === 'profile',
+    active: activeTab.value === 'profile'
   },
   {
     label: t('settings.sidebar.settings'),
@@ -200,7 +219,7 @@ const links = computed<NavigationMenuItem[]>(() => [
     slot: 'settings' as const,
     onSelect: () => selectTab('settings'),
     onClick: () => selectTab('settings'),
-    active: activeTab.value === 'settings',
+    active: activeTab.value === 'settings'
   },
   {
     label: t('settings.sidebar.securityMfa'),
@@ -208,7 +227,7 @@ const links = computed<NavigationMenuItem[]>(() => [
     slot: 'mfa' as const,
     onSelect: () => selectTab('mfa'),
     onClick: () => selectTab('mfa'),
-    active: activeTab.value === 'mfa',
+    active: activeTab.value === 'mfa'
   },
   {
     label: t('settings.sidebar.activity'),
@@ -216,7 +235,7 @@ const links = computed<NavigationMenuItem[]>(() => [
     slot: 'activity' as const,
     onSelect: () => selectTab('activity'),
     onClick: () => selectTab('activity'),
-    active: activeTab.value === 'activity',
+    active: activeTab.value === 'activity'
   },
   {
     label: t('settings.sidebar.permissions'),
@@ -224,7 +243,7 @@ const links = computed<NavigationMenuItem[]>(() => [
     slot: 'permissions' as const,
     onSelect: () => selectTab('permissions'),
     onClick: () => selectTab('permissions'),
-    active: activeTab.value === 'permissions',
+    active: activeTab.value === 'permissions'
   },
   {
     label: t('settings.sidebar.dataSources'),
@@ -235,22 +254,18 @@ const links = computed<NavigationMenuItem[]>(() => [
     active: activeTab.value === 'datasource',
   },
   {
-    label: t('settings.sidebar.emailService'),
-    icon: 'i-lucide-mail',
-    slot: 'email' as const,
-    onSelect: () => selectTab('email'),
-    onClick: () => selectTab('email'),
-    active: activeTab.value === 'email',
-  },
-  {
     label: t('settings.sidebar.faq'),
     icon: 'i-lucide-help-circle',
     slot: 'faq' as const,
     onSelect: () => selectTab('faq'),
     onClick: () => selectTab('faq'),
-    active: activeTab.value === 'faq',
-  },
+    active: activeTab.value === 'faq'
+  }
 ])
+
+const links = computed<NavigationMenuItem[]>(() =>
+  allLinks.value.filter(link => validTabs.value.includes(link.slot as string))
+)
 
 const currentPageTitle = computed(() => {
   const titles: Record<string, string> = {
@@ -260,7 +275,6 @@ const currentPageTitle = computed(() => {
     activity: t('settings.titles.activity'),
     permissions: t('settings.titles.permissions'),
     datasource: t('settings.titles.datasource'),
-    email: t('settings.titles.email'),
     faq: t('settings.titles.faq'),
   }
   return titles[activeTab.value] || t('settings.titles.settings')

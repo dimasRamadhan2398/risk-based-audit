@@ -136,6 +136,7 @@
     }
   },
   "common": {
+    "clearSearch": "Clear search",
     "datePicker": {
       "clearDate": "Clear date",
       "openCalendar": "Open calendar",
@@ -415,8 +416,31 @@
       },
       "calendar": {
         "title": "Important dates",
-        "description": "Engagement dates and action plan due dates for your unit.",
-        "placeholder": "The calendar for your unit is not connected yet."
+        "description": "Engagement periods for your unit and the due dates of your action plans.",
+        "scope": "Engagement periods appear when the audit plan has planned dates. Interview and observation dates will follow once the calendar service is available."
+      }
+    },
+    "calendarWidget": {
+      "upcoming": "Next {days} days",
+      "showUpcoming": "Back to upcoming",
+      "noUpcoming": "Nothing scheduled in the next {days} days.",
+      "noEventsOnDay": "Nothing scheduled on this day.",
+      "overdue": "{count} overdue",
+      "overdueBadge": "Overdue",
+      "more": "+{count} more",
+      "previousMonth": "Previous month",
+      "nextMonth": "Next month",
+      "today": "Go to today",
+      "period": "{start} – {end}",
+      "loadError": "The dates could not be loaded.",
+      "kinds": {
+        "engagement": "Engagement period",
+        "atrDue": "ATR due",
+        "interview": "Interview (planned)",
+        "observation": "Observation (planned)",
+        "sample": "Sampling (planned)",
+        "pbcDue": "PBC due",
+        "testControlDue": "Test of controls due"
       }
     },
     "auditor": {
@@ -525,8 +549,8 @@
       },
       "calendar": {
         "title": "Important dates",
-        "description": "Engagement start and end dates, and ATR due dates for engagements you are on.",
-        "notConnected": "Calendar is not connected yet.",
+        "description": "Surat Tugas periods, planned fieldwork dates, PBC and test-of-controls due dates, and ATR due dates.",
+        "scope": "Shows every published Surat Tugas until team scoping is available. Fieldwork dates are shown for the Surat Tugas loaded on this page.",
         "notLinked": "Your account is not linked to an employee record yet, so engagement dates cannot be filtered to you."
       },
       "notifications": {
@@ -542,7 +566,7 @@
     }
   },
   "auditExecution": {
-    "resetFilter": "Reset Filter",
+    "resetFilter": "Reset",
     "title": "Audit Execution Status",
     "subtitle": "Transparency of audit cycle progress & phases from planning to report completion.",
     "cycleGuideButton": "Audit Cycle Guide",
@@ -1218,7 +1242,7 @@
       "periodType": "Period Type",
       "selectYear": "Select Year",
       "selectQuartal": "Select Quartal",
-      "reset": "Reset Filters",
+      "reset": "Reset",
       "allTypes": "All Types",
       "yearly": "Yearly",
       "quartal": "Quartal",
@@ -1515,6 +1539,9 @@
       "addCustomEntityTitle": "Add Custom Corporate Entity",
       "nameLabel": "Name",
       "namePlaceholder": "Enter name...",
+      "departmentLabel": "Department",
+      "noDepartment": "No department (company-wide)",
+      "departmentLockedHint": "Fixed to your own department.",
       "masterSuggestions": "Suggestions from Master Data:",
       "addNode": "Add Node",
       "cancel": "Cancel",
@@ -1567,6 +1594,7 @@
     }
   },
   "auditPriority": {
+    "reset": "Reset",
     "loadingYear": "Loading audit priority data for year {year}...",
     "emptyFiltered": "No auditable entities match your filter criteria.",
     "establishFirst": "Please establish active entities in the Yearly Establishment tab of Audit Universe first.",
@@ -2523,6 +2551,12 @@
     }
   },
   "assignmentLetter": {
+    "filters": {
+      "searchPlaceholder": "Search letter number, title, work unit, or leader...",
+      "status": "All Statuses",
+          "workUnit": "All Work Units",
+      "reset": "Reset"
+    },
     "formExtra": {
       "number": "Assignment Letter Number:",
       "titleExample": "e.g. Financial Operations Audit",
@@ -2537,7 +2571,7 @@
       "members": "Team Members",
       "memberName": "Member Name",
       "role": "Role",
-      "memberHint": "* At least three team members are recommended by the template.",
+      "memberHint": "* At least three team members are recommended for effectivity",
       "purposePlaceholder": "Enter the audit purpose...",
       "addPurpose": "Add Purpose",
       "scopePlaceholder": "Enter the audit scope...",
@@ -2549,6 +2583,24 @@
       "publish": "Publish Assignment Letter",
       "edit": "Edit Assignment Letter",
       "delete": "Delete Assignment Letter"
+    },
+    "stepper": {
+      "auditInfo": "Audit Information",
+      "unitTeam": "Work Unit & Team",
+      "purposeDistribution": "Purpose, Scope & CC",
+      "next": "Next Step",
+      "previous": "Previous"
+    },
+    "validation": {
+      "titleRequired": "Audit Title must be filled in.",
+      "categoryRequired": "Audit Category must be selected.",
+      "yearRequired": "Audit Year must be selected.",
+      "teamRequired": "Audit Team must be selected.",
+      "periodRequired": "Please fill in start and end period.",
+      "periodOrder": "End date cannot be before start date.",
+      "workUnitRequired": "Work unit must be filled in.",
+      "membersInvalid": "All team members must have a name and a role.",
+      "ccInvalid": "All CC fields must be filled in or removed."
     },
     "title": "Assignment Letter List",
     "table": {
@@ -2562,7 +2614,9 @@
       },
       "status": {
         "Draft": "Draft",
-        "Published": "Published"
+        "Waiting Approval": "Waiting Approval",
+        "Published": "Published",
+        "Archived": "Archived"
       },
       "empty": "No assignment letters yet. Click Create Assignment Letter to start."
     },
@@ -2642,7 +2696,7 @@
       "annualPlanPlaceholder": "Select a PKAT",
       "annualPlanEmpty": "No active PKAT yet. Create the Annual Audit Plan first.",
       "annualPlanLocked": "The PKAT cannot be changed after the plan is created.",
-      "annualPlanNotApproved": "This PKAT is still {status}. You can draft the plan; it follows any later PKAT change.",
+      "annualPlanNotApproved": "This PKAT is still {status}. You can draft the plan. it follows any later PKAT change.",
       "changeAnnualPlanConfirm": "Change the PKAT? The assignments added so far will be removed.",
       "changeAnnualPlanConfirmLabel": "Change PKAT",
       "year": "Year",
@@ -2736,7 +2790,7 @@
       "year": "Year",
       "activityType": "Activity type",
       "all": "All",
-      "reset": "Reset filters"
+      "reset": "Reset"
     },
     "legacy": {
       "badge": "Old format",
@@ -2792,6 +2846,7 @@
       "approver": "Approved By",
       "attachment": "Attachment",
       "attachmentCategory": "File Category:",
+      "basicInfo": "Basic Information",
       "budgetNotes": "Budget Notes:",
       "budgetPlanning": "Budget Planning",
       "close": "Close",
@@ -4516,7 +4571,7 @@
         "type": "Select QA",
         "period": "Select Period",
         "status": "Select Status",
-        "reset": "Reset Filter"
+        "reset": "Reset"
       },
       "summary": {
         "regular": "Regular Assessment",
@@ -4687,7 +4742,7 @@
       "selectCategory": "Select category",
       "selectPeriod": "Select period",
       "selectStatus": "Select status",
-      "resetFilter": "Reset filters",
+      "resetFilter": "Reset",
       "editTarget": "Edit KPI target",
       "editUnavailable": "Comes from an uploaded performance report; edit it there",
       "deleteTarget": "Delete KPI target",
@@ -4814,7 +4869,7 @@
         "selectCategory": "Select Category",
         "selectPeriod": "Select Period",
         "selectStatus": "Select Status",
-        "reset": "Reset Filter",
+        "reset": "Reset",
         "columns": {
           "metric": "KPI Metric",
           "category": "Category",
@@ -5520,7 +5575,7 @@
       "lhaPlaceholder": "Choose LHA",
       "picPlaceholder": "Choose PIC",
       "overdueOnly": "Overdue only",
-      "reset": "Reset Filter"
+      "reset": "Reset"
     },
     "table": {
       "columns": {
@@ -5748,7 +5803,7 @@
       "searchPlaceholder": "Search finding",
       "departmentPlaceholder": "Choose department",
       "statusPlaceholder": "Choose status",
-      "reset": "Reset Filter"
+      "reset": "Reset"
     },
     "columns": {
       "auditReference": "Audit Reference",

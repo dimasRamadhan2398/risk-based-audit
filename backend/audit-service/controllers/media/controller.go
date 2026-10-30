@@ -3,6 +3,7 @@ package media
 import (
 	"audit-service/pkg/response"
 	"audit-service/pkg/safefile"
+	"audit-service/pkg/upload"
 	"audit-service/services/media"
 	"fmt"
 	"io/fs"
@@ -24,18 +25,26 @@ func NewMediaController(mediaSvc media.MediaServiceInterface) *MediaController {
 	}
 }
 
+// Upload stores a file (multipart field "file"). The body is capped before it
+// is parsed; the media service validates the name, type, content and malware
+// scan, and the folder is confined to the uploads tree ("..", absolute paths
+// and backslashes are rejected with 400).
 func (ctrl *MediaController) Upload(c *gin.Context) {
-	file, header, err := c.Request.FormFile("file")
+	if e := upload.ParseForm(c, upload.DefaultMaxBytes); e != nil {
+		upload.Respond(c, e)
+		return
+	}
+	header, e := upload.FormFile(c, "file", upload.DefaultMaxBytes)
+	if e != nil {
+		upload.Respond(c, e)
+		return
+	}
+	file, err := header.Open()
 	if err != nil {
-		response.Error(c, http.StatusBadRequest, "BAD_REQUEST", "File is required", err.Error())
+		response.Error(c, http.StatusBadRequest, "BAD_REQUEST", "File is required", "")
 		return
 	}
 	defer file.Close()
-
-	if header.Size > 10*1024*1024 {
-		response.Error(c, http.StatusBadRequest, "BAD_REQUEST", "File size exceeds maximum limit of 10MB", "Max allowed file size is 10MB")
-		return
-	}
 
 	folder := c.PostForm("folder")
 	featureName := c.PostForm("feature_name")
@@ -49,13 +58,20 @@ func (ctrl *MediaController) Upload(c *gin.Context) {
 		} else {
 			folder = "Auditsphere/audit"
 		}
-	} else if !strings.HasPrefix(folder, "Auditsphere/") && folder != "Auditsphere" {
-		folder = "Auditsphere/" + strings.TrimPrefix(folder, "/")
+	}
+	cleanFolder, e := upload.ConfineFolder(folder)
+	if e != nil {
+		upload.Respond(c, e)
+		return
 	}
 
-	attachment, err := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, folder)
+	attachment, err := ctrl.mediaSvc.UploadFile(c.Request.Context(), file, header.Filename, cleanFolder)
 	if err != nil {
-		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to upload file", err.Error())
+		if ue, ok := upload.AsError(err); ok {
+			upload.Respond(c, ue)
+			return
+		}
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to upload file", "")
 		return
 	}
 
@@ -89,13 +105,13 @@ func (ctrl *MediaController) Download(c *gin.Context) {
 		rel = strings.TrimPrefix(strings.TrimPrefix(filepath.ToSlash(reqPath), "/"), "uploads/")
 	}
 
-	found := ""
-	if !safefile.IsPrivatePath(rel) {
-		if full, err := safefile.ResolveUnder(uploadsRoot, rel); err == nil {
-			found = full
-		}
-	}
-	if found == "" {
+	found := resolveUpload(rel)
+	// Without an explicit path, a bare stored name may be looked up in the
+	// uploads tree (the fieldwork media store keeps files in sub-folders). An
+	// explicit path never gets this fallback: it names one file, and a file with
+	// the same base name in another folder is a different document. A name with
+	// a separator is not searched by base name either.
+	if found == "" && reqPath == "" && !strings.ContainsAny(id, `/\`) {
 		found = findUploadByName(uploadsRoot, id)
 	}
 	if found == "" {
@@ -107,6 +123,19 @@ func (ctrl *MediaController) Download(c *gin.Context) {
 	if err := safefile.ServeFile(c, found, filepath.Base(found), download); err != nil {
 		response.Error(c, http.StatusNotFound, "NOT_FOUND", "File not found", "")
 	}
+}
+
+// resolveUpload maps rel onto uploadsRoot. It returns "" for private paths,
+// paths outside the root, and anything that does not exist as a regular file.
+func resolveUpload(rel string) string {
+	if safefile.IsPrivatePath(rel) {
+		return ""
+	}
+	full, err := safefile.ResolveUnder(uploadsRoot, rel)
+	if err != nil {
+		return ""
+	}
+	return full
 }
 
 // findUploadByName looks for a file called name (or ending in /name) under root.
@@ -132,6 +161,9 @@ func findUploadByName(root, name string) string {
 			return nil
 		}
 		if d.Type()&fs.ModeSymlink != 0 {
+			return nil
+		}
+		if safefile.IsPrivatePath(rel) {
 			return nil
 		}
 		if d.Name() == name || strings.HasSuffix(filepath.ToSlash(p), "/"+name) {

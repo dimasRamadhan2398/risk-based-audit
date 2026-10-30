@@ -17,6 +17,10 @@ export interface CorporateAuditUniverse {
   standard_audit_universe?: StandardAuditUniverse
   name: string
   parent_id?: string
+  /** Owning department (master-service department UUID). null/absent = company-wide, editable by full writers only. */
+  department_id?: string | null
+  /** Department name snapshot sent by the server, when available. */
+  department_name?: string | null
   children?: CorporateAuditUniverse[]
 }
 
@@ -134,7 +138,7 @@ export const useAuditUniverseStore = defineStore('audit-universe', () => {
     }
   }
 
-  const saveCorporateNode = async (payload: { id?: string; name: string; parent_id?: string; standard_audit_universe_id?: string }) => {
+  const saveCorporateNode = async (payload: { id?: string; name: string; parent_id?: string; standard_audit_universe_id?: string; department_id?: string | null }) => {
     loading.value = true
     errorMsg.value = ''
     try {

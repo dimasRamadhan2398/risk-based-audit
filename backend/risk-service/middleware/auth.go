@@ -14,6 +14,10 @@ type Claims struct {
 	UserID   string   `json:"user_id"`
 	Username string   `json:"username"`
 	Roles    []string `json:"roles"`
+	// EmployeeID / EmployeeCode link the login to master-data employees; set by
+	// auth-service at login, empty for unlinked accounts and older tokens.
+	EmployeeID   string `json:"employee_id,omitempty"`
+	EmployeeCode string `json:"employee_code,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -83,6 +87,8 @@ func (m *AuthMiddleware) Authenticate() gin.HandlerFunc {
 		c.Set("user_id", claims.UserID)
 		c.Set("username", claims.Username)
 		c.Set("roles", claims.Roles)
+		c.Set("employee_id", claims.EmployeeID)
+		c.Set("employee_code", claims.EmployeeCode)
 		c.Next()
 	}
 }

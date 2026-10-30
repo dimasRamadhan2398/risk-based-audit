@@ -25,6 +25,7 @@ type UserControllerInterface interface {
 	ListUsers(c *gin.Context)
 	LookupByEmployee(c *gin.Context)
 	ResetPassword(c *gin.Context)
+	LinkEmployee(c *gin.Context)
 	ListAssignableUsers(c *gin.Context)
 	ListUserContacts(c *gin.Context)
 }
@@ -155,7 +156,8 @@ func (ctrl *UserController) CreateUser(c *gin.Context) {
 		return
 	}
 
-	if err := ctrl.userService.CreateUser(c.Request.Context(), &req); err != nil {
+	result, err := ctrl.userService.CreateUser(c.Request.Context(), &req)
+	if err != nil {
 		appErr, ok := err.(*apperrors.AppError)
 		if ok {
 			response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
@@ -165,7 +167,44 @@ func (ctrl *UserController) CreateUser(c *gin.Context) {
 		return
 	}
 
-	response.Created(c, "User created successfully", nil)
+	response.Created(c, "User created successfully", result)
+}
+
+// LinkEmployee links an existing account to a master-data employee (ADMIN only)
+// @Summary Link User To Employee
+// @Description Set users.employee_id on an existing account (ADMIN only)
+// @Tags users
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path string true "User ID"
+// @Param request body models.LinkEmployeeRequest true "Employee code"
+// @Success 200 {object} response.Response{data=models.UserResponse}
+// @Router /api/v1/users/{id}/link-employee [post]
+func (ctrl *UserController) LinkEmployee(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		response.BadRequest(c, "Invalid user ID")
+		return
+	}
+
+	var req models.LinkEmployeeRequest
+	if !ctrl.ValidateRequest(c, &req) {
+		return
+	}
+
+	user, err := ctrl.userService.LinkEmployee(c.Request.Context(), id, req.EmployeeCode)
+	if err != nil {
+		appErr, ok := err.(*apperrors.AppError)
+		if ok {
+			response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
+		} else {
+			response.InternalServerError(c, err.Error())
+		}
+		return
+	}
+
+	response.OK(c, "Account linked to employee", user)
 }
 
 // UpdateUser updates a user

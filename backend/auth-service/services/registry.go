@@ -31,6 +31,24 @@ func (r *Registry) GetAuthService() authServices.AuthServiceInterface {
 	)
 }
 
+// GetStepUpService implements IServiceRegistry (POST /auth/verify-password).
+func (r *Registry) GetStepUpService() authServices.StepUpServiceInterface {
+	var attempts authServices.StepUpAttemptStore
+	if cache := r.repository.GetCacheRepository(); cache != nil {
+		attempts = cache
+	}
+	var publisher authServices.StepUpEventPublisher
+	if p := r.repository.GetEventPublisher(); p != nil {
+		publisher = p
+	}
+	return authServices.NewStepUpService(
+		r.repository.GetUserRepository(),
+		attempts,
+		publisher,
+		r.repository.GetConfig().JWT.Secret,
+	)
+}
+
 // GetEmailService implements IServiceRegistry.
 func (r *Registry) GetEmailService() emailServices.EmailServiceInterface {
 	cfg := r.repository.GetConfig()
@@ -71,6 +89,7 @@ func (r *Registry) GetConfidentialityService() confidentialityServices.Confident
 
 type IServiceRegistry interface {
 	GetAuthService() authServices.AuthServiceInterface
+	GetStepUpService() authServices.StepUpServiceInterface
 	GetUserService() userServices.UserServiceInterface
 	GetRoleService() roleServices.IRoleService
 	GetMfaService() mfaServices.MfaServiceInterface

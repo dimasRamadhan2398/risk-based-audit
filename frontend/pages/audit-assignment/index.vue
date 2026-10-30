@@ -6,7 +6,7 @@
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ t('assignmentLetter.title') }}</h1>
       </div>
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
-        <UButton
+        <UButton v-if="canWrite"
           :label="t('assignmentLetter.importDocument')"
           icon="i-lucide-upload"
           color="neutral"
@@ -15,7 +15,7 @@
           class="font-bold shadow-md w-full sm:w-auto"
           to="/audit-assignment/upload"
         />
-        <UButton
+        <UButton v-if="canWrite"
           :label="t('assignmentLetter.createAssignmentLetter')"
           icon="i-heroicons-plus"
           color="primary"
@@ -34,12 +34,14 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import AssignmentLetterForm from '~/components/assignment-letter/AssignmentLetterForm.vue';
 import AssignmentLetterTable from '~/components/assignment-letter/AssignmentLetterTable.vue';
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import { useI18n } from '~/composables/useI18n'
 
 const { t } = useI18n()
+const { canWrite } = useRbac()
 const store = useAssignmentLetterStore()
 store.fetchAssignmentLetters()
 </script>

@@ -345,11 +345,14 @@
           {{ t('dashboard.auditee.calendar.description') }}
         </p>
       </div>
-      <!-- TODO(B4): GET /api/v1/me/calendar?from&to, filtered to the user's department engagements and ATR due dates.
-           Until it exists this widget only shows its placeholder state (no dates are derived here). -->
-      <AuditorWidgetState
-        state="empty"
-        :empty-text="t('dashboard.auditee.calendar.placeholder')"
+      <!-- TODO(B4): replace calendarEvents with GET /api/v1/me/calendar?from&to, scoped on the server to the user's unit. -->
+      <CalendarWidget
+        :events="calendarEvents"
+        :loading="calendarLoading"
+        :error-text="calendarErrorText"
+        :retry-label="t('dashboard.auditee.states.retry')"
+        :note="hasDepartmentLink ? t('dashboard.auditee.calendar.scope') : t('dashboard.auditee.errors.notLinkedShort')"
+        @retry="refreshAll"
       />
     </section>
   </div>
@@ -372,7 +375,9 @@ import {
   isAtrClosed,
   normalizeAtrStatus
 } from '~/utils/actionTakenReport'
+import { makeCalendarEvent, type CalendarEvent } from '~/utils/calendarEvents'
 import type { ActionTakenReport } from '~/types/audit'
+import CalendarWidget from './CalendarWidget.vue'
 
 type WidgetState = 'loading' | 'error' | 'empty' | 'ready'
 
@@ -591,6 +596,45 @@ const atrStatusLabel = (status: string) => {
 }
 
 const formatDate = (value: string) => formatAtrDate(value, locale.value)
+
+// --- Important dates (calendar) ---------------------------------------------------------------
+// TODO(B4): replace with GET /api/v1/me/calendar. Interim: the planned period of the department's engagements
+// (when the RKA row has one) and the user's own open ATR due dates. No fieldwork details are shown to the auditee.
+const calendarEvents = computed<CalendarEvent[]>(() => {
+  const events: CalendarEvent[] = []
+  for (const row of engagements.value) {
+    const event = makeCalendarEvent(
+      { id: `engagement:${row.id}`, kind: 'engagement', title: row.title || row.projectCode || '-', subtitle: row.projectCode || undefined },
+      row.plannedStart,
+      row.plannedEnd
+    )
+    if (event) events.push(event)
+  }
+  for (const item of openAtrItems.value) {
+    const event = makeCalendarEvent(
+      {
+        id: `atr:${item.id}`,
+        kind: 'atrDue',
+        title: item.finding_title || item.report_number || '-',
+        subtitle: item.report_number || undefined,
+        overdue: item.is_overdue,
+        to: '/action-taken-report'
+      },
+      item.due_date
+    )
+    if (event) events.push(event)
+  }
+  return events
+})
+
+const calendarLoading = computed(() => atrState.value === 'loading' || engagementsState.value === 'loading')
+
+// Only an error when both sources failed.
+const calendarErrorText = computed(() =>
+  atrState.value === 'error' && engagementsState.value === 'error'
+    ? t('dashboard.calendarWidget.loadError')
+    : ''
+)
 
 // --- Refresh ----------------------------------------------------------------------------------
 const isRefreshing = ref(false)

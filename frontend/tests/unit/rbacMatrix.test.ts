@@ -9,7 +9,7 @@ import { UserRole } from '../../types/auth'
 
 describe('RBAC Permission Matrix & Onboarding Alignment', () => {
   it('contains the complete official matrix matching Account Settings permission tab', () => {
-    expect(matrixData.length).toBe(27)
+    expect(matrixData.length).toBe(31)
     const dashboard = matrixData.find(m => m.module === 'Dashboard')
     expect(dashboard).toBeDefined()
     expect(dashboard?.admin).toBe('FULL')
@@ -41,8 +41,8 @@ describe('RBAC Permission Matrix & Onboarding Alignment', () => {
   it('derives correct active permissions for AUDITEE role in ID locale', () => {
     const perms = getPermissionsForUserRoles(['AUDITEE'], 'id')
 
-    // Auditee has 14 features with active access
-    expect(perms.length).toBe(14)
+    // Auditee has 17 features with active access
+    expect(perms.length).toBe(17)
 
     // Check specific module permissions matching the Account Settings Permission matrix
     const dashboardPerm = perms.find(p => p.module === 'Dashboard')
@@ -76,8 +76,8 @@ describe('RBAC Permission Matrix & Onboarding Alignment', () => {
 
     const consultingPerm = perms.find(p => p.module === 'Consulting Service')
     expect(consultingPerm).toBeDefined()
-    expect(consultingPerm?.accessLevel).toBe('REQUEST')
-    expect(consultingPerm?.badgeClass).toContain('bg-amber-500')
+    expect(consultingPerm?.accessLevel).toBe('READ')
+    expect(consultingPerm?.badgeClass).toContain('bg-sky-600')
 
     // Features with NONE must NOT be in the permissions list
     expect(perms.some(p => p.module === 'Settings & User Management')).toBe(false)
@@ -99,7 +99,7 @@ describe('RBAC Permission Matrix & Onboarding Alignment', () => {
 
   it('supports object role formats like { name: "auditee" } and { role: "AUDITEE" }', () => {
     const permsObject = getPermissionsForUserRoles([{ role: 'AUDITEE' }])
-    expect(permsObject.length).toBe(14)
+    expect(permsObject.length).toBe(17)
     expect(permsObject.some(p => p.module === 'Action Taken Report (ATR)')).toBe(true)
   })
 

@@ -100,7 +100,7 @@
                 </span>
               </div>
               <div class="flex items-center gap-1.5 shrink-0">
-                <UButton
+                <UButton v-if="canAccessFiles"
                   icon="i-heroicons-eye"
                   color="neutral"
                   variant="ghost"
@@ -108,7 +108,7 @@
                   :label="t('common.view')"
                   @click="store.previewInterviewFile(store.observationForm)"
                 />
-                <UButton
+                <UButton v-if="canAccessFiles"
                   icon="i-heroicons-document-arrow-down"
                   color="primary"
                   variant="solid"
@@ -181,7 +181,7 @@
         <div class="p-4 border-t border-[var(--border-main)] bg-[var(--bg-surface)] flex justify-end gap-2">
           <template v-if="store.isReadOnlyObservation">
             <UButton color="neutral" variant="soft" :label="t('common.close') || 'Tutup'" @click="store.showObservationModal = false" />
-            <UButton
+            <UButton v-if="canWrite"
               color="primary"
               icon="i-heroicons-pencil-square"
               :label="t('common.edit') || 'Ubah'"
@@ -205,6 +205,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { computed, reactive, watch } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
@@ -212,6 +213,7 @@ import { formatDate } from '~/utils/dateConverter'
 
 const store = useAuditFieldworkStore()
 const { t } = useI18n()
+const { canWrite, canAccessFiles } = useRbac()
 
 const errors = reactive({
   activity: '',

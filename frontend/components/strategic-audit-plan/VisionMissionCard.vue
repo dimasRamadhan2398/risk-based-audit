@@ -26,7 +26,7 @@
             {{ t('strategicPlan.vmg.emptySubtitle') }}
           </p>
         </div>
-        <UButton
+        <UButton v-if="canWriteMasterData"
           :label="t('strategicPlan.vmg.addVmg')"
           icon="i-lucide-plus"
           color="primary"
@@ -47,7 +47,7 @@
           <h3 class="text-lg font-bold text-[var(--text-main)]">
             {{ t('strategicPlan.vmg.title') }}
           </h3>
-          <UButton
+          <UButton v-if="canWriteMasterData"
             icon="i-lucide-pencil"
             color="neutral"
             variant="ghost"
@@ -122,11 +122,13 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { computed } from 'vue'
 import { useVisionMissionGoalsStore } from '~/stores/vision-mission-goals'
 import { useI18n } from '~/composables/useI18n'
 
 const { t } = useI18n()
+const { canWriteMasterData } = useRbac()
 const store = useVisionMissionGoalsStore()
 
 // Clean leading numbers like "1. ", "2. " from seeded missions

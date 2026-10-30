@@ -1,9 +1,13 @@
 <template>
-  <UCard class="rounded-xl shadow overflow-hidden" variant="soft" color="primary">
+  <UCard
+    class="rounded-xl shadow overflow-hidden"
+    variant="soft"
+    color="primary"
+  >
     <template #header>
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h2 class="text-lg font-bold">{{ t('masterData.employee.listTitle') }}</h2>
-        <UButton
+        <UButton v-if="canWriteMasterData"
           :label="t('masterData.employee.add')"
           icon="i-heroicons-plus"
           color="primary"
@@ -14,34 +18,41 @@
     </template>
 
     <!-- Search & Filter -->
-    <div class="mb-4 flex flex-wrap gap-2 sm:gap-4 items-center">
-      <UInput
+    <div class="mb-4 flex flex-wrap gap-2 sm:gap-4 items-center w-full">
+      <CommonSearchInput
         v-model="searchInput"
         :placeholder="t('masterData.employee.searchPlaceholder')"
-        icon="i-heroicons-magnifying-glass"
         class="w-full sm:w-64"
         @keyup.enter="handleSearch"
-      >
-        <template v-if="searchInput" #trailing>
-          <UButton
-            color="neutral"
-            variant="ghost"
-            size="xs"
-            icon="i-heroicons-x-mark"
-            aria-label="Clear search"
-            @click="resetSearch"
-          />
-        </template>
-      </UInput>
+        @clear="handleSearch"
+      />
+      <UButton
+        :label="t('common.search')"
+        color="primary"
+        variant="soft"
+        @click="handleSearch"
+      />
+      <UButton
+        :label="t('masterData.employee.reset')"
+        color="neutral"
+        variant="outline"
+        @click="resetSearch"
+      />
     </div>
 
     <!-- Loading State -->
-    <div v-if="store.loading" class="flex justify-center py-8">
+    <div
+      v-if="store.loading"
+      class="flex justify-center py-8"
+    >
       <ULoadingIcon />
     </div>
 
     <!-- Error State -->
-    <div v-else-if="store.errorMsg" class="py-4">
+    <div
+      v-else-if="store.errorMsg"
+      class="py-4"
+    >
       <UAlert
         color="error"
         variant="soft"
@@ -51,9 +62,17 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="store.employees.length === 0" class="py-8 text-center">
-      <UIcon name="i-heroicons-user-group" class="text-4xl text-gray-400 mb-2" />
-      <p class="text-gray-500">{{ t('masterData.employee.empty') }}</p>
+    <div
+      v-else-if="store.employees.length === 0"
+      class="py-8 text-center"
+    >
+      <UIcon
+        name="i-heroicons-user-group"
+        class="text-4xl text-gray-400 mb-2"
+      />
+      <p class="text-gray-500">
+        {{ t('masterData.employee.empty') }}
+      </p>
     </div>
 
     <!-- Table & Pagination via TableEntities -->
@@ -103,10 +122,11 @@
           <template #actions-cell="{ row }">
             <div class="flex gap-1">
               <UButton
+                v-if="canWriteMasterData"
                 icon="i-heroicons-pencil"
                 color="primary"
                 variant="ghost"
-                size="md"
+                size="sm"
                 @click="store.handleEdit(row.original)"
               />
               <UButton
@@ -114,15 +134,16 @@
                 icon="i-heroicons-key"
                 color="warning"
                 variant="ghost"
-                size="md"
+                size="sm"
                 :title="t('masterData.employee.resetPassword')"
                 @click="openResetPassword(row.original)"
               />
               <UButton
+                v-if="canWriteMasterData"
                 icon="i-heroicons-trash"
                 color="error"
                 variant="ghost"
-                size="md"
+                size="sm"
                 @click="store.handleDelete(row.original)"
               />
             </div>
@@ -177,6 +198,7 @@
             </span>
             <div class="flex items-center gap-1">
               <UButton
+                v-if="canWriteMasterData"
                 icon="i-heroicons-pencil"
                 color="primary"
                 variant="ghost"
@@ -193,6 +215,7 @@
                 @click="openResetPassword(emp)"
               />
               <UButton
+                v-if="canWriteMasterData"
                 icon="i-heroicons-trash"
                 color="error"
                 variant="ghost"
@@ -222,6 +245,10 @@
         </div>
       </div>
     </div>
+          />
+        </div>
+      </div>
+    </div>
 
     <EmployeeResetPasswordModal
       v-if="isAdmin"
@@ -238,7 +265,7 @@ import type { Employee } from '~/types/master'
 import { useI18n } from '~/composables/useI18n'
 
 const store = useEmployeeStore()
-const { isAdmin } = useRbac()
+const { isAdmin, canWriteMasterData } = useRbac()
 const { t } = useI18n()
 
 // Admin-only: reset the password of the login account linked to an employee

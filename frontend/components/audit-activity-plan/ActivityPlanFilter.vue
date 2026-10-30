@@ -1,42 +1,38 @@
 <template>
-  <div class="flex flex-col md:flex-row md:items-end gap-3">
-    <UFormField
-      :label="t('auditActivityPlan.filter.year')"
-      class="w-full md:w-48"
-    >
+  <div class="flex flex-col md:flex-row md:items-center gap-3">
+    <div class="w-full md:w-48">
       <USelectMenu
         :model-value="store.filters.year"
         :items="yearItems"
         value-key="value"
         label-key="label"
-        :placeholder="t('auditActivityPlan.filter.all')"
+        :placeholder="t('auditActivityPlan.filter.year')"
+        :aria-label="t('auditActivityPlan.filter.year')"
         class="w-full"
         data-testid="filter-year"
         @update:model-value="(value: number | undefined) => { store.filters.year = value || undefined }"
       />
-    </UFormField>
+    </div>
 
-    <UFormField
-      :label="t('auditActivityPlan.filter.activityType')"
-      class="w-full md:w-64"
-    >
+    <div class="w-full md:w-64">
       <USelectMenu
         :model-value="store.filters.activityType"
         :items="store.activityTypeOptions"
         value-key="value"
         label-key="label"
-        :placeholder="t('auditActivityPlan.filter.all')"
+        :placeholder="t('auditActivityPlan.filter.activityType')"
+        :aria-label="t('auditActivityPlan.filter.activityType')"
         class="w-full"
         data-testid="filter-activity-type"
         @update:model-value="(value: ActivityPlanActivityType | undefined) => { store.filters.activityType = value || undefined }"
       />
-    </UFormField>
+    </div>
 
     <UButton
       v-if="store.filters.year || store.filters.activityType"
       icon="i-heroicons-x-mark"
       color="neutral"
-      variant="ghost"
+      variant="outline"
       :label="t('auditActivityPlan.filter.reset')"
       @click="store.clearFilters()"
     />

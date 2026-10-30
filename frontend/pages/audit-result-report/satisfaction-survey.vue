@@ -333,7 +333,7 @@
           <template #actions-cell="{ row }">
             <div class="flex gap-2">
               <UButton
-                v-if="!getReportSurvey(row.original)"
+                v-if="canWrite && (!getReportSurvey(row.original))"
                 color="primary"
                 size="sm"
                 icon="i-heroicons-pencil-square"
@@ -341,7 +341,7 @@
                 @click="openSurveyForm(row.original)"
               />
               <UButton
-                v-else
+                v-else-if="getReportSurvey(row.original)"
                 color="neutral"
                 variant="outline"
                 size="sm"
@@ -701,6 +701,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 import { useAuditResultReportStore, normalizeReportNumber } from '~/stores/audit-result-report'
@@ -710,6 +711,7 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { useI18n } from '~/composables/useI18n'
 
 const { t } = useI18n()
+const { canWrite } = useRbac()
 const authStore = useAuthStore()
 const reportStore = useAuditResultReportStore()
 const executionStore = useAuditExecutionStore()

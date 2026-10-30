@@ -41,7 +41,7 @@
 
         <template #viewReport-cell="{ row }">
           <UButton
-            v-if="row.original.attachment?.filePath"
+            v-if="row.original.attachment?.filePath && canAccessFiles"
             icon="i-lucide-file-text"
             :label="t('qualityAssurance.dashboard.table.view')"
             color="neutral"
@@ -50,7 +50,7 @@
             class="font-bold border border-gray-200 dark:border-gray-700"
             @click="openReportFile(row.original)"
           />
-          <span v-else class="text-md text-gray-400 font-medium italic">{{ t('qualityAssurance.dashboard.table.noFile') }}</span>
+          <span v-else-if="!row.original.attachment?.filePath" class="text-md text-gray-400 font-medium italic">{{ t('qualityAssurance.dashboard.table.noFile') }}</span>
         </template>
 
         <template #actions-cell="{ row }">
@@ -64,7 +64,7 @@
               @click="store.openDetail(row.original)"
             />
             </UTooltip>
-            <UTooltip :text="t('qualityAssurance.dashboard.table.editReport')">
+            <UTooltip v-if="canWriteQaConsulting" :text="t('qualityAssurance.dashboard.table.editReport')">
             <UButton
               icon="i-lucide-edit"
               color="warning"
@@ -73,7 +73,7 @@
               @click="store.editReport(row.original)"
             />
             </UTooltip>
-            <UTooltip :text="t('qualityAssurance.dashboard.table.deleteReport')">
+            <UTooltip v-if="canWriteQaConsulting" :text="t('qualityAssurance.dashboard.table.deleteReport')">
             <UButton
               icon="i-lucide-trash-2"
               color="error"
@@ -89,10 +89,12 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { useQualityAssuranceStore, QAStatus, QAType } from '~/stores/quality-assurance'
 
 const store = useQualityAssuranceStore()
 const { t } = useI18n()
+const { canWriteQaConsulting, canAccessFiles } = useRbac()
 
 const formatStatus = (status: string) => {
   if (status === QAStatus.COMPLETED) return t('qualityAssurance.statuses.completed')

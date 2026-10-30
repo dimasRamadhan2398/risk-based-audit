@@ -30,13 +30,23 @@ export interface UserPermissionItem {
 
 export type RoleColumnKey = 'admin' | 'executive' | 'auditor' | 'auditee' | 'departmentHead' | 'viewer'
 
+/**
+ * VIEWER is strictly read-only: it can view business modules but cannot create, edit, delete, approve, publish,
+ * import or upload, cannot open or download any file (documents, evidence, working papers, uploads, signatures),
+ * cannot export, has no master data, and in Account Settings sees only My Profile, Activity and FAQ.
+ * Write rules: master data writes are ADMIN only; QA reports and consulting services writes are ADMIN, EXECUTIVE
+ * (CAE) and AUDIT_MANAGER; audit universe edits are ADMIN and EXECUTIVE (CAE), and DEPARTMENT_HEAD
+ * may edit rows of its own department only (AUDIT_UNIVERSE_* in viewerPolicy.ts). Rights are the union of a
+ * user's roles and VIEWER adds nothing.
+ * This grid only documents the policy for the UI. The backend is authoritative and enforces it on every request.
+ */
 export const matrixData: MatrixItem[] = [
   { id: '1', num: 1, module: 'Dashboard', submodule: '', isSubmodule: false, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'READ', departmentHead: 'READ', viewer: 'READ' },
   { id: '2', num: 2, module: 'Audit Charter', submodule: '', isSubmodule: false, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'READ', departmentHead: 'READ', viewer: 'READ' },
   { id: '3-1', num: 3, module: 'Risk Profile', submodule: 'Corporate Risk Profile', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'FULL', auditee: 'EDIT — Own Dept.', departmentHead: 'EDIT — Own Dept.', viewer: 'READ' },
   { id: '3-2', num: 3, module: 'Risk Profile', submodule: 'Risk Appetite Statement', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'READ', departmentHead: 'READ', viewer: 'READ' },
   { id: '3-3', num: 3, module: 'Risk Profile', submodule: 'Risk Factors & Scoring', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'NONE', departmentHead: 'NONE', viewer: 'READ' },
-  { id: '3-4', num: 3, module: 'Risk Profile', submodule: 'Audit Universe', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'NONE', departmentHead: 'NONE', viewer: 'READ' },
+  { id: '3-4', num: 3, module: 'Risk Profile', submodule: 'Audit Universe', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'NONE', departmentHead: 'EDIT — Own Dept.', viewer: 'READ' },
   { id: '3-5', num: 3, module: 'Risk Profile', submodule: 'Risk Control Matrix (RCM)', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'FULL', auditee: 'READ', departmentHead: 'READ', viewer: 'READ' },
   { id: '4', num: 4, module: 'Strategic Audit Plan', submodule: '', isSubmodule: false, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'NONE', departmentHead: 'NONE', viewer: 'READ' },
   { id: '5-1', num: 5, module: 'Annual Audit Plan', submodule: 'Create / Manage Plan', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'NONE', departmentHead: 'NONE', viewer: 'READ' },
@@ -54,10 +64,14 @@ export const matrixData: MatrixItem[] = [
   { id: '9-3', num: 9, module: 'Audit Result Report', submodule: 'Client Satisfaction Survey', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'FILL SURVEY', departmentHead: 'FILL SURVEY', viewer: 'READ' },
   { id: '10', num: 10, module: 'Action Taken Report (ATR)', submodule: '', isSubmodule: false, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'UPDATE CAPA', departmentHead: 'UPDATE CAPA', viewer: 'READ' },
   { id: '11', num: 11, module: 'KPI Performance', submodule: '', isSubmodule: false, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'NONE', departmentHead: 'NONE', viewer: 'READ' },
-  { id: '12', num: 12, module: 'Consulting Service', submodule: '', isSubmodule: false, admin: 'FULL', executive: 'FULL', auditor: 'FULL', auditee: 'REQUEST', departmentHead: 'REQUEST', viewer: 'READ' },
+  { id: '12', num: 12, module: 'Consulting Service', submodule: '', isSubmodule: false, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'READ', departmentHead: 'READ', viewer: 'READ' },
   { id: '13', num: 13, module: 'Quality Assurance (QA)', submodule: '', isSubmodule: false, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'NONE', departmentHead: 'NONE', viewer: 'READ' },
   { id: '14', num: 14, module: 'Analytics', submodule: '', isSubmodule: false, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'READ', departmentHead: 'READ', viewer: 'READ' },
-  { id: '15', num: 15, module: 'Settings & User Management', submodule: '', isSubmodule: false, admin: 'FULL', executive: 'FULL', auditor: 'NONE', auditee: 'NONE', departmentHead: 'NONE', viewer: 'NONE' },
+  { id: '15-1', num: 15, module: 'Settings & User Management', submodule: 'User Management & System Settings', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'NONE', auditee: 'NONE', departmentHead: 'NONE', viewer: 'NONE' },
+  { id: '15-2', num: 15, module: 'Account Settings', submodule: 'My Profile, Activity & FAQ', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'READ', departmentHead: 'READ', viewer: 'READ' },
+  { id: '16-1', num: 16, module: 'Master Data', submodule: 'Company, Business Unit, Department, Location, Job Role, Vision-Mission-Goals', isSubmodule: true, admin: 'FULL', executive: 'READ', auditor: 'READ', auditee: 'READ', departmentHead: 'READ', viewer: 'NONE' },
+  { id: '16-2', num: 16, module: 'Master Data', submodule: 'Employee Management', isSubmodule: true, admin: 'FULL', executive: 'READ', auditor: 'NONE', auditee: 'NONE', departmentHead: 'NONE', viewer: 'NONE' },
+  { id: '17', num: 17, module: 'Files & Exports', submodule: 'Download / Preview Files, Export Reports', isSubmodule: true, admin: 'FULL', executive: 'FULL', auditor: 'READ', auditee: 'READ', departmentHead: 'READ', viewer: 'NONE' },
 ]
 
 /**

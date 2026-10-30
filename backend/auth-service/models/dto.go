@@ -64,14 +64,35 @@ type ChangePasswordRequest struct {
 
 // CreateUserRequest represents a create user request
 type CreateUserRequest struct {
-	Username   string   `json:"username" binding:"required" validate:"required,min=3,max=50"`
-	Email      string   `json:"email" binding:"required" validate:"required,email"`
-	Password   string   `json:"password" binding:"required" validate:"required,min=6"`
+	Username string `json:"username" binding:"required" validate:"required,min=3,max=50"`
+	Email    string `json:"email" binding:"required" validate:"required,email"`
+	// Password is required unless GeneratePassword is true. The service checks
+	// that rule, because the required tag cannot express it.
+	Password string `json:"password" validate:"omitempty,min=6"`
+	// GeneratePassword creates a random temporary password, sets
+	// must_change_password and returns the password once in the response.
+	GeneratePassword bool `json:"generate_password"`
+	// EmployeeID links the account to a master-data employee (users.employee_id,
+	// the employee_code). Optional.
+	EmployeeID string   `json:"employee_id" validate:"omitempty,max=50"`
 	FullName   string   `json:"full_name" validate:"max=100"`
 	Phone      string   `json:"phone" validate:"max=20"`
 	Department string   `json:"department" validate:"max=100"`
 	Position   string   `json:"position" validate:"max=100"`
 	Roles      []string `json:"roles"`
+}
+
+// CreateUserResponse is returned once after an account is created. TemporaryPassword
+// is set only when GeneratePassword was requested; it is not stored in plain text.
+type CreateUserResponse struct {
+	ID                string `json:"id"`
+	Username          string `json:"username"`
+	TemporaryPassword string `json:"temporary_password,omitempty"`
+}
+
+// LinkEmployeeRequest links an existing account to a master-data employee.
+type LinkEmployeeRequest struct {
+	EmployeeCode string `json:"employee_code" binding:"required" validate:"required,max=50"`
 }
 
 // UpdateUserRequest represents an update user request

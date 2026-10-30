@@ -105,7 +105,7 @@
           <!-- Actions slot -->
           <template #actions-cell="{ row }">
             <div class="flex justify-center items-center gap-1">
-              <UTooltip :text="t('auditCharter.tooltips.viewSop')">
+              <UTooltip v-if="canAccessFiles" :text="t('auditCharter.tooltips.viewSop')">
               <UButton
                 v-if="row.original.file_url && row.original.file_url !== '#'"
                 icon="i-lucide-eye"
@@ -212,7 +212,14 @@
             <!-- Actions Row -->
             <div class="flex items-center justify-end gap-1.5 pt-2 border-t border-[var(--border-main)]/60">
               <UButton
-                v-if="item.file_url && item.file_url !== '#'"
+                v-if="canAccessFiles && item.file_url && item.file_url !== '#'"
+                icon="i-lucide-eye"
+                color="neutral"
+                variant="soft"
+                size="xs"
+                :label="t('common.actions.view') || 'Lihat'"
+                @click="openFile(item.file_url)"
+              />
                 icon="i-lucide-eye"
                 color="neutral"
                 variant="soft"
@@ -281,7 +288,7 @@ import ReadMoreText from '~/components/shared/ReadMoreText.vue'
 const { t, locale } = useI18n()
 const store = useSopStore()
 const guidelineStore = useGuidelineStore()
-const { canManageCharter } = useRbac()
+const { canManageCharter, canAccessFiles } = useRbac()
 
 const columns = computed(() => store.columns)
 

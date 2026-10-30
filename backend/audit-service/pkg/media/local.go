@@ -2,11 +2,10 @@ package media
 
 import (
 	"audit-service/models"
+	"audit-service/pkg/upload"
 	"context"
 	"io"
-	"os"
 	"path/filepath"
-	"strings"
 	"time"
 )
 
@@ -17,42 +16,38 @@ func NewLocalProvider() MediaProvider {
 	return &LocalProvider{}
 }
 
-func (p *LocalProvider) Upload(ctx context.Context, file io.Reader, fileName string, folder string) (*models.MediaAttachment, error) {
-	cleanFolder := strings.Trim(folder, "/")
-	if cleanFolder == "" {
-		cleanFolder = "Auditsphere/general"
+// storeLocal writes an upload under uploads/<folder>/ with a server-generated
+// name (O_EXCL, never overwriting). folder is confined to the uploads tree
+// again here, whatever the caller did.
+func storeLocal(data []byte, fileName, folder string) (*models.MediaAttachment, error) {
+	cleanFolder, e := upload.ConfineFolder(folder)
+	if e != nil {
+		return nil, e
 	}
-	// Create uploads directory with subfolder structure if it doesn't exist
-	uploadDir := filepath.Join("./uploads", cleanFolder)
-	if err := os.MkdirAll(uploadDir, 0755); err != nil {
-		return nil, err
-	}
-
-	filePath := filepath.Join(uploadDir, fileName)
-
-	// Create the file
-	out, err := os.Create(filePath)
+	dir := filepath.Join(upload.UploadsRoot, filepath.FromSlash(cleanFolder))
+	stored, _, err := upload.Store(dir, upload.DisplayName(fileName), data)
 	if err != nil {
 		return nil, err
 	}
-	defer out.Close()
-
-	// Copy data to the file
-	written, err := io.Copy(out, file)
-	if err != nil {
-		return nil, err
-	}
-
-	relPath := "/" + filepath.ToSlash(filepath.Join("uploads", cleanFolder, fileName))
-
+	relPath := "/" + filepath.ToSlash(filepath.Join("uploads", filepath.FromSlash(cleanFolder), stored))
 	return &models.MediaAttachment{
-		FileID:     "local-" + fileName,
-		FileName:   fileName,
+		FileID: "local-" + stored,
+		// The stored name, not the client name: the frontend downloads media by
+		// file name (/media/download/<fileName>), and stored names are unique.
+		FileName:   stored,
 		FilePath:   relPath,
-		FileSize:   written,
+		FileSize:   int64(len(data)),
 		FileType:   "application/octet-stream",
 		UploadedAt: time.Now(),
 	}, nil
+}
+
+func (p *LocalProvider) Upload(ctx context.Context, file io.Reader, fileName string, folder string) (*models.MediaAttachment, error) {
+	data, e := upload.ReadAll(file, upload.DefaultMaxBytes)
+	if e != nil {
+		return nil, e
+	}
+	return storeLocal(data, fileName, folder)
 }
 
 func (p *LocalProvider) Delete(ctx context.Context, fileID string) error {

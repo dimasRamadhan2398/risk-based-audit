@@ -13,7 +13,7 @@
           <NuxtLink to="/audit-fieldwork" class="text-primary-600 hover:underline font-medium">{{ t('workingPaper.index.goToFieldwork') }}</NuxtLink>
         </p>
       </div>
-      <UButton
+      <UButton v-if="canWrite"
         :label="t('workingPaper.index.importButton')"
         icon="i-lucide-upload"
         color="neutral"
@@ -31,7 +31,7 @@
           <div>
             <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ t('workingPaper.index.sections.headerTitle') }}</h1>
           </div>
-          <UButton 
+          <UButton v-if="canWrite" 
             :label="t('workingPaper.index.createButton')" 
             icon="i-heroicons-plus" 
             color="primary" 
@@ -52,7 +52,7 @@
           <div>
             <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ t('workingPaper.index.sections.riskTitle') }}</h1>
           </div>
-          <UButton 
+          <UButton v-if="canWrite" 
             :label="t('workingPaper.index.createButton')" 
             icon="i-heroicons-plus" 
             color="primary" 
@@ -73,7 +73,7 @@
           <div>
             <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ t('workingPaper.index.sections.sampleTitle') }}</h1>
           </div>
-          <UButton 
+          <UButton v-if="canWrite" 
             :label="t('workingPaper.index.createButton')" 
             icon="i-heroicons-plus" 
             color="primary" 
@@ -93,7 +93,7 @@
           <div>
             <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ t('workingPaper.index.sections.causeTitle') }}</h1>
           </div>
-          <UButton 
+          <UButton v-if="canWrite" 
             :label="t('workingPaper.index.createButton')" 
             icon="i-heroicons-plus" 
             color="primary" 
@@ -113,7 +113,7 @@
           <div>
             <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ t('workingPaper.index.sections.planTitle') }}</h1>
           </div>
-          <UButton 
+          <UButton v-if="canWrite" 
             :label="t('workingPaper.index.createButton')" 
             icon="i-heroicons-plus" 
             color="primary" 
@@ -132,6 +132,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRbac } from '~/composables/useRbac'
 import { useRoute } from 'vue-router'
 import { onMounted, computed, ref, watch } from 'vue'
 import type { StepperItem } from '@nuxt/ui'
@@ -153,6 +154,7 @@ import { useLocationStore } from '~/stores/location'
 import { useRiskProfileStore } from '~/stores/risk-profile'
 
 const { t } = useI18n()
+const { canWrite } = useRbac()
 
 // Panggil Store
 const store = useWorkingPaperStore()

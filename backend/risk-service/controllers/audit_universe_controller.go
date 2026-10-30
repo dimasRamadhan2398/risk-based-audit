@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"risk-service/middleware"
 	"risk-service/models"
 	"risk-service/pkg/kafka"
+	"risk-service/pkg/masterclient"
 	"strings"
 	"time"
 
@@ -21,10 +23,89 @@ type AuditUniverseController struct {
 	// events may be nil (Kafka disabled or unreachable); *kafka.Publisher
 	// treats a nil receiver as a no-op.
 	events *kafka.Publisher
+	// departments resolves the caller's department and department names. Nil
+	// means department-scoped callers are always refused (fail closed).
+	departments masterclient.DepartmentSource
 }
 
-func NewAuditUniverseController(db *gorm.DB, events *kafka.Publisher) *AuditUniverseController {
-	return &AuditUniverseController{db: db, events: events}
+func NewAuditUniverseController(db *gorm.DB, events *kafka.Publisher, departments masterclient.DepartmentSource) *AuditUniverseController {
+	return &AuditUniverseController{db: db, events: events, departments: departments}
+}
+
+// errForbiddenScope aborts a transaction when a department-scoped caller would
+// touch an entry outside its department.
+var errForbiddenScope = errors.New("entry outside the caller's department")
+
+// universeScope is who is writing: a full writer (unscoped) or a
+// department-scoped caller restricted to department.
+type universeScope struct {
+	full       bool
+	department uuid.UUID
+}
+
+// allows reports whether the caller may modify an entry owned by dept. An
+// entry with no department (NULL) is for full writers only.
+func (s universeScope) allows(dept *uuid.UUID) bool {
+	return s.full || (dept != nil && *dept == s.department)
+}
+
+// authorizeWrite decides the caller's scope or writes the 403. Full writers
+// (ADMIN, EXECUTIVE, CHIEF_AUDIT_EXECUTIVE) are unscoped even if they also hold
+// DEPARTMENT_HEAD. Anyone else must be DEPARTMENT_HEAD with a resolvable
+// department; otherwise the request is refused. This is the real enforcement:
+// the route middleware only lets these roles reach the handler.
+func (ctrl *AuditUniverseController) authorizeWrite(c *gin.Context) (universeScope, bool) {
+	if middleware.HasAnyRole(c, middleware.UniverseFullWriters...) {
+		return universeScope{full: true}, true
+	}
+	deny := func(msg string) (universeScope, bool) {
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+			"success": false,
+			"error":   gin.H{"code": "FORBIDDEN", "message": msg},
+		})
+		return universeScope{}, false
+	}
+	if !middleware.HasAnyRole(c, middleware.RoleDepartmentHead) || ctrl.departments == nil {
+		return deny("Your role is not permitted to perform this action")
+	}
+	code, _ := c.Get("employee_code")
+	empID, _ := c.Get("employee_id")
+	codeS, _ := code.(string)
+	empS, _ := empID.(string)
+	ctx := masterclient.WithAuthorization(c.Request.Context(), c.GetHeader("Authorization"))
+	dept, err := ctrl.departments.CallerDepartment(ctx, codeS, empS)
+	if err != nil {
+		log.Printf("audit universe: caller department unresolved: %v", err)
+		return deny("Your department could not be determined; contact an administrator")
+	}
+	return universeScope{department: dept}, true
+}
+
+func scopeDenied(c *gin.Context) {
+	c.JSON(http.StatusForbidden, gin.H{
+		"success": false,
+		"error":   gin.H{"code": "FORBIDDEN", "message": "You can only modify audit universe entries of your own department"},
+	})
+}
+
+// fillDepartmentNames sets DepartmentName on a tree of nodes, best-effort.
+func (ctrl *AuditUniverseController) fillDepartmentNames(ctx context.Context, nodes []models.CorporateAuditUniverse) {
+	if ctrl.departments == nil {
+		return
+	}
+	var walk func(ns []models.CorporateAuditUniverse)
+	walk = func(ns []models.CorporateAuditUniverse) {
+		for i := range ns {
+			if ns[i].DepartmentID != nil {
+				if name, ok := ctrl.departments.DepartmentName(ctx, *ns[i].DepartmentID); ok {
+					n := name
+					ns[i].DepartmentName = &n
+				}
+			}
+			walk(ns[i].Children)
+		}
+	}
+	walk(nodes)
 }
 
 // publishEntity emits an entity event after the database write has committed.
@@ -82,6 +163,8 @@ func (ctrl *AuditUniverseController) ListCorporateAuditUniverse(c *gin.Context) 
 		})
 		return
 	}
+
+	ctrl.fillDepartmentNames(masterclient.WithAuthorization(c.Request.Context(), c.GetHeader("Authorization")), corporate)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -220,6 +303,9 @@ type CorporateNodeReq struct {
 	StandardAuditUniverseID string `json:"standard_audit_universe_id,omitempty"`
 	Name                    string `json:"name" binding:"required"`
 	ParentID                string `json:"parent_id,omitempty"`
+	// DepartmentID: absent or null leaves it unchanged on update (NULL on
+	// create); "" clears it (full writers only); otherwise a department uuid.
+	DepartmentID *string `json:"department_id"`
 }
 
 // CreateOrUpdateCorporateNode creates a new custom corporate node or updates an existing one
@@ -230,6 +316,26 @@ func (ctrl *AuditUniverseController) CreateOrUpdateCorporateNode(c *gin.Context)
 			"success": false,
 			"error":   "Invalid request body: " + err.Error(),
 		})
+		return
+	}
+
+	// Requested department: nil = not supplied, uuid.Nil = clear.
+	var reqDept *uuid.UUID
+	if req.DepartmentID != nil {
+		if strings.TrimSpace(*req.DepartmentID) == "" {
+			reqDept = &uuid.Nil
+		} else {
+			d, err := uuid.Parse(strings.TrimSpace(*req.DepartmentID))
+			if err != nil || d == uuid.Nil {
+				c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Invalid department_id"})
+				return
+			}
+			reqDept = &d
+		}
+	}
+
+	scope, ok := ctrl.authorizeWrite(c)
+	if !ok {
 		return
 	}
 
@@ -245,6 +351,26 @@ func (ctrl *AuditUniverseController) CreateOrUpdateCorporateNode(c *gin.Context)
 		if err := ctrl.db.First(&node, "id = ?", nodeID).Error; err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"success": false, "error": "Corporate node not found"})
 			return
+		}
+		// Scoped callers: the entry must be theirs (NULL is not), and they can
+		// never change its department. Update only renames today; parent_id is
+		// ignored here, so no re-parenting path exists. If one is added it must
+		// require the new parent to pass scope.allows as well.
+		if !scope.allows(node.DepartmentID) {
+			scopeDenied(c)
+			return
+		}
+		if reqDept != nil {
+			if !scope.full && (*reqDept == uuid.Nil || *reqDept != scope.department) {
+				scopeDenied(c)
+				return
+			}
+			if *reqDept == uuid.Nil {
+				node.DepartmentID = nil
+			} else {
+				d := *reqDept
+				node.DepartmentID = &d
+			}
 		}
 		node.Name = req.Name
 		node.UpdatedAt = now
@@ -267,6 +393,31 @@ func (ctrl *AuditUniverseController) CreateOrUpdateCorporateNode(c *gin.Context)
 				node.ParentID = &parentID
 			}
 		}
+
+		if scope.full {
+			if reqDept != nil && *reqDept != uuid.Nil {
+				d := *reqDept
+				node.DepartmentID = &d
+			}
+		} else {
+			// Scoped create: always the caller's own department; asking for
+			// another one is refused rather than silently rewritten.
+			if reqDept != nil && *reqDept != scope.department {
+				scopeDenied(c)
+				return
+			}
+			d := scope.department
+			node.DepartmentID = &d
+			// Hanging a new entry under a parent is allowed only inside the
+			// caller's department (a NULL-department parent is not).
+			if node.ParentID != nil {
+				var parent models.CorporateAuditUniverse
+				if err := ctrl.db.First(&parent, "id = ?", *node.ParentID).Error; err != nil || !scope.allows(parent.DepartmentID) {
+					scopeDenied(c)
+					return
+				}
+			}
+		}
 	}
 
 	// Perform saving inside a transaction to copy standard children if it is a parent
@@ -287,6 +438,7 @@ func (ctrl *AuditUniverseController) CreateOrUpdateCorporateNode(c *gin.Context)
 						StandardAuditUniverseID: &childStdID,
 						Name:                    sc.Name,
 						ParentID:                &node.ID,
+						DepartmentID:            node.DepartmentID,
 						CreatedAt:               now,
 						UpdatedAt:               now,
 					}
@@ -310,6 +462,9 @@ func (ctrl *AuditUniverseController) CreateOrUpdateCorporateNode(c *gin.Context)
 
 	// Fetch with standard preloads if it has one
 	ctrl.db.Preload("StandardAuditUniverse").First(&node, "id = ?", node.ID)
+	named := []models.CorporateAuditUniverse{node}
+	ctrl.fillDepartmentNames(masterclient.WithAuthorization(c.Request.Context(), c.GetHeader("Authorization")), named)
+	node.DepartmentName = named[0].DepartmentName
 
 	if req.ID == "" {
 		ctrl.publishEntity(kafka.EventEntityCreated, node)
@@ -336,6 +491,11 @@ func (ctrl *AuditUniverseController) DeleteCorporateNode(c *gin.Context) {
 		return
 	}
 
+	scope, ok := ctrl.authorizeWrite(c)
+	if !ok {
+		return
+	}
+
 	// Fetch node to ensure it exists
 	var node models.CorporateAuditUniverse
 	if err := ctrl.db.First(&node, "id = ?", nodeID).Error; err != nil {
@@ -351,13 +511,32 @@ func (ctrl *AuditUniverseController) DeleteCorporateNode(c *gin.Context) {
 	// scores, in one transaction. Any error rolls everything back.
 	// CorporateAuditUniverse and AuditUniverseYear have no DeletedAt, so this
 	// is a hard delete: the yearly score history of the subtree goes with it.
+	if !scope.allows(node.DepartmentID) {
+		scopeDenied(c)
+		return
+	}
 	var deleted []models.CorporateAuditUniverse // deepest level first
 	err = ctrl.db.Transaction(func(tx *gorm.DB) error {
 		var derr error
 		deleted, derr = deleteCorporateSubtree(tx, node)
-		return derr
+		if derr != nil {
+			return derr
+		}
+		// Deleting a node deletes its whole subtree, so a scoped caller needs
+		// every descendant to be theirs too. Checked here so the rollback is
+		// atomic with the delete.
+		for _, n := range deleted {
+			if !scope.allows(n.DepartmentID) {
+				return errForbiddenScope
+			}
+		}
+		return nil
 	})
 
+	if errors.Is(err, errForbiddenScope) {
+		scopeDenied(c)
+		return
+	}
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,

@@ -16,6 +16,15 @@ func SetupRoutes(r *gin.Engine, authMiddleware *middleware.AuthMiddleware) {
 	// and CAATT results were readable by anyone who could reach the gateway -
 	// and /retrain/auto was anonymously triggerable.
 	api.Use(authMiddleware.Authenticate())
+	// VIEWER is read-only. These POSTs only compute a result from the request
+	// (same handler as the GET twin) and stay open; /retrain/auto and anything
+	// added later is refused by default.
+	api.Use(middleware.DenyViewerWrites(
+		"POST /api/analytics/risk-score",
+		"POST /api/analytics/anomaly",
+		"POST /api/analytics/text-analysis",
+		"POST /api/analytics/performance-trend",
+	))
 	{
 		api.GET("/report", analyticsController.GetReport)
 		api.GET("/predict", analyticsController.GetPredictiveTrends)
