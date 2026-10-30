@@ -241,13 +241,20 @@
                   >
                     <USelectMenu
                       v-model="store.form.workingUnit"
-                      :items="store.options.workingUnit"
+                      :items="store.workUnitOptions"
+                      :loading="store.departmentsLoading"
                       :placeholder="t('assignmentLetter.formExtra.workUnitPlaceholder')"
                       size="lg"
                       class="w-full"
                       :popper="{ strategy: 'absolute' }"
+                      create-item
+                      @create="(val: string) => { store.form.workingUnit = val.trim() }"
                       required
-                    />
+                    >
+                      <template #empty>
+                        {{ store.departmentsLoading ? t('common.loading') : (store.departmentsError || t('masterData.department.empty')) }}
+                      </template>
+                    </USelectMenu>
                   </UFormField>
                 </div>
 
@@ -643,6 +650,9 @@ watch(
       if (!store.employeesLoaded && !store.employeesLoading) {
         store.fetchEmployees().catch(() => {})
       }
+      if (!store.departmentsLoaded && !store.departmentsLoading) {
+        store.fetchDepartments().catch(() => {})
+      }
     }
   },
   { immediate: true }
@@ -651,6 +661,9 @@ watch(
 onMounted(() => {
   if (!store.employeesLoaded && !store.employeesLoading) {
     store.fetchEmployees().catch(() => {})
+  }
+  if (!store.departmentsLoaded && !store.departmentsLoading) {
+    store.fetchDepartments().catch(() => {})
   }
 })
 </script>

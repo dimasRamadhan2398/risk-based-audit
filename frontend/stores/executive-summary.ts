@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia'
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 import { useAuditResultReportStore } from './audit-result-report'
 import { useI18n } from '~/composables/useI18n'
 import { buildDefaultNarrative, formatQuarterPeriod } from '~/utils/executiveSummaryNarrative'
+import { useDepartmentApi } from '~/composables/useDepartmentApi'
+import type { Department } from '~/types/master'
 
 export interface FollowUpRow {
   status: 'Closed' | 'In Progress' | 'Overdue'
@@ -17,7 +19,9 @@ export interface FollowUpRow {
 export interface SignificantFinding {
   unitDivision: string
   judulTemuan: string
-  risiko: 'Tinggi' | 'Sedang' | 'Rendah'
+  risiko: 'Very Significant' | 'Significant' | 'Quite Significant' | 'Not Significant' | 'Tinggi' | 'Sedang' | 'Rendah' | string
+  category?: string
+  significanceLevel?: string
   statusTL: 'Closed' | 'In Progress' | 'Overdue'
   usulan: string
 }
@@ -28,7 +32,7 @@ export interface MatriksRow {
   unitKerja: string
   prosesBisnis: string
   judulTemuan: string
-  nilaiRisiko: 'Tinggi' | 'Sedang' | 'Rendah'
+  nilaiRisiko: 'Very Significant' | 'Significant' | 'Quite Significant' | 'Not Significant' | 'Tinggi' | 'Sedang' | 'Rendah' | string
   rekomendasi: string
   dueDate: string
   picUnit: string
@@ -195,6 +199,80 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     signatureNamaKepala: '',
     signatureNIK: ''
   })
+
+  // Master Data Departemen (Department Management Sync for Unit Division)
+  const departments = ref<Department[]>([])
+  const departmentsLoading = ref(false)
+  const departmentsLoaded = ref(false)
+  const departmentsError = ref('')
+
+  const resolveDepartmentOption = (val?: string): string => {
+    if (!val) return ''
+    const match = departments.value.find(
+      d => d.id === val || d.department_code === val || d.department_name === val || `${d.department_name} (${d.department_code})` === val
+    )
+    if (match) {
+      return match.department_code ? `${match.department_name} (${match.department_code})` : match.department_name
+    }
+    return val
+  }
+
+  const formatDepartmentName = (value?: string): string => {
+    if (!value) return '-'
+    const found = departments.value.find(
+      d => d.id === value || d.department_code === value || d.department_name === value || `${d.department_name} (${d.department_code})` === value
+    )
+    if (found) {
+      return found.department_code ? `${found.department_name} (${found.department_code})` : found.department_name
+    }
+    return value
+  }
+
+  const fetchDepartments = async (force = false) => {
+    if (departmentsLoaded.value && !force) return
+    if (departmentsLoading.value) return
+    departmentsLoading.value = true
+    departmentsError.value = ''
+    try {
+      const api = useDepartmentApi()
+      const list = await api.getAllDepartments()
+      departments.value = (Array.isArray(list) ? list : [])
+        .filter(d => d?.department_name && d.is_active !== false)
+        .sort((a, b) => a.department_name.localeCompare(b.department_name, 'id', { sensitivity: 'base' }))
+      departmentsLoaded.value = true
+
+      // Resolve any existing topFindings unitDivision
+      if (form.topFindings && form.topFindings.length > 0) {
+        form.topFindings.forEach(f => {
+          if (f.unitDivision) {
+            f.unitDivision = resolveDepartmentOption(f.unitDivision)
+          }
+        })
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch departments for executive summary:', error)
+      departmentsError.value = extractErrorMessage(error, 'Gagal memuat data departemen.')
+      if (!departmentsLoaded.value) {
+        departments.value = []
+      }
+    } finally {
+      departmentsLoading.value = false
+    }
+  }
+
+  const unitDivisionOptions = computed(() => {
+    const list = departments.value.map(d => d.department_code ? `${d.department_name} (${d.department_code})` : d.department_name)
+    if (form.topFindings && form.topFindings.length > 0) {
+      form.topFindings.forEach(f => {
+        if (f.unitDivision && !list.includes(f.unitDivision)) {
+          list.push(f.unitDivision)
+        }
+      })
+    }
+    return Array.from(new Set(list)).sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
+  })
+
+  const divisionOptions = unitDivisionOptions
 
 
 
@@ -385,6 +463,9 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       signatureNamaKepala: '',
       signatureNIK: ''
     })
+    if (!departmentsLoaded.value && !departmentsLoading.value) {
+      fetchDepartments().catch(() => {})
+    }
     showModal.value = true
   }
 
@@ -403,6 +484,19 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     if (!form.assignmentLetterId && summary.assignmentLetterId) {
       form.assignmentLetterId = summary.assignmentLetterId
     }
+    if (form.topFindings && form.topFindings.length > 0) {
+      form.topFindings.forEach(f => {
+        if (f.unitDivision) {
+          f.unitDivision = resolveDepartmentOption(f.unitDivision)
+        }
+        if (f.risiko === 'Tinggi') f.risiko = 'Significant'
+        else if (f.risiko === 'Sedang') f.risiko = 'Quite Significant'
+        else if (f.risiko === 'Rendah') f.risiko = 'Not Significant'
+      })
+    }
+    if (!departmentsLoaded.value && !departmentsLoading.value) {
+      fetchDepartments().catch(() => {})
+    }
     showModal.value = true
   }
 
@@ -413,6 +507,19 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     Object.assign(form, JSON.parse(JSON.stringify(summary)))
     if (!form.assignmentLetterId && summary.assignmentLetterId) {
       form.assignmentLetterId = summary.assignmentLetterId
+    }
+    if (form.topFindings && form.topFindings.length > 0) {
+      form.topFindings.forEach(f => {
+        if (f.unitDivision) {
+          f.unitDivision = resolveDepartmentOption(f.unitDivision)
+        }
+        if (f.risiko === 'Tinggi') f.risiko = 'Significant'
+        else if (f.risiko === 'Sedang') f.risiko = 'Quite Significant'
+        else if (f.risiko === 'Rendah') f.risiko = 'Not Significant'
+      })
+    }
+    if (!departmentsLoaded.value && !departmentsLoading.value) {
+      fetchDepartments().catch(() => {})
     }
     showModal.value = true
   }
@@ -759,6 +866,15 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     updateStatus,
     fetchSummaries,
     defaultNarrativeTemplate,
-    generateEscDocNumber
+    generateEscDocNumber,
+    departments,
+    departmentsLoading,
+    departmentsLoaded,
+    departmentsError,
+    unitDivisionOptions,
+    divisionOptions,
+    fetchDepartments,
+    resolveDepartmentOption,
+    formatDepartmentName
   }
 })

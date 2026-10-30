@@ -75,7 +75,7 @@
                   </td>
 
                   <!-- Unit -->
-                  <td class="py-4 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ row.unitInCharge }}</td>
+                  <td class="py-4 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ store.formatDepartmentName(row.unitInCharge) }}</td>
 
                   <!-- PIC -->
                   <td class="py-4 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ store.formatEmployeeName(row.pic) }}</td>
@@ -245,6 +245,7 @@ watch(() => props.currentRiskId, (newId) => {
 
 onMounted(() => {
   store.fetchEmployees()
+  store.fetchDepartments()
 })
 
 const filteredMitigations = computed(() => {

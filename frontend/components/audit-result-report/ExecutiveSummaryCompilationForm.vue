@@ -464,10 +464,18 @@
                   <td class="px-3 py-2">
                     <USelectMenu
                       v-model="finding.unitDivision"
-                      :items="divisionOptions"
+                      :items="store.unitDivisionOptions"
+                      :loading="store.departmentsLoading"
                       :placeholder="t('executiveSummaryForm.placeholders.division')"
                       :disabled="isLocked"
-                    />
+                      class="w-full"
+                      create-item
+                      @create="(val: string) => { finding.unitDivision = val.trim() }"
+                    >
+                      <template #empty>
+                        {{ store.departmentsLoading ? t('common.loading') : (store.departmentsError || t('masterData.department.empty')) }}
+                      </template>
+                    </USelectMenu>
                   </td>
                   <td class="px-3 py-2">
                     <UInput
@@ -485,9 +493,11 @@
                   <td class="px-3 py-2">
                     <USelectMenu
                       v-model="finding.risiko"
-                      :items="['Tinggi', 'Sedang', 'Rendah']"
+                      :items="significanceLevelOptions"
+                      value-key="value"
                       :placeholder="t('executiveSummaryForm.placeholders.risk')"
                       :disabled="isLocked"
+                      class="w-full"
                     />
                   </td>
                   <td class="px-3 py-2">
@@ -846,7 +856,15 @@ const sections = computed(() => [
 ])
 
 // Dropdown options
-const divisionOptions = ['OP', 'KK/KSD', 'IT', 'FIN', 'HR', 'LEG']
+const divisionOptions = computed(() => store.unitDivisionOptions)
+
+// Significance Level options synchronized with Result Reports (LHA) Category / Significance Level
+const significanceLevelOptions = computed(() => [
+  { label: t('auditResultReport.dashboard.categories.verySignificant'), value: 'Very Significant' },
+  { label: t('auditResultReport.dashboard.categories.significant'), value: 'Significant' },
+  { label: t('auditResultReport.dashboard.categories.quiteSignificant'), value: 'Quite Significant' },
+  { label: t('auditResultReport.dashboard.categories.notSignificant'), value: 'Not Significant' }
+])
 
 const quarterOptions = ['Kuartal I', 'Kuartal II', 'Kuartal III', 'Kuartal IV']
 const reportingQuarter = computed({
@@ -1023,10 +1041,11 @@ const handleFileUpload = (e: Event) => {
 // Section IV: Top 5 dynamic list methods
 const addTopFinding = () => {
   if (store.form.topFindings.length >= 5) return
+  const defaultDiv: string = store.unitDivisionOptions[0] || ''
   store.form.topFindings.push({
-    unitDivision: 'OP',
+    unitDivision: defaultDiv,
     judulTemuan: '',
-    risiko: 'Tinggi',
+    risiko: 'Significant',
     statusTL: 'In Progress',
     usulan: ''
   })
@@ -1096,22 +1115,18 @@ const syncFromIndividualLha = async () => {
     else if (r.reportTitle.includes('Procurement') || r.reportTitle.includes('SCM')) div = 'KK/KSD'
 
     findings.forEach((f: any) => {
-      let risiko: 'Tinggi' | 'Sedang' | 'Rendah' = 'Tinggi'
-      if (f.category === 'Very Significant' || f.category === 'Significant') {
-        risiko = 'Tinggi'
-      } else if (f.category === 'Quite Significant') {
-        risiko = 'Sedang'
-      } else {
-        risiko = 'Rendah'
-      }
+      let sigLevel = f.category || f.significanceLevel || f.risiko || 'Significant'
+      if (sigLevel === 'Tinggi') sigLevel = 'Significant'
+      else if (sigLevel === 'Sedang') sigLevel = 'Quite Significant'
+      else if (sigLevel === 'Rendah') sigLevel = 'Not Significant'
 
       allFindings.push({
         unitDivision: div,
         judulTemuan: f.title || f.finding || '',
-        risiko,
+        risiko: sigLevel,
         statusTL: 'In Progress',
         usulan: f.action || f.recommendation || '',
-        severityRank: risiko === 'Tinggi' ? 3 : risiko === 'Sedang' ? 2 : 1
+        severityRank: sigLevel === 'Very Significant' ? 4 : sigLevel === 'Significant' ? 3 : sigLevel === 'Quite Significant' ? 2 : 1
       })
     })
 

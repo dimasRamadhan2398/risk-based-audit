@@ -7,8 +7,9 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
 import { openProtectedFile } from '~/utils/authedFile'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
-import type { Employee } from '~/types/master'
+import type { Employee, Department } from '~/types/master'
 import { useEmployeeApi } from '~/composables/useEmployeeApi'
+import { useDepartmentApi } from '~/composables/useDepartmentApi'
 
 export interface InterviewItem {
   id: any
@@ -1596,6 +1597,77 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     return list
   })
 
+  // Master Data Departemen (Department Management Sync for Test Controls Unit Division)
+  const departments = ref<Department[]>([])
+  const departmentsLoading = ref(false)
+  const departmentsLoaded = ref(false)
+  const departmentsError = ref('')
+
+  const resolveDepartmentOption = (val?: string): string => {
+    if (!val) return ''
+    const match = departments.value.find(
+      d => d.id === val || d.department_code === val || d.department_name === val || `${d.department_name} (${d.department_code})` === val
+    )
+    if (match) {
+      return match.department_code ? `${match.department_name} (${match.department_code})` : match.department_name
+    }
+    return val
+  }
+
+  const formatDepartmentName = (value?: string): string => {
+    if (!value) return '-'
+    const found = departments.value.find(
+      d => d.id === value || d.department_code === value || d.department_name === value
+    )
+    if (found) {
+      return found.department_code ? `${found.department_name} (${found.department_code})` : found.department_name
+    }
+    return value
+  }
+
+  const fetchDepartments = async (force = false) => {
+    if (departmentsLoaded.value && !force) return
+    if (departmentsLoading.value) return
+    departmentsLoading.value = true
+    departmentsError.value = ''
+    try {
+      const api = useDepartmentApi()
+      const list = await api.getAllDepartments()
+      departments.value = (Array.isArray(list) ? list : [])
+        .filter(d => d?.department_name && d.is_active !== false)
+        .sort((a, b) => a.department_name.localeCompare(b.department_name, 'id', { sensitivity: 'base' }))
+      departmentsLoaded.value = true
+
+      if (options && departments.value.length > 0) {
+        options.divisionOptions = departments.value.map(d =>
+          d.department_code ? `${d.department_name} (${d.department_code})` : d.department_name
+        )
+      }
+
+      if (testControlForm.unitDivision) {
+        testControlForm.unitDivision = resolveDepartmentOption(testControlForm.unitDivision)
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch departments for test controls:', error)
+      departmentsError.value = extractErrorMessage(error, 'Gagal memuat data departemen.')
+      if (!departmentsLoaded.value) {
+        departments.value = []
+      }
+    } finally {
+      departmentsLoading.value = false
+    }
+  }
+
+  const unitDivisionOptions = computed(() => {
+    const list = departments.value.map(d => d.department_code ? `${d.department_name} (${d.department_code})` : d.department_name)
+    if (testControlForm.unitDivision && !list.includes(testControlForm.unitDivision)) {
+      list.unshift(testControlForm.unitDivision)
+    }
+    return list.sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
+  })
+
+  const divisionOptions = unitDivisionOptions
+
   // Test Control Form
   const testControlForm = reactive({
     controlName: '',
@@ -1627,6 +1699,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     isReadOnlyTestControl.value = false
     editingTestControlId.value = null
     fetchEmployees()
+    fetchDepartments()
     showTestControlModal.value = true
   }
 
@@ -1637,7 +1710,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     testControlForm.controlName = item.controlName
     testControlForm.controlDescription = item.controlDescription
     testControlForm.controlType = item.controlType
-    testControlForm.unitDivision = item.unitDivision || ''
+    testControlForm.unitDivision = resolveDepartmentOption(item.unitDivision || '')
     testControlForm.testProcedure = item.testProcedure
     testControlForm.testResult = item.testResult
     testControlForm.finding = item.finding
@@ -1646,6 +1719,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     testControlForm.pic = resolveEmployeeOption(item.pic)
     testControlForm.dueDate = item.dueDate
     fetchEmployees()
+    fetchDepartments()
     showTestControlModal.value = true
   }
 
@@ -1958,6 +2032,15 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     resolveEmployeeOption,
     formatEmployeeName,
     picOptions,
+    departments,
+    departmentsLoading,
+    departmentsLoaded,
+    departmentsError,
+    fetchDepartments,
+    resolveDepartmentOption,
+    formatDepartmentName,
+    unitDivisionOptions,
+    divisionOptions,
     effectiveControls,
     ineffectiveControls,
     fieldworkData,

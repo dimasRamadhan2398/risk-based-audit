@@ -101,12 +101,14 @@ export const useDepartmentApi = () => {
    */
   const getAllDepartments = async (): Promise<Department[]> => {
     try {
+      const queryParams = { page: 1, page_size: 1000 }
       const response = await $fetch<any>(`${getBaseUrl()}/departments`, {
         method: 'GET',
-        params: { page: 1, page_size: 1000 }
+        query: queryParams,
+        params: queryParams
       })
 
-      const departments = response.data?.departments || response.departments || (Array.isArray(response.data) ? response.data : [])
+      const departments = response.data?.departments || response.departments || (Array.isArray(response.data) ? response.data : (Array.isArray(response) ? response : []))
       return Array.isArray(departments) ? departments : []
     } catch (err) {
       console.error('Failed to fetch departments:', err)

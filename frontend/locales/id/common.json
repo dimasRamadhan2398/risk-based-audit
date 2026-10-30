@@ -1707,6 +1707,7 @@
       "columns": {
         "name": "Nama Pengendalian",
         "type": "Jenis Pengendalian",
+        "unitDivision": "Unit Divisi",
         "result": "Hasil Pengujian",
         "finding": "Temuan",
         "mitigation": "Rencana Mitigasi",
@@ -2487,7 +2488,7 @@
     "stepper": {
       "auditInfo": "Informasi Audit",
       "unitTeam": "Unit Kerja & Tim",
-      "purposeDistribution": "Tujuan, Ruang Lingkup & Tembusan",
+      "purposeDistribution": "Tujuan & Ruang Lingkup",
       "next": "Langkah Berikutnya",
       "previous": "Sebelumnya"
     },
@@ -3120,7 +3121,7 @@
       "autoCalculated": "Dihitung otomatis",
       "unitDivision": "Unit Divisi",
       "findingTitle": "Judul Temuan",
-      "riskValue": "Nilai Risiko",
+      "riskValue": "Tingkat Signifikansi",
       "followUpStatus": "Status TL",
       "proposedAction": "Usulan Tindakan",
       "actions": "Aksi"
@@ -3163,7 +3164,7 @@
     "placeholders": {
       "division": "Divisi",
       "findingTitle": "Judul temuan utama...",
-      "risk": "Risiko",
+      "risk": "Tingkat Signifikansi",
       "proposedAction": "Contoh: Eskalasi Direksi",
       "year": "Pilih Tahun",
       "quarter": "Pilih Kuartal"
@@ -3846,7 +3847,7 @@
       "filters": {
         "searchTitle": "Cari Judul",
         "searchPlaceholder": "Cari berdasarkan judul proyek...",
-        "category": "Kategori",
+        "category": "Kategori Konsultasi",
         "selectCategory": "Pilih Kategori",
         "status": "Status",
         "selectStatus": "Pilih Status",
@@ -3879,6 +3880,8 @@
         "projectPlaceholder": "Advisory atas Revisi Kebijakan",
         "category": "Kategori",
         "requestorDepartment": "Departemen Pemohon",
+        "requestorDepartmentRequired": "Departemen Pemohon wajib diisi",
+        "requestorDepartmentPlaceholder": "Pilih atau ketik departemen pemohon...",
         "periodQuarter": "Triwulan",
         "periodYear": "Tahun",
         "consultant": "Konsultan / Ketua Auditor",
@@ -3927,6 +3930,7 @@
       "deleteConfirm": "Apakah Anda yakin ingin menghapus penugasan konsultasi ini?",
       "messages": {
         "fetchFailed": "Gagal memuat layanan konsultasi.",
+        "departmentFetchFailed": "Gagal memuat data departemen.",
         "required": "Judul dan Nama Konsultan wajib diisi.",
         "updateFileUnsupported": "Penggantian file saat edit belum didukung oleh server.",
         "saveSuccess": "Layanan konsultasi berhasil disimpan.",

@@ -1818,6 +1818,7 @@
       "columns": {
         "name": "Control Name",
         "type": "Control Type",
+        "unitDivision": "Unit Division",
         "result": "Test Result",
         "finding": "Finding",
         "mitigation": "Mitigation Plan",
@@ -2598,7 +2599,7 @@
     "stepper": {
       "auditInfo": "Audit Information",
       "unitTeam": "Work Unit & Team",
-      "purposeDistribution": "Purpose, Scope & CC",
+      "purposeDistribution": "Purpose & Scope",
       "next": "Next Step",
       "previous": "Previous"
     },
@@ -3232,7 +3233,7 @@
       "autoCalculated": "Calculated automatically",
       "unitDivision": "Unit Division",
       "findingTitle": "Finding Title",
-      "riskValue": "Risk Rating",
+      "riskValue": "Significance Level",
       "followUpStatus": "Follow-up Status",
       "proposedAction": "Proposed Action",
       "actions": "Actions"
@@ -3275,7 +3276,7 @@
     "placeholders": {
       "division": "Division",
       "findingTitle": "Main finding title...",
-      "risk": "Risk",
+      "risk": "Significance Level",
       "proposedAction": "e.g. Escalation to Board of Directors",
       "year": "Select Year",
       "quarter": "Select Quarter"
@@ -3989,8 +3990,10 @@
         "newTitle": "New Consulting Assignment",
         "projectTitle": "Project Title",
         "projectPlaceholder": "Advisory on Policy Revisions",
-        "category": "Category",
+        "category": "Consulting Category",
         "requestorDepartment": "Requestor Department",
+        "requestorDepartmentRequired": "Requestor Department is required",
+        "requestorDepartmentPlaceholder": "Select or type requestor department...",
         "periodQuarter": "Period Quarter",
         "periodYear": "Period Year",
         "consultant": "Consultant / Lead Auditor",
@@ -4039,6 +4042,7 @@
       "deleteConfirm": "Are you sure you want to delete this consulting assignment?",
       "messages": {
         "fetchFailed": "Failed to load consulting services.",
+        "departmentFetchFailed": "Failed to load department data.",
         "required": "Title and Consultant Name are required.",
         "updateFileUnsupported": "File replacement while editing is not yet supported by the server.",
         "saveSuccess": "Consulting service saved successfully.",

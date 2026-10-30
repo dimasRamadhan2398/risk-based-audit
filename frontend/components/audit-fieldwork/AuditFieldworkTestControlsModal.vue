@@ -144,7 +144,7 @@
               </div>
               <div>
                 <p class="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1">{{ t('auditFieldwork.testControls.unitDivision') }}</p>
-                <p class="text-sm font-bold text-[var(--text-main)]">{{ store.testControlForm.unitDivision || '-' }}</p>
+                <p class="text-sm font-bold text-[var(--text-main)]">{{ store.formatDepartmentName(store.testControlForm.unitDivision) }}</p>
               </div>
               <div>
                 <p class="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1">{{ t('auditFieldwork.testControls.description') }}</p>
@@ -287,12 +287,19 @@
                     />
                   </UFormField>
                   <UFormField :label="t('auditFieldwork.testControls.unitDivision')">
-                    <ReusableSelectMenu
+                    <USelectMenu
                       v-model="store.testControlForm.unitDivision"
-                      :items="store.options.divisionOptions"
+                      :items="store.unitDivisionOptions"
+                      :loading="store.departmentsLoading"
                       :placeholder="t('auditFieldwork.testControls.unitDivisionPlaceholder')"
                       class="w-full"
-                    />
+                      create-item
+                      @create="(val: string) => { store.testControlForm.unitDivision = val.trim() }"
+                    >
+                      <template #empty>
+                        {{ store.departmentsLoading ? t('common.loading') : (store.departmentsError || t('masterData.department.empty')) }}
+                      </template>
+                    </USelectMenu>
                   </UFormField>
                 </div>
                 <UFormField :label="t('auditFieldwork.testControls.description')" required>
@@ -626,6 +633,7 @@ const handleSave = () => {
 
 onMounted(() => {
   store.fetchEmployees()
+  store.fetchDepartments()
 })
 
 watch(
@@ -635,6 +643,7 @@ watch(
       currentStep.value = 0
       formErrorMessage.value = ''
       store.fetchEmployees()
+      store.fetchDepartments()
     }
   }
 )

@@ -111,7 +111,7 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
 
       // Conditional note rendering
       expect(content).toContain('v-if="item.executiveNote && item.executiveNote.trim()"')
-      expect(content).toContain('Noted dari Executive untuk Auditor')
+      expect(content).toMatch(/(Noted dari Executive untuk Auditor|executiveSummaryForm\.notes\.title)/)
       expect(content).toContain('{{ item.executiveNote }}')
     })
   })
@@ -298,7 +298,7 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       const compilationContent = read('components/audit-result-report/ExecutiveSummaryCompilationForm.vue')
 
       // Individual form checks
-      expect(individualContent).toContain('Pilih Laporan Hasil Audit (LHA)')
+      expect(individualContent).toMatch(/(Pilih Laporan Hasil Audit \(LHA\)|lhaPlaceholder)/)
       expect(individualContent).toContain('lhaDropdownOptions')
       expect(individualContent).toContain('onLhaSelect')
       expect(individualContent).toContain('linkedLhaReport')

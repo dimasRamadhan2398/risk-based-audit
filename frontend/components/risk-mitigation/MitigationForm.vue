@@ -52,12 +52,17 @@
 
             <UFormField :label="t('riskMitigation.form.unit')" required>
               <USelectMenu
-                :items="store.unitInChargeOptions"
                 v-model="store.form.unitInCharge"
+                :items="store.unitInChargeOptions"
+                :loading="store.departmentsLoading"
                 :placeholder="t('riskMitigation.form.unitPlaceholder')"
                 class="w-full"
                 required
-              />
+              >
+                <template #empty>
+                  {{ store.departmentsLoading ? t('common.loading') : (store.departmentsError || t('masterData.department.empty')) }}
+                </template>
+              </USelectMenu>
             </UFormField>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -101,6 +106,7 @@ const { t } = useI18n()
 
 onMounted(() => {
   store.fetchEmployees()
+  store.fetchDepartments()
 })
 
 // Mendapatkan tanggal hari ini dalam format YYYY-MM-DD untuk batas minimum pemilihan tanggal

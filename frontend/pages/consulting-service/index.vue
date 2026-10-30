@@ -128,6 +128,11 @@
           </UBadge>
         </template>
 
+        <!-- Requestor Department Cell -->
+        <template #requestorDept-cell="{ row }">
+          {{ store.formatDepartmentName((row.original as any).requestorDept) }}
+        </template>
+
         <template #category-cell="{ row }">
           {{ getCategoryLabel((row.original as any).category) }}
         </template>
@@ -327,8 +332,20 @@
                     <USelect v-model="store.newService.category" :items="categoryOptions" value-key="value" class="w-full" />
                   </UFormField>
 
-                  <UFormField :label="t('consultingService.dashboard.form.requestorDepartment')">
-                    <USelect v-model="store.newService.requestorDept" :items="store.departments" class="w-full" />
+                  <UFormField :label="t('consultingService.dashboard.form.requestorDepartment')" required>
+                    <USelectMenu
+                      v-model="store.newService.requestorDept"
+                      :items="store.departmentOptions"
+                      :loading="store.departmentsLoading"
+                      :placeholder="t('consultingService.dashboard.form.requestorDepartmentPlaceholder') || t('consultingService.dashboard.filters.selectDepartment')"
+                      class="w-full"
+                      create-item
+                      @create="(val: string) => { store.newService.requestorDept = val.trim() }"
+                    >
+                      <template #empty>
+                        {{ store.departmentsLoading ? t('common.loading') : (store.departmentsError || t('masterData.department.empty')) }}
+                      </template>
+                    </USelectMenu>
                   </UFormField>
                 </div>
 
@@ -492,7 +509,7 @@
               </div>
               <div>
                 <span class="text-md text-gray-400 block">{{ t('consultingService.dashboard.detail.requestorDepartment') }}</span>
-                <span class="font-semibold text-gray-800 dark:text-gray-200">{{ store.selectedService.requestorDept }}</span>
+                <span class="font-semibold text-gray-800 dark:text-gray-200">{{ store.formatDepartmentName(store.selectedService.requestorDept) }}</span>
               </div>
               <div>
                 <span class="text-md text-gray-400 block">{{ t('consultingService.dashboard.detail.consultantLead') }}</span>
@@ -554,6 +571,7 @@ const store = useConsultingServiceStore()
 const { t } = useI18n()
 const { canWriteQaConsulting, canAccessFiles } = useRbac()
 store.fetchServices()
+store.fetchDepartments()
 
 const currentStep = ref(0)
 const formBodyRef = ref<HTMLElement | null>(null)
@@ -572,6 +590,10 @@ const validateStep = (idx: number): boolean => {
     }
     if (store.newService.title.length > 100) {
       formErrorMessage.value = t('consultingService.dashboard.form.titleValidation') || 'Judul wajib diisi dan maksimal 100 karakter'
+      return false
+    }
+    if (!store.newService.requestorDept?.trim()) {
+      formErrorMessage.value = t('consultingService.dashboard.form.requestorDepartmentRequired') || 'Departemen Pemohon wajib diisi'
       return false
     }
     if (!store.newService.consultantName?.trim()) {
@@ -682,7 +704,7 @@ const statusFilterOptions = computed(() => [{ label: t('consultingService.dashbo
 const categoryFilterOptions = computed(() => [{ label: t('consultingService.dashboard.filters.all'), value: 'All' }, ...categoryOptions.value])
 const departmentFilterOptions = computed(() => [
   { label: t('consultingService.dashboard.filters.all'), value: 'All' },
-  ...store.departments.map(value => ({ label: value, value }))
+  ...store.departmentOptions.map(value => ({ label: value, value }))
 ])
 
 const filters = reactive({
@@ -698,7 +720,9 @@ const filteredServices = computed(() => {
       s.consultantName.toLowerCase().includes(filters.search.toLowerCase())
     const matchesCategory = filters.category === 'All' || s.category === filters.category
     const matchesStatus = filters.status === 'All' || s.status === filters.status
-    const matchesDept = filters.dept === 'All' || s.requestorDept === filters.dept
+    const matchesDept = filters.dept === 'All' ||
+      s.requestorDept === filters.dept ||
+      store.resolveDepartmentOption(s.requestorDept) === filters.dept
     return matchesSearch && matchesCategory && matchesStatus && matchesDept
   })
 })

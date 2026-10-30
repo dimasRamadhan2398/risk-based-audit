@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import * as employeeApiModule from '~/composables/useEmployeeApi'
+import * as departmentApiModule from '~/composables/useDepartmentApi'
 import type { Employee } from '~/types/master'
 import type { AssignmentLetter } from '~/types/audit'
 
@@ -99,6 +100,14 @@ describe('Assignment Letter - Team Members Synchronized with Master Employee Man
       createEmployee: vi.fn(),
       updateEmployee: vi.fn(),
       deleteEmployee: vi.fn()
+    })
+    vi.spyOn(departmentApiModule, 'useDepartmentApi').mockReturnValue({
+      getAllDepartments: vi.fn().mockResolvedValue([]),
+      getDepartments: vi.fn(),
+      getDepartmentById: vi.fn(),
+      createDepartment: vi.fn(),
+      updateDepartment: vi.fn(),
+      deleteDepartment: vi.fn()
     })
     store = useAssignmentLetterStore()
   })

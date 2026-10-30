@@ -7,7 +7,8 @@ import { getAuditServiceBaseUrl as resolveAuditUrl } from '~/composables/useApiU
 import { useI18n } from '~/composables/useI18n';
 import { getFiscalYearStrings } from '~/composables/useFiscalYear';
 import { useEmployeeApi } from '~/composables/useEmployeeApi';
-import type { Employee } from '~/types/master';
+import { useDepartmentApi } from '~/composables/useDepartmentApi';
+import type { Employee, Department } from '~/types/master';
 
 export interface AssignmentLetterState {
   isModalOpen: boolean;
@@ -27,6 +28,10 @@ export interface AssignmentLetterState {
   employeesLoading: boolean;
   employeesLoaded: boolean;
   employeesError: string;
+  departments: Department[];
+  departmentsLoading: boolean;
+  departmentsLoaded: boolean;
+  departmentsError: string;
 }
 
 export const useAssignmentLetterStore = defineStore('assignment-letter', {
@@ -40,6 +45,10 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
     employeesLoading: false,
     employeesLoaded: false,
     employeesError: '',
+    departments: [],
+    departmentsLoading: false,
+    departmentsLoaded: false,
+    departmentsError: '',
     form: {
       auditTitle: '',
       leader: '',
@@ -218,6 +227,19 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
           return otherKey === targetKey
         })
       })
+    },
+
+    workUnitOptions: (state): string[] => {
+      const list = state.departments.map(d =>
+        d.department_code ? `${d.department_name} (${d.department_code})` : d.department_name
+      )
+      if (list.length === 0 && Array.isArray(state.options.workingUnit)) {
+        list.push(...state.options.workingUnit)
+      }
+      if (state.form.workingUnit && !list.includes(state.form.workingUnit)) {
+        list.unshift(state.form.workingUnit)
+      }
+      return list.sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
     }
   },
   actions: {
@@ -260,6 +282,67 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
       return '-'
     },
 
+    resolveDepartmentOption(val?: string): string {
+      if (!val) return ''
+      const match = this.departments.find(
+        d => d.id === val ||
+          d.department_code === val ||
+          d.department_name === val ||
+          `${d.department_name} (${d.department_code})` === val
+      )
+      if (match) {
+        return match.department_code ? `${match.department_name} (${match.department_code})` : match.department_name
+      }
+      return val
+    },
+
+    formatDepartmentName(value?: string): string {
+      if (!value) return '-'
+      const found = this.departments.find(
+        d => d.id === value ||
+          d.department_code === value ||
+          d.department_name === value ||
+          `${d.department_name} (${d.department_code})` === value
+      )
+      if (found) {
+        return found.department_code ? `${found.department_name} (${found.department_code})` : found.department_name
+      }
+      return value
+    },
+
+    async fetchDepartments(force = false) {
+      if (this.departmentsLoaded && !force) return
+      if (this.departmentsLoading) return
+      this.departmentsLoading = true
+      this.departmentsError = ''
+      try {
+        const api = useDepartmentApi()
+        const list = await api.getAllDepartments()
+        this.departments = (Array.isArray(list) ? list : [])
+          .filter(d => d?.department_name && d.is_active !== false)
+          .sort((a, b) => a.department_name.localeCompare(b.department_name, 'id', { sensitivity: 'base' }))
+        this.departmentsLoaded = true
+
+        if (this.departments.length > 0) {
+          this.options.workingUnit = this.departments.map(d =>
+            d.department_code ? `${d.department_name} (${d.department_code})` : d.department_name
+          )
+        }
+
+        if (this.form.workingUnit) {
+          this.form.workingUnit = this.resolveDepartmentOption(this.form.workingUnit)
+        }
+      } catch (error: any) {
+        console.error('Failed to fetch departments for assignment letter:', error)
+        this.departmentsError = extractErrorMessage(error, 'Gagal memuat data departemen.')
+        if (!this.departmentsLoaded) {
+          this.departments = []
+        }
+      } finally {
+        this.departmentsLoading = false
+      }
+    },
+
     async fetchEmployees(force = false) {
       if (this.employeesLoaded && !force) return
       if (this.employeesLoading) return
@@ -294,6 +377,9 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
     async fetchAssignmentLetters() {
       if (!this.employeesLoaded && !this.employeesLoading) {
         this.fetchEmployees().catch(() => {})
+      }
+      if (!this.departmentsLoaded && !this.departmentsLoading) {
+        this.fetchDepartments().catch(() => {})
       }
       this.loading = true
       this.errorMsg = ''
@@ -388,6 +474,9 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
       if (!this.employeesLoaded && !this.employeesLoading) {
         this.fetchEmployees().catch(() => {})
       }
+      if (!this.departmentsLoaded && !this.departmentsLoading) {
+        this.fetchDepartments().catch(() => {})
+      }
       this.isModalOpen = true
     },
 
@@ -403,7 +492,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         auditTeam: letter.auditTeam,
         startPeriod: letter.startPeriod,
         finishPeriod: letter.finishPeriod,
-        workingUnit: letter.workingUnit,
+        workingUnit: this.resolveDepartmentOption(letter.workingUnit),
         companyId: letter.companyId || '',
         companyName: letter.companyName || '',
         auditPurpose: letter.auditPurpose,
@@ -422,6 +511,9 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
 
       if (!this.employeesLoaded && !this.employeesLoading) {
         this.fetchEmployees().catch(() => {})
+      }
+      if (!this.departmentsLoaded && !this.departmentsLoading) {
+        this.fetchDepartments().catch(() => {})
       }
 
       this.isModalOpen = true

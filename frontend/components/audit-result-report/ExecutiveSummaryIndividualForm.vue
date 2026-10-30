@@ -87,7 +87,7 @@
             </div>
             <div class="flex flex-wrap items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
               <div v-if="linkedLhaReport.department">
-                <span class="text-gray-400">{{ t('executiveSummaryIndividual.formExtra.division') }}</span> <span class="font-medium text-gray-700 dark:text-gray-300">{{ linkedLhaReport.department }}</span>
+                <span class="text-gray-400">{{ t('executiveSummaryIndividual.formExtra.division') }}</span> <span class="font-medium text-gray-700 dark:text-gray-300">{{ store.formatDepartmentName(linkedLhaReport.department) }}</span>
               </div>
               <div v-if="linkedLhaReport.reportDate">
                 <span class="text-gray-400">{{ t('auditActivityPlan.view.date') }}</span> <span class="font-medium text-gray-700 dark:text-gray-300">{{ linkedLhaReport.reportDate }}</span>
@@ -275,10 +275,18 @@
                   <td class="px-3 py-2">
                     <USelectMenu
                       v-model="finding.unitDivision"
-                      :items="divisionOptions"
+                      :items="store.unitDivisionOptions"
+                      :loading="store.departmentsLoading"
                       :placeholder="t('executiveSummaryForm.placeholders.division')"
                       :disabled="isLocked"
-                    />
+                      class="w-full"
+                      create-item
+                      @create="(val: string) => { finding.unitDivision = val.trim() }"
+                    >
+                      <template #empty>
+                        {{ store.departmentsLoading ? t('common.loading') : (store.departmentsError || t('masterData.department.empty')) }}
+                      </template>
+                    </USelectMenu>
                   </td>
                   <td class="px-3 py-2">
                     <UInput
@@ -296,9 +304,11 @@
                   <td class="px-3 py-2">
                     <USelectMenu
                       v-model="finding.risiko"
-                      :items="['Tinggi', 'Sedang', 'Rendah']"
+                      :items="significanceLevelOptions"
+                      value-key="value"
                       :placeholder="t('executiveSummaryForm.placeholders.risk')"
                       :disabled="isLocked"
+                      class="w-full"
                     />
                   </td>
                   <td class="px-3 py-2">
@@ -552,7 +562,15 @@ const sections = computed(() => [
 ])
 
 // Dropdown options
-const divisionOptions = ['OP', 'KK/KSD', 'IT', 'FIN', 'HR', 'LEG']
+const divisionOptions = computed(() => store.unitDivisionOptions)
+
+// Significance Level options synchronized with Result Reports (LHA) Category / Significance Level
+const significanceLevelOptions = computed(() => [
+  { label: t('auditResultReport.dashboard.categories.verySignificant'), value: 'Very Significant' },
+  { label: t('auditResultReport.dashboard.categories.significant'), value: 'Significant' },
+  { label: t('auditResultReport.dashboard.categories.quiteSignificant'), value: 'Quite Significant' },
+  { label: t('auditResultReport.dashboard.categories.notSignificant'), value: 'Not Significant' }
+])
 
 // Role computed checks: Admin, CAE, and Audit Manager can write note & approve draft
 const canWriteExecutiveNote = computed(() => Boolean(canReviewExecutiveSummary.value))
@@ -618,10 +636,11 @@ const handleFileUpload = (e: Event) => {
 // Section IV: Top 5 dynamic list methods
 const addTopFinding = () => {
   if (store.form.topFindings.length >= 5) return
+  const defaultDiv: string = store.unitDivisionOptions[0] || ''
   store.form.topFindings.push({
-    unitDivision: 'OP',
+    unitDivision: defaultDiv,
     judulTemuan: '',
-    risiko: 'Tinggi',
+    risiko: 'Significant',
     statusTL: 'In Progress',
     usulan: ''
   })
@@ -707,6 +726,9 @@ if (!auditReportStore.loading && auditReportStore.reportList.length === 0) {
 // The audit period of the narrative comes from the assignment letter of the selected LHA
 if (!assignmentLetterStore.loading && assignmentLetterStore.assignmentLetterList.length === 0) {
   assignmentLetterStore.fetchAssignmentLetters()
+}
+if (!store.departmentsLoaded && !store.departmentsLoading) {
+  store.fetchDepartments().catch(() => {})
 }
 
 // Audit period of an LHA from its assignment letter dates: "Januari 2026", "Januari – Maret 2026"; '' when unknown
@@ -886,21 +908,26 @@ const syncFindingsFromLha = (lhaItem?: any) => {
   const findings = item.findings || []
   if (findings.length > 0) {
     store.form.topFindings = findings.slice(0, 5).map((f: any) => {
-      let div = item.department || 'OP'
-      if (item.reportTitle?.includes('Keuangan')) div = 'FIN'
-      else if (item.reportTitle?.includes('Sistem') || item.reportTitle?.includes('ERP') || item.reportTitle?.includes('TI')) div = 'IT'
-      else if (item.reportTitle?.includes('SDM') || item.reportTitle?.includes('Payroll')) div = 'HR'
-      else if (item.reportTitle?.includes('Procurement') || item.reportTitle?.includes('SCM')) div = 'KK/KSD'
+      let rawDiv = f.unitDivision || f.unit_division || f.department || item.department || ''
+      if (!rawDiv) {
+        if (item.reportTitle?.includes('Keuangan')) rawDiv = 'FIN'
+        else if (item.reportTitle?.includes('Sistem') || item.reportTitle?.includes('ERP') || item.reportTitle?.includes('TI')) rawDiv = 'IT'
+        else if (item.reportTitle?.includes('SDM') || item.reportTitle?.includes('Payroll')) rawDiv = 'HR'
+        else if (item.reportTitle?.includes('Procurement') || item.reportTitle?.includes('SCM')) rawDiv = 'KK/KSD'
+        else rawDiv = 'OP'
+      }
 
-      let risiko: 'Tinggi' | 'Sedang' | 'Rendah' = 'Tinggi'
-      if (f.category === 'Very Significant' || f.category === 'Significant') risiko = 'Tinggi'
-      else if (f.category === 'Quite Significant') risiko = 'Sedang'
-      else if (f.category === 'Not Significant') risiko = 'Rendah'
+      const div = store.resolveDepartmentOption(rawDiv) || rawDiv
+
+      let sigLevel = f.category || f.significanceLevel || f.risiko || 'Significant'
+      if (sigLevel === 'Tinggi') sigLevel = 'Significant'
+      else if (sigLevel === 'Sedang') sigLevel = 'Quite Significant'
+      else if (sigLevel === 'Rendah') sigLevel = 'Not Significant'
 
       return {
         unitDivision: div,
         judulTemuan: f.title || f.finding || '',
-        risiko,
+        risiko: sigLevel,
         statusTL: 'In Progress',
         usulan: f.action || f.recommendation || 'Perbaikan SOP dan Kontrol Pengendalian Internal'
       }

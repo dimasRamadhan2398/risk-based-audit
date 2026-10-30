@@ -331,6 +331,10 @@ const assignmentLetterStore = useAssignmentLetterStore()
 const searchQuery = ref('')
 const selectedLhaNumber = ref('')
 
+if (!store.departmentsLoaded && !store.departmentsLoading) {
+  store.fetchDepartments().catch(() => {})
+}
+
 const totalHandling = computed(() => {
   return syncedSummaries.value.reduce((total, summary) => {
     return total + (summary.followUpTable || []).reduce((count, row) => count + Number(row.jumlah || 0), 0)
@@ -477,9 +481,9 @@ const syncedSummaries = computed(() => {
           jumlahRekomendasi: lha.findingsCount || (lha.findings?.length || 0),
           followUpTable: [],
           topFindings: (lha.findings || []).map(f => ({
-            unitDivision: lha.reportTitle.includes('Keuangan') ? 'Finance' : 'Operasi',
+            unitDivision: store.resolveDepartmentOption(lha.department || (lha.reportTitle.includes('Keuangan') ? 'FIN' : 'OPS')) || (lha.reportTitle.includes('Keuangan') ? 'Finance' : 'Operasi'),
             judulTemuan: f.title,
-            risiko: f.category === 'Very Significant' || f.category === 'Significant' ? 'Tinggi' : f.category === 'Quite Significant' ? 'Sedang' : 'Rendah',
+            risiko: f.category || 'Significant',
             statusTL: 'In Progress',
             usulan: 'Rekomendasi Perbaikan'
           })),

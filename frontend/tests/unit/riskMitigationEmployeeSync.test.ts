@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { useMitigationStore } from '~/stores/mitigation-risk'
 import * as employeeApiModule from '~/composables/useEmployeeApi'
+import * as departmentApiModule from '~/composables/useDepartmentApi'
 import type { Employee } from '~/types/master'
 
 const FORM_SFC = resolve(__dirname, '../../components/risk-mitigation/MitigationForm.vue')
@@ -87,6 +88,14 @@ describe('Risk Mitigation - Supervisor & PIC Synchronized with Master Employee M
       createEmployee: vi.fn(),
       updateEmployee: vi.fn(),
       deleteEmployee: vi.fn()
+    })
+    vi.spyOn(departmentApiModule, 'useDepartmentApi').mockReturnValue({
+      getAllDepartments: vi.fn().mockResolvedValue([]),
+      getDepartments: vi.fn(),
+      getDepartmentById: vi.fn(),
+      createDepartment: vi.fn(),
+      updateDepartment: vi.fn(),
+      deleteDepartment: vi.fn()
     })
     store = useMitigationStore()
   })

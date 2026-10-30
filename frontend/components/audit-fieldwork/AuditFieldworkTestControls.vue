@@ -32,6 +32,9 @@
       <template #controlType-cell="{ row }">
         <UBadge :color="getControlTypeColor(row.original.controlType)" variant="subtle">{{ row.original.controlType }}</UBadge>
       </template>
+      <template #unitDivision-cell="{ row }">
+        <span class="text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">{{ store.formatDepartmentName(row.original.unitDivision) }}</span>
+      </template>
       <template #testResult-cell="{ row }">
         <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium" :class="getControlEffectivenessColorClass(row.original.testResult)">{{ row.original.testResult }}</span>
       </template>
@@ -109,6 +112,7 @@ const { canWrite } = useRbac()
 const columns = computed(() => [
   { key: 'controlName', accessorKey: 'controlName', header: t('auditFieldwork.testControls.columns.name'), class: 'w-56 min-w-[180px]' },
   { key: 'controlType', accessorKey: 'controlType', header: t('auditFieldwork.testControls.columns.type'), class: 'w-36 min-w-[120px] whitespace-nowrap' },
+  { key: 'unitDivision', accessorKey: 'unitDivision', header: t('auditFieldwork.testControls.columns.unitDivision') || t('auditFieldwork.testControls.unitDivision') || 'Unit Divisi', class: 'w-44 min-w-[140px] whitespace-nowrap' },
   { key: 'testResult', accessorKey: 'testResult', header: t('auditFieldwork.testControls.columns.result'), class: 'w-36 min-w-[130px] whitespace-nowrap' },
   {
     key: 'finding',
@@ -142,5 +146,6 @@ const getControlTypeColor = (type: string) => {
 
 onMounted(() => {
   store.fetchEmployees()
+  store.fetchDepartments()
 })
 </script>

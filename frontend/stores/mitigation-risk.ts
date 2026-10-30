@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref, reactive, computed } from 'vue'
 import type { RiskMitigation, RiskMitigationForm } from '~/types/risk'
-import type { Employee } from '~/types/master'
+import type { Employee, Department } from '~/types/master'
 import { useEmployeeApi } from '~/composables/useEmployeeApi'
+import { useDepartmentApi } from '~/composables/useDepartmentApi'
 import { useRiskProfileStore } from '~/stores/risk-profile'
 import { extractErrorMessage } from '~/utils/error'
 import { getRiskServiceBaseUrl } from '~/composables/useApiUrl'
@@ -168,8 +169,69 @@ export const useMitigationStore = defineStore('mitigation', () => {
         }
         return list.sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
     })
-    const unitInChargeOptions = ['Sales', 'Marketing', 'Product Development', 'Operasional', 'Financial']
-        .sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
+
+    // Master Data Departemen (Department Management Sync)
+    const departments = ref<Department[]>([])
+    const departmentsLoading = ref(false)
+    const departmentsLoaded = ref(false)
+    const departmentsError = ref('')
+
+    const resolveDepartmentOption = (val?: string): string => {
+        if (!val) return ''
+        const match = departments.value.find(
+            d => d.id === val || d.department_code === val || d.department_name === val || `${d.department_name} (${d.department_code})` === val
+        )
+        if (match) {
+            return match.department_code ? `${match.department_name} (${match.department_code})` : match.department_name
+        }
+        return val
+    }
+
+    const formatDepartmentName = (value?: string): string => {
+        if (!value) return '-'
+        const found = departments.value.find(
+            d => d.id === value || d.department_code === value || d.department_name === value
+        )
+        if (found) {
+            return found.department_code ? `${found.department_name} (${found.department_code})` : found.department_name
+        }
+        return value
+    }
+
+    const fetchDepartments = async (force = false) => {
+        if (departmentsLoaded.value && !force) return
+        if (departmentsLoading.value) return
+        departmentsLoading.value = true
+        departmentsError.value = ''
+        try {
+            const api = useDepartmentApi()
+            const list = await api.getAllDepartments()
+            departments.value = (Array.isArray(list) ? list : [])
+                .filter(d => d?.department_name && d.is_active !== false)
+                .sort((a, b) => a.department_name.localeCompare(b.department_name, 'id', { sensitivity: 'base' }))
+            departmentsLoaded.value = true
+
+            if (form.unitInCharge) {
+                form.unitInCharge = resolveDepartmentOption(form.unitInCharge)
+            }
+        } catch (error: any) {
+            console.error('Failed to fetch departments for mitigation:', error)
+            departmentsError.value = extractErrorMessage(error, 'Failed to fetch departments.')
+            if (!departmentsLoaded.value) {
+                departments.value = []
+            }
+        } finally {
+            departmentsLoading.value = false
+        }
+    }
+
+    const unitInChargeOptions = computed(() => {
+        const list = departments.value.map(d => d.department_code ? `${d.department_name} (${d.department_code})` : d.department_name)
+        if (form.unitInCharge && !list.includes(form.unitInCharge)) {
+            list.unshift(form.unitInCharge)
+        }
+        return list.sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
+    })
 
 
     // Form State
@@ -201,6 +263,9 @@ export const useMitigationStore = defineStore('mitigation', () => {
     const fetchMitigations = async (riskId?: string) => {
         if (!employeesLoaded.value && !employeesLoading.value) {
             fetchEmployees().catch(() => {})
+        }
+        if (!departmentsLoaded.value && !departmentsLoading.value) {
+            fetchDepartments().catch(() => {})
         }
         loading.value = true
         errorMsg.value = ''
@@ -249,6 +314,9 @@ export const useMitigationStore = defineStore('mitigation', () => {
         if (!employeesLoaded.value) {
             fetchEmployees().catch(() => {})
         }
+        if (!departmentsLoaded.value) {
+            fetchDepartments().catch(() => {})
+        }
         if (data) {
             isEditing.value = true
             editingId.value = data.id
@@ -258,7 +326,7 @@ export const useMitigationStore = defineStore('mitigation', () => {
                 mitigationPlan: data.mitigationPlan,
                 supervisor: resolveEmployeeOption(data.supervisor),
                 pic: resolveEmployeeOption(data.pic),
-                unitInCharge: data.unitInCharge,
+                unitInCharge: resolveDepartmentOption(data.unitInCharge),
                 start_date: data.start_date ? data.start_date.split('T')[0] : '',
                 end_date: data.end_date ? data.end_date.split('T')[0] : '',
                 notes: data.notes || ''
@@ -406,6 +474,7 @@ export const useMitigationStore = defineStore('mitigation', () => {
     return {
         mitigations, isFormOpen, isEditing, form, getMitigationsByRiskId,
         employees, employeesLoading, employeesLoaded, employeesError, fetchEmployees, formatEmployeeName,
+        departments, departmentsLoading, departmentsLoaded, departmentsError, fetchDepartments, formatDepartmentName,
         supervisorOptions, unitInChargeOptions, picOptions,
         openForm, closeForm, handleSubmit, deleteMitigation, fetchMitigations,
         updateMitigationMonitoring,

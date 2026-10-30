@@ -52,5 +52,8 @@ onMounted(() => {
   if (!store.employeesLoaded && !store.employeesLoading) {
     store.fetchEmployees().catch(() => {})
   }
+  if (!store.departmentsLoaded && !store.departmentsLoading) {
+    store.fetchDepartments().catch(() => {})
+  }
 })
 </script>
