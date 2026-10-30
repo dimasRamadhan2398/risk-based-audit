@@ -316,22 +316,6 @@
             </UButton>
           </div>
         </div>
-              {{ t('riskFactors.priority.noEntities', { year: selectedYear }) }}
-            </p>
-            <p class="text-xs text-slate-400 mt-1 mb-4">
-              {{ t('auditPriority.establishFirst') }}
-            </p>
-            <UButton
-              to="/risk-profile/audit-universe?tab=establish"
-              icon="i-lucide-plus"
-              color="primary"
-              variant="subtle"
-              size="sm"
-            >
-              {{ t('auditPriority.establishYear', { year: selectedYear }) }}
-            </UButton>
-          </div>
-        </div>
 
         <!-- Cards List -->
         <div v-else class="space-y-3">

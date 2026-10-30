@@ -1861,10 +1861,10 @@ const getRiskDisplayLevel = (risk: any) => {
   return { level, label, colorClass };
 };
 
-const getFindingCategoryBadge = (category: string) => {
+const getFindingCategoryBadge = (category: string): { label: string; color: 'error' | 'warning' | 'success' } => {
   const categoryKey = findingCategoryKeys[category];
   const label = categoryKey ? t(`dashboard.recentFindings.categories.${categoryKey}`) : category;
-  const color = category === "Very Significant" || category === "Significant" ? "error" : category === "Quite Significant" ? "warning" : "success";
+  const color: 'error' | 'warning' | 'success' = category === "Very Significant" || category === "Significant" ? "error" : category === "Quite Significant" ? "warning" : "success";
   return { label, color };
 };
 </script>

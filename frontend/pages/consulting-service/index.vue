@@ -314,9 +314,7 @@
         </div>
       </div>
     </UCard>
-    </UCard>
 
-    <!-- Form Modal -->
     <!-- Form Modal -->
     <UModal
       v-model:open="store.isFormOpen"

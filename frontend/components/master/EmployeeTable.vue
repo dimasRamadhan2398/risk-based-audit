@@ -245,10 +245,6 @@
         </div>
       </div>
     </div>
-          />
-        </div>
-      </div>
-    </div>
 
     <EmployeeResetPasswordModal
       v-if="isAdmin"

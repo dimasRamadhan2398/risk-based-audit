@@ -551,10 +551,6 @@
         </div>
       </div>
     </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- Add / Edit Modal -->
     <UModal 

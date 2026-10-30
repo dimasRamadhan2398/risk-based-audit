@@ -241,7 +241,6 @@
               />
             </div>
           </div>
-          </div>
 
           <!-- Mobile Pagination -->
           <div
