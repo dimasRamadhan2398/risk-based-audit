@@ -50,14 +50,6 @@
                   data-testid="form-step"
                   @click="goToStep(idx)"
                 >
-<<<<<<< HEAD
-                  <div class="flex-1">
-                    <USelectMenu
-                      v-model="member.name"
-                      :items="store.getAvailableMemberOptions(index)"
-                      :loading="store.employeesLoading"
-                      :placeholder="t('assignmentLetter.formExtra.memberName')"
-=======
                   <div
                     class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all duration-300 sm:h-8 sm:w-8"
                     :class="currentStep === idx
@@ -125,26 +117,8 @@
                       v-model="store.form.auditTitle"
                       :placeholder="t('assignmentLetter.formExtra.titleExample')"
                       size="lg"
->>>>>>> bf84bff4c1bf3092b1681a27753683c7c894e7d9
                       class="w-full"
-                      create-item
-                      @create="(val: string) => { member.name = val.trim() }"
                       required
-<<<<<<< HEAD
-                    >
-                      <template #empty>
-                        {{ store.employeesLoading ? t('common.loading') : (store.employeesError || t('masterData.employee.empty')) }}
-                      </template>
-                    </USelectMenu>
-                    <p
-                      v-if="store.isDuplicateMember(member.name, index)"
-                      class="text-xs text-red-500 font-semibold mt-1"
-                    >
-                      {{ t('assignmentLetter.formExtra.memberDuplicate') }}
-                    </p>
-                  </div>
-                  <div class="flex items-center gap-2">
-=======
                       maxlength="100"
                       @invalid="($event.target as any)?.setCustomValidity('Judul audit maksimal 100 karakter dan wajib diisi')"
                       @input="($event.target as any)?.setCustomValidity('')"
@@ -161,7 +135,6 @@
                     class="md:col-span-4"
                     required
                   >
->>>>>>> bf84bff4c1bf3092b1681a27753683c7c894e7d9
                     <USelectMenu
                       v-model="store.form.category"
                       :items="categoryOptions"
@@ -172,96 +145,10 @@
                   </UFormField>
                 </div>
 
-<<<<<<< HEAD
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
-              <UFormField
-                :label="t('workingPaper.headerForm.auditPurpose')"
-                class="md:col-span-4 space-y-3"
-              >
-                <div
-                  v-for="(purpose, index) in store.form.purposeList"
-                  :key="index"
-                  class="flex items-start gap-2"
-                >
-                  <span class="mt-2 font-bold text-gray-400">{{ index + 1 }}.</span>
-                  <UTextarea
-                    v-model="store.form.purposeList[index]"
-                    :placeholder="t('assignmentLetter.formExtra.purposePlaceholder')"
-                    class="flex-1"
-                    :rows="2"
-                  />
-                  <UButton
-                    icon="i-heroicons-trash"
-                    color="error"
-                    variant="ghost"
-                    class="mt-1"
-                    @click="store.removeItem(store.form.purposeList, index)"
-                  />
-                </div>
-                <UButton
-                  class="mt-4"
-                  color="primary"
-                  variant="soft"
-                  icon="i-heroicons-plus"
-                  :label="t('assignmentLetter.formExtra.addPurpose')"
-                  @click="store.addItem(store.form.purposeList, '')"
-                />
-              </UFormField>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
-              <UFormField
-                :label="t('actionTakenReport.detail.scope')"
-                class="md:col-span-4 space-y-3"
-              >
-                <div
-                  v-for="(scope, index) in store.form.scopeList"
-                  :key="index"
-                  class="flex items-start gap-2"
-                >
-                  <UInput
-                    v-model="store.form.scopeList[index]"
-                    :placeholder="t('assignmentLetter.formExtra.scopePlaceholder')"
-                    class="flex-1"
-                  />
-                  <UButton
-                    icon="i-heroicons-trash"
-                    color="error"
-                    variant="ghost"
-                    @click="store.removeItem(store.form.scopeList, index)"
-                  />
-                </div>
-                <UButton
-                  class="mt-4"
-                  color="primary"
-                  variant="soft"
-                  icon="i-heroicons-plus"
-                  :label="t('assignmentLetter.formExtra.addScope')"
-                  @click="store.addItem(store.form.scopeList, '')"
-                />
-              </UFormField>
-            </div>
-
-            <!-- <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
-              <UFormField
-                :label="t('assignmentLetter.formExtra.cc')"
-                class="md:col-span-4 space-y-3"
-              >
-                <div
-                  v-for="(cc, index) in store.form.ccList"
-                  :key="index"
-                  class="flex items-center gap-2"
-                >
-                  <UInput
-                    v-model="store.form.ccList[index]"
-                    :placeholder="t('assignmentLetter.formExtra.ccPosition')"
-                    class="flex-1"
-=======
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
                   <UFormField
                     :label="t('auditPriority.selectYear')"
                     class="md:col-span-4"
->>>>>>> bf84bff4c1bf3092b1681a27753683c7c894e7d9
                     required
                   >
                     <USelectMenu
@@ -273,18 +160,6 @@
                     />
                   </UFormField>
                 </div>
-<<<<<<< HEAD
-                <UButton
-                  class="mt-4"
-                  color="primary"
-                  variant="soft"
-                  icon="i-heroicons-plus"
-                  :label="t('assignmentLetter.formExtra.addCc')"
-                  @click="store.addItem(store.form.ccList, '')"
-                />
-              </UFormField>
-            </div> -->
-=======
 
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center border-y border-gray-100  py-4 my-6">
                   <label class="font-bold text-gray-700 ">{{ t('assignmentLetter.formExtra.team') }}</label>
@@ -407,18 +282,26 @@
                       class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2"
                     >
                       <div class="flex-1">
-                        <UInput
+                        <USelectMenu
                           v-model="member.name"
+                          :items="store.getAvailableMemberOptions(index)"
+                          :loading="store.employeesLoading"
                           :placeholder="t('assignmentLetter.formExtra.memberName')"
                           class="w-full"
+                          create-item
+                          @create="(val: string) => { member.name = val.trim() }"
                           required
-                          maxlength="100"
-                          @invalid="($event.target as any)?.setCustomValidity('Nama anggota maksimal 100 karakter dan wajib diisi')"
-                          @input="($event.target as any)?.setCustomValidity('')"
-                        />
-                        <div class="text-xs text-gray-500 mt-1 text-right">
-                          {{ member.name ? member.name.length : 0 }}/100
-                        </div>
+                        >
+                          <template #empty>
+                            {{ store.employeesLoading ? t('common.loading') : (store.employeesError || t('masterData.employee.empty')) }}
+                          </template>
+                        </USelectMenu>
+                        <p
+                          v-if="store.isDuplicateMember(member.name, index)"
+                          class="text-xs text-red-500 font-semibold mt-1"
+                        >
+                          {{ t('assignmentLetter.formExtra.memberDuplicate') }}
+                        </p>
                       </div>
                       <div class="flex items-center gap-2">
                         <USelectMenu
@@ -580,7 +463,6 @@
                 </div>
               </div>
             </UCard>
->>>>>>> bf84bff4c1bf3092b1681a27753683c7c894e7d9
           </div>
 
           <!-- Error message display -->
@@ -705,6 +587,7 @@ const validateStep = (idx: number): string | null => {
   } else if (idx === 1) {
     if (!form.workingUnit) return t('assignmentLetter.validation.workUnitRequired')
     if (!form.membersList.every(m => m.name && m.role)) return t('assignmentLetter.validation.membersInvalid')
+    if (store.hasDuplicateMembers) return 'Nama anggota tim tidak boleh sama (duplikat).'
   } else if (idx === 2) {
     if (!form.ccList.every(cc => cc && cc.trim() !== '')) return t('assignmentLetter.validation.ccInvalid')
   }
