@@ -21,6 +21,8 @@ import (
 //	envelope   {"version":1,"event_id","event_type","occurred_at","producer","data"}
 //	event_type department.created | department.updated | department.deleted
 //	data       {"id","department_code","department_name","is_active","company_id","business_unit_id"|null}
+//	           flexible tenants only, additive: "parent_department_id"|null,"level",
+//	           "level_name","name_key"|null,"path":[{"id","name","level","level_name","name_key"}]
 //
 // Events are written to the transactional outbox (models.KafkaOutboxEvent) and
 // published by the Relay, so a broker outage delays events but does not lose them.
@@ -52,6 +54,20 @@ type DepartmentData struct {
 	IsActive       bool    `json:"is_active"`
 	CompanyID      string  `json:"company_id"`
 	BusinessUnitID *string `json:"business_unit_id"`
+
+	// Set only on flexible tenants (ORG_STRUCTURE_MODE=flexible). A nil
+	// pointer adds no keys, so the legacy payload is byte-for-byte unchanged.
+	*DepartmentOrgData
+}
+
+// DepartmentOrgData is the additive part of a department event on flexible
+// tenants (docs/org-structure-model-plan.md section 6).
+type DepartmentOrgData struct {
+	ParentDepartmentID *string                    `json:"parent_department_id"`
+	Level              int                        `json:"level"`
+	LevelName          string                     `json:"level_name"`
+	NameKey            *string                    `json:"name_key"`
+	Path               []models.DepartmentPathSeg `json:"path"`
 }
 
 // DomainPublisher records department events in the outbox. A nil
@@ -82,6 +98,45 @@ func (p *DomainPublisher) PublishDepartment(ctx context.Context, eventType strin
 		return fmt.Errorf("kafka: marshal %s: %w", eventType, err)
 	}
 	return Enqueue(p.db.WithContext(ctx), TopicDepartments, key, eventType, body)
+}
+
+// PublishDepartmentOrgTx records one flexible-mode department event (with the
+// additive org fields taken from dept's ParentDepartmentID, LevelName, NameKey
+// and Path) in the outbox through tx, so it commits or rolls back with the
+// write that caused it. A nil publisher records nothing.
+func (p *DomainPublisher) PublishDepartmentOrgTx(ctx context.Context, tx *gorm.DB, eventType string, dept *models.Department) error {
+	if p == nil || dept == nil {
+		return nil
+	}
+	if tx == nil {
+		tx = p.db
+	}
+	if tx == nil {
+		return nil
+	}
+	env, key := p.departmentEnvelopeOrg(eventType, dept)
+	body, err := json.Marshal(env)
+	if err != nil {
+		return fmt.Errorf("kafka: marshal %s: %w", eventType, err)
+	}
+	return Enqueue(tx.WithContext(ctx), TopicDepartments, key, eventType, body)
+}
+
+func (p *DomainPublisher) departmentEnvelopeOrg(eventType string, dept *models.Department) (DomainEnvelope, string) {
+	env, key := p.departmentEnvelope(eventType, dept)
+	data := env.Data.(DepartmentData)
+	data.DepartmentOrgData = &DepartmentOrgData{
+		ParentDepartmentID: uuidPtrString(dept.ParentDepartmentID),
+		Level:              dept.Level,
+		LevelName:          dept.LevelName,
+		NameKey:            dept.NameKey,
+		Path:               dept.Path,
+	}
+	if data.Path == nil {
+		data.Path = []models.DepartmentPathSeg{}
+	}
+	env.Data = data
+	return env, key
 }
 
 // departmentEnvelope builds the wire envelope and the partition key (the

@@ -49,6 +49,9 @@ plugins:
         - Origin
         - X-Requested-With
         - X-CSRF-Token
+        # Password step-up for sensitive actions (POST /api/v1/org-levels/changes/apply).
+        # Request-only, so it is not in exposed_headers.
+        - X-Step-Up-Token
 
       exposed_headers:
         - Content-Length
@@ -521,6 +524,18 @@ services:
               vary_headers:
                 - Authorization
                 - Accept-Encoding
+
+      # Organisation structure. Kept off master-routes on purpose: these
+      # responses carry no Cache-Control, so the proxy-cache above would hold
+      # GET /org-levels (and its change log) for cache_ttl after an apply.
+      - name: master-org-structure-routes
+
+        paths:
+
+          - /api/v1/tenant-config
+          - /api/v1/org-levels
+
+        strip_path: false
 
 
   # ==========================================================

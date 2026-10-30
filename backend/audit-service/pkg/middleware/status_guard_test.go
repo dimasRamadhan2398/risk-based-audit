@@ -71,6 +71,59 @@ func TestRequireRolesForStatusChange(t *testing.T) {
 	}
 }
 
+// RequireStatusChangeAllowed takes the role decision from the caller (e.g. one
+// that resolves role aliases); roles from the JWT reach it via ContextRoles.
+func TestRequireStatusChangeAllowed(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Exec(`CREATE TABLE letters (id TEXT PRIMARY KEY, status TEXT, deleted_at DATETIME)`).Error; err != nil {
+		t.Fatal(err)
+	}
+	db.Exec(`INSERT INTO letters (id, status) VALUES ('draft-1', 'Draft')`)
+
+	isPublisher := func(c *gin.Context) bool {
+		for _, r := range ContextRoles(c) {
+			if r == "EXECUTIVE" {
+				return true
+			}
+		}
+		return false
+	}
+	r := gin.New()
+	withRoles := func(c *gin.Context) {
+		if roles := c.GetHeader("X-Test-Roles"); roles != "" {
+			c.Set("roles", strings.Split(roles, ","))
+		}
+	}
+	r.PUT("/letters/:id", withRoles, RequireStatusChangeAllowed(db, "letters", "Draft", isPublisher), func(c *gin.Context) { c.Status(http.StatusOK) })
+
+	cases := []struct {
+		roles, body string
+		want        int
+	}{
+		{"EXECUTIVE", `{"status":"Published"}`, 200},
+		{"AUDITOR,EXECUTIVE", `{"status":"Published"}`, 200},
+		{"AUDITOR", `{"status":"Published"}`, 403},
+		{"AUDITOR", `{"status":"Draft"}`, 200},
+		{"", `{"status":"Published"}`, 403},
+	}
+	for _, tc := range cases {
+		req := httptest.NewRequest(http.MethodPut, "/letters/draft-1", strings.NewReader(tc.body))
+		req.Header.Set("Content-Type", "application/json")
+		if tc.roles != "" {
+			req.Header.Set("X-Test-Roles", tc.roles)
+		}
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, req)
+		if w.Code != tc.want {
+			t.Errorf("roles %q body %s: got %d, want %d", tc.roles, tc.body, w.Code, tc.want)
+		}
+	}
+}
+
 func TestRequireAnyRole(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()

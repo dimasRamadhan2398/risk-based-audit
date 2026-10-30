@@ -89,6 +89,8 @@ func (r *Registry) auth() {
 			protected.POST("/logout", r.controller.GetAuth().Logout)
 			protected.POST("/change-password", r.controller.GetAuth().ChangePassword)
 			protected.GET("/me", r.controller.GetAuth().Me)
+			// Password step-up for privileged changes (docs/org-structure-model-plan.md 9.3)
+			protected.POST("/verify-password", r.controller.GetStepUp().VerifyPassword)
 		}
 	}
 }

@@ -1,5 +1,9 @@
 <template>
-  <UCard class="rounded-xl shadow overflow-hidden" variant="soft" color="primary">
+  <UCard
+    class="rounded-xl shadow overflow-hidden"
+    variant="soft"
+    color="primary"
+  >
     <template #header>
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h2 class="text-lg font-bold">{{ t('masterData.company.list') }}</h2>
@@ -14,13 +18,13 @@
     </template>
 
     <!-- Search & Filter -->
-    <div class="mb-4 flex flex-wrap gap-2 sm:gap-4 items-center">
-      <UInput
+    <div class="mb-4 flex flex-wrap gap-2 sm:gap-4 items-center w-full">
+      <CommonSearchInput
         v-model="searchInput"
         :placeholder="t('masterData.company.searchPlaceholder')"
-        icon="i-heroicons-magnifying-glass"
         class="w-full sm:w-72"
         @keyup.enter="handleSearch"
+        @clear="handleSearch"
       />
       <UButton
         :label="t('masterData.company.search')"
@@ -31,18 +35,24 @@
       <UButton
         :label="t('masterData.company.reset')"
         color="neutral"
-        variant="ghost"
+        variant="outline"
         @click="resetSearch"
       />
     </div>
 
     <!-- Loading State -->
-    <div v-if="store.loading" class="flex justify-center py-8">
+    <div
+      v-if="store.loading"
+      class="flex justify-center py-8"
+    >
       <ULoadingIcon />
     </div>
 
     <!-- Error State -->
-    <div v-else-if="store.errorMsg" class="py-4">
+    <div
+      v-else-if="store.errorMsg"
+      class="py-4"
+    >
       <UAlert
         color="error"
         variant="soft"
@@ -52,9 +62,17 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="store.companies.length === 0" class="py-8 text-center">
-      <UIcon name="i-heroicons-building-office-2" class="text-4xl text-gray-400 mb-2" />
-      <p class="text-gray-500">{{ t('masterData.company.empty') }}</p>
+    <div
+      v-else-if="store.companies.length === 0"
+      class="py-8 text-center"
+    >
+      <UIcon
+        name="i-heroicons-building-office-2"
+        class="text-4xl text-gray-400 mb-2"
+      />
+      <p class="text-gray-500">
+        {{ t('masterData.company.empty') }}
+      </p>
     </div>
 
     <!-- Table & Pagination via TableEntities -->
@@ -81,7 +99,10 @@
           <div class="font-medium text-gray-900 dark:text-white">
             {{ row.original.company_name || row.original.name }}
           </div>
-          <div v-if="row.original.legal_name && row.original.legal_name !== (row.original.company_name || row.original.name)" class="text-xs text-gray-500">
+          <div
+            v-if="row.original.legal_name && row.original.legal_name !== (row.original.company_name || row.original.name)"
+            class="text-xs text-gray-500"
+          >
             {{ row.original.legal_name }}
           </div>
         </div>

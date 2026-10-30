@@ -6,9 +6,9 @@
             <h6 class="text-sm tracking-wider text-gray-500 dark:text-gray-400">{{ t('settings.faq.subtitle') }}</h6>
         </div>
         <div class="justify-start text-left">
-            <UInput v-model="searchQuery" icon="i-lucide-search" size="xl" variant="outline" :placeholder="t('settings.faq.searchPlaceholder')" :ui="{
+            <CommonSearchInput v-model="searchQuery" size="xl" variant="outline" :placeholder="t('settings.faq.searchPlaceholder')" :ui="{
                 root: ''
-            }"></UInput>
+            }" />
 
             <div class="flex flex-wrap gap-2 mt-3">
                 <p class="text-sm font-medium text-neutral-700 dark:text-neutral-300 self-center">{{ t('settings.faq.categoryLabel') }}</p>

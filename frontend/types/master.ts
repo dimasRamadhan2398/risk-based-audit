@@ -141,6 +141,7 @@ export interface CreateEmployeeRequest {
 
 export interface UpdateEmployeeRequest {
   employee_code: string
+  company_id?: string
   full_name?: string
   email?: string
   phone?: string

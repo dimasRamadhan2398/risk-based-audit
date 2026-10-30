@@ -1,72 +1,80 @@
 <template>
   <div class="space-y-4">
     <!-- Advanced Filter Controls Bar (no goal tabs: there is a single corporate goal, so all objectives are listed) -->
-    
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <!-- Search & Filter Options -->
-        <div class="flex flex-wrap items-center gap-3 flex-1">
-          <!-- Search Input -->
-          <div class="w-full sm:w-64">
-            <UInput
-              v-model="searchQuery"
-              icon="i-lucide-search"
-              :placeholder="t('strategicPlan.filters.searchPlaceholder')"
-              class="w-full"
-            />
-          </div>
 
-          <!-- Period Type Filter -->
-          <div class="w-36">
-            <USelectMenu
-              v-model="selectedPeriodType"
-              :items="periodTypeOptions"
-              value-key="value"
-              :placeholder="t('strategicPlan.filters.periodType')"
-              class="w-full"
-            />
-          </div>
-
-          <!-- Year Filter (shown strictly when Period Type is Yearly or ALL) -->
-          <div v-if="selectedPeriodType === 'Yearly' || selectedPeriodType === 'ALL'" class="w-36">
-            <USelectMenu
-              v-model="selectedYear"
-              :items="yearFilterOptions"
-              value-key="value"
-              :placeholder="t('strategicPlan.filters.selectYear')"
-              class="w-full"
-            />
-          </div>
-
-          <!-- Quartal Filter (shown strictly when Period Type is Quartal) -->
-          <div v-if="selectedPeriodType === 'Quartal'" class="w-36">
-            <USelectMenu
-              v-model="selectedQuartal"
-              :items="quartalFilterOptions"
-              value-key="value"
-              :placeholder="t('strategicPlan.filters.selectQuartal')"
-              class="w-full"
-            />
-          </div>
-
-          <!-- Reset Filters Button -->
-          <UButton
-            v-if="isFiltered"
-            icon="i-lucide-rotate-ccw"
-            color="neutral"
-            variant="ghost"
-            size="md"
-            class="rounded-xl font-semibold"
-            @click="resetFilters"
-          >
-            {{ t('strategicPlan.filters.reset') }}
-          </UButton>
+    <div class="flex flex-wrap items-center justify-between gap-3 w-full">
+      <!-- Search & Filter Options -->
+      <div class="flex flex-wrap items-center gap-3 flex-1 w-full">
+        <!-- Search Input -->
+        <div class="w-full sm:flex-1 sm:min-w-64">
+          <CommonSearchInput
+            v-model="searchQuery"
+            :placeholder="t('strategicPlan.filters.searchPlaceholder')"
+            class="w-full"
+          />
         </div>
+
+        <!-- Period Type Filter -->
+        <div class="w-36">
+          <USelectMenu
+            v-model="selectedPeriodType"
+            :items="periodTypeOptions"
+            value-key="value"
+            :placeholder="t('strategicPlan.filters.periodType')"
+            class="w-full"
+          />
+        </div>
+
+        <!-- Year Filter (shown strictly when Period Type is Yearly or ALL) -->
+        <div
+          v-if="selectedPeriodType === 'Yearly' || selectedPeriodType === 'ALL'"
+          class="w-36"
+        >
+          <USelectMenu
+            v-model="selectedYear"
+            :items="yearFilterOptions"
+            value-key="value"
+            :placeholder="t('strategicPlan.filters.selectYear')"
+            class="w-full"
+          />
+        </div>
+
+        <!-- Quartal Filter (shown strictly when Period Type is Quartal) -->
+        <div
+          v-if="selectedPeriodType === 'Quartal'"
+          class="w-36"
+        >
+          <USelectMenu
+            v-model="selectedQuartal"
+            :items="quartalFilterOptions"
+            value-key="value"
+            :placeholder="t('strategicPlan.filters.selectQuartal')"
+            class="w-full"
+          />
+        </div>
+
+        <!-- Reset Filters Button -->
+        <UButton
+          v-if="isFiltered"
+          icon="i-lucide-rotate-ccw"
+          color="neutral"
+          variant="outline"
+          size="md"
+          class="rounded-xl font-semibold"
+          @click="resetFilters"
+        >
+          {{ t('strategicPlan.filters.reset') }}
+        </UButton>
       </div>
-  
+    </div>
 
     <!-- Strategic KPI Table & Pagination -->
     <UCard variant="soft">
-      <TableEntities :data="filteredObjectives" :columns="columns" :ui="{ root: 'overflow-visible' }">
+      <TableEntities
+        :data="filteredObjectives"
+        :columns="columns"
+        :ui="{ root: 'overflow-visible' }"
+      >
         <!-- Strategic Objective Cell with Text Wrapping -->
         <template #strategicObjective-cell="{ row }">
           <div class="whitespace-normal break-words font-medium text-gray-900 dark:text-white">
@@ -126,7 +134,7 @@
             :class="{
               'text-emerald-600 dark:text-emerald-400 font-bold': row.original.status === 'Good',
               'text-amber-600 dark:text-amber-400 font-bold': row.original.status === 'Moderate',
-              'text-rose-600 dark:text-rose-400 font-bold': row.original.status === 'Poor',
+              'text-rose-600 dark:text-rose-400 font-bold': row.original.status === 'Poor'
             }"
           >
             {{ formatStatus(row.original.status) }}
@@ -170,13 +178,13 @@ const columns = computed(() => [
   { key: 'actual', accessorKey: 'actual', label: t('strategicPlan.columns.actual'), header: t('strategicPlan.columns.actual'), class: 'w-24 whitespace-nowrap' },
   { key: 'calculation', accessorKey: 'calculation', label: t('strategicPlan.columns.calculation'), header: t('strategicPlan.columns.calculation'), class: 'w-28 whitespace-nowrap' },
   { key: 'status', accessorKey: 'status', label: t('strategicPlan.columns.status'), header: t('strategicPlan.columns.status'), class: 'w-28 whitespace-nowrap' },
-  { key: 'actions', accessorKey: 'actions', label: t('strategicPlan.columns.actions'), header: t('strategicPlan.columns.actions'), class: 'w-24 whitespace-nowrap text-center' },
+  { key: 'actions', accessorKey: 'actions', label: t('strategicPlan.columns.actions'), header: t('strategicPlan.columns.actions'), class: 'w-24 whitespace-nowrap text-center' }
 ])
 
 const periodTypeOptions = computed(() => [
   { label: t('strategicPlan.filters.allTypes'), value: 'ALL' },
   { label: t('strategicPlan.filters.yearly'), value: 'Yearly' },
-  { label: t('strategicPlan.filters.quartal'), value: 'Quartal' },
+  { label: t('strategicPlan.filters.quartal'), value: 'Quartal' }
 ])
 
 const yearFilterOptions = computed(() => [
@@ -189,14 +197,14 @@ const quartalFilterOptions = computed(() => [
   { label: 'Q1', value: 'Q1' },
   { label: 'Q2', value: 'Q2' },
   { label: 'Q3', value: 'Q3' },
-  { label: 'Q4', value: 'Q4' },
+  { label: 'Q4', value: 'Q4' }
 ])
 
 const isFiltered = computed(() => {
-  return searchQuery.value !== '' || 
-         selectedPeriodType.value !== 'ALL' || 
-         selectedYear.value !== 'ALL' || 
-         selectedQuartal.value !== 'ALL'
+  return searchQuery.value !== ''
+    || selectedPeriodType.value !== 'ALL'
+    || selectedYear.value !== 'ALL'
+    || selectedQuartal.value !== 'ALL'
 })
 
 const resetFilters = () => {
@@ -229,7 +237,7 @@ const filteredObjectives = computed(() => {
   // 2. Year Filter
   if (selectedYear.value !== 'ALL') {
     const yStr = selectedYear.value
-    list = list.filter(item => {
+    list = list.filter((item) => {
       if (item.kpiTargets && item.kpiTargets[yStr] !== undefined) return true
       if (item.selectedPeriod === yStr) return true
       if (item.yearStart && item.yearEnd) {
@@ -248,16 +256,16 @@ const filteredObjectives = computed(() => {
   // 4. Search Query
   if (searchQuery.value.trim() !== '') {
     const q = searchQuery.value.toLowerCase()
-    list = list.filter(item => {
-      return (item.strategicObjective && item.strategicObjective.toLowerCase().includes(q)) ||
-             (item.kpi && item.kpi.toLowerCase().includes(q))
+    list = list.filter((item) => {
+      return (item.strategicObjective && item.strategicObjective.toLowerCase().includes(q))
+        || (item.kpi && item.kpi.toLowerCase().includes(q))
     })
   }
 
   // Recalculate target/actual if specific year selected
   if (selectedYear.value !== 'ALL') {
     const yr = selectedYear.value
-    return list.map(item => {
+    return list.map((item) => {
       const yearTarget = item.kpiTargets?.[yr] || item.target
       const yearActual = item.kpiActuals?.[yr] || item.actual
       return {
@@ -277,27 +285,27 @@ const { canManageStrategicPlan, canWrite } = useRbac()
 const getActions = (item: StrategicAuditPlan) => {
   const actions: any[] = [
     {
-      type: "label" as const,
-      label: t('strategicPlan.actions.title'),
+      type: 'label' as const,
+      label: t('strategicPlan.actions.title')
     },
     {
       label: t('strategicPlan.actions.viewDetails'),
-      icon: "i-lucide-eye",
-      onSelect: () => store.openViewModal(item),
-    },
+      icon: 'i-lucide-eye',
+      onSelect: () => store.openViewModal(item)
+    }
   ]
 
   if (canManageStrategicPlan.value) {
     actions.push(
       {
         label: t('strategicPlan.actions.edit'),
-        icon: "i-lucide-edit",
-        onSelect: () => store.handleEdit(item),
+        icon: 'i-lucide-edit',
+        onSelect: () => store.handleEdit(item)
       },
       {
         label: t('strategicPlan.actions.delete'),
-        icon: "i-lucide-trash-2",
-        onSelect: () => store.handleDelete(item.id),
+        icon: 'i-lucide-trash-2',
+        onSelect: () => store.handleDelete(item.id)
       }
     )
   }

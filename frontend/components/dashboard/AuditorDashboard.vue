@@ -255,9 +255,8 @@
         </div>
 
         <div class="flex items-center gap-2.5 w-full sm:w-auto">
-          <UInput
+          <CommonSearchInput
             v-model="fieldworkSearch"
-            icon="i-lucide-search"
             :placeholder="t('dashboard.auditor.status.searchPlaceholder')"
             size="sm"
             class="w-full sm:w-64"
@@ -2033,5 +2032,5 @@ onMounted(async () => {
     opacity: 1;
     transform: translateY(0);
   }
-}  
+}
 </style>

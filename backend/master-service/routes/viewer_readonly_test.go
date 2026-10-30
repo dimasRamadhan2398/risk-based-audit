@@ -43,8 +43,8 @@ func viewerTestEngine(t *testing.T) *gin.Engine {
 	}
 	engine := gin.New()
 	engine.Use(gin.RecoveryWithWriter(io.Discard))
-	ctrl := controllers.NewControllerRegistry(services.NewServiceRegistry(db, nil), validations.New())
-	RegisterRoutes(engine, ctrl, db, middleware.NewAuthMiddleware(viewerTestSecret), nil)
+	ctrl := controllers.NewControllerRegistry(services.NewServiceRegistry(db, nil, nil, services.OrgOptions{}), validations.New())
+	RegisterRoutes(engine, ctrl, db, middleware.NewAuthMiddleware(viewerTestSecret), nil, OrgRouteOptions{})
 	return engine
 }
 

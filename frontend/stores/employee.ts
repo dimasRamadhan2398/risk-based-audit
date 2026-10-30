@@ -187,6 +187,8 @@ export const useEmployeeStore = defineStore('employee', () => {
       const payload: UpdateEmployeeRequest = {
         // Backend still requires the existing code on update; it is read-only in the form
         employee_code: form.employee_code,
+        // Backend replaces company_id on update; omitting it writes an empty company and fails the FK check
+        company_id: form.company_id,
         full_name: form.full_name || undefined,
         email: form.email || undefined,
         phone: normalizePhone(form.phone) || undefined,

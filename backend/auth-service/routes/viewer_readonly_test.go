@@ -53,6 +53,7 @@ type vControllers struct {
 }
 
 func (vControllers) GetAuth() authCtrl.AuthControllerInterface { return vAuth{} }
+func (vControllers) GetStepUp() authCtrl.StepUpControllerInterface { return fakeStepUpHandlers{} }
 func (vControllers) GetUser() userCtrl.UserControllerInterface { return vUser{} }
 func (vControllers) GetRole() roleCtrl.RoleControllerInterface {
 	return struct {

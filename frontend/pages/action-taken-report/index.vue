@@ -260,11 +260,10 @@ const filterByLha = (id: string) => {
 
     <!-- Filters -->
     <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3">
-      <UInput
+      <CommonSearchInput
         v-model="search"
-        icon="i-lucide-search"
         :placeholder="t('actionTakenReport.filter.searchPlaceholder')"
-        class="w-full sm:w-64"
+        class="w-full sm:flex-1 sm:min-w-64"
       />
       <div class="w-full sm:w-48">
         <ReusableSelectMenu
@@ -304,12 +303,12 @@ const filterByLha = (id: string) => {
         color="error"
       />
       <UButton
+        v-if="hasFilters || search"
         :label="t('actionTakenReport.filter.reset')"
         icon="i-lucide-rotate-ccw"
         color="neutral"
         variant="outline"
         class="w-full sm:w-auto justify-center"
-        :disabled="!hasFilters && !search"
         @click="resetFilters"
       />
     </div>

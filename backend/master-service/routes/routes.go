@@ -27,7 +27,7 @@ import (
 )
 
 // RegisterRoutes wires all HTTP routes for the master-service.
-func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegistry, db *gorm.DB, authMiddleware *middleware.AuthMiddleware, domainEvents *kafka.DomainPublisher) {
+func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegistry, db *gorm.DB, authMiddleware *middleware.AuthMiddleware, domainEvents *kafka.DomainPublisher, org OrgRouteOptions) {
 	// Unauthenticated on purpose, and before the API group: Kong's active
 	// healthcheck sends no token.
 	router.GET("/health", func(c *gin.Context) {
@@ -67,17 +67,26 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 		businessUnits.DELETE("/:id", controller.GetBusinessUnit().Delete)
 	}
 
+	// Organisation structure: /tenant-config (both modes), /org-levels (flexible).
+	registerOrgStructureRoutes(api, controller.GetTenantConfig(), controller.GetOrgLevel(), authMiddleware, org)
+
 	departments := api.Group("/departments")
 	departments.Use(middleware.RequireAnyRoleOnWrites(masterDataWriters...))
 	{
 		departments.GET("", controller.GetDepartment().List)
+		// Flexible tenants only; 404 ORG_STRUCTURE_NOT_ENABLED on legacy.
+		departments.GET("/tree", middleware.RequireFlexible(org.Flexible), controller.GetDepartment().Tree)
 		departments.GET("/:id", controller.GetDepartment().FindById)
 		departments.POST("", controller.GetDepartment().Create)
 		departments.PUT("/:id", controller.GetDepartment().Update)
 		departments.DELETE("/:id", controller.GetDepartment().Delete)
 		// Queues department.updated for every live department (repairs audit-service
 		// links after an outage). Consumers apply events idempotently.
-		departments.POST("/events/resync", resyncDepartmentEvents(db, domainEvents))
+		if org.Flexible && org.Resync != nil && domainEvents != nil {
+			departments.POST("/events/resync", resyncOrgDepartments(org.Resync))
+		} else {
+			departments.POST("/events/resync", resyncDepartmentEvents(db, domainEvents))
+		}
 	}
 
 	employees := api.Group("/employees")

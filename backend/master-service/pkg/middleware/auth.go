@@ -79,7 +79,8 @@ func (m *AuthMiddleware) Authenticate() gin.HandlerFunc {
 	}
 }
 
-// RequireRoles checks if user has required roles
+// RequireRoles checks if user has required roles. Role names are compared
+// case-insensitively, as in auth-service; no aliases are applied.
 func (m *AuthMiddleware) RequireRoles(roles ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userRoles, exists := c.Get("roles")
@@ -100,7 +101,7 @@ func (m *AuthMiddleware) RequireRoles(roles ...string) gin.HandlerFunc {
 		hasRole := false
 		for _, requiredRole := range roles {
 			for _, userRole := range userRoleList {
-				if userRole == requiredRole {
+				if strings.EqualFold(strings.TrimSpace(userRole), requiredRole) {
 					hasRole = true
 					break
 				}

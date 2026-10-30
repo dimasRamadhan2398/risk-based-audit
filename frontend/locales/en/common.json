@@ -136,6 +136,7 @@
     }
   },
   "common": {
+    "clearSearch": "Clear search",
     "datePicker": {
       "clearDate": "Clear date",
       "openCalendar": "Open calendar",
@@ -565,7 +566,7 @@
     }
   },
   "auditExecution": {
-    "resetFilter": "Reset Filter",
+    "resetFilter": "Reset",
     "title": "Audit Execution Status",
     "subtitle": "Transparency of audit cycle progress & phases from planning to report completion.",
     "cycleGuideButton": "Audit Cycle Guide",
@@ -1241,7 +1242,7 @@
       "periodType": "Period Type",
       "selectYear": "Select Year",
       "selectQuartal": "Select Quartal",
-      "reset": "Reset Filters",
+      "reset": "Reset",
       "allTypes": "All Types",
       "yearly": "Yearly",
       "quartal": "Quartal",
@@ -1593,6 +1594,7 @@
     }
   },
   "auditPriority": {
+    "reset": "Reset",
     "loadingYear": "Loading audit priority data for year {year}...",
     "emptyFiltered": "No auditable entities match your filter criteria.",
     "establishFirst": "Please establish active entities in the Yearly Establishment tab of Audit Universe first.",
@@ -2560,6 +2562,12 @@
     }
   },
   "assignmentLetter": {
+    "filters": {
+      "searchPlaceholder": "Search letter number, title, work unit, or leader...",
+      "status": "All Statuses",
+      "workUnit": "All Work Units",
+      "reset": "Reset"
+    },
     "formExtra": {
       "number": "Assignment Letter Number:",
       "titleExample": "e.g. Financial Operations Audit",
@@ -2574,8 +2582,7 @@
       "members": "Team Members",
       "memberName": "Member Name",
       "role": "Role",
-      "memberHint": "* At least three team members are recommended by the template.",
-      "memberDuplicate": "This team member has already been selected in another row.",
+      "memberHint": "* At least three team members are recommended for effectivity",
       "purposePlaceholder": "Enter the audit purpose...",
       "addPurpose": "Add Purpose",
       "scopePlaceholder": "Enter the audit scope...",
@@ -2587,6 +2594,24 @@
       "publish": "Publish Assignment Letter",
       "edit": "Edit Assignment Letter",
       "delete": "Delete Assignment Letter"
+    },
+    "stepper": {
+      "auditInfo": "Audit Information",
+      "unitTeam": "Work Unit & Team",
+      "purposeDistribution": "Purpose, Scope & CC",
+      "next": "Next Step",
+      "previous": "Previous"
+    },
+    "validation": {
+      "titleRequired": "Audit Title must be filled in.",
+      "categoryRequired": "Audit Category must be selected.",
+      "yearRequired": "Audit Year must be selected.",
+      "teamRequired": "Audit Team must be selected.",
+      "periodRequired": "Please fill in start and end period.",
+      "periodOrder": "End date cannot be before start date.",
+      "workUnitRequired": "Work unit must be filled in.",
+      "membersInvalid": "All team members must have a name and a role.",
+      "ccInvalid": "All CC fields must be filled in or removed."
     },
     "title": "Assignment Letter List",
     "table": {
@@ -2600,7 +2625,9 @@
       },
       "status": {
         "Draft": "Draft",
-        "Published": "Published"
+        "Waiting Approval": "Waiting Approval",
+        "Published": "Published",
+        "Archived": "Archived"
       },
       "empty": "No assignment letters yet. Click Create Assignment Letter to start."
     },
@@ -2774,7 +2801,7 @@
       "year": "Year",
       "activityType": "Activity type",
       "all": "All",
-      "reset": "Reset filters"
+      "reset": "Reset"
     },
     "legacy": {
       "badge": "Old format",
@@ -4606,7 +4633,7 @@
         "type": "Select QA",
         "period": "Select Period",
         "status": "Select Status",
-        "reset": "Reset Filter"
+        "reset": "Reset"
       },
       "summary": {
         "regular": "Regular Assessment",
@@ -4777,7 +4804,7 @@
       "selectCategory": "Select category",
       "selectPeriod": "Select period",
       "selectStatus": "Select status",
-      "resetFilter": "Reset filters",
+      "resetFilter": "Reset",
       "editTarget": "Edit KPI target",
       "editUnavailable": "Comes from an uploaded performance report; edit it there",
       "deleteTarget": "Delete KPI target",
@@ -4904,7 +4931,7 @@
         "selectCategory": "Select Category",
         "selectPeriod": "Select Period",
         "selectStatus": "Select Status",
-        "reset": "Reset Filter",
+        "reset": "Reset",
         "columns": {
           "metric": "KPI Metric",
           "category": "Category",
@@ -5618,7 +5645,7 @@
       "lhaPlaceholder": "Choose LHA",
       "picPlaceholder": "Choose PIC",
       "overdueOnly": "Overdue only",
-      "reset": "Reset Filter"
+      "reset": "Reset"
     },
     "table": {
       "columns": {
@@ -5846,7 +5873,7 @@
       "searchPlaceholder": "Search finding",
       "departmentPlaceholder": "Choose department",
       "statusPlaceholder": "Choose status",
-      "reset": "Reset Filter"
+      "reset": "Reset"
     },
     "columns": {
       "auditReference": "Audit Reference",

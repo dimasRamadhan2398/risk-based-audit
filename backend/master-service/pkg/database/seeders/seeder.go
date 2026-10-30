@@ -11,10 +11,20 @@ import (
 
 type Seeder struct {
 	DB *gorm.DB
+	// flexibleOrg is ORG_STRUCTURE_MODE=flexible: departments are placed at
+	// the tenant's org levels (and the bank demo tree is seeded when the bank
+	// levels exist). False keeps the legacy seeding unchanged.
+	flexibleOrg bool
 }
 
 func NewSeeder(db *gorm.DB) *Seeder {
 	return &Seeder{DB: db}
+}
+
+// WithOrgStructure enables the flexible-mode department seeding.
+func (s *Seeder) WithOrgStructure(flexible bool) *Seeder {
+	s.flexibleOrg = flexible
+	return s
 }
 
 func (s *Seeder) RunAll() error {
@@ -446,6 +456,9 @@ func (s *Seeder) SeedDepartments() error {
 			BusinessUnitID:        &opsBU.ID,
 			IsActive:              true,
 		},
+	}
+	if s.flexibleOrg {
+		return s.seedOrgDepartments(seeds, company.ID, corpBU.ID, opsBU.ID)
 	}
 	for i := range seeds {
 		if err := s.DB.FirstOrCreate(&seeds[i], models.Department{DepartmentCode: seeds[i].DepartmentCode}).Error; err != nil {

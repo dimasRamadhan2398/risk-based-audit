@@ -67,9 +67,8 @@
         <!-- Search Bar -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div class="w-full sm:w-80">
-            <UInput
+            <CommonSearchInput
               v-model="searchQuery"
-              icon="i-lucide-search"
               :placeholder="t('settings.permission.searchPlaceholder')"
               class="w-full"
             />
