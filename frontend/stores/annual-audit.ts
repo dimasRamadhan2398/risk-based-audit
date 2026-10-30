@@ -10,6 +10,8 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
 import { getFiscalYearStrings } from '~/composables/useFiscalYear'
 import { useDepartmentApi } from '~/composables/useDepartmentApi'
+import { useEmployeeApi } from '~/composables/useEmployeeApi'
+import type { Employee } from '~/types/master'
 import { buildAnnualPlanPayload, sumActivityMandays, toCount } from '~/utils/annualPlanPayload'
 import { parseApiError, translateApiError } from '~/utils/activityPlanForm'
 import { buildCorporateUniverseNameMap } from '~/utils/auditableEntityOptions'
@@ -150,6 +152,78 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     }
   }
 
+  // Master Data Karyawan (Employee Management Sync)
+  const employees = ref<Employee[]>([])
+  const employeesLoading = ref(false)
+  const employeesLoaded = ref(false)
+  const employeesError = ref('')
+
+  const resolveEmployeeOption = (val?: string): string => {
+    if (!val) return ''
+    const match = employees.value.find(
+      e => e.id === val || e.employee_code === val || e.full_name === val || `${e.full_name} (${e.employee_code})` === val
+    )
+    if (match) {
+      return match.employee_code ? `${match.full_name} (${match.employee_code})` : match.full_name
+    }
+    return val
+  }
+
+  const formatEmployeeName = (value?: string): string => {
+    if (!value) return '-'
+    const found = employees.value.find(
+      e => e.id === value || e.employee_code === value || e.full_name === value
+    )
+    if (found) {
+      return found.employee_code ? `${found.full_name} (${found.employee_code})` : found.full_name
+    }
+    return value
+  }
+
+  const fetchEmployees = async (force = false) => {
+    if (employeesLoaded.value && !force) return
+    if (employeesLoading.value) return
+    employeesLoading.value = true
+    employeesError.value = ''
+    try {
+      const api = useEmployeeApi()
+      const list = await api.getAllEmployees()
+      employees.value = (Array.isArray(list) ? list : [])
+        .filter(e => e?.full_name && e.is_active !== false)
+        .sort((a, b) => a.full_name.localeCompare(b.full_name, 'id', { sensitivity: 'base' }))
+      employeesLoaded.value = true
+
+      // Re-resolve any existing supervisorName on active form activities
+      if (form.activities && form.activities.length) {
+        form.activities.forEach(act => {
+          if (act.supervisorName) {
+            act.supervisorName = resolveEmployeeOption(act.supervisorName)
+          }
+        })
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch employees for annual audit:', error)
+      employeesError.value = extractErrorMessage(error, 'Gagal memuat data karyawan.')
+      if (!employeesLoaded.value) {
+        employees.value = []
+      }
+    } finally {
+      employeesLoading.value = false
+    }
+  }
+
+  const supervisorOptions = computed(() => {
+    const list = employees.value.map(e => e.employee_code ? `${e.full_name} (${e.employee_code})` : e.full_name)
+    if (form.activities && Array.isArray(form.activities)) {
+      for (const act of form.activities) {
+        if (act.supervisorName && !list.includes(act.supervisorName)) {
+          list.unshift(act.supervisorName)
+        }
+      }
+    }
+    return list.sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
+  })
+
   // Display fallback for the department and risk name snapshots. The server fills them from a
   // lookup that only the Department / Audit Universe events feed, so a row can come back with
   // only departmentId / auditUniverseId. The snapshot wins when set; otherwise the id is resolved
@@ -244,6 +318,9 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
   // --- ACTIONS UNTUK MODAL VIEW ---
   const openViewModal = (plan: any) => {
     selectedPlan.value = plan
+    if (!employeesLoaded.value && !employeesLoading.value) {
+      fetchEmployees().catch(() => {})
+    }
     showViewModal.value = true
   }
 
@@ -416,6 +493,10 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       attachmentUploadDate: '',
       year: defaultYear
     })
+
+    if (!employeesLoaded.value && !employeesLoading.value) {
+      fetchEmployees().catch(() => {})
+    }
 
     showModal.value = true
   }
@@ -618,7 +699,10 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     form.version = plan.version || 'v1.0'
     form.revisionHistory = plan.revisionHistory ? [...plan.revisionHistory] : []
     // Rows keep their id (PUT matches on it) and the server snapshots as they came back.
-    form.activities = plan.activities.map((act: any) => ({ ...act }))
+    form.activities = (plan.activities || []).map((act: any) => ({
+      ...act,
+      supervisorName: resolveEmployeeOption(act.supervisorName || act.supervisor_name || '')
+    }))
     form.status = plan.status
     form.selectedMonths = [...plan.selectedMonths]
     form.title = plan.title || ''
@@ -629,6 +713,10 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     form.attachmentUploadDate = plan.attachmentUploadDate || ''
     form.isActive = plan.isActive
     form.year = plan.year || ''
+
+    if (!employeesLoaded.value && !employeesLoading.value) {
+      fetchEmployees().catch(() => {})
+    }
 
     showModal.value = true
   }
@@ -999,6 +1087,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     openModal, closeModal, handleSubmit, handleEdit, handleEditFromView, handleDelete,
     getStatusColor, getStatusBadgeColor, getStatusLabel, handleFileChange, fetchPlans, fetchAnnualPlans: fetchPlans,
     handleStaffApprove, handleStaffReject, handleManagerApprove, handleManagerReject, handleChiefApprove, handleChiefReject,
-    createRevision, getRiskLevelColor
+    createRevision, getRiskLevelColor,
+    employees, employeesLoading, employeesLoaded, employeesError,
+    fetchEmployees, supervisorOptions, formatEmployeeName, resolveEmployeeOption
   }
 })

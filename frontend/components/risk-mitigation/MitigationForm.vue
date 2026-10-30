@@ -16,36 +16,48 @@
 
           <div class="p-4 sm:p-6 overflow-y-auto space-y-5">
 
-
             <UFormField :label="t('riskMitigation.form.plan')" required>
               <UTextarea v-model="store.form.mitigationPlan" :rows="4" autoresize :placeholder="t('riskMitigation.form.planPlaceholder')" class="w-full" required />
             </UFormField>
 
             <UFormField :label="t('riskMitigation.form.supervisor')" required>
               <USelectMenu
-              :items="store.supervisorOptions"
-              v-model="store.form.supervisor"
-              :placeholder="t('riskMitigation.form.supervisorPlaceholder')"
-              class="w-full"
-              required />
+                v-model="store.form.supervisor"
+                :items="store.supervisorOptions"
+                :loading="store.employeesLoading"
+                :placeholder="t('riskMitigation.form.supervisorPlaceholder')"
+                class="w-full"
+                required
+              >
+                <template #empty>
+                  {{ store.employeesLoading ? t('common.loading') : (store.employeesError || t('masterData.employee.empty')) }}
+                </template>
+              </USelectMenu>
             </UFormField>
 
             <UFormField :label="t('riskMitigation.form.pic')" required>
               <USelectMenu
-              :items="store.picOptions"
-              v-model="store.form.pic"
-              :placeholder="t('riskMitigation.form.picPlaceholder')"
-              class="w-full"
-              required />
+                v-model="store.form.pic"
+                :items="store.picOptions"
+                :loading="store.employeesLoading"
+                :placeholder="t('riskMitigation.form.picPlaceholder')"
+                class="w-full"
+                required
+              >
+                <template #empty>
+                  {{ store.employeesLoading ? t('common.loading') : (store.employeesError || t('masterData.employee.empty')) }}
+                </template>
+              </USelectMenu>
             </UFormField>
 
             <UFormField :label="t('riskMitigation.form.unit')" required>
               <USelectMenu
-              :items="store.unitInChargeOptions"
-              v-model="store.form.unitInCharge"
-              :placeholder="t('riskMitigation.form.unitPlaceholder')"
-              class="w-full"
-              required />
+                :items="store.unitInChargeOptions"
+                v-model="store.form.unitInCharge"
+                :placeholder="t('riskMitigation.form.unitPlaceholder')"
+                class="w-full"
+                required
+              />
             </UFormField>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -76,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useMitigationStore } from '~/stores/mitigation-risk'
 
 // Menerima Risk ID dari halaman induk agar mitigasi tersambung dengan risiko yang tepat
@@ -86,6 +98,10 @@ const props = defineProps<{
 
 const store = useMitigationStore()
 const { t } = useI18n()
+
+onMounted(() => {
+  store.fetchEmployees()
+})
 
 // Mendapatkan tanggal hari ini dalam format YYYY-MM-DD untuk batas minimum pemilihan tanggal
 const todayDate = computed(() => {

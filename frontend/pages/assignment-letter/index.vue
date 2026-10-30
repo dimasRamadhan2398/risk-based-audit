@@ -36,6 +36,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue';
 import AssignmentLetterForm from '~/components/assignment-letter/AssignmentLetterForm.vue';
 import AssignmentLetterTable from '~/components/assignment-letter/AssignmentLetterTable.vue';
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
@@ -47,4 +48,9 @@ const { canManageAssignmentLetter, canImportPlanDocs } = useRbac()
 const store = useAssignmentLetterStore()
 store.fetchAssignmentLetters()
 
+onMounted(() => {
+  if (!store.employeesLoaded && !store.employeesLoading) {
+    store.fetchEmployees().catch(() => {})
+  }
+})
 </script>

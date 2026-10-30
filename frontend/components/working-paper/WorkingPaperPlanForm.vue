@@ -191,10 +191,17 @@
                 <USelectMenu 
                   v-model="store.planForm.pic" 
                   icon="i-heroicons-magnifying-glass" 
-                  :items="store.options.pic" 
+                  :items="store.picOptions" 
+                  :loading="store.employeesLoading"
                   :placeholder="t('workingPaper.planForm.picPlaceholder')" 
                   class="w-full" 
-                />
+                  create-item
+                  @create="(val: string) => { store.planForm.pic = val.trim() }"
+                >
+                  <template #empty>
+                    {{ store.employeesLoading ? t('common.loading') : (store.employeesError || t('masterData.employee.empty')) }}
+                  </template>
+                </USelectMenu>
               </UFormField>
 
               <!-- Planning Period -->
@@ -258,7 +265,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { useI18n } from '~/composables/useI18n'
 import { useWorkingPaperStore } from '~/stores/working-paper'
 import AppDatePicker from '~/components/shared/AppDatePicker.vue'
@@ -345,12 +352,17 @@ const handleSave = () => {
   store.handleSubmitF05()
 }
 
+onMounted(() => {
+  store.fetchEmployees?.()
+})
+
 watch(
   () => store.showModalF05,
   (open) => {
     if (open) {
       currentStep.value = 0
       formErrorMessage.value = ''
+      store.fetchEmployees?.()
     }
   }
 )

@@ -218,7 +218,7 @@
                 </div>
                 <div v-if="store.testControlForm.pic" class="flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
                   <UIcon name="i-heroicons-user-circle" class="w-4 h-4" />
-                  <span class="font-medium text-[var(--text-main)]">{{ t('auditFieldwork.extra.pic') }} {{ store.testControlForm.pic }}</span>
+                  <span class="font-medium text-[var(--text-main)]">{{ t('auditFieldwork.extra.pic') }} {{ store.formatEmployeeName(store.testControlForm.pic) }}</span>
                 </div>
               </div>
             </template>
@@ -227,7 +227,7 @@
                 {{ store.testControlForm.mitigationPlan || '-' }}
               </p>
               <div class="flex items-center gap-4 text-xs text-[var(--text-muted)] pt-1">
-                <span>{{ t('auditFieldwork.extra.pic') }} <strong class="text-[var(--text-main)]">{{ store.testControlForm.pic || '-' }}</strong></span>
+                <span>{{ t('auditFieldwork.extra.pic') }} <strong class="text-[var(--text-main)]">{{ store.formatEmployeeName(store.testControlForm.pic) || '-' }}</strong></span>
                 <span>{{ t('auditFieldwork.extra.dueDate') }} <strong class="text-[var(--text-main)]">{{ formatDate(store.testControlForm.dueDate) || '-' }}</strong></span>
               </div>
             </div>
@@ -419,11 +419,19 @@
                 </UFormField>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <UFormField :label="t('auditFieldwork.testControls.pic')">
-                    <UInput
+                    <USelectMenu
                       v-model="store.testControlForm.pic"
+                      :items="store.picOptions"
+                      :loading="store.employeesLoading"
                       :placeholder="t('auditFieldwork.testControls.picPlaceholder')"
                       class="w-full"
-                    />
+                      create-item
+                      @create="(val: string) => { store.testControlForm.pic = val.trim() }"
+                    >
+                      <template #empty>
+                        {{ store.employeesLoading ? t('common.loading') : (store.employeesError || t('masterData.employee.empty')) }}
+                      </template>
+                    </USelectMenu>
                   </UFormField>
                   <UFormField :label="t('auditFieldwork.testControls.dueDate')">
                     <AppDatePicker
@@ -506,7 +514,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { useRbac } from '~/composables/useRbac'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
@@ -616,12 +624,17 @@ const handleSave = () => {
   store.saveTestControl()
 }
 
+onMounted(() => {
+  store.fetchEmployees()
+})
+
 watch(
   () => store.showTestControlModal,
   (open) => {
     if (open) {
       currentStep.value = 0
       formErrorMessage.value = ''
+      store.fetchEmployees()
     }
   }
 )

@@ -137,9 +137,11 @@ export const useEmployeeApi = () => {
     let totalPages = 1
 
     do {
+      const queryParams = { page, page_size: pageSize }
       const response = await $fetch<any>(`${getBaseUrl()}/employees`, {
         method: 'GET',
-        params: { page, page_size: pageSize }
+        query: queryParams,
+        params: queryParams
       })
 
       const employees = Array.isArray(response.data)

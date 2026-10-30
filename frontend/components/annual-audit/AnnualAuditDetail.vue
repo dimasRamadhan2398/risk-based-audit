@@ -359,7 +359,7 @@ const canApproveChief = computed(() =>
 // Team figures are the sum of the activity rows: the plan has no team-level totals.
 const teamSize = computed(() => (store.selectedPlan?.activities || []).reduce((sum: number, a: { auditorCount?: number }) => sum + (Number(a.auditorCount) || 0), 0))
 const teamMandays = computed(() => (store.selectedPlan?.activities || []).reduce((sum: number, a: { totalMandays?: number }) => sum + (Number(a.totalMandays) || 0), 0))
-const teamLeadNames = computed(() => [...new Set((store.selectedPlan?.activities || []).map((a: { supervisorName?: string }) => a.supervisorName).filter(Boolean))].join(', '))
+const teamLeadNames = computed(() => [...new Set((store.selectedPlan?.activities || []).map((a: { supervisorName?: string }) => store.formatEmployeeName(a.supervisorName)).filter(Boolean))].join(', '))
 
 const isCreatingRevision = ref(false)
 const revisionNote = ref('')
@@ -384,7 +384,11 @@ const submitRevision = () => {
 }
 
 watch(() => store.showViewModal, (newVal) => {
-  if (!newVal) {
+  if (newVal) {
+    if (!store.employeesLoaded && !store.employeesLoading) {
+      store.fetchEmployees().catch(() => {})
+    }
+  } else {
     isCreatingRevision.value = false
     revisionNote.value = ''
   }

@@ -78,10 +78,10 @@
                   <td class="py-4 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ row.unitInCharge }}</td>
 
                   <!-- PIC -->
-                  <td class="py-4 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ row.pic }}</td>
+                  <td class="py-4 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ store.formatEmployeeName(row.pic) }}</td>
 
                   <!-- Supervisor -->
-                  <td class="py-4 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ row.supervisor }}</td>
+                  <td class="py-4 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ store.formatEmployeeName(row.supervisor) }}</td>
 
                   <!-- Progress Bar -->
                   <td class="py-4 px-4 text-center whitespace-nowrap" @click.stop>
@@ -225,7 +225,7 @@
 
 <script setup lang="ts">
 import { useRbac } from '~/composables/useRbac'
-import { ref, computed, watchEffect } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useMitigationStore } from '~/stores/mitigation-risk'
 
 const store = useMitigationStore()
@@ -237,10 +237,14 @@ const props = defineProps<{
   currentRiskId: string
 }>()
 
-watchEffect(() => {
-  if (props.currentRiskId) {
-    store.fetchMitigations(props.currentRiskId)
+watch(() => props.currentRiskId, (newId) => {
+  if (newId) {
+    store.fetchMitigations(newId)
   }
+}, { immediate: true })
+
+onMounted(() => {
+  store.fetchEmployees()
 })
 
 const filteredMitigations = computed(() => {

@@ -17,6 +17,7 @@ func TestRiskFactorAndUniverseListsAreNotCached(t *testing.T) {
 		"/api/v1/risk-factors/corporate",
 		"/api/v1/audit-universe/standard",
 		"/api/v1/audit-universe/corporate",
+		"/api/v1/mitigations",
 	}
 	for _, p := range paths {
 		r.GET(p, func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"success": true}) })

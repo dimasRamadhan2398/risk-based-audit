@@ -183,18 +183,26 @@
                   class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2"
                 >
                   <div class="flex-1">
-                    <UInput
+                    <USelectMenu
                       v-model="member.name"
+                      :items="store.getAvailableMemberOptions(index)"
+                      :loading="store.employeesLoading"
                       :placeholder="t('assignmentLetter.formExtra.memberName')"
                       class="w-full"
+                      create-item
+                      @create="(val: string) => { member.name = val.trim() }"
                       required
-                      maxlength="100"
-                      @invalid="($event.target as any)?.setCustomValidity('Nama anggota maksimal 100 karakter dan wajib diisi')"
-                      @input="($event.target as any)?.setCustomValidity('')"
-                    />
-                    <div class="text-xs text-gray-500 mt-1 text-right">
-                      {{ member.name ? member.name.length : 0 }}/100
-                    </div>
+                    >
+                      <template #empty>
+                        {{ store.employeesLoading ? t('common.loading') : (store.employeesError || t('masterData.employee.empty')) }}
+                      </template>
+                    </USelectMenu>
+                    <p
+                      v-if="store.isDuplicateMember(member.name, index)"
+                      class="text-xs text-red-500 font-semibold mt-1"
+                    >
+                      {{ t('assignmentLetter.formExtra.memberDuplicate') }}
+                    </p>
                   </div>
                   <div class="flex items-center gap-2">
                     <USelectMenu
@@ -293,7 +301,7 @@
               </UFormField>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
+            <!-- <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
               <UFormField
                 :label="t('assignmentLetter.formExtra.cc')"
                 class="md:col-span-4 space-y-3"
@@ -331,7 +339,7 @@
                   @click="store.addItem(store.form.ccList, '')"
                 />
               </UFormField>
-            </div>
+            </div> -->
           </div>
 
           <!-- Error message display -->
@@ -397,8 +405,17 @@ watch(
   (open) => {
     if (open) {
       masterOptions.fetchAll()
+      if (!store.employeesLoaded && !store.employeesLoading) {
+        store.fetchEmployees().catch(() => {})
+      }
     }
   },
   { immediate: true }
 )
+
+onMounted(() => {
+  if (!store.employeesLoaded && !store.employeesLoading) {
+    store.fetchEmployees().catch(() => {})
+  }
+})
 </script>

@@ -51,6 +51,9 @@
           {{ row.original.mitigationPlan || '-' }}
         </div>
       </template>
+      <template #pic-cell="{ row }">
+        <span class="text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">{{ store.formatEmployeeName(row.original.pic) }}</span>
+      </template>
       <template #dueDate-cell="{ row }">
         <span class="text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">{{ formatDate(row.original.dueDate) || '-' }}</span>
       </template>
@@ -91,7 +94,7 @@
 
 <script setup lang="ts">
 import { useRbac } from '~/composables/useRbac'
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
 import TableEntities from '~/components/shared/TableEntities.vue'
@@ -121,6 +124,7 @@ const columns = computed(() => [
     class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
     tdClass: '!whitespace-normal break-words'
   },
+  { key: 'pic', accessorKey: 'pic', header: t('auditFieldwork.testControls.columns.pic') || t('auditFieldwork.testControls.pic') || 'PIC', class: 'w-44 min-w-[140px] whitespace-nowrap' },
   { key: 'dueDate', accessorKey: 'dueDate', header: t('auditFieldwork.testControls.columns.dueDate') || t('auditFieldwork.testControls.dueDate'), class: 'w-36 min-w-[120px] whitespace-nowrap' },
   { key: 'actions', accessorKey: 'actions', header: t('auditFieldwork.testControls.columns.actions'), class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
 ])
@@ -135,4 +139,8 @@ const getControlTypeColor = (type: string) => {
   }
   return colors[type] || 'neutral'
 }
+
+onMounted(() => {
+  store.fetchEmployees()
+})
 </script>

@@ -391,12 +391,19 @@
                     size="lg"
                     class="md:col-span-2"
                   >
-                    <UInput
+                    <USelectMenu
                       v-model="activity.supervisorName"
-                      type="text"
+                      :items="store.supervisorOptions"
+                      :loading="store.employeesLoading"
                       :placeholder="t('annualAudit.form.supervisorPlaceholder')"
                       class="w-full"
-                    />
+                      create-item
+                      @create="(val: string) => { activity.supervisorName = val.trim() }"
+                    >
+                      <template #empty>
+                        {{ store.employeesLoading ? t('common.loading') : (store.employeesError || t('masterData.employee.empty')) }}
+                      </template>
+                    </USelectMenu>
                   </UFormField>
                 </div>
               </UCard>
@@ -816,7 +823,8 @@ const loadFormOptions = async () => {
   await Promise.allSettled([
     auditUniverseStore.fetchYearlyUniverse(currentYear),
     auditUniverseStore.fetchCorporateUniverse(),
-    store.fetchDepartmentOptions()
+    store.fetchDepartmentOptions(),
+    store.fetchEmployees()
   ])
 }
 

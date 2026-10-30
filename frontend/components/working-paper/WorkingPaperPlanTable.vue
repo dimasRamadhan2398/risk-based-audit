@@ -25,6 +25,12 @@
               </div>
             </template>
 
+            <template #pic-cell="{ row }">
+              <span class="text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                {{ store.formatEmployeeName(row.original.pic) }}
+              </span>
+            </template>
+
             <template #actions-cell="{ row }">
                 <div class="flex gap-2">
                   <UTooltip v-if="canWrite" :text="t('workingPaper.common.edit')">
@@ -53,6 +59,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { useRbac } from '~/composables/useRbac'
 import { useWorkingPaperStore } from '~/stores/working-paper'
 import { useI18n } from '~/composables/useI18n'
@@ -61,4 +68,8 @@ import { useI18n } from '~/composables/useI18n'
 const { t } = useI18n()
 const { canWrite } = useRbac()
 const store = useWorkingPaperStore()
+
+onMounted(() => {
+  store.fetchEmployees?.()
+})
 </script>

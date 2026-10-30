@@ -6,6 +6,8 @@ import { extractErrorMessage } from '~/utils/error';
 import { getAuditServiceBaseUrl as resolveAuditUrl } from '~/composables/useApiUrl';
 import { useI18n } from '~/composables/useI18n';
 import { getFiscalYearStrings } from '~/composables/useFiscalYear';
+import { useEmployeeApi } from '~/composables/useEmployeeApi';
+import type { Employee } from '~/types/master';
 
 export interface AssignmentLetterState {
   isModalOpen: boolean;
@@ -21,6 +23,10 @@ export interface AssignmentLetterState {
   };
   loading: boolean;
   errorMsg: string;
+  employees: Employee[];
+  employeesLoading: boolean;
+  employeesLoaded: boolean;
+  employeesError: string;
 }
 
 export const useAssignmentLetterStore = defineStore('assignment-letter', {
@@ -30,6 +36,10 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
     assignmentLetterList: [],
     loading: false,
     errorMsg: '',
+    employees: [],
+    employeesLoading: false,
+    employeesLoaded: false,
+    employeesError: '',
     form: {
       auditTitle: '',
       leader: '',
@@ -89,6 +99,125 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         }
       }
       return null
+    },
+
+    employeeOptions: (state): string[] => {
+      const list = state.employees.map(e => e.employee_code ? `${e.full_name} (${e.employee_code})` : e.full_name)
+      if (state.form.membersList && Array.isArray(state.form.membersList)) {
+        for (const member of state.form.membersList) {
+          if (member.name && !list.includes(member.name)) {
+            list.unshift(member.name)
+          }
+        }
+      }
+      return list.sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
+    },
+
+    getAvailableMemberOptions: (state) => (index: number): string[] => {
+      const excludedKeys = new Set<string>()
+      const excludedText = new Set<string>()
+
+      if (Array.isArray(state.form.membersList)) {
+        state.form.membersList.forEach((m, idx) => {
+          if (idx !== index && m.name && m.name.trim()) {
+            const trimmed = m.name.trim()
+            excludedText.add(trimmed.toLowerCase())
+            const match = state.employees.find(
+              e => e.id.toLowerCase() === trimmed.toLowerCase() ||
+                (e.employee_code && e.employee_code.toLowerCase() === trimmed.toLowerCase()) ||
+                (e.full_name && e.full_name.toLowerCase() === trimmed.toLowerCase()) ||
+                (e.employee_code && `${e.full_name} (${e.employee_code})`.toLowerCase() === trimmed.toLowerCase())
+            )
+            if (match) {
+              excludedKeys.add(match.id.toLowerCase())
+              if (match.employee_code) excludedText.add(match.employee_code.toLowerCase())
+              excludedText.add(match.full_name.toLowerCase())
+              if (match.employee_code) {
+                excludedText.add(`${match.full_name} (${match.employee_code})`.toLowerCase())
+              }
+            }
+          }
+        })
+      }
+
+      // Base options from master employee list
+      const list = state.employees.map(e => e.employee_code ? `${e.full_name} (${e.employee_code})` : e.full_name)
+      // Current row's own value, if present and not in list (e.g. custom/legacy entry)
+      const currentName = state.form.membersList?.[index]?.name?.trim()
+      if (currentName && !list.includes(currentName)) {
+        list.unshift(currentName)
+      }
+
+      const available = list.filter(opt => {
+        const optLower = opt.toLowerCase()
+        if (excludedText.has(optLower)) return false
+
+        const match = state.employees.find(
+          e => (e.employee_code && `${e.full_name} (${e.employee_code})`.toLowerCase() === optLower) ||
+            e.full_name.toLowerCase() === optLower
+        )
+        if (match && excludedKeys.has(match.id.toLowerCase())) {
+          return false
+        }
+        return true
+      })
+
+      return available.sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
+    },
+
+    isDuplicateMember: (state) => (name: string, index: number): boolean => {
+      if (!name || !name.trim()) return false
+      const trimmed = name.trim().toLowerCase()
+      const match = state.employees.find(
+        e => e.id.toLowerCase() === trimmed ||
+          (e.employee_code && e.employee_code.toLowerCase() === trimmed) ||
+          (e.full_name && e.full_name.toLowerCase() === trimmed) ||
+          (e.employee_code && `${e.full_name} (${e.employee_code})`.toLowerCase() === trimmed)
+      )
+      const targetKey = match ? match.id.toLowerCase() : trimmed
+
+      return state.form.membersList.some((m, idx) => {
+        if (idx === index || !m.name || !m.name.trim()) return false
+        const otherTrimmed = m.name.trim().toLowerCase()
+        const otherMatch = state.employees.find(
+          e => e.id.toLowerCase() === otherTrimmed ||
+            (e.employee_code && e.employee_code.toLowerCase() === otherTrimmed) ||
+            (e.full_name && e.full_name.toLowerCase() === otherTrimmed) ||
+            (e.employee_code && `${e.full_name} (${e.employee_code})`.toLowerCase() === otherTrimmed)
+        )
+        const otherKey = otherMatch ? otherMatch.id.toLowerCase() : otherTrimmed
+        return otherKey === targetKey
+      })
+    },
+
+    hasDuplicateMembers: (state): boolean => {
+      if (!Array.isArray(state.form.membersList) || state.form.membersList.length <= 1) {
+        return false
+      }
+      return state.form.membersList.some((m, idx) => {
+        if (!m.name || !m.name.trim()) return false
+        const trimmed = m.name.trim().toLowerCase()
+        const match = state.employees.find(
+          e => e.id.toLowerCase() === trimmed ||
+            (e.employee_code && e.employee_code.toLowerCase() === trimmed) ||
+            (e.full_name && e.full_name.toLowerCase() === trimmed) ||
+            (e.employee_code && `${e.full_name} (${e.employee_code})`.toLowerCase() === trimmed)
+        )
+        const targetKey = match ? match.id.toLowerCase() : trimmed
+
+        return state.form.membersList.some((other, otherIdx) => {
+          if (otherIdx <= idx || !other.name || !other.name.trim()) return false
+          const otherTrimmed = other.name.trim().toLowerCase()
+          const otherMatch = state.employees.find(
+            e => e.id.toLowerCase() === otherTrimmed ||
+              (e.employee_code && e.employee_code.toLowerCase() === otherTrimmed) ||
+              (e.full_name && e.full_name.toLowerCase() === otherTrimmed) ||
+              (e.employee_code && `${e.full_name} (${e.employee_code})`.toLowerCase() === otherTrimmed)
+          )
+          const otherKey = otherMatch ? otherMatch.id.toLowerCase() : otherTrimmed
+          return otherKey === targetKey
+        })
+      })
     }
   },
   actions: {
@@ -96,7 +225,76 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
       return resolveAuditUrl();
     },
 
+    resolveEmployeeOption(val?: string): string {
+      if (!val) return ''
+      const match = this.employees.find(
+        e => e.id === val || e.employee_code === val || e.full_name === val || `${e.full_name} (${e.employee_code})` === val
+      )
+      if (match) {
+        return match.employee_code ? `${match.full_name} (${match.employee_code})` : match.full_name
+      }
+      return val
+    },
+
+    formatEmployeeName(value?: string): string {
+      if (!value) return '-'
+      const found = this.employees.find(
+        e => e.id === value || e.employee_code === value || e.full_name === value
+      )
+      if (found) {
+        return found.employee_code ? `${found.full_name} (${found.employee_code})` : found.full_name
+      }
+      return value
+    },
+
+    formatLeaderDisplay(letter: AssignmentLetter): string {
+      if (letter.leader) {
+        return this.formatEmployeeName(letter.leader)
+      }
+      if (Array.isArray(letter.membersList) && letter.membersList.length > 0) {
+        const pic = letter.membersList.find(m => m.role === 'Person in Charge') || letter.membersList.find(m => m.role === 'Chairperson')
+        if (pic?.name) {
+          return this.formatEmployeeName(pic.name)
+        }
+      }
+      return '-'
+    },
+
+    async fetchEmployees(force = false) {
+      if (this.employeesLoaded && !force) return
+      if (this.employeesLoading) return
+      this.employeesLoading = true
+      this.employeesError = ''
+      try {
+        const api = useEmployeeApi()
+        const list = await api.getAllEmployees()
+        this.employees = (Array.isArray(list) ? list : [])
+          .filter(e => e?.full_name && e.is_active !== false)
+          .sort((a, b) => a.full_name.localeCompare(b.full_name, 'id', { sensitivity: 'base' }))
+        this.employeesLoaded = true
+
+        if (this.form.membersList && Array.isArray(this.form.membersList)) {
+          this.form.membersList.forEach(m => {
+            if (m.name) {
+              m.name = this.resolveEmployeeOption(m.name)
+            }
+          })
+        }
+      } catch (error: any) {
+        console.error('Failed to fetch employees for assignment letter:', error)
+        this.employeesError = extractErrorMessage(error, 'Gagal memuat data karyawan.')
+        if (!this.employeesLoaded) {
+          this.employees = []
+        }
+      } finally {
+        this.employeesLoading = false
+      }
+    },
+
     async fetchAssignmentLetters() {
+      if (!this.employeesLoaded && !this.employeesLoading) {
+        this.fetchEmployees().catch(() => {})
+      }
       this.loading = true
       this.errorMsg = ''
 
@@ -187,6 +385,9 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         scopeList: [''],
         ccList: ['President Director']
       })
+      if (!this.employeesLoaded && !this.employeesLoading) {
+        this.fetchEmployees().catch(() => {})
+      }
       this.isModalOpen = true
     },
 
@@ -210,11 +411,18 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
           ? String(letter.letterDate).slice(0, 10)
           : '',
         caeSignature: letter.caeSignature || '',
-        membersList: letter.membersList.map(member => ({ ...member })),
+        membersList: (letter.membersList || []).map(member => ({
+          ...member,
+          name: this.resolveEmployeeOption(member.name)
+        })),
         purposeList: [...letter.purposeList],
         scopeList: [...letter.scopeList],
         ccList: [...letter.ccList]
       })
+
+      if (!this.employeesLoaded && !this.employeesLoading) {
+        this.fetchEmployees().catch(() => {})
+      }
 
       this.isModalOpen = true
     },
@@ -258,6 +466,12 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         return
       }
 
+      if (this.hasDuplicateMembers) {
+        this.errorMsg = 'Nama anggota tim tidak boleh sama (duplikat).'
+        useToastNotification().showError('Validasi Gagal', this.errorMsg)
+        return
+      }
+
       const isCcValid = this.form.ccList.every(cc => cc && cc.trim() !== '')
       if (!isCcValid) {
         this.errorMsg = 'All CC fields must be filled in or removed.'
@@ -280,7 +494,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         const executionPeriod =
           `${this.form.startPeriod} to ${this.form.finishPeriod}`
 
-        const picMember = this.form.membersList.find(m => m.role === 'Person in Charge')
+        const picMember = this.form.membersList.find(m => m.role === 'Person in Charge') || this.form.membersList.find(m => m.role === 'Chairperson')
         if (picMember) {
           this.form.leader = picMember.name
         }

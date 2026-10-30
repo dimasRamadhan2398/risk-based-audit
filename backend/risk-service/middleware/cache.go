@@ -32,11 +32,10 @@ var DefaultCacheConfigs = map[string]CacheConfig{
 		IsPublic: false,
 		VaryBy:   "Accept-Encoding, Authorization",
 	},
-	// Mitigation Endpoints
+	// Mitigation Endpoints - edited on the same screen, must always revalidate
 	"GET /api/v1/mitigations": {
-		MaxAge:   300, // 5 minutes
-		IsPublic: false,
-		VaryBy:   "Accept-Encoding, Authorization",
+		NoCache: true,
+		VaryBy:  "Accept-Encoding, Authorization",
 	},
 	// Risk Factors and Audit Universe are edited in the same screens that read
 	// them, and weight/factor edits re-score the year rows: never serve a stale

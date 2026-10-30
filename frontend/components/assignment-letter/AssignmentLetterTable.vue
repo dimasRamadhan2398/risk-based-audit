@@ -30,7 +30,7 @@
 
         <template #auditTeam-cell="{ row }">
           <div class="flex flex-col">
-            <span class="font-bold text-gray-800 dark:text-white">{{ row.original.leader }} {{ t('assignmentLetter.formExtra.pic') }}</span>
+            <span class="font-bold text-gray-800 dark:text-white">{{ store.formatLeaderDisplay(row.original) }} {{ t('assignmentLetter.formExtra.pic') }}</span>
             <span class="text-md text-gray-500">{{ row.original.auditTeam }}</span>
           </div>
         </template>
@@ -79,10 +79,17 @@
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted } from 'vue'
 const { t } = useI18n()
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 
 const store = useAssignmentLetterStore()
+
+onMounted(() => {
+  if (!store.employeesLoaded && !store.employeesLoading) {
+    store.fetchEmployees().catch(() => {})
+  }
+})
 
 // Column keys/classes live in the store; headers are resolved here so they follow the active locale.
 const headerKeys: Record<string, string> = {
