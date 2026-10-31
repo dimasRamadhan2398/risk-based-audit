@@ -474,6 +474,11 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
         to: '/master/department'
       },
       {
+        label: t('navigation.jobRole'),
+        icon: 'i-lucide-briefcase',
+        to: '/master/job-role'
+      },
+      {
         label: t('navigation.location'),
         icon: 'i-lucide-map-pin',
         to: '/master/location'

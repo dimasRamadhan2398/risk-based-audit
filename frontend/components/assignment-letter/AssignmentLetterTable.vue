@@ -30,10 +30,7 @@
       />
     </div>
 
-    <UCard
-      class="rounded-xl shadow-sm overflow-hidden"
-      variant="soft"
-    >
+    <div>
       <TableEntities
         :columns="columns"
         :data="filteredLetters"
@@ -125,7 +122,7 @@
           </div>
         </template>
       </TableEntities>
-    </UCard>
+    </div>
   </div>
 </template>
 

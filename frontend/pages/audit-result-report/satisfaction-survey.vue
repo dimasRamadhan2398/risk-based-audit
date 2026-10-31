@@ -18,7 +18,7 @@
     </div>
 
     <!-- CSAT Summary Analytics Cards (Design System Primary, Secondary, Success Fill Color) -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 font-sans">
       <!-- 1. CSAT Average Card (Primary Fill Color) -->
       <UCard
         :ui="{ body: 'p-6 text-white dark:text-white', background: 'bg-transparent' }"
@@ -31,11 +31,8 @@
                 <span class="text-xs font-bold uppercase tracking-wider text-white">
                   {{ t('satisfactionSurvey.cards.avgCsat.title') }}
                 </span>
-                <UTooltip :text="t('satisfactionSurvey.cards.avgCsat.tooltip')">
-                  <UIcon name="i-heroicons-information-circle" class="size-4 text-white hover:text-white/80 cursor-pointer transition-colors" />
-                </UTooltip>
               </div>
-              <h3 class="text-4xl font-black text-white mt-2 tracking-tight">
+              <h3 class="text-4xl font-bold !text-white mt-2 tracking-tight">
                 {{ averageCsat.toFixed(1) }} <span class="text-lg font-medium text-white">/ 5.0</span>
               </h3>
             </div>
@@ -74,11 +71,8 @@
                 <span class="text-xs font-bold uppercase tracking-wider text-white">
                   {{ t('satisfactionSurvey.cards.totalSurveys.title') }}
                 </span>
-                <UTooltip :text="t('satisfactionSurvey.cards.totalSurveys.tooltip')">
-                  <UIcon name="i-heroicons-information-circle" class="size-4 text-white hover:text-white/80 cursor-pointer transition-colors" />
-                </UTooltip>
               </div>
-              <h3 class="text-4xl font-black text-white mt-2 tracking-tight">
+              <h3 class="text-4xl font-bold !text-white mt-2 tracking-tight">
                 {{ surveysStore.surveys.length }}
                 <span class="text-lg font-normal text-white">{{ t('satisfactionSurvey.cards.totalSurveys.unit') }}</span>
               </h3>
@@ -118,11 +112,8 @@
                 <span class="text-xs font-bold uppercase tracking-wider text-white">
                   {{ t('satisfactionSurvey.cards.responseRate.title') }}
                 </span>
-                <UTooltip :text="t('satisfactionSurvey.cards.responseRate.tooltip')">
-                  <UIcon name="i-heroicons-information-circle" class="size-4 text-white hover:text-white/80 cursor-pointer transition-colors" />
-                </UTooltip>
               </div>
-              <h3 class="text-4xl font-black text-white mt-2 tracking-tight">
+              <h3 class="text-4xl font-bold !text-white mt-2 tracking-tight">
                 {{ responseRate }}%
               </h3>
             </div>
@@ -163,18 +154,17 @@
     <!-- CSAT Metrics Explanation Guide Banner -->
     <UCard
       v-if="showExplanationGuide"
-      class="mb-8 border border-primary-200 dark:border-primary-900/40 bg-primary-50/50 dark:bg-primary-950/20 shadow-xs rounded-2xl overflow-hidden"
+      :ui="{ root: 'bg-white dark:bg-gray-900' }"
+      class="mb-8 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 overflow-hidden"
     >
-      <div class="flex items-start justify-between gap-4 pb-4 border-b border-primary-100 dark:border-primary-900/30">
+      <div class="flex items-center justify-between gap-4 pb-4 border-b border-gray-200 dark:border-gray-800">
         <div class="flex items-center gap-3">
-          <div class="p-2.5 bg-primary-600 text-white rounded-xl shadow-xs">
+          <div class="p-2 bg-primary-500 text-white rounded-lg">
             <UIcon name="i-heroicons-academic-cap" class="size-5" />
           </div>
-          <div>
-            <h3 class="text-base font-bold text-gray-900 dark:text-white">
-              {{ t('satisfactionSurvey.guide.title') }}
-            </h3>
-          </div>
+          <h3 class="text-base font-bold text-gray-900 dark:text-white">
+            {{ t('satisfactionSurvey.guide.title') }}
+          </h3>
         </div>
         <UButton
           icon="i-heroicons-x-mark"
@@ -185,70 +175,59 @@
         />
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 text-xs">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 text-sm">
         <!-- Metric 1 Explanation (Primary) -->
-        <div class="p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200/80 dark:border-gray-800 space-y-2">
-          <div class="flex items-center gap-2 text-primary-700 dark:text-primary-400 font-bold text-sm">
+        <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 flex flex-col gap-2">
+          <div class="flex items-center gap-2 text-primary-500 font-bold">
             <UIcon name="i-heroicons-face-smile" class="size-4 shrink-0" />
             <span>{{ t('satisfactionSurvey.guide.csat.title') }}</span>
           </div>
-          <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
-            <strong>{{ t('satisfactionSurvey.guide.csat.definition').split(':')[0] }}</strong>
+          <p class="text-gray-600 dark:text-gray-300">
+            {{ t('satisfactionSurvey.guide.csat.definition') }}
           </p>
-          <div class="space-y-1 text-gray-500 dark:text-gray-400">
-            <p><strong>{{ t('satisfactionSurvey.guide.csat.dimensionsTitle') }}</strong></p>
-            <ul class="list-disc pl-4 space-y-0.5">
-              <li><strong>{{ t('satisfactionSurvey.metricLabels.clarity') }}</strong> {{ t('satisfactionSurvey.guide.csat.clarity') }}</li>
-              <li><strong>{{ t('satisfactionSurvey.metricLabels.professionalism') }}</strong> {{ t('satisfactionSurvey.guide.csat.professionalism') }}</li>
-              <li><strong>{{ t('satisfactionSurvey.metricLabels.timeliness') }}</strong> {{ t('satisfactionSurvey.guide.csat.timeliness') }}</li>
-            </ul>
-          </div>
-          <div class="pt-2 text-[11px] text-primary-600 dark:text-primary-400 font-semibold border-t border-gray-100 dark:border-gray-800 flex items-center gap-1.5">
+          <ul class="list-disc pl-4 space-y-0.5 text-gray-500 dark:text-gray-400">
+            <li><strong>{{ t('satisfactionSurvey.metricLabels.clarity').replace(/:$/, '') }}</strong> {{ t('satisfactionSurvey.guide.csat.clarity') }}</li>
+            <li><strong>{{ t('satisfactionSurvey.metricLabels.professionalism').replace(/:$/, '') }}</strong> {{ t('satisfactionSurvey.guide.csat.professionalism') }}</li>
+            <li><strong>{{ t('satisfactionSurvey.metricLabels.timeliness').replace(/:$/, '') }}</strong> {{ t('satisfactionSurvey.guide.csat.timeliness') }}</li>
+          </ul>
+          <div class="mt-auto pt-2 text-xs text-primary-500 font-semibold border-t border-gray-100 dark:border-gray-800 flex items-center gap-1.5">
             <UIcon name="i-lucide-target" class="size-3.5 shrink-0" />
             <span>{{ t('satisfactionSurvey.guide.csat.target') }}</span>
           </div>
         </div>
 
         <!-- Metric 2 Explanation (Secondary) -->
-        <div class="p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200/80 dark:border-gray-800 space-y-2">
-          <div class="flex items-center gap-2 text-secondary-700 dark:text-secondary-400 font-bold text-sm">
+        <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 flex flex-col gap-2">
+          <div class="flex items-center gap-2 text-secondary-600 dark:text-secondary-400 font-bold">
             <UIcon name="i-heroicons-document-check" class="size-4 shrink-0" />
             <span>{{ t('satisfactionSurvey.guide.surveys.title') }}</span>
           </div>
-          <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
-            <strong>{{ t('satisfactionSurvey.guide.surveys.definition').split(':')[0] }}</strong>
+          <p class="text-gray-600 dark:text-gray-300">
+            {{ t('satisfactionSurvey.guide.surveys.definition') }}
           </p>
-          <div class="space-y-1 text-gray-500 dark:text-gray-400">
-            <p><strong>{{ t('satisfactionSurvey.guide.surveys.flowTitle') }}</strong></p>
-            <ul class="list-disc pl-4 space-y-0.5">
-              <li>{{ t('satisfactionSurvey.guide.surveys.flow1') }}</li>
-              <li>{{ t('satisfactionSurvey.guide.surveys.flow2') }}</li>
-              <li>{{ t('satisfactionSurvey.guide.surveys.flow3') }}</li>
-            </ul>
-          </div>
-          <div class="pt-2 text-[11px] text-secondary-600 dark:text-secondary-400 font-semibold border-t border-gray-100 dark:border-gray-800 flex items-center gap-1.5">
+          <ul class="list-disc pl-4 space-y-0.5 text-gray-500 dark:text-gray-400">
+            <li>{{ t('satisfactionSurvey.guide.surveys.flow1') }}</li>
+            <li>{{ t('satisfactionSurvey.guide.surveys.flow2') }}</li>
+          </ul>
+          <div class="mt-auto pt-2 text-xs text-secondary-600 dark:text-secondary-400 font-semibold border-t border-gray-100 dark:border-gray-800 flex items-center gap-1.5">
             <UIcon name="i-lucide-bar-chart-2" class="size-3.5 shrink-0" />
             <span>{{ t('satisfactionSurvey.guide.surveys.note') }}</span>
           </div>
         </div>
 
         <!-- Metric 3 Explanation (Success) -->
-        <div class="p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200/80 dark:border-gray-800 space-y-2">
-          <div class="flex items-center gap-2 text-success-700 dark:text-success-400 font-bold text-sm">
+        <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 flex flex-col gap-2">
+          <div class="flex items-center gap-2 text-success-600 dark:text-success-400 font-bold">
             <UIcon name="i-heroicons-chart-bar-solid" class="size-4 shrink-0" />
             <span>{{ t('satisfactionSurvey.guide.rate.title') }}</span>
           </div>
-          <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
-            <strong>{{ t('satisfactionSurvey.guide.rate.definition').split(':')[0] }}</strong>
+          <p class="text-gray-600 dark:text-gray-300">
+            {{ t('satisfactionSurvey.guide.rate.definition') }}
           </p>
-          <div class="space-y-1 text-gray-500 dark:text-gray-400">
-            <p><strong>{{ t('satisfactionSurvey.guide.rate.formulaTitle') }}</strong></p>
-            <div class="p-2 bg-gray-50 dark:bg-gray-800/60 rounded font-mono text-[11px] text-gray-700 dark:text-gray-300">
-              {{ t('satisfactionSurvey.guide.rate.formula') }}
-            </div>
-            <p class="mt-1">{{ t('satisfactionSurvey.guide.rate.desc') }}</p>
+          <div class="p-2 bg-gray-50 dark:bg-gray-800/60 rounded font-mono text-xs text-gray-700 dark:text-gray-300">
+            {{ t('satisfactionSurvey.guide.rate.formula') }}
           </div>
-          <div class="pt-2 text-[11px] text-success-600 dark:text-success-400 font-semibold border-t border-gray-100 dark:border-gray-800 flex items-center gap-1.5">
+          <div class="mt-auto pt-2 text-xs text-success-600 dark:text-success-400 font-semibold border-t border-gray-100 dark:border-gray-800 flex items-center gap-1.5">
             <UIcon name="i-lucide-target" class="size-3.5 shrink-0" />
             <span>{{ t('satisfactionSurvey.guide.rate.target') }}</span>
           </div>
@@ -257,7 +236,7 @@
     </UCard>
 
     <!-- Main Content Tabs / Tables -->
-    <UCard class="shadow-sm border border-[var(--border-main)] overflow-hidden">
+    <UCard :ui="{ root: 'bg-transparent!' }" class="rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 divide-gray-200 dark:divide-gray-800 overflow-hidden">
       <template #header>
         <div class="flex justify-between items-center py-1">
           <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -279,7 +258,7 @@
 
       <!-- Published Reports Table -->
       <div v-if="publishedReports.length > 0" class="overflow-x-auto">
-        <UTable :data="publishedReports" :columns="columns" class="w-full">
+        <UTable :data="publishedReports" :columns="columns" :ui="{ th: 'bg-gray-100 dark:bg-gray-800/50' }" class="w-full">
           <!-- Report Number -->
           <template #reportNumber-cell="{ row }">
             <span class="font-mono text-md font-semibold text-primary-600 dark:text-primary-400">
@@ -709,8 +688,10 @@ import { useAuditExecutionStore } from '~/stores/audit-execution'
 import { useAuditeeSurveyStore, type AuditeeSurvey } from '~/stores/auditee-survey'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { useI18n } from '~/composables/useI18n'
+import { useAppToast } from '~/composables/useAppToast'
 
 const { t } = useI18n()
+const appToast = useAppToast()
 const { canWrite } = useRbac()
 const authStore = useAuthStore()
 const reportStore = useAuditResultReportStore()
@@ -863,7 +844,7 @@ const submitSurvey = async () => {
     if (execution) {
       const existing = surveysStore.surveys.find((s: any) => s.audit_execution_id === execution.id)
       if (existing) {
-        alert(t('satisfactionSurvey.formModal.alreadySubmitted'))
+        appToast.warning(t('satisfactionSurvey.formModal.alreadySubmitted'))
         submitting.value = false
         return
       }

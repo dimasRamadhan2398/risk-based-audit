@@ -149,7 +149,7 @@
                 <UFormField :label="t('masterData.employee.form.jobRole')" size="lg">
                   <USelectMenu
                     v-model="store.form.job_role_id"
-                    :items="options.jobRoleOptions"
+                    :items="jobRoleItems"
                     value-key="value"
                     :loading="options.loading"
                     :placeholder="t('masterData.employee.form.jobRolePlaceholder')"
@@ -190,12 +190,13 @@
             <div class="space-y-4 pt-4">
               <h4 class="text-sm tracking-widertext-gray-500 font-bold border-b border-[var(--border-main)] pb-2"> {{ t('masterData.location.columns.address') }} </h4>
 
-              <UFormField :label="t('masterData.employee.form.address')" size="lg">
+              <UFormField :label="t('masterData.employee.form.address')" size="lg" class="w-full">
                 <UTextarea
                   v-model="store.form.residence_address"
                   :placeholder="t('masterData.location.fieldAddressPlaceholder')"
                   :rows="2"
                   autoresize
+                  class="w-full"
                 />
               </UFormField>
 
@@ -308,11 +309,19 @@ const managerItems = computed(() => [
   ...options.employeeOptions.filter((o) => o.value !== store.editingId)
 ])
 
-// Load the reference lists the first time the modal is opened.
+// Only active job roles can be assigned, but keep the one the employee already holds.
+const jobRoleItems = computed(() => {
+  const selectable = new Set(
+    options.jobRoles.filter((r) => r.is_active !== false || r.id === store.form.job_role_id).map((r) => r.id)
+  )
+  return options.jobRoleOptions.filter((o) => selectable.has(o.value))
+})
+
+// Refresh the reference lists on every open so master data changes (e.g. new job roles) show up.
 watch(
   () => store.showModal,
   (open) => {
-    if (open) options.fetchAll()
+    if (open) options.fetchAll(true)
   },
   { immediate: true }
 )

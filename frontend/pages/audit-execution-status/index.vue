@@ -340,7 +340,7 @@ const handleRemind = (audit: any) => {
     <!-- Table Section -->
     <div
       v-else
-      class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm"
+      class="bg-transparent rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm"
     >
       <TableEntities
         :columns="columns"

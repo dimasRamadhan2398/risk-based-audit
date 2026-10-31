@@ -77,7 +77,7 @@
     </div>
 
     <!-- Tabs Container -->
-    <UCard :ui="{ body: 'p-0' }" class="overflow-hidden border border-gray-200 dark:border-gray-800">
+    <UCard :ui="{ root: 'bg-transparent!', body: 'p-0 bg-transparent!' }" class="overflow-hidden border border-gray-200 dark:border-gray-800">
       <UTabs v-model="activeTab" :items="tabs" class="w-full">
         <template #content="{ item }">
           <!-- Tab 1: Guidelines & Rules -->
@@ -94,61 +94,61 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- Zone 1: Acceptable -->
-              <div class="border border-green-200 dark:border-green-900/50 bg-green-50/20 dark:bg-green-900/20 rounded-xl p-4 sm:p-6 space-y-4">
+              <div class="border border-green-600 bg-green-600 dark:bg-green-900 dark:border-green-900 rounded-xl p-4 sm:p-6 space-y-4">
                 <div class="flex items-center gap-3">
-                  <div class="p-2 bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 rounded-lg">
+                  <div class="p-2 bg-white/20 text-white rounded-lg">
                     <UIcon name="i-heroicons-check-badge" class="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 class="font-extrabold text-green-900 dark:text-green-100">{{ t('riskAppetite.guidelines.acceptableZone.title') }}</h4>
-                    <p class="text-md text-green-700 dark:text-green-300">{{ t('riskAppetite.guidelines.acceptableZone.desc') }}</p>
+                    <h4 class="font-extrabold text-white!">{{ t('riskAppetite.guidelines.acceptableZone.title') }}</h4>
+                    <p class="text-md text-white/90!">{{ t('riskAppetite.guidelines.acceptableZone.desc') }}</p>
                   </div>
                 </div>
 
                 <div class="space-y-2">
-                  <div class="flex items-center gap-2 text-md font-bold text-gray-700 dark:text-gray-300">
-                    <div class="w-3 h-3 rounded" :class="getRiskLevelDotClass('Low')"></div>
+                  <div class="flex items-center gap-2 text-md font-bold text-white">
+                    <div class="w-3 h-3 rounded ring-2 ring-white" :class="getRiskLevelDotClass('Low')"></div>
                     <span>{{ t('riskAppetite.guidelines.acceptableZone.low') }}</span>
                   </div>
-                  <div class="flex items-center gap-2 text-md font-bold text-gray-700 dark:text-gray-300">
-                    <div class="w-3 h-3 rounded" :class="getRiskLevelDotClass('Low to Medium')"></div>
+                  <div class="flex items-center gap-2 text-md font-bold text-white">
+                    <div class="w-3 h-3 rounded ring-2 ring-white" :class="getRiskLevelDotClass('Low to Medium')"></div>
                     <span>{{ t('riskAppetite.guidelines.acceptableZone.lowMod') }}</span>
                   </div>
                 </div>
 
-                <p class="text-md leading-normal text-green-800 dark:text-green-200 italic">
+                <p class="text-md leading-normal text-white/90! italic">
                   {{ t('riskAppetite.guidelines.acceptableZone.note') }}
                 </p>
               </div>
 
               <!-- Zone 2: Mitigation Required -->
-              <div class="border border-orange-200 dark:border-orange-900/50 bg-orange-50/20 dark:bg-orange-900/20 rounded-xl p-4 sm:p-6 space-y-4">
+              <div class="border border-orange-500 bg-orange-500 dark:bg-orange-900 dark:border-orange-900 rounded-xl p-4 sm:p-6 space-y-4">
                 <div class="flex items-center gap-3">
-                  <div class="p-2 bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400 rounded-lg">
+                  <div class="p-2 bg-white/20 text-white rounded-lg">
                     <UIcon name="i-heroicons-shield-exclamation" class="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 class="font-extrabold text-orange-950 dark:text-orange-100">{{ t('riskAppetite.guidelines.actionZone.title') }}</h4>
-                    <p class="text-md text-orange-800 dark:text-orange-300">{{ t('riskAppetite.guidelines.actionZone.desc') }}</p>
+                    <h4 class="font-extrabold text-white!">{{ t('riskAppetite.guidelines.actionZone.title') }}</h4>
+                    <p class="text-md text-white/90!">{{ t('riskAppetite.guidelines.actionZone.desc') }}</p>
                   </div>
                 </div>
 
                 <div class="space-y-2">
-                  <div class="flex items-center gap-2 text-md font-bold text-gray-700 dark:text-gray-300">
-                    <div class="w-3 h-3 rounded" :class="getRiskLevelDotClass('Medium')"></div>
+                  <div class="flex items-center gap-2 text-md font-bold text-white">
+                    <div class="w-3 h-3 rounded ring-2 ring-white" :class="getRiskLevelDotClass('Medium')"></div>
                     <span>{{ t('riskAppetite.guidelines.actionZone.mod') }}</span>
                   </div>
-                  <div class="flex items-center gap-2 text-md font-bold text-gray-700 dark:text-gray-300">
-                    <div class="w-3 h-3 rounded" :class="getRiskLevelDotClass('Medium to High')"></div>
+                  <div class="flex items-center gap-2 text-md font-bold text-white">
+                    <div class="w-3 h-3 rounded ring-2 ring-white" :class="getRiskLevelDotClass('Medium to High')"></div>
                     <span>{{ t('riskAppetite.guidelines.actionZone.modHigh') }}</span>
                   </div>
-                  <div class="flex items-center gap-2 text-md font-bold text-gray-700 dark:text-gray-300">
-                    <div class="w-3 h-3 rounded" :class="getRiskLevelDotClass('High')"></div>
+                  <div class="flex items-center gap-2 text-md font-bold text-white">
+                    <div class="w-3 h-3 rounded ring-2 ring-white" :class="getRiskLevelDotClass('High')"></div>
                     <span>{{ t('riskAppetite.guidelines.actionZone.high') }}</span>
                   </div>
                 </div>
 
-                <p class="text-md leading-normal text-orange-900 dark:text-orange-200 italic">
+                <p class="text-md leading-normal text-white/90! italic">
                   {{ t('riskAppetite.guidelines.actionZone.note') }}
                 </p>
               </div>
@@ -421,6 +421,7 @@
 import { ref, computed, onMounted } from 'vue'
 import TableEntities from '~/components/shared/TableEntities.vue'
 import { useI18n } from '~/composables/useI18n'
+import { useAppToast } from '~/composables/useAppToast'
 import { useRbac } from '~/composables/useRbac'
 import { useRiskProfileStore } from '~/stores/risk-profile'
 import { useMitigationStore } from '~/stores/mitigation-risk'
@@ -430,6 +431,7 @@ import { getRiskLevelColorClass, getRiskLevelDotClass } from '~/utils/riskLevelB
 import { useGlobalModalStore } from '~/stores/global-modal'
 
 const { t } = useI18n()
+const appToast = useAppToast()
 const { canEditRiskAppetite } = useRbac()
 const profileStore = useRiskProfileStore()
 const mitigationStore = useMitigationStore()
@@ -639,7 +641,7 @@ const handleSubmit = async () => {
     }
     isModalOpen.value = false
   } catch (error) {
-    alert(t('riskAppetite.statements.saveError'))
+    appToast.error(t('riskAppetite.statements.saveError'))
   }
 }
 
@@ -648,7 +650,7 @@ const handleDelete = async (id: string) => {
     try {
       await appetiteStore.deleteStatement(id)
     } catch (error) {
-      alert(t('riskAppetite.statements.deleteError'))
+      appToast.error(t('riskAppetite.statements.deleteError'))
     }
   }
 }

@@ -185,7 +185,7 @@
     </UCard>
 
     <!-- Recent Data Integration Activity Card -->
-    <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
+    <UCard class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 divide-gray-200 dark:divide-gray-800">
       <template #header>
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('settings.dataSource.recentLogsTitle') }}</h3>
@@ -195,7 +195,7 @@
 
       <div class="overflow-x-auto">
         <table class="w-full text-md text-left">
-          <thead class="bg-gray-50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 font-semibold border-b border-gray-200 dark:border-gray-800">
+          <thead class="bg-gray-100 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 font-semibold border-b border-gray-200 dark:border-gray-800">
             <tr>
               <th class="py-3 px-4">{{ t('settings.dataSource.thName') }}</th>
               <th class="py-3 px-4">{{ t('settings.dataSource.thEventType') }}</th>

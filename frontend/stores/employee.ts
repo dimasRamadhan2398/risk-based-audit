@@ -4,11 +4,13 @@ import type {
   Employee,
   EmployeeFormState,
   CreateEmployeeRequest,
+  EmployeeLoginAccount,
   UpdateEmployeeRequest,
   PaginationMeta
 } from '~/types/master'
 import { getUserErrorMessage } from '~/utils/error'
 import { useI18n } from '~/composables/useI18n'
+import { useAppToast } from '~/composables/useAppToast'
 
 export const useEmployeeStore = defineStore('employee', () => {
   // ============= State =============
@@ -31,6 +33,11 @@ export const useEmployeeStore = defineStore('employee', () => {
 
   // Code returned by the last successful create, used in the success message
   const createdEmployeeCode = ref('')
+
+  // Login account of the last created employee. Holds the one-time temporary
+  // password only until the credentials dialog is dismissed; never persisted.
+  const createdAccount = ref<EmployeeLoginAccount | null>(null)
+  const createdAccountEmployeeName = ref('')
 
   // Pagination State
   const pagination = ref<PaginationMeta>({
@@ -83,6 +90,25 @@ export const useEmployeeStore = defineStore('employee', () => {
    * Keep only digits. Phone is numeric-only (no "+", spaces or dashes).
    */
   const normalizePhone = (value: string | null | undefined): string => (value || '').replace(/\D/g, '')
+
+  /**
+   * Form value for join_date. The API returns RFC 3339 ("2021-03-15T00:00:00Z")
+   * but the date picker works with YYYY-MM-DD. Go's zero time (0001-01-01, left
+   * by an earlier update bug) is treated as unset.
+   */
+  const toJoinDateFormValue = (value: string | null | undefined): string => {
+    const day = (value || '').slice(0, 10)
+    return /^\d{4}-\d{2}-\d{2}$/.test(day) && day !== '0001-01-01' ? day : ''
+  }
+
+  /**
+   * join_date as the backend parses it (RFC 3339; a bare YYYY-MM-DD is rejected),
+   * or undefined when the form has no date.
+   */
+  const toJoinDatePayload = (value: string | null | undefined): string | undefined => {
+    const day = toJoinDateFormValue(value)
+    return day ? `${day}T00:00:00Z` : undefined
+  }
 
   // ============= Actions =============
 
@@ -141,6 +167,7 @@ export const useEmployeeStore = defineStore('employee', () => {
     loading.value = true
     errorMsg.value = ''
     createdEmployeeCode.value = ''
+    createdAccount.value = null
 
     try {
       const api = useEmployeeApi()
@@ -164,6 +191,8 @@ export const useEmployeeStore = defineStore('employee', () => {
 
       const created = await api.createEmployee(payload)
       createdEmployeeCode.value = created?.employee_code || ''
+      createdAccount.value = created?.account || null
+      createdAccountEmployeeName.value = form.full_name
       await fetchEmployees()
       return true
     } catch (error: any) {
@@ -172,6 +201,33 @@ export const useEmployeeStore = defineStore('employee', () => {
       return false
     } finally {
       loading.value = false
+    }
+  }
+
+  /**
+   * Drop the one-time temporary password (call when the credentials dialog closes)
+   */
+  const clearCreatedAccount = () => {
+    createdAccount.value = null
+    createdAccountEmployeeName.value = ''
+  }
+
+  /**
+   * Report the login account result of a create as a toast; the temporary
+   * password is never put in the toast (the credentials dialog shows it).
+   */
+  const notifyAccountResult = () => {
+    const account = createdAccount.value
+    const toast = useAppToast()
+    const message = createdEmployeeCode.value
+      ? t('masterData.employee.createdWithCode', { code: createdEmployeeCode.value })
+      : t('masterData.employee.messages.created')
+    if (account?.status === 'created') {
+      toast.success(message, t('masterData.employee.account.createdToast', { username: account.username }))
+    } else if (account?.status === 'linked') {
+      toast.success(message, t('masterData.employee.account.linkedToast', { username: account.username }))
+    } else {
+      toast.success(message)
     }
   }
 
@@ -200,7 +256,9 @@ export const useEmployeeStore = defineStore('employee', () => {
         residence_province: form.residence_province || undefined,
         residence_postal_code: form.residence_postal_code || undefined,
         manager_id: (form.manager_id && form.manager_id !== '__none__') ? form.manager_id : undefined,
-        is_active: form.is_active
+        is_active: form.is_active,
+        // Omitted when the form has no date; the backend then keeps the stored join_date
+        join_date: toJoinDatePayload(form.join_date)
       }
 
       await api.updateEmployee(id, payload)
@@ -299,7 +357,7 @@ export const useEmployeeStore = defineStore('employee', () => {
     form.residence_postal_code = employee.residence_postal_code || ''
     form.manager_id = employee.manager_id || ''
     form.is_active = employee.is_active
-    form.join_date = employee.join_date
+    form.join_date = toJoinDateFormValue(employee.join_date)
 
     showModal.value = true
   }
@@ -372,15 +430,17 @@ export const useEmployeeStore = defineStore('employee', () => {
       if (isEditing.value && editingId.value) {
         const success = await updateEmployee(editingId.value)
         if (success) {
-          alert('Employee berhasil diperbarui!')
+          useAppToast().success(t('masterData.employee.messages.updated'))
           closeModal()
         }
       } else {
         const success = await createEmployee()
         if (success) {
-          alert(createdEmployeeCode.value
-            ? t('masterData.employee.createdWithCode', { code: createdEmployeeCode.value })
-            : 'Employee berhasil dibuat!')
+          notifyAccountResult()
+          // Without a one-time password there is nothing left to show
+          if (createdAccount.value?.status !== 'created' || !createdAccount.value.temporary_password) {
+            clearCreatedAccount()
+          }
           closeModal()
         }
       }
@@ -399,7 +459,7 @@ export const useEmployeeStore = defineStore('employee', () => {
 
     const success = await deleteEmployee(employee.id)
     if (success) {
-      alert('Employee berhasil dihapus!')
+      useAppToast().success(t('masterData.employee.messages.deleted'))
     }
   }
 
@@ -447,6 +507,8 @@ export const useEmployeeStore = defineStore('employee', () => {
     nextEmployeeCode,
     nextEmployeeCodeLoading,
     nextEmployeeCodeFailed,
+    createdAccount,
+    createdAccountEmployeeName,
     pagination,
     search,
     form,
@@ -463,6 +525,7 @@ export const useEmployeeStore = defineStore('employee', () => {
     getEmployeeById,
     fetchNextEmployeeCode,
     createEmployee,
+    clearCreatedAccount,
     updateEmployee,
     deleteEmployee,
     openCreateModal,

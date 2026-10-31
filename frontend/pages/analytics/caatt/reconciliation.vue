@@ -168,7 +168,7 @@ const reconChartOptions = computed(() => ({
         </UCard>
 
         <!-- Table -->
-        <UCard class="lg:col-span-2">
+        <UCard class="lg:col-span-2 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 divide-gray-200 dark:divide-gray-800">
           <template #header>
             <div class="flex items-center gap-2">
               <UIcon name="i-heroicons-table-cells" class="text-indigo-500" />
@@ -178,7 +178,7 @@ const reconChartOptions = computed(() => ({
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
-                <tr class="border-b border-gray-200 dark:border-gray-700">
+                <tr class="bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
                   <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.reconciliation.systems') }}</th>
                   <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('settings.permission.tableModule') }}</th>
                   <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.reconciliation.transactionsA') }}</th>

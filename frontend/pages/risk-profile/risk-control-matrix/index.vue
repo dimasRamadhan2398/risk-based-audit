@@ -209,7 +209,7 @@
     </div>
 
     <!-- Main Risk Control Matrix Table -->
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden p-4 sm:p-6 space-y-4">
+    <div class="bg-transparent rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden p-4 sm:p-6 space-y-4">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ t('rcm.table.title') }}</h3>

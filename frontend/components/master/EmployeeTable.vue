@@ -1,10 +1,6 @@
 <template>
-  <UCard
-    class="rounded-xl shadow overflow-hidden"
-    variant="soft"
-    color="primary"
-  >
-    <template #header>
+  <div class="space-y-4">
+    <div>
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h2 class="text-lg font-bold">{{ t('masterData.employee.listTitle') }}</h2>
         <UButton v-if="canWriteMasterData"
@@ -15,7 +11,7 @@
           @click="store.openCreateModal"
         />
       </div>
-    </template>
+    </div>
 
     <!-- Search & Filter -->
     <div class="mb-4 flex flex-wrap gap-2 sm:gap-4 items-center w-full">
@@ -159,7 +155,7 @@
       v-model:open="showResetPassword"
       :employee="resetPasswordEmployee"
     />
-  </UCard>
+  </div>
 </template>
 
 <script setup lang="ts">

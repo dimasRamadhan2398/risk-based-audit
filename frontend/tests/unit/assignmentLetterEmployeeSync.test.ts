@@ -94,6 +94,7 @@ describe('Assignment Letter - Team Members Synchronized with Master Employee Man
     getAllEmployeesMock = vi.fn().mockResolvedValue(mockEmployees)
     vi.spyOn(employeeApiModule, 'useEmployeeApi').mockReturnValue({
       getAllEmployees: getAllEmployeesMock,
+      createLoginAccount: vi.fn(),
       getEmployees: vi.fn(),
       getEmployeeById: vi.fn(),
       getNextEmployeeCode: vi.fn(),

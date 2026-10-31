@@ -1,6 +1,8 @@
 // Employee API Composable
 import type {
   Employee,
+  CreatedEmployee,
+  EmployeeLoginAccount,
   CreateEmployeeRequest,
   UpdateEmployeeRequest,
   ListEmployeesResponse,
@@ -93,13 +95,27 @@ export const useEmployeeApi = () => {
    * Create new employee
    * POST /api/v1/employees
    */
-  const createEmployee = async (payload: CreateEmployeeRequest): Promise<Employee> => {
+  const createEmployee = async (payload: CreateEmployeeRequest): Promise<CreatedEmployee> => {
     const response = await $fetch<any>(`${getBaseUrl()}/employees`, {
       method: 'POST',
       body: payload
     })
 
     return response.data || response
+  }
+
+  /**
+   * Create (or link) the login account of an existing employee (ADMIN only)
+   * POST /api/v1/employees/:id/login-account
+   * The temporary password in the result is returned once; never log or store it.
+   */
+  const createLoginAccount = async (id: string, accessRole?: string): Promise<EmployeeLoginAccount> => {
+    const response = await $fetch<any>(`${getBaseUrl()}/employees/${id}/login-account`, {
+      method: 'POST',
+      body: accessRole ? { access_role: accessRole } : {}
+    })
+
+    return (response.data || response).account
   }
 
   /**
@@ -164,6 +180,7 @@ export const useEmployeeApi = () => {
     getEmployeeById,
     getNextEmployeeCode,
     createEmployee,
+    createLoginAccount,
     updateEmployee,
     deleteEmployee,
     getAllEmployees

@@ -1,50 +1,69 @@
 <template>
-  <div class="grid grid-cols-1 lg:grid-cols-4 h-full bg-gray-50 dark:bg-gray-950">
-    <!-- Sidebar Navigation Index (Corporate Report Builder Layout) -->
-    <div class="hidden lg:block lg:col-span-1 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 overflow-y-auto space-y-6">
-      <div class="text-md font-bold uppercase tracking-wider text-gray-400">{{ t('executiveSummaryForm.navTitle') }}</div>
-      <nav class="space-y-1">
-        <a
-          v-for="sec in sections"
-          :key="sec.id"
-          :href="'#' + sec.id"
-          class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-          :class="activeSection === sec.id ? 'text-primary-600 bg-primary-50 dark:bg-primary-950 dark:text-primary-400 font-bold' : 'text-gray-600 dark:text-gray-400'"
-          @click.prevent="scrollToSection(sec.id)"
-        >
-          <span class="size-5 rounded-full flex items-center justify-center border text-md font-mono" :class="activeSection === sec.id ? 'border-primary-500 bg-primary-100 dark:bg-primary-900' : 'border-gray-300 dark:border-gray-700'">
-            {{ sec.index }}
-          </span>
-          {{ sec.title }}
-        </a>
-      </nav>
-
-      <!-- Locking Info / Actions -->
-      <div class="border-t border-gray-200 dark:border-gray-800 pt-6 space-y-4">
-        <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-2 border">
-          <div class="text-md font-semibold text-gray-500 flex items-center gap-1.5">
-            <UIcon name="i-lucide-shield-alert" class="size-4" />
-            {{ t('executiveSummaryForm.lock.title') }}
-          </div>
-          <div class="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-1.5">
-            <span class="size-2 rounded-full" :class="store.form.status === 'Approved' ? 'bg-success-500' : 'bg-warning-500'"></span>
-            {{ store.form.status === 'Approved' ? t('executiveSummaryForm.lock.approved') : t('executiveSummaryForm.lock.draft') }}
-          </div>
-          <p class="text-md text-gray-400 leading-normal">
-            {{ store.form.status === 'Approved' 
-              ? t('executiveSummaryForm.lock.approvedDescription') 
-              : t('executiveSummaryForm.lock.draftDescription') }}
-          </p>
+  <div class="flex flex-col h-full bg-gray-50 dark:bg-gray-950">
+    <!-- Stepper header (clickable) -->
+    <div class="flex items-center gap-3 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3 sm:px-6 sm:py-4 shrink-0">
+      <div class="flex-1 min-w-0 overflow-x-auto scrollbar-thin">
+        <div class="flex min-w-max items-center justify-center gap-3 px-1 sm:gap-4">
+          <template
+            v-for="(sec, idx) in sections"
+            :key="sec.id"
+          >
+            <div
+              class="group flex shrink-0 cursor-pointer select-none items-center gap-2 sm:gap-2.5"
+              data-testid="form-step"
+              @click="goToStep(idx)"
+            >
+              <div
+                class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all duration-300 sm:h-8 sm:w-8"
+                :class="currentStepIndex === idx
+                  ? 'bg-primary text-white shadow-md ring-4 ring-primary/20 scale-105'
+                  : currentStepIndex > idx
+                    ? 'bg-secondary text-white shadow-sm'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-400 group-hover:bg-gray-200 dark:group-hover:bg-gray-700'"
+              >
+                <UIcon
+                  v-if="currentStepIndex > idx"
+                  name="i-heroicons-check"
+                  class="h-3.5 w-3.5 stroke-[3]"
+                />
+                <span v-else>{{ idx + 1 }}</span>
+              </div>
+              <span
+                class="whitespace-nowrap text-xs font-semibold transition-colors"
+                :class="currentStepIndex === idx
+                  ? 'text-primary font-bold'
+                  : currentStepIndex > idx
+                    ? 'text-secondary font-semibold'
+                    : 'text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300'"
+              >
+                {{ sec.title }}
+              </span>
+            </div>
+            <div
+              v-if="idx < sections.length - 1"
+              class="h-0.5 w-5 shrink-0 rounded transition-all duration-300 sm:w-8"
+              :class="currentStepIndex > idx ? 'bg-secondary' : 'bg-gray-200 dark:bg-gray-800'"
+            />
+          </template>
         </div>
       </div>
+      <UBadge
+        :color="store.form.status === 'Approved' ? 'success' : 'warning'"
+        variant="soft"
+        class="hidden sm:inline-flex shrink-0 font-semibold"
+        :title="store.form.status === 'Approved' ? t('executiveSummaryForm.lock.approvedDescription') : t('executiveSummaryForm.lock.draftDescription')"
+      >
+        <UIcon name="i-lucide-shield-alert" class="size-3.5 mr-1" />
+        {{ store.form.status === 'Approved' ? t('executiveSummaryForm.lock.approved') : t('executiveSummaryForm.lock.draft') }}
+      </UBadge>
     </div>
 
     <!-- Main Content Area -->
-    <div class="col-span-1 lg:col-span-3 overflow-y-auto p-6 lg:p-8 h-full space-y-8 bg-white dark:bg-gray-900 shadow-sm" ref="scrollContainer" @scroll="onScroll">
+    <div class="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-8 bg-white dark:bg-gray-900" ref="scrollContainer">
       
       <form @submit.prevent class="space-y-12">
         <!-- 1. Metadata & Document Upload -->
-        <section id="sec-upload" class="space-y-6 scroll-mt-6">
+        <section id="sec-upload" v-show="activeSection === 'sec-upload'" class="space-y-6 scroll-mt-6">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4">
             <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
               {{ t('executiveSummaryForm.upload.title') }}
@@ -135,7 +154,7 @@
         </section>
 
         <!-- 2. Section Narrative -->
-        <section id="sec-narrative" class="space-y-6 scroll-mt-6">
+        <section id="sec-narrative" v-show="activeSection === 'sec-narrative'" class="space-y-6 scroll-mt-6">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4">
             <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
               {{ t('executiveSummaryForm.narrative.title') }}
@@ -167,7 +186,7 @@
         </section>
 
         <!-- 4. Section Status Tindak Lanjut -->
-        <section id="sec-followup" class="space-y-6 scroll-mt-6">
+        <section id="sec-followup" v-show="activeSection === 'sec-followup'" class="space-y-6 scroll-mt-6">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4">
             <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
               {{ t('executiveSummaryForm.followUp.title') }}
@@ -226,7 +245,7 @@
         </section>
 
         <!-- 5. Section Top 5 Significant Findings -->
-        <section id="sec-topfindings" class="space-y-6 scroll-mt-6">
+        <section id="sec-topfindings" v-show="activeSection === 'sec-topfindings'" class="space-y-6 scroll-mt-6">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4">
             <div class="flex justify-between items-center">
               <div>
@@ -349,7 +368,7 @@
         </section>
 
         <!-- 5. Recurring findings analysis & conclusion (report Sections V & VII) -->
-        <section id="sec-analysis" class="space-y-6 scroll-mt-6">
+        <section id="sec-analysis" v-show="activeSection === 'sec-analysis'" class="space-y-6 scroll-mt-6">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4 flex justify-between items-center">
             <div>
               <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
@@ -447,7 +466,7 @@
         </section>
 
         <!-- Catatan Executive untuk Auditor -->
-        <section v-if="store.isViewing" id="sec-notes" class="space-y-6 scroll-mt-6">
+        <section v-if="store.isViewing" id="sec-notes" v-show="activeSection === 'sec-notes'" class="space-y-6 scroll-mt-6">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4">
             <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
               <UIcon name="i-lucide-message-square-text" class="size-5 text-primary-500" />
@@ -477,6 +496,26 @@
         </section>
 
       </form>
+    </div>
+
+    <!-- Footer navigation -->
+    <div class="flex items-center justify-between gap-3 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3 sm:px-6 shrink-0">
+      <UButton
+        v-if="currentStepIndex > 0"
+        color="neutral"
+        variant="outline"
+        icon="i-lucide-chevron-left"
+        :label="t('executiveSummaryForm.stepper.previous')"
+        @click="goToStep(currentStepIndex - 1)"
+      />
+      <span v-else />
+      <UButton
+        v-if="currentStepIndex < sections.length - 1"
+        color="primary"
+        trailing-icon="i-lucide-chevron-right"
+        :label="t('executiveSummaryForm.stepper.next')"
+        @click="goToStep(currentStepIndex + 1)"
+      />
     </div>
 
     <!-- Sticky Bottom Footer Controls -->
@@ -612,20 +651,20 @@ const handleFileUpload = (e: Event) => {
 
   // Size limit 10MB
   if (file.size > 10 * 1024 * 1024) {
-    alert(t('executiveSummaryForm.messages.fileTooLarge'))
+    warning(t('executiveSummaryForm.messages.fileTooLarge'))
     return
   }
 
   // Type limit
   const ext = file.name.split('.').pop()?.toLowerCase()
   if (ext !== 'pdf' && ext !== 'docx' && ext !== 'doc') {
-    alert(t('executiveSummaryForm.messages.unsupportedFormat'))
+    warning(t('executiveSummaryForm.messages.unsupportedFormat'))
     return
   }
 
   // Simulated file corruption error handling
   if (file.name.toLowerCase().includes('corrupt') || file.name.toLowerCase().includes('damaged')) {
-    alert(t('executiveSummaryForm.messages.corruptedFile'))
+    warning(t('executiveSummaryForm.messages.corruptedFile'))
     return
   }
 
@@ -670,11 +709,11 @@ const requireLhaThen = (sync: () => void) => {
 
 const saveReportDraft = async () => {
   if (!store.form.nomorDokumen) {
-    alert(t('executiveSummaryForm.messages.docNumberRequired'))
+    warning(t('executiveSummaryForm.messages.docNumberRequired'))
     return
   }
   if (!store.form.dokumenPath) {
-    alert(t('executiveSummaryForm.messages.documentRequired'))
+    warning(t('executiveSummaryForm.messages.documentRequired'))
     return
   }
   
@@ -689,28 +728,14 @@ const approveReportDirectly = async () => {
   }
 }
 
-// Scrolling Table of Contents logic
-const scrollToSection = (id: string) => {
-  activeSection.value = id
-  const target = document.getElementById(id)
-  if (target) {
-    target.scrollIntoView({ behavior: 'smooth' })
-  }
-}
+// Stepper navigation: one section is visible at a time
+const currentStepIndex = computed(() => Math.max(0, sections.value.findIndex(sec => sec.id === activeSection.value)))
 
-const onScroll = () => {
-  const scrollOffset = 150
-  for (const sec of sections.value) {
-    const el = document.getElementById(sec.id)
-    if (el) {
-      const rect = el.getBoundingClientRect()
-      // Section is at the top of the container
-      if (rect.top <= scrollOffset && rect.bottom > scrollOffset) {
-        activeSection.value = sec.id
-        break
-      }
-    }
-  }
+const goToStep = (idx: number) => {
+  const target = sections.value[idx]
+  if (!target) return
+  activeSection.value = target.id
+  scrollContainer.value?.scrollTo({ top: 0 })
 }
 
 // Assignment Letter & LHA Stores Integration for 2-Way Sync

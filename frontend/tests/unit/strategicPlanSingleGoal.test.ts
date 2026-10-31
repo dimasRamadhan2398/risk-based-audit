@@ -176,7 +176,7 @@ describe('goalId for a new plan comes from the single corporate goal', () => {
 // Minimal stand-ins for the Nuxt UI components; labels are exposed as attributes/text so the DOM can be queried.
 const slotStub = (name: string) => defineComponent({
   name,
-  setup: (_p, { slots }) => () => h('div', { 'data-stub': name }, [slots.body?.(), slots.default?.(), slots.footer?.()])
+  setup: (_p, { slots }) => () => h('div', { 'data-stub': name }, [slots.content?.(), slots.body?.(), slots.default?.(), slots.footer?.()])
 })
 const FormFieldStub = defineComponent({
   props: ['label'],
@@ -264,6 +264,78 @@ describe('mounted components', () => {
     const buttons = Array.from(container.querySelectorAll('[data-stub="UButton"]')).map(el => el.textContent ?? '')
     expect(buttons.some(text => /G-00\d|All Strategic|strategicPlan\.filters\.allObjectives/.test(text))).toBe(false)
     expect(Array.from(container.querySelectorAll('[data-row]')).map(el => el.getAttribute('data-row'))).toEqual(['a', 'b', 'c', 'd'])
+  })
+
+  describe('the form is a 2-step wizard', () => {
+    const labels = () => Array.from(container.querySelectorAll('[data-stub="UFormField"]')).map(el => el.getAttribute('data-label'))
+    const click = async (testid: string) => {
+      (container.querySelector(`[data-testid="${testid}"]`) as HTMLElement).click()
+      await flush()
+      await nextTick()
+    }
+    const objectiveError = () => container.querySelector(`[data-label="${en.strategicPlan.form.objective}"]`)?.getAttribute('error') ?? null
+
+    it('step 1 shows objective..category, step 2 shows HIB/HIG..status', async () => {
+      await mount(StrategicPlanForm, [])
+      const store = useStrategicPlanStore()
+      store.openModal()
+      await nextTick()
+      expect(labels()).toEqual([en.strategicPlan.form.objective, en.strategicPlan.form.kpi, en.strategicPlan.form.unit, en.strategicPlan.form.category])
+      store.form.strategicObjective = 'Objective'
+      await click('form-next')
+      expect(labels()).toEqual([en.strategicPlan.form.hibHig, en.strategicPlan.form.periodType, en.strategicPlan.form.status])
+      await click('form-previous')
+      expect(labels()).toContain(en.strategicPlan.form.objective)
+      expect(store.form.strategicObjective).toBe('Objective')
+    })
+
+    it('Next is blocked with a visible error while the objective is empty', async () => {
+      await mount(StrategicPlanForm, [])
+      const store = useStrategicPlanStore()
+      store.openModal()
+      await nextTick()
+      await click('form-next')
+      expect(labels()).toContain(en.strategicPlan.form.objective)
+      expect(objectiveError()).toBe(en.strategicPlan.toast.objectiveRequired)
+      store.form.strategicObjective = 'Objective'
+      await nextTick()
+      expect(objectiveError()).toBeNull()
+    })
+
+    it('saving with an empty objective jumps back to step 1 and sends nothing', async () => {
+      await mount(StrategicPlanForm, [])
+      const store = useStrategicPlanStore()
+      store.openModal()
+      store.form.strategicObjective = 'Objective'
+      await nextTick()
+      await click('form-next')
+      store.form.strategicObjective = '  '
+      await click('form-submit')
+      expect(writes()).toHaveLength(0)
+      expect(labels()).toContain(en.strategicPlan.form.objective)
+      expect(objectiveError()).toBe(en.strategicPlan.toast.objectiveRequired)
+    })
+
+    it('an edit opens at step 1 prefilled and saves the same PUT from step 2', async () => {
+      await mount(StrategicPlanForm, [plan('a')])
+      const store = useStrategicPlanStore()
+      store.openModal()
+      store.form.strategicObjective = 'Draft'
+      await nextTick()
+      await click('form-next')
+      store.closeModal()
+      store.handleEdit(nth(store.strategicObjectives, 0))
+      await nextTick()
+      expect(labels()).toContain(en.strategicPlan.form.objective)
+      expect(store.form.strategicObjective).toBe('Objective a')
+      await click('form-next')
+      await click('form-submit')
+      const [url, opts] = nth(writes(), 0)
+      expect(url).toBe('/api/v1/strategic-plans/a')
+      expect(opts?.method).toBe('PUT')
+      expect(opts?.body).toMatchObject({ strategicObjective: 'Objective a', kpi: 'KPI a' })
+      expect(store.isAddModalOpen).toBe(false)
+    })
   })
 
   it('search still filters the table', async () => {

@@ -117,7 +117,7 @@
 
       <!-- Imported Documents Table -->
       <div class="w-full">
-        <UCard :ui="{ body: 'p-4' }" class="shadow-sm border border-gray-200 dark:border-gray-800 h-full">
+        <UCard :ui="{ root: 'bg-transparent!', body: 'p-4 bg-transparent!' }" class="shadow-sm border border-gray-200 dark:border-gray-800 h-full">
           <template #header>
             <div class="flex justify-between items-center">
               <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -204,10 +204,12 @@
 import { ref, computed, onMounted } from 'vue'
 import { useUploadAuditResultReportStore } from '~/stores/upload-audit-result-report'
 import { useI18n } from '~/composables/useI18n'
+import { useAppToast } from '~/composables/useAppToast'
 import TableEntities from '~/components/shared/TableEntities.vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 const { t } = useI18n()
+const appToast = useAppToast()
 const store = useUploadAuditResultReportStore()
 const toast = useToastNotification()
 
@@ -256,7 +258,7 @@ const handleFileDrop = (event: DragEvent) => {
 
 const processFile = (file: File) => {
   if (file.size > 10 * 1024 * 1024) {
-    alert(t('auditResultReport.upload.fileSizeLimit'))
+    appToast.warning(t('auditResultReport.upload.fileSizeLimit'))
     return
   }
 

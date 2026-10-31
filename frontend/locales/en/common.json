@@ -176,7 +176,8 @@
       "drawHint": "Use a mouse, finger, or stylus to draw your signature.",
       "chooseImage": "Choose Image File (.png, .jpg)",
       "uploadHint": "Maximum 2 MB; a transparent image is recommended",
-      "previewAlt": "Signature Preview"
+      "previewAlt": "Signature Preview",
+      "fileTooLarge": "Image file is too large (maximum 2MB)."
     },
     "formField": {
       "required": "Field is required",
@@ -1270,6 +1271,12 @@
       "deleteConfirm": "Are you sure you want to delete this Strategic Plan?"
     },
     "form": {
+      "stepper": {
+        "objective": "Strategic Objective & KPI",
+        "targets": "Targets & Realization",
+        "next": "Next Step",
+        "previous": "Previous"
+      },
       "title": "Add Strategic Objective Information",
       "code": "Objective ID",
       "codePlaceholder": "Ex: SO-IA01",
@@ -1837,6 +1844,9 @@
       "descriptionRequired": "Control description is required",
       "stepsRequired": "Test steps are required",
       "resultRequired": "Test result is required"
+    },
+    "messages": {
+      "selectAssignmentLetter": "Please select an Assignment Letter first!"
     }
   },
   "riskProfile": {
@@ -3114,6 +3124,10 @@
     }
   },
   "executiveSummaryForm": {
+    "stepper": {
+      "previous": "Previous",
+      "next": "Next"
+    },
     "extra": {
       "syncWarning": "Synchronization Warning",
       "syncWarningDescription": "The total findings in Section II do not match the Master Matrix. Please review the data.",
@@ -3185,7 +3199,12 @@
         "Oktober": "October",
         "November": "November",
         "Desember": "December"
-      }
+      },
+      "attachmentTitle": "Attach Follow-up Evidence",
+      "attachmentLabel": "Attachment file name",
+      "attachmentPlaceholder": "e.g. Equipment Handover Minutes.pdf",
+      "attachmentConfirm": "Attach",
+      "attachmentCancel": "Cancel"
     },
     "navTitle": "Report Sections",
     "lock": {
@@ -3700,7 +3719,8 @@
         "delete": "Delete File"
       },
       "deleteConfirm": "Are you sure you want to delete this document?",
-      "fileSizeLimit": "File size exceeds the 10MB limit."
+      "fileSizeLimit": "File size exceeds the 10MB limit.",
+      "deleteFailed": "Failed to delete file."
     },
     "riskForm": {
       "title": "Risk",
@@ -5031,6 +5051,7 @@
     "company": "Company",
     "employeeManagement": "Employee Management",
     "department": "Department",
+    "jobRole": "Job Role",
     "settings": "Settings",
     "generalSettings": "General Settings",
     "security2fa": "Security & 2FA",
@@ -5081,33 +5102,27 @@
       }
     },
     "guide": {
-      "title": "CSAT Metrics Guide & Explanation (Client Satisfaction Survey)",
-      "subtitle": "Detailed explanation of definitions, functions, parameters, and measurement targets for each statistical indicator above",
+      "title": "CSAT Metrics Guide",
       "csat": {
         "title": "1. Average CSAT Score",
-        "definition": "Average satisfaction score given by auditees across completed questionnaires on a 1 - 5 Likert scale",
-        "dimensionsTitle": "3 Evaluation Dimensions:",
-        "clarity": "Clarity of audit findings, criteria, and actionable recommendations.",
-        "professionalism": "Ethics, objectivity, integrity, and competence of the audit team.",
-        "timeliness": "Punctuality of audit report publication and fieldwork completion.",
-        "target": "Target Benchmark: Minimum 4.5 / 5.0 (\"Excellent\" Category)"
+        "definition": "Average auditee rating on a 1–5 scale.",
+        "clarity": "of findings and recommendations.",
+        "professionalism": "of the audit team.",
+        "timeliness": "of report delivery.",
+        "target": "Target ≥ 4.5 / 5.0"
       },
       "surveys": {
         "title": "2. Total Surveys Submitted",
-        "definition": "Total number of satisfaction questionnaires successfully completed and submitted by auditee representatives",
-        "flowTitle": "Validation Flow:",
-        "flow1": "Only audit reports with Final/Published status can be evaluated.",
-        "flow2": "Each published report is expected to receive 1 formal feedback from the auditee unit.",
-        "flow3": "Reports without survey submissions are marked as Pending Survey.",
-        "note": "Note: Updated in real-time with each new survey submission."
+        "definition": "Number of surveys completed by auditees.",
+        "flow1": "Only Final/Published reports can be rated.",
+        "flow2": "Reports without a survey show Pending Survey.",
+        "note": "Updates in real time"
       },
       "rate": {
         "title": "3. Response Rate",
-        "definition": "The ratio of evaluated audit reports to total published audit reports",
-        "formulaTitle": "Calculation Formula:",
-        "formula": "(Reports with Survey / Total Published Reports) × 100%",
-        "desc": "High response rate ensures statistical objectivity and representativeness.",
-        "target": "Performance Target: Minimum 80% auditee engagement."
+        "definition": "Share of published reports that have a survey.",
+        "formula": "(Reports with Survey / Published Reports) × 100%",
+        "target": "Target ≥ 80%"
       }
     },
     "table": {
@@ -5343,6 +5358,12 @@
     "codes": {
       "EMPLOYEE_NOT_FOUND": "The employee could not be found. It may have been deleted.",
       "EMPLOYEE_CODE_ALREADY_EXISTS": "This employee code is already in use. Please use a different code.",
+      "LOGIN_ACCOUNT_UNAVAILABLE": "The login account service is unavailable, so the employee was not saved. Please try again shortly.",
+      "LOGIN_ACCOUNT_NOT_CONFIGURED": "Login account creation is not configured for this organization. Please contact the platform administrator.",
+      "LOGIN_ACCOUNT_FORBIDDEN": "You are not allowed to create login accounts. The employee was not saved.",
+      "LOGIN_ACCOUNT_CONFLICT": "A login account with this username or email already exists and cannot be used. The employee was not saved.",
+      "LOGIN_ACCOUNT_LINKED_ELSEWHERE": "A login account with this email is already linked to another employee. The employee was not saved.",
+      "LOGIN_EMAIL_TOO_LONG": "The email is too long for a login account (maximum 50 characters). Please use a shorter email.",
       "EMPLOYEE_EMAIL_ALREADY_EXISTS": "This email is already registered to another employee.",
       "INVALID_EMPLOYEE_ID": "The employee reference is invalid. Please reload the page and try again.",
       "DEPARTMENT_NOT_FOUND": "The department could not be found. It may have been deleted.",
@@ -5436,6 +5457,7 @@
     "errors": {
       "fetchEmployees": "Failed to load employee data.",
       "fetchEmployee": "Failed to load employee details.",
+      "createLoginAccount": "Failed to create the login account.",
       "createEmployee": "Failed to create the employee.",
       "updateEmployee": "Failed to update the employee.",
       "deleteEmployee": "Failed to delete the employee.",
@@ -5444,6 +5466,10 @@
       "createDepartment": "Failed to create the department.",
       "updateDepartment": "Failed to update the department.",
       "deleteDepartment": "Failed to delete the department.",
+      "fetchJobRoles": "Failed to load job roles.",
+      "createJobRole": "Failed to create the job role.",
+      "updateJobRole": "Failed to update the job role.",
+      "deleteJobRole": "Failed to delete the job role. It may still be assigned to employees.",
       "fetchCompanies": "Failed to load company data.",
       "fetchCompany": "Failed to load company details.",
       "createCompany": "Failed to create the company.",
@@ -5464,6 +5490,9 @@
       "jobRoleRequired": "Job role is required.",
       "departmentCodeRequired": "Department code is required.",
       "departmentNameRequired": "Department name is required.",
+      "jobRoleCodeRequired": "Job role code is required.",
+      "jobRoleNameRequired": "Job role name is required.",
+      "jobPositionTypeRequired": "Position type is required.",
       "picRequired": "Person in charge (PIC) is required.",
       "companyCodeRequired": "Company code is required.",
       "companyNameRequired": "Company name is required.",
@@ -5509,6 +5538,26 @@
       "autoGenerated": "Auto-generated",
       "codeLoading": "Loading...",
       "codeUnavailable": "Unavailable",
+      "account": {
+        "createdToast": "Login account created for {username}.",
+        "linkedToast": "Linked to the existing login account {username}.",
+        "credentialsTitle": "Login account created",
+        "credentialsDescription": "A login account was created for {name}.",
+        "username": "Username",
+        "temporaryPassword": "Temporary password",
+        "copy": "Copy password",
+        "copied": "Copied",
+        "shownOnceNote": "This password is shown only once. Share it through a secure channel; the user must change it at first login.",
+        "done": "Done",
+        "createAccount": "Create login account",
+        "createAccountDescription": "This employee can not sign in yet. Create a login account to give them access, then share the temporary password with them.",
+        "accessRole": "Access role (optional)",
+        "accessRoleDefault": "Use the job role default",
+        "createdSuccess": "Login account created for {username}.",
+        "linkedInfo": "An existing login account with this email ({username}) was linked to this employee.",
+        "existsInfo": "This employee already has a login account ({username}). Nothing was changed.",
+        "continueReset": "Continue to password reset"
+      },
       "createdWithCode": "Employee created! Employee code: {code}",
       "level": "Level {level}",
       "active": "Active",
@@ -5522,6 +5571,11 @@
         "phone": "Phone",
         "level": "Level",
         "status": "Status"
+      },
+      "messages": {
+        "created": "Employee created successfully!",
+        "updated": "Employee updated successfully!",
+        "deleted": "Employee deleted successfully!"
       }
     },
     "location": {
@@ -5604,6 +5658,70 @@
         "description": "Description",
         "level": "Level",
         "status": "Status"
+      },
+      "messages": {
+        "created": "Department created successfully!",
+        "updated": "Department updated successfully!"
+      }
+    },
+    "jobRole": {
+      "title": "Job Role Management",
+      "subtitle": "Manage job roles and the default system access role granted to their holders",
+      "listTitle": "Job Role List",
+      "add": "Add Job Role",
+      "searchPlaceholder": "Search job role...",
+      "search": "Search",
+      "reset": "Reset",
+      "empty": "No job roles found.",
+      "active": "Active",
+      "inactive": "Inactive",
+      "noAccessRole": "None",
+      "deleteConfirm": "Are you sure you want to delete job role \"{name}\"? To keep it for existing employees, deactivate it instead.",
+      "created": "Job role created successfully.",
+      "updated": "Job role updated successfully.",
+      "deleted": "Job role deleted successfully.",
+      "createTitle": "Add New Job Role",
+      "editTitle": "Edit Job Role",
+      "sectionInfo": "Job Role Information",
+      "fieldCode": "Job Role Code *",
+      "fieldCodePlaceholder": "e.g. SM-001",
+      "fieldName": "Job Role Name *",
+      "fieldNamePlaceholder": "e.g. Senior Manager",
+      "fieldPositionType": "Position Type *",
+      "fieldPositionTypePlaceholder": "Select position type",
+      "fieldAccessRole": "Default Access Role",
+      "fieldAccessRolePlaceholder": "No default access role",
+      "fieldAccessRoleHelp": "The system access role assigned by default to employees who hold this job role. Leave empty to grant none.",
+      "suggestedHint": "Suggested for this position type: {role}",
+      "fieldDescription": "Description",
+      "fieldDescriptionPlaceholder": "Job role description (optional)",
+      "status": "Status",
+      "statusHelp": "Inactive job roles are kept for existing employees but should not be used for new ones.",
+      "columns": {
+        "code": "Code",
+        "name": "Job Role Name",
+        "positionType": "Position Type",
+        "accessRole": "Access Role",
+        "status": "Status"
+      },
+      "positionTypes": {
+        "STAFF": "Staff",
+        "SUPERVISOR": "Supervisor",
+        "MANAGER": "Manager",
+        "SENIOR_MANAGER": "Senior Manager",
+        "GENERAL_MANAGER": "General Manager",
+        "DIRECTOR": "Director",
+        "COMMISSIONER": "Commissioner",
+        "AUDIT_COMMITTEE": "Audit Committee",
+        "CHIEF_AUDIT_EXECUTIVE": "Chief Audit Executive",
+        "EXTERNAL_AUDITOR": "External Auditor"
+      },
+      "accessRoles": {
+        "EXECUTIVE": "Executive",
+        "AUDITOR": "Auditor",
+        "AUDITEE": "Auditee",
+        "DEPARTMENT_HEAD": "Department Head",
+        "VIEWER": "Viewer"
       }
     }
   },

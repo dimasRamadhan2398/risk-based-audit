@@ -69,7 +69,7 @@
     </div>
 
     <!-- Strategic KPI Table & Pagination -->
-    <UCard variant="soft">
+    <div>
       <TableEntities
         :data="filteredObjectives"
         :columns="columns"
@@ -141,7 +141,7 @@
           </span>
         </template>
       </TableEntities>
-    </UCard>
+    </div>
   </div>
 </template>
 

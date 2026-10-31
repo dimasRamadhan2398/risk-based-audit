@@ -1265,7 +1265,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
 
   const openSampleModal = () => {
     if (!selectedAssignmentLetter.value) {
-      alert('Please select an Assignment Letter first!')
+      useAppToast().warning(useI18n().t('auditFieldwork.messages.selectAssignmentLetter'))
       return
     }
     resetSampleForm()
@@ -1689,9 +1689,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
 
   const openTestControlModal = () => {
     if (!selectedAssignmentLetter.value) {
-      if (typeof alert !== 'undefined') {
-        alert('Please select an Assignment Letter first!')
-      }
+      useAppToast().warning(useI18n().t('auditFieldwork.messages.selectAssignmentLetter'))
       return
     }
     resetTestControlForm()

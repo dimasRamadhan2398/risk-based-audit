@@ -518,14 +518,14 @@
       <div
         class="lg:col-span-4 min-w-0 p-4 flex flex-col justify-between dashboard-card"
       >
-        <div>
+        <div class="flex-1 flex flex-col">
           <div class="flex items-center justify-between gap-2 mb-3">
             <h3 class="text-base font-bold text-slate-800 dark:text-white">{{ t('actionTakenReport.title') }}</h3>
             <UButton to="/action-taken-report" variant="ghost" color="neutral" size="sm"
               >{{ t('dashboard.overview.details') }}</UButton
             >
           </div>
-          <div class="w-full relative flex items-center justify-center" :style="{ height: `${donutChartHeight}px` }">
+          <div class="w-full relative flex items-center justify-center my-auto" :style="{ height: `${donutChartHeight}px` }">
             <p
               v-if="atrStore.summaryLoading && atrStore.stats.total === 0"
               class="text-sm text-slate-500 dark:text-slate-400"
@@ -664,7 +664,7 @@
         <!-- Registered Risks Table on the right -->
         <div class="lg:col-span-7 min-w-0 rounded-xl p-3 dashboard-subcard">
           <h4 class="text-sm font-semibold text-slate-700 mb-3 dark:text-slate-200">{{ t('dashboard.overview.registeredRisks') }}</h4>
-          <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ body: 'p-0' }">
+          <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ root: 'bg-transparent!', body: 'p-0 bg-transparent!' }">
             <TableEntities
               :data="registeredRiskHeatMap"
               :columns="registeredRiskColumns"
@@ -801,7 +801,7 @@
             >{{ t('dashboard.overview.viewFullReport') }}</UButton
           >
         </div>
-        <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ body: 'p-0' }">
+        <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ root: 'bg-transparent!', body: 'p-0 bg-transparent!' }">
           <TableEntities
             :data="atrTableData"
             :columns="tableColumns"
@@ -825,7 +825,7 @@
             {{ t("dashboard.recentFindings.title") }}
           </h2>
         </div>
-        <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ body: 'p-0' }">
+        <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ root: 'bg-transparent!', body: 'p-0 bg-transparent!' }">
           <TableEntities
             :data="recentFindingsData"
             :columns="auditTableColumns"

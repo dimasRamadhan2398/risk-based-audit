@@ -1,5 +1,5 @@
 <template>
-    <UCard class="rounded-xl shadow overflow-y-auto" variant="soft" color="primary">
+    <div>
       <TableEntities
         :data="store.filteredPlans"    
         :columns="store.columns"
@@ -102,7 +102,7 @@
       
       </TableEntities>
       
-    </UCard>
+    </div>
 </template>
 
 <script setup lang="ts">

@@ -104,6 +104,7 @@ describe('Working Paper - Action Plan PIC Synchronized with Master Employee Mana
     getAllEmployeesMock = vi.fn().mockResolvedValue(mockEmployees)
     vi.spyOn(employeeApiModule, 'useEmployeeApi').mockReturnValue({
       getAllEmployees: getAllEmployeesMock,
+      createLoginAccount: vi.fn(),
       getEmployees: vi.fn(),
       getEmployeeById: vi.fn(),
       getNextEmployeeCode: vi.fn(),
