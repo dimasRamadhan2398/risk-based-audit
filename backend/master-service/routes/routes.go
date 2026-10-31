@@ -15,9 +15,11 @@ import (
 	"time"
 
 	"master-service/controllers"
+	referenceCtrl "master-service/controllers/reference"
 	"master-service/models"
 	"master-service/pkg/kafka"
 	"master-service/pkg/middleware"
+	"master-service/pkg/reference"
 	uploadguard "master-service/pkg/upload"
 	"master-service/services"
 
@@ -99,12 +101,15 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 		employees.POST("", controller.GetEmployee().Create)
 		employees.PUT("/:id", controller.GetEmployee().Update)
 		employees.DELETE("/:id", controller.GetEmployee().Delete)
+		// Writes are ADMIN-only via masterDataWriters; auth-service re-checks ADMIN.
+		employees.POST("/:id/login-account", controller.GetEmployee().ProvisionLoginAccount)
 	}
 
 	jobRoles := api.Group("/job-roles")
 	jobRoles.Use(middleware.RequireAnyRoleOnWrites(masterDataWriters...))
 	{
 		jobRoles.GET("", controller.GetJobRole().FindAll)
+		jobRoles.GET("/access-roles", controller.GetJobRole().AccessRoles)
 		jobRoles.GET("/:id", controller.GetJobRole().FindById)
 		jobRoles.POST("", controller.GetJobRole().Create)
 		jobRoles.PUT("/:id", controller.GetJobRole().Update)
@@ -119,6 +124,17 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 		locations.POST("", controller.GetLocation().Create)
 		locations.PUT("/:id", controller.GetLocation().Update)
 		locations.DELETE("/:id", controller.GetLocation().Delete)
+	}
+
+	// Reference data (provinces, kabupaten/kota, countries) embedded in the
+	// binary; read-only, so GET only. Same auth + VIEWER rule as the group.
+	refData := referenceCtrl.New(reference.MustDefault())
+	ref := api.Group("/reference")
+	{
+		ref.GET("/provinces", refData.Provinces)
+		ref.GET("/provinces/:code/regencies", refData.ProvinceRegencies)
+		ref.GET("/regencies", refData.Regencies)
+		ref.GET("/countries", refData.Countries)
 	}
 
 	qa := api.Group("/quality-assurance")

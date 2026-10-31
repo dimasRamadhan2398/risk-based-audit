@@ -224,6 +224,9 @@ func migrateAll(db *gorm.DB) error {
 }
 
 func autoMigrate(db *gorm.DB) error {
+	// The access-role backfill runs only on the migrate that adds the column,
+	// so an admin who later clears a mapping is not overwritten on every deploy.
+	jobRoleColumnExisted := db.Migrator().HasColumn(&models.JobRole{}, "default_access_role")
 	if err := db.AutoMigrate(
 		&models.Location{},
 		&models.Company{},
@@ -237,6 +240,12 @@ func autoMigrate(db *gorm.DB) error {
 		&models.AuditPeriod{},
 	); err != nil {
 		return err
+	}
+
+	if !jobRoleColumnExisted {
+		if err := backfillJobRoleAccessRoles(db); err != nil {
+			return err
+		}
 	}
 
 	if err := db.AutoMigrate(&departmentMigration{}); err != nil {
@@ -273,6 +282,35 @@ func autoMigrate(db *gorm.DB) error {
 	}
 
 	return normalizeAnnualPlanStatuses(db)
+}
+
+// seededAuditJobRoleCodes are the seeded audit-team job roles; their position
+// type (STAFF / MANAGER) says nothing about access, so they map by code.
+var seededAuditJobRoleCodes = []string{"AUD-001", "AUD-003"}
+
+// backfillJobRoleAccessRoles fills default_access_role where it is empty:
+// seeded audit roles -> AUDITOR, then by position type (see
+// models.AccessRoleForPosition). Rows that already have a value are never
+// touched, so this is safe to re-run.
+func backfillJobRoleAccessRoles(db *gorm.DB) error {
+	empty := "(default_access_role IS NULL OR default_access_role = '')"
+	if err := db.Unscoped().Model(&models.JobRole{}).
+		Where(empty).Where("job_role_code IN ?", seededAuditJobRoleCodes).
+		Update("default_access_role", models.AccessRoleAuditor).Error; err != nil {
+		return fmt.Errorf("backfill job role access roles: %w", err)
+	}
+	positions := []models.JobPositionType{
+		models.PositionTypeSeniorManager, models.PositionTypeGeneralManager, models.PositionTypeDirector,
+		models.PositionTypeCommissioner, models.PositionTypeChiefAuditExec, models.PositionTypeStaff,
+	}
+	for _, p := range positions {
+		if err := db.Unscoped().Model(&models.JobRole{}).
+			Where(empty).Where("job_position_type = ?", p).
+			Update("default_access_role", models.AccessRoleForPosition(p)).Error; err != nil {
+			return fmt.Errorf("backfill job role access roles: %w", err)
+		}
+	}
+	return nil
 }
 
 // normalizeAnnualPlanStatuses maps legacy annual_audit_plans.status values to the

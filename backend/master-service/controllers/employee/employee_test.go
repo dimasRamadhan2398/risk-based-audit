@@ -224,16 +224,37 @@ func TestCreateEmployee_Validation(t *testing.T) {
 // that need the generator to see rows and the insert to succeed.
 type memRepo struct {
 	codes     []string
-	employees []*models.Employee // seeded rows for the list endpoint (employee_list_test.go)
+	employees []*models.Employee   // seeded rows for the list endpoint (employee_list_test.go)
+	createdBy map[uuid.UUID]string // employee_code of each row inserted through Create
 }
 
 func (m *memRepo) Create(e *models.Employee) error {
 	e.ID = uuid.New()
 	m.codes = append(m.codes, e.EmployeeCode)
+	if m.createdBy == nil {
+		m.createdBy = map[uuid.UUID]string{}
+	}
+	m.createdBy[e.ID] = e.EmployeeCode
 	return nil
 }
 func (m *memRepo) Update(*models.Employee) error { return nil }
 func (m *memRepo) Delete(uuid.UUID) error        { return nil }
+
+// HardDelete removes a row inserted through Create, freeing its code.
+func (m *memRepo) HardDelete(id uuid.UUID) error {
+	code, ok := m.createdBy[id]
+	if !ok {
+		return nil
+	}
+	delete(m.createdBy, id)
+	for i, c := range m.codes {
+		if c == code {
+			m.codes = append(m.codes[:i], m.codes[i+1:]...)
+			break
+		}
+	}
+	return nil
+}
 func (m *memRepo) FindByID(uuid.UUID) (*models.Employee, error) {
 	return nil, apperrors.ErrNotFound
 }

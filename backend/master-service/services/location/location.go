@@ -4,6 +4,7 @@ import (
 	"master-service/models"
 	"master-service/pkg/base"
 	apperrors "master-service/pkg/errors"
+	"master-service/pkg/reference"
 	repo "master-service/repositories/location"
 
 	"github.com/google/uuid"
@@ -27,7 +28,37 @@ func NewLocationService(locationRepo repo.ILocationRepository) LocationServiceIn
 	}
 }
 
+const msgLocationRegionInvalid = "Country, province and city must be chosen from the reference list (GET /api/v1/reference/...), and the city must be in the chosen province."
+
+// checkLocationNames validates country, province and city against the embedded
+// reference data and replaces them with the canonical names. existing is the
+// stored record on update (nil on create): its unchanged values are accepted
+// as they are. Province/city are only checked for Indonesia (or an empty
+// country, which the column defaults to Indonesia). See pkg/reference/validate.go.
+func checkLocationNames(location, existing *models.Location) error {
+	ref := reference.MustDefault()
+	country := reference.NameField{Key: "country", Value: &location.Country}
+	province := reference.NameField{Key: "province", Value: &location.Province}
+	city := reference.NameField{Key: "city", Value: &location.City}
+	if existing != nil {
+		country.Stored = &existing.Country
+		province.Stored = &existing.Province
+		city.Stored = &existing.City
+	}
+	fields := map[string]string{}
+	if isIndonesia, _ := ref.CheckCountry(country, fields); isIndonesia {
+		ref.CheckRegion(province, city, fields)
+	}
+	if len(fields) > 0 {
+		return apperrors.ValidationFailed(msgLocationRegionInvalid, fields)
+	}
+	return nil
+}
+
 func (s *LocationService) Create(ctx *base.BaseService, location *models.Location) (*models.Location, error) {
+	if err := checkLocationNames(location, nil); err != nil {
+		return nil, err
+	}
 	if err := s.locationRepo.Create(location); err != nil {
 		return nil, apperrors.Wrap("DATABASE_ERROR", "Failed to create location", 500, err)
 	}
@@ -100,6 +131,10 @@ func (s *LocationService) Update(ctx *base.BaseService, id string, location *mod
 			return nil, err
 		}
 		return nil, apperrors.Wrap("DATABASE_ERROR", "Failed to fetch location", 500, err)
+	}
+
+	if err := checkLocationNames(location, existingLocation); err != nil {
+		return nil, err
 	}
 
 	existingLocation.Name = location.Name

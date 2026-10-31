@@ -3,6 +3,7 @@ package employee
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"master-service/models"
 	"master-service/pkg/base"
@@ -48,9 +49,53 @@ func (f *fakeRepo) Create(e *models.Employee) error {
 	f.created = append(f.created, &cp)
 	return nil
 }
-func (f *fakeRepo) Update(*models.Employee) error { return nil }
-func (f *fakeRepo) Delete(uuid.UUID) error        { return nil }
-func (f *fakeRepo) FindByID(uuid.UUID) (*models.Employee, error) {
+
+// Update stores a copy of e over the seeded or created row with the same ID.
+func (f *fakeRepo) Update(e *models.Employee) error {
+	cp := *e
+	for _, rows := range [][]*models.Employee{f.created, f.employees} {
+		for i, row := range rows {
+			if row.ID == e.ID {
+				rows[i] = &cp
+				return nil
+			}
+		}
+	}
+	return apperrors.ErrNotFound
+}
+func (f *fakeRepo) Delete(uuid.UUID) error { return nil }
+
+// HardDelete removes the created row with this ID and frees its code and email,
+// as the real Unscoped delete does.
+func (f *fakeRepo) HardDelete(id uuid.UUID) error {
+	for i, row := range f.created {
+		if row.ID != id {
+			continue
+		}
+		f.created = append(f.created[:i], f.created[i+1:]...)
+		delete(f.byCode, row.EmployeeCode)
+		delete(f.byEmail, row.Email)
+		for j, c := range f.codes {
+			if c == row.EmployeeCode {
+				f.codes = append(f.codes[:j], f.codes[j+1:]...)
+				break
+			}
+		}
+		return nil
+	}
+	return nil
+}
+
+// FindByID returns a copy of the seeded or created row with this ID.
+func (f *fakeRepo) FindByID(id uuid.UUID) (*models.Employee, error) {
+	for _, rows := range [][]*models.Employee{f.created, f.employees} {
+		for _, row := range rows {
+			if row.ID == id {
+				cp := *row
+				return &cp, nil
+			}
+		}
+	}
 	return nil, apperrors.ErrNotFound
 }
 func (f *fakeRepo) FindByEmail(email string) (*models.Employee, error) {
@@ -396,5 +441,90 @@ func TestNextEmployeeCode_LookupFailureIsDBRead(t *testing.T) {
 	}
 	if !errors.Is(appErr, lookupErr) && appErr.Err != lookupErr {
 		t.Fatalf("underlying error not kept: %v", appErr.Err)
+	}
+}
+
+func storedEmployee() *models.Employee {
+	mgr := uuid.New()
+	loc := uuid.New()
+	return &models.Employee{
+		ID:             uuid.New(),
+		EmployeeCode:   "EMP-0001",
+		FullName:       "Budi",
+		Email:          "budi@example.com",
+		Phone:          "0812",
+		CompanyID:      uuid.New(),
+		DepartmentID:   uuid.New(),
+		JobRoleID:      uuid.New(),
+		LevelGrade:     3,
+		WorkLocationID: &loc,
+		ManagerID:      &mgr,
+		IsActive:       true,
+		JoinDate:       time.Date(2021, 3, 15, 0, 0, 0, 0, time.UTC),
+	}
+}
+
+// The edit form sends no join_date (and other clients may omit the FK ids or
+// full_name); those must keep the stored value instead of being zeroed.
+func TestUpdate_OmittedRequiredFieldsKeepStoredValues(t *testing.T) {
+	repo := newFakeRepo()
+	stored := storedEmployee()
+	repo.employees = []*models.Employee{stored}
+	svc := NewEmployeeService(repo)
+
+	got, err := svc.Update(base.NewBaseService(), stored.ID.String(), &models.Employee{
+		EmployeeCode: "EMP-0001",
+		Email:        "budi@example.com",
+		Phone:        "0899",
+		IsActive:     true,
+	})
+	if err != nil {
+		t.Fatalf("Update: %v", err)
+	}
+	if !got.JoinDate.Equal(stored.JoinDate) {
+		t.Fatalf("JoinDate = %v, want %v", got.JoinDate, stored.JoinDate)
+	}
+	if got.FullName != "Budi" || got.CompanyID != stored.CompanyID ||
+		got.DepartmentID != stored.DepartmentID || got.JobRoleID != stored.JobRoleID || got.LevelGrade != 3 {
+		t.Fatalf("required fields were overwritten: %+v", got)
+	}
+	if got.Phone != "0899" {
+		t.Fatalf("Phone = %q, want 0899", got.Phone)
+	}
+	// Optional fields are still cleared when omitted: that is how the form clears them.
+	if got.WorkLocationID != nil || got.ManagerID != nil {
+		t.Fatalf("optional fields not cleared: location=%v manager=%v", got.WorkLocationID, got.ManagerID)
+	}
+	saved, _ := repo.FindByID(stored.ID)
+	if !saved.JoinDate.Equal(stored.JoinDate) {
+		t.Fatalf("saved JoinDate = %v, want %v", saved.JoinDate, stored.JoinDate)
+	}
+}
+
+func TestUpdate_ProvidedJoinDateAndCompanyAreApplied(t *testing.T) {
+	repo := newFakeRepo()
+	stored := storedEmployee()
+	repo.employees = []*models.Employee{stored}
+	svc := NewEmployeeService(repo)
+
+	newCompany := uuid.New()
+	newJoin := time.Date(2023, 7, 1, 0, 0, 0, 0, time.UTC)
+	req := storedEmployee()
+	req.ID = uuid.Nil
+	req.CompanyID = newCompany
+	req.JoinDate = newJoin
+
+	got, err := svc.Update(base.NewBaseService(), stored.ID.String(), req)
+	if err != nil {
+		t.Fatalf("Update: %v", err)
+	}
+	if got.CompanyID != newCompany {
+		t.Fatalf("CompanyID = %v, want %v", got.CompanyID, newCompany)
+	}
+	if !got.JoinDate.Equal(newJoin) {
+		t.Fatalf("JoinDate = %v, want %v", got.JoinDate, newJoin)
+	}
+	if got.ID != stored.ID {
+		t.Fatalf("ID changed: %v", got.ID)
 	}
 }

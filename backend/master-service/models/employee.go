@@ -45,6 +45,11 @@ type Employee struct {
 	// Account describes the login account provisioned while this employee was
 	// created. It is set only on the create response and is never stored.
 	Account *EmployeeAccount `gorm:"-" json:"account,omitempty"`
+
+	// AccessRole is an optional request-only override of the login role given to
+	// the new account on create. Empty = use the job role's default_access_role.
+	// Never stored.
+	AccessRole string `gorm:"-" json:"access_role,omitempty"`
 }
 
 // EmployeeAccount is the login account linked to an employee at creation time.

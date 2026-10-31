@@ -96,13 +96,21 @@ func NewClient(baseURL string, timeout time.Duration) *Client {
 	}
 }
 
-// FindUserByEmail returns the account with that email, or (nil, nil) when there
-// is none. authHeader is the caller's full Authorization header value.
-func (c *Client) FindUserByEmail(ctx context.Context, email, authHeader string) (*User, error) {
+// FindUser returns the account linked to employeeCode (users.employee_id) or,
+// failing that, with that email: the same lookup the Reset Password dialog
+// uses. (nil, nil) when there is none. authHeader is the caller's full
+// Authorization header value.
+func (c *Client) FindUser(ctx context.Context, employeeCode, email, authHeader string) (*User, error) {
 	var out struct {
 		Data User `json:"data"`
 	}
-	query := url.Values{"email": {email}}
+	query := url.Values{}
+	if employeeCode != "" {
+		query.Set("employee_code", employeeCode)
+	}
+	if email != "" {
+		query.Set("email", email)
+	}
 	err := c.do(ctx, http.MethodGet, "/api/v1/users/lookup?"+query.Encode(), authHeader, nil, &out)
 	var apiErr *APIError
 	if errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusNotFound {
