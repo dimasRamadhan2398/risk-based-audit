@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { ref, computed, reactive } from 'vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { QAStatus, QAType, type QAReport } from '~/types/quality-assurance'
+import { useCompanyApi } from '~/composables/useCompanyApi'
+import type { Company } from '~/types/master'
 import { extractErrorMessage } from '~/utils/error'
 import { getFiscalYearStrings } from '~/composables/useFiscalYear'
 import { viewDocumentInNewTab, openDocumentTab, renderDocumentInTab } from '~/utils/documentViewer'
@@ -125,6 +127,88 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     return (b.period || '').localeCompare(a.period || '')
   }
 
+  // Master Data Perusahaan (Company Management Sync)
+  const companies = ref<Company[]>([])
+  const companiesLoading = ref(false)
+  const companiesLoaded = ref(false)
+  const companiesError = ref('')
+
+  const formatCompanyLabel = (c: any): string => {
+    if (!c) return ''
+    const name = c.company_name || c.name || ''
+    const code = c.company_code || c.code || ''
+    if (name && code) return `${name} (${code})`
+    return name || code || c.id || ''
+  }
+
+  const resolveCompanyOption = (val?: string): string => {
+    if (!val) return ''
+    const trimmed = String(val).trim()
+    if (!trimmed) return ''
+    const match = companies.value.find(
+      c => c.id === trimmed ||
+        c.company_code === trimmed ||
+        (c as any).code === trimmed ||
+        c.company_name === trimmed ||
+        (c as any).name === trimmed ||
+        formatCompanyLabel(c) === trimmed ||
+        `${c.company_name || (c as any).name} (${c.company_code || (c as any).code})` === trimmed
+    )
+    if (match) {
+      return formatCompanyLabel(match)
+    }
+    return trimmed
+  }
+
+  const formatCompanyName = (value?: string): string => {
+    if (!value) return '-'
+    const resolved = resolveCompanyOption(value)
+    return resolved || '-'
+  }
+
+  const fetchCompanies = async (force = false) => {
+    if (companiesLoaded.value && !force) return
+    if (companiesLoading.value) return
+    companiesLoading.value = true
+    companiesError.value = ''
+    try {
+      const api = useCompanyApi()
+      const list = await api.getAllCompanies()
+      companies.value = (Array.isArray(list) ? list : [])
+        .filter(c => (c?.company_name || (c as any)?.name || c?.company_code || (c as any)?.code) && c.is_active !== false)
+        .sort((a, b) => {
+          const nameA = a.company_name || (a as any).name || ''
+          const nameB = b.company_name || (b as any).name || ''
+          return nameA.localeCompare(nameB, 'id', { sensitivity: 'base' })
+        })
+      companiesLoaded.value = true
+
+      if (newReport.conductedBy) {
+        newReport.conductedBy = resolveCompanyOption(newReport.conductedBy)
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch companies for quality assurance:', error)
+      companiesError.value = extractErrorMessage(error, 'Gagal memuat data perusahaan.')
+      companiesLoaded.value = false
+      companies.value = []
+    } finally {
+      companiesLoading.value = false
+    }
+  }
+
+  const companyOptions = computed(() => {
+    const list = companies.value
+      .filter(c => c && c.is_active !== false)
+      .map(c => formatCompanyLabel(c))
+      .filter(Boolean)
+    if (newReport.conductedBy && !list.includes(newReport.conductedBy)) {
+      list.unshift(newReport.conductedBy)
+    }
+    return Array.from(new Set(list)).sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
+  })
+
+  const conductedByOptions = companyOptions
+
   // Form State
   const newReport = reactive({
     type: QAType.REGULAR,
@@ -171,6 +255,9 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       } else {
         reports.value = []
       }
+      if (!companiesLoaded.value && !companiesLoading.value) {
+        fetchCompanies().catch(() => {})
+      }
     } catch (error: any) {
       console.error('Failed to fetch QA reports:', error)
       errorMsg.value = extractErrorMessage(error, 'Failed to fetch quality assurance reports.')
@@ -182,6 +269,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
 
   // Load on init
   fetchReports()
+  fetchCompanies().catch(() => {})
 
 
   const saveReport = async () => {
@@ -458,6 +546,9 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const openForm = () => {
     isEditing.value = false
     resetForm()
+    if (!companiesLoaded.value && !companiesLoading.value) {
+      fetchCompanies().catch(() => {})
+    }
     isFormOpen.value = true
   }
 
@@ -475,11 +566,15 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       assessmentTitle: selectedReport.value.assessmentTitle,
       periodYear: selectedReport.value.period || new Date().getFullYear().toString(),
       status: selectedReport.value.status,
-      conductedBy: selectedReport.value.conductedBy || '',
+      conductedBy: resolveCompanyOption(selectedReport.value.conductedBy),
       result: selectedReport.value.result,
       internalEvaluator: selectedReport.value.internalEvaluator || '',
       attachment: null
     })
+
+    if (!companiesLoaded.value && !companiesLoading.value) {
+      fetchCompanies().catch(() => {})
+    }
 
     isDetailOpen.value = false
     isFormOpen.value = true
@@ -534,7 +629,8 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     reports, searchQuery, selectedType, selectedPeriod, selectedStatus, isFormOpen, isImportOpen, isDetailOpen, columns,
     selectedReport, filteredReports, importedReports, regularImportedReports, saivImportedReports, qarImportedReports, iacmImportedReports, summary, periods, qaStatuses, qaTypes, page, pageCount, items, newReport,
     handleFileUpload, saveReport, openForm, closeForm, openImportModal, closeImportModal, importQARReport, downloadAttachment, viewDocument, getMasterServiceBaseUrl, openDetail, closeDetail, getStatusColor, getTypeIconColor, matchQAType,
-    editReport, isEditing, deleteReport, fetchReports, resetFilters, loading, errorMsg
+    editReport, isEditing, deleteReport, fetchReports, resetFilters, loading, errorMsg,
+    companies, companiesLoading, companiesLoaded, companiesError, fetchCompanies, resolveCompanyOption, formatCompanyName, companyOptions, conductedByOptions
   }
 })
 export { QAType, QAStatus }

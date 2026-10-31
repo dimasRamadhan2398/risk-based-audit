@@ -278,17 +278,19 @@
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <UFormField :label="t('qualityAssurance.modal.conductedBy')">
-                  <UInput
+                  <USelectMenu
                     v-model="store.newReport.conductedBy"
+                    :items="store.companyOptions"
+                    :loading="store.companiesLoading"
                     :placeholder="t('qualityAssurance.modal.conductedByPlaceholder')"
                     class="w-full"
-                    maxlength="100"
-                    @invalid="($event.target as any)?.setCustomValidity('Judul maksimal 100 karakter dan wajib diisi')"
-                    @input="($event.target as any)?.setCustomValidity('')"
-                  />
-                  <div class="text-xs text-gray-500 mt-1 text-right">
-                    {{ store.newReport.conductedBy ? store.newReport.conductedBy.length : 0 }}/100
-                  </div>
+                    create-item
+                    @create="(val: string) => { store.newReport.conductedBy = val.trim() }"
+                  >
+                    <template #empty>
+                      {{ store.companiesLoading ? t('common.loading') : (store.companiesError || t('masterData.company.empty')) }}
+                    </template>
+                  </USelectMenu>
                 </UFormField>
 
                 <UFormField :label="t('qualityAssurance.modal.internalEvaluator')">
@@ -386,7 +388,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { useQualityAssuranceStore } from '~/stores/quality-assurance'
 import { QAType, QAStatus } from '~/types/quality-assurance'
 import { useI18n } from '~/composables/useI18n'
@@ -526,7 +528,16 @@ watch(
       errors.value.assessmentTitle = false
       errors.value.status = false
       errors.value.result = false
+      if (!store.companiesLoaded && !store.companiesLoading) {
+        store.fetchCompanies().catch(() => {})
+      }
     }
   }
 )
+
+onMounted(() => {
+  if (!store.companiesLoaded && !store.companiesLoading) {
+    store.fetchCompanies().catch(() => {})
+  }
+})
 </script>

@@ -4573,7 +4573,7 @@
       "defaultResultPlaceholder": "Ex: 92%",
       "specialDetails": "4. Special Details",
       "conductedBy": "Conducted By",
-      "conductedByPlaceholder": "Ex: PT BAI",
+      "conductedByPlaceholder": "Select or enter company name (e.g. PT BAI)",
       "internalEvaluator": "Internal Evaluator",
       "evaluatorPlaceholder": "Team Name / Lead Auditor...",
       "supportingDocuments": "5. Supporting Documents",

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { useRbac } from '~/composables/useRbac'
 import QAAddModal from '~/components/quality-assurance/QAAddModal.vue';
 
@@ -12,6 +13,11 @@ const store = useQualityAssuranceStore()
 const { t } = useI18n()
 const { canWriteQaConsulting } = useRbac()
 
+onMounted(() => {
+  if (!store.companiesLoaded && !store.companiesLoading) {
+    store.fetchCompanies().catch(() => {})
+  }
+})
 </script>
 
 <template>

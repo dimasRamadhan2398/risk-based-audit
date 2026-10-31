@@ -4455,7 +4455,7 @@
       "defaultResultPlaceholder": "Contoh: 92%",
       "specialDetails": "4. Detail Khusus",
       "conductedBy": "Dilaksanakan Oleh",
-      "conductedByPlaceholder": "Contoh: PT BAI",
+      "conductedByPlaceholder": "Pilih atau masukkan nama perusahaan (mis. PT BAI)",
       "internalEvaluator": "Evaluator Internal",
       "evaluatorPlaceholder": "Nama Tim / Lead Auditor...",
       "supportingDocuments": "5. Dokumen Pendukung",
