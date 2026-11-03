@@ -80,9 +80,9 @@
       </div>
 
       <!-- Feature Access Matrix Table -->
-      <div class="overflow-x-auto border border-gray-200 dark:border-gray-800 rounded-xl">
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-x-auto shadow-sm">
         <table class="w-full text-left text-sm">
-          <thead class="bg-gray-100 dark:bg-gray-800/80 text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700">
+          <thead class="bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-800">
             <tr>
               <th class="py-3.5 px-4 font-bold w-12 text-center">
                 #

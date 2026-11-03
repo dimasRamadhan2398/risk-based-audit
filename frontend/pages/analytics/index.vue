@@ -149,7 +149,7 @@ const caattModules = computed(() => [
     </div>
 
     <!-- Section 1: AI Insights -->
-    <div class="space-y-4">
+    <div class="space-y-5">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2.5">
           <div class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-500">
@@ -165,7 +165,7 @@ const caattModules = computed(() => [
         </UButton>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         <NuxtLink
           v-for="mod in aiModules"
           :key="mod.to"
@@ -173,26 +173,26 @@ const caattModules = computed(() => [
           class="flex flex-col h-full group"
         >
           <UCard
-            class="h-full border border-gray-100 dark:border-gray-800 hover:border-indigo-400 dark:hover:border-indigo-600 hover:shadow-md transition-all duration-200 flex flex-col"
-            :ui="{ body: 'p-4 sm:p-6 flex flex-col justify-between flex-1 h-full' }"
+            class="h-full min-h-[240px] bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 ring-0 shadow-sm hover:border-indigo-400 dark:hover:border-indigo-600 hover:shadow-md transition-all duration-200 flex flex-col"
+            :ui="{ body: 'p-6 sm:p-6 flex flex-col flex-1 h-full gap-5' }"
           >
-            <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <UIcon :name="mod.icon" class="w-5 h-5" />
+            <div class="space-y-4">
+              <div class="flex items-start justify-between gap-3">
+                <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <UIcon :name="mod.icon" class="w-6 h-6" />
                 </div>
-                <UBadge :color="mod.badgeColor" variant="subtle" size="xs">
+                <UBadge :color="mod.badgeColor" variant="subtle" size="md" class="font-semibold">
                   {{ mod.badge }}
                 </UBadge>
               </div>
-              <h3 class="font-bold text-base text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+              <h3 class="font-bold text-lg leading-snug text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                 {{ mod.title }}
               </h3>
-              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-3">
+              <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-3">
                 {{ mod.description }}
               </p>
             </div>
-            <div class="mt-auto pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+            <div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between text-sm font-semibold text-indigo-600 dark:text-indigo-400">
               <span>{{ t('analytics.hub.openModule') }}</span>
               <UIcon name="i-heroicons-arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </div>
@@ -202,7 +202,7 @@ const caattModules = computed(() => [
     </div>
 
     <!-- Section 2: CAATT Insight -->
-    <div class="space-y-4 pt-4">
+    <div class="space-y-5 pt-2">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2.5">
           <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
@@ -215,7 +215,7 @@ const caattModules = computed(() => [
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         <NuxtLink
           v-for="mod in caattModules"
           :key="mod.to"
@@ -223,26 +223,26 @@ const caattModules = computed(() => [
           class="flex flex-col h-full group"
         >
           <UCard
-            class="h-full border border-gray-100 dark:border-gray-800 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-md transition-all duration-200 flex flex-col"
-            :ui="{ body: 'p-4 sm:p-6 flex flex-col justify-between flex-1 h-full' }"
+            class="h-full min-h-[240px] bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 ring-0 shadow-sm hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-md transition-all duration-200 flex flex-col"
+            :ui="{ body: 'p-6 sm:p-6 flex flex-col flex-1 h-full gap-5' }"
           >
-            <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <UIcon :name="mod.icon" class="w-5 h-5" />
+            <div class="space-y-4">
+              <div class="flex items-start justify-between gap-3">
+                <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <UIcon :name="mod.icon" class="w-6 h-6" />
                 </div>
-                <UBadge :color="mod.badgeColor" variant="subtle" size="xs">
+                <UBadge :color="mod.badgeColor" variant="subtle" size="md" class="font-semibold">
                   {{ mod.badge }}
                 </UBadge>
               </div>
-              <h3 class="font-bold text-base text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+              <h3 class="font-bold text-lg leading-snug text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                 {{ mod.title }}
               </h3>
-              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-3">
+              <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-3">
                 {{ mod.description }}
               </p>
             </div>
-            <div class="mt-auto pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+            <div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between text-sm font-semibold text-emerald-600 dark:text-emerald-400">
               <span>{{ t('analytics.hub.openModule') }}</span>
               <UIcon name="i-heroicons-arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </div>

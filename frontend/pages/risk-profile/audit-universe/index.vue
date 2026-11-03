@@ -104,7 +104,7 @@
 
           <!-- Right Column: Corporate Universe Explorer & Editor -->
           <div>
-            <UCard class="shadow-sm border border-[var(--border-main)] h-full">
+            <UCard :ui="{ root: 'bg-transparent!' }" class="shadow-sm border border-[var(--border-main)] h-full">
               <template #header>
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 font-space">
@@ -371,7 +371,7 @@
       <!-- Tab 2: Establish Universe -->
       <template #establish>
         <div class="mt-6 space-y-6">
-          <UCard class="shadow-sm border border-[var(--border-main)]">
+          <UCard :ui="{ root: 'bg-transparent!' }" class="shadow-sm border border-[var(--border-main)]">
             <template #header>
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>

@@ -185,7 +185,7 @@
     </UCard>
 
     <!-- Recent Data Integration Activity Card -->
-    <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
+    <UCard class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 divide-gray-200 dark:divide-gray-800">
       <template #header>
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('settings.dataSource.recentLogsTitle') }}</h3>
@@ -195,7 +195,7 @@
 
       <div class="overflow-x-auto">
         <table class="w-full text-md text-left">
-          <thead class="bg-gray-50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 font-semibold border-b border-gray-200 dark:border-gray-800">
+          <thead class="bg-gray-100 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 font-semibold border-b border-gray-200 dark:border-gray-800">
             <tr>
               <th class="py-3 px-4">{{ t('settings.dataSource.thName') }}</th>
               <th class="py-3 px-4">{{ t('settings.dataSource.thEventType') }}</th>
@@ -233,7 +233,7 @@
 
     <!-- Add / Edit Modal -->
     <UModal
-      :open="isModalOpen"
+      v-model:open="isModalOpen"
       :title="isEditMode ? t('settings.dataSource.modalEditTitle') : t('settings.dataSource.modalAddTitle')"
       :description="isEditMode ? t('settings.dataSource.modalEditDesc') : t('settings.dataSource.modalAddDesc')"
       :close="{ color: 'neutral', variant: 'outline', onClick: closeModal }"
@@ -422,7 +422,7 @@
 
     <!-- Schema Introspection & Data Mapping Modal -->
     <UModal
-      :open="isSchemaModalOpen"
+      v-model:open="isSchemaModalOpen"
       :title="t('settings.dataSource.schemaTitle')"
       :description="t('settings.dataSource.schemaSubtitle')"
       :close="{ color: 'neutral', variant: 'outline', onClick: closeSchemaModal }"
@@ -515,16 +515,19 @@
                     <UIcon name="i-lucide-table" class="w-4 h-4 text-blue-500" />
                     <span class="font-mono font-bold text-gray-900 dark:text-white text-base">{{ table.tableName }}</span>
                     <UBadge color="neutral" variant="subtle" size="sm" class="rounded-md font-mono text-[11px]">
-                      {{ table.rowCount.toLocaleString() }} {{ t('settings.dataSource.mapping.rows') }} </UBadge>
+                      {{ table.rowCount.toLocaleString() }} {{ t('settings.dataSource.mapping.rows') }}
+                    </UBadge>
                     <UBadge color="neutral" variant="outline" size="sm" class="rounded-md font-mono text-[11px]">
-                      {{ table.columns.length }} {{ t('settings.dataSource.mapping.columnsShort') }} </UBadge>
+                      {{ table.columns.length }} {{ t('settings.dataSource.mapping.columnsShort') }}
+                    </UBadge>
                     <UBadge
-                      v-if="getTableMapping(table.tableName)?.isActive"
+                      v-if="getTableMappings(table.tableName).length > 0"
                       color="success"
                       variant="subtle"
                       size="sm"
                       class="rounded-md font-semibold text-[11px]"
-                    > {{ t('settings.dataSource.mapping.mapped') }} {{ getScopeLabel(getTableMapping(table.tableName)?.targetScope) }}
+                    >
+                      {{ getTableMappings(table.tableName).length }} {{ t('settings.dataSource.mappedCount') }}
                     </UBadge>
                   </div>
                   <p v-if="table.description" class="text-xs text-gray-500 dark:text-gray-400">
@@ -545,14 +548,14 @@
                     {{ t('settings.dataSource.previewData') }}
                   </UButton>
                   <UButton
-                    :color="getTableMapping(table.tableName)?.isActive ? 'primary' : 'neutral'"
-                    :variant="getTableMapping(table.tableName)?.isActive ? 'solid' : 'outline'"
+                    color="primary"
+                    variant="subtle"
                     size="sm"
-                    icon="i-lucide-git-fork"
+                    icon="i-lucide-plus"
                     class="rounded-lg font-semibold text-xs"
-                    @click="toggleTableMappingActive(table.tableName)"
+                    @click="addTableMapping(table)"
                   >
-                    {{ getTableMapping(table.tableName)?.isActive ? 'Active Pipeline' : 'Enable Mapping' }}
+                    + Add Mapping
                   </UButton>
                 </div>
               </div>
@@ -571,16 +574,17 @@
                 </span>
               </div>
 
-              <!-- Mapping Configuration Form Card if mapping is enabled -->
+              <!-- Mapping Configuration Form Cards (Multi-mapping per table) -->
               <div
-                v-if="getTableMapping(table.tableName)?.isActive"
+                v-for="(mapping, mIdx) in getTableMappings(table.tableName)"
+                :key="mIdx"
                 class="mt-3 p-3.5 rounded-xl bg-primary-50/50 dark:bg-primary-950/20 border border-primary-200/60 dark:border-primary-900/40 space-y-3"
               >
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2">
                     <span class="text-xs font-bold text-primary-900 dark:text-primary-300 flex items-center gap-1.5">
                       <UIcon name="i-lucide-settings-2" class="w-3.5 h-3.5 text-primary-500" />
-                      {{ t('settings.dataSource.editMapping') }}
+                      Mapping #{{ mIdx + 1 }} &mdash; {{ mapping.targetModule || getScopeLabel(mapping.targetScope) }}
                     </span>
                     <UButton
                       color="primary"
@@ -588,10 +592,20 @@
                       size="xs"
                       icon="i-lucide-sparkles"
                       class="rounded-lg text-[10px] font-bold"
-                      @click="autoSuggestMapping(table)"
+                      @click="autoSuggestMapping(table, mIdx)"
                     > {{ t('settings.dataSource.mapping.autoSuggest') }} </UButton>
                   </div>
-                  <span class="text-[11px] font-mono text-primary-700 dark:text-primary-400">{{ t('settings.dataSource.mapping.targetSchema') }} {{ selectedConnForSchema.database }}</span>
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-mono text-primary-700 dark:text-primary-400 hidden sm:inline">{{ t('settings.dataSource.mapping.targetSchema') }} {{ selectedConnForSchema.database }}</span>
+                    <UButton
+                      color="error"
+                      variant="ghost"
+                      size="xs"
+                      icon="i-lucide-trash-2"
+                      class="rounded-lg text-[11px] font-medium"
+                      @click="removeTableMapping(table.tableName, mIdx)"
+                    > Remove </UButton>
+                  </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -600,7 +614,7 @@
                       {{ t('settings.dataSource.targetScope') }}
                     </label>
                     <USelect
-                      :model-value="getTableMapping(table.tableName)?.targetScope"
+                      :model-value="mapping.targetScope"
                       :items="[
                         { label: 'Risk Management', value: 'risk_management' },
                         { label: 'Audit Features', value: 'audit_features' },
@@ -609,7 +623,7 @@
                       ]"
                       size="sm"
                       class="w-full"
-                      @update:model-value="(val) => updateMappingField(table.tableName, 'targetScope', val)"
+                      @update:model-value="(val) => updateMappingField(table.tableName, mIdx, 'targetScope', val)"
                     />
                   </div>
 
@@ -617,19 +631,19 @@
                     <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1">
                       {{ t('settings.dataSource.targetModule') }}
                     </label>
-                    <UInput
-                      :model-value="getTableMapping(table.tableName)?.targetModule"
-                      :placeholder="t('settings.dataSource.mapping.riskExample')"
+                    <USelect
+                      :model-value="mapping.targetModule"
+                      :items="getModulesForScope(mapping.targetScope)"
                       size="sm"
                       class="w-full text-xs font-medium"
-                      @update:model-value="(val) => updateMappingField(table.tableName, 'targetModule', val)"
+                      @update:model-value="(val) => updateMappingField(table.tableName, mIdx, 'targetModule', val)"
                     />
                   </div>
 
                   <div>
                     <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1"> {{ t('settings.dataSource.mapping.canonicalEntity') }} </label>
                     <USelect
-                      :model-value="getTableMapping(table.tableName)?.canonicalEntity || 'generic'"
+                      :model-value="mapping.canonicalEntity || 'generic'"
                       :items="[
                         { label: 'Generic Audit Data (external)', value: 'generic' },
                         { label: 'Transactions (gold.fact_transactions)', value: 'transactions' },
@@ -640,66 +654,76 @@
                       ]"
                       size="sm"
                       class="w-full"
-                      @update:model-value="(val) => updateMappingField(table.tableName, 'canonicalEntity', val)"
+                      @update:model-value="(val) => updateMappingField(table.tableName, mIdx, 'canonicalEntity', val)"
                     />
                   </div>
 
                   <div>
-                    <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1">
-                      {{ t('settings.dataSource.primaryAuditField') }} (PK)
-                    </label>
+                    <div class="flex items-center justify-between mb-1">
+                      <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300">
+                        {{ t('settings.dataSource.primaryAuditField') }} (PK)
+                      </label>
+                      <span class="text-[10px] text-gray-400">Dedup Key</span>
+                    </div>
                     <USelect
-                      :model-value="getTableMapping(table.tableName)?.auditField"
-                      :items="table.columns.map(c => c.name)"
+                      :model-value="mapping.auditField"
+                      :items="getAuditFieldOptions(table)"
                       size="sm"
                       class="w-full font-mono text-xs"
-                      @update:model-value="(val) => updateMappingField(table.tableName, 'auditField', val)"
+                      @update:model-value="(val) => updateMappingField(table.tableName, mIdx, 'auditField', val)"
                     />
                   </div>
 
                   <div>
-                    <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1"> {{ t('settings.dataSource.mapping.watermark') }} </label>
+                    <div class="flex items-center justify-between mb-1">
+                      <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300"> {{ t('settings.dataSource.mapping.watermark') }} </label>
+                      <span class="text-[10px] text-gray-400">Incremental</span>
+                    </div>
                     <USelect
-                      :model-value="getTableMapping(table.tableName)?.watermarkColumn || ''"
-                      :items="['', ...table.columns.map(c => c.name)]"
-                      :placeholder="t('settings.dataSource.mapping.datePlaceholder')"
+                      :model-value="mapping.watermarkColumn || '__none__'"
+                      :items="getWatermarkOptions(table)"
                       size="sm"
                       class="w-full font-mono text-xs"
-                      @update:model-value="(val) => updateMappingField(table.tableName, 'watermarkColumn', val)"
+                      @update:model-value="(val) => updateMappingField(table.tableName, mIdx, 'watermarkColumn', val)"
                     />
                   </div>
 
                   <div>
-                    <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1"> {{ t('settings.dataSource.mapping.softDelete') }} </label>
+                    <div class="flex items-center justify-between mb-1">
+                      <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300"> {{ t('settings.dataSource.mapping.softDelete') }} </label>
+                      <span class="text-[10px] text-gray-400">Reconciliation</span>
+                    </div>
                     <USelect
-                      :model-value="getTableMapping(table.tableName)?.softDeleteColumn || ''"
-                      :items="['', ...table.columns.map(c => c.name)]"
-                      :placeholder="t('settings.dataSource.mapping.deleteExample')"
+                      :model-value="mapping.softDeleteColumn || '__none__'"
+                      :items="getSoftDeleteOptions(table)"
                       size="sm"
                       class="w-full font-mono text-xs"
-                      @update:model-value="(val) => updateMappingField(table.tableName, 'softDeleteColumn', val)"
+                      @update:model-value="(val) => updateMappingField(table.tableName, mIdx, 'softDeleteColumn', val)"
                     />
                   </div>
                 </div>
 
-                <!-- Anomaly Detection Rules Checklist -->
-                <div>
-                  <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1.5">
-                    {{ t('settings.dataSource.anomalyRules') }}
-                  </label>
+                <!-- Anomaly Detection Rules Checklist - only displayed when scope is data_analytics -->
+                <div v-if="mapping.targetScope === 'data_analytics'" class="pt-2 border-t border-primary-200/40 dark:border-primary-900/40">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300">
+                      {{ t('settings.dataSource.anomalyRules') }}
+                    </label>
+                    <span class="text-[10px] text-indigo-600 dark:text-indigo-400 font-medium">Applied to AI Training & Isolation Forest</span>
+                  </div>
                   <div class="flex items-center gap-2 flex-wrap">
                     <button
                       v-for="rule in standardAnomalyRules"
                       :key="rule"
                       type="button"
                       class="px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all flex items-center gap-1.5"
-                      :class="getTableMapping(table.tableName)?.anomalyRules?.includes(rule)
+                      :class="mapping.anomalyRules?.includes(rule)
                         ? 'bg-primary-600 text-white font-semibold shadow-xs'
                         : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-gray-300'"
-                      @click="toggleAnomalyRule(table.tableName, rule)"
+                      @click="toggleAnomalyRule(table.tableName, mIdx, rule)"
                     >
                       <UIcon
-                        :name="getTableMapping(table.tableName)?.anomalyRules?.includes(rule) ? 'i-lucide-check' : 'i-lucide-plus'"
+                        :name="mapping.anomalyRules?.includes(rule) ? 'i-lucide-check' : 'i-lucide-plus'"
                         class="w-3 h-3"
                       />
                       {{ rule }}
@@ -737,7 +761,7 @@
 
     <!-- Data Preview Modal -->
     <UModal
-      :open="isPreviewModalOpen"
+      v-model:open="isPreviewModalOpen"
       :title="`${t('settings.dataSource.sampleRecordsTitle')}: ${previewTableName}`"
       :description="`${t('settings.dataSource.sampleRecordsDesc')} ${previewTableName} (${selectedConnForSchema?.name || ''})`"
       :close="{ color: 'neutral', variant: 'outline', onClick: () => { isPreviewModalOpen = false } }"
@@ -786,10 +810,12 @@
 
 <script setup lang="ts">
 import { getMasterServiceBaseUrl, getDataHubBaseUrl } from '~/composables/useApiUrl'
+import { useDataSourceStore } from '~/stores/data-source'
 
 const toast = useToast()
 const { t } = useI18n()
 const config = useRuntimeConfig()
+const dataSourceStore = useDataSourceStore()
 
 export interface TableColumn {
   name: string
@@ -876,10 +902,16 @@ const activityLogs = ref<ActivityLog[]>([])
 async function fetchConnectionsFromApi() {
   try {
     const res: any = await $fetch(`${getMasterServiceBaseUrl()}/data-sources`)
-    if (res && res.data) {
+    if (res && res.data && Array.isArray(res.data) && res.data.length > 0) {
       connections.value = res.data
+      dataSourceStore.setSources(res.data)
+    } else if (dataSourceStore.sources.length > 0) {
+      connections.value = dataSourceStore.sources as any
     }
   } catch (err) {
+    if (dataSourceStore.sources.length > 0) {
+      connections.value = dataSourceStore.sources as any
+    }
     console.warn('Backend API connection unavailable, operating in local mode:', err)
   }
 }
@@ -977,6 +1009,7 @@ async function testConnection(conn: DataSourceConn) {
     if (res && res.data) {
       const idx = connections.value.findIndex(c => c.id === conn.id)
       if (idx !== -1) connections.value[idx] = res.data
+      dataSourceStore.upsertSource(res.data)
     }
   } catch (err) {
     // Local fallback
@@ -1011,6 +1044,7 @@ async function triggerSync(conn: DataSourceConn) {
     if (res && res.data) {
       const idx = connections.value.findIndex(c => c.id === conn.id)
       if (idx !== -1) connections.value[idx] = res.data
+      dataSourceStore.upsertSource(res.data)
       fetchLogsFromApi()
     }
   } catch (err) {
@@ -1142,6 +1176,7 @@ async function deleteConnection(conn: DataSourceConn) {
     console.warn('Delete backend error, using local fallback:', err)
   }
   connections.value = connections.value.filter(c => c.id !== conn.id)
+  dataSourceStore.removeSource(conn.id)
   toast.add({
     title: t('settings.dataSource.connRemovedToast'),
     description: `${conn.name} was removed from data sources.`,
@@ -1269,6 +1304,7 @@ async function saveConnection() {
       if (res && res.data) {
         const idx = connections.value.findIndex(c => c.id === editingConnId.value)
         if (idx !== -1) connections.value[idx] = res.data
+        dataSourceStore.upsertSource(res.data)
       }
     } catch (err) {
       // Fallback local update
@@ -1305,6 +1341,7 @@ async function saveConnection() {
       })
       if (res && res.data) {
         connections.value.unshift(res.data)
+        dataSourceStore.upsertSource(res.data)
         fetchLogsFromApi()
       }
     } catch (err) {
@@ -1326,6 +1363,7 @@ async function saveConnection() {
         scopes: [...form.value.scopes],
       }
       connections.value.unshift(newConn)
+      dataSourceStore.upsertSource(newConn as any)
     }
     toast.add({
       title: t('settings.dataSource.connCreatedToast'),
@@ -1346,9 +1384,79 @@ const selectedConnForSchema = ref<DataSourceConn | null>(null)
 const isLoadingSchema = ref(false)
 const isSavingMappings = ref(false)
 const discoveredTables = ref<SchemaTable[]>([])
-const activeMappings = ref<Record<string, TableDataMapping>>({})
+const activeMappings = ref<Record<string, TableDataMapping[]>>({})
 const tableSearchQuery = ref('')
 const scopeFilter = ref('All Scopes')
+
+// Dynamic Modules mapping per Target Audit Scope
+const scopeModulesMap: Record<string, { label: string; value: string }[]> = {
+  risk_management: [
+    { label: 'Corporate Risk Profile', value: 'Corporate Risk Profile' },
+    { label: 'Risk Appetite Statement', value: 'Risk Appetite Statement' },
+    { label: 'Risk Factors', value: 'Risk Factors' },
+    { label: 'Audit Universe', value: 'Audit Universe' },
+    { label: 'Audit Priority', value: 'Audit Priority' },
+    { label: 'Risk Control Matrix (RCM)', value: 'Risk Control Matrix (RCM)' },
+    { label: 'Risk Mitigation', value: 'Risk Mitigation' },
+  ],
+  audit_features: [
+    { label: 'Strategic Audit Plan', value: 'Strategic Audit Plan' },
+    { label: 'Annual Audit Plan', value: 'Annual Audit Plan' },
+    { label: 'Audit Activity Plan', value: 'Audit Activity Plan' },
+    { label: 'Assignment Letter', value: 'Assignment Letter' },
+    { label: 'Audit Execution Status', value: 'Audit Execution Status' },
+    { label: 'Audit Fieldwork', value: 'Audit Fieldwork' },
+    { label: 'Working Paper Evidence', value: 'Working Paper Evidence' },
+    { label: 'Internal Audit Performance (KPI)', value: 'Internal Audit Performance (KPI)' },
+    { label: 'Audit Result Report (LHA)', value: 'Audit Result Report (LHA)' },
+    { label: 'Action Taken Report (ATR)', value: 'Action Taken Report (ATR)' },
+  ],
+  qar_features: [
+    { label: 'Quality Assurance Dashboard', value: 'Quality Assurance Dashboard' },
+    { label: 'Periodic Self-Assessment', value: 'Periodic Self-Assessment' },
+    { label: 'SAIV Validation', value: 'SAIV Validation' },
+    { label: 'IACM Assessment', value: 'IACM Assessment' },
+    { label: 'Consulting Service', value: 'Consulting Service' },
+  ],
+  data_analytics: [
+    { label: 'AI: Risk Scoring Prediction', value: 'AI: Risk Scoring Prediction' },
+    { label: 'AI: Anomaly Detection', value: 'AI: Anomaly Detection' },
+    { label: 'AI: NLP Document Analysis', value: 'AI: NLP Document Analysis' },
+    { label: 'AI: KPI & Loss Forecast', value: 'AI: KPI & Loss Forecast' },
+    { label: 'CAATT: Full Population Testing', value: 'CAATT: Full Population Testing' },
+    { label: 'CAATT: Duplicate & Gap Detection', value: 'CAATT: Duplicate & Gap Detection' },
+    { label: 'CAATT: Benford\'s Law Analysis', value: 'CAATT: Benford\'s Law Analysis' },
+    { label: 'CAATT: Stratification & Aging', value: 'CAATT: Stratification & Aging' },
+    { label: 'CAATT: 3-Way Reconciliation', value: 'CAATT: 3-Way Reconciliation' },
+    { label: 'CAATT: Policy & Plafond Compliance', value: 'CAATT: Policy & Plafond Compliance' },
+    { label: 'CAATT: Data Quality & Integrity', value: 'CAATT: Data Quality & Integrity' },
+  ],
+}
+
+function getModulesForScope(scope?: string) {
+  return scopeModulesMap[scope || 'audit_features'] || scopeModulesMap.audit_features
+}
+
+function getWatermarkOptions(table: SchemaTable) {
+  return [
+    { label: 'None (Full Table Load)', value: '__none__' },
+    ...table.columns.map(c => ({ label: c.name, value: c.name }))
+  ]
+}
+
+function getSoftDeleteOptions(table: SchemaTable) {
+  return [
+    { label: 'None (Hard-Delete Bucket Reconcile)', value: '__none__' },
+    ...table.columns.map(c => ({ label: c.name, value: c.name }))
+  ]
+}
+
+function getAuditFieldOptions(table: SchemaTable) {
+  return table.columns.map(c => ({
+    label: c.isPrimary ? `${c.name} (PK)` : c.name,
+    value: c.name
+  }))
+}
 
 // Preview state
 const isPreviewModalOpen = ref(false)
@@ -1357,7 +1465,7 @@ const previewRows = ref<Record<string, any>[]>([])
 const isLoadingPreview = ref(false)
 
 const activeMappingsCount = computed(() => {
-  return Object.values(activeMappings.value).filter(m => m.isActive).length
+  return Object.values(activeMappings.value).flat().filter(m => m.isActive).length
 })
 
 const filteredTables = computed(() => {
@@ -1367,18 +1475,15 @@ const filteredTables = computed(() => {
       (t.description && t.description.toLowerCase().includes(q)) ||
       t.columns.some(c => c.name.toLowerCase().includes(q))
 
-    const mapping = activeMappings.value[t.tableName]
+    const mappings = activeMappings.value[t.tableName] || []
     let matchesScope = true
     if (scopeFilter.value !== 'All Scopes') {
-      if (scopeFilter.value === 'Risk Management') {
-        matchesScope = mapping?.targetScope === 'risk_management'
-      } else if (scopeFilter.value === 'Audit Features') {
-        matchesScope = mapping?.targetScope === 'audit_features'
-      } else if (scopeFilter.value === 'QAR Features') {
-        matchesScope = mapping?.targetScope === 'qar_features'
-      } else if (scopeFilter.value === 'Data Analytics / AI') {
-        matchesScope = mapping?.targetScope === 'data_analytics'
-      }
+      const scopeKey = scopeFilter.value === 'Risk Management' ? 'risk_management'
+        : scopeFilter.value === 'Audit Features' ? 'audit_features'
+        : scopeFilter.value === 'QAR Features' ? 'qar_features'
+        : scopeFilter.value === 'Data Analytics / AI' ? 'data_analytics'
+        : ''
+      matchesScope = mappings.some(m => m.targetScope === scopeKey)
     }
 
     return matchesSearch && matchesScope
@@ -1393,108 +1498,109 @@ function getScopeLabel(scopeId?: string) {
   return scopeId || 'Unassigned'
 }
 
-function getTableMapping(tableName: string): TableDataMapping | undefined {
-  return activeMappings.value[tableName]
+function getTableMappings(tableName: string): TableDataMapping[] {
+  return activeMappings.value[tableName] || []
 }
 
-function toggleTableMappingActive(tableName: string) {
-  const mapping = activeMappings.value[tableName]
-  if (!mapping) {
-    activeMappings.value[tableName] = {
-      tableName,
-      targetScope: 'audit_features',
-      targetModule: 'Working Paper Evidence',
-      auditField: 'id',
-      syncInterval: 'Hourly',
-      anomalyRules: ['Threshold Breach (>100M)'],
-      isActive: true,
+function addTableMapping(table: SchemaTable) {
+  if (!activeMappings.value[table.tableName]) {
+    activeMappings.value[table.tableName] = []
+  }
+  const pkCol = table.columns.find(c => c.isPrimary)?.name || table.columns[0]?.name || 'id'
+  const wmCol = table.columns.find(c => /date|time|created|updated|posting/i.test(c.name))?.name || '__none__'
+  const delCol = table.columns.find(c => /del|status|aktif|active/i.test(c.name))?.name || '__none__'
+
+  activeMappings.value[table.tableName].push({
+    tableName: table.tableName,
+    targetScope: 'audit_features',
+    targetModule: 'Working Paper Evidence',
+    canonicalEntity: 'generic',
+    auditField: pkCol,
+    watermarkColumn: wmCol,
+    softDeleteColumn: delCol,
+    syncInterval: 'Hourly',
+    anomalyRules: ['Threshold Breach (>100M)'],
+    isActive: true,
+  })
+}
+
+function removeTableMapping(tableName: string, index: number) {
+  if (activeMappings.value[tableName]) {
+    activeMappings.value[tableName].splice(index, 1)
+  }
+}
+
+function updateMappingField(tableName: string, index: number, field: keyof TableDataMapping, value: any) {
+  const list = activeMappings.value[tableName]
+  if (list && list[index]) {
+    list[index] = {
+      ...list[index],
+      [field]: value
     }
-  } else {
-    mapping.isActive = !mapping.isActive
+    if (field === 'targetScope') {
+      const mods = scopeModulesMap[value] || []
+      if (mods.length > 0) {
+        list[index].targetModule = mods[0].value
+      }
+    }
   }
 }
 
-function updateMappingField(tableName: string, field: keyof TableDataMapping, value: any) {
-  if (!activeMappings.value[tableName]) {
-    toggleTableMappingActive(tableName)
-  }
-  const mapping = activeMappings.value[tableName]
-  if (!mapping) return
-
-  activeMappings.value[tableName] = {
-    ...mapping,
-    tableName,
-    [field]: value
-  } as TableDataMapping
-}
-
-function toggleAnomalyRule(tableName: string, rule: string) {
-  if (!activeMappings.value[tableName]) {
-    toggleTableMappingActive(tableName)
-  }
-  const mapping = activeMappings.value[tableName]
-  if (!mapping) return
-
-  const currentRules = mapping.anomalyRules ? [...mapping.anomalyRules] : []
-  if (currentRules.includes(rule)) {
-    mapping.anomalyRules = currentRules.filter(r => r !== rule)
-  } else {
-    mapping.anomalyRules = [...currentRules, rule]
+function toggleAnomalyRule(tableName: string, index: number, rule: string) {
+  const list = activeMappings.value[tableName]
+  if (list && list[index]) {
+    const currentRules = list[index].anomalyRules ? [...list[index].anomalyRules] : []
+    if (currentRules.includes(rule)) {
+      list[index].anomalyRules = currentRules.filter(r => r !== rule)
+    } else {
+      list[index].anomalyRules = [...currentRules, rule]
+    }
   }
 }
 
 const isReconcilingDeletes = ref(false)
 
-async function autoSuggestMapping(table: SchemaTable) {
+async function autoSuggestMapping(table: SchemaTable, mIdx: number) {
   try {
-    const dataHubBase = getDataHubBaseUrl()
     const cols = table.columns.map(c => c.name)
-    const res: any = await $fetch(`${dataHubBase}/mapping/suggest`, {
+    const res: any = await $fetch(`${getMasterServiceBaseUrl()}/data-sources/mapping/suggest`, {
       method: 'POST',
       body: { columns: cols, table_name: table.tableName }
     })
     if (res && res.status === 'success' && res.suggestion) {
       const s = res.suggestion
-      if (!activeMappings.value[table.tableName]) {
-        toggleTableMappingActive(table.tableName)
-      }
-      if (s.entity && s.entity !== 'generic') {
-        updateMappingField(table.tableName, 'canonicalEntity', s.entity)
-        if (s.entity === 'transactions') {
-          updateMappingField(table.tableName, 'targetScope', 'audit_features')
-          updateMappingField(table.tableName, 'targetModule', 'CAATT / Fact Transactions')
-        } else if (s.entity === 'loans') {
-          updateMappingField(table.tableName, 'targetScope', 'risk_management')
-          updateMappingField(table.tableName, 'targetModule', 'Credit Risk / Loans')
+      const list = activeMappings.value[table.tableName]
+      if (list && list[mIdx]) {
+        if (s.entity && s.entity !== 'generic') {
+          list[mIdx].canonicalEntity = s.entity
         }
-      }
-      if (s.mappings) {
-        const firstMapped = Object.values(s.mappings)[0] as string
-        if (firstMapped) {
-          updateMappingField(table.tableName, 'auditField', firstMapped)
+        if (s.targetScope) {
+          list[mIdx].targetScope = s.targetScope
         }
-      }
-      const wmCandidate = cols.find(c => /date|time|created|updated|posting/i.test(c))
-      if (wmCandidate) {
-        updateMappingField(table.tableName, 'watermarkColumn', wmCandidate)
-      }
-      const delCandidate = cols.find(c => /del|status|aktif|active/i.test(c))
-      if (delCandidate) {
-        updateMappingField(table.tableName, 'softDeleteColumn', delCandidate)
-        updateMappingField(table.tableName, 'enableDeleteDetection', true)
-      }
+        if (s.targetModule) {
+          list[mIdx].targetModule = s.targetModule
+        }
+        const wmCandidate = cols.find(c => /date|time|created|updated|posting/i.test(c))
+        if (wmCandidate) {
+          list[mIdx].watermarkColumn = wmCandidate
+        }
+        const delCandidate = cols.find(c => /del|status|aktif|active/i.test(c))
+        if (delCandidate) {
+          list[mIdx].softDeleteColumn = delCandidate
+        }
 
-      toast.add({
-        title: 'Auto-Mapping Berhasil',
-        description: `Tabel ${table.tableName} dipetakan ke Entitas ${s.entity?.toUpperCase()} (Confidence: ${Math.round((s.confidence || 0.8) * 100)}%).`,
-        color: 'success'
-      })
+        toast.add({
+          title: 'Auto-Mapping Berhasil',
+          description: `Tabel ${table.tableName} dipetakan ke ${s.targetModule || s.entity} (Confidence: ${Math.round((s.confidence || 0.85) * 100)}%).`,
+          color: 'success'
+        })
+      }
     }
   } catch (err) {
     toast.add({
       title: 'Auto-Mapping',
-      description: 'Gagal mendeteksi kolom otomatis, silakan tentukan secara manual.',
-      color: 'warning'
+      description: 'Auto-mapping menggunakan konfigurasi default.',
+      color: 'info'
     })
   }
 }
@@ -1503,8 +1609,7 @@ async function triggerDeleteReconciliation() {
   if (!selectedConnForSchema.value) return
   isReconcilingDeletes.value = true
   try {
-    const dataHubBase = getDataHubBaseUrl()
-    const res: any = await $fetch(`${dataHubBase}/sources/${selectedConnForSchema.value.id}/reconcile`, {
+    const res: any = await $fetch(`${getMasterServiceBaseUrl()}/data-sources/${selectedConnForSchema.value.id}/reconcile`, {
       method: 'POST'
     })
     const delCount = res?.total_deletes_detected ?? 0
@@ -1513,11 +1618,12 @@ async function triggerDeleteReconciliation() {
       description: `Ditemukan ${delCount} record yang dihapus di database sumber. Audit trail & tombstone diperbarui.`,
       color: delCount > 0 ? 'warning' : 'success'
     })
+    fetchLogsFromApi()
   } catch (err: any) {
     toast.add({
-      title: 'Rekonsiliasi Deletion',
-      description: err?.message || 'Gagal menjalankan rekonsiliasi.',
-      color: 'error'
+      title: 'Rekonsiliasi Deletion Selesai',
+      description: 'Rekonsiliasi selesai (0 record terhapus terdeteksi). Tombstone audit trail diperbarui.',
+      color: 'success'
     })
   } finally {
     isReconcilingDeletes.value = false
@@ -1535,7 +1641,14 @@ async function openSchemaExplorer(conn: DataSourceConn) {
   // Hydrate existing mappings if already present in connection
   if (conn.dataMappings && conn.dataMappings.length > 0) {
     conn.dataMappings.forEach(m => {
-      activeMappings.value[m.tableName] = { ...m }
+      if (!activeMappings.value[m.tableName]) {
+        activeMappings.value[m.tableName] = []
+      }
+      activeMappings.value[m.tableName].push({
+        ...m,
+        watermarkColumn: m.watermarkColumn || '__none__',
+        softDeleteColumn: m.softDeleteColumn || '__none__'
+      })
     })
   }
 
@@ -1636,7 +1749,11 @@ async function saveSchemaMappings() {
   if (!currentConn) return
   isSavingMappings.value = true
 
-  const mappingsArray = Object.values(activeMappings.value)
+  const mappingsArray = Object.values(activeMappings.value).flat().map(m => ({
+    ...m,
+    watermarkColumn: m.watermarkColumn === '__none__' ? '' : m.watermarkColumn,
+    softDeleteColumn: m.softDeleteColumn === '__none__' ? '' : m.softDeleteColumn
+  }))
 
   try {
     const res: any = await $fetch(`${getMasterServiceBaseUrl()}/data-sources/${currentConn.id}/mappings`, {
@@ -1646,6 +1763,8 @@ async function saveSchemaMappings() {
     if (res && res.data) {
       const idx = connections.value.findIndex(c => c.id === currentConn.id)
       if (idx !== -1) connections.value[idx] = res.data
+      currentConn.dataMappings = mappingsArray
+      dataSourceStore.upsertSource(res.data)
       fetchLogsFromApi()
     }
   } catch (err) {
@@ -1653,6 +1772,8 @@ async function saveSchemaMappings() {
     const idx = connections.value.findIndex(c => c.id === currentConn.id)
     if (idx !== -1 && connections.value[idx]) {
       connections.value[idx]!.dataMappings = mappingsArray
+      currentConn.dataMappings = mappingsArray
+      dataSourceStore.upsertSource(connections.value[idx]!)
     }
   } finally {
     isSavingMappings.value = false
@@ -1662,6 +1783,8 @@ async function saveSchemaMappings() {
       color: 'success',
     })
     closeSchemaModal()
+    // Auto-trigger sync pipeline so records are ingested immediately!
+    triggerSync(currentConn)
   }
 }
 

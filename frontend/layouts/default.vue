@@ -7,6 +7,7 @@ import { useI18n } from '~/composables/useI18n'
 import { triggerScrollReset } from '~/utils/scroll'
 import { isViewerBlockedPath, isQaConsultingWritePath } from '~/utils/viewerPolicy'
 import SourceSelectorDropdown from '~/components/common/SourceSelectorDropdown.vue'
+import MappedSourceDataBanner from '~/components/common/MappedSourceDataBanner.vue'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -474,6 +475,11 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
         to: '/master/department'
       },
       {
+        label: t('navigation.jobRole'),
+        icon: 'i-lucide-briefcase',
+        to: '/master/job-role'
+      },
+      {
         label: t('navigation.location'),
         icon: 'i-lucide-map-pin',
         to: '/master/location'
@@ -893,6 +899,7 @@ const userDropdownItems = computed(() => [
             />
           </div>
           <UMain class="w-full max-w-7xl mx-auto min-w-0">
+            <MappedSourceDataBanner />
             <slot />
           </UMain>
         </div>

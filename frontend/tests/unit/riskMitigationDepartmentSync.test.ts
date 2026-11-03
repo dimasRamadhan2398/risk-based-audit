@@ -70,6 +70,7 @@ describe('Risk Mitigation - Division in Charge Synchronized with Master Departme
     })
     vi.spyOn(employeeApiModule, 'useEmployeeApi').mockReturnValue({
       getAllEmployees: vi.fn().mockResolvedValue([]),
+      createLoginAccount: vi.fn(),
       getEmployees: vi.fn(),
       getEmployeeById: vi.fn(),
       getNextEmployeeCode: vi.fn(),

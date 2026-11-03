@@ -134,10 +134,10 @@
                   >
                     <div class="cursor-pointer flex-1" @click="openGuidelines(factor)">
                       <h3 class="text-md font-semibold text-slate-800 dark:text-slate-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                        {{ factor.name }}
+                        {{ factorName(factor) }}
                       </h3>
                       <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
-                        {{ factor.description }}
+                        {{ factorDescription(factor) }}
                       </p>
                     </div>
                     <div class="flex items-center gap-1.5 shrink-0">
@@ -187,7 +187,7 @@
 
             <!-- Corporate Weights Table -->
             <div>
-              <UCard class="shadow-sm border border-[var(--border-main)]">
+              <UCard :ui="{ root: 'bg-transparent!' }" class="rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 divide-gray-200 dark:divide-gray-800">
                 <template #header>
                   <div class="flex items-center justify-between">
                     <div>
@@ -203,7 +203,7 @@
 
                 <div v-if="selectedCorporateList.length > 0" class="overflow-x-auto">
                   <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-sm">
-                    <thead class="bg-slate-50 dark:bg-slate-800/50">
+                    <thead class="bg-gray-100 dark:bg-gray-800/50">
                       <tr>
                         <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300 w-12">{{ t('riskFactors.weighting.no') }}</th>
                         <th scope="col" class="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-300">{{ t('riskFactors.weighting.riskFactor') }}</th>
@@ -223,10 +223,10 @@
                             class="font-medium text-slate-800 dark:text-slate-200 cursor-pointer hover:underline"
                             @click="openGuidelines(item.standard_risk_factor)"
                           >
-                            {{ item.standard_risk_factor?.name }}
+                            {{ factorName(item.standard_risk_factor) }}
                           </span>
                           <p class="text-md text-slate-400 mt-0.5 line-clamp-1">
-                            {{ item.standard_risk_factor?.description }}
+                            {{ factorDescription(item.standard_risk_factor) }}
                           </p>
                         </td>
                         <td class="px-4 py-3">
@@ -273,7 +273,7 @@
       <!-- Tab 2: Scoring Workspace -->
       <template #scoring>
         <div class="mt-6">
-          <UCard class="shadow-sm border border-[var(--border-main)]">
+          <UCard :ui="{ root: 'bg-transparent!' }" class="shadow-sm border border-[var(--border-main)]">
             <template #header>
               <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
@@ -444,7 +444,7 @@
               </div>
               <div>
                 <h3 class="font-bold text-base text-[var(--text-main)]">
-                  {{ t('riskFactors.guidelines.modalTitle', { name: detailFactor?.name }) }}
+                  {{ t('riskFactors.guidelines.modalTitle', { name: factorName(detailFactor) }) }}
                 </h3>
                 <p class="text-md text-[var(--text-muted)] mt-0.5">{{ t('riskFactors.weighting.guidelinesSection') }}</p>
               </div>
@@ -462,7 +462,7 @@
           <div v-if="detailFactor" class="p-6 overflow-y-auto space-y-4 flex-1">
             <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200/60 dark:border-slate-800 text-md text-slate-600 dark:text-slate-300 leading-relaxed">
               <span class="font-semibold text-slate-800 dark:text-slate-200 block mb-0.5">{{ t('riskFactors.detailDescription') }}</span>
-              {{ detailFactor.description || '-' }}
+              {{ factorDescription(detailFactor) || '-' }}
             </div>
             <div class="space-y-2.5">
               <div 
@@ -478,7 +478,7 @@
                 </div>
                 <div class="flex-1">
                   <p class="text-md font-bold text-slate-800 dark:text-slate-200">{{ getScoreLabel(guide.score) }}</p>
-                  <p class="text-md text-slate-600 dark:text-slate-400 mt-0.5 leading-relaxed">{{ guide.desc }}</p>
+                  <p class="text-md text-slate-600 dark:text-slate-400 mt-0.5 leading-relaxed">{{ guidelineDesc(detailFactor, guide.score, guide.desc) }}</p>
                 </div>
               </div>
             </div>
@@ -639,10 +639,10 @@
             <UIcon name="i-lucide-activity" class="w-4 h-4 text-error-600 dark:text-error-400 shrink-0" />
             <div class="min-w-0 flex-1">
               <p class="text-md font-semibold text-error-900 dark:text-error-200 truncate">
-                {{ factorToDelete.name }}
+                {{ factorName(factorToDelete) }}
               </p>
               <p v-if="factorToDelete.description" class="text-[11px] text-error-700/80 dark:text-error-400/80 truncate mt-0.5">
-                {{ factorToDelete.description }}
+                {{ factorDescription(factorToDelete) }}
               </p>
             </div>
           </div>
@@ -698,6 +698,7 @@ import {
 const store = useRiskFactorsStore()
 const auditStore = useAuditUniverseStore()
 const { t } = useI18n()
+const { factorName, factorDescription, guidelineDesc } = useRiskFactorText()
 const { canEditRiskFactors, canWrite } = useRbac()
 const toast = useToastNotification()
 

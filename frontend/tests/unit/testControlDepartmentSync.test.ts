@@ -93,6 +93,7 @@ describe('Audit Fieldwork - Test Controls Unit Division Synchronized with Master
     })
     vi.spyOn(employeeApiModule, 'useEmployeeApi').mockReturnValue({
       getAllEmployees: vi.fn().mockResolvedValue([]),
+      createLoginAccount: vi.fn(),
       getEmployees: vi.fn(),
       getEmployeeById: vi.fn(),
       getNextEmployeeCode: vi.fn(),

@@ -119,8 +119,8 @@
     </UCard>
 
     <!-- Data Table -->
-    <UCard class="shadow-md overflow-hidden">
-      <TableEntities :data="filteredServices" :columns="columns" class="w-full">
+    <div>
+      <TableEntities :data="filteredServices" :columns="columns" :ui="frozenTableUi" class="w-full">
         <!-- Status Cell -->
         <template #status-cell="{ row }">
           <UBadge :color="store.getStatusColor((row.original as any).status)" variant="subtle" size="md">
@@ -188,7 +188,7 @@
           </div>
         </template>
       </TableEntities>
-    </UCard>
+    </div>
 
     <!-- Form Modal -->
     <UModal
@@ -662,9 +662,27 @@ watch(
   }
 )
 
+// UTable's root would bind sticky cells to a non-scrolling element; let the TableEntities wrapper scroll.
+const frozenTableUi = {
+  root: 'overflow-visible [&>table]:border-separate [&>table]:border-spacing-0'
+}
+
 const columns = computed(() => [
-  { accessorKey: 'title', header: t('consultingService.dashboard.columns.projectTitle') },
-  { accessorKey: 'category', header: t('consultingService.dashboard.columns.category') },
+  // First two columns are frozen (sticky); fixed widths keep the second column's left offset exact.
+  {
+    accessorKey: 'title',
+    header: t('consultingService.dashboard.columns.projectTitle'),
+    class: 'w-[240px] min-w-[240px] max-w-[240px] whitespace-normal break-words sticky left-0',
+    thClass: 'z-20 !bg-gray-100 dark:!bg-gray-800',
+    tdClass: 'z-10 bg-[var(--bg-main)]'
+  },
+  {
+    accessorKey: 'category',
+    header: t('consultingService.dashboard.columns.category'),
+    class: 'w-[160px] min-w-[160px] max-w-[160px] whitespace-normal break-words sticky left-[240px] border-r border-r-[var(--border-main)] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
+    thClass: 'z-20 !bg-gray-100 dark:!bg-gray-800',
+    tdClass: 'z-10 bg-[var(--bg-main)]'
+  },
   { accessorKey: 'requestorDept', header: t('consultingService.dashboard.columns.department') },
   { accessorKey: 'period', header: t('consultingService.dashboard.columns.period') },
   { accessorKey: 'consultantName', header: t('consultingService.dashboard.columns.consultantLead') },

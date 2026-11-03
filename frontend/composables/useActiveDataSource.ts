@@ -12,6 +12,9 @@ export function useActiveDataSource() {
     isAllSources,
     isLoading,
     setSelectedSourceId: store.setSelectedSourceId,
+    setSources: store.setSources,
+    upsertSource: store.upsertSource,
+    removeSource: store.removeSource,
     fetchSources: store.fetchSources
   };
 }

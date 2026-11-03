@@ -1,5 +1,5 @@
 <template>
-  <UCard class="rounded-xl shadow overflow-y-auto" variant="soft" color="primary">
+  <UCard :ui="{ root: 'bg-transparent!' }" class="rounded-xl shadow overflow-y-auto" variant="soft" color="primary">
     <UAlert
       v-if="store.errorMsg && !store.loading"
       color="error"
@@ -168,14 +168,14 @@ const columns = computed(() => [
     accessorKey: 'year',
     header: t('auditActivityPlan.table.year'),
     class: 'w-[80px] min-w-[80px] max-w-[80px] whitespace-nowrap sticky left-0',
-    thClass: 'z-20 !bg-[var(--bg-surface)]',
+    thClass: 'z-20 !bg-gray-100 dark:!bg-gray-800',
     tdClass: 'z-10 bg-[var(--bg-main)]'
   },
   {
     accessorKey: 'title',
     header: t('auditActivityPlan.table.title'),
     class: 'w-[200px] min-w-[200px] max-w-[200px] sm:w-[320px] sm:min-w-[320px] sm:max-w-[320px] whitespace-normal break-words sticky left-[80px] border-r border-r-[var(--border-main)] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
-    thClass: 'z-20 !bg-[var(--bg-surface)]',
+    thClass: 'z-20 !bg-gray-100 dark:!bg-gray-800',
     tdClass: 'z-10 bg-[var(--bg-main)]'
   },
   { accessorKey: 'activityType', header: t('auditActivityPlan.table.activityType'), class: 'w-44 whitespace-nowrap' },

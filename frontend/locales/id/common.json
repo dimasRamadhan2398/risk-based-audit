@@ -176,7 +176,8 @@
       "drawHint": "Gunakan mouse, jari, atau stylus untuk menggambar tanda tangan.",
       "chooseImage": "Pilih Berkas Gambar (.png, .jpg)",
       "uploadHint": "Maksimal 2 MB; gambar transparan disarankan",
-      "previewAlt": "Pratinjau Tanda Tangan"
+      "previewAlt": "Pratinjau Tanda Tangan",
+      "fileTooLarge": "File gambar terlalu besar (maksimal 2MB)."
     },
     "formField": {
       "required": "Kolom wajib diisi",
@@ -1174,6 +1175,12 @@
       "deleteConfirm": "Apakah Anda yakin ingin menghapus Rencana Strategis ini?"
     },
     "form": {
+      "stepper": {
+        "objective": "Tujuan Strategis & KPI",
+        "targets": "Target & Realisasi",
+        "next": "Langkah Berikutnya",
+        "previous": "Sebelumnya"
+      },
       "title": "Tambahkan Informasi Strategic Objective",
       "code": "ID Strategic Objective",
       "codePlaceholder": "Contoh: SO-IA01",
@@ -1726,6 +1733,9 @@
       "descriptionRequired": "Deskripsi pengendalian wajib diisi",
       "stepsRequired": "Langkah pengujian wajib diisi",
       "resultRequired": "Hasil pengujian wajib dipilih"
+    },
+    "messages": {
+      "selectAssignmentLetter": "Silakan pilih Surat Tugas terlebih dahulu!"
     }
   },
   "riskProfile": {
@@ -1753,7 +1763,7 @@
       "name": "Nama Risiko",
       "namePlaceholder": "Masukkan nama risiko",
       "category": "Kategori Risiko",
-      "branch": "Cabang / Divisi",
+      "branch": "Cabang",
       "quarterlyTitle": "Skor Residu Kuartalan {year}",
       "impact": "Dampak",
       "likelihood": "Kemungkinan",
@@ -3002,6 +3012,10 @@
     }
   },
   "executiveSummaryForm": {
+    "stepper": {
+      "previous": "Sebelumnya",
+      "next": "Selanjutnya"
+    },
     "extra": {
       "syncWarning": "Peringatan Sinkronisasi",
       "syncWarningDescription": "Total temuan pada Bagian II tidak cocok dengan Matriks Induk. Harap periksa datanya.",
@@ -3073,7 +3087,12 @@
         "Oktober": "Oktober",
         "November": "November",
         "Desember": "Desember"
-      }
+      },
+      "attachmentTitle": "Lampirkan Bukti Tindak Lanjut",
+      "attachmentLabel": "Nama berkas lampiran",
+      "attachmentPlaceholder": "mis. BA Serah Terima Alat.pdf",
+      "attachmentConfirm": "Lampirkan",
+      "attachmentCancel": "Batal"
     },
     "navTitle": "Daftar Bagian Laporan",
     "lock": {
@@ -3588,7 +3607,8 @@
         "delete": "Hapus File"
       },
       "deleteConfirm": "Apakah Anda yakin ingin menghapus dokumen ini?",
-      "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB."
+      "fileSizeLimit": "Ukuran file melebihi batas maksimum 10MB.",
+      "deleteFailed": "Gagal menghapus berkas."
     },
     "riskForm": {
       "title": "Risiko",
@@ -3642,7 +3662,7 @@
       "title": "Rekomendasi & Tanggapan",
       "recommendation": "Rekomendasi Auditor (Solusi)",
       "recommendationPlaceholder": "Contoh: Tim IT perlu menambahkan fitur hard-block...",
-      "response": "Tanggapan Auditi (Tanggapan Manajemen)",
+      "response": "Tanggapan Auditee (Tanggapan Manajemen)",
       "responsePlaceholder": "Contoh: Kami setuju, update akan dilakukan di Q3...",
       "actionPlanDetail": "Detail Rencana Aksi (Action Plan)",
       "actionDescription": "Deskripsi Aksi",
@@ -3773,7 +3793,7 @@
       "rootCause": "Akar Masalah",
       "evidenceDocument": "Dokumen Bukti",
       "recommendation": "Rekomendasi",
-      "auditeeResponse": "Tanggapan Auditi",
+      "auditeeResponse": "Tanggapan Auditee",
       "description": "Deskripsi",
       "pic": "PIC",
       "completionTarget": "Target Selesai",
@@ -4913,6 +4933,7 @@
     "masterData": "Master Data",
     "employeeManagement": "Employee Management",
     "department": "Department",
+    "jobRole": "Jabatan",
     "settings": "Settings",
     "generalSettings": "General Settings",
     "security2fa": "Security & 2FA",
@@ -4963,33 +4984,27 @@
       }
     },
     "guide": {
-      "title": "Panduan & Penjelasan Kotak Statistik CSAT (Client Satisfaction Survey)",
-      "subtitle": "Penjelasan detail mengenai definisi, fungsi, parameter, dan target pengukuran setiap indikator statistik di atas",
+      "title": "Panduan Metrik CSAT",
       "csat": {
         "title": "1. Average CSAT Score",
-        "definition": "Rata-rata nilai kepuasan auditee dari kuesioner yang telah diisi. Menggunakan skala Likert 1 s/d 5.",
-        "dimensionsTitle": "3 Dimensi Penilaian:",
-        "clarity": "Kejelasan temuan, dasar kriteria, dan rekomendasi audit.",
-        "professionalism": "Etika, integritas, dan kompetensi tim auditor.",
-        "timeliness": "Ketepatan waktu penerbitan laporan dan pelaksanaan tugas.",
-        "target": "Target Benchmark: Minimal 4.5 / 5.0 (Kategori \"Sangat Baik\")"
+        "definition": "Rata-rata nilai auditee dengan skala 1–5.",
+        "clarity": "temuan dan rekomendasi.",
+        "professionalism": "tim auditor.",
+        "timeliness": "penerbitan laporan.",
+        "target": "Target ≥ 4,5 / 5,0"
       },
       "surveys": {
         "title": "2. Total Surveys Submitted",
-        "definition": "Jumlah total kuesioner survei kepuasan yang telah berhasil diselesaikan dan dikirimkan oleh pihak auditee.",
-        "flowTitle": "Alur Validasi:",
-        "flow1": "Hanya Laporan Hasil Audit (LHA) berstatus Final/Published yang dapat dievaluasi.",
-        "flow2": "Setiap laporan berstatus Final diharapkan memiliki 1 feedback resmi dari perwakilan auditee.",
-        "flow3": "Laporan yang belum terisi ditandai status Pending Survey.",
-        "note": "Keterangan: Diperbarui real-time setiap ada survei baru yang masuk."
+        "definition": "Jumlah survei yang telah diisi auditee.",
+        "flow1": "Hanya LHA berstatus Final/Published yang dapat dinilai.",
+        "flow2": "LHA tanpa survei berstatus Pending Survey.",
+        "note": "Diperbarui secara real-time"
       },
       "rate": {
         "title": "3. Response Rate (Tingkat Respon)",
-        "definition": "Rasio persentase LHA yang telah dievaluasi terhadap keseluruhan LHA yang telah dipublikasikan.",
-        "formulaTitle": "Rumus Perhitungan:",
-        "formula": "(LHA dengan Survei / Total LHA Terbit) × 100%",
-        "desc": "Tingkat respons tinggi menjamin objektivitas dan representativitas penilaian mutu audit.",
-        "target": "Target Kinerja: Minimal 80% partisipasi unit kerja."
+        "definition": "Persentase LHA terbit yang sudah memiliki survei.",
+        "formula": "(LHA dengan Survei / LHA Terbit) × 100%",
+        "target": "Target ≥ 80%"
       }
     },
     "table": {
@@ -5225,6 +5240,12 @@
     "codes": {
       "EMPLOYEE_NOT_FOUND": "Karyawan tidak ditemukan. Data tersebut mungkin telah dihapus.",
       "EMPLOYEE_CODE_ALREADY_EXISTS": "Kode karyawan ini sudah digunakan. Gunakan kode lain.",
+      "LOGIN_ACCOUNT_UNAVAILABLE": "Layanan akun login sedang tidak tersedia sehingga karyawan tidak disimpan. Silakan coba lagi sebentar lagi.",
+      "LOGIN_ACCOUNT_NOT_CONFIGURED": "Pembuatan akun login belum dikonfigurasi untuk organisasi ini. Silakan hubungi administrator platform.",
+      "LOGIN_ACCOUNT_FORBIDDEN": "Anda tidak memiliki izin untuk membuat akun login. Karyawan tidak disimpan.",
+      "LOGIN_ACCOUNT_CONFLICT": "Akun login dengan username atau email ini sudah ada dan tidak dapat digunakan. Karyawan tidak disimpan.",
+      "LOGIN_ACCOUNT_LINKED_ELSEWHERE": "Akun login dengan email ini sudah terhubung ke karyawan lain. Karyawan tidak disimpan.",
+      "LOGIN_EMAIL_TOO_LONG": "Email terlalu panjang untuk akun login (maksimal 50 karakter). Silakan gunakan email yang lebih pendek.",
       "EMPLOYEE_EMAIL_ALREADY_EXISTS": "Email ini sudah terdaftar pada karyawan lain.",
       "INVALID_EMPLOYEE_ID": "Referensi karyawan tidak valid. Muat ulang halaman, lalu coba lagi.",
       "DEPARTMENT_NOT_FOUND": "Departemen tidak ditemukan. Data tersebut mungkin telah dihapus.",
@@ -5318,6 +5339,7 @@
     "errors": {
       "fetchEmployees": "Gagal memuat data karyawan.",
       "fetchEmployee": "Gagal memuat detail karyawan.",
+      "createLoginAccount": "Gagal membuat akun login.",
       "createEmployee": "Gagal menambahkan karyawan.",
       "updateEmployee": "Gagal memperbarui data karyawan.",
       "deleteEmployee": "Gagal menghapus karyawan.",
@@ -5326,6 +5348,10 @@
       "createDepartment": "Gagal menambahkan departemen.",
       "updateDepartment": "Gagal memperbarui data departemen.",
       "deleteDepartment": "Gagal menghapus departemen.",
+      "fetchJobRoles": "Gagal memuat data jabatan.",
+      "createJobRole": "Gagal membuat jabatan.",
+      "updateJobRole": "Gagal memperbarui jabatan.",
+      "deleteJobRole": "Gagal menghapus jabatan. Jabatan mungkin masih digunakan oleh karyawan.",
       "fetchCompanies": "Gagal memuat data perusahaan.",
       "fetchCompany": "Gagal memuat detail perusahaan.",
       "createCompany": "Gagal menambahkan perusahaan.",
@@ -5346,6 +5372,9 @@
       "jobRoleRequired": "Jabatan wajib diisi.",
       "departmentCodeRequired": "Kode departemen wajib diisi.",
       "departmentNameRequired": "Nama departemen wajib diisi.",
+      "jobRoleCodeRequired": "Kode jabatan wajib diisi.",
+      "jobRoleNameRequired": "Nama jabatan wajib diisi.",
+      "jobPositionTypeRequired": "Tipe posisi wajib dipilih.",
       "picRequired": "Penanggung jawab (PIC) wajib diisi.",
       "companyCodeRequired": "Kode perusahaan wajib diisi.",
       "companyNameRequired": "Nama perusahaan wajib diisi.",
@@ -5391,6 +5420,26 @@
       "autoGenerated": "Dibuat otomatis",
       "codeLoading": "Memuat...",
       "codeUnavailable": "Tidak tersedia",
+      "account": {
+        "createdToast": "Akun login berhasil dibuat untuk {username}.",
+        "linkedToast": "Terhubung ke akun login yang sudah ada: {username}.",
+        "credentialsTitle": "Akun login berhasil dibuat",
+        "credentialsDescription": "Akun login telah dibuat untuk {name}.",
+        "username": "Username",
+        "temporaryPassword": "Kata sandi sementara",
+        "copy": "Salin kata sandi",
+        "copied": "Tersalin",
+        "shownOnceNote": "Kata sandi ini hanya ditampilkan sekali. Bagikan melalui saluran yang aman; pengguna wajib menggantinya saat login pertama.",
+        "done": "Selesai",
+        "createAccount": "Buat akun login",
+        "createAccountDescription": "Karyawan ini belum dapat masuk ke sistem. Buat akun login untuk memberi akses, lalu bagikan kata sandi sementara kepadanya.",
+        "accessRole": "Peran akses (opsional)",
+        "accessRoleDefault": "Gunakan bawaan peran jabatan",
+        "createdSuccess": "Akun login berhasil dibuat untuk {username}.",
+        "linkedInfo": "Akun login yang sudah ada dengan email ini ({username}) telah dihubungkan ke karyawan ini.",
+        "existsInfo": "Karyawan ini sudah memiliki akun login ({username}). Tidak ada perubahan.",
+        "continueReset": "Lanjutkan ke atur ulang kata sandi"
+      },
       "createdWithCode": "Employee berhasil dibuat! Kode employee: {code}",
       "level": "Level {level}",
       "active": "Aktif",
@@ -5404,6 +5453,11 @@
         "phone": "Telepon",
         "level": "Level",
         "status": "Status"
+      },
+      "messages": {
+        "created": "Karyawan berhasil dibuat!",
+        "updated": "Karyawan berhasil diperbarui!",
+        "deleted": "Karyawan berhasil dihapus!"
       }
     },
     "location": {
@@ -5486,6 +5540,70 @@
         "description": "Deskripsi",
         "level": "Level",
         "status": "Status"
+      },
+      "messages": {
+        "created": "Departemen berhasil dibuat!",
+        "updated": "Departemen berhasil diperbarui!"
+      }
+    },
+    "jobRole": {
+      "title": "Manajemen Jabatan",
+      "subtitle": "Kelola jabatan beserta peran akses sistem bawaan bagi pemegang jabatan",
+      "listTitle": "Daftar Jabatan",
+      "add": "Tambah Jabatan",
+      "searchPlaceholder": "Cari jabatan...",
+      "search": "Cari",
+      "reset": "Atur Ulang",
+      "empty": "Jabatan tidak ditemukan.",
+      "active": "Aktif",
+      "inactive": "Tidak Aktif",
+      "noAccessRole": "Tidak ada",
+      "deleteConfirm": "Yakin ingin menghapus jabatan \"{name}\"? Untuk mempertahankannya bagi karyawan yang ada, nonaktifkan saja.",
+      "created": "Jabatan berhasil dibuat.",
+      "updated": "Jabatan berhasil diperbarui.",
+      "deleted": "Jabatan berhasil dihapus.",
+      "createTitle": "Tambah Jabatan Baru",
+      "editTitle": "Ubah Jabatan",
+      "sectionInfo": "Informasi Jabatan",
+      "fieldCode": "Kode Jabatan *",
+      "fieldCodePlaceholder": "mis. SM-001",
+      "fieldName": "Nama Jabatan *",
+      "fieldNamePlaceholder": "mis. Senior Manager",
+      "fieldPositionType": "Tipe Posisi *",
+      "fieldPositionTypePlaceholder": "Pilih tipe posisi",
+      "fieldAccessRole": "Peran Akses Bawaan",
+      "fieldAccessRolePlaceholder": "Tanpa peran akses bawaan",
+      "fieldAccessRoleHelp": "Peran akses sistem yang diberikan secara bawaan kepada karyawan dengan jabatan ini. Kosongkan jika tidak ada.",
+      "suggestedHint": "Disarankan untuk tipe posisi ini: {role}",
+      "fieldDescription": "Deskripsi",
+      "fieldDescriptionPlaceholder": "Deskripsi jabatan (opsional)",
+      "status": "Status",
+      "statusHelp": "Jabatan tidak aktif tetap tersimpan untuk karyawan yang ada, tetapi sebaiknya tidak dipakai untuk karyawan baru.",
+      "columns": {
+        "code": "Kode",
+        "name": "Nama Jabatan",
+        "positionType": "Tipe Posisi",
+        "accessRole": "Peran Akses",
+        "status": "Status"
+      },
+      "positionTypes": {
+        "STAFF": "Staf",
+        "SUPERVISOR": "Supervisor",
+        "MANAGER": "Manajer",
+        "SENIOR_MANAGER": "Manajer Senior",
+        "GENERAL_MANAGER": "General Manager",
+        "DIRECTOR": "Direktur",
+        "COMMISSIONER": "Komisaris",
+        "AUDIT_COMMITTEE": "Komite Audit",
+        "CHIEF_AUDIT_EXECUTIVE": "Kepala Audit Internal (CAE)",
+        "EXTERNAL_AUDITOR": "Auditor Eksternal"
+      },
+      "accessRoles": {
+        "EXECUTIVE": "Eksekutif",
+        "AUDITOR": "Auditor",
+        "AUDITEE": "Auditee",
+        "DEPARTMENT_HEAD": "Kepala Departemen",
+        "VIEWER": "Pembaca (Viewer)"
       }
     }
   },

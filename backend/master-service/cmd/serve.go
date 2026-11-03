@@ -17,6 +17,7 @@ import (
 	"master-service/pkg/middleware"
 	"master-service/pkg/orgmode"
 	redisclient "master-service/pkg/redis"
+	"master-service/pkg/reference"
 	"master-service/pkg/validations"
 	"master-service/routes"
 	"master-service/services"
@@ -68,6 +69,17 @@ func runServe(cmd *cobra.Command, args []string) error {
 		return errors.New("jwt secret is empty: set JWT_SECRET (or jwt.secret in config.yaml)")
 	}
 	authMiddleware := middleware.NewAuthMiddleware(cfg.JWT.Secret)
+
+	// Embedded reference data (provinces, kabupaten/kota, countries) is parsed
+	// and validated once here; invalid data stops start-up instead of serving
+	// partial lists or rejecting valid names later.
+	refData, err := reference.Default()
+	if err != nil {
+		return fmt.Errorf("refusing to start: %w", err)
+	}
+	logger.Info("Reference data loaded",
+		zap.String("regions_version", refData.RegionsVersion()),
+		zap.String("countries_version", refData.CountriesVersion()))
 
 	validator := validations.New()
 	// Department events feed audit-service's annual plan sync. Best-effort: the

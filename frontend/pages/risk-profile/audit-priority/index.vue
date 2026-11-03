@@ -59,12 +59,12 @@
     <!-- Top KPI & Year Controls -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <!-- Year Selector Card -->
-      <UCard class="shadow-sm border border-[var(--border-main)] flex flex-col justify-center">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+      <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('auditPriority.selectYear') !== 'auditPriority.selectYear' ? t('auditPriority.selectYear') : 'Audit Year' }}
-            </p>
+            </span>
             <div class="flex items-center gap-2 mt-1.5">
               <USelect
                 v-model.number="selectedYear"
@@ -83,72 +83,55 @@
               />
             </div>
           </div>
-          <div class="p-3 bg-primary-50 dark:bg-primary-950/40 rounded-xl text-primary-600 dark:text-primary-400">
-            <UIcon
-              name="i-lucide-calendar"
-              class="w-6 h-6"
-            />
+          <div class="shrink-0 rounded-xl bg-indigo-50 p-2.5 flex items-center justify-center dark:bg-indigo-500/10">
+            <UIcon name="i-lucide-calendar" class="text-indigo-600 size-5 dark:text-indigo-400" />
           </div>
         </div>
-      </UCard>
+      </div>
 
       <!-- Total Established Entities -->
-      <UCard class="shadow-sm border border-[var(--border-main)]">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+      <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('auditPriority.totalEntities') !== 'auditPriority.totalEntities' ? t('auditPriority.totalEntities') : 'Established Entities' }}
-            </p>
-            <h3 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mt-1">
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
               {{ yearlyUniverse.length }}
-            </h3>
-            <p class="text-xs text-slate-400 mt-0.5">
-              {{ t('strategicPlan.vmg.year') }} {{ selectedYear }}
-            </p>
+            </h4>
           </div>
-          <div class="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-600 dark:text-slate-300">
-            <UIcon
-              name="i-lucide-layers"
-              class="w-6 h-6"
-            />
+          <div class="shrink-0 rounded-xl bg-sky-50 p-2.5 flex items-center justify-center dark:bg-sky-500/10">
+            <UIcon name="i-lucide-layers" class="text-sky-600 size-5 dark:text-sky-400" />
           </div>
         </div>
-      </UCard>
+      </div>
 
       <!-- Prioritized Entities -->
-      <UCard class="shadow-sm border border-[var(--border-main)]">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+      <div class="rounded-xl p-5 flex flex-col justify-between min-h-[120px] dashboard-subcard">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('auditPriority.prioritizedEntities') !== 'auditPriority.prioritizedEntities' ? t('auditPriority.prioritizedEntities') : 'Prioritized' }}
-            </p>
-            <div class="flex items-baseline gap-2 mt-1">
-              <h3 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                {{ prioritizedCount }}
-              </h3>
+            </span>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              {{ prioritizedCount }}
               <span
                 v-if="yearlyUniverse.length > 0"
-                class="text-xs font-semibold text-emerald-600 dark:text-emerald-400"
+                class="text-sm font-semibold text-emerald-600 dark:text-emerald-400"
               >
                 ({{ ((prioritizedCount / yearlyUniverse.length) * 100).toFixed(0) }}%)
               </span>
-            </div>
-            <p class="text-xs text-slate-400 mt-0.5">
-              {{ t('riskFactors.priority.prioritizedCount', { count: prioritizedCount }) }}
-            </p>
+            </h4>
           </div>
-          <div class="p-3 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl text-emerald-600 dark:text-emerald-400">
-            <UIcon
-              name="i-lucide-check-circle"
-              class="w-6 h-6"
-            />
+          <div class="shrink-0 rounded-xl bg-emerald-50 p-2.5 flex items-center justify-center dark:bg-emerald-500/10">
+            <UIcon name="i-lucide-check-circle" class="text-emerald-600 size-5 dark:text-emerald-400" />
           </div>
         </div>
-      </UCard>
+      </div>
     </div>
 
     <!-- Main Table Card -->
-    <UCard class="shadow-sm border border-[var(--border-main)]">
+    <UCard :ui="{ root: 'bg-transparent!' }" class="shadow-sm border border-[var(--border-main)]">
       <template #header>
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>

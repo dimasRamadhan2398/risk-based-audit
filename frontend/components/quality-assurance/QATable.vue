@@ -1,5 +1,5 @@
 <template>
-    <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ body: 'p-0' }">
+    <div>
       <TableEntities
         :columns="store.columns"
         :data="store.filteredReports"
@@ -85,7 +85,7 @@
           </div>
         </template>
       </TableEntities>
-    </UCard>
+    </div>
 </template>
 
 <script setup lang="ts">

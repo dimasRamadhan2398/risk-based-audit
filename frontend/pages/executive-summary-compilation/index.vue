@@ -102,7 +102,7 @@
     </div>
 
     <!-- Quarter Tabs -->
-    <UCard class="overflow-hidden">
+    <UCard :ui="{ root: 'bg-transparent!' }" class="overflow-hidden">
       <template #header>
         <div class="flex justify-between items-center">
           <div class="flex border-b border-gray-200 dark:border-gray-800 w-full">
@@ -165,8 +165,8 @@
               <div>
                 <div class="flex items-center gap-2 flex-wrap">
                   <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ item.nomorDokumen || t('executiveSummary.draftReport') }}</h3>
-                  <UBadge :color="getStatusColor(item.status)" variant="soft" class="font-semibold uppercase tracking-wider text-[10px]">
-                    {{ t('executiveSummary.statusLabel') }} {{ item.status }}
+                  <UBadge :color="getStatusColor(item.status)" variant="soft" class="font-semibold text-[10px]">
+                    {{ item.status }}
                   </UBadge>
                   <UBadge v-if="item.assignmentLetterId" color="info" variant="subtle" class="font-mono text-[11px]">
                     <UIcon name="i-lucide-file-signature" class="size-3 mr-1" />
@@ -175,7 +175,7 @@
                 </div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1"> {{ t('executiveSummaryForm.upload.period') }} <span class="font-semibold text-gray-700 dark:text-gray-300">{{ t('executiveSummary.quarterLabel') }} {{ item.quarter }} {{ item.tahun }}</span>
                   <span v-if="item.dokumenPath" class="mx-2">•</span>
-                  <span v-if="item.dokumenPath" class="inline-flex items-center gap-1 text-primary-600 dark:text-primary-400">
+                  <span v-if="item.dokumenPath" class="inline-flex items-center gap-1 font-bold text-primary-600 dark:text-primary-400">
                     <UIcon name="i-lucide-paperclip" class="size-3" />
                     {{ item.dokumenPath }}
                   </span>
@@ -194,11 +194,11 @@
           <!-- Stats Overview -->
           <div class="p-5 grid grid-cols-2 md:grid-cols-4 gap-4 divide-y md:divide-y-0 md:divide-x divide-gray-100 dark:divide-gray-800 text-center">
             <div>
-              <span class="block text-md font-semibold text-gray-400 uppercase tracking-wider mb-1">{{ t('executiveSummary.cardStats.reportsCount') }}</span>
+              <span class="block text-md font-semibold text-gray-400 mb-1">{{ t('executiveSummary.cardStats.reportsCount') }}</span>
               <span class="block text-2xl font-bold text-gray-800 dark:text-white">{{ item.jumlahLaporan }}</span>
             </div>
             <div class="pt-4 md:pt-0">
-              <span class="block text-md font-semibold text-gray-400 uppercase tracking-wider mb-1">{{ t('executiveSummary.cardStats.totalFindings') }}</span>
+              <span class="block text-md font-semibold text-gray-400 mb-1">{{ t('executiveSummary.cardStats.totalFindings') }}</span>
               <span class="block text-2xl font-bold text-gray-800 dark:text-white">
                 {{ riskBreakdownTotal(riskFieldsToBreakdown(item)) }}
               </span>
@@ -213,11 +213,11 @@
               </div>
             </div>
             <div class="pt-4 md:pt-0">
-              <span class="block text-md font-semibold text-gray-400 uppercase tracking-wider mb-1">{{ t('executiveSummary.cardStats.totalRecommendations') }}</span>
+              <span class="block text-md font-semibold text-gray-400 mb-1">{{ t('executiveSummary.cardStats.totalRecommendations') }}</span>
               <span class="block text-2xl font-bold text-gray-800 dark:text-white">{{ item.jumlahRekomendasi }}</span>
             </div>
             <div class="pt-4 md:pt-0 flex flex-col justify-center items-center">
-              <span class="block text-md font-semibold text-gray-400 uppercase tracking-wider mb-2">{{ t('executiveSummary.cardStats.completionClosed') }}</span>
+              <span class="block text-md font-semibold text-gray-400 mb-2">{{ t('executiveSummary.cardStats.completionClosed') }}</span>
               <div class="w-full max-w-[120px]">
                 <div class="flex justify-between text-md font-medium text-gray-700 dark:text-gray-300 mb-1">
                   <span>{{ t('executiveSummary.cardStats.progress') }}</span>
@@ -245,7 +245,7 @@
                 <UIcon name="i-lucide-message-square-text" class="size-4" />
               </div>
               <div class="flex-1 min-w-0">
-                <div class="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 mb-1 flex items-center gap-1.5">
+                <div class="text-xs font-bold text-amber-800 dark:text-amber-300 mb-1 flex items-center gap-1.5">
                   <span>{{ t('executiveSummaryForm.notes.title') }}</span>
                 </div>
                 <p class="text-sm text-amber-900 dark:text-amber-200/90 whitespace-pre-line leading-relaxed">
@@ -274,15 +274,15 @@
     </UCard>
 
     <!-- Modal Form (Create / Edit / View) -->
-    <UModal v-model:open="store.showModal" fullscreen :prevent-close="store.loading">
+    <UModal v-model:open="store.showModal" :prevent-close="store.loading" :ui="{ content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden' }">
       <template #content>
-        <UCard class="flex flex-col h-full" :ui="{ body: 'flex-1 overflow-y-auto p-0', footer: 'border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900' }">
+        <UCard class="flex flex-col flex-1 min-h-0" :ui="{ root: 'bg-transparent! ring-0 shadow-none rounded-none', body: 'flex-1 min-h-0 overflow-hidden p-0', footer: 'border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900' }">
           <template #header>
             <div class="flex items-center justify-between">
               <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <UIcon name="i-lucide-presentation" class="size-5 text-primary-500" />
                 {{ store.isViewing ? t('executiveSummary.modal.viewTitle') : (store.isEditing ? t('executiveSummary.modal.editTitle') : t('executiveSummary.modal.createTitle')) }}
-                <UBadge :color="getStatusColor(store.form.status)" variant="soft" class="ml-2 font-bold uppercase">
+                <UBadge :color="getStatusColor(store.form.status)" variant="soft" class="ml-2 font-bold">
                   {{ t('executiveSummary.statusLabel') }} {{ store.form.status }}
                 </UBadge>
               </h3>

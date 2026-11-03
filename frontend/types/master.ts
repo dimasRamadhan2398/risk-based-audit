@@ -137,6 +137,29 @@ export interface CreateEmployeeRequest {
   manager_id?: string
   is_active: boolean
   join_date: string
+  // Optional: overrides the login role (otherwise job role default, else AUDITEE)
+  access_role?: string
+}
+
+// Login account the backend guarantees for every created employee
+export type EmployeeLoginAccountStatus = 'created' | 'linked' | 'exists'
+
+export interface EmployeeLoginAccount {
+  status: EmployeeLoginAccountStatus
+  username: string
+  // Only present when status is 'created'; returned once and never stored
+  temporary_password?: string
+}
+
+// POST /employees response data: the employee plus its login account result
+export interface CreatedEmployee extends Employee {
+  account?: EmployeeLoginAccount
+}
+
+// POST /employees/:id/login-account (ADMIN only)
+export interface CreateLoginAccountRequest {
+  // ADMIN is not allowed; omit to use the job role default
+  access_role?: string
 }
 
 export interface UpdateEmployeeRequest {
@@ -155,6 +178,8 @@ export interface UpdateEmployeeRequest {
   residence_postal_code?: string
   manager_id?: string
   is_active?: boolean
+  // RFC 3339; omit to keep the stored join date
+  join_date?: string
 }
 
 // ============= Department Types =============
@@ -214,6 +239,10 @@ export type JobPositionType =
   | 'SENIOR_MANAGER'
   | 'GENERAL_MANAGER'
   | 'DIRECTOR'
+  | 'COMMISSIONER'
+  | 'AUDIT_COMMITTEE'
+  | 'CHIEF_AUDIT_EXECUTIVE'
+  | 'EXTERNAL_AUDITOR'
 
 export interface JobRole {
   id: string
@@ -221,9 +250,39 @@ export interface JobRole {
   job_role_name: string
   job_role_description?: string
   job_position_type: JobPositionType
+  /** System access role holders of this job role get by default (empty/undefined = none). */
+  default_access_role?: string
   is_active: boolean
   created_at?: string
   updated_at?: string
+}
+
+export interface JobRoleFormState {
+  job_role_code: string
+  job_role_name: string
+  job_role_description: string
+  job_position_type: JobPositionType | ''
+  default_access_role: string
+  is_active: boolean
+}
+
+export interface CreateJobRoleRequest {
+  job_role_code: string
+  job_role_name: string
+  job_role_description?: string
+  job_position_type: JobPositionType
+  default_access_role?: string
+  is_active: boolean
+}
+
+export interface UpdateJobRoleRequest {
+  job_role_code?: string
+  job_role_name?: string
+  job_role_description?: string
+  job_position_type?: JobPositionType
+  /** Send '' to clear the default access role. */
+  default_access_role?: string
+  is_active?: boolean
 }
 
 // ============= Location Types =============

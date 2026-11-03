@@ -47,7 +47,6 @@ const lhaFromRoute = () => (typeof route.query.lha === 'string' ? route.query.lh
 onMounted(() => {
   store.initList({ scope: canViewAllAtr.value ? 'all' : 'mine', lhaId: lhaFromRoute() })
   store.fetchSummary()
-  store.fetchLhaOptions()
 })
 
 // Coming from the LHA page while already here (?lha= changes).
@@ -79,15 +78,6 @@ const statusItems = computed(() => ATR_STATUSES.map(value => ({ label: statusLab
 const status = computed<string | undefined>({
   get: () => query.value.status || undefined,
   set: (value) => { store.setFilters({ status: value ?? '' }) }
-})
-
-const lhaItems = computed(() => store.lhaOptions.map(lha => ({
-  label: lha.reportTitle ? `${lha.reportNumber} — ${lha.reportTitle}` : lha.reportNumber,
-  value: lha.id
-})))
-const lhaId = computed<string | undefined>({
-  get: () => query.value.lhaId || undefined,
-  set: (value) => { store.setFilters({ lhaId: value ?? '' }) }
 })
 
 const overdue = computed<boolean>({
@@ -271,15 +261,6 @@ const filterByLha = (id: string) => {
           :items="statusItems"
           value-key="value"
           :placeholder="t('actionTakenReport.filter.statusPlaceholder')"
-        />
-      </div>
-      <div class="w-full sm:w-72">
-        <ReusableSelectMenu
-          v-model="lhaId"
-          :items="lhaItems"
-          value-key="value"
-          :loading="store.lhaOptionsLoading"
-          :placeholder="t('actionTakenReport.filter.lhaPlaceholder')"
         />
       </div>
       <div

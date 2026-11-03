@@ -387,7 +387,7 @@ const columns = computed(() => [
 
       <!-- Uploaded Documents Table (Right/Bottom) -->
       <div class="w-full">
-        <UCard :ui="{ body: 'p-4' }" class="shadow-sm border border-gray-200 dark:border-gray-800 h-full">
+        <UCard :ui="{ root: 'bg-transparent!', body: 'p-4 bg-transparent!' }" class="shadow-sm border border-gray-200 dark:border-gray-800 h-full">
           <template #header>
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div class="flex items-center gap-2">

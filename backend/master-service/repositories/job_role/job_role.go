@@ -12,7 +12,8 @@ type IJobRoleRepository interface {
 	Delete(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*models.JobRole, error)
 	FindByCode(code string) (*models.JobRole, error)
-	FindAll() ([]*models.JobRole, error)
+	FindByName(name string) (*models.JobRole, error)
+	FindAll(activeOnly bool) ([]*models.JobRole, error)
 }
 type JobRoleRepository struct { *repositories.BaseRepository }
 func NewJobRoleRepository(db *gorm.DB) IJobRoleRepository { return &JobRoleRepository{BaseRepository: repositories.NewBaseRepository(db)} }
@@ -35,8 +36,18 @@ func (r *JobRoleRepository) FindByCode(code string) (*models.JobRole, error) {
 	}
 	return &role, nil
 }
-func (r *JobRoleRepository) FindAll() ([]*models.JobRole, error) {
+func (r *JobRoleRepository) FindByName(name string) (*models.JobRole, error) {
+	var role models.JobRole
+	if err := r.GetDB().Where("job_role_name = ?", name).First(&role).Error; err != nil {
+		if err == gorm.ErrRecordNotFound { return nil, apperrors.ErrNotFound }
+		return nil, err
+	}
+	return &role, nil
+}
+func (r *JobRoleRepository) FindAll(activeOnly bool) ([]*models.JobRole, error) {
 	var roles []*models.JobRole
-	if err := r.GetDB().Find(&roles).Error; err != nil { return nil, err }
+	q := r.GetDB()
+	if activeOnly { q = q.Where("is_active = ?", true) }
+	if err := q.Find(&roles).Error; err != nil { return nil, err }
 	return roles, nil
 }

@@ -34,8 +34,18 @@ func NewDataHubClient() *DataHubClient {
 	return &DataHubClient{
 		BaseURL:    baseURL,
 		APIKey:     apiKey,
-		HTTPClient: &http.Client{Timeout: 30 * time.Second},
+		HTTPClient: &http.Client{Timeout: 4 * time.Second},
 	}
+}
+
+// ReconcileSource calls Data Hub reconciliation for source deletes
+func (c *DataHubClient) ReconcileSource(sourceID string) (map[string]interface{}, error) {
+	return c.postWithResponse(fmt.Sprintf("/api/v1/sources/%s/reconcile", sourceID), nil)
+}
+
+// SuggestMapping calls Data Hub canonical mapping auto-suggest
+func (c *DataHubClient) SuggestMapping(payload map[string]interface{}) (map[string]interface{}, error) {
+	return c.postWithResponse("/api/v1/mapping/suggest", payload)
 }
 
 // RegisterSource registers or updates connection config in Data Hub

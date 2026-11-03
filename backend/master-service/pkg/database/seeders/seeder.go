@@ -237,16 +237,46 @@ func (s *Seeder) SeedCompanies() error {
 }
 
 func (s *Seeder) SeedJobRoles() error {
+	const (
+		exec    = models.AccessRoleExecutive
+		auditor = models.AccessRoleAuditor
+		auditee = models.AccessRoleAuditee
+	)
 	seeds := []models.JobRole{
-		{JobRoleCode: "DIR-001", JobRoleName: "Finance Director", JobRoleDescription: "Executive finance lead", JobPositionType: models.PositionTypeDirector, IsActive: true},
+		{JobRoleCode: "DIR-001", JobRoleName: "Finance Director", JobRoleDescription: "Executive finance lead", JobPositionType: models.PositionTypeDirector, DefaultAccessRole: exec, IsActive: true},
 		{JobRoleCode: "MGR-001", JobRoleName: "Finance Manager", JobRoleDescription: "Finance function manager", JobPositionType: models.PositionTypeManager, IsActive: true},
 		{JobRoleCode: "MGR-002", JobRoleName: "IT Manager", JobRoleDescription: "IT function manager", JobPositionType: models.PositionTypeManager, IsActive: true},
-		{JobRoleCode: "AUD-003", JobRoleName: "Audit Manager", JobRoleDescription: "Internal audit manager", JobPositionType: models.PositionTypeManager, IsActive: true},
-		{JobRoleCode: "AUD-001", JobRoleName: "Internal Auditor", JobRoleDescription: "Internal auditor", JobPositionType: models.PositionTypeStaff, IsActive: true},
-		{JobRoleCode: "STF-001", JobRoleName: "Staff Accountant", JobRoleDescription: "Accounting staff", JobPositionType: models.PositionTypeStaff, IsActive: true},
+		{JobRoleCode: "AUD-003", JobRoleName: "Audit Manager", JobRoleDescription: "Internal audit manager", JobPositionType: models.PositionTypeManager, DefaultAccessRole: auditor, IsActive: true},
+		{JobRoleCode: "AUD-001", JobRoleName: "Internal Auditor", JobRoleDescription: "Internal auditor", JobPositionType: models.PositionTypeStaff, DefaultAccessRole: auditor, IsActive: true},
+		{JobRoleCode: "STF-001", JobRoleName: "Staff Accountant", JobRoleDescription: "Accounting staff", JobPositionType: models.PositionTypeStaff, DefaultAccessRole: auditee, IsActive: true},
+
+		{JobRoleCode: "EXC-001", JobRoleName: "CEO", JobRoleDescription: "Chief executive officer", JobPositionType: models.PositionTypeDirector, DefaultAccessRole: exec, IsActive: true},
+		{JobRoleCode: "EXC-002", JobRoleName: "Commissioner", JobRoleDescription: "Board of commissioners member", JobPositionType: models.PositionTypeCommissioner, DefaultAccessRole: exec, IsActive: true},
+		{JobRoleCode: "EXC-003", JobRoleName: "General Manager", JobRoleDescription: "General manager", JobPositionType: models.PositionTypeGeneralManager, DefaultAccessRole: exec, IsActive: true},
+		{JobRoleCode: "EXC-004", JobRoleName: "Senior Manager", JobRoleDescription: "Senior manager", JobPositionType: models.PositionTypeSeniorManager, DefaultAccessRole: exec, IsActive: true},
+		{JobRoleCode: "AUD-000", JobRoleName: "Chief Audit Executive", JobRoleDescription: "Head of internal audit", JobPositionType: models.PositionTypeChiefAuditExec, DefaultAccessRole: auditor, IsActive: true},
+		{JobRoleCode: "AUD-002", JobRoleName: "Audit Supervisor", JobRoleDescription: "Internal audit supervisor", JobPositionType: models.PositionTypeSupervisor, DefaultAccessRole: auditor, IsActive: true},
+		{JobRoleCode: "AUD-004", JobRoleName: "Senior Auditor", JobRoleDescription: "Senior internal auditor", JobPositionType: models.PositionTypeStaff, DefaultAccessRole: auditor, IsActive: true},
+		{JobRoleCode: "AUD-005", JobRoleName: "Junior Auditor", JobRoleDescription: "Junior internal auditor", JobPositionType: models.PositionTypeStaff, DefaultAccessRole: auditor, IsActive: true},
+		{JobRoleCode: "AUD-006", JobRoleName: "IT Auditor", JobRoleDescription: "Information technology auditor", JobPositionType: models.PositionTypeStaff, DefaultAccessRole: auditor, IsActive: true},
+		{JobRoleCode: "RSK-001", JobRoleName: "Risk Officer", JobRoleDescription: "Risk management officer", JobPositionType: models.PositionTypeStaff, DefaultAccessRole: auditee, IsActive: true},
+		{JobRoleCode: "CMP-001", JobRoleName: "Compliance Officer", JobRoleDescription: "Compliance officer", JobPositionType: models.PositionTypeStaff, DefaultAccessRole: auditee, IsActive: true},
+		{JobRoleCode: "STF-002", JobRoleName: "Junior Staff", JobRoleDescription: "Junior staff", JobPositionType: models.PositionTypeStaff, DefaultAccessRole: auditee, IsActive: true},
+		{JobRoleCode: "STF-003", JobRoleName: "Intern", JobRoleDescription: "Intern", JobPositionType: models.PositionTypeStaff, DefaultAccessRole: auditee, IsActive: true},
 	}
 
 	for i := range seeds {
+		// Existing rows (by code, or by name since names are unique too, soft-deleted
+		// included) are never modified: a tenant may have edited or renamed them.
+		var n int64
+		if err := s.DB.Unscoped().Model(&models.JobRole{}).
+			Where("job_role_code = ? OR job_role_name = ?", seeds[i].JobRoleCode, seeds[i].JobRoleName).
+			Count(&n).Error; err != nil {
+			return err
+		}
+		if n > 0 {
+			continue
+		}
 		if err := s.DB.FirstOrCreate(&seeds[i], models.JobRole{JobRoleCode: seeds[i].JobRoleCode}).Error; err != nil {
 			return err
 		}

@@ -2,7 +2,7 @@
   <div class="w-full min-w-0 space-y-4">
     <!-- Table Container using Nuxt UI UTable -->
     <div
-      class="rounded-xl border border-[var(--border-main)] bg-[var(--bg-main)] shadow-xs w-full transition-all"
+      class="bg-transparent rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm w-full"
       :class="[
         isScrollable ? 'overflow-x-auto' : 'overflow-x-hidden'
       ]"
@@ -376,8 +376,8 @@ const mergedUi = computed(() => {
   return {
     base: `w-full ${layoutClass} ${widthClass}`.trim(),
     table: `w-full ${layoutClass} ${widthClass}`.trim(),
-    th: 'px-4 py-3.5 text-xs text-left font-bold uppercase tracking-wider text-[var(--text-muted)] bg-[var(--bg-surface)] border-b border-[var(--border-main)] whitespace-nowrap',
-    td: 'px-4 py-3 text-sm text-[var(--text-main)] border-b border-[var(--border-main)]/50',
+    th: 'px-4 py-3.5 text-xs text-left font-bold uppercase tracking-wider text-[var(--text-muted)] bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800 whitespace-nowrap',
+    td: 'px-4 py-3 text-sm text-[var(--text-main)] bg-transparent border-b border-gray-200 dark:border-gray-800',
     ...props.ui
   }
 })

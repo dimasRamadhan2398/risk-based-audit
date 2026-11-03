@@ -58,11 +58,15 @@ CREATE TABLE IF NOT EXISTS job_roles (
     job_role_name VARCHAR(100) UNIQUE NOT NULL,
     job_role_description TEXT,
     job_position_type VARCHAR(100) NOT NULL,
+    default_access_role VARCHAR(50),
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     deleted_at TIMESTAMP WITH TIME ZONE
 );
+
+-- Existing tenants: add the column without touching rows (backfill is done by master-service migrate).
+ALTER TABLE job_roles ADD COLUMN IF NOT EXISTS default_access_role VARCHAR(50);
 
 -- Employees table
 CREATE TABLE IF NOT EXISTS employees (

@@ -1,7 +1,7 @@
 <template>
   <UModal
     v-model:open="open"
-    :dismissible="step !== 'loading' && step !== 'resetting'"
+    :dismissible="step !== 'loading' && step !== 'resetting' && step !== 'creating'"
     class="w-full sm:max-w-md"
   >
     <template #content>
@@ -13,7 +13,9 @@
             class="text-primary-500 text-2xl"
           />
           <div>
-            <h3 class="text-lg font-bold text-[var(--text-main)]"> {{ t('masterData.employee.resetPassword') }} </h3>
+            <h3 class="text-lg font-bold text-[var(--text-main)]">
+              {{ t('masterData.employee.resetPassword') }}
+            </h3>
             <p
               v-if="employee"
               class="text-sm text-[var(--text-muted)]"
@@ -32,15 +34,47 @@
             <ULoadingIcon />
           </div>
 
-          <!-- Employee has no login account -->
-          <UAlert
-            v-else-if="step === 'no-account'"
-            color="neutral"
-            variant="soft"
-            icon="i-heroicons-information-circle"
-            :title="t('masterData.employee.resetModal.noAccount')"
-            :description="t('masterData.employee.resetModal.noAccountDescription')"
-          />
+          <!-- Employee has no login account: offer to create one -->
+          <template v-else-if="step === 'no-account' || step === 'creating'">
+            <UAlert
+              color="neutral"
+              variant="soft"
+              icon="i-heroicons-information-circle"
+              :title="t('masterData.employee.resetModal.noAccount')"
+              :description="t('masterData.employee.account.createAccountDescription')"
+            />
+            <UFormField :label="t('masterData.employee.account.accessRole')">
+              <USelect
+                v-model="selectedRole"
+                :items="roleItems"
+                :disabled="step === 'creating'"
+                class="w-full"
+              />
+            </UFormField>
+          </template>
+
+          <!-- Account created, linked or already existing -->
+          <template v-else-if="step === 'created' && createResult">
+            <template v-if="createResult.status === 'created' && createResult.temporary_password">
+              <UAlert
+                color="success"
+                variant="soft"
+                icon="i-heroicons-check-circle"
+                :title="t('masterData.employee.account.createdSuccess', { username: createResult.username })"
+              />
+              <TemporaryPasswordPanel
+                :username="createResult.username"
+                :temporary-password="createResult.temporary_password"
+              />
+            </template>
+            <UAlert
+              v-else
+              color="info"
+              variant="soft"
+              icon="i-heroicons-information-circle"
+              :description="t(createResult.status === 'exists' ? 'masterData.employee.account.existsInfo' : 'masterData.employee.account.linkedInfo', { username: createResult.username })"
+            />
+          </template>
 
           <!-- Account cannot be reset from here -->
           <UAlert
@@ -65,7 +99,9 @@
                 <span class="text-[var(--text-muted)]">{{ t('masterData.employee.resetModal.roles') }}</span><span class="font-medium text-[var(--text-main)]">{{ account.roles.join(', ') || '-' }}</span>
               </div>
             </div>
-            <p class="text-sm text-[var(--text-muted)]"> {{ t('masterData.employee.resetModal.temporaryDescription') }} </p>
+            <p class="text-sm text-[var(--text-muted)]">
+              {{ t('masterData.employee.resetModal.temporaryDescription') }}
+            </p>
           </template>
 
           <!-- Result: temporary password shown once -->
@@ -107,7 +143,23 @@
             :disabled="step === 'resetting'"
             @click="open = false"
           >
-            {{ step === 'done' ? 'Done' : 'Cancel' }}
+            {{ step === 'done' || step === 'created' ? t('masterData.employee.account.done') : 'Cancel' }}
+          </UButton>
+          <UButton
+            v-if="step === 'no-account' || step === 'creating'"
+            class="rounded-xl font-bold"
+            :loading="step === 'creating'"
+            @click="handleCreateAccount"
+          >
+            {{ t('masterData.employee.account.createAccount') }}
+          </UButton>
+          <UButton
+            v-if="step === 'created'"
+            color="neutral"
+            class="rounded-xl font-bold"
+            @click="continueToReset"
+          >
+            {{ t('masterData.employee.account.continueReset') }}
           </UButton>
           <UButton
             v-if="step === 'confirm' || step === 'resetting'"
@@ -115,7 +167,9 @@
             class="rounded-xl font-bold"
             :loading="step === 'resetting'"
             @click="handleReset"
-          > {{ t('masterData.employee.resetPassword') }} </UButton>
+          >
+            {{ t('masterData.employee.resetPassword') }}
+          </UButton>
         </div>
       </div>
     </template>
@@ -123,19 +177,29 @@
 </template>
 
 <script setup lang="ts">
-const { t } = useI18n()
-import type { Employee } from '~/types/master'
+import type { Employee, EmployeeLoginAccount } from '~/types/master'
 import type { AdminResetPasswordResult, LinkedUserAccount } from '~/composables/useUserAccountApi'
 import { useUserAccountApi } from '~/composables/useUserAccountApi'
+import { useEmployeeApi } from '~/composables/useEmployeeApi'
+import { useJobRoleApi } from '~/composables/useJobRoleApi'
 import { useAuthStore } from '~/stores/auth'
+import { getUserErrorMessage } from '~/utils/error'
+import TemporaryPasswordPanel from '~/components/master/TemporaryPasswordPanel.vue'
 
-type Step = 'loading' | 'no-account' | 'blocked' | 'confirm' | 'resetting' | 'done'
+const { t } = useI18n()
+
+type Step = 'loading' | 'no-account' | 'creating' | 'created' | 'blocked' | 'confirm' | 'resetting' | 'done'
 
 const open = defineModel<boolean>('open', { default: false })
 const props = defineProps<{ employee: Employee | null }>()
 
 const authStore = useAuthStore()
 const { findAccountByEmployee, resetPassword } = useUserAccountApi()
+const { createLoginAccount } = useEmployeeApi()
+const { getAccessRoles } = useJobRoleApi()
+
+// Sentinel meaning "let the backend pick the role" (select items cannot be empty)
+const DEFAULT_ROLE = '__default__'
 
 const step = ref<Step>('loading')
 const account = ref<LinkedUserAccount | null>(null)
@@ -143,11 +207,26 @@ const result = ref<AdminResetPasswordResult | null>(null)
 const blockedReason = ref('')
 const errorMsg = ref('')
 const copied = ref(false)
+const createResult = ref<EmployeeLoginAccount | null>(null)
+const selectedRole = ref(DEFAULT_ROLE)
+const accessRoles = ref<string[]>([])
+const roleItems = computed(() => [
+  { label: t('masterData.employee.account.accessRoleDefault'), value: DEFAULT_ROLE },
+  ...accessRoles.value.map(r => ({ label: r, value: r }))
+])
+
+const loadAccessRoles = async () => {
+  if (accessRoles.value.length) return
+  // ADMIN cannot be granted from here
+  accessRoles.value = (await getAccessRoles()).filter(r => r.toUpperCase() !== 'ADMIN')
+}
 
 const lookupAccount = async (employee: Employee) => {
   step.value = 'loading'
   account.value = null
   result.value = null
+  createResult.value = null
+  selectedRole.value = DEFAULT_ROLE
   errorMsg.value = ''
   copied.value = false
 
@@ -155,6 +234,7 @@ const lookupAccount = async (employee: Employee) => {
     const found = await findAccountByEmployee(employee.employee_code, employee.email)
     if (!found) {
       step.value = 'no-account'
+      loadAccessRoles()
       return
     }
     account.value = found
@@ -174,6 +254,26 @@ const lookupAccount = async (employee: Employee) => {
     step.value = 'blocked'
     blockedReason.value = 'The account could not be loaded.'
   }
+}
+
+const handleCreateAccount = async () => {
+  if (!props.employee) return
+  step.value = 'creating'
+  errorMsg.value = ''
+  try {
+    createResult.value = await createLoginAccount(
+      props.employee.id,
+      selectedRole.value === DEFAULT_ROLE ? undefined : selectedRole.value
+    )
+    step.value = 'created'
+  } catch (err) {
+    errorMsg.value = getUserErrorMessage(err, t, { fallbackKey: 'masterData.errors.createLoginAccount' })
+    step.value = 'no-account'
+  }
+}
+
+const continueToReset = () => {
+  if (props.employee) lookupAccount(props.employee)
 }
 
 const handleReset = async () => {
@@ -201,6 +301,7 @@ watch(open, (isOpen) => {
   } else if (!isOpen) {
     // Drop the temporary password from memory once the modal closes
     result.value = null
+    createResult.value = null
   }
 })
 </script>

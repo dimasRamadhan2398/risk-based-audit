@@ -25,7 +25,7 @@
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse text-md">
           <thead>
-            <tr class="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800 font-bold uppercase tracking-wider text-[10px] text-gray-400 text-center">
+            <tr class="bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800 font-bold uppercase tracking-wider text-[10px] text-gray-400 text-center">
               <th class="py-4 px-4 text-left w-12">{{ t('riskMitigation.columns.number') }}</th>
               <th class="py-4 px-4 text-left min-w-[280px]">{{ t('riskMitigation.columns.plan') }}</th>
               <th class="py-4 px-4 text-left">{{ t('riskMitigation.columns.timeline') }}</th>
