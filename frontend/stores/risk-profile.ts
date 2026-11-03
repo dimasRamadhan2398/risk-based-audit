@@ -5,6 +5,7 @@ import { extractErrorMessage } from '~/utils/error'
 import { getRiskServiceBaseUrl } from '~/composables/useApiUrl'
 import { useLocationApi } from '~/composables/useLocationApi'
 import { useFiscalYear } from '~/composables/useFiscalYear'
+import { currentFiscalYear, currentQuarter } from '~/utils/fiscalPeriod'
 import { ALL_RISK_CATEGORIES, getDistinctRiskCategories } from '~/utils/riskCategoryFilter'
 
 // --- Constants (Exported for components) ---
@@ -129,7 +130,21 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
   // Year & Quarter State
   const { selectedFiscalYear } = useFiscalYear()
   const selectedYear = selectedFiscalYear
-  const selectedPeriod = ref('Q1')
+  // Default period = current calendar quarter (same date as the year default).
+  const selectedPeriod = ref<string>(currentQuarter())
+  // Defaults this tab started with, so a long-lived tab can tell "untouched".
+  let initialYear = selectedYear.value
+  let initialPeriod = selectedPeriod.value
+
+  /** Move an untouched year/quarter forward when the calendar rolled over while the tab stayed open. */
+  const syncDefaultPeriod = (now: Date = new Date()) => {
+    const year = currentFiscalYear(now)
+    const quarter = currentQuarter(now)
+    if (selectedYear.value === initialYear) selectedYear.value = year
+    if (selectedPeriod.value === initialPeriod) selectedPeriod.value = quarter
+    initialYear = year
+    initialPeriod = quarter
+  }
 
   // Category filter ('all' keeps every row) and free-text search; both drive
   // the server-side filters of the paginated tables.
@@ -653,6 +668,7 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     modalMode,
     selectedYear,
     selectedPeriod,
+    syncDefaultPeriod,
     getRiskLevel,
     getRiskScore,
     getFormattedId,

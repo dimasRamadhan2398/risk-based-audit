@@ -6,6 +6,7 @@ import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 import { useAuditResultReportStore } from './audit-result-report'
 import { useI18n } from '~/composables/useI18n'
 import { buildDefaultNarrative, formatQuarterPeriod } from '~/utils/executiveSummaryNarrative'
+import type { ExecutiveSummaryApprovePayload } from '~/types/signature'
 import { useDepartmentApi } from '~/composables/useDepartmentApi'
 import type { Department } from '~/types/master'
 
@@ -762,7 +763,71 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     }
   }
 
+  // Approval with a signature: the only way to move a Draft to Approved. The backend refuses a PUT that sets
+  // status Approved (APPROVE_REQUIRES_SIGNATURE), so the status change happens in POST /:id/approve instead.
+  const approveWithSignature = async (payload: ExecutiveSummaryApprovePayload): Promise<boolean> => {
+    const target = currentSummary.value
+    if (!target) return false
+    if (!isValidUuid(target.id)) {
+      toast.showError(t('executiveSummaryForm.approval.errors.saveFirst'))
+      return false
+    }
+
+    loading.value = true
+    errorMsg.value = ''
+    try {
+      const baseUrl = getAuditServiceBaseUrl()
+      await $fetch(`${baseUrl}/executive-summaries/${target.id}/approve`, {
+        method: 'POST',
+        body: payload
+      })
+    } catch (error: any) {
+      const fallback = t('executiveSummaryForm.approval.errors.failed')
+      const detail = extractErrorMessage(error, fallback)
+      errorMsg.value = detail
+      toast.showError(fallback, detail)
+      return false
+    } finally {
+      loading.value = false
+    }
+
+    // The backend accepted the approval: mirror it locally. Nothing is written on failure, so a Draft is never shown as Approved.
+    const approvedFields: Partial<ExecutiveSummary> = {
+      status: 'Approved',
+      signatureTempat: payload.signaturePlace,
+      signatureTanggal: payload.signatureDate
+    }
+    const idx = summaryList.value.findIndex(s => s.id === target.id)
+    if (idx !== -1) {
+      summaryList.value[idx] = { ...summaryList.value[idx]!, ...approvedFields }
+    }
+    summaryList.value = [...summaryList.value]
+    currentSummary.value = { ...target, ...approvedFields }
+    form.status = 'Approved'
+    form.signatureTempat = payload.signaturePlace
+    form.signatureTanggal = payload.signatureDate
+    savePersistedExecutiveSummaryOverride([target.nomorDokumen, target.id], { status: 'Approved' })
+
+    try {
+      const auditReportStore = useAuditResultReportStore()
+      const matchedReport = auditReportStore.reportList.find(r => r.reportNumber === target.nomorDokumen)
+      if (matchedReport) {
+        matchedReport.status = 'Final'
+      }
+    } catch (e) {
+      console.warn('Sync status to AuditResultReport failed:', e)
+    }
+
+    toast.showSuccess(t('executiveSummaryForm.approval.success'))
+    return true
+  }
+
   const updateStatus = async (id: string, newStatus: 'Draft' | 'Approved' | 'Rejected') => {
+    if (newStatus === 'Approved') {
+      // Approval must carry a signature; see approveWithSignature. A plain status change is refused here.
+      toast.showError(t('executiveSummaryForm.approval.errors.signatureRequired'))
+      return
+    }
     loading.value = true
     errorMsg.value = ''
     const item = summaryList.value.find(s => s.id === id)
@@ -832,7 +897,8 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
         const targetDocNum = updated.nomorDokumen
         const matchedReport = auditReportStore.reportList.find(r => r.reportNumber === targetDocNum)
         if (matchedReport) {
-          matchedReport.status = newStatus === 'Approved' ? 'Final' : 'Draft'
+          // Approved never reaches here (see the guard above); Draft and Rejected map to a Draft report
+          matchedReport.status = 'Draft'
         }
       } catch (e) {
         console.warn('Sync status to AuditResultReport failed:', e)
@@ -864,6 +930,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     saveExecutiveNote,
     deleteSummary,
     updateStatus,
+    approveWithSignature,
     fetchSummaries,
     defaultNarrativeTemplate,
     generateEscDocNumber,

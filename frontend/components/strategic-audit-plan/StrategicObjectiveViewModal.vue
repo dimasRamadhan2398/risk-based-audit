@@ -11,7 +11,10 @@
     }"
   >
     <template #body>
-      <div v-if="objective" class="space-y-6">
+      <div
+        v-if="objective"
+        class="space-y-6"
+      >
         <!-- Top Metadata Summary Card -->
         <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700/60 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div class="space-y-1">
@@ -22,7 +25,7 @@
               <span class="px-2.5 py-1 text-md font-semibold rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
                 {{ objective.periodType || 'Yearly' }}
               </span>
-              <span 
+              <span
                 :class="[
                   'px-2.5 py-1 text-md font-semibold rounded-lg',
                   objective.hibHig === 'HIG' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
@@ -34,19 +37,24 @@
             <h2 class="text-lg font-bold text-gray-900 dark:text-white">
               {{ objective.strategicObjective }}
             </h2>
-            <p v-if="objective.internalAuditSO" class="text-md text-gray-500 dark:text-gray-400">
+            <p
+              v-if="objective.internalAuditSO"
+              class="text-md text-gray-500 dark:text-gray-400"
+            >
               <span class="font-semibold text-gray-700 dark:text-gray-300">{{ t('strategicPlan.viewModal.iaObjective') }}</span> {{ objective.internalAuditSO }}
             </p>
           </div>
 
           <div class="flex items-center gap-3 shrink-0">
             <div class="text-right">
-              <p class="text-md text-gray-500 dark:text-gray-400 uppercase font-medium">{{ t('strategicPlan.viewModal.overallStatus') }}</p>
+              <p class="text-md text-gray-500 dark:text-gray-400 uppercase font-medium">
+                {{ t('strategicPlan.viewModal.overallStatus') }}
+              </p>
               <span
                 :class="{
                   'text-emerald-600 dark:text-emerald-400 font-bold text-sm': objective.status === 'Good',
                   'text-amber-600 dark:text-amber-400 font-bold text-sm': objective.status === 'Moderate',
-                  'text-rose-600 dark:text-rose-400 font-bold text-sm': objective.status === 'Poor',
+                  'text-rose-600 dark:text-rose-400 font-bold text-sm': objective.status === 'Poor'
                 }"
               >
                 {{ formatStatus(objective.status) }}
@@ -62,17 +70,25 @@
         <!-- KPI Key Details Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-            <p class="text-md font-semibold text-gray-500 dark:text-gray-400 uppercase">{{ t('strategicPlan.viewModal.kpiName') }}</p>
-            <p class="text-sm font-medium text-gray-900 dark:text-white mt-1">{{ objective.kpi || '-' }}</p>
-          </div>
-          <div class="p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-            <p class="text-md font-semibold text-gray-500 dark:text-gray-400 uppercase">{{ t('strategicPlan.viewModal.unitAndTargetPeriod') }}</p>
+            <p class="text-md font-semibold text-gray-500 dark:text-gray-400 uppercase">
+              {{ t('strategicPlan.viewModal.kpiName') }}
+            </p>
             <p class="text-sm font-medium text-gray-900 dark:text-white mt-1">
-              {{ objective.unit || '-' }} <span class="text-gray-400 dark:text-gray-500">({{ objective.selectedPeriod || 'All' }})</span>
+              {{ objective.kpi || '-' }}
             </p>
           </div>
           <div class="p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-            <p class="text-md font-semibold text-gray-500 dark:text-gray-400 uppercase">{{ t('strategicPlan.viewModal.strategicPeriod') }}</p>
+            <p class="text-md font-semibold text-gray-500 dark:text-gray-400 uppercase">
+              {{ t('strategicPlan.viewModal.unitAndTargetPeriod') }}
+            </p>
+            <p class="text-sm font-medium text-gray-900 dark:text-white mt-1">
+              {{ unitLabel(objective.unit) }} <span class="text-gray-400 dark:text-gray-500">({{ objective.selectedPeriod || 'All' }})</span>
+            </p>
+          </div>
+          <div class="p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+            <p class="text-md font-semibold text-gray-500 dark:text-gray-400 uppercase">
+              {{ t('strategicPlan.viewModal.strategicPeriod') }}
+            </p>
             <p class="text-sm font-medium text-gray-900 dark:text-white mt-1">
               {{ objective.yearStart || 2024 }} &ndash; {{ objective.yearEnd || 2028 }}
             </p>
@@ -83,11 +99,14 @@
         <div class="space-y-2">
           <div class="flex items-center justify-between">
             <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <UIcon name="i-lucide-table" class="w-4 h-4 text-primary-500" />
+              <UIcon
+                name="i-lucide-table"
+                class="w-4 h-4 text-primary-500"
+              />
               {{ t('strategicPlan.viewModal.multiYearMatrixTitle') }}
             </h3>
             <span class="text-md text-gray-500 dark:text-gray-400">
-              {{ t('strategicPlan.viewModal.unitLabel', { unit: objective.unit || '%' }) }}
+              {{ t('strategicPlan.viewModal.unitLabel', { unit: unitLabel(objective.unit || '%') }) }}
             </span>
           </div>
 
@@ -95,30 +114,43 @@
             <table class="w-full text-left text-md">
               <thead class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold border-b border-gray-200 dark:border-gray-700">
                 <tr>
-                  <th class="py-2.5 px-4">{{ t('strategicPlan.viewModal.periodYear') }}</th>
-                  <th class="py-2.5 px-4 text-right">{{ t('strategicPlan.viewModal.target') }}</th>
-                  <th class="py-2.5 px-4 text-right">{{ t('strategicPlan.viewModal.actual') }}</th>
-                  <th class="py-2.5 px-4 text-right">{{ t('strategicPlan.viewModal.achievement') }}</th>
-                  <th class="py-2.5 px-4 text-center">{{ t('strategicPlan.viewModal.status') }}</th>
+                  <th class="py-2.5 px-4">
+                    {{ t('strategicPlan.viewModal.periodYear') }}
+                  </th>
+                  <th class="py-2.5 px-4 text-right">
+                    {{ t('strategicPlan.viewModal.target') }}
+                  </th>
+                  <th class="py-2.5 px-4 text-right">
+                    {{ t('strategicPlan.viewModal.actual') }}
+                  </th>
+                  <th class="py-2.5 px-4 text-right">
+                    {{ t('strategicPlan.viewModal.achievement') }}
+                  </th>
+                  <th class="py-2.5 px-4 text-center">
+                    {{ t('strategicPlan.viewModal.status') }}
+                  </th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                <tr 
-                  v-for="row in multiYearData" 
+                <tr
+                  v-for="row in multiYearData"
                   :key="row.year"
                   class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors"
                 >
                   <td class="py-2.5 px-4 font-bold text-gray-900 dark:text-white">
                     {{ row.year }}
-                    <span v-if="String(row.year) === String(currentYear)" class="ml-1.5 px-1.5 py-0.5 text-[10px] bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 rounded font-semibold">
+                    <span
+                      v-if="String(row.year) === String(currentYear)"
+                      class="ml-1.5 px-1.5 py-0.5 text-[10px] bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 rounded font-semibold"
+                    >
                       {{ t('strategicPlan.viewModal.current') }}
                     </span>
                   </td>
                   <td class="py-2.5 px-4 text-right font-medium text-gray-800 dark:text-gray-200">
-                    {{ row.target !== '' ? row.target + ' ' + objective.unit : '-' }}
+                    {{ formatUnitValue(row.target, objective.unit, locale) }}
                   </td>
                   <td class="py-2.5 px-4 text-right font-medium text-gray-800 dark:text-gray-200">
-                    {{ row.actual !== '' ? row.actual + ' ' + objective.unit : '-' }}
+                    {{ formatUnitValue(row.actual, objective.unit, locale) }}
                   </td>
                   <td class="py-2.5 px-4 text-right tabular-nums font-bold text-gray-900 dark:text-white">
                     {{ row.achievement }}
@@ -127,10 +159,10 @@
                     <span
                       :class="[
                         'inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold',
-                        row.status === 'Good' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' :
-                        row.status === 'Moderate' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300' :
-                        row.status === 'Poor' ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300' :
-                        'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                        row.status === 'Good' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
+                        : row.status === 'Moderate' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
+                          : row.status === 'Poor' ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300'
+                            : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
                       ]"
                     >
                       {{ formatStatus(row.status) }}
@@ -143,10 +175,16 @@
         </div>
 
         <!-- Quarterly Breakdown Table (if Quartal) -->
-        <div v-if="objective.periodType === 'Quartal'" class="space-y-4 pt-2 border-t border-gray-100 dark:border-gray-800">
+        <div
+          v-if="objective.periodType === 'Quartal'"
+          class="space-y-4 pt-2 border-t border-gray-100 dark:border-gray-800"
+        >
           <div class="flex items-center justify-between flex-wrap gap-2">
             <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <UIcon name="i-lucide-calendar-days" class="w-4 h-4 text-primary-500" />
+              <UIcon
+                name="i-lucide-calendar-days"
+                class="w-4 h-4 text-primary-500"
+              />
               {{ t('strategicPlan.viewModal.quarterlyBreakdownTitle') }}
             </h3>
             <span class="text-xs font-semibold text-gray-500 dark:text-gray-400">
@@ -154,28 +192,38 @@
             </span>
           </div>
 
-          <div v-for="yr in quarterlyYears" :key="yr" class="space-y-2">
+          <div
+            v-for="yr in quarterlyYears"
+            :key="yr"
+            class="space-y-2"
+          >
             <div class="flex items-center gap-2">
               <span class="text-xs font-extrabold uppercase tracking-wider text-gray-600 dark:text-gray-400"> {{ t('strategicPlan.extra.year') }} {{ yr }}
               </span>
-              <span v-if="String(yr) === String(currentYear)" class="px-1.5 py-0.5 text-[10px] bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 rounded font-semibold">
+              <span
+                v-if="String(yr) === String(currentYear)"
+                class="px-1.5 py-0.5 text-[10px] bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 rounded font-semibold"
+              >
                 {{ t('strategicPlan.viewModal.current') }}
               </span>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div 
-                v-for="q in ['Q1', 'Q2', 'Q3', 'Q4']" 
+              <div
+                v-for="q in ['Q1', 'Q2', 'Q3', 'Q4']"
                 :key="`${q}-${yr}`"
                 :class="[
                   'p-3 rounded-xl border transition-all',
                   isQuarterSelected(q, yr)
-                    ? 'border-primary-500 bg-primary-50/50 dark:bg-primary-950/20 ring-1 ring-primary-500' 
+                    ? 'border-primary-500 bg-primary-50/50 dark:bg-primary-950/20 ring-1 ring-primary-500'
                     : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900'
                 ]"
               >
                 <div class="flex items-center justify-between">
                   <span class="font-bold text-md text-gray-900 dark:text-white">{{ q }}</span>
-                  <span v-if="isQuarterSelected(q, yr)" class="text-[10px] font-bold text-primary-600 dark:text-primary-400">
+                  <span
+                    v-if="isQuarterSelected(q, yr)"
+                    class="text-[10px] font-bold text-primary-600 dark:text-primary-400"
+                  >
                     {{ t('strategicPlan.viewModal.selected') }}
                   </span>
                 </div>
@@ -183,13 +231,13 @@
                   <div class="flex justify-between text-gray-500 dark:text-gray-400">
                     <span>{{ t('strategicPlan.viewModal.target') }}:</span>
                     <span class="font-semibold text-gray-800 dark:text-gray-200">
-                      {{ getQuarterTarget(q, yr) !== '-' ? getQuarterTarget(q, yr) + ' ' + objective.unit : '-' }}
+                      {{ formatUnitValue(getQuarterTarget(q, yr), objective.unit, locale) }}
                     </span>
                   </div>
                   <div class="flex justify-between text-gray-500 dark:text-gray-400">
                     <span>{{ t('strategicPlan.viewModal.actual') }}:</span>
                     <span class="font-semibold text-gray-800 dark:text-gray-200">
-                      {{ getQuarterActual(q, yr) !== '-' ? getQuarterActual(q, yr) + ' ' + objective.unit : '-' }}
+                      {{ formatUnitValue(getQuarterActual(q, yr), objective.unit, locale) }}
                     </span>
                   </div>
                 </div>
@@ -197,14 +245,20 @@
             </div>
           </div>
         </div>
-
       </div>
     </template>
 
     <template #footer>
       <div class="flex items-center justify-between w-full">
-        <p class="text-md text-gray-500 dark:text-gray-400">{{ t('strategicPlan.viewModal.footerNote') }}</p>
-        <UButton color="neutral" variant="ghost" class="rounded-xl font-bold" @click="store.closeViewModal">
+        <p class="text-md text-gray-500 dark:text-gray-400">
+          {{ t('strategicPlan.viewModal.footerNote') }}
+        </p>
+        <UButton
+          color="neutral"
+          variant="ghost"
+          class="rounded-xl font-bold"
+          @click="store.closeViewModal"
+        >
           {{ t('strategicPlan.viewModal.close') }}
         </UButton>
       </div>
@@ -216,8 +270,14 @@
 import { computed } from 'vue'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import { useI18n } from '~/composables/useI18n'
+import { formatUnitValue } from '~/utils/numberInput'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+
+const unitLabel = (unit?: string) => {
+  if (!unit) return '-'
+  return unit === 'Amount' ? t('strategicPlan.form.units.quantity') : unit
+}
 const store = useStrategicPlanStore()
 const currentYear = new Date().getFullYear()
 

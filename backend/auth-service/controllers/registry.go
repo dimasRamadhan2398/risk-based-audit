@@ -6,6 +6,7 @@ import (
 	mfaCtrl "auth-service/controllers/mfa"
 	resendCtrl "auth-service/controllers/resend"
 	roleCtrl "auth-service/controllers/role"
+	systemLogCtrl "auth-service/controllers/systemlog"
 	trustedDevicesCtrl "auth-service/controllers/trusted-devices"
 	userCtrl "auth-service/controllers/user"
 	"auth-service/pkg/validations"
@@ -26,6 +27,7 @@ type IControllerRegistry interface {
 	GetTrustedDevices() trustedDevicesCtrl.TrustedDevicesControllerInterface
 	GetConfidentiality() confidentialityCtrl.ConfidentialityControllerInterface
 	GetResend() resendCtrl.ResendControllerInterface
+	GetSystemLog() systemLogCtrl.ControllerInterface
 }
 
 func NewControllerRegistry(service services.IServiceRegistry, validator *validations.Validator) IControllerRegistry {
@@ -65,4 +67,8 @@ func (r *Registry) GetConfidentiality() confidentialityCtrl.ConfidentialityContr
 
 func (r *Registry) GetResend() resendCtrl.ResendControllerInterface {
 	return resendCtrl.NewResendController(r.validator, r.service.GetResendService())
+}
+
+func (r *Registry) GetSystemLog() systemLogCtrl.ControllerInterface {
+	return systemLogCtrl.NewController(r.validator, r.service.GetSystemLogService())
 }

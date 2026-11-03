@@ -169,6 +169,16 @@
         "Sab"
       ]
     },
+    "signatureBox": {
+      "notSigned": "Belum ditandatangani",
+      "signHere": "Tanda tangan di sini",
+      "hint": "Gambar dengan mouse, jari, atau stylus. Tanda tangan tercatat saat pena diangkat.",
+      "name": "Nama penandatangan",
+      "namePlaceholder": "Nama lengkap",
+      "title": "Jabatan penandatangan",
+      "titlePlaceholder": "Contoh: Kepala SPI",
+      "timestamp": "Ditandatangani pada"
+    },
     "signaturePad": {
       "draw": "Gambar",
       "signed": "Ditandatangani",
@@ -716,7 +726,8 @@
       "permissions": "Hak Akses & Izin",
       "dataSources": "Koneksi Data",
       "emailService": "Layanan Email",
-      "faq": "FAQ / Bantuan"
+      "faq": "FAQ / Bantuan",
+      "systemLogs": "Log Aktivitas"
     },
     "titles": {
       "profile": "My Profile",
@@ -726,7 +737,8 @@
       "permissions": "Permissions",
       "datasource": "Data Source Connections",
       "email": "Email Dispatcher (Resend API)",
-      "faq": "FAQ"
+      "faq": "FAQ",
+      "systemLogs": "Log Aktivitas"
     },
     "general": {
       "cardTitle": "Pengaturan Umum",
@@ -1081,6 +1093,90 @@
       "removeConfirm": "Apakah Anda yakin ingin menghapus perangkat terpercaya ini?",
       "removed": "Perangkat Dihapus",
       "removeFailed": "Gagal menghapus perangkat"
+    },
+    "systemLogs": {
+      "title": "Log aktivitas pengguna",
+      "subtitle": "Proses masuk, perubahan akun, dan tindakan pengguna lain yang dicatat sistem.",
+      "loading": "Memuat log aktivitas",
+      "systemActor": "Sistem",
+      "updatedAt": "diperbarui {time}",
+      "pause": "Jeda pembaruan langsung",
+      "resume": "Lanjutkan pembaruan langsung",
+      "refresh": "Muat ulang",
+      "retry": "Coba lagi",
+      "loadMore": "Muat aktivitas sebelumnya",
+      "endOfList": "Tidak ada aktivitas sebelumnya",
+      "errorTitle": "Log aktivitas gagal dimuat",
+      "forbiddenTitle": "Anda tidak memiliki akses ke log aktivitas",
+      "forbiddenDesc": "Melihat log aktivitas memerlukan izin Lihat log sistem. Hubungi administrator jika Anda memerlukan akses.",
+      "emptyTitle": "Belum ada aktivitas yang tercatat",
+      "emptyDesc": "Aktivitas akan muncul di sini begitu pengguna masuk atau mengubah data.",
+      "emptyFilteredTitle": "Tidak ada aktivitas yang sesuai filter",
+      "emptyFilteredDesc": "Perluas rentang tanggal atau hapus filter.",
+      "live": {
+        "live": "Langsung",
+        "paused": "Dijeda",
+        "hidden": "Dijeda saat tab tersembunyi",
+        "retrying": "Menyambungkan ulang"
+      },
+      "columns": {
+        "time": "Waktu",
+        "user": "Pengguna",
+        "action": "Tindakan",
+        "entity": "Entitas",
+        "result": "Hasil",
+        "ip": "Alamat IP",
+        "summary": "Ringkasan"
+      },
+      "result": {
+        "success": "Berhasil",
+        "failure": "Gagal"
+      },
+      "filters": {
+        "search": "Cari",
+        "searchPlaceholder": "Nama pengguna atau ringkasan",
+        "action": "Tindakan",
+        "allActions": "Semua tindakan",
+        "result": "Hasil",
+        "allResults": "Semua hasil",
+        "from": "Dari",
+        "to": "Sampai",
+        "clear": "Hapus filter",
+        "invalidRange": "Tanggal mulai harus sama dengan atau sebelum tanggal akhir."
+      },
+      "detail": {
+        "time": "Waktu",
+        "action": "Kode tindakan",
+        "entity": "Entitas",
+        "userId": "ID pengguna",
+        "ip": "Alamat IP",
+        "userAgent": "User agent",
+        "summary": "Ringkasan",
+        "details": "Detail",
+        "noDetails": "Tidak ada detail tambahan"
+      },
+      "actions": {
+        "user_login": "Masuk",
+        "user_logout": "Keluar",
+        "user_login_failed": "Gagal masuk",
+        "user_password_changed": "Kata sandi diubah",
+        "user_password_reset_by_admin": "Kata sandi direset oleh admin",
+        "mfa_enabled": "MFA diaktifkan",
+        "mfa_disabled": "MFA dinonaktifkan",
+        "mfa_verified": "MFA terverifikasi",
+        "mfa_failed": "Verifikasi MFA gagal",
+        "role_created": "Peran dibuat",
+        "role_deleted": "Peran dihapus",
+        "role_permissions_assigned": "Izin ditambahkan ke peran",
+        "role_permissions_revoked": "Izin dicabut dari peran",
+        "role_assigned": "Peran diberikan ke pengguna",
+        "role_revoked": "Peran dicabut dari pengguna",
+        "device_trusted_added": "Perangkat tepercaya ditambahkan",
+        "device_trusted_removed": "Perangkat tepercaya dihapus",
+        "permission_denied": "Akses ditolak",
+        "security_step_up": "Identitas dikonfirmasi ulang",
+        "system_logs_viewed": "Log aktivitas dilihat"
+      }
     }
   },
   "strategicPlan": {
@@ -1191,6 +1287,16 @@
       "kpiPlaceholder": "Contoh: Biaya Operasional Pendapatan",
       "unit": "Satuan",
       "selectUnit": "Pilih Satuan",
+      "units": {
+        "percentage": "Persentase (%)",
+        "rupiah": "Rupiah (Rp)",
+        "usd": "Dolar AS ($)",
+        "gbp": "Poundsterling Inggris (£)",
+        "quantity": "Kuantitas",
+        "score": "Skor",
+        "hour": "Jam",
+        "day": "Hari"
+      },
       "hibHig": "HIB/HIG",
       "higLabel": "HIG (Tinggi Lebih Baik)",
       "hibLabel": "HIB (Tinggi Kurang Baik)",
@@ -1742,7 +1848,7 @@
   },
   "riskProfile": {
     "title": "Corporate Risk Profile",
-    "subtitle": "Profil Risiko Perusahaan Tahun Anggaran {year} - {period}",
+    "subtitle": "Profil Risiko Perusahaan Tahun Anggaran {year} untuk {period}",
     "total": "Total",
     "priority": "Prioritas",
     "addRisk": "Tambah Risiko",
@@ -3064,6 +3170,21 @@
     }
   },
   "executiveSummaryForm": {
+    "approval": {
+      "title": "Persetujuan Executive Summary",
+      "description": "Tanda tangani Executive Summary {report} untuk menyetujuinya.",
+      "lockNotice": "Setelah disetujui, Executive Summary dikunci dan tanda tangan serta catatan persetujuannya tidak dapat diubah.",
+      "confirm": "Setujui dengan tanda tangan",
+      "confirmDescription": "Setujui Executive Summary ini?",
+      "confirmBody": "Setelah disetujui, dokumen dikunci dan tanda tangan tidak dapat diubah.",
+      "incomplete": "Lengkapi tempat, tanggal, tanda tangan, dan nama penandatangan.",
+      "success": "Executive Summary berhasil disetujui dan ditandatangani.",
+      "errors": {
+        "saveFirst": "Simpan Executive Summary ke server sebelum menyetujuinya.",
+        "signatureRequired": "Persetujuan wajib disertai tanda tangan. Gunakan tombol Setujui.",
+        "failed": "Gagal menyetujui Executive Summary."
+      }
+    },
     "stepper": {
       "previous": "Sebelumnya",
       "next": "Selanjutnya"
@@ -3083,7 +3204,7 @@
       "lowRisk": "Risiko Rendah",
       "lowRiskHint": "Dihitung otomatis dari tingkat risiko Rendah–Sedang dan Rendah",
       "followUpSection": "Bagian III: Status Tindak Lanjut",
-      "topFindingsSection": "Bagian IV: Lima Temuan Signifikan Utama",
+      "topFindingsSection": "Bagian IV: Temuan Signifikan Teratas",
       "analysisSection": "Bagian V dan VII: Analisis Temuan Berulang dan Kesimpulan",
       "recurringThemes": "Bagian V: Tema Berulang (Akar Masalah dan Usulan Revisi Kebijakan)",
       "managementConclusion": "Bagian VII: Kesimpulan dan Rekomendasi Manajemen",
@@ -3198,11 +3319,14 @@
       "actions": "Aksi"
     },
     "topFindings": {
-      "title": "Top 5 Temuan Signifikan",
+      "title": "Temuan Signifikan Teratas",
       "description": "Matriks temuan kritikal terpenting yang butuh eskalasi/tindakan jajaran direksi.",
       "add": "Tambah Temuan",
       "empty": "Belum ada temuan signifikan teratas yang ditambahkan.",
-      "emptyAction": "Klik di sini untuk menambahkan."
+      "emptyAction": "Klik di sini untuk menambahkan.",
+      "cardTitle": "Temuan {number}",
+      "untitled": "Temuan tanpa judul",
+      "remove": "Hapus temuan"
     },
     "sync": {
       "findings": "Sinkronkan Temuan dari LHA",
@@ -3344,7 +3468,7 @@
       "narrative": "Ringkasan Narasi",
       "stats": "Statistik Kompilasi",
       "followUp": "Status Tindak Lanjut",
-      "topFindings": "Top 5 Signifikan",
+      "topFindings": "Signifikan Teratas",
       "analysis": "Akar Masalah & Kesimpulan",
       "matrix": "Matriks Kompilasi LHA",
       "notes": "Catatan"
@@ -5143,8 +5267,11 @@
     },
     "filters": {
       "yearOption": "Tahun {year}",
-      "allDepartments": "Semua Branch",
-      "allBranches": "Semua Branch / Departemen"
+      "allDepartments": "Semua Departemen",
+      "allBranches": "Semua Cabang",
+      "unassignedBranch": "Belum Ditentukan",
+      "branchLabel": "Cabang",
+      "branchesUnavailable": "Data master cabang gagal dimuat."
     },
     "cards": {
       "effectiveness": {
@@ -5253,6 +5380,7 @@
       "riskEventLabel": "Kejadian Risiko / Risk Event (Sinkron)",
       "controlSelectLabel": "Pilih Risk Control ID (Rencana Mitigasi & Kontrol)",
       "controlSelectPlaceholder": "Pilih Risk Control ID...",
+      "noMitigationPlan": "Belum ada rencana mitigasi risiko untuk risiko ini. Tambahkan di halaman Rencana Mitigasi Risiko untuk melanjutkan.",
       "controlCodeLabel": "Kode Kontrol (Sinkron)",
       "controlCodePlaceholder": "misal: CTL-FIN-001",
       "controlOwnerLabel": "PIC / Owner Kontrol (Sinkron)",
@@ -5261,6 +5389,7 @@
       "controlDescPlaceholder": "Jelaskan mekanisme kontrol operasional, review, verifikasi, atau sistemik yang dijalankan...",
       "evaluationTitle": "Evaluasi 5 Dimensi Internal Control (COSO)",
       "evaluationWeight": "Bobot Tetap: 20% Tiap Dimensi (Skala 1 - 5)",
+      "dimensionRequired": "Pilih nilai untuk dimensi ini.",
       "totalWeightedScore": "Total Skor Efektivitas Tertimbang:",
       "interpretation": "Interpretasi:",
       "cancel": "Batal",
@@ -5268,6 +5397,7 @@
     },
     "toasts": {
       "validationWarning": "Mohon pilih risiko dan lengkapi deskripsi kontrol.",
+      "dimensionsRequired": "Kelima dimensi pengendalian wajib dinilai sebelum menyimpan.",
       "updateSuccess": "Risk Control Matrix berhasil diperbarui",
       "addSuccess": "Risk Control Matrix berhasil ditambahkan",
       "deleteSuccess": "Risk Control Matrix berhasil dihapus"

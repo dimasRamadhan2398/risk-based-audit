@@ -220,6 +220,19 @@ export const useRbac = () => {
   const canAccessMasterData = computed(() => !isViewer.value)
 
   /**
+   * Permission names the server sent for this user (`permissions` on the login or /auth/me user),
+   * or null when it sent none. Today auth-service only sends roles, so callers must handle null.
+   */
+  const getUserPermissions = (): string[] | null => {
+    const perms = getCurrentUser()?.permissions
+    if (!Array.isArray(perms)) return null
+    return perms.map((p: unknown) => String(typeof p === 'object' && p ? (p as { name?: unknown }).name : p))
+  }
+  /** True when the server-sent permission list contains `name`. VIEWER-only users never pass. */
+  const hasPermission = (name: string): boolean =>
+    !isViewer.value && (getUserPermissions()?.includes(name) ?? false)
+
+  /**
    * Get the user's primary display role (highest privilege).
    */
   const primaryRole = computed((): string => {
@@ -360,6 +373,8 @@ export const useRbac = () => {
     canAccessFiles,
     canExport,
     canAccessMasterData,
+    getUserPermissions,
+    hasPermission,
     canWriteMasterData,
     canWriteQaConsulting,
     canWriteAuditUniverse,

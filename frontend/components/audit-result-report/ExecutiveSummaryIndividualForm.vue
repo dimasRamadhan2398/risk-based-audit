@@ -2,8 +2,12 @@
   <div class="flex flex-col h-full bg-gray-50 dark:bg-gray-950">
     <!-- Stepper header (clickable) -->
     <div class="flex items-center gap-3 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3 sm:px-6 sm:py-4 shrink-0">
-      <div class="flex-1 min-w-0 overflow-x-auto scrollbar-thin">
-        <div class="flex min-w-max items-center justify-center gap-3 px-1 sm:gap-4">
+      <!-- Horizontal scroll only: the header never grows or scrolls vertically -->
+      <div
+        ref="stepScrollRef"
+        class="flex-1 min-w-0 overflow-x-auto overflow-y-hidden scrollbar-thin"
+      >
+        <div class="flex min-w-max items-center justify-center gap-3 px-1 py-1 sm:gap-4">
           <template
             v-for="(sec, idx) in sections"
             :key="sec.id"
@@ -277,89 +281,17 @@
             </div>
           </div>
 
-          <div v-if="store.form.topFindings.length > 0" class="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
-              <thead class="bg-gray-50 dark:bg-gray-800/80">
-                <tr>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">{{ t('executiveSummaryForm.table.unitDivision') }}</th>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryForm.table.findingTitle') }}</th>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-32">{{ t('executiveSummaryForm.table.riskValue') }}</th>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">{{ t('executiveSummaryForm.table.followUpStatus') }}</th>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryForm.table.proposedAction') }}</th>
-                  <th v-if="!isLocked" class="px-4 py-3 text-center text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-16">{{ t('executiveSummaryForm.table.actions') }}</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
-                <tr v-for="(finding, idx) in store.form.topFindings" :key="idx">
-                  <td class="px-3 py-2">
-                    <USelectMenu
-                      v-model="finding.unitDivision"
-                      :items="store.unitDivisionOptions"
-                      :loading="store.departmentsLoading"
-                      :placeholder="t('executiveSummaryForm.placeholders.division')"
-                      :disabled="isLocked"
-                      class="w-full"
-                      create-item
-                      @create="(val: string) => { finding.unitDivision = val.trim() }"
-                    >
-                      <template #empty>
-                        {{ store.departmentsLoading ? t('common.loading') : (store.departmentsError || t('masterData.department.empty')) }}
-                      </template>
-                    </USelectMenu>
-                  </td>
-                  <td class="px-3 py-2">
-                    <UInput
-                      v-model="finding.judulTemuan"
-                      :placeholder="t('executiveSummaryForm.placeholders.findingTitle')"
-                      :disabled="isLocked"
-                      maxlength="100"
-                      @invalid="($event.target as any)?.setCustomValidity(t('executiveSummaryForm.validation.findingTitle'))"
-                      @input="($event.target as any)?.setCustomValidity('')"
-                    />
-                    <div class="text-xs text-gray-500 mt-1 text-right">
-                      {{ finding.judulTemuan ? finding.judulTemuan.length : 0 }}/100
-                    </div>
-                  </td>
-                  <td class="px-3 py-2">
-                    <USelectMenu
-                      v-model="finding.risiko"
-                      :items="significanceLevelOptions"
-                      value-key="value"
-                      :placeholder="t('executiveSummaryForm.placeholders.risk')"
-                      :disabled="isLocked"
-                      class="w-full"
-                    />
-                  </td>
-                  <td class="px-3 py-2">
-                    <USelectMenu
-                      v-model="finding.statusTL"
-                      :items="['Closed', 'In Progress', 'Overdue']"
-                      :placeholder="t('executiveSummaryForm.table.followUpStatus')"
-                      :disabled="isLocked"
-                    />
-                  </td>
-                  <td class="px-3 py-2">
-                    <UTextarea
-                      v-model="finding.usulan"
-                      :placeholder="t('executiveSummaryForm.placeholders.proposedAction')"
-                      :disabled="isLocked"
-                    />
-                  </td>
-                  <td v-if="!isLocked" class="px-3 py-2 text-center">
-                    <UButton
-                      color="error"
-                      variant="ghost"
-                      icon="i-lucide-trash"
-                      size="sm"
-                      @click="removeTopFinding(idx)"
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <div v-else class="text-center py-8 bg-gray-50 dark:bg-gray-800/30 rounded-lg text-sm text-gray-400 border border-dashed">
+          <SignificantFindingCards
+            ref="findingCardsRef"
+            :findings="store.form.topFindings"
+            :disabled="isLocked"
+            :unit-options="store.unitDivisionOptions"
+            :unit-loading="store.departmentsLoading"
+            :unit-error="store.departmentsError"
+            :risk-options="significanceLevelOptions"
+            @remove="removeTopFinding"
+          />
+          <div v-if="store.form.topFindings.length === 0" class="text-center py-8 bg-gray-50 dark:bg-gray-800/30 rounded-lg text-sm text-gray-400 border border-dashed">
             {{ t('executiveSummaryForm.topFindings.empty') }}
             <button v-if="!isLocked" type="button" @click="addTopFinding" class="text-primary-500 font-bold ml-1 hover:underline">
               {{ t('executiveSummaryForm.topFindings.emptyAction') }}
@@ -558,19 +490,30 @@
             :label="t('executiveSummaryForm.actions.approve')"
             class="font-bold px-6"
             :loading="store.loading"
-            @click="approveReportDirectly"
+            @click="openApproveSignature"
           />
         </template>
       </div>
     </div>
+
+    <ExecutiveSummaryApproveModal
+      v-model:open="showApproveModal"
+      :report-number="store.form.nomorDokumen"
+      :initial-place="store.form.signatureTempat"
+      :initial-date="store.form.signatureTanggal"
+      :initial-signer-name="store.form.signatureNamaKepala"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useExecutiveSummaryStore } from '~/stores/executive-summary'
 import { useAuthStore } from '~/stores/auth'
 import { useRbac } from '~/composables/useRbac'
+import ExecutiveSummaryApproveModal from './ExecutiveSummaryApproveModal.vue'
+import SignificantFindingCards from './SignificantFindingCards.vue'
+import { scrollStepIntoView } from '~/utils/stepperScroll'
 import { UserRole } from '~/types/auth'
 import { useI18n } from '~/composables/useI18n'
 import { useAppToast } from '~/composables/useAppToast'
@@ -673,6 +616,8 @@ const handleFileUpload = (e: Event) => {
 }
 
 // Section IV: Top 5 dynamic list methods
+// Only the card of a newly added finding opens; existing cards keep their state
+const findingCardsRef = ref<InstanceType<typeof SignificantFindingCards> | null>(null)
 const addTopFinding = () => {
   if (store.form.topFindings.length >= 5) return
   const defaultDiv: string = store.unitDivisionOptions[0] || ''
@@ -683,6 +628,7 @@ const addTopFinding = () => {
     statusTL: 'In Progress',
     usulan: ''
   })
+  findingCardsRef.value?.expand(store.form.topFindings[store.form.topFindings.length - 1])
 }
 
 const removeTopFinding = (idx: number) => {
@@ -722,14 +668,25 @@ const saveReportDraft = async () => {
   await store.saveForm()
 }
 
-const approveReportDirectly = async () => {
+// Approval is signed: the signature box in ExecutiveSummaryApproveModal is required before the backend accepts it
+const showApproveModal = ref(false)
+const openApproveSignature = () => {
   if (store.currentSummary) {
-    await store.updateStatus(store.currentSummary.id, 'Approved')
+    showApproveModal.value = true
   }
 }
 
 // Stepper navigation: one section is visible at a time
 const currentStepIndex = computed(() => Math.max(0, sections.value.findIndex(sec => sec.id === activeSection.value)))
+
+// Keeps the active step visible in the horizontal stepper strip (the header itself never scrolls vertically)
+const stepScrollRef = ref<HTMLElement | null>(null)
+const scrollActiveStepIntoView = () => {
+  const container = stepScrollRef.value
+  const step = container?.querySelectorAll<HTMLElement>('[data-testid="form-step"]')[currentStepIndex.value]
+  if (container && step) scrollStepIntoView(container, step)
+}
+watch(currentStepIndex, () => scrollActiveStepIntoView(), { flush: 'post' })
 
 const goToStep = (idx: number) => {
   const target = sections.value[idx]

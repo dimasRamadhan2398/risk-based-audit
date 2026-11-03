@@ -73,6 +73,7 @@ func (r *Registry) Serve() {
 	r.trustedDevices()
 	r.confidentiality()
 	r.resend()
+	r.systemLogs()
 }
 
 // auth registers auth routes
@@ -192,6 +193,17 @@ func (r *Registry) users() {
 			// Links an existing account to a master-data employee (employee creation in master-service)
 			adminOnly.POST("/:id/link-employee", r.controller.GetUser().LinkEmployee)
 		}
+	}
+}
+
+// systemLogs registers the admin user activity log. The view_system_logs
+// permission is checked in the controller (it needs a DB lookup of the token's
+// roles); VIEWER-only accounts are already stopped by the allow-list.
+func (r *Registry) systemLogs() {
+	logs := r.group.Group("/system-logs")
+	logs.Use(r.authenticated()...)
+	{
+		logs.GET("", r.controller.GetSystemLog().List)
 	}
 }
 

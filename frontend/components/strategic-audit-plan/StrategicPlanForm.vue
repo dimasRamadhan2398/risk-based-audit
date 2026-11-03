@@ -129,7 +129,7 @@
                 >
                   <USelectMenu
                     v-model="store.form.unit"
-                    :items="store.unitOptions"
+                    :items="unitOptions"
                     value-key="value"
                     :placeholder="t('strategicPlan.form.selectUnit')"
                     class="w-full"
@@ -282,6 +282,7 @@ import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import { useI18n } from '~/composables/useI18n'
 import { kpiValueLabel } from '~/utils/kpiPerformanceLabels'
 import { STRATEGIC_PLAN_CATEGORIES } from '~/utils/strategicPlanPayload'
+import { UNIT_LABEL_KEYS } from '~/utils/numberInput'
 import TargetRealizationMatrix from './TargetRealizationMatrix.vue'
 
 const { t } = useI18n()
@@ -290,6 +291,13 @@ const store = useStrategicPlanStore()
 // Raw value is what is saved; the label comes from the KPI table's category labels.
 const categoryOptions = computed(() =>
   STRATEGIC_PLAN_CATEGORIES.map((value): { label: string, value: string } => ({ label: kpiValueLabel(t, 'categories', value), value }))
+)
+// Unit labels come from i18n; the stored values (%, Rp, USD, GBP, Amount, ...) never change.
+const unitOptions = computed(() =>
+  store.unitOptions.map((o): { label: string, value: string } => ({
+    label: UNIT_LABEL_KEYS[o.value] ? t(`strategicPlan.form.units.${UNIT_LABEL_KEYS[o.value]}`) : o.label,
+    value: o.value
+  }))
 )
 // "" (no category) shows the placeholder; clearing the menu stores "" again.
 const category = computed<string | undefined>({

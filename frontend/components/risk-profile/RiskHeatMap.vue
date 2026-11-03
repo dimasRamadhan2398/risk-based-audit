@@ -185,7 +185,7 @@
 
     <!-- Legend -->
     <div class="border border-gray-200 dark:border-gray-800 rounded-xl p-4 mb-10 flex flex-wrap items-center gap-x-8 gap-y-3">
-      <span class="text-[10px] font-black uppercase tracking-[0.2em]">{{ t('riskProfile.riskLevels') }}</span>
+      <span class="text-sm text-primary font-bold tracking-wide">{{ t('riskProfile.riskLevels') }}:</span>
       <div class="flex flex-wrap gap-6">
         <div v-for="(config, key) in riskLevelConfig" :key="key" class="flex items-center gap-2">
           <div class="w-3.5 h-3.5 rounded-sm shadow-sm" :class="getRiskLevelDotClass(key)"></div>
@@ -232,7 +232,7 @@
                   >
                     <!-- Cell Labels -->
                     <div class="absolute inset-x-2 top-2 flex justify-between items-start pointer-events-none opacity-20 group-hover:opacity-40 transition-opacity">
-                      <span class="text-[8px] font-black lowercase tracking-wider max-w-[60%] leading-tight">{{ getRiskLevelLabel(getRiskLevel(l, i)) }}</span>
+                      <span class="text-[8px] font-black lowercase tracking-wider max-w-[60%]">{{ getRiskLevelLabel(getRiskLevel(l, i)) }}</span>
                       <span class="text-[10px] font-black">{{ getRiskScore(l, i) }}</span>
                     </div>
 
@@ -256,14 +256,14 @@
             <div class="flex mt-4 ml-0">
               <div v-for="i in impactLevels" :key="`x-${i}`" class="flex-1 flex flex-col items-center gap-1">
                 <span class="text-xl font-black tabular-nums">{{ i }}</span>
-                <span class="text-[10px] font-bold uppercase tracking-tighter text-center max-w-[80px] leading-tight">{{ getImpactLabel(i) }}</span>
+                <span class="text-[10px] font-bold uppercase tracking-loose text-center max-w-[80px] leading-tight">{{ getImpactLabel(i) }}</span>
               </div>
             </div>
 
             <!-- X-axis Label -->
-            <div class="mt-8 text-center text-[10px] font-black uppercase tracking-[0.3em]">
+            <!-- <div class="mt-8 text-center text-[10px] font-black uppercase tracking-[0.3em]">
               {{ t('riskProfile.impactLevel') }}
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -273,7 +273,7 @@
     <UCard :ui="{ body: { padding: 'p-0' } }" class="overflow-hidden border-gray-200 dark:border-gray-800">
       <UTabs v-model="activeRiskTab" :items="tabItems" class="w-full">
         <template #content="{ item }">
-          <div class="p-3 sm:p-6 max-h-[600px] overflow-y-auto">
+          <div class="p-3 sm:p-6">
             
             <!-- Tab: Progress spreadsheet-like table -->
             <div v-if="item.key === 'progress'">
@@ -436,7 +436,7 @@
                   <div class="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100 dark:border-gray-800 shrink-0">
                     <!-- Score -->
                     <div class="text-left sm:text-right px-2 sm:px-4 sm:border-r border-gray-100 dark:border-gray-800">
-                      <div class="text-[9px] sm:text-[10px] font-black uppercase tracking-tighter leading-none" :style="{ color: riskLevelConfig[getRiskLevel(risk.likelihood, risk.impact)].color }">
+                      <div class="text-[9px] sm:text-[10px] font-black uppercase tracking-loose leading-none" :style="{ color: riskLevelConfig[getRiskLevel(risk.likelihood, risk.impact)].color }">
                         {{ getRiskLevelLabel(getRiskLevel(risk.likelihood, risk.impact)) }}
                       </div>
                       <div class="text-xl sm:text-2xl font-black leading-tight text-gray-700 dark:text-gray-300 tabular-nums">
@@ -527,7 +527,7 @@
                                 :label="t('riskProfile.detailModal.mitigationBtn')"
                                 color="primary"
                                 variant="soft"
-                                class="w-full justify-center font-bold animate-pulse"
+                                class="w-full justify-center font-bold animate-pulse bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-200 border border-primary-300 dark:border-primary-700 hover:bg-primary-200 dark:hover:bg-primary-900/60 hover:text-primary-800 dark:hover:text-primary-100 focus-visible:ring-2 focus-visible:ring-primary-500 dark:focus-visible:ring-primary-400"
                                 :to="`/mitigation?id=${risk.id}`"
                               />
                             </div>
@@ -655,44 +655,6 @@
         </div>
       </template>
     </UModal>
-
-    <!-- Delete Confirmation Modal -->
-    <UModal 
-      v-model:open="isDeleteModalOpen"
-      :ui="{
-        content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-lg max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
-        header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
-        body: 'p-4 sm:p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
-        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
-        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
-      }"
-    >
-      <template #header>
-        <div class="flex items-center justify-between w-full">
-          <div class="flex items-center gap-3">
-            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-error-50 dark:bg-error-900/20 flex items-center justify-center text-error-500 font-black text-lg leading-none">
-              !
-            </div>
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white">
-              Hapus "{{ riskToDelete?.name }}"?
-            </h3>
-          </div>
-          <UButton color="neutral" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1" @click="isDeleteModalOpen = false" />
-        </div>
-      </template>
-
-      <template #body>
-        <p class="text-md text-gray-600 dark:text-gray-400 mt-1 mb-1">
-          Apakah Anda yakin ingin menghapus data risiko ini?<br /> {{ t('globalConfirmation.delete.note') }} </p>
-      </template>
-
-      <template #footer>
-        <div class="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 w-full">
-          <UButton :label="t('riskFactors.weighting.cancel')" color="neutral" variant="ghost" class="w-full sm:w-auto" @click="isDeleteModalOpen = false" />
-          <UButton :label="t('globalConfirmation.delete.confirmButton')" color="error" class="w-full sm:w-auto" @click="confirmDeleteRisk" />
-        </div>
-      </template>
-    </UModal>
   </div>
 </template>
 
@@ -701,8 +663,9 @@ import { ref, computed, watch, onMounted } from 'vue'
 import RiskBadge from './RiskBadge.vue'
 import RiskPagination from './RiskPagination.vue'
 import { useI18n } from '~/composables/useI18n'
-import { 
-  useRiskProfileStore, 
+import { useGlobalModalStore } from '~/stores/global-modal'
+import {
+  useRiskProfileStore,
   RISK_PAGE_SIZE,
   riskLevelConfig, 
   categoryIcons, 
@@ -733,8 +696,6 @@ const { fiscalYears } = useFiscalYear()
 const dragOverCell = ref(null)
 const activeRiskTab = ref('priority')
 const isAddModalOpen = ref(false)
-const isDeleteModalOpen = ref(false)
-const riskToDelete = ref(null)
 
 // Form state for new risk. location_id is a Location master ID (no default
 // branch: the user picks one from the master data).
@@ -928,6 +889,7 @@ watch(
   loadActiveTab
 )
 onMounted(() => {
+  store.syncDefaultPeriod()
   store.fetchCategories()
   loadActiveTab()
 })
@@ -1109,19 +1071,14 @@ async function onDrop(e, newLikelihood, newImpact) {
   }
 }
 
-function promptDeleteRisk(risk) {
-  riskToDelete.value = risk
-  isDeleteModalOpen.value = true
-}
+async function promptDeleteRisk(risk) {
+  const confirmed = await useGlobalModalStore().confirmDelete({
+    description: t('globalConfirmation.delete.titleWithItem', { itemName: risk.name })
+  })
+  if (!confirmed) return
 
-async function confirmDeleteRisk() {
-  if (!riskToDelete.value) return
-
-  await store.deleteRisk(riskToDelete.value.id)
-  toast.showSuccess(t('riskProfile.toasts.riskDeleted', { name: riskToDelete.value.name }))
-  
-  isDeleteModalOpen.value = false
-  riskToDelete.value = null
+  await store.deleteRisk(risk.id)
+  toast.showSuccess(t('riskProfile.toasts.riskDeleted', { name: risk.name }))
 }
 
 </script>

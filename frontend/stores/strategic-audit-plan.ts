@@ -38,7 +38,10 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
     const unitOptions = [
         { label: 'Percentage (%)', value: '%' },
         { label: 'Rupiah (Rp)', value: 'Rp' },
-        { label: 'Amount', value: 'Amount' },
+        { label: 'US Dollar ($)', value: 'USD' },
+        { label: 'British Pound (£)', value: 'GBP' },
+        // Stored value stays 'Amount' so existing rows keep working; the UI label is "Quantity".
+        { label: 'Quantity', value: 'Amount' },
         { label: 'Score', value: 'Score' },
         { label: 'Hour', value: 'Hour' },
         { label: 'Day', value: 'Day' },

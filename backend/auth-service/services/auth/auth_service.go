@@ -2,6 +2,7 @@ package services
 
 import (
 	"auth-service/models"
+	"auth-service/pkg/activitylog"
 	baseService "auth-service/pkg/base"
 	"auth-service/pkg/config"
 	"auth-service/pkg/errors"
@@ -43,6 +44,8 @@ type AuthService struct {
 	kafkaProducer *kafka.Producer
 	// employeeClient resolves users.employee_id to the master-data employee.
 	employeeClient *masterclient.EmployeeClient
+	// activity receives login, logout and password events (may be nil).
+	activity activitylog.Recorder
 }
 
 // NewAuthService creates a new auth service
@@ -53,6 +56,7 @@ func NewAuthService(
 	rdb *redis.Client,
 	cfg *config.Config,
 	kafkaProducer *kafka.Producer,
+	activity activitylog.Recorder,
 ) AuthServiceInterface {
 	var employeeClient *masterclient.EmployeeClient
 	if cfg != nil {
@@ -71,6 +75,7 @@ func NewAuthService(
 		config:         cfg,
 		kafkaProducer:  kafkaProducer,
 		employeeClient: employeeClient,
+		activity:       activity,
 	}
 }
 
@@ -81,6 +86,7 @@ func (s *AuthService) Login(ctx context.Context, req *models.LoginRequest, ipAdd
 	if err != nil {
 		if errors.Is(err, errors.ErrNotFound) {
 			s.LogInfo("Login attempt with non-existent username", utils.LogField("username", req.Username))
+			s.recordLoginFailed(ctx, "", req.Username, ipAddress, userAgent, loginFailUnknownUser)
 			return nil, errors.ErrInvalidCredentials
 		}
 		s.LogError("Failed to find user during login", utils.LogField("error", err))
@@ -90,12 +96,14 @@ func (s *AuthService) Login(ctx context.Context, req *models.LoginRequest, ipAdd
 	// Check if user is active
 	if !user.IsActive {
 		s.LogInfo("Login attempt for inactive user", utils.LogField("user_id", user.ID))
+		s.recordLoginFailed(ctx, user.ID.String(), user.Username, ipAddress, userAgent, loginFailInactive)
 		return nil, errors.ErrUnauthorized
 	}
 
 	// Verify password
 	if !utils.CheckPassword(req.Password, user.PasswordHash) {
 		s.LogInfo("Login attempt with invalid password", utils.LogField("user_id", user.ID))
+		s.recordLoginFailed(ctx, user.ID.String(), user.Username, ipAddress, userAgent, loginFailInvalidPassword)
 		return nil, errors.ErrInvalidCredentials
 	}
 
@@ -190,6 +198,18 @@ func (s *AuthService) completeLogin(ctx context.Context, user *models.User, fing
 	}
 
 	s.LogInfo("User logged in successfully", utils.LogField("user_id", user.ID))
+	s.record(ctx, activitylog.Entry{
+		ActorUserID:   user.ID.String(),
+		ActorUsername: user.Username,
+		Action:        activitylog.ActionLogin,
+		EntityType:    "user",
+		EntityID:      user.ID.String(),
+		Result:        activitylog.ResultSuccess,
+		IPAddress:     ipAddress,
+		UserAgent:     userAgent,
+		Summary:       user.Username + " signed in",
+		Details:       map[string]interface{}{"new_device": isNewDevice},
+	})
 
 	// Send to Kafka for centralized logging
 	if s.kafkaProducer != nil && s.kafkaProducer.IsEnabled() {
@@ -281,6 +301,7 @@ func (s *AuthService) VerifyMFALogin(ctx context.Context, req *models.VerifyMFAL
 	key := "mfa_login:" + req.MFAToken
 	userIDStr, err := s.redis.Get(ctx, key).Result()
 	if err != nil {
+		s.recordLoginFailed(ctx, "", "", ipAddress, userAgent, loginFailInvalidMFAToken)
 		return nil, errors.Wrap("INVALID_MFA_TOKEN", "Invalid or expired MFA login token", 400, nil)
 	}
 
@@ -303,6 +324,11 @@ func (s *AuthService) VerifyMFALogin(ctx context.Context, req *models.VerifyMFAL
 
 	// Let's implement verifyTOTP logic here as well for now or use utils if available.
 	if !s.verifyTOTP(mfa.SecretKey, req.Code) {
+		username := ""
+		if u, uerr := s.userRepo.FindByID(userID); uerr == nil && u != nil {
+			username = u.Username
+		}
+		s.recordLoginFailed(ctx, userID.String(), username, ipAddress, userAgent, loginFailInvalidMFACode)
 		return nil, errors.Wrap("INVALID_CODE", "Invalid MFA code", 400, nil)
 	}
 
@@ -396,6 +422,17 @@ func (s *AuthService) Logout(ctx context.Context, token, userID, username, ipAdd
 		return errors.ErrInternalServer
 	}
 	s.LogInfo("User logged out successfully")
+	s.record(ctx, activitylog.Entry{
+		ActorUserID:   userID,
+		ActorUsername: username,
+		Action:        activitylog.ActionLogout,
+		EntityType:    "user",
+		EntityID:      userID,
+		Result:        activitylog.ResultSuccess,
+		IPAddress:     ipAddress,
+		UserAgent:     userAgent,
+		Summary:       username + " signed out",
+	})
 
 	// Send to Kafka for centralized logging
 	if s.kafkaProducer != nil && s.kafkaProducer.IsEnabled() {
@@ -438,6 +475,13 @@ func (s *AuthService) ChangePassword(ctx context.Context, userID uuid.UUID, req 
 
 	// Verify old password
 	if !utils.CheckPassword(req.OldPassword, user.PasswordHash) {
+		s.record(ctx, activitylog.Entry{
+			ActorUserID: user.ID.String(), ActorUsername: user.Username,
+			Action: activitylog.ActionPasswordChanged, EntityType: "user", EntityID: user.ID.String(),
+			Result: activitylog.ResultFailure, IPAddress: ipAddress,
+			Summary: user.Username + " failed to change their password",
+			Details: map[string]interface{}{"reason": "invalid_current_password"},
+		})
 		return errors.ErrInvalidCredentials
 	}
 
@@ -461,6 +505,12 @@ func (s *AuthService) ChangePassword(ctx context.Context, userID uuid.UUID, req 
 	}
 
 	s.LogInfo("Password changed successfully", utils.LogField("user_id", user.ID))
+	s.record(ctx, activitylog.Entry{
+		ActorUserID: user.ID.String(), ActorUsername: user.Username,
+		Action: activitylog.ActionPasswordChanged, EntityType: "user", EntityID: user.ID.String(),
+		Result: activitylog.ResultSuccess, IPAddress: ipAddress,
+		Summary: user.Username + " changed their password",
+	})
 
 	// Send to Kafka for centralized logging
 	if s.kafkaProducer != nil && s.kafkaProducer.IsEnabled() {

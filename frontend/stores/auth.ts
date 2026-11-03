@@ -231,6 +231,8 @@ export const useAuthStore = defineStore('auth', {
       if (this.user) {
         this.user.employeeId = link.employeeId
         this.user.departmentId = link.departmentId
+        // Permission names, once auth-service sends them (useRbac().getUserPermissions)
+        if (Array.isArray(info.permissions)) this.user.permissions = info.permissions
       }
       return link
     },

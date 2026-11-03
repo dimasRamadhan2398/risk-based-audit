@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"strings"
+
 	"auth-service/models"
 	apperrors "auth-service/pkg/errors"
 
@@ -22,6 +24,7 @@ type PermissionRepositoryInterface interface {
 	FindAll() ([]*models.Permission, error)
 	FindMany(offset, limit int, search string) ([]*models.Permission, error)
 	Count(search string) (int64, error)
+	NamesForRoles(roleNames []string) ([]string, error)
 }
 
 // PermissionRepository handles permission data operations
@@ -128,4 +131,29 @@ func (r *PermissionRepository) Count(search string) (int64, error) {
 	}
 
 	return count, nil
+}
+
+// NamesForRoles returns the distinct permission names granted to any of the
+// given role names (compared case-insensitively, as the JWT roles claim is).
+func (r *PermissionRepository) NamesForRoles(roleNames []string) ([]string, error) {
+	lowered := make([]string, 0, len(roleNames))
+	for _, n := range roleNames {
+		if n = strings.ToLower(strings.TrimSpace(n)); n != "" {
+			lowered = append(lowered, n)
+		}
+	}
+	if len(lowered) == 0 {
+		return []string{}, nil
+	}
+	var names []string
+	err := r.GetDB().Table("permissions").
+		Distinct("permissions.name").
+		Joins("JOIN role_permissions ON role_permissions.permission_id = permissions.id").
+		Joins("JOIN roles ON roles.id = role_permissions.role_id").
+		Where("LOWER(roles.name) IN ?", lowered).
+		Pluck("permissions.name", &names).Error
+	if err != nil {
+		return nil, err
+	}
+	return names, nil
 }

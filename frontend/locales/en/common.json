@@ -169,6 +169,16 @@
         "Sat"
       ]
     },
+    "signatureBox": {
+      "notSigned": "Not signed yet",
+      "signHere": "Sign here",
+      "hint": "Draw with a mouse, finger, or stylus. The signature is recorded when you lift the pen.",
+      "name": "Signer name",
+      "namePlaceholder": "Full name",
+      "title": "Signer title",
+      "titlePlaceholder": "e.g. Head of SPI",
+      "timestamp": "Signed at"
+    },
     "signaturePad": {
       "draw": "Draw",
       "signed": "Signed",
@@ -740,7 +750,8 @@
       "permissions": "Permissions",
       "dataSources": "Data Sources",
       "emailService": "Email Service (Resend)",
-      "faq": "FAQ"
+      "faq": "FAQ",
+      "systemLogs": "System Logs"
     },
     "titles": {
       "profile": "My Profile",
@@ -750,7 +761,8 @@
       "permissions": "Permissions",
       "datasource": "Data Source Connections",
       "email": "Email Dispatcher (Resend API)",
-      "faq": "FAQ"
+      "faq": "FAQ",
+      "systemLogs": "System Logs"
     },
     "general": {
       "cardTitle": "General Settings",
@@ -1178,6 +1190,90 @@
       "provisionSuccessDesc": "Domain {domain} registered with {count} DNS verification records.",
       "provisionFailedToast": "Provisioning Failed",
       "provisionFailedDesc": "Failed to provision domain."
+    },
+    "systemLogs": {
+      "title": "User activity log",
+      "subtitle": "Sign-ins, account changes and other user actions recorded by the system.",
+      "loading": "Loading activity log",
+      "systemActor": "System",
+      "updatedAt": "updated {time}",
+      "pause": "Pause live updates",
+      "resume": "Resume live updates",
+      "refresh": "Refresh",
+      "retry": "Try again",
+      "loadMore": "Load older events",
+      "endOfList": "No older events",
+      "errorTitle": "Could not load the activity log",
+      "forbiddenTitle": "You do not have access to the activity log",
+      "forbiddenDesc": "Viewing the activity log requires the View system logs permission. Ask an administrator if you need access.",
+      "emptyTitle": "No activity recorded yet",
+      "emptyDesc": "Events will appear here as soon as users sign in or change data.",
+      "emptyFilteredTitle": "No events match the filters",
+      "emptyFilteredDesc": "Try a wider date range or clear the filters.",
+      "live": {
+        "live": "Live",
+        "paused": "Paused",
+        "hidden": "Paused while tab is hidden",
+        "retrying": "Reconnecting"
+      },
+      "columns": {
+        "time": "Time",
+        "user": "User",
+        "action": "Action",
+        "entity": "Entity",
+        "result": "Result",
+        "ip": "IP address",
+        "summary": "Summary"
+      },
+      "result": {
+        "success": "Success",
+        "failure": "Failed"
+      },
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Username or summary",
+        "action": "Action",
+        "allActions": "All actions",
+        "result": "Result",
+        "allResults": "All results",
+        "from": "From",
+        "to": "To",
+        "clear": "Clear filters",
+        "invalidRange": "The start date must be on or before the end date."
+      },
+      "detail": {
+        "time": "Time",
+        "action": "Action code",
+        "entity": "Entity",
+        "userId": "User ID",
+        "ip": "IP address",
+        "userAgent": "User agent",
+        "summary": "Summary",
+        "details": "Details",
+        "noDetails": "No additional details"
+      },
+      "actions": {
+        "user_login": "Signed in",
+        "user_logout": "Signed out",
+        "user_login_failed": "Sign-in failed",
+        "user_password_changed": "Password changed",
+        "user_password_reset_by_admin": "Password reset by admin",
+        "mfa_enabled": "MFA enabled",
+        "mfa_disabled": "MFA disabled",
+        "mfa_verified": "MFA verified",
+        "mfa_failed": "MFA verification failed",
+        "role_created": "Role created",
+        "role_deleted": "Role deleted",
+        "role_permissions_assigned": "Permissions added to role",
+        "role_permissions_revoked": "Permissions removed from role",
+        "role_assigned": "Role assigned to user",
+        "role_revoked": "Role removed from user",
+        "device_trusted_added": "Trusted device added",
+        "device_trusted_removed": "Trusted device removed",
+        "permission_denied": "Access denied",
+        "security_step_up": "Identity re-confirmed",
+        "system_logs_viewed": "Activity log viewed"
+      }
     }
   },
   "strategicPlan": {
@@ -1287,6 +1383,16 @@
       "kpiPlaceholder": "Ex: Revenue Operational Cost",
       "unit": "Unit",
       "selectUnit": "Select Unit",
+      "units": {
+        "percentage": "Percentage (%)",
+        "rupiah": "Rupiah (Rp)",
+        "usd": "US Dollar ($)",
+        "gbp": "British Pound (£)",
+        "quantity": "Quantity",
+        "score": "Score",
+        "hour": "Hour",
+        "day": "Day"
+      },
       "hibHig": "HIB/HIG",
       "higLabel": "HIG (High is Good)",
       "hibLabel": "HIB (High is Bad)",
@@ -1853,7 +1959,7 @@
   },
   "riskProfile": {
     "title": "Corporate Risk Profile",
-    "subtitle": "Enterprise Risk Profile for Fiscal Year {year} - {period}",
+    "subtitle": "Enterprise Risk Profile Fiscal Year {year} for {period}",
     "total": "Total",
     "priority": "Priority",
     "addRisk": "Add Risk",
@@ -3176,6 +3282,21 @@
     }
   },
   "executiveSummaryForm": {
+    "approval": {
+      "title": "Executive Summary Approval",
+      "description": "Sign Executive Summary {report} to approve it.",
+      "lockNotice": "Once approved, the summary is locked and its signature and approval record cannot be changed.",
+      "confirm": "Approve with signature",
+      "confirmDescription": "Approve this Executive Summary?",
+      "confirmBody": "Once approved, the document is locked and the signature cannot be changed.",
+      "incomplete": "Complete the signing place, date, signature, and signer name.",
+      "success": "Executive Summary approved and signed.",
+      "errors": {
+        "saveFirst": "Save the Executive Summary to the server before approving it.",
+        "signatureRequired": "Approval requires a signature. Use the Approve button.",
+        "failed": "Failed to approve the Executive Summary."
+      }
+    },
     "stepper": {
       "previous": "Previous",
       "next": "Next"
@@ -3195,7 +3316,7 @@
       "lowRisk": "Low Risk",
       "lowRiskHint": "Automatically calculated from Low-to-Moderate and Low risk levels",
       "followUpSection": "Section III: Follow-up Status",
-      "topFindingsSection": "Section IV: Top 5 Significant Findings",
+      "topFindingsSection": "Section IV: Top Significant Findings",
       "analysisSection": "Sections V and VII: Recurring Findings Analysis and Conclusion",
       "recurringThemes": "Section V: Recurring Themes (Root Causes and Proposed Policy Revisions)",
       "managementConclusion": "Section VII: Management Conclusion and Recommendations",
@@ -3310,11 +3431,14 @@
       "actions": "Actions"
     },
     "topFindings": {
-      "title": "Top 5 Significant Findings",
+      "title": "Top Significant Findings",
       "description": "Critical findings that require escalation or action from the Board of Directors.",
       "add": "Add Finding",
       "empty": "No top significant findings added yet.",
-      "emptyAction": "Click here to add one."
+      "emptyAction": "Click here to add one.",
+      "cardTitle": "Finding {number}",
+      "untitled": "Untitled finding",
+      "remove": "Remove finding"
     },
     "sync": {
       "findings": "Sync Findings from LHA",
@@ -3456,7 +3580,7 @@
       "narrative": "Narrative Summary",
       "stats": "Compilation Statistics",
       "followUp": "Follow-up Status",
-      "topFindings": "Top 5 Significant",
+      "topFindings": "Top Significant",
       "analysis": "Root Causes & Conclusion",
       "matrix": "LHA Compilation Matrix",
       "notes": "Noted"
@@ -5262,7 +5386,10 @@
     "filters": {
       "yearOption": "Year {year}",
       "allDepartments": "All Departments",
-      "allBranches": "All Branches"
+      "allBranches": "All Branches",
+      "unassignedBranch": "Unassigned",
+      "branchLabel": "Branch",
+      "branchesUnavailable": "Branch master data could not be loaded."
     },
     "cards": {
       "effectiveness": {
@@ -5371,6 +5498,7 @@
       "riskEventLabel": "Risk Event (Synchronized)",
       "controlSelectLabel": "Select Risk Control ID (Mitigation Plan & Control)",
       "controlSelectPlaceholder": "Select Risk Control ID...",
+      "noMitigationPlan": "No risk mitigation plan has been recorded for this risk yet. Add one in the Risk Mitigation Plan page to continue.",
       "controlCodeLabel": "Control Code (Synchronized)",
       "controlCodePlaceholder": "e.g. CTL-FIN-001",
       "controlOwnerLabel": "PIC / Control Owner (Synchronized)",
@@ -5379,6 +5507,7 @@
       "controlDescPlaceholder": "Explain operational control mechanism, review, verification, or systemic execution...",
       "evaluationTitle": "Evaluation of 5 Internal Control Dimensions (COSO)",
       "evaluationWeight": "Fixed Weight: 20% Each Dimension (Scale 1 - 5)",
+      "dimensionRequired": "Select a score for this dimension.",
       "totalWeightedScore": "Total Weighted Effectiveness Score:",
       "interpretation": "Interpretation:",
       "cancel": "Cancel",
@@ -5386,6 +5515,7 @@
     },
     "toasts": {
       "validationWarning": "Please select a risk and fill in the control description.",
+      "dimensionsRequired": "All 5 control dimensions must be scored before saving.",
       "updateSuccess": "Risk Control Matrix updated successfully",
       "addSuccess": "Risk Control Matrix added successfully",
       "deleteSuccess": "Risk Control Matrix deleted successfully"
