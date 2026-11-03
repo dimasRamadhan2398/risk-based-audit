@@ -1,11 +1,22 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+/* Self-hosted IBM Plex (latin subset) — no Google Fonts / CDN requests.
+   700 is loaded too because font-bold is used widely; without it the browser would fake-bold 600. */
+@import "@fontsource/ibm-plex-sans/latin-400.css";
+@import "@fontsource/ibm-plex-sans/latin-500.css";
+@import "@fontsource/ibm-plex-sans/latin-600.css";
+@import "@fontsource/ibm-plex-sans/latin-700.css";
+@import "@fontsource/ibm-plex-mono/latin-400.css";
+@import "@fontsource/ibm-plex-mono/latin-600.css";
+
 @tailwind utilities;
 
 @theme static {
-  --font-sans: "Space Grotesk", sans-serif;
-  --font-serif: "Instrument Serif", serif;
+  /* UI text: IBM Plex Sans. Mono is reserved for transaction IDs, KPI codes and log output. */
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-serif: Georgia, Cambria, "Times New Roman", Times, serif;
 
   /* Custom dark shade helpers */
   --color-gray-850: #172033;
@@ -151,22 +162,20 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
+/* Type scale: page title 24/600 (h1), section title 16/600 (h2, h3), body 14/400 (p). */
 h1,
 h2,
 h3 {
-  @apply font-bold text-[var(--text-main)] tracking-tight transition-colors duration-300;
+  @apply font-semibold text-[var(--text-main)] tracking-tight transition-colors duration-300;
 }
 
 h1 {
   @apply text-xl sm:text-2xl;
 }
 
-h2 {
-  @apply text-lg sm:text-xl;
-}
-
+h2,
 h3 {
-  @apply text-base sm:text-lg;
+  @apply text-base;
 }
 
 h4,
@@ -206,6 +215,57 @@ p {
 @layer utilities {
   .bg-audit-bg {
     background-image: var(--image-audit-bg);
+  }
+}
+
+/* Type scale utilities (named type-* so tailwind-merge in Nuxt UI doesn't treat them as text colours). */
+@utility type-page-title {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 600;
+}
+
+@utility type-section-title {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 600;
+}
+
+@utility type-body {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+}
+
+@utility type-meta {
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  font-weight: 400;
+}
+
+/* Key numbers: stat tiles, KPI values. */
+@utility type-kpi {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Currency cells: aligned digits, right-aligned. */
+@utility num-currency {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Digits line up in every table and numeric display. */
+@layer base {
+  table,
+  th,
+  td,
+  input[type="number"],
+  [data-numeric] {
+    font-variant-numeric: tabular-nums;
   }
 }
 

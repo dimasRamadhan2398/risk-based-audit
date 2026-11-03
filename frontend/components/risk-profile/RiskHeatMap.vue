@@ -16,11 +16,11 @@
         <div class="flex flex-wrap items-center gap-3 sm:gap-4">
           <div class="flex gap-3 sm:gap-4">
             <div class="px-3 sm:px-4 py-2 rounded-lg border border-gray-100 dark:border-gray-700 text-center min-w-[70px] sm:min-w-[80px]">
-              <span class="block text-lg sm:text-xl font-black ">{{ totalRisks }}</span>
+              <span class="block text-lg sm:text-xl font-black tabular-nums">{{ totalRisks }}</span>
               <span class="block text-[9px] sm:text-[10px] font-bold uppercase tracking-widest">{{ t('riskProfile.total') }}</span>
             </div>
             <div class="px-3 sm:px-4 py-2 bg-orange-100 dark:bg-orange-900/50 rounded-lg border border-orange-100 dark:border-orange-900/50 text-center min-w-[70px] sm:min-w-[80px]">
-              <span class="block text-lg sm:text-xl text-warning-500 font-black ">{{ priorityCount }}</span>
+              <span class="block text-lg sm:text-xl text-warning-500 font-black tabular-nums">{{ priorityCount }}</span>
               <span class="block text-[9px] sm:text-[10px] font-bold text-warning-500 uppercase tracking-widest">{{ t('riskProfile.priority') }}</span>
             </div>
           </div>
@@ -123,51 +123,65 @@
       class="mb-6"
     />
 
-    <!-- Controls & Hint -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8 items-start">
-      <div class="sm:col-span-2">
-        <QuickTip
-          :title="t('riskProfile.quickTip.title')"
-          :description="t('riskProfile.quickTip.desc')"
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
+  <div class="h-full flex flex-col justify-center align-middle">
+    <QuickTip
+      class="h-full flex flex-row justify-center items-center align-middle"
+      :title="t('riskProfile.quickTip.title')"
+      :description="t('riskProfile.quickTip.desc')"
+      :ui="{ icon: 'shrink-0 size-10 lamp-resonate' }"
+    />
+  </div>
+
+  <div class="flex h-full flex-col justify-between gap-4">
+    <UFormField
+      :label="t('riskProfile.filterBranch')"
+      size="sm"
+      class="font-bold"
+      :error="branchFieldError"
+      :help="!store.branchesError && !store.branchesLoading && store.locations.length === 0 ? t('riskProfile.noBranches') : undefined"
+    >
+      <USelect
+        v-model="selectedBranch"
+        :items="branchOptions"
+        icon="i-heroicons-building-office"
+        :loading="store.branchesLoading"
+        :disabled="!!store.branchesError"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField :label="t('riskProfile.filterCategory')" size="sm" class="font-bold">
+      <USelect
+        v-model="selectedCategory"
+        :items="categoryFilterOptions"
+        icon="i-heroicons-tag"
+        :disabled="store.risks.length === 0"
+        class="w-full"
+      />
+    </UFormField>
+
+    <div class="flex gap-4">
+      <UFormField :label="t('riskProfile.fiscalYear')" size="sm" class="font-bold w-1/2">
+        <USelect
+          v-model.number="store.selectedYear"
+          :items="fiscalYears"
+          icon="i-heroicons-calendar"
+          class="w-full"
         />
-      </div>
-      <div>
-        <UFormField
-          :label="t('riskProfile.filterBranch')"
-          size="sm"
-          class="font-bold"
-          :error="branchFieldError"
-          :help="!store.branchesError && !store.branchesLoading && store.locations.length === 0 ? t('riskProfile.noBranches') : undefined"
-        >
-          <USelect
-            v-model="selectedBranch"
-            :items="branchOptions"
-            icon="i-heroicons-building-office"
-            :loading="store.branchesLoading"
-            :disabled="!!store.branchesError"
-            class="w-full"
-          />
-        </UFormField>
-      </div>
-      <div class="flex gap-4 col-span-1 sm:col-span-2 md:col-span-1">
-        <UFormField :label="t('riskProfile.fiscalYear')" size="sm" class="font-bold w-1/2">
-          <USelect
-            v-model.number="store.selectedYear"
-            :items="fiscalYears"
-            icon="i-heroicons-calendar"
-            class="w-full"
-          />
-        </UFormField>
-        <UFormField :label="t('riskProfile.period')" size="sm" class="font-bold w-1/2">
-          <USelect
-            v-model="store.selectedPeriod"
-            :items="['Q1', 'Q2', 'Q3', 'Q4']"
-            icon="i-heroicons-clock"
-            class="w-full"
-          />
-        </UFormField>
-      </div>
+      </UFormField>
+
+      <UFormField :label="t('riskProfile.period')" size="sm" class="font-bold w-1/2">
+        <USelect
+          v-model="store.selectedPeriod"
+          :items="['Q1', 'Q2', 'Q3', 'Q4']"
+          icon="i-heroicons-clock"
+          class="w-full"
+        />
+      </UFormField>
     </div>
+  </div>
+</div>
 
     <!-- Legend -->
     <div class="border border-gray-200 dark:border-gray-800 rounded-xl p-4 mb-10 flex flex-wrap items-center gap-x-8 gap-y-3">
@@ -176,7 +190,7 @@
         <div v-for="(config, key) in riskLevelConfig" :key="key" class="flex items-center gap-2">
           <div class="w-3.5 h-3.5 rounded-sm shadow-sm" :class="getRiskLevelDotClass(key)"></div>
           <span class="text-md font-bold">{{ getRiskLevelLabel(key) }}</span>
-          <UIcon v-if="config.priority" name="i-heroicons-fire" class="w-3.5 h-3.5 text-warning-500" />
+          <UIcon v-if="config.priority" name="i-lucide-triangle-alert" class="w-3.5 h-3.5 text-warning-500" />
         </div>
       </div>
     </div>
@@ -194,7 +208,7 @@
           <div class="flex flex-col w-28 shrink-0">
             <div v-for="l in likelihoodLevels" :key="`y-${l}`" class="flex-1 flex items-center justify-end gap-3 pr-2 min-h-[110px]">
               <span class="text-md font-bold text-right leading-tight max-w-[70px] uppercase">{{ getLikelihoodLabel(l) }}</span>
-              <span class="text-xl font-black">{{ l }}</span>
+              <span class="text-xl font-black tabular-nums">{{ l }}</span>
             </div>
           </div>
 
@@ -241,7 +255,7 @@
             <!-- X-axis Ticks -->
             <div class="flex mt-4 ml-0">
               <div v-for="i in impactLevels" :key="`x-${i}`" class="flex-1 flex flex-col items-center gap-1">
-                <span class="text-xl font-black">{{ i }}</span>
+                <span class="text-xl font-black tabular-nums">{{ i }}</span>
                 <span class="text-[10px] font-bold uppercase tracking-tighter text-center max-w-[80px] leading-tight">{{ getImpactLabel(i) }}</span>
               </div>
             </div>
@@ -292,7 +306,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-if="filteredRisks.length === 0">
+                    <tr v-if="progressPage.items.length === 0">
                       <td colspan="14" class="py-12 text-center text-gray-500 dark:text-gray-400">
                         <UIcon name="i-heroicons-inbox" class="w-8 h-8 mx-auto text-gray-400 mb-2" />
                         <p class="font-medium text-sm">{{ t('riskProfile.emptyTitle', { year: store.selectedYear }) }}</p>
@@ -301,11 +315,11 @@
                     </tr>
                     <tr 
                       v-else
-                      v-for="(risk, index) in filteredRisks" 
+                      v-for="(risk, index) in progressPage.items" 
                       :key="risk.id" 
                       class="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50/50 dark:hover:bg-gray-800/20 text-center font-medium"
                     >
-                      <td class="py-3.5 px-3 border-r border-gray-200 dark:border-gray-800 text-left font-bold text-gray-400">{{ index + 1 }}</td>
+                      <td class="py-3.5 px-3 border-r border-gray-200 dark:border-gray-800 text-left font-bold text-gray-400">{{ (progressPage.page - 1) * progressPage.pageSize + index + 1 }}</td>
                       <td class="py-3.5 px-4 border-r border-gray-200 dark:border-gray-800 text-left font-bold leading-normal text-gray-700 dark:text-gray-200 max-w-[300px] whitespace-normal">
                         {{ risk.name }}
                       </td>
@@ -347,12 +361,18 @@
                   </tbody>
                 </table>
               </div>
+              <RiskPagination
+                :page="progressPage.page"
+                :page-size="progressPage.pageSize"
+                :total="progressPage.total"
+                @update:page="p => store.fetchRiskPage('progress', p)"
+              />
             </div>
 
             <!-- Tabs: Priority / All List -->
             <div v-else>
               <div 
-                v-if="getTabRisks(item.key).length === 0" 
+                v-if="getTabRisks(item.key).length === 0 && !tabLoading(item.key)" 
                 class="text-center py-12 px-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/30 space-y-3"
               >
                 <div class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto">
@@ -391,7 +411,7 @@
                   <div class="flex items-center gap-3 min-w-0 flex-1">
                     <!-- Formatted ID Badge -->
                     <div 
-                      class="w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-lg flex flex-col items-center justify-center shadow-md font-mono text-white"
+                      class="w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-lg flex flex-col items-center justify-center shadow-md tabular-nums text-white"
                       :style="{ background: riskLevelConfig[getRiskLevel(risk.likelihood, risk.impact)].color }"
                     >
                       <span class="text-[8px] font-bold opacity-75 uppercase">{{ getPrefix(risk) }}</span>
@@ -419,7 +439,7 @@
                       <div class="text-[9px] sm:text-[10px] font-black uppercase tracking-tighter leading-none" :style="{ color: riskLevelConfig[getRiskLevel(risk.likelihood, risk.impact)].color }">
                         {{ getRiskLevelLabel(getRiskLevel(risk.likelihood, risk.impact)) }}
                       </div>
-                      <div class="text-xl sm:text-2xl font-black leading-tight text-gray-700 dark:text-gray-300">
+                      <div class="text-xl sm:text-2xl font-black leading-tight text-gray-700 dark:text-gray-300 tabular-nums">
                         {{ getRiskScore(risk.likelihood, risk.impact) }}
                       </div>
                     </div>
@@ -539,6 +559,12 @@
                   </div>
                 </div>  
               </TransitionGroup>
+              <RiskPagination
+                :page="tabPagination(item.key).page"
+                :page-size="tabPagination(item.key).pageSize"
+                :total="tabPagination(item.key).total"
+                @update:page="p => setTabPage(item.key, p)"
+              />
             </div>
 
           </div>
@@ -671,11 +697,13 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import RiskBadge from './RiskBadge.vue'
+import RiskPagination from './RiskPagination.vue'
 import { useI18n } from '~/composables/useI18n'
 import { 
   useRiskProfileStore, 
+  RISK_PAGE_SIZE,
   riskLevelConfig, 
   categoryIcons, 
   getCategoryIcon,
@@ -687,6 +715,13 @@ import {
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { useFiscalYear } from '~/composables/useFiscalYear'
 import { getRiskLevelColorClass, getRiskLevelDotClass } from '~/utils/riskLevelBadge'
+import {
+  ALL_RISK_CATEGORIES,
+  filterRisksByCategory,
+  getDistinctRiskCategories,
+  getRiskCategoryI18nKey
+} from '~/utils/riskCategoryFilter'
+import { paginateList } from '~/utils/clientPagination'
 
 const store = useRiskProfileStore()
 const { getRiskLevel, getRiskScore } = store
@@ -817,7 +852,33 @@ const selectedBranch = computed({
 })
 
 // Filtering by location_id lives in the store (store.filteredRisks).
-const filteredRisks = computed(() => store.filteredRisks)
+// Category filter is applied on top of it, so heat map, priority and register all follow both.
+const selectedCategory = computed({
+  get: () => store.selectedCategory,
+  set: (val) => { store.selectedCategory = val }
+})
+const filteredRisks = computed(() => filterRisksByCategory(store.filteredRisks, selectedCategory.value))
+
+// Options come from GET /risks/categories (independent of the branch filter, so choosing a
+// branch never removes a category). If that call failed, fall back to the loaded risks.
+const categoryNames = computed(() =>
+  store.categories.length > 0 ? store.categories : getDistinctRiskCategories(store.risks)
+)
+const categoryFilterOptions = computed(() => [
+  { label: t('riskProfile.allCategories'), value: ALL_RISK_CATEGORIES },
+  ...categoryNames.value.map(category => {
+    const key = getRiskCategoryI18nKey(category)
+    return { label: key ? t(`riskProfile.categories.${key}`) : category, value: category }
+  })
+])
+
+// Drop a category that no longer exists in the data (e.g. last risk of that category removed).
+watch(categoryFilterOptions, (options) => {
+  if (store.risks.length === 0 && store.categories.length === 0) return // nothing loaded yet
+  if (!options.some(o => o.value === selectedCategory.value)) {
+    selectedCategory.value = ALL_RISK_CATEGORIES
+  }
+})
 
 const emptyDescText = computed(() =>
   store.selectedYear > new Date().getFullYear()
@@ -839,6 +900,36 @@ const priorityRisks = computed(() => {
       if (scoreB !== scoreA) return scoreB - scoreA
       return b.severity - a.severity
     })
+})
+
+// Priority is derived from the period's computed risk level, so it pages client-side
+// over the full filtered list (the heat map and tab counts use that list too).
+const priorityPageData = computed(() => paginateList(priorityRisks.value, store.priorityPage, RISK_PAGE_SIZE))
+const allPage = computed(() => store.riskPages.all)
+const progressPage = computed(() => store.riskPages.progress)
+
+const tabPagination = (key) => {
+  if (key === 'priority') return priorityPageData.value
+  return allPage.value
+}
+const tabLoading = (key) => key === 'priority' ? false : allPage.value.loading
+const setTabPage = (key, page) => {
+  if (key === 'priority') store.priorityPage = page
+  else store.fetchRiskPage('all', page)
+}
+
+// Load the visible server-paged table; filters reset to page 1 inside the store.
+const loadActiveTab = () => {
+  if (activeRiskTab.value === 'all') store.fetchRiskPage('all')
+  else if (activeRiskTab.value === 'progress') store.fetchRiskPage('progress')
+}
+watch(
+  () => [store.selectedBranch, store.selectedCategory, store.selectedYear, store.selectedPeriod, store.searchQuery, activeRiskTab.value],
+  loadActiveTab
+)
+onMounted(() => {
+  store.fetchCategories()
+  loadActiveTab()
 })
 
 const priorityCount = computed(() => priorityRisks.value.length)
@@ -865,7 +956,7 @@ const tabItems = computed(() => [
     key: 'priority',
     value: 'priority',
     label: t('riskProfile.tabs.priority', { count: priorityRisks.value.length }),
-    icon: 'i-heroicons-fire'
+    icon: 'i-lucide-triangle-alert'
   },
   {
     key: 'all',
@@ -893,8 +984,8 @@ function getCellRisks(likelihood, impact) {
 }
 
 function getTabRisks(key) {
-  if (key === 'priority') return priorityRisks.value
-  return [...filteredRisks.value].sort((a, b) => b.severity - a.severity)
+  if (key === 'priority') return priorityPageData.value.items
+  return allPage.value.items
 }
 
 const getCellBgClass = (l, i) => {
@@ -1044,5 +1135,23 @@ async function confirmDeleteRisk() {
 
 .grid-cell:hover {
   z-index: 50;
+}
+
+/* Quick tip lamp: gentle swing + glow pulse */
+:deep(.lamp-resonate) {
+  transform-origin: 50% 0%;
+  animation: lamp-resonate 2.4s ease-in-out infinite;
+}
+
+@keyframes lamp-resonate {
+  0%, 100% { transform: rotate(0deg) scale(1); color: var(--ui-primary); }
+  20% { transform: rotate(-8deg) scale(1.06); }
+  40% { transform: rotate(6deg) scale(1.12); color: var(--color-amber-400); }
+  60% { transform: rotate(-4deg) scale(1.06); }
+  80% { transform: rotate(2deg) scale(1.02); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :deep(.lamp-resonate) { animation: none; }
 }
 </style>

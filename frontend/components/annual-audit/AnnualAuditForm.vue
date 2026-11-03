@@ -424,7 +424,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl border border-[var(--border-main)] bg-[var(--bg-surface)] p-4 sm:p-5">
               <div class="p-3 rounded-lg text-center flex flex-col justify-center border border-primary-500/30 bg-primary-50/50 dark:bg-primary-950/20">
                 <span class="text-xs font-semibold uppercase text-[var(--text-muted)]">{{ t('annualAudit.form.totalMandays') }}</span>
-                <span class="text-3xl font-extrabold text-primary-600 dark:text-primary-400 my-1">{{ store.totalMandays }}</span>
+                <span class="text-3xl font-extrabold text-primary-600 dark:text-primary-400 my-1 tabular-nums">{{ store.totalMandays }}</span>
                 <span class="text-xs text-[var(--text-muted)]">{{ t('annualAudit.form.mandaysSumHint') }}</span>
               </div>
 

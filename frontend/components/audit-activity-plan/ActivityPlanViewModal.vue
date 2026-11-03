@@ -182,11 +182,11 @@
                     </h5>
                     <div class="flex">
                       <strong class="w-48 shrink-0">{{ t('auditActivityPlan.view.totalEstimatedCost') }}</strong>
-                      <span>{{ formatRupiah(plan.legacy.budget.totalEstimatedCost) }}</span>
+                      <span class="tabular-nums">{{ formatRupiah(plan.legacy.budget.totalEstimatedCost) }}</span>
                     </div>
                     <div class="flex">
                       <strong class="w-48 shrink-0">{{ t('auditActivityPlan.view.totalAllocatedBudget') }}</strong>
-                      <span>{{ formatRupiah(plan.legacy.budget.totalAllocatedBudget) }}</span>
+                      <span class="tabular-nums">{{ formatRupiah(plan.legacy.budget.totalAllocatedBudget) }}</span>
                     </div>
                     <div class="flex">
                       <strong class="w-48 shrink-0">{{ t('auditActivityPlan.view.budgetNotes') }}</strong>

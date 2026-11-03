@@ -235,6 +235,8 @@ services:
       - "8000:8000"
     environment:
       - PYTHONUNBUFFERED=1
+      # Must equal analytics-service PYTHON_AI_API_KEY; python-ai refuses every request when unset.
+      - API_KEY=${PYTHON_AI_API_KEY:-dev-ai-api-key}
     volumes:
       - python_ai_models:/app/models
       - ../ai_model_training:/app/ai_model_training:ro

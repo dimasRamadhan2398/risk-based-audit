@@ -89,7 +89,7 @@ const reconChartOptions = computed(() => ({
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.reconciliation.averageMatch') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ reconState.summary.avgMatchRate }}%
               </h4>
             </div>
@@ -112,7 +112,7 @@ const reconChartOptions = computed(() => ({
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.reconciliation.unmatched') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ reconState.summary.totalUnmatched }}
               </h4>
             </div>
@@ -135,7 +135,7 @@ const reconChartOptions = computed(() => ({
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.reconciliation.difference') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ formatIDR(reconState.summary.totalDifference) }}
               </h4>
             </div>
@@ -193,11 +193,11 @@ const reconChartOptions = computed(() => ({
                 <tr v-for="r in reconState.records" :key="r.module" class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
                   <td class="py-3 px-3 font-bold">{{ r.systemA.split(' ')[0] }} ↔ {{ r.systemB.split(' ')[0] }}</td>
                   <td class="py-3 px-3 text-gray-600 dark:text-gray-300">{{ r.module }}</td>
-                  <td class="text-right py-3 px-3 font-mono">{{ Number(r.totalRecordsA).toLocaleString('id-ID') }}</td>
-                  <td class="text-right py-3 px-3 font-mono">{{ Number(r.totalRecordsB).toLocaleString('id-ID') }}</td>
-                  <td class="text-right py-3 px-3 font-mono font-bold text-emerald-500">{{ Number(r.matchedRecords).toLocaleString('id-ID') }}</td>
-                  <td class="text-right py-3 px-3 font-mono font-bold">{{ r.matchRatePct }}%</td>
-                  <td class="text-right py-3 px-3 font-mono" :class="r.totalDifference > 0 ? 'text-rose-500 font-bold' : 'text-gray-400'">
+                  <td class="text-right py-3 px-3 tabular-nums">{{ Number(r.totalRecordsA).toLocaleString('id-ID') }}</td>
+                  <td class="text-right py-3 px-3 tabular-nums">{{ Number(r.totalRecordsB).toLocaleString('id-ID') }}</td>
+                  <td class="text-right py-3 px-3 tabular-nums font-bold text-emerald-500">{{ Number(r.matchedRecords).toLocaleString('id-ID') }}</td>
+                  <td class="text-right py-3 px-3 tabular-nums font-bold">{{ r.matchRatePct }}%</td>
+                  <td class="py-3 px-3 num-currency" :class="r.totalDifference > 0 ? 'text-rose-500 font-bold' : 'text-gray-400'">
                     {{ formatIDR(r.totalDifference) }}
                   </td>
                   <td class="text-center py-3 px-3">

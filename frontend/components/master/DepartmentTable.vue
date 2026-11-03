@@ -117,7 +117,7 @@
 
       <template #is_active-cell="{ row }">
         <UBadge
-          :color="row.original.is_active ? 'success' : 'error'"
+          :color="row.original.is_active ? 'secondary' : 'error'"
           variant="subtle"
         >
           {{ row.original.is_active ? t('masterData.department.active') : t('masterData.department.inactive') }}

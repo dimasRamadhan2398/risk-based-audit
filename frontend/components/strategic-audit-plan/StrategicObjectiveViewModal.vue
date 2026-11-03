@@ -120,7 +120,7 @@
                   <td class="py-2.5 px-4 text-right font-medium text-gray-800 dark:text-gray-200">
                     {{ row.actual !== '' ? row.actual + ' ' + objective.unit : '-' }}
                   </td>
-                  <td class="py-2.5 px-4 text-right font-mono font-bold text-gray-900 dark:text-white">
+                  <td class="py-2.5 px-4 text-right tabular-nums font-bold text-gray-900 dark:text-white">
                     {{ row.achievement }}
                   </td>
                   <td class="py-2.5 px-4 text-center">

@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { RiskLevel, ImpactLevel, PossibilityLevel } from '~/types/risk'
 import { extractErrorMessage } from '~/utils/error'
 import { getRiskServiceBaseUrl } from '~/composables/useApiUrl'
 import { useLocationApi } from '~/composables/useLocationApi'
 import { useFiscalYear } from '~/composables/useFiscalYear'
+import { ALL_RISK_CATEGORIES, getDistinctRiskCategories } from '~/utils/riskCategoryFilter'
 
 // --- Constants (Exported for components) ---
 
@@ -84,6 +85,23 @@ export const riskLevelConfig = {
 export const ALL_BRANCHES = 'All Branches'
 export const UNASSIGNED_BRANCH = '__unassigned__'
 
+// Rows per page in the three history tables on the Corporate Risk Profile page.
+export const RISK_PAGE_SIZE = 10
+
+// Server-paginated tables ('priority' is derived client-side, see priorityPage).
+export type RiskPageKey = 'all' | 'progress'
+
+const newRiskPage = () => ({
+  items: [] as any[],
+  page: 1,
+  pageSize: RISK_PAGE_SIZE,
+  total: 0,
+  totalPages: 0,
+  loading: false,
+  loaded: false,
+  error: ''
+})
+
 // --- Store Definition ---
 
 export const useRiskProfileStore = defineStore('risk-profile', () => {
@@ -113,7 +131,20 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
   const selectedYear = selectedFiscalYear
   const selectedPeriod = ref('Q1')
 
+  // Category filter ('all' keeps every row) and free-text search; both drive
+  // the server-side filters of the paginated tables.
+  const selectedCategory = ref<string>(ALL_RISK_CATEGORIES)
+  const searchQuery = ref('')
 
+  // Distinct category names for the dropdown (GET /risks/categories).
+  const categories = ref<string[]>([])
+  const categoriesError = ref('')
+
+  // Paginated tables: 'all' (All Risks) and 'progress' (Quarterly Progress)
+  // each page their own server query; 'priority' is client-side (priorityPage).
+  const riskPages = reactive({ all: newRiskPage(), progress: newRiskPage() })
+  const priorityPage = ref(1)
+  const pageRequestIds: Record<RiskPageKey, number> = { all: 0, progress: 0 }
 
   /** Branch names, Location master only (active rows). */
   const branchesList = computed(() => masterLocations.value.map(l => l.name))
@@ -176,28 +207,32 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
   // stood that year (the assessment's snapshot), so a risk added or edited in
   // one year does not show up in or rewrite another year. Fields missing from
   // a snapshot fall back to the latest version.
-  const risks = computed(() => {
+  const mapRiskForYear = (risk: any) => {
     const periodKey = selectedPeriod.value.toLowerCase() // 'q1', 'q2', etc.
+    const assessment = risk.assessments?.find((a: any) => a.year === selectedYear.value)
+    if (!assessment) return null
 
-    return rawRisks.value.flatMap(risk => {
-      const assessment = risk.assessments?.find((a: any) => a.year === selectedYear.value)
-      if (!assessment) return []
+    return {
+      ...risk,
+      name: assessment.name || risk.name,
+      category: assessment.category || risk.category,
+      description: assessment.description || risk.description,
+      location_id: assessment.location_id || risk.location_id,
+      branch: assessment.location_id
+        ? (locationName(assessment.location_id) ?? assessment.branch)
+        : risk.branch,
+      impact: assessment[`impact_${periodKey}`] || risk.impact || 3,
+      likelihood: assessment[`likelihood_${periodKey}`] || risk.likelihood || 3,
+      riskLevel: assessment[`risk_level_${periodKey}`] || 'Low'
+    }
+  }
 
-      return [{
-        ...risk,
-        name: assessment.name || risk.name,
-        category: assessment.category || risk.category,
-        description: assessment.description || risk.description,
-        location_id: assessment.location_id || risk.location_id,
-        branch: assessment.location_id
-          ? (locationName(assessment.location_id) ?? assessment.branch)
-          : risk.branch,
-        impact: assessment[`impact_${periodKey}`] || risk.impact || 3,
-        likelihood: assessment[`likelihood_${periodKey}`] || risk.likelihood || 3,
-        riskLevel: assessment[`risk_level_${periodKey}`] || 'Low'
-      }]
+  const risks = computed(() =>
+    rawRisks.value.flatMap((risk) => {
+      const mapped = mapRiskForYear(risk)
+      return mapped ? [mapped] : []
     })
-  })
+  )
 
   /** True when a risk of the selected year has no Location master branch. */
   const hasUnassignedRisks = computed(() => risks.value.some(r => !riskLocationId(r)))
@@ -231,6 +266,114 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
       rawRisks.value = []
     } finally {
       loading.value = false
+    }
+  }
+
+  /** Query params for GET /risks?page=...; empty filters are omitted. */
+  const buildRiskPageQuery = (page: number) => {
+    const query: Record<string, string | number> = {
+      page,
+      page_size: RISK_PAGE_SIZE,
+      fiscal_year: selectedYear.value
+    }
+    // period is not sent: server-side it only matters with sort_by=score. The
+    // selected Q1..Q4 view is applied client-side in mapRiskForYear.
+    if (selectedCategory.value && selectedCategory.value !== ALL_RISK_CATEGORIES) query.category = selectedCategory.value
+    if (selectedBranch.value === UNASSIGNED_BRANCH) query.branch_id = 'unassigned'
+    else if (selectedBranch.value && selectedBranch.value !== ALL_BRANCHES) query.branch_id = selectedBranch.value
+    const search = searchQuery.value.trim()
+    if (search) query.search = search
+    return query
+  }
+
+  /** Rows of the selected year (with the displayId of the full list) for a page of raw API rows. */
+  const mapPageItems = (items: any[], page: number) =>
+    items.map((item, idx) => {
+      const mapped = mapRiskForYear(item) ?? item
+      const known = rawRisks.value.find(r => String(r.id) === String(item.id))
+      return { ...mapped, displayId: known?.displayId ?? ((page - 1) * RISK_PAGE_SIZE + idx + 1) }
+    })
+
+  /** Load one page of a paginated table. page defaults to the table's current page. */
+  const fetchRiskPage = async (key: RiskPageKey, page?: number) => {
+    const state = riskPages[key]
+    const target = Math.max(1, page ?? state.page)
+    const requestId = ++pageRequestIds[key]
+    state.loading = true
+    state.error = ''
+    try {
+      // no-store: the API response is browser-cached per query string, which
+      // would serve a page from before an add/update/delete.
+      const response: any = await $fetch(`${getRiskServiceBaseUrl()}/risks`, {
+        query: buildRiskPageQuery(target),
+        cache: 'no-store'
+      })
+      if (requestId !== pageRequestIds[key]) return // a newer request owns the state
+      // Real shape: { data: [...], pagination: {...} }; older { data: { items, pagination } } tolerated.
+      const rows: any[] = Array.isArray(response?.data)
+        ? response.data
+        : Array.isArray(response?.data?.items) ? response.data.items : []
+      const pagination = response?.pagination ?? response?.data?.pagination ?? {}
+      const total = Number(pagination.total ?? rows.length)
+      const totalPages = Number(pagination.total_pages ?? Math.ceil(total / RISK_PAGE_SIZE))
+      // The page vanished (last row on it deleted): go to the new last page.
+      if (rows.length === 0 && total > 0 && totalPages > 0 && target > totalPages) {
+        await fetchRiskPage(key, totalPages)
+        return
+      }
+      state.page = Number(pagination.page ?? target)
+      state.items = mapPageItems(rows, state.page)
+      state.total = total
+      state.totalPages = totalPages
+      state.loaded = true
+    } catch (error: any) {
+      if (requestId !== pageRequestIds[key]) return
+      console.error('Failed to fetch risk page:', error)
+      state.error = extractErrorMessage(error, 'Failed to fetch risks.')
+      state.items = []
+      state.total = 0
+      state.totalPages = 0
+    } finally {
+      if (requestId === pageRequestIds[key]) state.loading = false
+    }
+  }
+
+  /** Re-read the pages already loaded, keeping their current page (after add/update/delete). */
+  const refreshRiskPages = async () => {
+    await Promise.all(
+      (Object.keys(riskPages) as RiskPageKey[])
+        .filter(key => riskPages[key].loaded)
+        .map(key => fetchRiskPage(key))
+    )
+  }
+
+  const resetRiskPages = () => {
+    riskPages.all.page = 1
+    riskPages.progress.page = 1
+    priorityPage.value = 1
+  }
+
+  // Any filter/search change starts again from page 1.
+  watch(
+    [selectedBranch, selectedCategory, selectedYear, selectedPeriod, searchQuery],
+    resetRiskPages,
+    { flush: 'sync' }
+  )
+
+  /** Distinct categories for the dropdown. A failure leaves the list empty (the page falls back to loaded data). */
+  const fetchCategories = async () => {
+    categoriesError.value = ''
+    try {
+      const response: any = await $fetch(`${getRiskServiceBaseUrl()}/risks/categories`, { cache: 'no-store' })
+      const data = response?.data
+      const list: any[] = Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : []
+      categories.value = getDistinctRiskCategories(
+        list.map(c => ({ category: typeof c === 'string' ? c : c?.name ?? c?.category }))
+      )
+    } catch (error: any) {
+      console.error('Failed to fetch risk categories:', error)
+      categoriesError.value = extractErrorMessage(error, 'Failed to load risk categories.')
+      categories.value = []
     }
   }
 
@@ -322,6 +465,7 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
           displayId: rawRisks.value.length + 1
         }
         rawRisks.value.push(createdRisk)
+        void refreshRiskPages()
         return true
       }
       return false
@@ -367,7 +511,7 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
         }
 
         // Copy explicitly mapped quarterly values from updatedRisk
-        ['q1', 'q2', 'q3', 'q4'].forEach(q => {
+        ['q1', 'q2', 'q3', 'q4'].forEach((q) => {
           if (updatedRisk[`impact_${q}`] !== undefined) {
             ast[`impact_${q}`] = updatedRisk[`impact_${q}`]
           }
@@ -434,6 +578,7 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
             rawRisks.value = newRawRisks
           }
         }
+        void refreshRiskPages()
         return true
       } catch (error: any) {
         console.error('Failed to update risk on backend (rolled back):', error)
@@ -466,6 +611,7 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
         )
 
         updateDisplayIds()
+        void refreshRiskPages()
 
         return true
       }
@@ -490,6 +636,17 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     hasUnassignedRisks,
     filteredRisks,
     selectedBranch,
+    selectedCategory,
+    searchQuery,
+    categories,
+    categoriesError,
+    riskPages,
+    priorityPage,
+    fetchRiskPage,
+    refreshRiskPages,
+    resetRiskPages,
+    fetchCategories,
+    buildRiskPageQuery,
     selectedRisk,
     isFormOpen,
     isDetailOpen,

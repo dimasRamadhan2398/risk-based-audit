@@ -137,6 +137,7 @@
   },
   "common": {
     "clearSearch": "Clear search",
+    "systemFlagged": "System-flagged",
     "datePicker": {
       "clearDate": "Clear date",
       "openCalendar": "Open calendar",
@@ -258,12 +259,12 @@
       "predictiveDescription": "Future KPI projections and detection of financial and operational anomalies.",
       "openAnalytics": "Open Deep Analytics Center",
       "kpiForecasting": "KPI Performance Forecasting",
-      "forecastPeriod": "Historical trends versus Q3 2026–Q1 2027 forecasts (95% confidence interval)",
+      "forecastPeriod": "Historical trend and forecast per KPI",
       "details": "Details",
-      "atRiskKpi": "At-Risk KPI Projections & Audit Recommendations",
+      "atRiskKpi": "At-Risk KPIs and Audit Actions",
       "projection": "Projection",
-      "predictionInterval": "Prediction interval ±4.8% MAPE",
-      "targetHorizon": "Target horizon: Q3 2026",
+      "predictionInterval": "Model accuracy: MAPE {mape}%",
+      "targetHorizon": "Forecast horizon: {range}",
       "transactionAnomalies": "Transaction Anomaly Detection",
       "transactionAnomaliesDescription": "Detect transaction outliers and unusual patterns using unsupervised machine learning",
       "criticalAnomalies": "Critical Anomaly Alerts Requiring Investigation",
@@ -1484,6 +1485,7 @@
       "scoresSaved": "Risk scores saved and priority calculated successfully.",
       "scoresSaveFailed": "Failed to save risk scores.",
       "weightSumMustBe100": "Total weight must be exactly 100%. Current sum: {total}%",
+      "zeroWeightFactorsRemoved": "Removed factors with 0% weight: {names}",
       "weightsUpdated": "Corporate risk factors weights successfully updated.",
       "weightsUpdateFailed": "Failed to save corporate risk factor weights.",
       "factorCreated": "Standard risk factor created successfully.",
@@ -1863,6 +1865,17 @@
     "impactLevel": "Impact Level",
     "allBranches": "All Branches",
     "unassignedBranch": "Unassigned",
+    "filterCategory": "Filter by Category",
+    "allCategories": "All Categories",
+    "categories": {
+      "financial": "Financial",
+      "technology": "Technology",
+      "compliance": "Compliance",
+      "governance": "Governance",
+      "operations": "Operations",
+      "humanResources": "Human Resources",
+      "strategic": "Strategic"
+    },
     "selectBranch": "Select a branch",
     "branchesLoadError": "Could not load branches from the Location master data.",
     "noBranches": "No active branches in the Location master data yet.",
@@ -1897,6 +1910,9 @@
       "priority": "Priority ({count})",
       "all": "All Risks ({count})",
       "progress": "Quarterly Progress"
+    },
+    "pagination": {
+      "showing": "Showing {from} - {to} of {total} risks"
     },
     "emptyTitle": "No risk data available for year {year}",
     "emptyDesc": "Risk profile data for future years must be inputted by the user.",
@@ -2220,7 +2236,7 @@
     "statusActive": "4 Trained Models Active & Synchronized",
     "statusOffline": "Offline - Displaying Saved Real Data",
     "statusDisconnected": "AI Backend Disconnected",
-    "warningTitleCached": "Warning: AI Backend Service Disconnected (Showing Last Real Data)",
+    "warningTitleCached": "Server Error, showing previous real data",
     "warningTitleDisconnected": "Warning: AI Analytics Feature Not Running / Not Connected to Backend",
     "warningDescCached": "AI Analytics is currently displaying the last real data successfully synced at {time} before the connection was lost. Please ensure the Python AI Service (Port 8000) or Go Analytics (Port 8084) is running on the backend.",
     "warningDescDisconnected": "AI Analytics is currently not connected to the backend. Please ensure the Python AI Service (Port 8000) or Go Analytics (Port 8084) is running on the backend.",
@@ -2286,14 +2302,14 @@
       "colRiskLevel": "Risk Level",
       "colDate": "Date",
       "anomalyTypes": {
-        "fundingXAxis": "Deposit / Savings Nominal (IDR Million)",
-        "fundingUnit": "IDR Million",
-        "lendingXAxis": "Credit / Loan Limit (IDR Million)",
-        "lendingUnit": "IDR Million",
-        "treasuryXAxis": "Treasury / FX Deal Volume (IDR Million)",
-        "treasuryUnit": "IDR Million",
-        "paymentXAxis": "Payment System Transaction Value (IDR Million)",
-        "paymentUnit": "IDR Million",
+        "fundingXAxis": "Savings account transaction amount (deposit/withdrawal)",
+        "fundingUnit": "IDR",
+        "lendingXAxis": "Credit / loan facility amount",
+        "lendingUnit": "IDR",
+        "treasuryXAxis": "Treasury / FX deal volume",
+        "treasuryUnit": "IDR",
+        "paymentXAxis": "Payment system transaction amount",
+        "paymentUnit": "IDR",
         "kycXAxis": "Customer Historical Profile Deviation (%)",
         "kycUnit": "%",
         "itControlXAxis": "Failed Login Attempts / Unauthorized Hits",
@@ -2304,17 +2320,19 @@
         "accessPatternUnit": "Hour",
         "dataAccessXAxis": "Data Export Volume (MB)",
         "dataAccessUnit": "MB",
-        "inventoryXAxis": "Stock Adjustment Value (IDR Million)",
-        "inventoryUnit": "IDR Million",
-        "expenseReportXAxis": "Expense Claim Amount (IDR Million)",
-        "expenseReportUnit": "IDR Million",
-        "travelExpenseXAxis": "Travel Cost Amount (IDR Million)",
-        "travelExpenseUnit": "IDR Million",
-        "procurementXAxis": "Procurement / Vendor Value (IDR Million)",
-        "procurementUnit": "IDR Million",
-        "transactionXAxis": "Transaction Amount (IDR Million)",
-        "transactionUnit": "IDR Million"
-      }
+        "inventoryXAxis": "Stock adjustment value",
+        "inventoryUnit": "IDR",
+        "expenseReportXAxis": "Expense claim amount",
+        "expenseReportUnit": "IDR",
+        "travelExpenseXAxis": "Travel cost amount",
+        "travelExpenseUnit": "IDR",
+        "procurementXAxis": "Procurement / vendor value",
+        "procurementUnit": "IDR",
+        "transactionXAxis": "Transaction amount",
+        "transactionUnit": "IDR"
+      },
+      "axisHour": "Transaction hour (0–23)",
+      "hourValue": "at {hour}:00"
     },
     "nlp": {
       "alertTitle": "IndoBERT NLP Document Analysis Model",
@@ -2333,8 +2351,8 @@
       "alertTitle": "Time-Series KPI PyTorch LSTM Forecasting Model",
       "alertDesc": "The Deep Learning model (PyTorch LSTM) predicts future KPI performance trends based on historical time series for early audit planning warnings.",
       "chartTitle": "KPI Performance Forecast",
-      "chartConfidenceBadge": "Shaded area = confidence interval",
-      "atRiskTitle": "At-Risk Departments",
+      "chartConfidenceBadge": "Shaded area = model error range (±MAPE)",
+      "atRiskTitle": "At-Risk KPIs",
       "projectedQ3": "% projected Q3",
       "tableTitle": "KPI Forecast Summary",
       "colCode": "Code",
@@ -2347,11 +2365,43 @@
       "colTrend": "Trend",
       "colRiskLevel": "Risk Level",
       "colRecommendedAction": "Recommended Action",
-      "labelActualKPI": "Actual KPI (%)",
-      "labelForecast": "PyTorch LSTM Forecast",
+      "labelActualKPI": "Actual value",
+      "labelForecast": "Model forecast (LSTM)",
       "labelUpperBound": "Upper Bound",
       "labelLowerBound": "Lower Bound",
-      "axisKPIScore": "KPI Score (%)"
+      "axisKPIScore": "KPI Score (%)",
+      "labelBand": "Model error range (±MAPE)",
+      "selectKpi": "Select KPI",
+      "dataAsOf": "Actual data up to {period}",
+      "horizon": "Forecast horizon: {range}",
+      "accuracy": "Model accuracy: MAPE {mape}%",
+      "staleWarning": "The forecast horizon has already passed. Refresh the KPI data to get a current forecast.",
+      "noAtRisk": "No KPI is projected to deteriorate over this horizon.",
+      "projectedBy": "Projected {period}",
+      "colAuditAction": "Audit Action"
+    },
+    "kpiAudit": {
+      "axis": {
+        "percent": "{kpi} (%)",
+        "score": "{kpi} (score)",
+        "rupiah": "{kpi} (IDR)"
+      },
+      "kindHint": {
+        "nps": "Score from −100 to +100"
+      },
+      "actions": {
+        "nps": "Sample customer complaints from the last 3 months: logging, escalation and resolution within SLA; trace the main causes of detractor responses.",
+        "clv": "Analyse account closures by high-value customers; sample retention offers and special pricing against approval authority.",
+        "aov": "Test pricing and discount policy: sample transactions with discounts beyond the approver's authority.",
+        "cac": "Match campaign spend and agent commissions to new customers that are actually active; sample commission payments.",
+        "mrr": "Reconcile recurring revenue to active contracts; sample cancellations and billing waivers and their approvals.",
+        "conversion": "Sample applications rejected or stalled in the sales pipeline and test processing SLA compliance.",
+        "gpm": "Sample the largest cost transactions and pricing approvals; compare actual margin to budget per product.",
+        "retention": "Sample account closures: closure reason, prior complaints and documented retention follow-up.",
+        "roi": "Test feasibility studies and actual-vs-plan monitoring for the projects with the lowest ROI.",
+        "turnover": "Analyse exit interviews and compensation policy; test succession plan compliance for key positions.",
+        "generic": "Add this KPI to the next audit plan and test the controls over the processes that drive it."
+      }
     }
   },
   "annualAudit": {
@@ -3098,6 +3148,7 @@
       },
       "guideline": {
         "loadFailed": "Failed to load Audit Guideline data.",
+        "openFailed": "Failed to open the guideline file.",
         "uploadFailed": "Failed to upload the document file.",
         "added": "Audit Guideline added successfully!",
         "addFailed": "Failed to add Audit Guideline.",
@@ -3108,6 +3159,7 @@
       },
       "sop": {
         "loadFailed": "Failed to load Technical Instruction / SOP data.",
+        "openFailed": "Failed to open the SOP file.",
         "uploadFailed": "Failed to upload the document file.",
         "added": "Technical Instruction / SOP added successfully!",
         "addFailed": "Failed to add Technical Instruction / SOP.",

@@ -424,8 +424,8 @@
                 <!-- Total Row -->
                 <tr class="bg-gray-50 dark:bg-gray-800/40 font-bold border-t-2">
                   <td class="px-6 py-4 text-sm text-gray-900 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryForm.table.total') }}</td>
-                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white font-mono font-extrabold">{{ totalFollowUpCount }}</td>
-                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white font-mono font-extrabold">100.0%</td>
+                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white tabular-nums font-extrabold">{{ totalFollowUpCount }}</td>
+                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white tabular-nums font-extrabold">100.0%</td>
                   <td class="px-6 py-4 text-md text-gray-400 italic">{{ t('executiveSummaryForm.table.autoCalculated') }}</td>
                 </tr>
               </tbody>

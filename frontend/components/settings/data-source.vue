@@ -590,7 +590,6 @@
                       color="primary"
                       variant="subtle"
                       size="xs"
-                      icon="i-lucide-sparkles"
                       class="rounded-lg text-[10px] font-bold"
                       @click="autoSuggestMapping(table, mIdx)"
                     > {{ t('settings.dataSource.mapping.autoSuggest') }} </UButton>

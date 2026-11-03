@@ -11,6 +11,7 @@ import (
 
 	"risk-service/controllers"
 	"risk-service/middleware"
+	"risk-service/repositories"
 	"risk-service/services"
 
 	"github.com/gin-gonic/gin"
@@ -26,6 +27,10 @@ type stubRiskService struct{}
 func (stubRiskService) GetAll(context.Context) ([]services.RiskResponse, error) {
 	return []services.RiskResponse{}, nil
 }
+func (stubRiskService) List(context.Context, repositories.RiskFilter) (*services.RiskPage, error) {
+	return &services.RiskPage{}, nil
+}
+func (stubRiskService) Categories(context.Context, int) ([]string, error) { return nil, nil }
 func (stubRiskService) Create(context.Context, *services.RiskRequest) (*services.RiskResponse, error) {
 	return &services.RiskResponse{}, nil
 }

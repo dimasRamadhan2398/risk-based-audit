@@ -14,7 +14,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ t('riskAppetite.kpi.complianceLevel') }}</p>
-            <h3 class="text-2xl font-black mt-1" :class="complianceColor">
+            <h3 class="text-2xl font-black mt-1 tabular-nums" :class="complianceColor">
               {{ compliancePercentage }}%
             </h3>
           </div>
@@ -31,7 +31,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ t('riskAppetite.kpi.totalRisks') }}</p>
-            <h3 class="text-2xl font-black mt-1 text-gray-900 dark:text-white">
+            <h3 class="text-2xl font-black mt-1 text-gray-900 dark:text-white tabular-nums">
               {{ totalRisks }}
             </h3>
           </div>
@@ -46,7 +46,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-md font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ t('riskAppetite.kpi.acceptableRisks') }}</p>
-            <h3 class="text-2xl font-black mt-1 text-emerald-600 dark:text-emerald-400">
+            <h3 class="text-2xl font-black mt-1 text-emerald-600 dark:text-emerald-400 tabular-nums">
               {{ acceptableCount }}
             </h3>
           </div>
@@ -209,10 +209,10 @@
               <template #mitigationStatus-cell="{ row }">
                 <div class="flex items-center gap-2">
                   <template v-if="hasMitigation(row.original.id)">
-                    <UBadge v-if="isMitigationSelesai(row.original.id)" color="success" variant="solid" class="font-black text-[9px]">
+                    <UBadge v-if="isMitigationSelesai(row.original.id)" color="success" variant="outline" class="font-black text-[9px]">
                       {{ t('riskAppetite.compliance.done') }}
                     </UBadge>
-                    <UBadge v-else color="success" variant="solid" class="font-black text-[9px]">
+                    <UBadge v-else color="secondary" variant="outline" class="font-black text-[9px]">
                       {{ t('riskAppetite.compliance.activePlan', { count: getMitigationCount(row.original.id) }) }}
                     </UBadge>
                   </template>

@@ -49,7 +49,7 @@ onMounted(() => {
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.common.violationCount') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ policyState.summary.totalViolations }}
               </h4>
             </div>
@@ -72,7 +72,7 @@ onMounted(() => {
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.policy.criticalLevel') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ policyState.summary.critical }}
               </h4>
             </div>
@@ -95,7 +95,7 @@ onMounted(() => {
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.policy.highLevel') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ policyState.summary.high }}
               </h4>
             </div>
@@ -118,7 +118,7 @@ onMounted(() => {
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.common.affectedBranches') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ policyState.summary.branchesAffected }}
               </h4>
             </div>
@@ -160,7 +160,7 @@ onMounted(() => {
             <tbody>
               <tr v-for="r in policyState.records" :key="r.id" class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
                 <td class="py-3 px-3 font-mono font-bold">{{ r.id }}</td>
-                <td class="py-3 px-3 text-gray-500 font-mono text-xs">{{ r.testDate }}</td>
+                <td class="py-3 px-3 text-gray-500 tabular-nums text-xs">{{ r.testDate }}</td>
                 <td class="py-3 px-3 font-bold text-indigo-600 dark:text-indigo-400">{{ r.ruleName }}</td>
                 <td class="py-3 px-3">{{ r.branchName }}</td>
                 <td class="py-3 px-3 font-semibold">{{ r.customerName }}</td>

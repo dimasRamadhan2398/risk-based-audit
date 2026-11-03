@@ -96,7 +96,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('auditPriority.totalEntities') !== 'auditPriority.totalEntities' ? t('auditPriority.totalEntities') : 'Established Entities' }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ yearlyUniverse.length }}
             </h4>
           </div>
@@ -113,7 +113,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('auditPriority.prioritizedEntities') !== 'auditPriority.prioritizedEntities' ? t('auditPriority.prioritizedEntities') : 'Prioritized' }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ prioritizedCount }}
               <span
                 v-if="yearlyUniverse.length > 0"

@@ -68,7 +68,7 @@
           <div class="flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 pb-3 md:pb-0 md:pr-4">
             <span class="text-sm text-slate-500 dark:text-slate-400 font-medium">{{ t('rcm.cards.effectiveness.realScore') }}</span>
             <div class="flex items-baseline gap-2 mt-1">
-              <span class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              <span class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white tabular-nums">
                 {{ rcmStore.internalControlEffectiveness }}%
               </span>
             </div>
@@ -669,7 +669,7 @@
                       {{ t('rcm.modal.interpretation') }} <strong class="text-white font-extrabold">{{ getLocalizedRating(calculatedModalScorePercent) }}</strong>
                     </p>
                   </div>
-                  <span class="text-2xl sm:text-3xl font-extrabold text-white">{{ calculatedModalScorePercent }}%</span>
+                  <span class="text-2xl sm:text-3xl font-extrabold text-white tabular-nums">{{ calculatedModalScorePercent }}%</span>
                 </div>
               </UCard>
             </div>

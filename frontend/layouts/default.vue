@@ -408,7 +408,7 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
           },
           {
             label: t('navigation.kpiForecast'),
-            icon: 'i-lucide-trending-up',
+            icon: 'i-lucide-chart-line',
             to: '/analytics/ai/kpi-forecast'
           },
         ]

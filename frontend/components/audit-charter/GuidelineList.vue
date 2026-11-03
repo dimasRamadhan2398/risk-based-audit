@@ -76,7 +76,7 @@
         <template #status-cell="{ row }">
           <div class="flex justify-center">
             <UBadge
-              :color="row.original.status === 'Aktif' ? 'success' : 'warning'"
+              :color="row.original.status === 'Aktif' ? 'secondary' : 'warning'"
               variant="subtle"
               class="rounded font-semibold"
             >
@@ -112,7 +112,7 @@
               color="neutral"
               variant="ghost"
               size="md"
-              @click="openFile(row.original.file_url)"
+              @click="openFile(row.original.file_url, row.original.name)"
             />
             </UTooltip>
             <UTooltip :text="t('auditCharter.tooltips.editGuideline')">
@@ -151,6 +151,8 @@ import { useRbac } from '~/composables/useRbac'
 import TableEntities from '~/components/shared/TableEntities.vue'
 import { useGlobalModalStore } from '~/stores/global-modal'
 import ReadMoreText from '~/components/shared/ReadMoreText.vue'
+import { openUploadedFile } from '~/utils/documentViewer'
+import { extractErrorMessage } from '~/utils/error'
 
 const { t, locale } = useI18n()
 const store = useGuidelineStore()
@@ -193,15 +195,13 @@ const formatMonthYear = (val: string) => {
   return `${monthsEn[mIndex]} ${year}`
 }
 
-const openFile = (fileUrl: string) => {
-  if (!fileUrl || fileUrl === '#') return
-  if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
-    window.open(fileUrl, '_blank')
-    return
+const openFile = async (fileUrl: string, name?: string) => {
+  try {
+    await openUploadedFile(fileUrl, getAuditServiceBaseUrl(), name)
+  } catch (err) {
+    console.error('Failed to open guideline file:', err)
+    useAppToast().error(t('auditCharter.toasts.guideline.openFailed'), extractErrorMessage(err, t('auditCharter.toasts.guideline.openFailed')))
   }
-  const baseUrl = getAuditServiceBaseUrl()
-  const finalUrl = fileUrl.startsWith('/') ? `${baseUrl.replace(/\/api\/v1$/, '')}${fileUrl}` : `${baseUrl}/${fileUrl}`
-  window.open(finalUrl, '_blank')
 }
 
 const confirmDelete = async (item: any) => {

@@ -107,7 +107,7 @@ module.exports = {
       },
       fontFamily: {
         sans: [
-          "Space Grotesk",
+          "IBM Plex Sans",
           "ui-sans-serif",
           "system-ui",
           "-apple-system",
@@ -120,6 +120,7 @@ module.exports = {
         ],
         serif: ["Georgia", "Cambria", "Times New Roman", "Times", "serif"],
         mono: [
+          "IBM Plex Mono",
           "Menlo",
           "Monaco",
           "Consolas",

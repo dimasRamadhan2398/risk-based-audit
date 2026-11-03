@@ -50,7 +50,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('riskAppetite.kpi.totalRisks') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ totalRisks }}
             </h4>
           </div>
@@ -67,7 +67,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('auditActivityPlan.form.highRisk') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ highRisks }}
             </h4>
           </div>
@@ -84,7 +84,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('dashboard.overview.auditPlans') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ auditPlansCount }}
             </h4>
           </div>
@@ -107,7 +107,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('auditExecution.phases.6.shortLabel') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ completedAuditsCount }}
             </h4>
           </div>
@@ -137,7 +137,7 @@
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('dashboard.overview.plannedAudits') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ auditMainStats.plannedAudit }}
               </h4>
             </div>
@@ -160,7 +160,7 @@
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('dashboard.overview.openFindings') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ auditMainStats.openFinding }}
               </h4>
             </div>
@@ -183,7 +183,7 @@
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('dashboard.overview.executionStatus') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ (auditMainStats.executionStatus * 100).toFixed(0) }}%
               </h4>
             </div>
@@ -206,7 +206,7 @@
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('dashboard.overview.atrCompliance') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ (auditMainStats.atrCompliance * 100).toFixed(0) }}%
               </h4>
             </div>
@@ -227,13 +227,13 @@
     <!-- Dedicated AI Section: KPI Forecasting & Anomaly Detection -->
     <div class="space-y-3">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
-        <div>
+        <!-- <div>
           <div class="flex items-center gap-2">
-            <UIcon name="i-heroicons-sparkles" class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             <h2 class="text-lg font-bold text-slate-900 dark:text-white tracking-tight"> {{ t('dashboard.overview.predictiveTitle') }} </h2>
+            <UBadge :label="t('common.systemFlagged')" color="neutral" variant="subtle" size="sm" />
           </div>
           <p class="text-sm text-slate-500 dark:text-slate-400 mt-1"> {{ t('dashboard.overview.predictiveDescription') }} </p>
-        </div>
+        </div> -->
 
         <NuxtLink
           to="/analytics"
@@ -250,51 +250,82 @@
         <div class="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm rounded-xl p-4 flex flex-col justify-between space-y-3 min-w-0">
           <div>
             <!-- Card Header -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+            <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-3">
               <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <h3 class="text-base font-bold text-slate-900 dark:text-white"> {{ t('dashboard.overview.kpiForecasting') }} </h3>
-                </div>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5"> {{ t('dashboard.overview.forecastPeriod') }} </p>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white"> {{ t('dashboard.overview.kpiForecasting') }} </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ kpiSubtitle }}</p>
               </div>
 
-              <NuxtLink to="/analytics/kpi-forecast" class="text-xs font-semibold text-violet-600 hover:underline shrink-0 self-start sm:self-auto"> {{ t('dashboard.overview.details') }} </NuxtLink>
+              <div class="flex items-center gap-2 shrink-0 self-start">
+                <USelect
+                  v-if="kpiOptions.length"
+                  v-model="selectedKpiName"
+                  :items="kpiOptions"
+                  size="xs"
+                  class="w-52"
+                  :aria-label="t('analytics.timeseries.selectKpi')"
+                />
+                <NuxtLink to="/analytics/kpi-forecast" class="text-xs font-semibold text-violet-600 hover:underline"> {{ t('dashboard.overview.details') }} </NuxtLink>
+              </div>
             </div>
+
+            <UAlert
+              v-if="selectedKpi?.isStale"
+              color="warning"
+              variant="subtle"
+              icon="i-lucide-clock-alert"
+              :description="t('analytics.timeseries.staleWarning')"
+              class="mb-2"
+              :ui="{ description: 'text-xs' }"
+            />
 
             <!-- Line Chart Component -->
             <div class="h-[220px] sm:h-[280px] w-full relative">
-              <Line :data="kpiChartData" :options="kpiChartOptions" />
+              <Line :data="kpiChart.data" :options="kpiChart.options" />
             </div>
+            <p v-if="selectedKpi?.meta.key === 'nps'" class="text-[11px] text-slate-400 mt-1">
+              {{ t('analytics.kpiAudit.kindHint.nps') }}
+            </p>
 
-            <!-- Forecast Highlights Table / Cards -->
+            <!-- At-risk KPIs only: projected to deteriorate over the horizon -->
             <div class="mt-3 space-y-2">
               <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2"> {{ t('dashboard.overview.atRiskKpi') }} </h4>
 
-              <div
-                v-for="kpi in (timeseriesState.kpiForecasts || []).slice(0, 3)"
+              <button
+                v-for="kpi in atRiskKpis.slice(0, 3)"
                 :key="kpi.code"
-                class="px-3 py-2 rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                type="button"
+                class="w-full text-left px-3 py-2 rounded-lg border bg-slate-50/50 dark:bg-slate-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors"
+                :class="selectedKpi?.kpiName === kpi.kpiName ? 'border-rose-300 dark:border-rose-800' : 'border-slate-100 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'"
+                @click="selectedKpiName = kpi.kpiName"
               >
                 <div class="space-y-1 min-w-0">
                   <div class="flex flex-wrap items-center gap-2">
                     <span class="font-mono text-xs font-bold text-violet-600 dark:text-violet-400">{{ kpi.code }}</span>
                     <span class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ kpi.kpiName }}</span>
-                    <UBadge :color="getTrendBadgeColor(kpi.trend) as any" variant="subtle" size="sm" class="font-semibold text-[10px]">
+                    <span class="text-xs text-slate-500 dark:text-slate-400">· {{ kpi.entity }}</span>
+                    <UBadge color="error" variant="subtle" size="sm" class="font-semibold text-[10px]">
                       {{ trendLabel(kpi.trend) }}
                     </UBadge>
                   </div>
                   <p class="text-xs text-slate-500 dark:text-slate-400">
-                    {{ kpi.recommendedAction }}
+                    {{ kpiAuditAction(kpi) }}
                   </p>
                 </div>
 
                 <div class="text-right shrink-0 flex sm:flex-col items-center sm:items-end justify-between gap-2 sm:gap-0">
-                  <span class="text-xs text-slate-400">{{ t('dashboard.overview.projection') }}</span>
-                  <span class="text-sm font-extrabold font-mono text-violet-600 dark:text-violet-400">
-                    {{ kpi.forecastedValue }}{{ kpi.unit === "%" ? "%" : "" }}
+                  <span class="text-xs text-slate-400">{{ t('analytics.timeseries.projectedBy', { period: formatForecastPeriod(kpi.horizonEnd, locale) }) }}</span>
+                  <span class="text-sm font-mono whitespace-nowrap">
+                    <span class="text-slate-500 dark:text-slate-400">{{ formatKpiForecastValue(kpi.currentValue, kpi.meta, locale) }}</span>
+                    <span class="text-slate-400 mx-1">&rarr;</span>
+                    <span class="font-extrabold text-rose-600 dark:text-rose-400">{{ formatKpiForecastValue(kpiHorizonValue(kpi), kpi.meta, locale) }}</span>
                   </span>
                 </div>
-              </div>
+              </button>
+
+              <p v-if="!atRiskKpis.length" class="text-xs text-slate-500 dark:text-slate-400 px-3 py-2 rounded-lg border border-dashed border-slate-200 dark:border-slate-700">
+                {{ t('analytics.timeseries.noAtRisk') }}
+              </p>
             </div>
           </div>
 
@@ -302,9 +333,9 @@
           <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-500">
             <span class="flex items-center gap-1.5">
               <UIcon name="i-heroicons-information-circle" class="w-4 h-4 text-violet-500" />
-              {{ t('dashboard.overview.predictionInterval') }}
+              {{ t('dashboard.overview.predictionInterval', { mape: formatMape(forecastMape) }) }}
             </span>
-            <span class="font-medium text-slate-700 dark:text-slate-300">{{ t('dashboard.overview.targetHorizon') }}</span>
+            <span v-if="kpiHorizon" class="font-medium text-slate-700 dark:text-slate-300">{{ t('dashboard.overview.targetHorizon', { range: kpiHorizon }) }}</span>
           </div>
         </div>
 
@@ -344,15 +375,15 @@
                     <span class="text-xs font-bold text-slate-600 dark:text-slate-400">· {{ anm.entity }}</span>
                   </div>
                   <p class="text-xs text-slate-600 dark:text-slate-300 font-medium">
-                    {{ anm.description }}
+                    {{ normalizeRupiahInText(anm.description, locale) }}
                   </p>
                 </div>
 
                 <div class="text-right shrink-0 flex sm:flex-col items-center sm:items-end justify-between gap-2 sm:gap-0">
-                  <span class="text-xs font-mono text-rose-600 dark:text-rose-400 font-bold"> {{ t('dashboard.overview.score') }} {{ anm.anomalyScore }}
+                  <span class="text-xs tabular-nums text-rose-600 dark:text-rose-400 font-bold"> {{ t('dashboard.overview.score') }} {{ anm.anomalyScore }}
                   </span>
-                  <span v-if="anm.amount" class="text-xs font-bold text-slate-800 dark:text-slate-200">
-                    Rp {{ (anm.amount / 1000000).toLocaleString() }}M
+                  <span v-if="anm.amount" class="text-xs font-bold text-slate-800 dark:text-slate-200 tabular-nums">
+                    {{ formatRupiahCompact(anm.amount, locale) }}
                   </span>
                 </div>
               </div>
@@ -397,7 +428,7 @@
           <div class="flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 pb-3 md:pb-0 md:pr-4">
             <span class="text-sm text-slate-500 dark:text-slate-400 font-medium">{{ t('rcm.cards.effectiveness.realScore') }}</span>
             <div class="flex items-baseline gap-2 mt-1">
-              <span class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              <span class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white tabular-nums">
                 {{ rcmStore.internalControlEffectiveness }}%
               </span>
             </div>
@@ -935,7 +966,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import AuditorDashboard from "~/components/dashboard/AuditorDashboard.vue";
 import AuditeeDashboard from "~/components/dashboard/AuditeeDashboard.vue";
 import { useRbac } from "~/composables/useRbac";
@@ -960,6 +991,20 @@ import {
   resolveAnomalyType,
 } from "~/composables/useAnomalyScatter";
 import { useI18n } from "~/composables/useI18n";
+import {
+  buildKpiForecastChart,
+  horizonLabel,
+  kpiAuditActionKey,
+  selectAtRiskKpis,
+  toKpiForecastView,
+  type KpiForecastView,
+} from "~/composables/useKpiForecast";
+import {
+  formatKpiForecastValue,
+  formatForecastPeriod,
+  formatRupiahCompact,
+  normalizeRupiahInText,
+} from "~/utils/analyticsFormat";
 import { useRiskProfileStore, riskLevelConfig } from "~/stores/risk-profile";
 import { getControlEffectivenessColorClass, getRiskLevelColorClass } from "~/utils/riskLevelBadge";
 import { useAnnualPlanStore } from "~/stores/annual-audit";
@@ -1041,7 +1086,7 @@ const { timeseriesState, isolationState, fetchAiAnalytics } = useAiAnalytics();
 
 // The anomaly card mirrors the "Transaction" tab of /analytics/ai/anomaly-detection:
 // same state, same category, same point builder.
-const anomalyTypeConfigs = computed(() => createAnomalyTypeConfigs(t));
+const anomalyTypeConfigs = computed(() => createAnomalyTypeConfigs(t, locale.value));
 
 const availableAnomalyTypes = computed(() =>
   listAnomalyTypes(
@@ -1056,7 +1101,7 @@ const dashboardAnomalyType = computed(() =>
 );
 
 const anomalyConfig = computed(() =>
-  getAnomalyTypeConfig(t, dashboardAnomalyType.value)
+  getAnomalyTypeConfig(t, dashboardAnomalyType.value, locale.value)
 );
 
 const filteredAnomalies = computed(() =>
@@ -1082,121 +1127,58 @@ onMounted(() => {
   auditExecutionStore.fetchAuditExecutions();
 });
 
-// ─── KPI Forecasting Line Chart Config ─────────────────────
-const historicalKPI = computed<any[]>(
-  () => timeseriesState.value.historicalKPI || []
+// ─── KPI Forecasting (shared view model with /analytics/ai/kpi-forecast) ───
+const kpiViews = computed<KpiForecastView[]>(() =>
+  (timeseriesState.value.kpiForecasts || []).map(toKpiForecastView)
+);
+const atRiskKpis = computed(() => selectAtRiskKpis(kpiViews.value));
+
+// The chart shows one named KPI; defaults to the most at-risk one.
+const selectedKpiName = ref("");
+const selectedKpi = computed<KpiForecastView | undefined>(
+  () =>
+    kpiViews.value.find((k) => k.kpiName === selectedKpiName.value) ??
+    atRiskKpis.value[0] ??
+    kpiViews.value[0]
+);
+watch(
+  selectedKpi,
+  (kpi) => {
+    if (kpi && kpi.kpiName !== selectedKpiName.value) selectedKpiName.value = kpi.kpiName;
+  },
+  { immediate: true }
+);
+const kpiOptions = computed(() =>
+  kpiViews.value.map((k) => ({ label: k.kpiName, value: k.kpiName }))
 );
 
-const kpiChartData = computed(() => ({
-  labels: historicalKPI.value.map((p) => p.period || ""),
-  datasets: [
-    {
-      label: t("analytics.timeseries.labelActualKPI"),
-      data: historicalKPI.value.map((p) => p.actual ?? null),
-      borderColor: "#4f46e5",
-      backgroundColor: "rgba(79, 70, 229, 0.15)",
-      tension: 0.4,
-      borderWidth: 3,
-      pointRadius: 5,
-      pointHoverRadius: 7,
-      pointBackgroundColor: "#4f46e5",
-      pointBorderColor: "#ffffff",
-      pointBorderWidth: 2,
-      spanGaps: false,
-    },
-    {
-      label: t("analytics.timeseries.labelForecast"),
-      data: historicalKPI.value.map((p) => p.forecast ?? null),
-      borderColor: "#8b5cf6",
-      backgroundColor: "rgba(139, 92, 246, 0.15)",
-      borderDash: [6, 4],
-      tension: 0.4,
-      borderWidth: 3,
-      pointRadius: 5,
-      pointHoverRadius: 7,
-      pointStyle: "rectRot",
-      pointBackgroundColor: "#8b5cf6",
-      pointBorderColor: "#ffffff",
-      pointBorderWidth: 2,
-      spanGaps: false,
-    },
-    {
-      label: t("analytics.timeseries.labelUpperBound"),
-      data: historicalKPI.value.map((p) => p.upperBound ?? null),
-      borderColor: "transparent",
-      backgroundColor: "rgba(139, 92, 246, 0.08)",
-      fill: "+1",
-      tension: 0.4,
-      pointRadius: 0,
-      spanGaps: false,
-    },
-    {
-      label: t("analytics.timeseries.labelLowerBound"),
-      data: historicalKPI.value.map((p) => p.lowerBound ?? null),
-      borderColor: "transparent",
-      backgroundColor: "rgba(139, 92, 246, 0.08)",
-      fill: "-1",
-      tension: 0.4,
-      pointRadius: 0,
-      spanGaps: false,
-    },
-  ],
-}));
-
-const kpiChartOptions = computed(() => {
-  const boundLabels = [
-    t("analytics.timeseries.labelUpperBound"),
-    t("analytics.timeseries.labelLowerBound"),
-  ];
-
-  return {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "top" as const,
-        labels: {
-          usePointStyle: true,
-          font: { family: "Inter, sans-serif", size: 12, weight: "bold" as const },
-          filter: (item: any) => !boundLabels.includes(item.text),
-        },
-      },
-      tooltip: {
-        backgroundColor: "rgba(15, 23, 42, 0.9)",
-        titleFont: { size: 13, weight: "bold" as const },
-        bodyFont: { size: 12 },
-        padding: 12,
-        cornerRadius: 10,
-        callbacks: {
-          label: (ctx: any) => {
-            if (boundLabels.includes(ctx.dataset.label)) return "";
-            return `${ctx.dataset.label}: ${ctx.parsed.y?.toFixed(1)}%`;
-          },
-        },
-      },
-    },
-    scales: {
-      x: {
-        grid: { display: false },
-        ticks: { font: { family: "Inter, sans-serif", size: 11 } },
-      },
-      // No fixed min/max: the forecast range comes from the model, so clamping
-      // the axis would clip the confidence band.
-      y: {
-        grid: { color: "rgba(226, 232, 240, 0.6)" },
-        ticks: {
-          font: { family: "Inter, sans-serif", size: 11 },
-          callback: (v: any) => `${v}%`,
-        },
-        title: {
-          display: true,
-          text: t("analytics.timeseries.axisKPIScore"),
-          font: { size: 12, weight: "bold" as const },
-        },
-      },
-    },
-  };
+const forecastMape = computed(() => Number(timeseriesState.value.forecastAccuracy?.mape ?? 0));
+const formatMape = (v: number) =>
+  new Intl.NumberFormat(locale.value === "en" ? "en-US" : "id-ID", { maximumFractionDigits: 1 }).format(v);
+const kpiHorizon = computed(() => horizonLabel(selectedKpi.value, locale.value));
+const kpiSubtitle = computed(() => {
+  const kpi = selectedKpi.value;
+  if (!kpi?.lastActualPeriod) return t("dashboard.overview.forecastPeriod");
+  return [
+    t("analytics.timeseries.dataAsOf", { period: formatForecastPeriod(kpi.lastActualPeriod, locale.value) }),
+    kpiHorizon.value ? t("analytics.timeseries.horizon", { range: kpiHorizon.value }) : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
 });
+
+const kpiChart = computed(() =>
+  buildKpiForecastChart(selectedKpi.value, forecastMape.value, t, locale.value)
+);
+
+const kpiHorizonValue = (kpi: KpiForecastView) =>
+  kpi.forecast.length ? kpi.forecast[kpi.forecast.length - 1]!.value : kpi.forecastedValue;
+
+const kpiAuditAction = (kpi: KpiForecastView) => {
+  const key = kpiAuditActionKey(kpi.meta);
+  if (key) return t(`analytics.kpiAudit.actions.${key}`);
+  return kpi.recommendedAction || t("analytics.kpiAudit.actions.generic");
+};
 
 // ─── Anomaly Detection Scatter Chart Config ────────────
 
@@ -1256,7 +1238,7 @@ const anomalyScatterOptions = computed(() => {
           label: (ctx: any) => {
             const formattedX = config.formatX(ctx.parsed.x);
             const metricName = config.xAxisTitle.split(" (")[0];
-            return `${metricName}: ${formattedX}, ${t("analytics.isolation.axisFrequency")}: ${ctx.parsed.y}`;
+            return `${metricName}: ${formattedX}, ${t("analytics.isolation.hourValue", { hour: ctx.parsed.y })}`;
           },
         },
       },
@@ -1269,16 +1251,19 @@ const anomalyScatterOptions = computed(() => {
           font: { size: 11, weight: "bold" as const },
         },
         grid: { color: "rgba(226, 232, 240, 0.6)" },
-        ticks: { font: { size: 11 } },
+        ticks: { font: { size: 11 }, maxTicksLimit: 5, callback: (v: any) => config.formatX(Number(v)) },
       },
+      // Y = transaction hour from the data (0-23).
       y: {
+        min: 0,
+        max: 23,
         title: {
           display: true,
-          text: t("analytics.isolation.axisFrequency"),
+          text: t("analytics.isolation.axisHour"),
           font: { size: 11, weight: "bold" as const },
         },
         grid: { display: false },
-        ticks: { font: { size: 11 } },
+        ticks: { font: { size: 11 }, stepSize: 6 },
       },
     },
   };
@@ -1312,17 +1297,6 @@ const severityLabel = (severity: string) => {
     : severity;
 };
 
-const getTrendBadgeColor = (trend: string) => {
-  switch (trend) {
-    case "Improving":
-      return "success";
-    case "Declining":
-    case "Deteriorating":
-      return "error";
-    default:
-      return "warning";
-  }
-};
 
 // Sync state and action
 const isSyncing = ref(false);

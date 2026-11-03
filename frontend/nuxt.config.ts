@@ -36,14 +36,26 @@ export default defineNuxtConfig({
     "nuxt-charts",
     "nuxt-chatgpt",
   ],
-  fonts: {
-    providers: {
-      google: false,
-      bunny: false,
-      fontshare: false,
-      fontsource: false,
-      adobe: false
-    }
+  // Fonts are self-hosted via @fontsource (imported in assets/css/main.css).
+  // @nuxt/fonts is disabled so nothing is resolved from Google/CDN providers.
+  ui: {
+    fonts: false,
+  },
+  // Icons are served from the locally installed @iconify-json/* collections,
+  // never from the public Iconify API (on-prem installs have no internet).
+  icon: {
+    provider: "server",
+    fallbackToApi: false,
+    // Keep the endpoint off /api/* so it never collides with the Kong-proxied API routes.
+    localApiEndpoint: "/_nuxt_icon",
+    serverBundle: {
+      collections: ["lucide", "heroicons"],
+    },
+    clientBundle: {
+      // Statically referenced icons are bundled into the client build.
+      scan: true,
+      sizeLimitKb: 512,
+    },
   },
   ssr: false,
   routeRules: {
@@ -105,15 +117,8 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: "icon", type: "image/png", href: "/favicon.png" },
-        // Google Fonts
-        {
-          rel: "stylesheet",
-          href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap",
-        },
       ],
       script: [
-        // Phosphor Icons
-        { src: "https://unpkg.com/@phosphor-icons/web", defer: true },
         // CATATAN: Tailwind & Vue 3 CDN TIDAK boleh dimasukkan di sini
       ],
     },

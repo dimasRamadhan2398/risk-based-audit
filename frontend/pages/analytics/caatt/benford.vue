@@ -137,10 +137,10 @@ const benfordChartOptions = computed(() => ({
               <tbody>
                 <tr v-for="r in benfordState.records" :key="r.digit" :class="r.isSignificant ? 'bg-rose-50/50 dark:bg-rose-950/20' : ''" class="border-b border-gray-100 dark:border-gray-800">
                   <td class="text-center py-3 px-3 font-bold text-lg text-indigo-600 dark:text-indigo-400">{{ r.digit }}</td>
-                  <td class="text-right py-3 px-3 font-mono">{{ Number(r.actualCount).toLocaleString('id-ID') }}</td>
-                  <td class="text-right py-3 px-3 font-mono font-bold">{{ r.actualPct }}%</td>
-                  <td class="text-right py-3 px-3 font-mono text-gray-400">{{ r.expectedPct }}%</td>
-                  <td class="text-right py-3 px-3 font-mono font-bold" :class="r.deviationPct > 0 ? 'text-rose-500' : 'text-emerald-500'">
+                  <td class="text-right py-3 px-3 tabular-nums">{{ Number(r.actualCount).toLocaleString('id-ID') }}</td>
+                  <td class="text-right py-3 px-3 tabular-nums font-bold">{{ r.actualPct }}%</td>
+                  <td class="text-right py-3 px-3 tabular-nums text-gray-400">{{ r.expectedPct }}%</td>
+                  <td class="text-right py-3 px-3 tabular-nums font-bold" :class="r.deviationPct > 0 ? 'text-rose-500' : 'text-emerald-500'">
                     {{ r.deviationPct > 0 ? '+' : '' }}{{ r.deviationPct }}%
                   </td>
                   <td class="text-center py-3 px-3">

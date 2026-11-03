@@ -293,7 +293,7 @@
                   <p class="text-xs font-semibold uppercase text-[var(--text-muted)]">
                     {{ t('auditActivityPlan.totals.rows') }}
                   </p>
-                  <p class="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                  <p class="text-2xl font-bold text-primary-600 dark:text-primary-400 tabular-nums">
                     {{ store.formTotals.rowCount }}
                   </p>
                 </div>
@@ -301,7 +301,7 @@
                   <p class="text-xs font-semibold uppercase text-[var(--text-muted)]">
                     {{ t('auditActivityPlan.totals.teamSize') }}
                   </p>
-                  <p class="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                  <p class="text-2xl font-bold text-primary-600 dark:text-primary-400 tabular-nums">
                     {{ store.formTotals.teamSize }}
                   </p>
                 </div>
@@ -309,7 +309,7 @@
                   <p class="text-xs font-semibold uppercase text-[var(--text-muted)]">
                     {{ t('auditActivityPlan.totals.mandays') }}
                   </p>
-                  <p class="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                  <p class="text-2xl font-bold text-primary-600 dark:text-primary-400 tabular-nums">
                     {{ store.formTotals.totalMandays }}
                   </p>
                 </div>

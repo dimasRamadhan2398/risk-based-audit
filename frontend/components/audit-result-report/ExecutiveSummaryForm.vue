@@ -387,10 +387,10 @@
                   <td class="px-6 py-4 text-sm text-gray-900 dark:text-white uppercase tracking-wider">
                     {{ t('executiveSummaryForm.table.total') }}
                   </td>
-                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white font-mono font-extrabold">
+                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white tabular-nums font-extrabold">
                     {{ totalFollowUpCount }}
                   </td>
-                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white font-mono font-extrabold">
+                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white tabular-nums font-extrabold">
                     100.0%
                   </td>
                   <td class="px-6 py-4 text-md text-gray-400 italic">

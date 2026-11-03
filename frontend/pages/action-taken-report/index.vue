@@ -420,7 +420,7 @@ const filterByLha = (id: string) => {
               :text="row.original.pic_user_id ? t('actionTakenReport.actions.reassign') : t('actionTakenReport.actions.assign')"
             >
               <UButton
-                icon="i-lucide-user-plus"
+                icon="i-lucide-user-check"
                 color="neutral"
                 variant="ghost"
                 :aria-label="t('actionTakenReport.actions.assign')"

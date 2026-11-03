@@ -36,7 +36,7 @@
           <span class="text-[11px] font-extrabold uppercase tracking-wide text-primary-600 dark:text-primary-400">
             {{ store.form.periodType === 'Quartal' ? item.split('-')[0] : t('strategicPlan.form.yearLabel', { number: idx + 1 }) }}
           </span>
-          <span class="text-[11px] font-mono font-bold text-gray-700 dark:text-gray-300">
+          <span class="text-[11px] tabular-nums font-bold text-gray-700 dark:text-gray-300">
             {{ store.form.periodType === 'Quartal' ? item.split('-')[1] : item }}
           </span>
         </div>
@@ -49,7 +49,7 @@
             :placeholder="t('strategicPlan.extra.target')"
             inputmode="decimal"
             size="md"
-            class="w-full text-center font-bold font-mono text-gray-900 dark:text-white"
+            class="w-full text-center font-bold tabular-nums text-gray-900 dark:text-white"
             @update:model-value="(val: string) => updatePeriodTarget(item, val)"
           />
         </div>
@@ -62,7 +62,7 @@
             :placeholder="t('strategicPlan.columns.actual')"
             inputmode="decimal"
             size="md"
-            class="w-full text-center font-bold font-mono text-gray-900 dark:text-white"
+            class="w-full text-center font-bold tabular-nums text-gray-900 dark:text-white"
             @update:model-value="(val: string) => updatePeriodActual(item, val)"
           />
         </div>
@@ -71,7 +71,7 @@
         <div class="space-y-1 text-left">
           <label class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">{{ t('strategicPlan.columns.calculation') }}</label>
           <div
-            class="w-full text-center font-bold font-mono text-md py-1 px-2 rounded border transition-colors"
+            class="w-full text-center font-bold tabular-nums text-md py-1 px-2 rounded border transition-colors"
             :class="getPeriodCalcColorClass(item)"
           >
             {{ getPeriodCalculation(item) }}

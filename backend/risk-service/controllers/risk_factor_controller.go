@@ -285,7 +285,7 @@ func (ctrl *RiskFactorController) ListCorporateRiskFactors(c *gin.Context) {
 
 type CorporateRiskFactorReq struct {
 	StandardRiskFactorID string  `json:"standard_risk_factor_id" binding:"required"`
-	Weight               float64 `json:"weight" binding:"required"` // weight in percent (e.g. 15.0)
+	Weight               float64 `json:"weight" binding:"gt=0,lte=100"` // weight in percent (e.g. 15.0); "required" would reject 0 with a cryptic message
 }
 
 // UpdateCorporateRiskFactors replaces all corporate risk factors and weights
