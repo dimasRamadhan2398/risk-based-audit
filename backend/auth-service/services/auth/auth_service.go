@@ -523,3 +523,47 @@ func (s *AuthService) ChangePassword(ctx context.Context, userID uuid.UUID, req 
 
 	return nil
 }
+
+// Login failure reasons recorded in details.reason. They describe the cause to
+// an admin; the API response to the client stays generic.
+const (
+	loginFailUnknownUser     = "unknown_username"
+	loginFailInactive        = "inactive_account"
+	loginFailInvalidPassword = "invalid_password"
+	loginFailInvalidMFACode  = "invalid_mfa_code"
+	loginFailInvalidMFAToken = "invalid_mfa_token"
+)
+
+// record sends an activity event; a service built without a recorder drops it.
+func (s *AuthService) record(ctx context.Context, e activitylog.Entry) {
+	if s.activity == nil {
+		return
+	}
+	s.activity.Record(ctx, e)
+}
+
+// recordLoginFailed logs a failed sign-in. username is what was typed (never
+// the password); userID is set only when the account exists.
+func (s *AuthService) recordLoginFailed(ctx context.Context, userID, username, ip, userAgent, reason string) {
+	who := username
+	if who == "" {
+		who = "unknown user"
+	}
+	e := activitylog.Entry{
+		ActorUserID:   userID,
+		ActorUsername: username,
+		Action:        activitylog.ActionLoginFailed,
+		EntityType:    "user",
+		EntityID:      userID,
+		Result:        activitylog.ResultFailure,
+		IPAddress:     ip,
+		UserAgent:     userAgent,
+		Summary:       "Failed sign-in for " + who,
+		Details:       map[string]interface{}{"reason": reason},
+	}
+	if userID == "" && username == "" {
+		// No actor at all: keep Enrich from attributing it to a caller in ctx.
+		e.ActorUsername = "unknown"
+	}
+	s.record(ctx, e)
+}
