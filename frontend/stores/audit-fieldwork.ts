@@ -7,6 +7,9 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error'
 import { openProtectedFile } from '~/utils/authedFile'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
+import type { Employee, Department } from '~/types/master'
+import { useEmployeeApi } from '~/composables/useEmployeeApi'
+import { useDepartmentApi } from '~/composables/useDepartmentApi'
 
 export interface InterviewItem {
   id: any
@@ -1262,7 +1265,7 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
 
   const openSampleModal = () => {
     if (!selectedAssignmentLetter.value) {
-      alert('Please select an Assignment Letter first!')
+      useAppToast().warning(useI18n().t('auditFieldwork.messages.selectAssignmentLetter'))
       return
     }
     resetSampleForm()
@@ -1531,6 +1534,140 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     }
   }
 
+  // Master Data Karyawan (Employee Management Sync for Test Controls PIC)
+  const employees = ref<Employee[]>([])
+  const employeesLoading = ref(false)
+  const employeesLoaded = ref(false)
+  const employeesError = ref('')
+
+  const resolveEmployeeOption = (val?: string): string => {
+    if (!val) return ''
+    const match = employees.value.find(
+      e => e.id === val || e.employee_code === val || e.full_name === val || `${e.full_name} (${e.employee_code})` === val
+    )
+    if (match) {
+      return match.employee_code ? `${match.full_name} (${match.employee_code})` : match.full_name
+    }
+    return val
+  }
+
+  const formatEmployeeName = (value?: string): string => {
+    if (!value) return '-'
+    const found = employees.value.find(
+      e => e.id === value || e.employee_code === value || e.full_name === value
+    )
+    if (found) {
+      return found.employee_code ? `${found.full_name} (${found.employee_code})` : found.full_name
+    }
+    return value
+  }
+
+  const fetchEmployees = async (force = false) => {
+    if (employeesLoaded.value && !force) return
+    if (employeesLoading.value) return
+    employeesLoading.value = true
+    employeesError.value = ''
+    try {
+      const api = useEmployeeApi()
+      const list = await api.getAllEmployees()
+      employees.value = (Array.isArray(list) ? list : [])
+        .filter(e => e?.full_name && e.is_active !== false)
+        .sort((a, b) => a.full_name.localeCompare(b.full_name, 'id', { sensitivity: 'base' }))
+      employeesLoaded.value = true
+
+      if (testControlForm.pic) {
+        testControlForm.pic = resolveEmployeeOption(testControlForm.pic)
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch employees for test controls:', error)
+      employeesError.value = extractErrorMessage(error, 'Gagal memuat data karyawan.')
+      if (!employeesLoaded.value) {
+        employees.value = []
+      }
+    } finally {
+      employeesLoading.value = false
+    }
+  }
+
+  const picOptions = computed(() => {
+    const list = employees.value.map(e => e.employee_code ? `${e.full_name} (${e.employee_code})` : e.full_name)
+    if (testControlForm.pic && !list.includes(testControlForm.pic)) {
+      list.unshift(testControlForm.pic)
+    }
+    return list
+  })
+
+  // Master Data Departemen (Department Management Sync for Test Controls Unit Division)
+  const departments = ref<Department[]>([])
+  const departmentsLoading = ref(false)
+  const departmentsLoaded = ref(false)
+  const departmentsError = ref('')
+
+  const resolveDepartmentOption = (val?: string): string => {
+    if (!val) return ''
+    const match = departments.value.find(
+      d => d.id === val || d.department_code === val || d.department_name === val || `${d.department_name} (${d.department_code})` === val
+    )
+    if (match) {
+      return match.department_code ? `${match.department_name} (${match.department_code})` : match.department_name
+    }
+    return val
+  }
+
+  const formatDepartmentName = (value?: string): string => {
+    if (!value) return '-'
+    const found = departments.value.find(
+      d => d.id === value || d.department_code === value || d.department_name === value
+    )
+    if (found) {
+      return found.department_code ? `${found.department_name} (${found.department_code})` : found.department_name
+    }
+    return value
+  }
+
+  const fetchDepartments = async (force = false) => {
+    if (departmentsLoaded.value && !force) return
+    if (departmentsLoading.value) return
+    departmentsLoading.value = true
+    departmentsError.value = ''
+    try {
+      const api = useDepartmentApi()
+      const list = await api.getAllDepartments()
+      departments.value = (Array.isArray(list) ? list : [])
+        .filter(d => d?.department_name && d.is_active !== false)
+        .sort((a, b) => a.department_name.localeCompare(b.department_name, 'id', { sensitivity: 'base' }))
+      departmentsLoaded.value = true
+
+      if (options && departments.value.length > 0) {
+        options.divisionOptions = departments.value.map(d =>
+          d.department_code ? `${d.department_name} (${d.department_code})` : d.department_name
+        )
+      }
+
+      if (testControlForm.unitDivision) {
+        testControlForm.unitDivision = resolveDepartmentOption(testControlForm.unitDivision)
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch departments for test controls:', error)
+      departmentsError.value = extractErrorMessage(error, 'Gagal memuat data departemen.')
+      if (!departmentsLoaded.value) {
+        departments.value = []
+      }
+    } finally {
+      departmentsLoading.value = false
+    }
+  }
+
+  const unitDivisionOptions = computed(() => {
+    const list = departments.value.map(d => d.department_code ? `${d.department_name} (${d.department_code})` : d.department_name)
+    if (testControlForm.unitDivision && !list.includes(testControlForm.unitDivision)) {
+      list.unshift(testControlForm.unitDivision)
+    }
+    return list.sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
+  })
+
+  const divisionOptions = unitDivisionOptions
+
   // Test Control Form
   const testControlForm = reactive({
     controlName: '',
@@ -1552,13 +1689,15 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
 
   const openTestControlModal = () => {
     if (!selectedAssignmentLetter.value) {
-      alert('Please select an Assignment Letter first!')
+      useAppToast().warning(useI18n().t('auditFieldwork.messages.selectAssignmentLetter'))
       return
     }
     resetTestControlForm()
     isEditingTestControl.value = false
     isReadOnlyTestControl.value = false
     editingTestControlId.value = null
+    fetchEmployees()
+    fetchDepartments()
     showTestControlModal.value = true
   }
 
@@ -1569,14 +1708,16 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     testControlForm.controlName = item.controlName
     testControlForm.controlDescription = item.controlDescription
     testControlForm.controlType = item.controlType
-    testControlForm.unitDivision = item.unitDivision || ''
+    testControlForm.unitDivision = resolveDepartmentOption(item.unitDivision || '')
     testControlForm.testProcedure = item.testProcedure
     testControlForm.testResult = item.testResult
     testControlForm.finding = item.finding
     testControlForm.recommendation = item.recommendation
     testControlForm.mitigationPlan = item.mitigationPlan
-    testControlForm.pic = item.pic
+    testControlForm.pic = resolveEmployeeOption(item.pic)
     testControlForm.dueDate = item.dueDate
+    fetchEmployees()
+    fetchDepartments()
     showTestControlModal.value = true
   }
 
@@ -1881,6 +2022,23 @@ export const useAuditFieldworkStore = defineStore('audit-fieldwork', () => {
     documentCount,
     sampleCount,
     testControlCount,
+    employees,
+    employeesLoading,
+    employeesLoaded,
+    employeesError,
+    fetchEmployees,
+    resolveEmployeeOption,
+    formatEmployeeName,
+    picOptions,
+    departments,
+    departmentsLoading,
+    departmentsLoaded,
+    departmentsError,
+    fetchDepartments,
+    resolveDepartmentOption,
+    formatDepartmentName,
+    unitDivisionOptions,
+    divisionOptions,
     effectiveControls,
     ineffectiveControls,
     fieldworkData,

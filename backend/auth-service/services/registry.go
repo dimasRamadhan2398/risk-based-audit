@@ -10,6 +10,7 @@ import (
 	mfaServices "auth-service/services/mfa"
 	resendServices "auth-service/services/resend"
 	roleServices "auth-service/services/role"
+	systemLogServices "auth-service/services/systemlog"
 	trustedDevicesServices "auth-service/services/trusted-devices"
 	userServices "auth-service/services/user"
 )
@@ -28,6 +29,7 @@ func (r *Registry) GetAuthService() authServices.AuthServiceInterface {
 		r.repository.GetCacheRepository().GetClient(),
 		r.repository.GetConfig(),
 		r.repository.GetKafkaProducer(),
+		r.repository.GetActivityRecorder(),
 	)
 }
 
@@ -62,7 +64,7 @@ func (r *Registry) GetMfaService() mfaServices.MfaServiceInterface {
 
 // GetUserService implements IServiceRegistry.
 func (r *Registry) GetUserService() userServices.UserServiceInterface {
-	return userServices.NewUserService(r.repository.GetUserRepository(), r.repository.GetKafkaProducer())
+	return userServices.NewUserServiceWithActivity(r.repository.GetUserRepository(), r.repository.GetKafkaProducer(), r.repository.GetActivityRecorder())
 }
 
 // GetRoleService implements IServiceRegistry.
@@ -97,6 +99,7 @@ type IServiceRegistry interface {
 	GetEmailService() emailServices.EmailServiceInterface
 	GetConfidentialityService() confidentialityServices.ConfidentialityServiceInterface
 	GetResendService() resendServices.ResendServiceInterface
+	GetSystemLogService() systemLogServices.ServiceInterface
 }
 
 func NewServiceRegistry(repository repositories.IRepositoryRegistry) IServiceRegistry {
@@ -107,4 +110,13 @@ func NewServiceRegistry(repository repositories.IRepositoryRegistry) IServiceReg
 func (r *Registry) GetResendService() resendServices.ResendServiceInterface {
 	cfg := r.repository.GetConfig()
 	return resendServices.NewResendService(cfg.Resend.GetAPIKey(), cfg.Resend.WebhookSecret)
+}
+
+// GetSystemLogService implements IServiceRegistry (GET /system-logs).
+func (r *Registry) GetSystemLogService() systemLogServices.ServiceInterface {
+	return systemLogServices.NewService(
+		r.repository.GetSystemAlertLogRepository(),
+		r.repository.GetPermissionRepository(),
+		r.repository.GetActivityRecorder(),
+	)
 }

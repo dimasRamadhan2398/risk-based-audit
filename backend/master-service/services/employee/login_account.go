@@ -8,18 +8,39 @@ import (
 	"master-service/models"
 	"master-service/pkg/authclient"
 	"master-service/pkg/base"
-	"master-service/pkg/logger"
 	apperrors "master-service/pkg/errors"
+	"master-service/pkg/logger"
 
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
-// loginEmailSuffix marks the employees who get a login account on creation.
-// Matched case-insensitively against the trimmed email.
-const loginEmailSuffix = "@aifl.co.id"
+// JobRoleLookup reads a job role by id. The job role repository satisfies it.
+type JobRoleLookup interface {
+	FindByID(id uuid.UUID) (*models.JobRole, error)
+}
 
-// loginRole is the role given to employees' new login accounts.
-const loginRole = "AUDITEE"
+// resolveLoginRole picks the role for a new account: the explicit override on
+// the request, else the job role's default_access_role, else AUDITEE. A lookup
+// failure falls back to AUDITEE (least privilege) and is logged.
+func (s *EmployeeService) resolveLoginRole(emp *models.Employee) string {
+	if override, _ := models.NormalizeAccessRole(emp.AccessRole); override != "" {
+		return override
+	}
+	if s.jobRoles == nil {
+		return models.DefaultLoginAccessRole
+	}
+	jr, err := s.jobRoles.FindByID(emp.JobRoleID)
+	if err != nil {
+		logger.Warn("Job role lookup failed; using default login role",
+			zap.String("employee_code", emp.EmployeeCode), zap.Error(err))
+		return models.DefaultLoginAccessRole
+	}
+	if role, ok := models.NormalizeAccessRole(jr.DefaultAccessRole); ok && role != "" {
+		return role
+	}
+	return models.DefaultLoginAccessRole
+}
 
 // maxLoginUsernameLength is auth-service's username limit. The username is the
 // full email, so longer emails cannot have an account.
@@ -28,23 +49,21 @@ const maxLoginUsernameLength = 50
 // AccountClient is the part of auth-service the employee service needs.
 // *authclient.Client satisfies it.
 type AccountClient interface {
-	FindUserByEmail(ctx context.Context, email, authHeader string) (*authclient.User, error)
+	FindUser(ctx context.Context, employeeCode, email, authHeader string) (*authclient.User, error)
 	CreateUser(ctx context.Context, in authclient.CreateUserInput, authHeader string) (*authclient.CreatedUser, error)
 	LinkEmployee(ctx context.Context, userID, employeeCode, authHeader string) error
 }
 
-// requiresLoginAccount reports whether an employee with this email gets a login
-// account when created.
-func requiresLoginAccount(email string) bool {
-	return strings.HasSuffix(strings.ToLower(strings.TrimSpace(email)), loginEmailSuffix)
-}
-
 // checkLoginAccountPreflight runs before anything is written, so a create that
 // can never get its account leaves no employee row behind.
-func (s *EmployeeService) checkLoginAccountPreflight(email string) error {
+func (s *EmployeeService) checkLoginAccountPreflight(email, accessRole string) error {
+	if _, ok := models.NormalizeAccessRole(accessRole); !ok {
+		return apperrors.ValidationFailed("access_role must be one of: "+strings.Join(models.AllowedAccessRoles(), ", ")+".",
+			map[string]string{"access_role": apperrors.FieldInvalid})
+	}
 	if s.accounts == nil {
 		return apperrors.New("LOGIN_ACCOUNT_NOT_CONFIGURED",
-			"Employees with an @aifl.co.id email cannot be created because login account provisioning is not configured on this server.",
+			"Login account provisioning is not configured on this server (AUTH_SERVICE_URL is empty).",
 			http.StatusServiceUnavailable)
 	}
 	if len(email) > maxLoginUsernameLength {
@@ -55,31 +74,33 @@ func (s *EmployeeService) checkLoginAccountPreflight(email string) error {
 	return nil
 }
 
-// provisionLoginAccount gives a freshly created employee its login account. An
-// existing account with the same email is linked, not replaced. On any failure
-// the employee row is removed again, so the create either fully succeeds or
-// leaves nothing behind.
-func (s *EmployeeService) provisionLoginAccount(ctx *base.BaseService, emp *models.Employee) (*models.EmployeeAccount, error) {
+// ensureLoginAccount makes sure the employee has a login account and returns
+// its status: "created" (new account, temporary password set once), "linked"
+// (an account with the same email existed and is now linked) or "exists" (an
+// account was already linked to this employee; nothing changed, no password).
+// The lookup is by employee code then email, the same as Reset Password.
+func (s *EmployeeService) ensureLoginAccount(ctx *base.BaseService, emp *models.Employee) (*models.EmployeeAccount, *apperrors.AppError) {
 	goCtx := ctx.GetContext()
 	authHeader := authclient.AuthorizationFrom(goCtx)
 
-	existing, err := s.accounts.FindUserByEmail(goCtx, emp.Email, authHeader)
+	existing, err := s.accounts.FindUser(goCtx, emp.EmployeeCode, emp.Email, authHeader)
 	if err != nil {
-		return nil, s.rollbackEmployee(emp, accountCallError(err))
+		return nil, accountCallError(err)
 	}
 
 	if existing != nil {
-		if existing.EmployeeID != emp.EmployeeCode {
-			if existing.EmployeeID != "" {
-				return nil, s.rollbackEmployee(emp, apperrors.New("LOGIN_ACCOUNT_LINKED_ELSEWHERE",
-					"Employee was not created: a login account with this email is already linked to another employee.",
-					http.StatusConflict))
-			}
-			if err := s.accounts.LinkEmployee(goCtx, existing.ID, emp.EmployeeCode, authHeader); err != nil {
-				return nil, s.rollbackEmployee(emp, accountCallError(err))
-			}
+		if existing.EmployeeID == emp.EmployeeCode {
+			return &models.EmployeeAccount{Status: "exists", Username: existing.Username}, nil
 		}
-		logger.Info("Login account linked to new employee",
+		if existing.EmployeeID != "" {
+			return nil, apperrors.New("LOGIN_ACCOUNT_LINKED_ELSEWHERE",
+				"A login account with this email is already linked to another employee.",
+				http.StatusConflict)
+		}
+		if err := s.accounts.LinkEmployee(goCtx, existing.ID, emp.EmployeeCode, authHeader); err != nil {
+			return nil, accountCallError(err)
+		}
+		logger.Info("Login account linked to employee",
 			zap.String("employee_code", emp.EmployeeCode), zap.String("username", existing.Username))
 		return &models.EmployeeAccount{Status: "linked", Username: existing.Username}, nil
 	}
@@ -88,22 +109,63 @@ func (s *EmployeeService) provisionLoginAccount(ctx *base.BaseService, emp *mode
 		Username:         emp.Email,
 		Email:            emp.Email,
 		FullName:         emp.FullName,
-		Roles:            []string{loginRole},
+		Roles:            []string{s.resolveLoginRole(emp)},
 		EmployeeID:       emp.EmployeeCode,
 		GeneratePassword: true,
 	}, authHeader)
 	if err != nil {
-		return nil, s.rollbackEmployee(emp, accountCallError(err))
+		return nil, accountCallError(err)
 	}
 
 	// The temporary password goes back to the caller once. It is never logged.
-	logger.Info("Login account created for new employee",
+	logger.Info("Login account created for employee",
 		zap.String("employee_code", emp.EmployeeCode), zap.String("username", created.Username))
 	return &models.EmployeeAccount{
 		Status:            "created",
 		Username:          created.Username,
 		TemporaryPassword: created.TemporaryPassword,
 	}, nil
+}
+
+// provisionLoginAccount gives a freshly created employee its login account. On
+// any failure the employee row is removed again, so the create either fully
+// succeeds or leaves nothing behind.
+func (s *EmployeeService) provisionLoginAccount(ctx *base.BaseService, emp *models.Employee) (*models.EmployeeAccount, error) {
+	account, appErr := s.ensureLoginAccount(ctx, emp)
+	if appErr != nil {
+		return nil, s.rollbackEmployee(emp, appErr)
+	}
+	return account, nil
+}
+
+// ProvisionLoginAccount creates (or links) the login account of an existing
+// employee on demand. Idempotent: an already linked account is returned with
+// status "exists" and no password. accessRole optionally overrides the role,
+// else the job role's default_access_role, else AUDITEE. Nothing is rolled back
+// on failure; the employee row is untouched.
+func (s *EmployeeService) ProvisionLoginAccount(ctx *base.BaseService, id, accessRole string) (*models.EmployeeAccount, error) {
+	employeeID, err := uuid.Parse(id)
+	if err != nil {
+		return nil, apperrors.InvalidID(err)
+	}
+	emp, err := s.employeeRepo.FindByID(employeeID)
+	if err != nil {
+		if err == apperrors.ErrNotFound {
+			return nil, apperrors.ErrEmployeeNotFound
+		}
+		return nil, apperrors.DB(err, apperrors.OpRead, "Failed to load the employee.")
+	}
+	if err := s.checkLoginAccountPreflight(emp.Email, accessRole); err != nil {
+		return nil, err
+	}
+	// Work on a copy so the request-only override never touches the stored row.
+	target := *emp
+	target.AccessRole = accessRole
+	account, appErr := s.ensureLoginAccount(ctx, &target)
+	if appErr != nil {
+		return nil, appErr
+	}
+	return account, nil
 }
 
 // rollbackEmployee removes the employee row and returns cause. If the removal

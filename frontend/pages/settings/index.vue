@@ -131,6 +131,11 @@
               <SettingsDataSource />
             </div>
 
+            <!-- System Logs Section (view_system_logs only) -->
+            <div v-if="activeTab === 'systemlogs'">
+              <SettingsSystemLogs />
+            </div>
+
             <!-- FAQ Section -->
             <div v-if="activeTab === 'faq'">
               <SettingsFaq />
@@ -165,9 +170,12 @@ const authStore = useAuthStore()
 const { t } = useI18n()
 
 // VIEWER only gets profile, activity and faq; other roles keep every tab.
+// System Logs is added only with the view_system_logs permission (never for VIEWER).
 const { isViewer } = useRbac()
-const validTabs = computed(() => getSettingsTabs(isViewer.value))
-const initialTab = computed(() => resolveSettingsTab(route.query.tab, isViewer.value))
+const { canViewSystemLogs } = useSystemLogAccess()
+const tabOptions = computed(() => ({ systemLogs: canViewSystemLogs.value }))
+const validTabs = computed(() => getSettingsTabs(isViewer.value, tabOptions.value))
+const initialTab = computed(() => resolveSettingsTab(route.query.tab, isViewer.value, tabOptions.value))
 
 const activeTab = ref(initialTab.value)
 
@@ -175,14 +183,17 @@ watch(
   () => route.query.tab,
   (newTab) => {
     if (newTab && typeof newTab === 'string') {
-      activeTab.value = resolveSettingsTab(newTab, isViewer.value)
+      activeTab.value = resolveSettingsTab(newTab, isViewer.value, tabOptions.value)
     }
   }
 )
 
-// The role can resolve after first render; re-check the active tab against the allowed list.
+// The role (and the System Logs permission check) can resolve after first render; re-check the active tab
+// against the allowed list and honour a ?tab= that has just become allowed.
 watch(validTabs, (tabs) => {
-  if (!tabs.includes(activeTab.value)) activeTab.value = 'profile'
+  const requested = Array.isArray(route.query.tab) ? route.query.tab[0] : route.query.tab
+  if (typeof requested === 'string' && tabs.includes(requested)) activeTab.value = requested
+  else if (!tabs.includes(activeTab.value)) activeTab.value = 'profile'
 })
 
 const selectTab = (tab: string) => {
@@ -254,6 +265,14 @@ const allLinks = computed<NavigationMenuItem[]>(() => [
     active: activeTab.value === 'datasource',
   },
   {
+    label: t('settings.sidebar.systemLogs'),
+    icon: 'i-lucide-history',
+    slot: 'systemlogs' as const,
+    onSelect: () => selectTab('systemlogs'),
+    onClick: () => selectTab('systemlogs'),
+    active: activeTab.value === 'systemlogs'
+  },
+  {
     label: t('settings.sidebar.faq'),
     icon: 'i-lucide-help-circle',
     slot: 'faq' as const,
@@ -275,6 +294,7 @@ const currentPageTitle = computed(() => {
     activity: t('settings.titles.activity'),
     permissions: t('settings.titles.permissions'),
     datasource: t('settings.titles.datasource'),
+    systemlogs: t('settings.titles.systemLogs'),
     faq: t('settings.titles.faq'),
   }
   return titles[activeTab.value] || t('settings.titles.settings')

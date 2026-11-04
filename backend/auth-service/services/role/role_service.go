@@ -2,11 +2,13 @@ package role
 
 import (
 	"auth-service/models"
+	"auth-service/pkg/activitylog"
 	apperrors "auth-service/pkg/errors"
 	pkgKafka "auth-service/pkg/kafka"
 	"auth-service/pkg/redis"
 	"auth-service/repositories"
 	"context"
+	"time"
 
 	casbin "auth-service/pkg/permissions"
 
@@ -64,9 +66,7 @@ func (s *RoleService) CreateRole(ctx context.Context, req models.CreateRoleReque
 		return nil, apperrors.Wrap("CREATE_ROLE_FAILED", "Failed to create role", 500, nil)
 	}
 
-	if s.publisher != nil {
-		s.publisher.PublishRoleEvent(ctx, "", "", role.Name, pkgKafka.EventRoleAssigned)
-	}
+	s.publishRoleEvent(ctx, role.Name, pkgKafka.EventRoleAssigned, activitylog.ActionRoleCreated, nil)
 
 	return role, nil
 }
@@ -125,9 +125,7 @@ func (s *RoleService) DeleteRole(ctx context.Context, id uuid.UUID) error {
 		return apperrors.Wrap("DELETE_ROLE_FAILED", "Failed to delete role", 500, nil)
 	}
 
-	if s.publisher != nil {
-		s.publisher.PublishRoleEvent(ctx, "", "", role.Name, pkgKafka.EventRoleRevoked)
-	}
+	s.publishRoleEvent(ctx, role.Name, pkgKafka.EventRoleRevoked, activitylog.ActionRoleDeleted, nil)
 
 	return nil
 }
@@ -190,9 +188,7 @@ func (s *RoleService) AssignPermissions(ctx context.Context, roleID uuid.UUID, p
 		}
 	}
 
-	if s.publisher != nil {
-		s.publisher.PublishRoleEvent(ctx, "", "", role.Name, pkgKafka.EventRoleAssigned)
-	}
+	s.publishRoleEvent(ctx, role.Name, pkgKafka.EventRoleAssigned, activitylog.ActionRolePermissionsAdded, permissionIDs)
 
 	return nil
 }
@@ -217,11 +213,35 @@ func (s *RoleService) RemovePermissions(ctx context.Context, roleID uuid.UUID, p
 		}
 	}
 
-	if s.publisher != nil {
-		s.publisher.PublishRoleEvent(ctx, "", "", role.Name, pkgKafka.EventRoleRevoked)
-	}
+	s.publishRoleEvent(ctx, role.Name, pkgKafka.EventRoleRevoked, activitylog.ActionRolePermissionsRemove, permissionIDs)
 
 	return nil
+}
+
+// publishRoleEvent publishes a role change. The event type stays role.assigned
+// / role.revoked for the service-logs stream; "operation" tells the activity
+// log what actually happened. The actor comes from the request context.
+func (s *RoleService) publishRoleEvent(ctx context.Context, roleName string, eventType pkgKafka.EventType, operation string, permissionIDs []uuid.UUID) {
+	if s.publisher == nil {
+		return
+	}
+	data := map[string]interface{}{
+		"role":                   roleName,
+		activitylog.OperationKey: operation,
+	}
+	if len(permissionIDs) > 0 {
+		ids := make([]string, len(permissionIDs))
+		for i, id := range permissionIDs {
+			ids[i] = id.String()
+		}
+		data["permission_ids"] = ids
+	}
+	_ = s.publisher.Publish(ctx, &pkgKafka.Event{
+		Type:      eventType,
+		Success:   true,
+		Data:      data,
+		Timestamp: time.Now().UTC(),
+	})
 }
 
 // ListPermissions returns all permissions in the system

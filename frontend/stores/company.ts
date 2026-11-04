@@ -10,6 +10,7 @@ import type {
 } from '~/types/master'
 import { getUserErrorMessage } from '~/utils/error'
 import { useI18n } from '~/composables/useI18n'
+import { useAppToast } from '~/composables/useAppToast'
 
 export const useCompanyStore = defineStore('company', () => {
   // ============= State =============
@@ -306,13 +307,13 @@ export const useCompanyStore = defineStore('company', () => {
       if (isEditing.value && editingId.value) {
         const success = await updateCompany(editingId.value)
         if (success) {
-          alert(t('masterData.company.messages.updated'))
+          useAppToast().success(t('masterData.company.messages.updated'))
           closeModal()
         }
       } else {
         const success = await createCompany()
         if (success) {
-          alert(t('masterData.company.messages.created'))
+          useAppToast().success(t('masterData.company.messages.created'))
           closeModal()
         }
       }
@@ -331,7 +332,7 @@ export const useCompanyStore = defineStore('company', () => {
 
     const success = await deleteCompany(company.id)
     if (success) {
-      alert(t('masterData.company.messages.deleted'))
+      useAppToast().success(t('masterData.company.messages.deleted'))
     }
   }
 

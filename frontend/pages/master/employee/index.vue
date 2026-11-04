@@ -13,6 +13,9 @@
 
     <!-- Employee Form Modal -->
     <MasterEmployeeForm />
+
+    <!-- One-time temporary password after creating an employee -->
+    <MasterEmployeeAccountCredentialsModal />
   </div>
 </template>
 
@@ -20,6 +23,8 @@
 import { useI18n } from '~/composables/useI18n'
 import MasterEmployeeTable from '~/components/master/EmployeeTable.vue'
 import MasterEmployeeForm from '~/components/master/EmployeeForm.vue'
+
+import MasterEmployeeAccountCredentialsModal from '~/components/master/EmployeeAccountCredentialsModal.vue'
 
 const { t } = useI18n()
 

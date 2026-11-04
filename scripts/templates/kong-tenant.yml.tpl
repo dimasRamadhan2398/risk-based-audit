@@ -53,6 +53,9 @@ plugins:
         - Origin
         - X-Requested-With
         - X-CSRF-Token
+        # Password step-up for sensitive actions (POST /api/v1/org-levels/changes/apply).
+        # Request-only, so it is not in exposed_headers.
+        - X-Step-Up-Token
 
       exposed_headers:
         - Content-Length
@@ -225,6 +228,10 @@ services:
 
           # Data Sources
           - /api/v1/data-sources
+
+          # Organisation structure (tenant mode, flexible org levels)
+          - /api/v1/tenant-config
+          - /api/v1/org-levels
 
         strip_path: false
 

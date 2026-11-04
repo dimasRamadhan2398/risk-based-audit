@@ -10,6 +10,8 @@ import type {
   AssignmentLetter
 } from '~/types/audit'
 import { ROOT_CAUSE_METHOD_OPTIONS, TEST_RESULT_OPTIONS } from '~/types/audit'
+import type { Employee } from '~/types/master'
+import { useEmployeeApi } from '~/composables/useEmployeeApi'
 import { useAuditFieldworkStore } from './audit-fieldwork'
 import { useAssignmentLetterStore } from './assignment-letter'
 import { useLocationStore } from './location'
@@ -391,6 +393,69 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const dataF04 = ref<WorkingPaperCause[]>([])
   const dataF05 = ref<WorkingPaperPlan[]>([])
 
+  // Master Data Karyawan (Employee Management Sync for Action Plan PIC)
+  const employees = ref<Employee[]>([])
+  const employeesLoading = ref(false)
+  const employeesLoaded = ref(false)
+  const employeesError = ref('')
+
+  const resolveEmployeeOption = (val?: string): string => {
+    if (!val) return ''
+    const match = employees.value.find(
+      e => e.id === val || e.employee_code === val || e.full_name === val || `${e.full_name} (${e.employee_code})` === val
+    )
+    if (match) {
+      return match.employee_code ? `${match.full_name} (${match.employee_code})` : match.full_name
+    }
+    return val
+  }
+
+  const formatEmployeeName = (value?: string): string => {
+    if (!value) return '-'
+    const found = employees.value.find(
+      e => e.id === value || e.employee_code === value || e.full_name === value
+    )
+    if (found) {
+      return found.employee_code ? `${found.full_name} (${found.employee_code})` : found.full_name
+    }
+    return value
+  }
+
+  const fetchEmployees = async (force = false) => {
+    if (employeesLoaded.value && !force) return
+    if (employeesLoading.value) return
+    employeesLoading.value = true
+    employeesError.value = ''
+    try {
+      const api = useEmployeeApi()
+      const list = await api.getAllEmployees()
+      employees.value = (Array.isArray(list) ? list : [])
+        .filter(e => e?.full_name && e.is_active !== false)
+        .sort((a, b) => a.full_name.localeCompare(b.full_name, 'id', { sensitivity: 'base' }))
+      employeesLoaded.value = true
+
+      if (planForm.pic) {
+        planForm.pic = resolveEmployeeOption(planForm.pic)
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch employees for working paper action plan:', error)
+      employeesError.value = extractErrorMessage(error, 'Gagal memuat data karyawan.')
+      if (!employeesLoaded.value) {
+        employees.value = []
+      }
+    } finally {
+      employeesLoading.value = false
+    }
+  }
+
+  const picOptions = computed(() => {
+    const list = employees.value.map(e => e.employee_code ? `${e.full_name} (${e.employee_code})` : e.full_name)
+    if (planForm.pic && !list.includes(planForm.pic)) {
+      list.unshift(planForm.pic)
+    }
+    return list
+  })
+
   const loading = ref(false)
   const errorMsg = ref('')
 
@@ -432,6 +497,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
       const resF05: any = await $fetch(`${baseUrl}/working-papers/plans`, { method: 'GET' })
       dataF05.value = extractItems(resF05)
+      fetchEmployees().catch(() => {})
     } catch (error) {
       console.error('Failed to fetch working papers:', error)
       errorMsg.value = extractErrorMessage(error, t('workingPaper.messages.loadFailed'))
@@ -1228,6 +1294,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       periodAction: ''
     })
     showModalF05.value = true
+    fetchEmployees()
   }
 
   const handleSubmitF05 = async () => {
@@ -1253,10 +1320,11 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     planForm.recommendation = plan.recommendation
     planForm.response = plan.response || plan.tanggapanresponse || ''
     planForm.actionDescription = plan.actionDescription
-    planForm.pic = plan.pic
+    planForm.pic = resolveEmployeeOption(plan.pic)
     planForm.periodAction = plan.periodAction
 
     showModalF05.value = true
+    fetchEmployees()
   }
 
   const handleDeleteF05 = async (id: string | undefined) => {
@@ -1352,7 +1420,9 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       }
       return uniqueNames
     },
-    pic: ['Dimas - IT', 'Budi - Finance', 'Siti - HR'],
+    get pic() {
+      return picOptions.value
+    },
     testResult: [...TEST_RESULT_OPTIONS],
     rootCauseMethod: [...ROOT_CAUSE_METHOD_OPTIONS]
   }
@@ -1434,6 +1504,14 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     criteriaOptions, loadingSopOptions,
     fieldworkSampleOptions,
     fetchLocations: () => locationStore.fetchLocations(),
+    employees,
+    employeesLoading,
+    employeesLoaded,
+    employeesError,
+    fetchEmployees,
+    resolveEmployeeOption,
+    formatEmployeeName,
+    picOptions,
     loading, errorMsg, fetchAllData
   }
 })

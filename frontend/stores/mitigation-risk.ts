@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref, reactive, computed } from 'vue'
 import type { RiskMitigation, RiskMitigationForm } from '~/types/risk'
+import type { Employee, Department } from '~/types/master'
+import { useEmployeeApi } from '~/composables/useEmployeeApi'
+import { useDepartmentApi } from '~/composables/useDepartmentApi'
 import { useRiskProfileStore } from '~/stores/risk-profile'
 import { extractErrorMessage } from '~/utils/error'
 import { getRiskServiceBaseUrl } from '~/composables/useApiUrl'
@@ -93,11 +96,143 @@ export const useMitigationStore = defineStore('mitigation', () => {
 
 
     // Data Master untuk Dropdown
-    const picOptions = ['Finance Manager', 'Sales Director', 'IT Security Lead', 'Head of Internal Audit', 'Dimas', 'Budi', 'Caca', 'Dedi', 'Eka', 'Fahmi']
-        .sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
-    const supervisorOptions = ['Dimas', 'Budi', 'Caca', 'Dedi', 'Eka', 'Fahmi']
-    const unitInChargeOptions = ['Sales', 'Marketing', 'Product Development', 'Operasional', 'Financial']
-        .sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
+    // Master Data Karyawan (Employee Management Sync)
+    const employees = ref<Employee[]>([])
+    const employeesLoading = ref(false)
+    const employeesLoaded = ref(false)
+    const employeesError = ref('')
+
+    const resolveEmployeeOption = (val?: string): string => {
+        if (!val) return ''
+        const match = employees.value.find(
+            e => e.id === val || e.employee_code === val || e.full_name === val || `${e.full_name} (${e.employee_code})` === val
+        )
+        if (match) {
+            return match.employee_code ? `${match.full_name} (${match.employee_code})` : match.full_name
+        }
+        return val
+    }
+
+    const formatEmployeeName = (value?: string): string => {
+        if (!value) return '-'
+        const found = employees.value.find(
+            e => e.id === value || e.employee_code === value
+        )
+        if (found) {
+            return found.employee_code ? `${found.full_name} (${found.employee_code})` : found.full_name
+        }
+        return value
+    }
+
+    const fetchEmployees = async (force = false) => {
+        if (employeesLoaded.value && !force) return
+        if (employeesLoading.value) return
+        employeesLoading.value = true
+        employeesError.value = ''
+        try {
+            const api = useEmployeeApi()
+            const list = await api.getAllEmployees()
+            employees.value = (Array.isArray(list) ? list : [])
+                .filter(e => e?.full_name && e.is_active !== false)
+                .sort((a, b) => a.full_name.localeCompare(b.full_name, 'id', { sensitivity: 'base' }))
+            employeesLoaded.value = true
+
+            if (form.supervisor) {
+                form.supervisor = resolveEmployeeOption(form.supervisor)
+            }
+            if (form.pic) {
+                form.pic = resolveEmployeeOption(form.pic)
+            }
+        } catch (error: any) {
+            console.error('Failed to fetch employees for mitigation:', error)
+            employeesError.value = extractErrorMessage(error, 'Failed to fetch employees.')
+            if (!employeesLoaded.value) {
+                employees.value = []
+            }
+        } finally {
+            employeesLoading.value = false
+        }
+    }
+
+    const picOptions = computed(() => {
+        const list = employees.value.map(e => e.employee_code ? `${e.full_name} (${e.employee_code})` : e.full_name)
+        if (form.pic && !list.includes(form.pic)) {
+            list.unshift(form.pic)
+        }
+        return list.sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
+    })
+
+    const supervisorOptions = computed(() => {
+        const list = employees.value.map(e => e.employee_code ? `${e.full_name} (${e.employee_code})` : e.full_name)
+        if (form.supervisor && !list.includes(form.supervisor)) {
+            list.unshift(form.supervisor)
+        }
+        return list.sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
+    })
+
+    // Master Data Departemen (Department Management Sync)
+    const departments = ref<Department[]>([])
+    const departmentsLoading = ref(false)
+    const departmentsLoaded = ref(false)
+    const departmentsError = ref('')
+
+    const resolveDepartmentOption = (val?: string): string => {
+        if (!val) return ''
+        const match = departments.value.find(
+            d => d.id === val || d.department_code === val || d.department_name === val || `${d.department_name} (${d.department_code})` === val
+        )
+        if (match) {
+            return match.department_code ? `${match.department_name} (${match.department_code})` : match.department_name
+        }
+        return val
+    }
+
+    const formatDepartmentName = (value?: string): string => {
+        if (!value) return '-'
+        const found = departments.value.find(
+            d => d.id === value || d.department_code === value || d.department_name === value
+        )
+        if (found) {
+            return found.department_code ? `${found.department_name} (${found.department_code})` : found.department_name
+        }
+        return value
+    }
+
+    const fetchDepartments = async (force = false) => {
+        if (departmentsLoaded.value && !force) return
+        if (departmentsLoading.value) return
+        departmentsLoading.value = true
+        departmentsError.value = ''
+        try {
+            const api = useDepartmentApi()
+            const list = await api.getAllDepartments()
+            departments.value = (Array.isArray(list) ? list : [])
+                .filter(d => d?.department_name && d.is_active !== false)
+                .sort((a, b) => a.department_name.localeCompare(b.department_name, 'id', { sensitivity: 'base' }))
+            departmentsLoaded.value = true
+
+            if (form.unitInCharge) {
+                form.unitInCharge = resolveDepartmentOption(form.unitInCharge)
+            }
+        } catch (error: any) {
+            console.error('Failed to fetch departments for mitigation:', error)
+            departmentsError.value = extractErrorMessage(error, 'Failed to fetch departments.')
+            if (!departmentsLoaded.value) {
+                departments.value = []
+            }
+        } finally {
+            departmentsLoading.value = false
+        }
+    }
+
+    const unitInChargeOptions = computed(() => {
+        const list = departments.value.map(d => d.department_code ? `${d.department_name} (${d.department_code})` : d.department_name)
+        if (form.unitInCharge && !list.includes(form.unitInCharge)) {
+            list.unshift(form.unitInCharge)
+        }
+        return list.sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
+    })
+
 
     // Form State
     const form = reactive<RiskMitigationForm>({
@@ -114,13 +249,24 @@ export const useMitigationStore = defineStore('mitigation', () => {
 
     // --- GETTERS ---
     const getMitigationsByRiskId = computed(() => {
-        return (risk_id: string) => {
-            return mitigations.value.filter(m => String(m.riskId) === String(risk_id))
+        return (risk_id?: string) => {
+            if (!risk_id) return mitigations.value
+            const target = String(risk_id).trim().toLowerCase()
+            return mitigations.value.filter(m => {
+                if (!m.riskId) return true
+                return String(m.riskId).trim().toLowerCase() === target
+            })
         }
     })
 
     // --- ACTIONS ---
     const fetchMitigations = async (riskId?: string) => {
+        if (!employeesLoaded.value && !employeesLoading.value) {
+            fetchEmployees().catch(() => {})
+        }
+        if (!departmentsLoaded.value && !departmentsLoading.value) {
+            fetchDepartments().catch(() => {})
+        }
         loading.value = true
         errorMsg.value = ''
         try {
@@ -159,13 +305,18 @@ export const useMitigationStore = defineStore('mitigation', () => {
         } catch (error: any) {
             console.error('Failed to fetch mitigations:', error)
             errorMsg.value = extractErrorMessage(error, 'Failed to fetch mitigations.')
-            mitigations.value = []
         } finally {
             loading.value = false
         }
     }
 
     const openForm = (data?: RiskMitigation) => {
+        if (!employeesLoaded.value) {
+            fetchEmployees().catch(() => {})
+        }
+        if (!departmentsLoaded.value) {
+            fetchDepartments().catch(() => {})
+        }
         if (data) {
             isEditing.value = true
             editingId.value = data.id
@@ -173,9 +324,9 @@ export const useMitigationStore = defineStore('mitigation', () => {
                 riskControlId: data.riskControlId || '',
                 riskEvent: data.riskEvent,
                 mitigationPlan: data.mitigationPlan,
-                supervisor: data.supervisor,
-                pic: data.pic,
-                unitInCharge: data.unitInCharge,
+                supervisor: resolveEmployeeOption(data.supervisor),
+                pic: resolveEmployeeOption(data.pic),
+                unitInCharge: resolveDepartmentOption(data.unitInCharge),
                 start_date: data.start_date ? data.start_date.split('T')[0] : '',
                 end_date: data.end_date ? data.end_date.split('T')[0] : '',
                 notes: data.notes || ''
@@ -322,6 +473,8 @@ export const useMitigationStore = defineStore('mitigation', () => {
 
     return {
         mitigations, isFormOpen, isEditing, form, getMitigationsByRiskId,
+        employees, employeesLoading, employeesLoaded, employeesError, fetchEmployees, formatEmployeeName,
+        departments, departmentsLoading, departmentsLoaded, departmentsError, fetchDepartments, formatDepartmentName,
         supervisorOptions, unitInChargeOptions, picOptions,
         openForm, closeForm, handleSubmit, deleteMitigation, fetchMitigations,
         updateMitigationMonitoring,

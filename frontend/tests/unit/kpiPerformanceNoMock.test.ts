@@ -179,7 +179,7 @@ describe('cards and charts rendered with no API data', () => {
 
   it('summary cards show "-" and "no data", without any number', async () => {
     const el = await mount(KpiSummaryCards)
-    expect(el.querySelectorAll('[data-stub="UCard"]')).toHaveLength(4)
+    expect(el.querySelectorAll('[data-kpi-card]')).toHaveLength(4)
     expect(el.textContent).toContain(en.kpiPerformance.summary.noData)
     expect(el.textContent).not.toMatch(/\d/)
   })
@@ -188,7 +188,7 @@ describe('cards and charts rendered with no API data', () => {
     const el = await mount(KpiSummaryCards, (store) => {
       store.dashboardCards = [apiCard]
     })
-    expect(el.querySelectorAll('[data-stub="UCard"]')).toHaveLength(1)
+    expect(el.querySelectorAll('[data-kpi-card]')).toHaveLength(1)
     expect(el.textContent).toContain('75.0%')
     expect(el.textContent).not.toContain(en.kpiPerformance.summary.noData)
   })

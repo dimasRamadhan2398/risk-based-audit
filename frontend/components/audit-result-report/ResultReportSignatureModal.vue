@@ -155,9 +155,105 @@
               color="primary"
               icon="i-heroicons-check"
               :loading="loading"
-              @click="handleConfirmSave"
+              @click="onRequestConfirmSave"
             />
           </div>
+        </div>
+      </div>
+    </template>
+  </UModal>
+
+  <!-- Modal Peringatan Konfirmasi Simpan LHA -->
+  <UModal
+    v-model:open="showWarningModal"
+    :ui="{
+      content: 'z-[10011] sm:max-w-md w-[calc(100vw-2rem)] sm:w-full flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl overflow-hidden',
+      overlay: 'z-[10010] bg-gray-900/70 dark:bg-black/90 backdrop-blur-md'
+    }"
+  >
+    <template #content>
+      <div class="flex flex-col">
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-slate-50/70 dark:bg-gray-900">
+          <div class="flex items-center gap-3">
+            <div
+              class="p-2.5 rounded-xl"
+              :class="isFinalStatus ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400' : 'bg-primary-100 dark:bg-primary-950/60 text-primary-600 dark:text-primary-400'"
+            >
+              <UIcon
+                :name="isFinalStatus ? 'i-heroicons-exclamation-triangle' : 'i-heroicons-information-circle'"
+                class="size-6"
+              />
+            </div>
+            <div>
+              <h3 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
+                {{ t('auditResultReport.editor.signature.warningModal.title') }}
+              </h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5 mt-0.5">
+                <span>{{ t('auditResultReport.editor.signature.reportNumber') }}</span>
+                <span class="font-mono font-semibold text-gray-700 dark:text-gray-300">{{ reportNumber || '-' }}</span>
+              </p>
+            </div>
+          </div>
+          <UButton
+            color="neutral"
+            variant="ghost"
+            icon="i-heroicons-x-mark"
+            @click="showWarningModal = false"
+          />
+        </div>
+
+        <!-- Body -->
+        <div class="p-6 space-y-4">
+          <!-- Final Warning Banner -->
+          <div
+            v-if="isFinalStatus"
+            class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 space-y-2"
+          >
+            <div class="flex items-center gap-2 text-amber-800 dark:text-amber-300 font-bold text-sm">
+              <UIcon name="i-heroicons-shield-exclamation" class="size-5 shrink-0" />
+              <span>{{ t('auditResultReport.editor.signature.warningModal.finalWarningTitle') }}</span>
+            </div>
+            <p class="text-xs sm:text-sm text-amber-900 dark:text-amber-200 leading-relaxed">
+              {{ t('auditResultReport.editor.signature.warningModal.finalWarningMessage') }}
+            </p>
+          </div>
+
+          <!-- Draft Notice Banner -->
+          <div
+            v-else
+            class="p-4 rounded-xl bg-blue-50/90 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 space-y-2"
+          >
+            <div class="flex items-center gap-2 text-blue-800 dark:text-blue-300 font-bold text-sm">
+              <UIcon name="i-heroicons-information-circle" class="size-5 shrink-0" />
+              <span>{{ t('auditResultReport.editor.signature.warningModal.draftNoticeTitle') }}</span>
+            </div>
+            <p class="text-xs sm:text-sm text-blue-900 dark:text-blue-200 leading-relaxed">
+              {{ t('auditResultReport.editor.signature.warningModal.draftNoticeMessage') }}
+            </p>
+          </div>
+
+          <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+            {{ t('auditResultReport.editor.signature.warningModal.reminder') }}
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-800 flex justify-end items-center gap-3 bg-slate-50/70 dark:bg-gray-900">
+          <UButton
+            :label="t('auditResultReport.editor.signature.warningModal.cancelButton')"
+            color="neutral"
+            variant="ghost"
+            :disabled="loading"
+            @click="showWarningModal = false"
+          />
+          <UButton
+            :label="t('auditResultReport.editor.signature.warningModal.confirmButton')"
+            :color="isFinalStatus ? 'warning' : 'primary'"
+            :icon="isFinalStatus ? 'i-heroicons-shield-check' : 'i-heroicons-check'"
+            :loading="loading"
+            @click="executeConfirmSave"
+          />
         </div>
       </div>
     </template>
@@ -184,25 +280,32 @@ const props = defineProps<{
   initialDate?: string
   existingSignatures?: MemberSignature[]
   teamMembers?: TeamMemberItem[]
+  status?: string
   loading?: boolean
 }>()
 
 const emit = defineEmits<{
-  (e: 'update:open', value: boolean): void
-  (
-    e: 'confirm',
-    payload: {
-      signaturePlace: string
-      signatureDate: string
-      companyName: string
-      signatures: MemberSignature[]
-    }
-  ): void
+  'update:open': [value: boolean]
+  'confirm': [payload: {
+    signaturePlace: string
+    signatureDate: string
+    companyName: string
+    signatures: MemberSignature[]
+  }]
 }>()
 
-const localPlace = ref(props.initialPlace || 'Jakarta')
-const localDate = ref(props.initialDate || new Date().toISOString().split('T')[0])
-const localCompanyName = ref(props.companyName || 'PT AIFL Indonesia')
+const showWarningModal = ref(false)
+
+const isFinalStatus = computed(() => {
+  const s = (props.status || '').toLowerCase().trim()
+  return s === 'final' || s === 'approved' || s === 'published'
+})
+
+const getTodayStr = (): string => (new Date().toISOString().split('T')[0] || '')
+
+const localPlace = ref<string>(props.initialPlace || 'Jakarta')
+const localDate = ref<string>(props.initialDate || getTodayStr())
+const localCompanyName = ref<string>(props.companyName || 'PT AIFL Indonesia')
 const memberSignatures = ref<MemberSignature[]>([])
 
 const signedCount = computed(() => {
@@ -220,7 +323,7 @@ const getRoleBadgeColor = (role?: string) => {
 // Sync signatures when modal opens
 const syncSignatures = () => {
   localPlace.value = props.initialPlace || 'Jakarta'
-  localDate.value = props.initialDate || new Date().toISOString().split('T')[0]
+  localDate.value = props.initialDate || getTodayStr()
   localCompanyName.value = props.companyName || 'PT AIFL Indonesia'
 
   const existingMap = new Map((props.existingSignatures || []).map(s => [s.name, s]))
@@ -255,12 +358,25 @@ const syncSignatures = () => {
 watch(
   () => props.open,
   (isOpen) => {
+    showWarningModal.value = false
     if (isOpen) {
       syncSignatures()
     }
   },
   { immediate: true }
 )
+
+const onRequestConfirmSave = () => {
+  if (!String(localPlace.value || '').trim() || !String(localDate.value || '').trim() || !String(localCompanyName.value || '').trim()) {
+    return
+  }
+  showWarningModal.value = true
+}
+
+const executeConfirmSave = () => {
+  showWarningModal.value = false
+  handleConfirmSave()
+}
 
 const handleConfirmSave = () => {
   const cleanedSignatures: MemberSignature[] = memberSignatures.value.map(m => ({
@@ -271,9 +387,9 @@ const handleConfirmSave = () => {
   }))
 
   emit('confirm', {
-    signaturePlace: localPlace.value.trim() || 'Jakarta',
-    signatureDate: localDate.value || new Date().toISOString().split('T')[0],
-    companyName: localCompanyName.value.trim() || 'PT AIFL Indonesia',
+    signaturePlace: String(localPlace.value || '').trim() || 'Jakarta',
+    signatureDate: String(localDate.value || '').trim() || getTodayStr(),
+    companyName: String(localCompanyName.value || '').trim() || 'PT AIFL Indonesia',
     signatures: cleanedSignatures
   })
 }

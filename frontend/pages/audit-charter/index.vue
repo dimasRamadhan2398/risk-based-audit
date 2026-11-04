@@ -1,6 +1,6 @@
 <template>
   <div class="p-4 sm:p-6 max-w-full mx-auto space-y-6 min-w-0">
-    <UCard :ui="{ body: 'p-0' }" class="overflow-hidden border border-gray-200 dark:border-gray-800">
+    <UCard :ui="{ root: 'bg-transparent!', body: 'p-0 bg-transparent!' }" class="overflow-hidden border border-gray-200 dark:border-gray-800">
       <UTabs v-model="activeTab" :items="tabs" class="w-full">
         <template #content="{ item }">
           <div class="p-4 sm:p-6 space-y-6">

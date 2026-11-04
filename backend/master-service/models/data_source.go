@@ -30,6 +30,8 @@ type TableDataMapping struct {
 	SyncInterval    string   `json:"syncInterval"` // "Hourly", "Real-time", "Daily"
 	AnomalyRules    []string `json:"anomalyRules,omitempty"` // e.g. ["Threshold Breach (>100M)", "Weekend Transaction"]
 	IsActive        bool     `json:"isActive"`
+	// Column that marks a source row as deleted (sent by the Data Source settings page); "" = none.
+	SoftDeleteColumn string `json:"softDeleteColumn,omitempty"`
 }
 
 type DataSourceConnection struct {

@@ -49,6 +49,8 @@ export interface AnomalyRecord {
   isAnomaly: boolean
   riskLevel: RiskLevel
   xMetric?: number
+  /** Transaction hour (0-23); the scatter's Y axis. */
+  hour?: number | null
 }
 
 export interface ScatterPoint {
@@ -158,12 +160,12 @@ export function useXGBoostData() {
 
 export function useIsolationForestData() {
   const anomalies: AnomalyRecord[] = [
-    { id: 'BANK-TRX-0001', entity: 'Cabang Medan', type: 'IT Control', anomalyScore: -0.95, description: 'Aktivitas akses administratif basis data core banking pada dini hari (02:00) tanpa tiket Change Request', severity: 'Critical', date: '2026-06-01', amount: 0, isAnomaly: true, riskLevel: RiskLevel.HIGH, xMetric: 7 },
-    { id: 'BANK-TRX-0003', entity: 'Cabang Bali', type: 'Funding', anomalyScore: -0.91, description: 'Pemberian suku bunga deposito ekstrem (8.86%) di atas batas penjaminan LPS tanpa persetujuan ALCO', severity: 'Critical', date: '2026-06-01', amount: 21465500000, isAnomaly: true, riskLevel: RiskLevel.HIGH, xMetric: 21465.5 },
-    { id: 'BANK-TRX-0007', entity: 'Kantor Pusat', type: 'Lending', anomalyScore: -0.89, description: 'Pencairan kredit bernilai Rp 66.662 Juta dengan bunga murah ekstrem (4.18%) melanggar BMPK', severity: 'Critical', date: '2026-06-01', amount: 66662330000, isAnomaly: true, riskLevel: RiskLevel.HIGH, xMetric: 66662.33 },
-    { id: 'BANK-TRX-0009', entity: 'Cabang Jakarta', type: 'Treasury', anomalyScore: -0.84, description: 'Transaksi valas dealing room bernilai Rp 62.412 Juta di luar rentang kuotasi pasar resmi', severity: 'High', date: '2026-06-01', amount: 62412080000, isAnomaly: true, riskLevel: RiskLevel.MODERATE_HIGH, xMetric: 62412.08 },
-    { id: 'BANK-TRX-0014', entity: 'Cabang Surabaya', type: 'KYC', anomalyScore: -0.82, description: 'Profil transaksi nasabah high risk deviasi 123.5% dari profil historis tanpa pembaruan EDD', severity: 'High', date: '2026-06-01', amount: 0, isAnomaly: true, riskLevel: RiskLevel.MODERATE_HIGH, xMetric: 123.53 },
-    { id: 'BANK-TRX-0018', entity: 'Cabang Bandung', type: 'Payment', anomalyScore: -0.78, description: 'Transaksi pembayaran split-bill berulang dengan frekuensi tinggi mendekati batas threshold harian', severity: 'High', date: '2026-06-01', amount: 55950000, isAnomaly: true, riskLevel: RiskLevel.MODERATE_HIGH, xMetric: 55.95 },
+    { id: 'BANK-TRX-0001', entity: 'Cabang Medan', type: 'IT Control', anomalyScore: -0.95, description: 'Aktivitas akses administratif basis data core banking pada dini hari (02:00) tanpa tiket Change Request', severity: 'Critical', date: '2026-06-01', amount: 0, isAnomaly: true, riskLevel: RiskLevel.HIGH, xMetric: 7, hour: 2 },
+    { id: 'BANK-TRX-0003', entity: 'Cabang Bali', type: 'Funding', anomalyScore: -0.91, description: 'Pemberian suku bunga deposito ekstrem (8.86%) di atas batas penjaminan LPS tanpa persetujuan ALCO', severity: 'Critical', date: '2026-06-01', amount: 21465500000, isAnomaly: true, riskLevel: RiskLevel.HIGH, xMetric: 21465.5, hour: 21 },
+    { id: 'BANK-TRX-0007', entity: 'Kantor Pusat', type: 'Lending', anomalyScore: -0.89, description: 'Pencairan kredit bernilai Rp 66,66 miliar dengan bunga murah ekstrem (4.18%) melanggar BMPK', severity: 'Critical', date: '2026-06-01', amount: 66662330000, isAnomaly: true, riskLevel: RiskLevel.HIGH, xMetric: 66662.33, hour: 19 },
+    { id: 'BANK-TRX-0009', entity: 'Cabang Jakarta', type: 'Treasury', anomalyScore: -0.84, description: 'Transaksi valas dealing room bernilai Rp 62,41 miliar di luar rentang kuotasi pasar resmi', severity: 'High', date: '2026-06-01', amount: 62412080000, isAnomaly: true, riskLevel: RiskLevel.MODERATE_HIGH, xMetric: 62412.08, hour: 23 },
+    { id: 'BANK-TRX-0014', entity: 'Cabang Surabaya', type: 'KYC', anomalyScore: -0.82, description: 'Profil transaksi nasabah high risk deviasi 123.5% dari profil historis tanpa pembaruan EDD', severity: 'High', date: '2026-06-01', amount: 0, isAnomaly: true, riskLevel: RiskLevel.MODERATE_HIGH, xMetric: 123.53, hour: 20 },
+    { id: 'BANK-TRX-0018', entity: 'Cabang Bandung', type: 'Payment', anomalyScore: -0.78, description: 'Transaksi pembayaran split-bill berulang dengan frekuensi tinggi mendekati batas threshold harian', severity: 'High', date: '2026-06-01', amount: 55950000, isAnomaly: true, riskLevel: RiskLevel.MODERATE_HIGH, xMetric: 55.95, hour: 4 },
   ]
 
   // Generate scatter plot data covering 6 bank categories
@@ -183,7 +185,8 @@ export function useIsolationForestData() {
 
       scatterData.push({
         x: xVal,
-        y: Math.round(Math.random() * 25 + 10),
+        // Y = transaction hour; normal activity sits in business hours.
+        y: Math.round(Math.random() * 9 + 8),
         type: cat,
         isAnomaly: false,
         label: `NORM-${cat.substring(0, 3).toUpperCase()}-${i + 1}`
@@ -193,12 +196,12 @@ export function useIsolationForestData() {
 
   // Anomaly outlier points
   scatterData.push(
-    { x: 21465.5, y: 55.0, type: 'Funding', isAnomaly: true, label: 'BANK-TRX-0003' },
-    { x: 66662.33, y: 58.0, type: 'Lending', isAnomaly: true, label: 'BANK-TRX-0007' },
-    { x: 62412.08, y: 52.0, type: 'Treasury', isAnomaly: true, label: 'BANK-TRX-0009' },
-    { x: 55.95, y: 48.0, type: 'Payment', isAnomaly: true, label: 'BANK-TRX-0018' },
-    { x: 123.53, y: 46.0, type: 'KYC', isAnomaly: true, label: 'BANK-TRX-0014' },
-    { x: 7.0, y: 50.0, type: 'IT Control', isAnomaly: true, label: 'BANK-TRX-0001' }
+    { x: 21465.5, y: 21, type: 'Funding', isAnomaly: true, label: 'BANK-TRX-0003' },
+    { x: 66662.33, y: 19, type: 'Lending', isAnomaly: true, label: 'BANK-TRX-0007' },
+    { x: 62412.08, y: 23, type: 'Treasury', isAnomaly: true, label: 'BANK-TRX-0009' },
+    { x: 55.95, y: 4, type: 'Payment', isAnomaly: true, label: 'BANK-TRX-0018' },
+    { x: 123.53, y: 20, type: 'KYC', isAnomaly: true, label: 'BANK-TRX-0014' },
+    { x: 7.0, y: 2, type: 'IT Control', isAnomaly: true, label: 'BANK-TRX-0001' }
   )
 
   const summary: AnomalySummary = {
@@ -244,38 +247,96 @@ export function useIndoBERTData() {
   return { documents, sentimentDistribution, categoryDistribution }
 }
 
+/** Monthly periods ("YYYY-MM") ending at `last`, oldest first. */
+const monthsBack = (last: string, count: number): string[] => {
+  const [y, m] = last.split('-').map(Number) as [number, number]
+  const base = y * 12 + (m - 1)
+  return Array.from({ length: count }, (_, i) => {
+    const idx = base - (count - 1 - i)
+    return `${Math.floor(idx / 12)}-${String((idx % 12) + 1).padStart(2, '0')}`
+  })
+}
+
+const monthsAhead = (last: string, count: number): string[] => {
+  const [y, m] = last.split('-').map(Number) as [number, number]
+  const base = y * 12 + (m - 1)
+  return Array.from({ length: count }, (_, i) => {
+    const idx = base + i + 1
+    return `${Math.floor(idx / 12)}-${String((idx % 12) + 1).padStart(2, '0')}`
+  })
+}
+
+const seedSeries = (last: string, actual: number[], forecast: number[]) => ({
+  lastActualPeriod: last,
+  history: monthsBack(last, actual.length).map((period, i) => ({ period, value: actual[i]! })),
+  forecast: monthsAhead(last, forecast.length).map((period, i) => ({ period, value: forecast[i]! })),
+})
+
+/**
+ * Offline seed, same shape as /performance-trend/batch: every KPI carries its
+ * own monthly history and a forecast that starts the month after its last
+ * actual value. Units follow utils/analyticsFormat (NPS is a score, CLV rupiah).
+ */
 export function useTimeSeriesData() {
-  const historicalKPI: TimeSeriesPoint[] = [
-    { period: 'Q1 2025', actual: 72.5, forecast: null, upperBound: null, lowerBound: null },
-    { period: 'Q2 2025', actual: 68.3, forecast: null, upperBound: null, lowerBound: null },
-    { period: 'Q3 2025', actual: 75.1, forecast: null, upperBound: null, lowerBound: null },
-    { period: 'Q4 2025', actual: 71.8, forecast: null, upperBound: null, lowerBound: null },
-    { period: 'Q1 2026', actual: 69.4, forecast: null, upperBound: null, lowerBound: null },
-    { period: 'Q2 2026', actual: 66.2, forecast: 67.0, upperBound: 70.5, lowerBound: 63.5 },
-    { period: 'Q3 2026', actual: null, forecast: 63.8, upperBound: 68.2, lowerBound: 59.4 },
-    { period: 'Q4 2026', actual: null, forecast: 61.5, upperBound: 66.8, lowerBound: 56.2 },
-    { period: 'Q1 2027', actual: null, forecast: 59.2, upperBound: 65.1, lowerBound: 53.3 },
+  const LAST = '2025-12'
+  const kpiForecasts: (KPIForecast & { lastActualPeriod: string, history: { period: string, value: number }[], forecast: { period: string, value: number }[] })[] = [
+    {
+      kpiName: 'Net Promoter Score', code: 'KPI-001', unit: 'score', entity: 'Jakarta Branch', entityType: 'Branch', targetHorizon: '2026-01..2026-03',
+      currentValue: 47.7, forecastedValue: 47.2, trend: 'Declining', riskLevel: RiskLevel.MODERATE,
+      recommendedAction: 'Lakukan survey mendalam kepuasan pelanggan — NPS menurun',
+      ...seedSeries(LAST, [55.1, 53.8, 54.6, 52.9, 51.7, 52.4, 50.8, 49.9, 50.6, 48.8, 47.0, 47.7], [47.2, 46.6, 46.1]),
+    },
+    {
+      kpiName: 'Customer Lifetime Value', code: 'KPI-002', unit: 'Rp', entity: 'Jakarta Branch', entityType: 'Branch', targetHorizon: '2026-01..2026-03',
+      currentValue: 650.3, forecastedValue: 649.0, trend: 'Declining', riskLevel: RiskLevel.MODERATE,
+      recommendedAction: 'Investigasi faktor penurunan lifetime value',
+      ...seedSeries(LAST, [701.2, 694.5, 688.0, 690.7, 682.3, 676.9, 671.4, 668.2, 662.5, 659.8, 655.1, 650.3], [649.0, 647.7, 646.3]),
+    },
+    {
+      kpiName: 'Sales Conversion Rate', code: 'KPI-003', unit: '%', entity: 'Bandung Branch', entityType: 'Branch', targetHorizon: '2026-01..2026-03',
+      currentValue: 12.0, forecastedValue: 12.2, trend: 'Improving', riskLevel: RiskLevel.LOW,
+      recommendedAction: 'Monitor kualitas lead dan efektivitas tim sales',
+      ...seedSeries(LAST, [10.8, 11.0, 11.3, 10.9, 11.4, 11.6, 11.2, 11.7, 11.9, 11.5, 11.8, 12.0], [12.2, 12.3, 12.45]),
+    },
+    {
+      kpiName: 'Customer Acquisition Cost', code: 'KPI-004', unit: 'Rp', entity: 'Jakarta Branch', entityType: 'Branch', targetHorizon: '2026-01..2026-03',
+      currentValue: 45.5, forecastedValue: 45.2, trend: 'Improving', riskLevel: RiskLevel.LOW,
+      recommendedAction: 'Lanjutkan optimasi funnel pemasaran',
+      ...seedSeries(LAST, [48.2, 47.9, 48.5, 47.1, 46.8, 47.3, 46.4, 46.9, 46.0, 45.8, 46.1, 45.5], [45.2, 44.9, 44.6]),
+    },
+    {
+      kpiName: 'Gross Profit Margin', code: 'KPI-005', unit: '%', entity: 'Finance Dept', entityType: 'Department', targetHorizon: '2026-01..2026-03',
+      currentValue: 39.1, forecastedValue: 39.3, trend: 'Improving', riskLevel: RiskLevel.LOW,
+      recommendedAction: 'Pertahankan kontrol biaya dan evaluasi strategi pricing',
+      ...seedSeries(LAST, [37.2, 37.8, 38.1, 37.5, 38.4, 38.0, 38.6, 38.9, 38.3, 38.8, 39.0, 39.1], [39.3, 39.5, 39.7]),
+    },
+    {
+      kpiName: 'Customer Retention Rate', code: 'KPI-006', unit: '%', entity: 'Bandung Branch', entityType: 'Branch', targetHorizon: '2026-01..2026-03',
+      currentValue: 91.7, forecastedValue: 92.1, trend: 'Improving', riskLevel: RiskLevel.LOW,
+      recommendedAction: 'Pertahankan program loyalitas dan kualitas layanan',
+      ...seedSeries(LAST, [89.4, 89.9, 90.2, 89.8, 90.5, 90.9, 90.6, 91.1, 91.4, 91.0, 91.5, 91.7], [92.1, 92.5, 92.87]),
+    },
   ]
 
-  const kpiForecasts: KPIForecast[] = [
-    { kpiName: 'Revenue Operational Cost', code: 'SO-IA01', unit: '%', entity: 'Finance Dept', entityType: 'Department', targetHorizon: 'Q3 2026', currentValue: 33.33, forecastedValue: 28.5, trend: 'Declining', recommendedAction: 'Prioritize operational cost audit — projected KPI miss by 15% next quarter', riskLevel: RiskLevel.HIGH },
-    { kpiName: 'Customer Satisfaction Index', code: 'SO-IA02', unit: 'Score', entity: 'Jakarta Branch', entityType: 'Branch', targetHorizon: 'Q3 2026', currentValue: 94.44, forecastedValue: 91.2, trend: 'Declining', recommendedAction: 'Monitor service quality metrics — moderate decline expected', riskLevel: RiskLevel.MODERATE },
-    { kpiName: 'Audit Response Time', code: 'SO-IA03', unit: 'Hour', entity: 'HR Dept', entityType: 'Department', targetHorizon: 'Q3 2026', currentValue: 200.00, forecastedValue: 210.5, trend: 'Improving', recommendedAction: 'KPI on track — maintain current audit workflow efficiency', riskLevel: RiskLevel.LOW },
-    { kpiName: 'Internal Control Effectiveness', code: 'SO-IA04', unit: '%', entity: 'Bandung Branch', entityType: 'Branch', targetHorizon: 'Q3 2026', currentValue: 82.0, forecastedValue: 78.3, trend: 'Declining', recommendedAction: 'Schedule comprehensive control testing — predicted effectiveness drop', riskLevel: RiskLevel.MODERATE_HIGH },
-    { kpiName: 'Compliance Adherence Rate', code: 'SO-IA05', unit: '%', entity: 'Finance Dept', entityType: 'Department', targetHorizon: 'Q3 2026', currentValue: 91.5, forecastedValue: 93.1, trend: 'Improving', recommendedAction: 'Compliance trending positively — continue current regulatory monitoring', riskLevel: RiskLevel.LOW },
-    { kpiName: 'Risk Mitigation Completion', code: 'SO-IA06', unit: '%', entity: 'Jakarta Branch', entityType: 'Branch', targetHorizon: 'Q3 2026', currentValue: 67.0, forecastedValue: 58.2, trend: 'Declining', recommendedAction: 'Escalate mitigation backlog to management — significant completion rate decline projected', riskLevel: RiskLevel.HIGH },
+  // Legacy single-series shape: first KPI, forecast line anchored at the last actual.
+  const first = kpiForecasts[0]!
+  const historicalKPI: TimeSeriesPoint[] = [
+    ...first.history.map((p, i) => {
+      const isLast = i === first.history.length - 1
+      return { period: p.period, actual: p.value, forecast: isLast ? p.value : null, upperBound: isLast ? p.value : null, lowerBound: isLast ? p.value : null }
+    }),
+    ...first.forecast.map((p) => ({ period: p.period, actual: null, forecast: p.value, upperBound: null, lowerBound: null })),
   ]
 
   const atRiskDepartments: AtRiskDepartment[] = [
-    { department: 'Finance Dept', kpi: 'Revenue Operational Cost', currentTrend: -12.5, predictedQ3: -18.2, riskLevel: RiskLevel.HIGH },
-    { department: 'Operations Dept', kpi: 'Risk Mitigation Completion', currentTrend: -8.3, predictedQ3: -15.1, riskLevel: RiskLevel.HIGH },
-    { department: 'IT Dept', kpi: 'Internal Control Effectiveness', currentTrend: -5.7, predictedQ3: -9.4, riskLevel: RiskLevel.MODERATE },
+    { department: 'Jakarta Branch', kpi: 'Net Promoter Score', currentTrend: -3.3, predictedQ3: 47.2, riskLevel: RiskLevel.MODERATE },
+    { department: 'Jakarta Branch', kpi: 'Customer Lifetime Value', currentTrend: -0.6, predictedQ3: 649.0, riskLevel: RiskLevel.MODERATE },
   ]
 
   const forecastAccuracy = {
-    mape: 4.8,
-    rmse: 3.2,
-    r2Score: 0.923,
+    mape: 3.82,
+    rmse: 1.45,
+    r2Score: 0.942,
   }
 
   return { historicalKPI, kpiForecasts, atRiskDepartments, forecastAccuracy }

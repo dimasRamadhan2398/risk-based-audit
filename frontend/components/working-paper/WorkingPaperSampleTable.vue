@@ -1,6 +1,6 @@
 <template>
   <div class="mt-4 space-y-6">
-    <UCard class="shadow-sm mt-10">
+    <div class="mt-10">
       <TableEntities
         :data="store.filteredDataF03"
         :columns="columns"
@@ -97,7 +97,7 @@
           </div>
         </template>
       </TableEntities>
-    </UCard>
+    </div>
   </div>
 </template>
 

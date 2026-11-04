@@ -14,6 +14,8 @@ export interface User {
   /** Profile picture as a data URL. Held in memory only, never written to the auth-user cookie. */
   avatarUrl?: string
   roles: string[]
+  /** Permission names, when auth-service sends them (login / /auth/me). Absent today; see useRbac().getUserPermissions. */
+  permissions?: string[]
   mustChangePassword?: boolean
   createdAt?: string
   updatedAt?: string

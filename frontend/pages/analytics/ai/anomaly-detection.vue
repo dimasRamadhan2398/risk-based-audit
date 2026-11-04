@@ -11,16 +11,18 @@ import {
 import { useAiAnalytics } from '~/composables/useAiAnalytics'
 import {
   buildAnomalyScatterPoints,
+  ANOMALY_POINT_COLORS,
   createAnomalyTypeConfigs,
   listAnomalyTypes,
   type AnomalyTypeConfig
 } from '~/composables/useAnomalyScatter'
+import { formatRupiahFromMillions, normalizeRupiahInText } from '~/utils/analyticsFormat'
 import { useI18n } from '~/composables/useI18n'
 import AiInsightHeader from '~/components/analytics/AiInsightHeader.vue'
 
 ChartJS.register(LinearScale, PointElement, Tooltip, Legend)
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const {
   loading,
   isolationState,
@@ -34,7 +36,7 @@ onMounted(() => {
   fetchAiAnalytics()
 })
 
-const anomalyTypeConfigs = computed<Record<string, AnomalyTypeConfig>>(() => createAnomalyTypeConfigs(t))
+const anomalyTypeConfigs = computed<Record<string, AnomalyTypeConfig>>(() => createAnomalyTypeConfigs(t, locale.value))
 
 const selectedAnomalyType = ref('Funding')
 
@@ -80,7 +82,7 @@ const anomalyFilterOptions = computed(() => [
 
 const getCategoryBadgeColor = (type: string) => {
   switch (type) {
-    case 'Funding': return 'success'
+    case 'Funding': return 'info'
     case 'Lending': return 'error'
     case 'Treasury': return 'primary'
     case 'Payment': return 'warning'
@@ -89,7 +91,7 @@ const getCategoryBadgeColor = (type: string) => {
     case 'Transaction': return 'error'
     case 'Procurement': return 'primary'
     case 'Expense Report': return 'warning'
-    case 'Travel Expense': return 'success'
+    case 'Travel Expense': return 'neutral'
     case 'Inventory': return 'neutral'
     case 'Fieldwork': return 'secondary'
     default: return 'neutral'
@@ -125,8 +127,8 @@ const getScatterChartForType = (typeFilter: string) => {
   const defaultConfig: AnomalyTypeConfig = {
     xAxisTitle: t('analytics.isolation.anomalyTypes.fundingXAxis'),
     unit: t('analytics.isolation.anomalyTypes.fundingUnit'),
-    formatX: (val) => `Rp ${val}M`,
-    colors: { bg: 'rgba(16,185,129,0.85)', border: 'rgba(16,185,129,1)', style: 'circle' }
+    formatX: (val) => formatRupiahFromMillions(val, locale.value),
+    colors: { ...ANOMALY_POINT_COLORS, style: 'circle' }
   }
   const config = anomalyTypeConfigs.value[typeFilter] || anomalyTypeConfigs.value['Funding'] || defaultConfig
   const colors = config.colors
@@ -171,14 +173,18 @@ const scatterOptions = computed(() => {
           label: (ctx: any) => {
             const formattedX = currentConfig.formatX ? currentConfig.formatX(ctx.parsed.x) : `${ctx.parsed.x}`
             const metricName = currentConfig.xAxisTitle.split(' (')[0]
-            return `${metricName}: ${formattedX}, ${t('analytics.isolation.axisFrequency')}: ${ctx.parsed.y}`
+            return `${metricName}: ${formattedX}, ${t('analytics.isolation.hourValue', { hour: ctx.parsed.y })}`
           }
         }
       }
     },
     scales: {
-      x: { title: { display: true, text: currentConfig.xAxisTitle } },
-      y: { title: { display: true, text: t('analytics.isolation.axisFrequency') } }
+      x: {
+        title: { display: true, text: currentConfig.xAxisTitle },
+        ticks: { maxTicksLimit: 6, callback: (v: any) => currentConfig.formatX ? currentConfig.formatX(Number(v)) : v }
+      },
+      // Y = transaction hour from the data (0-23).
+      y: { min: 0, max: 23, ticks: { stepSize: 3 }, title: { display: true, text: t('analytics.isolation.axisHour') } }
     }
   }
 })
@@ -216,19 +222,19 @@ const scatterOptions = computed(() => {
         <UCard>
           <div class="text-center">
             <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.recordsScanned') }}</div>
-            <div class="text-2xl font-black mt-1">{{ (isolationState.summary?.totalScanned || 0).toLocaleString() }}</div>
+            <div class="text-2xl font-black mt-1 tabular-nums">{{ (isolationState.summary?.totalScanned || 0).toLocaleString() }}</div>
           </div>
         </UCard>
         <UCard>
           <div class="text-center">
             <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.anomaliesFound') }}</div>
-            <div class="text-2xl font-black text-rose-500 mt-1">{{ isolationState.summary?.anomaliesFound || summary.anomaliesDetected || 150 }}</div>
+            <div class="text-2xl font-black text-rose-500 mt-1 tabular-nums">{{ isolationState.summary?.anomaliesFound || summary.anomaliesDetected || 150 }}</div>
           </div>
         </UCard>
         <UCard>
           <div class="text-center">
             <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.contaminationRate') }}</div>
-            <div class="text-2xl font-black text-amber-500 mt-1">{{ formatNum((isolationState.summary?.contaminationRate || 0.125) * 100, 1) }}%</div>
+            <div class="text-2xl font-black text-amber-500 mt-1 tabular-nums">{{ formatNum((isolationState.summary?.contaminationRate || 0.125) * 100, 1) }}%</div>
           </div>
         </UCard>
         <UCard>
@@ -279,7 +285,7 @@ const scatterOptions = computed(() => {
       </UCard>
 
       <!-- Anomalies Table -->
-      <UCard>
+      <UCard class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 divide-gray-200 dark:divide-gray-800">
         <template #header>
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center gap-2">
@@ -326,7 +332,7 @@ const scatterOptions = computed(() => {
         <div class="hidden md:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
-              <tr class="border-b border-gray-200 dark:border-gray-700">
+              <tr class="bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
                 <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.colID') }}</th>
                 <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.colEntity') }}</th>
                 <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.colType') }}</th>
@@ -342,7 +348,7 @@ const scatterOptions = computed(() => {
                 <td class="py-3 px-3">
                   <UBadge :color="getCategoryBadgeColor(a.type)" variant="subtle" size="md">{{ a.type }}</UBadge>
                 </td>
-                <td class="py-3 px-3 text-md leading-relaxed text-gray-600 dark:text-gray-300">{{ a.description }}</td>
+                <td class="py-3 px-3 text-md leading-relaxed text-gray-600 dark:text-gray-300">{{ normalizeRupiahInText(a.description, locale) }}</td>
                 <td class="text-center py-3 px-3">
                   <UBadge
                     :class="getRiskConfig(a.riskLevel).badgeClass"

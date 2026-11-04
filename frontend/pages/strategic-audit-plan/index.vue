@@ -11,7 +11,7 @@
             </p>
           </div>
           <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
-            <UButton
+            <!-- <UButton
               v-if="canImportPlanDocs"
               :label="t('strategicPlan.importDocument')"
               to="/strategic-audit-plan/upload"
@@ -20,7 +20,7 @@
               size="lg"
               class="w-full sm:w-auto justify-center"
               icon="i-lucide-upload"
-            />
+            /> -->
             <UButton
               v-if="canManageStrategicPlan"
               icon="add"

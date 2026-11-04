@@ -50,7 +50,10 @@ export const useMasterOptionsStore = defineStore('master-options', () => {
 
   const jobRoleOptions = computed<SelectOption[]>(() =>
     jobRoles.value.map((r) => ({
-      label: r.job_position_type ? `${r.job_role_name} — ${r.job_position_type}` : r.job_role_name,
+      label: [
+        r.job_position_type ? `${r.job_role_name} — ${r.job_position_type}` : r.job_role_name,
+        r.default_access_role ? `[${r.default_access_role}]` : ''
+      ].filter(Boolean).join(' '),
       value: r.id
     }))
   )

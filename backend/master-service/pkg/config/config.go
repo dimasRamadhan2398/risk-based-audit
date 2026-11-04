@@ -24,7 +24,7 @@ type KafkaConsumerConfig struct {
 }
 
 // AuthServiceConfig locates auth-service. Employee creation provisions login
-// accounts there, so URL must be set for @aifl.co.id employees (AUTH_SERVICE_URL).
+// accounts there, so URL must be reachable (AUTH_SERVICE_URL).
 type AuthServiceConfig struct {
 	URL            string `mapstructure:"url"`
 	TimeoutSeconds int    `mapstructure:"timeout_seconds"`
@@ -129,7 +129,8 @@ func setDefaults() {
 	viper.SetDefault("kafka_consumer.topics", []string{"events"})
 	viper.SetDefault("kafka_consumer.version", "3.6.0")
 	viper.SetDefault("kafka_consumer.assignor", "roundrobin")
-	viper.SetDefault("auth_service.url", "")
+	// Compose service name; tenant stacks override it with AUTH_SERVICE_URL.
+	viper.SetDefault("auth_service.url", "http://auth-service:8001")
 	viper.SetDefault("auth_service.timeout_seconds", 10)
 	viper.SetDefault("org_structure.mode", "")
 }

@@ -26,7 +26,7 @@
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse text-md">
           <thead>
-            <tr class="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800 font-bold uppercase tracking-wider text-[10px] text-gray-400 text-center">
+            <tr class="bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800 font-bold uppercase tracking-wider text-[10px] text-gray-400 text-center">
               <th class="py-4 px-4 text-left w-12">{{ t('riskMitigation.columns.number') }}</th>
               <th class="py-4 px-4 text-left min-w-[280px]">{{ t('riskMitigation.columns.plan') }}</th>
               <th class="py-4 px-4 text-left">{{ t('riskMitigation.columns.timeline') }}</th>
@@ -76,13 +76,13 @@
                   </td>
 
                   <!-- Unit -->
-                  <td class="py-4 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ row.unitInCharge }}</td>
+                  <td class="py-4 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ store.formatDepartmentName(row.unitInCharge) }}</td>
 
                   <!-- PIC -->
-                  <td class="py-4 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ row.pic }}</td>
+                  <td class="py-4 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ store.formatEmployeeName(row.pic) }}</td>
 
                   <!-- Supervisor -->
-                  <td class="py-4 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ row.supervisor }}</td>
+                  <td class="py-4 px-4 text-gray-600 dark:text-gray-400 font-medium">{{ store.formatEmployeeName(row.supervisor) }}</td>
 
                   <!-- Progress Bar -->
                   <td class="py-4 px-4 text-center whitespace-nowrap" @click.stop>
@@ -419,7 +419,7 @@
 
 <script setup lang="ts">
 import { useRbac } from '~/composables/useRbac'
-import { ref, computed, watchEffect } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useMitigationStore } from '~/stores/mitigation-risk'
 
 const store = useMitigationStore()
@@ -431,10 +431,15 @@ const props = defineProps<{
   currentRiskId: string
 }>()
 
-watchEffect(() => {
-  if (props.currentRiskId) {
-    store.fetchMitigations(props.currentRiskId)
+watch(() => props.currentRiskId, (newId) => {
+  if (newId) {
+    store.fetchMitigations(newId)
   }
+}, { immediate: true })
+
+onMounted(() => {
+  store.fetchEmployees()
+  store.fetchDepartments()
 })
 
 const filteredMitigations = computed(() => {

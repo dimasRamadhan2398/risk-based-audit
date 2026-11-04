@@ -102,7 +102,6 @@
             color="primary"
             class="rounded-xl font-bold"
             :loading="isProvisioning"
-            icon="i-lucide-sparkles"
           >
             {{ t('settings.email.provisionButton') }}
           </UButton>

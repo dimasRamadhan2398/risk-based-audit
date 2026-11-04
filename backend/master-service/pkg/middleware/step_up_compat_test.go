@@ -161,12 +161,12 @@ func TestRequireStepUp_FullChainAndLogging(t *testing.T) {
 		name, token, wantCode, wantReason string
 		wantStatus                        int
 	}{
-		{"missing header", "", "STEP_UP_REQUIRED", "missing_token", http.StatusUnauthorized},
-		{"access token as step-up token", access, "STEP_UP_INVALID", "bad_signature", http.StatusUnauthorized},
-		{"expired beyond leeway", expired, "STEP_UP_INVALID", "expired", http.StatusUnauthorized},
-		{"wrong purpose", compatStepUp(t, user, "users.delete", "jti-purpose", now, StepUpTTL), "STEP_UP_INVALID", "purpose_mismatch", http.StatusUnauthorized},
-		{"sub is another user", otherUser, "STEP_UP_INVALID", "subject_mismatch", http.StatusUnauthorized},
-		{"replayed jti", good, "STEP_UP_INVALID", "replayed", http.StatusUnauthorized},
+		{"missing header", "", "STEP_UP_REQUIRED", "missing_token", http.StatusForbidden},
+		{"access token as step-up token", access, "STEP_UP_INVALID", "bad_signature", http.StatusForbidden},
+		{"expired beyond leeway", expired, "STEP_UP_INVALID", "expired", http.StatusForbidden},
+		{"wrong purpose", compatStepUp(t, user, "users.delete", "jti-purpose", now, StepUpTTL), "STEP_UP_INVALID", "purpose_mismatch", http.StatusForbidden},
+		{"sub is another user", otherUser, "STEP_UP_INVALID", "subject_mismatch", http.StatusForbidden},
+		{"replayed jti", good, "STEP_UP_INVALID", "replayed", http.StatusForbidden},
 	}
 	for _, tc := range cases {
 		status, code := compatDo(r, access, tc.token)
@@ -203,7 +203,7 @@ func TestRequireStepUp_RawSecretTokenWithStepUpClaims(t *testing.T) {
 	forged := compatSign(t, []byte(compatSecret), StepUpClaims{Purpose: StepUpPurposeOrgLevels, RegisteredClaims: jwt.RegisteredClaims{
 		Subject: user, ID: "jti-forged", IssuedAt: jwt.NewNumericDate(now), ExpiresAt: jwt.NewNumericDate(now.Add(StepUpTTL)),
 	}})
-	if status, code := compatDo(compatRouter(&compatStore{seen: map[string]bool{}}), compatAccessToken(t, user), forged); status != http.StatusUnauthorized || code != "STEP_UP_INVALID" {
+	if status, code := compatDo(compatRouter(&compatStore{seen: map[string]bool{}}), compatAccessToken(t, user), forged); status != http.StatusForbidden || code != "STEP_UP_INVALID" {
 		t.Fatalf("raw-secret token: %d %s", status, code)
 	}
 }

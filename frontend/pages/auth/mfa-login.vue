@@ -132,7 +132,7 @@
           <div class="text-center pt-2">
             <p v-if="timeLeft > 0" class="text-md text-[var(--text-muted)] flex items-center justify-center gap-1.5">
               {{ t('auth.mfaLogin.codeValidTime') }} 
-              <span class="text-secondary-500 font-mono font-bold">{{ formatTime(timeLeft) }}</span>
+              <span class="text-secondary-500 tabular-nums font-bold">{{ formatTime(timeLeft) }}</span>
             </p>
             <p v-else class="text-md text-error-600 dark:text-error-400 font-semibold">
               {{ t('auth.mfaLogin.sessionExpired') }}

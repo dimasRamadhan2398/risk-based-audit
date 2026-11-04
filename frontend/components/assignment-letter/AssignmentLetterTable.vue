@@ -30,10 +30,7 @@
       />
     </div>
 
-    <UCard
-      class="rounded-xl shadow-sm overflow-hidden"
-      variant="soft"
-    >
+    <div>
       <TableEntities
         :columns="columns"
         :data="filteredLetters"
@@ -55,6 +52,12 @@
           </div>
         </template>
 
+        <template #workingUnit-cell="{ row }">
+          <span class="text-gray-700 dark:text-gray-300">
+            {{ store.formatDepartmentName(row.original.workingUnit) }}
+          </span>
+        </template>
+
         <template #executionPeriod-cell="{ row }">
           <div class="flex items-center gap-1 text-gray-600 ">
             <UIcon
@@ -67,7 +70,7 @@
 
         <template #auditTeam-cell="{ row }">
           <div class="flex flex-col">
-            <span class="font-bold text-gray-800 dark:text-white">{{ row.original.leader }} {{ t('assignmentLetter.formExtra.pic') }}</span>
+            <span class="font-bold text-gray-800 dark:text-white">{{ store.formatLeaderDisplay(row.original) }} {{ t('assignmentLetter.formExtra.pic') }}</span>
             <span class="text-md text-gray-500">{{ row.original.auditTeam }}</span>
           </div>
         </template>
@@ -119,7 +122,7 @@
           </div>
         </template>
       </TableEntities>
-    </UCard>
+    </div>
   </div>
 </template>
 
@@ -129,6 +132,15 @@ import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 const { t } = useI18n()
 
 const store = useAssignmentLetterStore()
+
+onMounted(() => {
+  if (!store.employeesLoaded && !store.employeesLoading) {
+    store.fetchEmployees().catch(() => {})
+  }
+  if (!store.departmentsLoaded && !store.departmentsLoading) {
+    store.fetchDepartments().catch(() => {})
+  }
+})
 
 // Column keys/classes live in the store; headers are resolved here so they follow the active locale.
 const headerKeys: Record<string, string> = {
@@ -160,7 +172,7 @@ const statusItems = computed(() =>
   STATUSES.map(value => ({ value, label: statusLabel(value) }))
 )
 const workUnitItems = computed(() =>
-  Array.from(new Set(store.assignmentLetterList.map(l => l.workingUnit).filter(Boolean))).sort()
+  Array.from(new Set(store.assignmentLetterList.map(l => store.formatDepartmentName(l.workingUnit)).filter(v => v && v !== '-'))).sort()
 )
 
 const hasFilters = computed(() => !!(search.value.trim() || status.value || workUnit.value))
@@ -169,9 +181,10 @@ const filteredLetters = computed(() => {
   const q = search.value.trim().toLowerCase()
   return store.assignmentLetterList.filter((l) => {
     if (status.value && l.status !== status.value) return false
-    if (workUnit.value && l.workingUnit !== workUnit.value) return false
+    const formattedUnit = store.formatDepartmentName(l.workingUnit)
+    if (workUnit.value && formattedUnit !== workUnit.value && l.workingUnit !== workUnit.value) return false
     if (!q) return true
-    return [l.letterNumber, l.auditTitle, l.workingUnit, l.leader, l.auditTeam]
+    return [l.letterNumber, l.auditTitle, formattedUnit, l.workingUnit, l.leader, l.auditTeam]
       .some(v => (v || '').toString().toLowerCase().includes(q))
   })
 })

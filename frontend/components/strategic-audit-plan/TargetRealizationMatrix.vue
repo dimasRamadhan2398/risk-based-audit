@@ -3,7 +3,10 @@
     <!-- Header -->
     <div class="flex items-center justify-between flex-wrap gap-2">
       <label class="font-bold text-sm text-gray-900 dark:text-white flex items-center gap-2">
-        <UIcon name="i-lucide-target" class="w-4 h-4 text-primary-500" />
+        <UIcon
+          name="i-lucide-target"
+          class="w-4 h-4 text-primary-500"
+        />
         <template v-if="store.form.periodType === 'Quartal'">
           {{ t('strategicPlan.form.targetMatrixQuarterlyTitle') }}
         </template>
@@ -23,7 +26,7 @@
     </div>
 
     <!-- Flexible Grid (Quarterly or Yearly) -->
-    <div 
+    <div
       class="grid gap-3"
       :class="store.form.periodType === 'Quartal' ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-4' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'"
     >
@@ -36,7 +39,7 @@
           <span class="text-[11px] font-extrabold uppercase tracking-wide text-primary-600 dark:text-primary-400">
             {{ store.form.periodType === 'Quartal' ? item.split('-')[0] : t('strategicPlan.form.yearLabel', { number: idx + 1 }) }}
           </span>
-          <span class="text-[11px] font-mono font-bold text-gray-700 dark:text-gray-300">
+          <span class="text-[11px] tabular-nums font-bold text-gray-700 dark:text-gray-300">
             {{ store.form.periodType === 'Quartal' ? item.split('-')[1] : item }}
           </span>
         </div>
@@ -44,12 +47,12 @@
         <!-- Target Input -->
         <div class="space-y-1 text-left">
           <label class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">{{ t('strategicPlan.extra.target') }}</label>
-          <UInput
+          <NumberInput
             :model-value="(store.form.kpiTargets as any)?.[item] || ''"
             :placeholder="t('strategicPlan.extra.target')"
-            inputmode="decimal"
+            :prefix="unitPrefix"
             size="md"
-            class="w-full text-center font-bold font-mono text-gray-900 dark:text-white"
+            class="w-full text-center font-bold tabular-nums text-gray-900 dark:text-white"
             @update:model-value="(val: string) => updatePeriodTarget(item, val)"
           />
         </div>
@@ -57,12 +60,12 @@
         <!-- Realisasi Input -->
         <div class="space-y-1 text-left">
           <label class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">{{ t('strategicPlan.extra.realization') }}</label>
-          <UInput
+          <NumberInput
             :model-value="(store.form.kpiActuals as any)?.[item] || ''"
             :placeholder="t('strategicPlan.columns.actual')"
-            inputmode="decimal"
+            :prefix="unitPrefix"
             size="md"
-            class="w-full text-center font-bold font-mono text-gray-900 dark:text-white"
+            class="w-full text-center font-bold tabular-nums text-gray-900 dark:text-white"
             @update:model-value="(val: string) => updatePeriodActual(item, val)"
           />
         </div>
@@ -71,7 +74,7 @@
         <div class="space-y-1 text-left">
           <label class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">{{ t('strategicPlan.columns.calculation') }}</label>
           <div
-            class="w-full text-center font-bold font-mono text-md py-1 px-2 rounded border transition-colors"
+            class="w-full text-center font-bold tabular-nums text-md py-1 px-2 rounded border transition-colors"
             :class="getPeriodCalcColorClass(item)"
           >
             {{ getPeriodCalculation(item) }}
@@ -87,11 +90,16 @@ import { computed, nextTick } from 'vue'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import { useI18n } from '~/composables/useI18n'
 import { sanitizeKpiNumberInput } from '~/utils/strategicPlanPayload'
+import { CURRENCY_UNITS } from '~/utils/numberInput'
+import NumberInput from '~/components/shared/NumberInput.vue'
 
 const { t } = useI18n()
 const store = useStrategicPlanStore()
 
 const currentYear = new Date().getFullYear()
+
+// Currency symbol shown inside the target/realization inputs ("" for non-currency units).
+const unitPrefix = computed(() => CURRENCY_UNITS[store.form.unit ?? '']?.symbol ?? '')
 
 const startYear = computed(() => store.form.yearStart || currentYear)
 const endYear = computed(() => {

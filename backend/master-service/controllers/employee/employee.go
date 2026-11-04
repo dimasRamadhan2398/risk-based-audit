@@ -1,6 +1,7 @@
 package employee
 
 import (
+	"io"
 	"strconv"
 
 	"master-service/models"
@@ -21,6 +22,7 @@ type EmployeeControllerInterface interface {
 	NextCode(ctx *gin.Context)
 	Update(ctx *gin.Context)
 	Delete(ctx *gin.Context)
+	ProvisionLoginAccount(ctx *gin.Context)
 }
 type EmployeeController struct {
 	*base.BaseController
@@ -85,10 +87,11 @@ func (d *EmployeeController) FindByCode(ctx *gin.Context) {
 	response.OK(ctx, "Employee fetched successfully", employee)
 }
 
-// Create adds an employee (POST /employees). An @aifl.co.id email also gets a
-// login account; the admin's Authorization header is forwarded to auth-service
-// for that. The response carries "account" then, with the temporary password
-// once (status "created") or just the linked username (status "linked").
+// Create adds an employee (POST /employees) and its login account; the admin's
+// Authorization header is forwarded to auth-service for that. If the account
+// cannot be created the employee is rolled back and an error is returned. The
+// response carries "account": status "created" (temporary password, shown
+// once), "linked" (existing account with that email, password unchanged).
 func (d *EmployeeController) Create(ctx *gin.Context) {
 	var req models.Employee
 	if !d.ValidateRequest(ctx, &req) {
@@ -134,4 +137,27 @@ func (d *EmployeeController) Delete(ctx *gin.Context) {
 		return
 	}
 	response.OK(ctx, "Employee deleted successfully", nil)
+}
+
+// ProvisionLoginAccount creates or links the login account of an existing
+// employee (POST /employees/:id/login-account, ADMIN only). Optional body
+// {"access_role": "AUDITOR"}. Idempotent: status "exists" when already linked.
+func (d *EmployeeController) ProvisionLoginAccount(ctx *gin.Context) {
+	var req struct {
+		AccessRole string `json:"access_role"`
+	}
+	if ctx.Request.ContentLength != 0 {
+		if err := ctx.ShouldBindJSON(&req); err != nil && err != io.EOF {
+			response.BadRequest(ctx, "Invalid request body")
+			return
+		}
+	}
+	reqCtx := authclient.WithAuthorization(ctx.Request.Context(), ctx.GetHeader("Authorization"))
+	baseService := base.NewBaseService().WithContext(reqCtx)
+	account, err := d.employeeSvc.ProvisionLoginAccount(baseService, ctx.Param("id"), req.AccessRole)
+	if err != nil {
+		d.RespondError(ctx, err)
+		return
+	}
+	response.OK(ctx, "Login account ready", gin.H{"account": account})
 }

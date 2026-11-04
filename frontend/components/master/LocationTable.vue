@@ -1,10 +1,6 @@
 <template>
-  <UCard
-    class="rounded-xl shadow overflow-hidden"
-    variant="soft"
-    color="primary"
-  >
-    <template #header>
+  <div class="space-y-4">
+    <div>
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h2 class="text-lg font-bold">{{ t('masterData.location.listTitle') }}</h2>
         <UButton v-if="canWriteMasterData"
@@ -15,7 +11,7 @@
           @click="store.openCreateModal"
         />
       </div>
-    </template>
+    </div>
 
     <!-- Search & Filter -->
     <div class="mb-4 flex flex-wrap gap-2 sm:gap-4 items-center w-full">
@@ -105,7 +101,7 @@
 
           <template #is_active-cell="{ row }">
             <UBadge
-              :color="row.original.is_active ? 'success' : 'error'"
+              :color="row.original.is_active ? 'secondary' : 'error'"
               variant="subtle"
             >
               {{ row.original.is_active ? t('masterData.location.active') : t('masterData.location.inactive') }}
@@ -149,7 +145,7 @@
               {{ loc.city || loc.name }}
             </span>
             <UBadge
-              :color="loc.is_active ? 'success' : 'error'"
+              :color="loc.is_active ? 'secondary' : 'error'"
               variant="subtle"
               size="sm"
             >
@@ -215,7 +211,7 @@
         </div>
       </div>
     </div>
-  </UCard>
+  </div>
 </template>
 
 <script setup lang="ts">

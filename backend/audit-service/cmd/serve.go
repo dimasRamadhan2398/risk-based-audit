@@ -144,6 +144,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 		ALTER TABLE executive_summaries ADD COLUMN IF NOT EXISTS signature_role varchar(100);
 		ALTER TABLE executive_summaries ADD COLUMN IF NOT EXISTS approved_by varchar(200);
 		ALTER TABLE executive_summaries ADD COLUMN IF NOT EXISTS approved_by_role varchar(100);
+		ALTER TABLE executive_summaries ADD COLUMN IF NOT EXISTS approved_by_user_id varchar(64);
 		ALTER TABLE executive_summaries ADD COLUMN IF NOT EXISTS approved_at timestamp with time zone;
 	`)
 

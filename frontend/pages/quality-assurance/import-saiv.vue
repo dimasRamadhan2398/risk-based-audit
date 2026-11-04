@@ -117,7 +117,7 @@
 
       <!-- Imported Documents Table -->
       <div class="w-full">
-        <UCard :ui="{ body: 'p-4' }" class="shadow-sm border border-gray-200 dark:border-gray-800 h-full">
+        <UCard :ui="{ root: 'bg-transparent!', body: 'p-4 bg-transparent!' }" class="shadow-sm border border-gray-200 dark:border-gray-800 h-full">
           <template #header>
             <div class="flex justify-between items-center">
               <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -210,9 +210,11 @@ import { ref, computed, onMounted } from 'vue'
 import { useQualityAssuranceStore } from '~/stores/quality-assurance'
 import { QAType, QAStatus, type QAReport } from '~/types/quality-assurance'
 import { useI18n } from '~/composables/useI18n'
+import { useAppToast } from '~/composables/useAppToast'
 import TableEntities from '~/components/shared/TableEntities.vue'
 
 const { t, locale } = useI18n()
+const appToast = useAppToast()
 const store = useQualityAssuranceStore()
 
 onMounted(() => {
@@ -260,7 +262,7 @@ const handleFileDrop = (event: DragEvent) => {
 
 const processFile = (file: File) => {
   if (file.size > 10 * 1024 * 1024) {
-    alert(t('qualityAssurance.importSaiv.fileSizeLimit'))
+    appToast.warning(t('qualityAssurance.importSaiv.fileSizeLimit'))
     return
   }
 

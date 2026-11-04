@@ -575,10 +575,6 @@
                     class="text-xs font-bold text-gray-900 dark:text-white cursor-pointer select-none flex items-center gap-1.5"
                     @click="form.autoConfigInfrastructure = !form.autoConfigInfrastructure"
                   >
-                    <UIcon
-                      name="i-lucide-sparkles"
-                      class="w-4 h-4 text-primary"
-                    />
                     {{ t('siteGenerator.infrastructure.autoConfigure') }}
                   </label>
                   <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">

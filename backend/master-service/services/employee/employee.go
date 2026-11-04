@@ -24,17 +24,25 @@ type EmployeeServiceInterface interface {
 	NextEmployeeCode(ctx *base.BaseService) (string, error)
 	Update(ctx *base.BaseService, id string, employee *models.Employee) (*models.Employee, error)
 	Delete(ctx *base.BaseService, id string) error
+	ProvisionLoginAccount(ctx *base.BaseService, id, accessRole string) (*models.EmployeeAccount, error)
 }
 
 type EmployeeService struct {
 	employeeRepo repo.IEmployeeRepository
-	// accounts creates the login account for @aifl.co.id employees. Nil when
-	// auth-service is not configured; such creates are refused up front.
+	// accounts creates the login account of every new employee. Nil when
+	// auth-service is not configured; creates are then refused up front.
 	accounts AccountClient
+	// skipAccounts is true only for NewEmployeeService (no auth-service wired,
+	// used by tests and tools). The server always builds the service with
+	// accounts, so a create never silently skips the account there.
+	skipAccounts bool
+	// jobRoles supplies the job role's default_access_role when provisioning.
+	// Nil = every account gets models.DefaultLoginAccessRole.
+	jobRoles JobRoleLookup
 }
 
 func NewEmployeeService(employeeRepo repo.IEmployeeRepository) EmployeeServiceInterface {
-	return NewEmployeeServiceWithAccounts(employeeRepo, nil)
+	return &EmployeeService{employeeRepo: employeeRepo, skipAccounts: true}
 }
 
 // NewEmployeeServiceWithAccounts builds the employee service with the
@@ -44,6 +52,12 @@ func NewEmployeeServiceWithAccounts(employeeRepo repo.IEmployeeRepository, accou
 		employeeRepo: employeeRepo,
 		accounts:     accounts,
 	}
+}
+
+// NewEmployeeServiceWithAccess is NewEmployeeServiceWithAccounts plus the job
+// role lookup that picks the login role from the employee's job role.
+func NewEmployeeServiceWithAccess(employeeRepo repo.IEmployeeRepository, accounts AccountClient, jobRoles JobRoleLookup) EmployeeServiceInterface {
+	return &EmployeeService{employeeRepo: employeeRepo, accounts: accounts, jobRoles: jobRoles}
 }
 
 // Pagination limits for the employee list. An out-of-range page_size is clamped
@@ -180,13 +194,16 @@ func (s *EmployeeService) Create(ctx *base.BaseService, employee *models.Employe
 	if err := normalizeAndValidate(employee, false); err != nil {
 		return nil, err
 	}
+	if err := checkResidence(employee, nil); err != nil {
+		return nil, err
+	}
 	if employee.LevelGrade == 0 {
 		employee.LevelGrade = defaultLevelGrade
 	}
 
-	needsAccount := requiresLoginAccount(employee.Email)
+	needsAccount := !s.skipAccounts
 	if needsAccount {
-		if err := s.checkLoginAccountPreflight(employee.Email); err != nil {
+		if err := s.checkLoginAccountPreflight(employee.Email, employee.AccessRole); err != nil {
 			return nil, err
 		}
 	}
@@ -405,6 +422,10 @@ func (s *EmployeeService) Update(ctx *base.BaseService, id string, employee *mod
 		return nil, apperrors.DB(err, apperrors.OpRead, "Failed to load the employee.")
 	}
 
+	if err := checkResidence(employee, existingEmployee); err != nil {
+		return nil, err
+	}
+
 	if existingEmployee.EmployeeCode != employee.EmployeeCode {
 		if _, err := s.employeeRepo.FindByCode(employee.EmployeeCode); err == nil {
 			return nil, errEmployeeCodeExists
@@ -421,13 +442,25 @@ func (s *EmployeeService) Update(ctx *base.BaseService, id string, employee *mod
 		}
 	}
 
+	// Fields whose zero value is never a valid stored value (not-null columns and
+	// FKs, join_date) keep the stored value when the request omits them. Optional
+	// fields (phone, residence_*, work_location_id, manager_id) are still replaced,
+	// because sending them empty is how the form clears them.
 	existingEmployee.EmployeeCode = employee.EmployeeCode
-	existingEmployee.FullName = employee.FullName
+	if strings.TrimSpace(employee.FullName) != "" {
+		existingEmployee.FullName = employee.FullName
+	}
 	existingEmployee.Email = employee.Email
 	existingEmployee.Phone = employee.Phone
-	existingEmployee.CompanyID = employee.CompanyID
-	existingEmployee.DepartmentID = employee.DepartmentID
-	existingEmployee.JobRoleID = employee.JobRoleID
+	if employee.CompanyID != uuid.Nil {
+		existingEmployee.CompanyID = employee.CompanyID
+	}
+	if employee.DepartmentID != uuid.Nil {
+		existingEmployee.DepartmentID = employee.DepartmentID
+	}
+	if employee.JobRoleID != uuid.Nil {
+		existingEmployee.JobRoleID = employee.JobRoleID
+	}
 	if employee.LevelGrade != 0 {
 		existingEmployee.LevelGrade = employee.LevelGrade // omitted level_grade keeps the stored value
 	}
@@ -438,7 +471,9 @@ func (s *EmployeeService) Update(ctx *base.BaseService, id string, employee *mod
 	existingEmployee.ResidencePostal = employee.ResidencePostal
 	existingEmployee.ManagerID = employee.ManagerID
 	existingEmployee.IsActive = employee.IsActive
-	existingEmployee.JoinDate = employee.JoinDate
+	if !employee.JoinDate.IsZero() {
+		existingEmployee.JoinDate = employee.JoinDate // omitted join_date keeps the stored value
+	}
 
 	if err := s.employeeRepo.Update(existingEmployee); err != nil {
 		return nil, apperrors.DB(err, apperrors.OpUpdate, "Failed to update the employee.")

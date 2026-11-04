@@ -87,7 +87,7 @@
           <!-- Status slot -->
           <template #status-cell="{ row }">
             <UBadge
-              :color="row.original.status === 'Aktif' ? 'success' : 'warning'"
+              :color="row.original.status === 'Aktif' ? 'secondary' : 'warning'"
               variant="subtle"
               class="rounded font-semibold"
             >
@@ -106,34 +106,34 @@
           <template #actions-cell="{ row }">
             <div class="flex justify-center items-center gap-1">
               <UTooltip v-if="canAccessFiles" :text="t('auditCharter.tooltips.viewSop')">
-              <UButton
-                v-if="row.original.file_url && row.original.file_url !== '#'"
-                icon="i-lucide-eye"
-                color="neutral"
-                variant="ghost"
-                size="md"
-                @click="openFile(row.original.file_url)"
-              />
+                <UButton
+                  v-if="row.original.file_url && row.original.file_url !== '#'"
+                  icon="i-lucide-eye"
+                  color="neutral"
+                  variant="ghost"
+                  size="md"
+                  @click="openFile(row.original.file_url, row.original.name)"
+                />
               </UTooltip>
               <UTooltip :text="t('auditCharter.tooltips.editSop')">
-              <UButton
-                v-if="canManageCharter"
-                size="md"
-                color="warning"
-                variant="ghost"
-                icon="i-lucide-edit"
-                @click="store.handleEdit(row.original)"
-              />
+                <UButton
+                  v-if="canManageCharter"
+                  size="md"
+                  color="warning"
+                  variant="ghost"
+                  icon="i-lucide-edit"
+                  @click="store.handleEdit(row.original)"
+                />
               </UTooltip>
               <UTooltip :text="t('auditCharter.tooltips.deleteSop')">
-              <UButton
-                v-if="canManageCharter"
-                size="md"
-                color="error"
-                variant="ghost"
-                icon="i-lucide-trash-2"
-                @click="confirmDelete(row.original)"
-              />
+                <UButton
+                  v-if="canManageCharter"
+                  size="md"
+                  color="error"
+                  variant="ghost"
+                  icon="i-lucide-trash-2"
+                  @click="confirmDelete(row.original)"
+                />
               </UTooltip>
             </div>
           </template>
@@ -180,7 +180,7 @@
                 #{{ item.no }}
               </span>
               <UBadge
-                :color="item.status === 'Aktif' ? 'success' : 'warning'"
+                :color="item.status === 'Aktif' ? 'secondary' : 'warning'"
                 variant="subtle"
                 class="rounded font-semibold text-xs"
               >
@@ -218,14 +218,7 @@
                 variant="soft"
                 size="xs"
                 :label="t('common.actions.view') || 'Lihat'"
-                @click="openFile(item.file_url)"
-              />
-                icon="i-lucide-eye"
-                color="neutral"
-                variant="soft"
-                size="xs"
-                :label="t('common.actions.view') || 'Lihat'"
-                @click="openFile(item.file_url)"
+                @click="openFile(item.file_url, item.name)"
               />
               <UButton
                 v-if="canManageCharter"
@@ -284,6 +277,8 @@ import { useRbac } from '~/composables/useRbac'
 import TableEntities from '~/components/shared/TableEntities.vue'
 import { useGlobalModalStore } from '~/stores/global-modal'
 import ReadMoreText from '~/components/shared/ReadMoreText.vue'
+import { openUploadedFile } from '~/utils/documentViewer'
+import { extractErrorMessage } from '~/utils/error'
 
 const { t, locale } = useI18n()
 const store = useSopStore()
@@ -332,15 +327,13 @@ const openAddModal = async () => {
   store.showModal = true
 }
 
-const openFile = (fileUrl: string) => {
-  if (!fileUrl || fileUrl === '#') return
-  if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
-    window.open(fileUrl, '_blank')
-    return
+const openFile = async (fileUrl: string, name?: string) => {
+  try {
+    await openUploadedFile(fileUrl, getAuditServiceBaseUrl(), name)
+  } catch (err) {
+    console.error('Failed to open SOP file:', err)
+    useAppToast().error(t('auditCharter.toasts.sop.openFailed'), extractErrorMessage(err, t('auditCharter.toasts.sop.openFailed')))
   }
-  const baseUrl = getAuditServiceBaseUrl()
-  const finalUrl = fileUrl.startsWith('/') ? `${baseUrl.replace(/\/api\/v1$/, '')}${fileUrl}` : `${baseUrl}/${fileUrl}`
-  window.open(finalUrl, '_blank')
 }
 
 const confirmDelete = async (item: any) => {

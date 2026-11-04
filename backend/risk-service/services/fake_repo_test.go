@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"risk-service/models"
+	"risk-service/repositories"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -132,3 +133,10 @@ func (r *fakeRepo) FindAssessmentByYear(regID uuid.UUID, year int) (*models.Risk
 func (r *fakeRepo) FindAssessmentsByRegisterID(regID uuid.UUID) ([]models.RiskAssessment, error) {
 	return r.assessments[regID], nil
 }
+
+func (r *fakeRepo) FindPage(f repositories.RiskFilter) ([]models.RiskRegister, int64, error) {
+	all, _ := r.FindAll()
+	return all, int64(len(all)), nil
+}
+
+func (r *fakeRepo) DistinctCategories(int) ([]string, error) { return nil, nil }

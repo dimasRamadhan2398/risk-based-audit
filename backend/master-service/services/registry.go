@@ -158,7 +158,7 @@ func NewServiceRegistry(db *gorm.DB, departmentEvents departmentSvc.EventPublish
 		control:             controlSvc.NewControlService(controlRepo.NewControlRepository(db)),
 		controlAssessment:   controlAssessmentSvc.NewControlAssessmentService(controlAssessmentRepo.NewControlAssessmentRepository(db)),
 		department:          departmentSvc.NewDepartmentService(departmentRepo.NewDepartmentRepository(db), departmentEvents),
-		employee:            employeeSvc.NewEmployeeServiceWithAccounts(employeeRepo.NewEmployeeRepository(db), accounts),
+		employee:            employeeSvc.NewEmployeeServiceWithAccess(employeeRepo.NewEmployeeRepository(db), accounts, jobRoleRepo.NewJobRoleRepository(db)),
 		impact:              impactSvc.NewImpactService(impactRepo.NewImpactRepository(db)),
 		jobRole:             jobRoleSvc.NewJobRoleService(jobRoleRepo.NewJobRoleRepository(db)),
 		likelihood:          likelihoodSvc.NewLikelihoodService(likelihoodRepo.NewLikelihoodRepository(db)),

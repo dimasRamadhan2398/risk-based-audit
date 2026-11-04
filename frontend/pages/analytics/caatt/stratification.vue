@@ -92,7 +92,7 @@ const stratChartOptions = computed(() => ({
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.stratification.transactions') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ Number(stratState.summary.totalTransactions).toLocaleString('id-ID') }}
               </h4>
             </div>
@@ -115,7 +115,7 @@ const stratChartOptions = computed(() => ({
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.stratification.portfolioValue') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ formatIDR(stratState.summary.totalAmount) }}
               </h4>
             </div>
@@ -138,7 +138,7 @@ const stratChartOptions = computed(() => ({
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.stratification.strataCount') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ stratState.summary.totalStrata }}
               </h4>
             </div>
@@ -174,7 +174,7 @@ const stratChartOptions = computed(() => ({
         </UCard>
 
         <!-- Strat Table -->
-        <UCard class="lg:col-span-2">
+        <UCard class="lg:col-span-2 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 divide-gray-200 dark:divide-gray-800">
           <template #header>
             <div>
               <div class="flex items-center gap-2">
@@ -188,7 +188,7 @@ const stratChartOptions = computed(() => ({
           <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
-                <tr class="border-b border-gray-200 dark:border-gray-700">
+                <tr class="bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
                   <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.stratification.range') }}</th>
                   <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.stratification.segment') }}</th>
                   <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.common.transactionCount') }}</th>
@@ -201,10 +201,10 @@ const stratChartOptions = computed(() => ({
                 <tr v-for="r in stratState.records" :key="r.stratumLabel" class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
                   <td class="py-3 px-3 font-bold text-primary-600 dark:text-primary-400">{{ r.stratumLabel }}</td>
                   <td class="py-3 px-3"><UBadge color="neutral" variant="subtle" size="sm">{{ r.category }}</UBadge></td>
-                  <td class="text-right py-3 px-3 font-mono">{{ Number(r.trxCount).toLocaleString('id-ID') }}</td>
-                  <td class="text-right py-3 px-3 font-mono font-bold">{{ formatIDR(r.totalAmount) }}</td>
-                  <td class="text-right py-3 px-3 font-mono">{{ r.pctCount }}%</td>
-                  <td class="text-right py-3 px-3 font-mono font-bold text-primary-600 dark:text-primary-400">{{ r.pctAmount }}%</td>
+                  <td class="text-right py-3 px-3 font-mono tabular-nums">{{ Number(r.trxCount).toLocaleString('id-ID') }}</td>
+                  <td class="text-right py-3 px-3 font-mono tabular-nums num-currency font-bold">{{ formatIDR(r.totalAmount) }}</td>
+                  <td class="text-right py-3 px-3 font-mono tabular-nums">{{ r.pctCount }}%</td>
+                  <td class="text-right py-3 px-3 font-mono tabular-nums font-bold text-primary-600 dark:text-primary-400">{{ r.pctAmount }}%</td>
                 </tr>
               </tbody>
             </table>

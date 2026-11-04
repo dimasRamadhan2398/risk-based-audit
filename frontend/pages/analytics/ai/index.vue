@@ -39,7 +39,6 @@ onMounted(() => {
     <div v-else class="space-y-8">
       <!-- Welcome Callout Banner -->
       <UAlert
-        icon="i-heroicons-sparkles"
         color="primary"
         variant="subtle"
         :title="t('analytics.aiHome.introTitle')"
@@ -147,7 +146,7 @@ onMounted(() => {
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center text-violet-500">
-                  <UIcon name="i-lucide-trending-up" class="w-6 h-6" />
+                  <UIcon name="i-lucide-chart-line" class="w-6 h-6" />
                 </div>
                 <div>
                   <h3 class="font-bold text-lg text-gray-900 dark:text-white">

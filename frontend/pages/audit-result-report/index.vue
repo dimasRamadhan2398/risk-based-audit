@@ -7,14 +7,6 @@
       </div>
       <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
         <UButton
-          v-if="canWrite && (store.hasSelectedAssignmentLetter)"
-          color="primary"
-          icon="i-heroicons-plus"
-          :label="t('auditResultReport.dashboard.createReport')"
-          class="w-full sm:w-auto font-bold shadow"
-          @click="store.openModal"
-        />
-        <UButton
           v-if="canImportPlanDocs"
           color="neutral"
           variant="outline"
@@ -62,8 +54,8 @@
 
     <!-- Main Content -->
     <div v-if="store.hasSelectedAssignmentLetter">
-      <UCard v-if="store.filteredReports.length > 0" class="overflow-hidden overflow-x-auto">
-        <UTable :data="store.filteredReports" :columns="columns">
+      <div v-if="store.filteredReports.length > 0" class="bg-transparent rounded-xl border border-gray-200 dark:border-gray-800 overflow-x-auto shadow-sm">
+        <UTable :data="store.filteredReports" :columns="columns" :ui="{ root: 'overflow-visible [&>table]:border-separate [&>table]:border-spacing-0', th: 'bg-gray-100 dark:bg-gray-800/50' }">
           <template #reportNumber-cell="{ row }">
             <span class="font-mono text-md font-semibold text-primary-600 dark:text-primary-400">
               {{ row.original.reportNumber || (row.original as any).report_number || '-' }}
@@ -157,11 +149,14 @@
                   :label="followUpLabel((row.original as any).id)"
                 />
               </UTooltip>
-              <UTooltip v-if="canWrite" :text="t('auditResultReport.dashboard.actions.syncTooltip')">
+              <UTooltip
+                v-if="!isLhaApproved(row.original.status)"
+                :text="t('auditResultReport.dashboard.actions.syncTooltip')"
+              >
                 <UButton
                   color="primary"
                   variant="soft"
-                  icon="i-heroicons-sparkles"
+                  icon="i-lucide-refresh-cw"
                   size="sm"
                   :label="t('auditResultReport.dashboard.actions.sync')"
                   @click="syncReportFindings(row.original as any)"
@@ -177,6 +172,20 @@
                   @click="store.downloadDocx((row.original as any).id, (row.original as any).reportNumber)"
                 />
               </UTooltip>
+              <!-- Edit button: only displayed when report status is draft -->
+              <UTooltip
+                v-if="!isLhaApproved(row.original.status)"
+                :text="t('auditResultReport.editLha') || t('common.edit')"
+              >
+                <UButton
+                  color="warning"
+                  variant="ghost"
+                  icon="i-lucide-edit"
+                  size="md"
+                  @click="store.editReport(row.original as any)"
+                />
+              </UTooltip>
+              <!-- View button: eye icon (when final, form cannot be edited and only view icon is displayed) -->
               <UTooltip :text="t('auditResultReport.viewLhaDetail')">
                 <UButton
                   color="info"
@@ -189,12 +198,9 @@
             </div>
           </template>
         </UTable>
-      </UCard>
+      </div>
 
       <div v-else class="text-center py-16 bg-secondary-50/40 dark:bg-secondary-950/30 rounded-xl border-2 border-dashed border-secondary-200 dark:border-secondary-900/50">
-        <div class="p-4 bg-secondary-100 dark:bg-secondary-900/40 rounded-full w-fit mx-auto mb-4 text-secondary-600 dark:text-secondary-400">
-          <UIcon name="i-heroicons-sparkles" class="size-12" />
-        </div>
         <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">{{ t('auditResultReport.dashboard.empty.title') }}</h3>
         <p class="text-gray-500 dark:text-gray-400 mt-2 max-w-md mx-auto mb-6 text-sm">
           {{ t('auditResultReport.dashboard.empty.description') }}
@@ -202,7 +208,7 @@
         <div class="flex justify-center gap-3">
           <UButton v-if="canWrite"
             color="secondary"
-            icon="i-heroicons-sparkles"
+            icon="i-lucide-plus"
             :label="t('auditResultReport.dashboard.empty.create')"
             size="lg"
             class="font-bold shadow"
@@ -288,8 +294,27 @@ onMounted(() => {
 })
 
 const columns = computed(() => [
-  { accessorKey: 'reportNumber', header: t('auditResultReport.dashboard.columns.reportNumber') },
-  { accessorKey: 'reportTitle', header: t('auditResultReport.dashboard.columns.reportTitle') },
+  // First two columns are frozen (sticky); fixed widths keep the second column's left offset exact.
+  {
+    accessorKey: 'reportNumber',
+    header: t('auditResultReport.dashboard.columns.reportNumber'),
+    meta: {
+      class: {
+        th: 'w-[170px] min-w-[170px] max-w-[170px] sticky left-0 z-20 !bg-gray-100 dark:!bg-gray-800',
+        td: 'w-[170px] min-w-[170px] max-w-[170px] sticky left-0 z-10 bg-[var(--bg-main)]'
+      }
+    }
+  },
+  {
+    accessorKey: 'reportTitle',
+    header: t('auditResultReport.dashboard.columns.reportTitle'),
+    meta: {
+      class: {
+        th: 'w-[280px] min-w-[280px] max-w-[280px] sticky left-[170px] z-20 !bg-gray-100 dark:!bg-gray-800 border-r border-r-[var(--border-main)] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
+        td: 'w-[280px] min-w-[280px] max-w-[280px] whitespace-normal break-words sticky left-[170px] z-10 bg-[var(--bg-main)] border-r border-r-[var(--border-main)] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]'
+      }
+    }
+  },
   { accessorKey: 'reportDate', header: t('auditResultReport.dashboard.columns.date') },
   { accessorKey: 'findingsCount', header: t('auditResultReport.dashboard.columns.findings') },
   { accessorKey: 'category', header: t('auditResultReport.dashboard.columns.category') },

@@ -52,7 +52,9 @@ const timeseriesState = ref<any>({
   forecastAccuracy: { ...initialTS.forecastAccuracy }
 })
 
-const CACHE_KEY = 'auditsphere_real_analytics_cache_v6'
+// v7: KPI forecasts carry per-KPI history/forecast and anomalies carry the
+// transaction hour; older caches have the synthetic shapes.
+const CACHE_KEY = 'auditsphere_real_analytics_cache_v7'
 
 const saveRealCache = () => {
   if (typeof window === 'undefined') return
@@ -66,6 +68,7 @@ const saveRealCache = () => {
       timeseries: timeseriesState.value
     }
     localStorage.setItem(CACHE_KEY, JSON.stringify(cacheObj))
+    localStorage.removeItem('auditsphere_real_analytics_cache_v6')
     localStorage.removeItem('auditsphere_real_analytics_cache_v5')
     localStorage.removeItem('auditsphere_real_analytics_cache_v4')
     localStorage.removeItem('auditsphere_real_analytics_cache_v3')
@@ -79,6 +82,7 @@ const saveRealCache = () => {
 const loadRealCache = (): boolean => {
   if (typeof window === 'undefined') return false
   try {
+    localStorage.removeItem('auditsphere_real_analytics_cache_v6')
     localStorage.removeItem('auditsphere_real_analytics_cache_v5')
     localStorage.removeItem('auditsphere_real_analytics_cache_v4')
     localStorage.removeItem('auditsphere_real_analytics_cache_v3')
@@ -248,6 +252,7 @@ export const useAiAnalytics = () => {
               date: a.date || '2026-06-01',
               amount: a.amount ?? 0,
               xMetric: a.xMetric ?? (a.amount ? a.amount / 1000000 : 0),
+              hour: a.hour ?? a.hour_of_day ?? null,
               isAnomaly: a.is_anomaly !== undefined ? a.is_anomaly : true,
               riskLevel: a.risk_level || a.riskLevel || 'HIGH'
             }))
@@ -301,11 +306,15 @@ export const useAiAnalytics = () => {
               forecastedValue: f.forecastedValue ?? f.forecasted_value ?? 0,
               trend: f.trend || 'Stable',
               recommendedAction: f.recommendedAction || f.recommended_action || '',
-              riskLevel: f.riskLevel || f.risk_level || 'LOW'
+              riskLevel: f.riskLevel || f.risk_level || 'LOW',
+              lastActualPeriod: f.lastActualPeriod || f.last_actual_period || '',
+              history: Array.isArray(f.history) ? f.history : [],
+              forecast: Array.isArray(f.forecast) ? f.forecast : []
             }))
           }
           if (bData.at_risk_departments) timeseriesState.value.atRiskDepartments = bData.at_risk_departments
           if (bData.time_series_data) timeseriesState.value.historicalKPI = bData.time_series_data
+          if (bData.forecast_accuracy) timeseriesState.value.forecastAccuracy = bData.forecast_accuracy
         }
 
         saveRealCache()

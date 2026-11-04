@@ -241,13 +241,20 @@
                   >
                     <USelectMenu
                       v-model="store.form.workingUnit"
-                      :items="store.options.workingUnit"
+                      :items="store.workUnitOptions"
+                      :loading="store.departmentsLoading"
                       :placeholder="t('assignmentLetter.formExtra.workUnitPlaceholder')"
                       size="lg"
                       class="w-full"
                       :popper="{ strategy: 'absolute' }"
+                      create-item
+                      @create="(val: string) => { store.form.workingUnit = val.trim() }"
                       required
-                    />
+                    >
+                      <template #empty>
+                        {{ store.departmentsLoading ? t('common.loading') : (store.departmentsError || t('masterData.department.empty')) }}
+                      </template>
+                    </USelectMenu>
                   </UFormField>
                 </div>
 
@@ -282,18 +289,26 @@
                       class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2"
                     >
                       <div class="flex-1">
-                        <UInput
+                        <USelectMenu
                           v-model="member.name"
+                          :items="store.getAvailableMemberOptions(index)"
+                          :loading="store.employeesLoading"
                           :placeholder="t('assignmentLetter.formExtra.memberName')"
                           class="w-full"
+                          create-item
+                          @create="(val: string) => { member.name = val.trim() }"
                           required
-                          maxlength="100"
-                          @invalid="($event.target as any)?.setCustomValidity('Nama anggota maksimal 100 karakter dan wajib diisi')"
-                          @input="($event.target as any)?.setCustomValidity('')"
-                        />
-                        <div class="text-xs text-gray-500 mt-1 text-right">
-                          {{ member.name ? member.name.length : 0 }}/100
-                        </div>
+                        >
+                          <template #empty>
+                            {{ store.employeesLoading ? t('common.loading') : (store.employeesError || t('masterData.employee.empty')) }}
+                          </template>
+                        </USelectMenu>
+                        <p
+                          v-if="store.isDuplicateMember(member.name, index)"
+                          class="text-xs text-red-500 font-semibold mt-1"
+                        >
+                          {{ t('assignmentLetter.formExtra.memberDuplicate') }}
+                        </p>
                       </div>
                       <div class="flex items-center gap-2">
                         <USelectMenu
@@ -579,6 +594,7 @@ const validateStep = (idx: number): string | null => {
   } else if (idx === 1) {
     if (!form.workingUnit) return t('assignmentLetter.validation.workUnitRequired')
     if (!form.membersList.every(m => m.name && m.role)) return t('assignmentLetter.validation.membersInvalid')
+    if (store.hasDuplicateMembers) return 'Nama anggota tim tidak boleh sama (duplikat).'
   } else if (idx === 2) {
     if (!form.ccList.every(cc => cc && cc.trim() !== '')) return t('assignmentLetter.validation.ccInvalid')
   }
@@ -631,8 +647,23 @@ watch(
     if (open) {
       currentStep.value = 0
       masterOptions.fetchAll()
+      if (!store.employeesLoaded && !store.employeesLoading) {
+        store.fetchEmployees().catch(() => {})
+      }
+      if (!store.departmentsLoaded && !store.departmentsLoading) {
+        store.fetchDepartments().catch(() => {})
+      }
     }
   },
   { immediate: true }
 )
+
+onMounted(() => {
+  if (!store.employeesLoaded && !store.employeesLoading) {
+    store.fetchEmployees().catch(() => {})
+  }
+  if (!store.departmentsLoaded && !store.departmentsLoading) {
+    store.fetchDepartments().catch(() => {})
+  }
+})
 </script>

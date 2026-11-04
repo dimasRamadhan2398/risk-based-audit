@@ -53,7 +53,7 @@
             <p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Realisasi Audit Tahunan
             </p>
-            <h3 class="text-2xl sm:text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">
+            <h3 class="text-2xl sm:text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1 tabular-nums">
               {{ pkptCompletionPercent }}%
             </h3>
           </div>
@@ -76,7 +76,7 @@
             <p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Temuan Signifikan / Kritis
             </p>
-            <h3 class="text-2xl sm:text-3xl font-extrabold text-rose-600 dark:text-rose-400 mt-1">
+            <h3 class="text-2xl sm:text-3xl font-extrabold text-rose-600 dark:text-rose-400 mt-1 tabular-nums">
               {{ highRiskFindingsCount }}
             </h3>
           </div>
@@ -99,7 +99,7 @@
             <p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Kepatuhan Tindak Lanjut (CAPA)
             </p>
-            <h3 class="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">
+            <h3 class="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1 tabular-nums">
               {{ atrComplianceRate }}%
             </h3>
           </div>
@@ -122,7 +122,7 @@
             <p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Skor Efektivitas Kontrol
             </p>
-            <h3 class="text-2xl sm:text-3xl font-extrabold text-sky-600 dark:text-sky-400 mt-1">
+            <h3 class="text-2xl sm:text-3xl font-extrabold text-sky-600 dark:text-sky-400 mt-1 tabular-nums">
               {{ cosoEffectivenessScore }}%
             </h3>
           </div>
@@ -280,7 +280,7 @@
         <div>
           <h2 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <UIcon name="i-lucide-shield-check" class="size-5 text-sky-500" />
-            3. Ringkasan Pengendalian Internal Berbasis COSO 2013
+            3. Ringkasan Pengendalian Internal Berbasis COSO
           </h2>
           <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
             Evaluasi kesehatan sistem pengendalian internal korporasi pada 5 pilar utama COSO Framework.
@@ -303,7 +303,7 @@
           class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 text-center space-y-1.5"
         >
           <span class="text-xs font-semibold text-gray-500 block truncate">{{ dim.name }}</span>
-          <h4 class="text-xl font-extrabold text-sky-600 dark:text-sky-400">{{ dim.score }}%</h4>
+          <h4 class="text-xl font-extrabold text-sky-600 dark:text-sky-400 tabular-nums">{{ dim.score }}%</h4>
           <div class="w-full bg-gray-200 dark:bg-gray-700 h-1 rounded-full overflow-hidden">
             <div class="bg-sky-500 h-full rounded-full" :style="{ width: `${dim.score}%` }" />
           </div>

@@ -1,50 +1,73 @@
 <template>
-  <div class="grid grid-cols-1 lg:grid-cols-4 h-full bg-gray-50 dark:bg-gray-950">
-    <!-- Sidebar Navigation Index (Corporate Report Builder Layout) -->
-    <div class="hidden lg:block lg:col-span-1 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 overflow-y-auto space-y-6">
-      <div class="text-md font-bold uppercase tracking-wider text-gray-400">{{ t('executiveSummaryForm.navTitle') }}</div>
-      <nav class="space-y-1">
-        <a
-          v-for="sec in sections"
-          :key="sec.id"
-          :href="'#' + sec.id"
-          class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-          :class="activeSection === sec.id ? 'text-primary-600 bg-primary-50 dark:bg-primary-950 dark:text-primary-400 font-bold' : 'text-gray-600 dark:text-gray-400'"
-          @click.prevent="scrollToSection(sec.id)"
-        >
-          <span class="size-5 rounded-full flex items-center justify-center border text-md font-mono" :class="activeSection === sec.id ? 'border-primary-500 bg-primary-100 dark:bg-primary-900' : 'border-gray-300 dark:border-gray-700'">
-            {{ sec.index }}
-          </span>
-          {{ sec.title }}
-        </a>
-      </nav>
-
-      <!-- Locking Info / Actions -->
-      <div class="border-t border-gray-200 dark:border-gray-800 pt-6 space-y-4">
-        <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-2 border">
-          <div class="text-md font-semibold text-gray-500 flex items-center gap-1.5">
-            <UIcon name="i-lucide-shield-alert" class="size-4" />
-            {{ t('executiveSummaryForm.lock.title') }}
-          </div>
-          <div class="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-1.5">
-            <span class="size-2 rounded-full" :class="store.form.status === 'Approved' ? 'bg-success-500' : 'bg-warning-500'"></span>
-            {{ store.form.status === 'Approved' ? t('executiveSummaryForm.lock.approved') : t('executiveSummaryForm.lock.draft') }}
-          </div>
-          <p class="text-md text-gray-400 leading-normal">
-            {{ store.form.status === 'Approved' 
-              ? t('executiveSummaryForm.lock.approvedDescription') 
-              : t('executiveSummaryForm.lock.draftDescription') }}
-          </p>
+  <div class="flex flex-col h-full bg-gray-50 dark:bg-gray-950">
+    <!-- Stepper header (clickable) -->
+    <div class="flex items-center gap-3 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3 sm:px-6 sm:py-4 shrink-0">
+      <!-- Horizontal scroll only: the header never grows or scrolls vertically -->
+      <div
+        ref="stepScrollRef"
+        class="flex-1 min-w-0 overflow-x-auto overflow-y-hidden scrollbar-thin"
+      >
+        <div class="flex min-w-max items-center justify-center gap-3 px-1 py-1 sm:gap-4">
+          <template
+            v-for="(sec, idx) in sections"
+            :key="sec.id"
+          >
+            <div
+              class="group flex shrink-0 cursor-pointer select-none items-center gap-2 sm:gap-2.5"
+              data-testid="form-step"
+              @click="goToStep(idx)"
+            >
+              <div
+                class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all duration-300 sm:h-8 sm:w-8"
+                :class="currentStepIndex === idx
+                  ? 'bg-primary text-white shadow-md ring-4 ring-primary/20 scale-105'
+                  : currentStepIndex > idx
+                    ? 'bg-secondary text-white shadow-sm'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-400 group-hover:bg-gray-200 dark:group-hover:bg-gray-700'"
+              >
+                <UIcon
+                  v-if="currentStepIndex > idx"
+                  name="i-heroicons-check"
+                  class="h-3.5 w-3.5 stroke-[3]"
+                />
+                <span v-else>{{ idx + 1 }}</span>
+              </div>
+              <span
+                class="whitespace-nowrap text-xs font-semibold transition-colors"
+                :class="currentStepIndex === idx
+                  ? 'text-primary font-bold'
+                  : currentStepIndex > idx
+                    ? 'text-secondary font-semibold'
+                    : 'text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300'"
+              >
+                {{ sec.title }}
+              </span>
+            </div>
+            <div
+              v-if="idx < sections.length - 1"
+              class="h-0.5 w-5 shrink-0 rounded transition-all duration-300 sm:w-8"
+              :class="currentStepIndex > idx ? 'bg-secondary' : 'bg-gray-200 dark:bg-gray-800'"
+            />
+          </template>
         </div>
       </div>
+      <UBadge
+        :color="store.form.status === 'Approved' ? 'success' : 'warning'"
+        variant="soft"
+        class="hidden sm:inline-flex shrink-0 font-semibold"
+        :title="store.form.status === 'Approved' ? t('executiveSummaryForm.lock.approvedDescription') : t('executiveSummaryForm.lock.draftDescription')"
+      >
+        <UIcon name="i-lucide-shield-alert" class="size-3.5 mr-1" />
+        {{ store.form.status === 'Approved' ? t('executiveSummaryForm.lock.approved') : t('executiveSummaryForm.lock.draft') }}
+      </UBadge>
     </div>
 
     <!-- Main Content Area -->
-    <div class="col-span-1 lg:col-span-3 overflow-y-auto p-6 lg:p-8 h-full space-y-8 bg-white dark:bg-gray-900 shadow-sm" ref="scrollContainer" @scroll="onScroll">
+    <div class="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-8 bg-white dark:bg-gray-900" ref="scrollContainer">
       
       <form @submit.prevent class="space-y-12">
         <!-- 1. Metadata & Document Upload -->
-        <section id="sec-upload" class="space-y-6 scroll-mt-6">
+        <section id="sec-upload" v-show="activeSection === 'sec-upload'" class="space-y-6 scroll-mt-6">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4">
             <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
               {{ t('executiveSummaryForm.upload.title') }}
@@ -212,7 +235,7 @@
         </section>
 
         <!-- 2. Section Narrative -->
-        <section id="sec-narrative" class="space-y-6 scroll-mt-6">
+        <section id="sec-narrative" v-show="activeSection === 'sec-narrative'" class="space-y-6 scroll-mt-6">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4">
             <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
               {{ t('executiveSummaryForm.narrative.title') }}
@@ -244,7 +267,7 @@
         </section>
 
         <!-- 3. Section Statistik Kompilasi -->
-        <section id="sec-stats" class="space-y-6 scroll-mt-6">
+        <section id="sec-stats" v-show="activeSection === 'sec-stats'" class="space-y-6 scroll-mt-6">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4 flex justify-between items-center">
             <div>
               <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
@@ -356,7 +379,7 @@
         </section>
 
         <!-- 4. Section Status Tindak Lanjut -->
-        <section id="sec-followup" class="space-y-6 scroll-mt-6">
+        <section id="sec-followup" v-show="activeSection === 'sec-followup'" class="space-y-6 scroll-mt-6">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4">
             <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
               {{ t('executiveSummaryForm.followUp.title') }}
@@ -405,8 +428,8 @@
                 <!-- Total Row -->
                 <tr class="bg-gray-50 dark:bg-gray-800/40 font-bold border-t-2">
                   <td class="px-6 py-4 text-sm text-gray-900 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryForm.table.total') }}</td>
-                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white font-mono font-extrabold">{{ totalFollowUpCount }}</td>
-                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white font-mono font-extrabold">100.0%</td>
+                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white tabular-nums font-extrabold">{{ totalFollowUpCount }}</td>
+                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white tabular-nums font-extrabold">100.0%</td>
                   <td class="px-6 py-4 text-md text-gray-400 italic">{{ t('executiveSummaryForm.table.autoCalculated') }}</td>
                 </tr>
               </tbody>
@@ -415,7 +438,7 @@
         </section>
 
         <!-- 5. Section Top 5 Significant Findings -->
-        <section id="sec-topfindings" class="space-y-6 scroll-mt-6">
+        <section id="sec-topfindings" v-show="activeSection === 'sec-topfindings'" class="space-y-6 scroll-mt-6">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4">
             <div class="flex justify-between items-center">
               <div>
@@ -447,79 +470,17 @@
             </div>
           </div>
 
-          <div v-if="store.form.topFindings.length > 0" class="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
-              <thead class="bg-gray-50 dark:bg-gray-800/80">
-                <tr>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">{{ t('executiveSummaryForm.table.unitDivision') }}</th>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryForm.table.findingTitle') }}</th>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-32">{{ t('executiveSummaryForm.table.riskValue') }}</th>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">{{ t('executiveSummaryForm.table.followUpStatus') }}</th>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryForm.table.proposedAction') }}</th>
-                  <th v-if="!isLocked" class="px-4 py-3 text-center text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-16">{{ t('executiveSummaryForm.table.actions') }}</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
-                <tr v-for="(finding, idx) in store.form.topFindings" :key="idx">
-                  <td class="px-3 py-2">
-                    <USelectMenu
-                      v-model="finding.unitDivision"
-                      :items="divisionOptions"
-                      :placeholder="t('executiveSummaryForm.placeholders.division')"
-                      :disabled="isLocked"
-                    />
-                  </td>
-                  <td class="px-3 py-2">
-                    <UInput
-                      v-model="finding.judulTemuan"
-                      :placeholder="t('executiveSummaryForm.placeholders.findingTitle')"
-                      :disabled="isLocked"
-                      maxlength="100"
-                      @invalid="($event.target as any)?.setCustomValidity(t('executiveSummaryForm.validation.findingTitle'))"
-                      @input="($event.target as any)?.setCustomValidity('')"
-                    />
-                    <div class="text-xs text-gray-500 mt-1 text-right">
-                      {{ finding.judulTemuan ? finding.judulTemuan.length : 0 }}/100
-                    </div>
-                  </td>
-                  <td class="px-3 py-2">
-                    <USelectMenu
-                      v-model="finding.risiko"
-                      :items="['Tinggi', 'Sedang', 'Rendah']"
-                      :placeholder="t('executiveSummaryForm.placeholders.risk')"
-                      :disabled="isLocked"
-                    />
-                  </td>
-                  <td class="px-3 py-2">
-                    <USelectMenu
-                      v-model="finding.statusTL"
-                      :items="['Closed', 'In Progress', 'Overdue']"
-                      :placeholder="t('executiveSummaryForm.table.followUpStatus')"
-                      :disabled="isLocked"
-                    />
-                  </td>
-                  <td class="px-3 py-2">
-                    <UTextarea
-                      v-model="finding.usulan"
-                      :placeholder="t('executiveSummaryForm.placeholders.proposedAction')"
-                      :disabled="isLocked"
-                    />
-                  </td>
-                  <td v-if="!isLocked" class="px-3 py-2 text-center">
-                    <UButton
-                      color="error"
-                      variant="ghost"
-                      icon="i-lucide-trash"
-                      size="sm"
-                      @click="removeTopFinding(idx)"
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <div v-else class="text-center py-8 bg-gray-50 dark:bg-gray-800/30 rounded-lg text-sm text-gray-400 border border-dashed">
+          <SignificantFindingCards
+            ref="findingCardsRef"
+            :findings="store.form.topFindings"
+            :disabled="isLocked"
+            :unit-options="store.unitDivisionOptions"
+            :unit-loading="store.departmentsLoading"
+            :unit-error="store.departmentsError"
+            :risk-options="significanceLevelOptions"
+            @remove="removeTopFinding"
+          />
+          <div v-if="store.form.topFindings.length === 0" class="text-center py-8 bg-gray-50 dark:bg-gray-800/30 rounded-lg text-sm text-gray-400 border border-dashed">
             {{ t('executiveSummaryForm.topFindings.empty') }}
             <button v-if="!isLocked" type="button" @click="addTopFinding" class="text-primary-500 font-bold ml-1 hover:underline">
               {{ t('executiveSummaryForm.topFindings.emptyAction') }}
@@ -528,7 +489,7 @@
         </section>
 
         <!-- 6. Qualitative Analysis (Section V & VII) -->
-        <section id="sec-analysis" class="space-y-6 scroll-mt-6">
+        <section id="sec-analysis" v-show="activeSection === 'sec-analysis'" class="space-y-6 scroll-mt-6">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4 flex justify-between items-center">
             <div>
               <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
@@ -626,7 +587,7 @@
         </section>
 
         <!-- 7. Section Matriks Kompilasi LHA Individual -->
-        <section id="sec-matriks" class="space-y-6 scroll-mt-6">
+        <section id="sec-matriks" v-show="activeSection === 'sec-matriks'" class="space-y-6 scroll-mt-6">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4 flex justify-between items-center">
             <div>
               <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
@@ -679,7 +640,7 @@
         </section>
 
         <!-- Catatan Executive untuk Auditor -->
-        <section v-if="store.isViewing" id="sec-notes" class="space-y-6 scroll-mt-6">
+        <section v-if="store.isViewing" id="sec-notes" v-show="activeSection === 'sec-notes'" class="space-y-6 scroll-mt-6">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-4">
             <h2 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
               <UIcon name="i-lucide-message-square-text" class="size-5 text-primary-500" />
@@ -709,6 +670,26 @@
         </section>
 
       </form>
+    </div>
+
+    <!-- Footer navigation -->
+    <div class="flex items-center justify-between gap-3 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3 sm:px-6 shrink-0">
+      <UButton
+        v-if="currentStepIndex > 0"
+        color="neutral"
+        variant="outline"
+        icon="i-lucide-chevron-left"
+        :label="t('executiveSummaryForm.stepper.previous')"
+        @click="goToStep(currentStepIndex - 1)"
+      />
+      <span v-else />
+      <UButton
+        v-if="currentStepIndex < sections.length - 1"
+        color="primary"
+        trailing-icon="i-lucide-chevron-right"
+        :label="t('executiveSummaryForm.stepper.next')"
+        @click="goToStep(currentStepIndex + 1)"
+      />
     </div>
 
     <!-- Sticky Bottom Footer Controls -->
@@ -752,11 +733,19 @@
             :label="t('executiveSummaryForm.actions.approve')"
             class="font-bold px-6"
             :loading="store.loading"
-            @click="approveReportDirectly"
+            @click="openApproveSignature"
           />
         </template>
       </div>
     </div>
+
+    <ExecutiveSummaryApproveModal
+      v-model:open="showApproveModal"
+      :report-number="store.form.nomorDokumen"
+      :initial-place="store.form.signatureTempat"
+      :initial-date="store.form.signatureTanggal"
+      :initial-signer-name="store.form.signatureNamaKepala"
+    />
   </div>
 </template>
 
@@ -766,9 +755,13 @@ import { useExecutiveSummaryStore } from '~/stores/executive-summary'
 import { useAuthStore } from '~/stores/auth'
 import { useRbac } from '~/composables/useRbac'
 import { useI18n } from '~/composables/useI18n'
+import { useAppToast } from '~/composables/useAppToast'
 import { useExecutiveSummarySources } from '~/composables/useExecutiveSummarySources'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
+import ExecutiveSummaryApproveModal from './ExecutiveSummaryApproveModal.vue'
+import SignificantFindingCards from './SignificantFindingCards.vue'
+import { scrollStepIntoView } from '~/utils/stepperScroll'
 import {
   followUpRowsFromStats,
   formatSyncedAt,
@@ -786,6 +779,7 @@ const auditReportStore = useAuditResultReportStore()
 const assignmentLetterStore = useAssignmentLetterStore()
 const { canReviewExecutiveSummary } = useRbac()
 const { t, locale } = useI18n()
+const appToast = useAppToast()
 const { loading: sourcesLoading, error: sourcesError, fetchCompilationStats } = useExecutiveSummarySources()
 const fileInput = ref<HTMLInputElement | null>(null)
 const activeSection = ref('sec-upload')
@@ -846,7 +840,15 @@ const sections = computed(() => [
 ])
 
 // Dropdown options
-const divisionOptions = ['OP', 'KK/KSD', 'IT', 'FIN', 'HR', 'LEG']
+const divisionOptions = computed(() => store.unitDivisionOptions)
+
+// Significance Level options synchronized with Result Reports (LHA) Category / Significance Level
+const significanceLevelOptions = computed(() => [
+  { label: t('auditResultReport.dashboard.categories.verySignificant'), value: 'Very Significant' },
+  { label: t('auditResultReport.dashboard.categories.significant'), value: 'Significant' },
+  { label: t('auditResultReport.dashboard.categories.quiteSignificant'), value: 'Quite Significant' },
+  { label: t('auditResultReport.dashboard.categories.notSignificant'), value: 'Not Significant' }
+])
 
 const quarterOptions = ['Kuartal I', 'Kuartal II', 'Kuartal III', 'Kuartal IV']
 const reportingQuarter = computed({
@@ -999,20 +1001,20 @@ const handleFileUpload = (e: Event) => {
 
   // Size limit 10MB
   if (file.size > 10 * 1024 * 1024) {
-    alert(t('executiveSummaryForm.messages.fileTooLarge'))
+    appToast.warning(t('executiveSummaryForm.messages.fileTooLarge'))
     return
   }
 
   // Type limit
   const ext = file.name.split('.').pop()?.toLowerCase()
   if (ext !== 'pdf' && ext !== 'docx' && ext !== 'doc') {
-    alert(t('executiveSummaryForm.messages.unsupportedFormat'))
+    appToast.warning(t('executiveSummaryForm.messages.unsupportedFormat'))
     return
   }
 
   // Simulated file corruption error handling
   if (file.name.toLowerCase().includes('corrupt') || file.name.toLowerCase().includes('damaged')) {
-    alert(t('executiveSummaryForm.messages.corruptedFile'))
+    appToast.warning(t('executiveSummaryForm.messages.corruptedFile'))
     return
   }
 
@@ -1021,15 +1023,19 @@ const handleFileUpload = (e: Event) => {
 }
 
 // Section IV: Top 5 dynamic list methods
+// Only the card of a newly added finding opens; existing cards keep their state
+const findingCardsRef = ref<InstanceType<typeof SignificantFindingCards> | null>(null)
 const addTopFinding = () => {
   if (store.form.topFindings.length >= 5) return
+  const defaultDiv: string = store.unitDivisionOptions[0] || ''
   store.form.topFindings.push({
-    unitDivision: 'OP',
+    unitDivision: defaultDiv,
     judulTemuan: '',
-    risiko: 'Tinggi',
+    risiko: 'Significant',
     statusTL: 'In Progress',
     usulan: ''
   })
+  findingCardsRef.value?.expand(store.form.topFindings[store.form.topFindings.length - 1])
 }
 
 const removeTopFinding = (idx: number) => {
@@ -1096,22 +1102,18 @@ const syncFromIndividualLha = async () => {
     else if (r.reportTitle.includes('Procurement') || r.reportTitle.includes('SCM')) div = 'KK/KSD'
 
     findings.forEach((f: any) => {
-      let risiko: 'Tinggi' | 'Sedang' | 'Rendah' = 'Tinggi'
-      if (f.category === 'Very Significant' || f.category === 'Significant') {
-        risiko = 'Tinggi'
-      } else if (f.category === 'Quite Significant') {
-        risiko = 'Sedang'
-      } else {
-        risiko = 'Rendah'
-      }
+      let sigLevel = f.category || f.significanceLevel || f.risiko || 'Significant'
+      if (sigLevel === 'Tinggi') sigLevel = 'Significant'
+      else if (sigLevel === 'Sedang') sigLevel = 'Quite Significant'
+      else if (sigLevel === 'Rendah') sigLevel = 'Not Significant'
 
       allFindings.push({
         unitDivision: div,
         judulTemuan: f.title || f.finding || '',
-        risiko,
+        risiko: sigLevel,
         statusTL: 'In Progress',
         usulan: f.action || f.recommendation || '',
-        severityRank: risiko === 'Tinggi' ? 3 : risiko === 'Sedang' ? 2 : 1
+        severityRank: sigLevel === 'Very Significant' ? 4 : sigLevel === 'Significant' ? 3 : sigLevel === 'Quite Significant' ? 2 : 1
       })
     })
 
@@ -1154,7 +1156,7 @@ const saveReportDraft = async () => {
     store.form.nomorDokumen = generateEscDocNumber(Number(store.form.tahun) || 2026)
   }
   if (!store.form.dokumenPath) {
-    alert(t('executiveSummaryForm.messages.documentRequired'))
+    appToast.warning(t('executiveSummaryForm.messages.documentRequired'))
     return
   }
 
@@ -1164,35 +1166,33 @@ const saveReportDraft = async () => {
   await store.saveForm()
 }
 
-const approveReportDirectly = async () => {
+// Approval is signed: the signature box in ExecutiveSummaryApproveModal is required before the backend accepts it
+const showApproveModal = ref(false)
+const openApproveSignature = () => {
   if (store.currentSummary) {
-    await store.updateStatus(store.currentSummary.id, 'Approved')
+    showApproveModal.value = true
   }
 }
 
-// Scrolling Table of Contents logic
-const scrollToSection = (id: string) => {
-  activeSection.value = id
-  const target = document.getElementById(id)
-  if (target) {
-    target.scrollIntoView({ behavior: 'smooth' })
-  }
+// Stepper navigation: one section is visible at a time
+const currentStepIndex = computed(() => Math.max(0, sections.value.findIndex(sec => sec.id === activeSection.value)))
+
+// Keeps the active step visible in the horizontal stepper strip (the header itself never scrolls vertically)
+const stepScrollRef = ref<HTMLElement | null>(null)
+const scrollActiveStepIntoView = () => {
+  const container = stepScrollRef.value
+  const step = container?.querySelectorAll<HTMLElement>('[data-testid="form-step"]')[currentStepIndex.value]
+  if (container && step) scrollStepIntoView(container, step)
+}
+watch(currentStepIndex, () => scrollActiveStepIntoView(), { flush: 'post' })
+
+const goToStep = (idx: number) => {
+  const target = sections.value[idx]
+  if (!target) return
+  activeSection.value = target.id
+  scrollContainer.value?.scrollTo({ top: 0 })
 }
 
-const onScroll = () => {
-  const scrollOffset = 150
-  for (const sec of sections.value) {
-    const el = document.getElementById(sec.id)
-    if (el) {
-      const rect = el.getBoundingClientRect()
-      // Section is at the top of the container
-      if (rect.top <= scrollOffset && rect.bottom > scrollOffset) {
-        activeSection.value = sec.id
-        break
-      }
-    }
-  }
-}
 
 // Watch quarter & tahun changes to automatically sync data
 watch(() => [store.form.quarter, store.form.tahun], ([newQ, newY], [oldQ, oldY]) => {

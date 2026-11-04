@@ -7,6 +7,7 @@ import { useI18n } from '~/composables/useI18n'
 import { triggerScrollReset } from '~/utils/scroll'
 import { isViewerBlockedPath, isQaConsultingWritePath } from '~/utils/viewerPolicy'
 import SourceSelectorDropdown from '~/components/common/SourceSelectorDropdown.vue'
+import MappedSourceDataBanner from '~/components/common/MappedSourceDataBanner.vue'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -111,6 +112,11 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
         to: '/risk-appetite'
       },
       {
+        label: t('navigation.riskControlMatrix'),
+        icon: 'i-lucide-grid',
+        to: '/risk-profile/risk-control-matrix'
+      },
+      {
         label: t('navigation.riskFactors'),
         icon: 'i-lucide-activity',
         to: '/risk-profile/risk-factors'
@@ -125,11 +131,6 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
         icon: 'i-lucide-list-ordered',
         to: '/risk-profile/audit-priority'
       },
-      {
-        label: t('navigation.riskControlMatrix'),
-        icon: 'i-lucide-grid',
-        to: '/risk-profile/risk-control-matrix'
-      }
     ]
   },
 
@@ -407,7 +408,7 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
           },
           {
             label: t('navigation.kpiForecast'),
-            icon: 'i-lucide-trending-up',
+            icon: 'i-lucide-chart-line',
             to: '/analytics/ai/kpi-forecast'
           },
         ]
@@ -472,6 +473,11 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
         label: t('navigation.department'),
         icon: 'i-lucide-building-2',
         to: '/master/department'
+      },
+      {
+        label: t('navigation.jobRole'),
+        icon: 'i-lucide-briefcase',
+        to: '/master/job-role'
       },
       {
         label: t('navigation.location'),
@@ -893,6 +899,7 @@ const userDropdownItems = computed(() => [
             />
           </div>
           <UMain class="w-full max-w-7xl mx-auto min-w-0">
+            <MappedSourceDataBanner />
             <slot />
           </UMain>
         </div>

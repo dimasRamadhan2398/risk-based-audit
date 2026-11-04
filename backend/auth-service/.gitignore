@@ -48,8 +48,8 @@ temp/
 
 # Docker
 
-# Compiled binary
-auth
+# Compiled binary (module root only; a bare `auth` also ignored every auth/ source dir)
+/auth
 
 # Migration files (if you want to version control them, remove this line)
 # migrations/*.sql

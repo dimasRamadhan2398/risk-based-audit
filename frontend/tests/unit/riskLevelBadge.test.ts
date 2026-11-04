@@ -151,7 +151,7 @@ describe('Features render risk level and effectiveness badges through the shared
     ['components/audit-fieldwork/AuditFieldworkTestControlsModal.vue', ['getControlEffectivenessColorClass(store.testControlForm.testResult)']],
     ['components/working-paper/WorkingPaperSampleTable.vue', ['getControlEffectivenessColorClass(']],
     ['pages/analytics/ai/anomaly-detection.vue', ['getRiskConfig(a.riskLevel).badgeClass']],
-    ['pages/analytics/ai/kpi-forecast.vue', ['getRiskConfig(dept.riskLevel).badgeClass', 'getRiskConfig(kpi.riskLevel).badgeClass']],
+    ['pages/analytics/ai/kpi-forecast.vue', ['getRiskConfig(kpi.riskLevel).badgeClass']],
     ['pages/analytics/ai/nlp.vue', ['getRiskConfig(doc.riskLevel).badgeClass']],
     ['pages/analytics/ai/risk-scoring.vue', ['getRiskConfig(row.actualRiskLevel).badgeClass', 'getRiskConfig(row.predictedRiskLevel).badgeClass']]
   ])('%s uses the shared colours', (rel, snippets) => {

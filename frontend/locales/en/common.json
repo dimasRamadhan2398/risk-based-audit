@@ -137,6 +137,7 @@
   },
   "common": {
     "clearSearch": "Clear search",
+    "systemFlagged": "System-flagged",
     "datePicker": {
       "clearDate": "Clear date",
       "openCalendar": "Open calendar",
@@ -168,6 +169,16 @@
         "Sat"
       ]
     },
+    "signatureBox": {
+      "notSigned": "Not signed yet",
+      "signHere": "Sign here",
+      "hint": "Draw with a mouse, finger, or stylus. The signature is recorded when you lift the pen.",
+      "name": "Signer name",
+      "namePlaceholder": "Full name",
+      "title": "Signer title",
+      "titlePlaceholder": "e.g. Head of SPI",
+      "timestamp": "Signed at"
+    },
     "signaturePad": {
       "draw": "Draw",
       "signed": "Signed",
@@ -176,7 +187,8 @@
       "drawHint": "Use a mouse, finger, or stylus to draw your signature.",
       "chooseImage": "Choose Image File (.png, .jpg)",
       "uploadHint": "Maximum 2 MB; a transparent image is recommended",
-      "previewAlt": "Signature Preview"
+      "previewAlt": "Signature Preview",
+      "fileTooLarge": "Image file is too large (maximum 2MB)."
     },
     "formField": {
       "required": "Field is required",
@@ -257,12 +269,12 @@
       "predictiveDescription": "Future KPI projections and detection of financial and operational anomalies.",
       "openAnalytics": "Open Deep Analytics Center",
       "kpiForecasting": "KPI Performance Forecasting",
-      "forecastPeriod": "Historical trends versus Q3 2026–Q1 2027 forecasts (95% confidence interval)",
+      "forecastPeriod": "Historical trend and forecast per KPI",
       "details": "Details",
-      "atRiskKpi": "At-Risk KPI Projections & Audit Recommendations",
+      "atRiskKpi": "At-Risk KPIs and Audit Actions",
       "projection": "Projection",
-      "predictionInterval": "Prediction interval ±4.8% MAPE",
-      "targetHorizon": "Target horizon: Q3 2026",
+      "predictionInterval": "Model accuracy: MAPE {mape}%",
+      "targetHorizon": "Forecast horizon: {range}",
       "transactionAnomalies": "Transaction Anomaly Detection",
       "transactionAnomaliesDescription": "Detect transaction outliers and unusual patterns using unsupervised machine learning",
       "criticalAnomalies": "Critical Anomaly Alerts Requiring Investigation",
@@ -551,6 +563,7 @@
         "title": "Important dates",
         "description": "Surat Tugas periods, planned fieldwork dates, PBC and test-of-controls due dates, and ATR due dates.",
         "scope": "Shows every published Surat Tugas until team scoping is available. Fieldwork dates are shown for the Surat Tugas loaded on this page.",
+        "notConnected": "Calendar is not connected yet.",
         "notLinked": "Your account is not linked to an employee record yet, so engagement dates cannot be filtered to you."
       },
       "notifications": {
@@ -738,7 +751,8 @@
       "permissions": "Permissions",
       "dataSources": "Data Sources",
       "emailService": "Email Service (Resend)",
-      "faq": "FAQ"
+      "faq": "FAQ",
+      "systemLogs": "System Logs"
     },
     "titles": {
       "profile": "My Profile",
@@ -748,7 +762,8 @@
       "permissions": "Permissions",
       "datasource": "Data Source Connections",
       "email": "Email Dispatcher (Resend API)",
-      "faq": "FAQ"
+      "faq": "FAQ",
+      "systemLogs": "System Logs"
     },
     "general": {
       "cardTitle": "General Settings",
@@ -802,7 +817,6 @@
       "username": "Username",
       "email": "Email",
       "emailHelp": "Email connected to your account.",
-      "emailPlaceholder": "Enter your email",
       "phone": "Phone Number",
       "phonePlaceholder": "Enter your phone number",
       "department": "Department",
@@ -834,8 +848,8 @@
     },
     "mfa": {
       "qrAlt": "MFA QR Code",
-      "generatingQr": "Generating QR code...",
-      "scanQr": "Scan QR code",
+      "generatingQr": "Generating QR Code...",
+      "scanQr": "Scan QR Code",
       "title": "Two-Factor Authentication (2FA / MFA)",
       "subtitle": "Enhance your account security using a TOTP authenticator application.",
       "activeProtected": "Active & Protected",
@@ -1176,6 +1190,90 @@
       "provisionSuccessDesc": "Domain {domain} registered with {count} DNS verification records.",
       "provisionFailedToast": "Provisioning Failed",
       "provisionFailedDesc": "Failed to provision domain."
+    },
+    "systemLogs": {
+      "title": "User activity log",
+      "subtitle": "Sign-ins, account changes and other user actions recorded by the system.",
+      "loading": "Loading activity log",
+      "systemActor": "System",
+      "updatedAt": "updated {time}",
+      "pause": "Pause live updates",
+      "resume": "Resume live updates",
+      "refresh": "Refresh",
+      "retry": "Try again",
+      "loadMore": "Load older events",
+      "endOfList": "No older events",
+      "errorTitle": "Could not load the activity log",
+      "forbiddenTitle": "You do not have access to the activity log",
+      "forbiddenDesc": "Viewing the activity log requires the View system logs permission. Ask an administrator if you need access.",
+      "emptyTitle": "No activity recorded yet",
+      "emptyDesc": "Events will appear here as soon as users sign in or change data.",
+      "emptyFilteredTitle": "No events match the filters",
+      "emptyFilteredDesc": "Try a wider date range or clear the filters.",
+      "live": {
+        "live": "Live",
+        "paused": "Paused",
+        "hidden": "Paused while tab is hidden",
+        "retrying": "Reconnecting"
+      },
+      "columns": {
+        "time": "Time",
+        "user": "User",
+        "action": "Action",
+        "entity": "Entity",
+        "result": "Result",
+        "ip": "IP address",
+        "summary": "Summary"
+      },
+      "result": {
+        "success": "Success",
+        "failure": "Failed"
+      },
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Username or summary",
+        "action": "Action",
+        "allActions": "All actions",
+        "result": "Result",
+        "allResults": "All results",
+        "from": "From",
+        "to": "To",
+        "clear": "Clear filters",
+        "invalidRange": "The start date must be on or before the end date."
+      },
+      "detail": {
+        "time": "Time",
+        "action": "Action code",
+        "entity": "Entity",
+        "userId": "User ID",
+        "ip": "IP address",
+        "userAgent": "User agent",
+        "summary": "Summary",
+        "details": "Details",
+        "noDetails": "No additional details"
+      },
+      "actions": {
+        "user_login": "Signed in",
+        "user_logout": "Signed out",
+        "user_login_failed": "Sign-in failed",
+        "user_password_changed": "Password changed",
+        "user_password_reset_by_admin": "Password reset by admin",
+        "mfa_enabled": "MFA enabled",
+        "mfa_disabled": "MFA disabled",
+        "mfa_verified": "MFA verified",
+        "mfa_failed": "MFA verification failed",
+        "role_created": "Role created",
+        "role_deleted": "Role deleted",
+        "role_permissions_assigned": "Permissions added to role",
+        "role_permissions_revoked": "Permissions removed from role",
+        "role_assigned": "Role assigned to user",
+        "role_revoked": "Role removed from user",
+        "device_trusted_added": "Trusted device added",
+        "device_trusted_removed": "Trusted device removed",
+        "permission_denied": "Access denied",
+        "security_step_up": "Identity re-confirmed",
+        "system_logs_viewed": "Activity log viewed"
+      }
     }
   },
   "strategicPlan": {
@@ -1270,6 +1368,12 @@
       "deleteConfirm": "Are you sure you want to delete this Strategic Plan?"
     },
     "form": {
+      "stepper": {
+        "objective": "Strategic Objective & KPI",
+        "targets": "Targets & Realization",
+        "next": "Next Step",
+        "previous": "Previous"
+      },
       "title": "Add Strategic Objective Information",
       "code": "Objective ID",
       "codePlaceholder": "Ex: SO-IA01",
@@ -1279,6 +1383,16 @@
       "kpiPlaceholder": "Ex: Revenue Operational Cost",
       "unit": "Unit",
       "selectUnit": "Select Unit",
+      "units": {
+        "percentage": "Percentage (%)",
+        "rupiah": "Rupiah (Rp)",
+        "usd": "US Dollar ($)",
+        "gbp": "British Pound (£)",
+        "quantity": "Quantity",
+        "score": "Score",
+        "hour": "Hour",
+        "day": "Day"
+      },
       "hibHig": "HIB/HIG",
       "higLabel": "HIG (High is Good)",
       "hibLabel": "HIB (High is Bad)",
@@ -1303,7 +1417,7 @@
       "cancel": "Cancel",
       "submit": "Submit",
       "update": "Update",
-      "category": "Category",
+      "category": "Strategic Objective Category",
       "selectCategory": "Select a category (optional)"
     },
     "viewModal": {
@@ -1477,6 +1591,7 @@
       "scoresSaved": "Risk scores saved and priority calculated successfully.",
       "scoresSaveFailed": "Failed to save risk scores.",
       "weightSumMustBe100": "Total weight must be exactly 100%. Current sum: {total}%",
+      "zeroWeightFactorsRemoved": "Removed factors with 0% weight: {names}",
       "weightsUpdated": "Corporate risk factors weights successfully updated.",
       "weightsUpdateFailed": "Failed to save corporate risk factor weights.",
       "factorCreated": "Standard risk factor created successfully.",
@@ -1818,17 +1933,33 @@
       "columns": {
         "name": "Control Name",
         "type": "Control Type",
+        "unitDivision": "Unit Division",
         "result": "Test Result",
         "finding": "Finding",
         "mitigation": "Mitigation Plan",
+        "pic": "PIC",
         "dueDate": "Target Due Date",
         "actions": "Actions"
-      }
+      },
+      "stepper": {
+        "controlInfo": "Control Information",
+        "testProcedure": "Test Procedure",
+        "findingRecommendation": "Finding and Recommendation",
+        "mitigationPlan": "Mitigation Plan"
+      },
+      "nameRequired": "Control name is required",
+      "typeRequired": "Control type is required",
+      "descriptionRequired": "Control description is required",
+      "stepsRequired": "Test steps are required",
+      "resultRequired": "Test result is required"
+    },
+    "messages": {
+      "selectAssignmentLetter": "Please select an Assignment Letter first!"
     }
   },
   "riskProfile": {
     "title": "Corporate Risk Profile",
-    "subtitle": "Enterprise Risk Profile for Fiscal Year {year} - {period}",
+    "subtitle": "Enterprise Risk Profile Fiscal Year {year} for {period}",
     "total": "Total",
     "priority": "Priority",
     "addRisk": "Add Risk",
@@ -1840,6 +1971,17 @@
     "impactLevel": "Impact Level",
     "allBranches": "All Branches",
     "unassignedBranch": "Unassigned",
+    "filterCategory": "Filter by Category",
+    "allCategories": "All Categories",
+    "categories": {
+      "financial": "Financial",
+      "technology": "Technology",
+      "compliance": "Compliance",
+      "governance": "Governance",
+      "operations": "Operations",
+      "humanResources": "Human Resources",
+      "strategic": "Strategic"
+    },
     "selectBranch": "Select a branch",
     "branchesLoadError": "Could not load branches from the Location master data.",
     "noBranches": "No active branches in the Location master data yet.",
@@ -1850,8 +1992,8 @@
       "desc": "Define a new risk event and its initial quarterly assessments.",
       "name": "Risk Name",
       "namePlaceholder": "Enter risk name",
-      "category": "Category",
-      "branch": "Branch / Division",
+      "category": "Risk Category",
+      "branch": "Branch",
       "quarterlyTitle": "Quarterly Residual Score {year}",
       "impact": "Impact",
       "likelihood": "Likelihood",
@@ -1874,6 +2016,9 @@
       "priority": "Priority ({count})",
       "all": "All Risks ({count})",
       "progress": "Quarterly Progress"
+    },
+    "pagination": {
+      "showing": "Showing {from} - {to} of {total} risks"
     },
     "emptyTitle": "No risk data available for year {year}",
     "emptyDesc": "Risk profile data for future years must be inputted by the user.",
@@ -2204,7 +2349,7 @@
     "statusActive": "4 Trained Models Active & Synchronized",
     "statusOffline": "Offline - Displaying Saved Real Data",
     "statusDisconnected": "AI Backend Disconnected",
-    "warningTitleCached": "Warning: AI Backend Service Disconnected (Showing Last Real Data)",
+    "warningTitleCached": "Server Error, showing previous real data",
     "warningTitleDisconnected": "Warning: AI Analytics Feature Not Running / Not Connected to Backend",
     "warningDescCached": "AI Analytics is currently displaying the last real data successfully synced at {time} before the connection was lost. Please ensure the Python AI Service (Port 8000) or Go Analytics (Port 8084) is running on the backend.",
     "warningDescDisconnected": "AI Analytics is currently not connected to the backend. Please ensure the Python AI Service (Port 8000) or Go Analytics (Port 8084) is running on the backend.",
@@ -2230,7 +2375,7 @@
     },
     "xgboost": {
       "alertTitle": "Department & Entity Risk Scoring ML Model",
-      "alertDesc": "The Machine Learning model dynamically predicts department/branch Impact and Likelihood based on KPI achievement, past audit findings, and volatility.",
+      "alertDesc": "The Machine Learning model dynamically predicts branch Impact and Likelihood based on KPI achievement, past audit findings, and volatility.",
       "chartPredictedVsActual": "Predicted vs Actual Risk Score",
       "chartFeatureImportance": "Feature Importance (Top Predictors)",
       "tableTitle": "Entity Risk Score Predictions",
@@ -2270,14 +2415,14 @@
       "colRiskLevel": "Risk Level",
       "colDate": "Date",
       "anomalyTypes": {
-        "fundingXAxis": "Deposit / Savings Nominal (IDR Million)",
-        "fundingUnit": "IDR Million",
-        "lendingXAxis": "Credit / Loan Limit (IDR Million)",
-        "lendingUnit": "IDR Million",
-        "treasuryXAxis": "Treasury / FX Deal Volume (IDR Million)",
-        "treasuryUnit": "IDR Million",
-        "paymentXAxis": "Payment System Transaction Value (IDR Million)",
-        "paymentUnit": "IDR Million",
+        "fundingXAxis": "Savings account transaction amount (deposit/withdrawal)",
+        "fundingUnit": "IDR",
+        "lendingXAxis": "Credit / loan facility amount",
+        "lendingUnit": "IDR",
+        "treasuryXAxis": "Treasury / FX deal volume",
+        "treasuryUnit": "IDR",
+        "paymentXAxis": "Payment system transaction amount",
+        "paymentUnit": "IDR",
         "kycXAxis": "Customer Historical Profile Deviation (%)",
         "kycUnit": "%",
         "itControlXAxis": "Failed Login Attempts / Unauthorized Hits",
@@ -2288,17 +2433,19 @@
         "accessPatternUnit": "Hour",
         "dataAccessXAxis": "Data Export Volume (MB)",
         "dataAccessUnit": "MB",
-        "inventoryXAxis": "Stock Adjustment Value (IDR Million)",
-        "inventoryUnit": "IDR Million",
-        "expenseReportXAxis": "Expense Claim Amount (IDR Million)",
-        "expenseReportUnit": "IDR Million",
-        "travelExpenseXAxis": "Travel Cost Amount (IDR Million)",
-        "travelExpenseUnit": "IDR Million",
-        "procurementXAxis": "Procurement / Vendor Value (IDR Million)",
-        "procurementUnit": "IDR Million",
-        "transactionXAxis": "Transaction Amount (IDR Million)",
-        "transactionUnit": "IDR Million"
-      }
+        "inventoryXAxis": "Stock adjustment value",
+        "inventoryUnit": "IDR",
+        "expenseReportXAxis": "Expense claim amount",
+        "expenseReportUnit": "IDR",
+        "travelExpenseXAxis": "Travel cost amount",
+        "travelExpenseUnit": "IDR",
+        "procurementXAxis": "Procurement / vendor value",
+        "procurementUnit": "IDR",
+        "transactionXAxis": "Transaction amount",
+        "transactionUnit": "IDR"
+      },
+      "axisHour": "Transaction hour (0–23)",
+      "hourValue": "at {hour}:00"
     },
     "nlp": {
       "alertTitle": "IndoBERT NLP Document Analysis Model",
@@ -2317,8 +2464,8 @@
       "alertTitle": "Time-Series KPI PyTorch LSTM Forecasting Model",
       "alertDesc": "The Deep Learning model (PyTorch LSTM) predicts future KPI performance trends based on historical time series for early audit planning warnings.",
       "chartTitle": "KPI Performance Forecast",
-      "chartConfidenceBadge": "Shaded area = confidence interval",
-      "atRiskTitle": "At-Risk Departments",
+      "chartConfidenceBadge": "Shaded area = model error range (±MAPE)",
+      "atRiskTitle": "At-Risk KPIs",
       "projectedQ3": "% projected Q3",
       "tableTitle": "KPI Forecast Summary",
       "colCode": "Code",
@@ -2331,11 +2478,43 @@
       "colTrend": "Trend",
       "colRiskLevel": "Risk Level",
       "colRecommendedAction": "Recommended Action",
-      "labelActualKPI": "Actual KPI (%)",
-      "labelForecast": "PyTorch LSTM Forecast",
+      "labelActualKPI": "Actual value",
+      "labelForecast": "Model forecast (LSTM)",
       "labelUpperBound": "Upper Bound",
       "labelLowerBound": "Lower Bound",
-      "axisKPIScore": "KPI Score (%)"
+      "axisKPIScore": "KPI Score (%)",
+      "labelBand": "Model error range (±MAPE)",
+      "selectKpi": "Select KPI",
+      "dataAsOf": "Actual data up to {period}",
+      "horizon": "Forecast horizon: {range}",
+      "accuracy": "Model accuracy: MAPE {mape}%",
+      "staleWarning": "The forecast horizon has already passed. Refresh the KPI data to get a current forecast.",
+      "noAtRisk": "No KPI is projected to deteriorate over this horizon.",
+      "projectedBy": "Projected {period}",
+      "colAuditAction": "Audit Action"
+    },
+    "kpiAudit": {
+      "axis": {
+        "percent": "{kpi} (%)",
+        "score": "{kpi} (score)",
+        "rupiah": "{kpi} (IDR)"
+      },
+      "kindHint": {
+        "nps": "Score from −100 to +100"
+      },
+      "actions": {
+        "nps": "Sample customer complaints from the last 3 months: logging, escalation and resolution within SLA; trace the main causes of detractor responses.",
+        "clv": "Analyse account closures by high-value customers; sample retention offers and special pricing against approval authority.",
+        "aov": "Test pricing and discount policy: sample transactions with discounts beyond the approver's authority.",
+        "cac": "Match campaign spend and agent commissions to new customers that are actually active; sample commission payments.",
+        "mrr": "Reconcile recurring revenue to active contracts; sample cancellations and billing waivers and their approvals.",
+        "conversion": "Sample applications rejected or stalled in the sales pipeline and test processing SLA compliance.",
+        "gpm": "Sample the largest cost transactions and pricing approvals; compare actual margin to budget per product.",
+        "retention": "Sample account closures: closure reason, prior complaints and documented retention follow-up.",
+        "roi": "Test feasibility studies and actual-vs-plan monitoring for the projects with the lowest ROI.",
+        "turnover": "Analyse exit interviews and compensation policy; test succession plan compliance for key positions.",
+        "generic": "Add this KPI to the next audit plan and test the controls over the processes that drive it."
+      }
     }
   },
   "annualAudit": {
@@ -2355,7 +2534,7 @@
       "revised": "Revised"
     },
     "approvalRole": {
-      "staff": "Audit Staff",
+      "staff": "Auditor",
       "manager": "Audit Manager",
       "chief": "Chief Audit Executive",
       "system": "System"
@@ -2419,7 +2598,7 @@
       "totalMandays": "Total mandays",
       "mandaysFormula": "= {auditors} person × {days} day",
       "supervisor": "Supervisor",
-      "supervisorPlaceholder": "Enter the supervisor's name...",
+      "supervisorPlaceholder": "Select a supervisor...",
       "supervisorOverloadWarning": "Warning: this supervisor is already supervising more than 6 activities!",
       "teamCapacity": "Team estimated capacity",
       "totalLoad": "Total load: {percent}% of annual capacity.",
@@ -2436,6 +2615,12 @@
       "uploadDescription": "You can upload multiple files (max. 2MB each)",
       "savePlan": "Save plan",
       "updatePlan": "Update plan",
+      "stepper": {
+        "header": "Plan Header",
+        "activities": "Activities",
+        "timelineNotes": "Timeline & Notes",
+        "attachments": "Attachment"
+      },
       "sectionPlanHeader": "1. Plan header",
       "planTitle": "PKAT title",
       "planTitlePlaceholder": "e.g. Annual Audit Plan 2026",
@@ -2501,13 +2686,13 @@
       "submitRevision": "Submit revision",
       "noRevisions": "No revisions yet.",
       "approvalStatus": "Approval status",
-      "staffNoteLabel": "Audit Staff note / reason",
+      "staffNoteLabel": "Auditor note / reason",
       "managerNoteLabel": "Audit Manager note / reason",
       "chiefNoteLabel": "Chief Audit Executive note / reason",
       "approvalNotePlaceholder": "Write your note or reason to approve",
       "approve": "Approve",
       "reject": "Reject",
-      "waitingStaff": "Waiting for Audit Staff approval...",
+      "waitingStaff": "Waiting for Auditor approval...",
       "waitingManager": "Waiting for Audit Manager approval...",
       "waitingChief": "Waiting for Chief Audit Executive approval...",
       "approvedAlert": "This document has been approved.",
@@ -2554,7 +2739,7 @@
     "filters": {
       "searchPlaceholder": "Search letter number, title, work unit, or leader...",
       "status": "All Statuses",
-          "workUnit": "All Work Units",
+      "workUnit": "All Work Units",
       "reset": "Reset"
     },
     "formExtra": {
@@ -2587,7 +2772,7 @@
     "stepper": {
       "auditInfo": "Audit Information",
       "unitTeam": "Work Unit & Team",
-      "purposeDistribution": "Purpose, Scope & CC",
+      "purposeDistribution": "Purpose & Scope",
       "next": "Next Step",
       "previous": "Previous"
     },
@@ -3076,6 +3261,7 @@
       },
       "guideline": {
         "loadFailed": "Failed to load Audit Guideline data.",
+        "openFailed": "Failed to open the guideline file.",
         "uploadFailed": "Failed to upload the document file.",
         "added": "Audit Guideline added successfully!",
         "addFailed": "Failed to add Audit Guideline.",
@@ -3086,6 +3272,7 @@
       },
       "sop": {
         "loadFailed": "Failed to load Technical Instruction / SOP data.",
+        "openFailed": "Failed to open the SOP file.",
         "uploadFailed": "Failed to upload the document file.",
         "added": "Technical Instruction / SOP added successfully!",
         "addFailed": "Failed to add Technical Instruction / SOP.",
@@ -3102,6 +3289,25 @@
     }
   },
   "executiveSummaryForm": {
+    "approval": {
+      "title": "Executive Summary Approval",
+      "description": "Sign Executive Summary {report} to approve it.",
+      "lockNotice": "Once approved, the summary is locked and its signature and approval record cannot be changed.",
+      "confirm": "Approve with signature",
+      "confirmDescription": "Approve this Executive Summary?",
+      "confirmBody": "Once approved, the document is locked and the signature cannot be changed.",
+      "incomplete": "Complete the signing place, date, signature, and signer name.",
+      "success": "Executive Summary approved and signed.",
+      "errors": {
+        "saveFirst": "Save the Executive Summary to the server before approving it.",
+        "signatureRequired": "Approval requires a signature. Use the Approve button.",
+        "failed": "Failed to approve the Executive Summary."
+      }
+    },
+    "stepper": {
+      "previous": "Previous",
+      "next": "Next"
+    },
     "extra": {
       "syncWarning": "Synchronization Warning",
       "syncWarningDescription": "The total findings in Section II do not match the Master Matrix. Please review the data.",
@@ -3117,7 +3323,7 @@
       "lowRisk": "Low Risk",
       "lowRiskHint": "Automatically calculated from Low-to-Moderate and Low risk levels",
       "followUpSection": "Section III: Follow-up Status",
-      "topFindingsSection": "Section IV: Top 5 Significant Findings",
+      "topFindingsSection": "Section IV: Top Significant Findings",
       "analysisSection": "Sections V and VII: Recurring Findings Analysis and Conclusion",
       "recurringThemes": "Section V: Recurring Themes (Root Causes and Proposed Policy Revisions)",
       "managementConclusion": "Section VII: Management Conclusion and Recommendations",
@@ -3173,7 +3379,12 @@
         "Oktober": "October",
         "November": "November",
         "Desember": "December"
-      }
+      },
+      "attachmentTitle": "Attach Follow-up Evidence",
+      "attachmentLabel": "Attachment file name",
+      "attachmentPlaceholder": "e.g. Equipment Handover Minutes.pdf",
+      "attachmentConfirm": "Attach",
+      "attachmentCancel": "Cancel"
     },
     "navTitle": "Report Sections",
     "lock": {
@@ -3221,17 +3432,20 @@
       "autoCalculated": "Calculated automatically",
       "unitDivision": "Unit Division",
       "findingTitle": "Finding Title",
-      "riskValue": "Risk Rating",
+      "riskValue": "Significance Level",
       "followUpStatus": "Follow-up Status",
       "proposedAction": "Proposed Action",
       "actions": "Actions"
     },
     "topFindings": {
-      "title": "Top 5 Significant Findings",
+      "title": "Top Significant Findings",
       "description": "Critical findings that require escalation or action from the Board of Directors.",
       "add": "Add Finding",
       "empty": "No top significant findings added yet.",
-      "emptyAction": "Click here to add one."
+      "emptyAction": "Click here to add one.",
+      "cardTitle": "Finding {number}",
+      "untitled": "Untitled finding",
+      "remove": "Remove finding"
     },
     "sync": {
       "findings": "Sync Findings from LHA",
@@ -3264,7 +3478,7 @@
     "placeholders": {
       "division": "Division",
       "findingTitle": "Main finding title...",
-      "risk": "Risk",
+      "risk": "Significance Level",
       "proposedAction": "e.g. Escalation to Board of Directors",
       "year": "Select Year",
       "quarter": "Select Quarter"
@@ -3373,7 +3587,7 @@
       "narrative": "Narrative Summary",
       "stats": "Compilation Statistics",
       "followUp": "Follow-up Status",
-      "topFindings": "Top 5 Significant",
+      "topFindings": "Top Significant",
       "analysis": "Root Causes & Conclusion",
       "matrix": "LHA Compilation Matrix",
       "notes": "Noted"
@@ -3689,7 +3903,8 @@
         "delete": "Delete File"
       },
       "deleteConfirm": "Are you sure you want to delete this document?",
-      "fileSizeLimit": "File size exceeds the 10MB limit."
+      "fileSizeLimit": "File size exceeds the 10MB limit.",
+      "deleteFailed": "Failed to delete file."
     },
     "riskForm": {
       "title": "Risk",
@@ -3728,7 +3943,16 @@
       "why3Validation": "Why 3 must be at most 100 characters and is required",
       "addRootCause": "Add Root Cause Analysis",
       "updateData": "Update Data",
-      "submit": "Submit"
+      "submit": "Submit",
+      "stepper": {
+        "conditionAndImpact": "Condition & Impact",
+        "rootCauseAnalysis": "Root Cause Analysis"
+      },
+      "conditionRequired": "Condition (Field Impact) is required",
+      "criteriaRequired": "Criteria (Related Rules/SOP) is required",
+      "impactRequired": "Impact (Risk Impact) is required",
+      "emptyRootCause": "No root cause analysis added yet",
+      "emptyRootCauseHint": "Click the button below to add a root cause analysis."
     },
     "planForm": {
       "title": "Recommendations & Responses",
@@ -3740,10 +3964,20 @@
       "actionDescription": "Action Description",
       "actionDescriptionPlaceholder": "Ex: Staff forgot to request Manager's signature",
       "pic": "PIC (Person In Charge)",
-      "picPlaceholder": "Search Employee Name Ex: Dimas - IT",
+      "picPlaceholder": "Select or search employee name...",
       "periodAction": "Planning Period",
       "updateData": "Update Data",
-      "submit": "Submit"
+      "submit": "Submit",
+      "editTitle": "Edit Recommendations & Responses",
+      "stepper": {
+        "recommendationAndResponse": "Recommendations & Responses",
+        "actionPlanDetails": "Action Plan Details"
+      },
+      "recommendationRequired": "Auditor Recommendation (Solution) is required",
+      "responseRequired": "Auditee Response (Management Response) is required",
+      "actionDescriptionRequired": "Action Description is required",
+      "picRequired": "PIC is required",
+      "periodActionRequired": "Planning Period is required"
     },
     "sampleTable": {
       "emptyState": "No data saved yet.",
@@ -3802,7 +4036,13 @@
       "positionPlaceholder": "Position",
       "addMember": "Add Member",
       "update": "Update Data",
-      "submit": "Submit"
+      "submit": "Submit",
+      "stepper": {
+        "purposeAndActivities": "Purpose & Activities",
+        "periodAndTeam": "Period & Team"
+      },
+      "periodRequired": "Audit period is required",
+      "locationRequired": "Location is required"
     },
     "sampleForm": {
       "title": "Samples",
@@ -3955,8 +4195,10 @@
         "newTitle": "New Consulting Assignment",
         "projectTitle": "Project Title",
         "projectPlaceholder": "Advisory on Policy Revisions",
-        "category": "Category",
+        "category": "Consulting Category",
         "requestorDepartment": "Requestor Department",
+        "requestorDepartmentRequired": "Requestor Department is required",
+        "requestorDepartmentPlaceholder": "Select or type requestor department...",
         "periodQuarter": "Period Quarter",
         "periodYear": "Period Year",
         "consultant": "Consultant / Lead Auditor",
@@ -3970,7 +4212,13 @@
         "cancel": "Cancel",
         "save": "Save Assignment",
         "titleValidation": "The title is required and must not exceed 100 characters",
-        "consultantValidation": "The consultant is required and must not exceed 50 characters"
+        "consultantValidation": "The consultant is required and must not exceed 50 characters",
+        "stepper": {
+          "assignmentInfo": "Project & Consultant Information",
+          "statusAndDocument": "Status & Supporting Documents"
+        },
+        "titleRequired": "Project Title is required",
+        "consultantRequired": "Consultant / Lead Auditor is required"
       },
       "detail": {
         "title": "Assignment Details",
@@ -3999,6 +4247,7 @@
       "deleteConfirm": "Are you sure you want to delete this consulting assignment?",
       "messages": {
         "fetchFailed": "Failed to load consulting services.",
+        "departmentFetchFailed": "Failed to load department data.",
         "required": "Title and Consultant Name are required.",
         "updateFileUnsupported": "File replacement while editing is not yet supported by the server.",
         "saveSuccess": "Consulting service saved successfully.",
@@ -4146,8 +4395,13 @@
   },
   "auditResultReport": {
     "viewLhaDetail": "View Audit Report Details",
+    "editLha": "Edit LHA",
     "editor": {
       "form": {
+        "stepper": {
+          "reportInfo": "Report Information",
+          "auditFindings": "Audit Findings"
+        },
         "assignmentLetter": "Assignment Letter:",
         "reportNumber": "LHA Number (Report Number)",
         "reportNumberExample": "e.g. LHA-026/SKAI/2026",
@@ -4180,6 +4434,8 @@
         "emptyInstruction": "to import findings from this assignment's Digital Working Papers (KKA) and Fieldwork Test Controls.",
         "cancel": "Cancel",
         "signReport": "Sign Report",
+        "saveDraft": "Save Draft Report",
+        "proceedToSignature": "Proceed to Signatures & Approval",
         "titleCreate": "Create New Audit Result Report",
         "titleEdit": "Edit Audit Result Report",
         "statusLocked": "Status is locked to Draft. Final LHA authorization belongs to the Manager/CAE.",
@@ -4255,7 +4511,17 @@
         "of": "of",
         "completed": "signatures completed",
         "back": "Back to Form",
-        "confirm": "Confirm and Save Report"
+        "confirm": "Confirm and Save Report",
+        "warningModal": {
+          "title": "Report Confirmation Warning",
+          "finalWarningTitle": "Final Status Notice",
+          "finalWarningMessage": "Once this report is confirmed and saved with Final status, the data cannot be edited or deleted.",
+          "draftNoticeTitle": "Draft Status Notice",
+          "draftNoticeMessage": "This report will be saved as Draft. You can still modify it later via the edit button in the table.",
+          "reminder": "Please ensure all findings, recommendations, and team signatures are accurate before proceeding.",
+          "confirmButton": "Yes, Save Report",
+          "cancelButton": "Cancel"
+        }
       }
     },
     "form": {
@@ -4512,7 +4778,7 @@
       "defaultResultPlaceholder": "Ex: 92%",
       "specialDetails": "4. Special Details",
       "conductedBy": "Conducted By",
-      "conductedByPlaceholder": "Ex: PT BAI",
+      "conductedByPlaceholder": "Select or enter company name (e.g. PT BAI)",
       "internalEvaluator": "Internal Evaluator",
       "evaluatorPlaceholder": "Team Name / Lead Auditor...",
       "supportingDocuments": "5. Supporting Documents",
@@ -4522,7 +4788,12 @@
       "updateReport": "Update Report",
       "saveReport": "Save Report",
       "validationErrorTitle": "Validation Error",
-      "validationErrorDesc": "Please fill in all required fields (marked in red)."
+      "validationErrorDesc": "Please fill in all required fields (marked in red).",
+      "stepper": {
+        "assessmentType": "Assessment Type",
+        "generalInfoAndStatus": "General Info & Status",
+        "detailsAndDocuments": "Details & Documents"
+      }
     },
     "detailModal": {
       "title": "Detail: {title}",
@@ -4965,6 +5236,7 @@
     "company": "Company",
     "employeeManagement": "Employee Management",
     "department": "Department",
+    "jobRole": "Job Role",
     "settings": "Settings",
     "generalSettings": "General Settings",
     "security2fa": "Security & 2FA",
@@ -5015,33 +5287,27 @@
       }
     },
     "guide": {
-      "title": "CSAT Metrics Guide & Explanation (Client Satisfaction Survey)",
-      "subtitle": "Detailed explanation of definitions, functions, parameters, and measurement targets for each statistical indicator above",
+      "title": "CSAT Metrics Guide",
       "csat": {
         "title": "1. Average CSAT Score",
-        "definition": "Average satisfaction score given by auditees across completed questionnaires on a 1 - 5 Likert scale",
-        "dimensionsTitle": "3 Evaluation Dimensions:",
-        "clarity": "Clarity of audit findings, criteria, and actionable recommendations.",
-        "professionalism": "Ethics, objectivity, integrity, and competence of the audit team.",
-        "timeliness": "Punctuality of audit report publication and fieldwork completion.",
-        "target": "Target Benchmark: Minimum 4.5 / 5.0 (\"Excellent\" Category)"
+        "definition": "Average auditee rating on a 1–5 scale.",
+        "clarity": "of findings and recommendations.",
+        "professionalism": "of the audit team.",
+        "timeliness": "of report delivery.",
+        "target": "Target ≥ 4.5 / 5.0"
       },
       "surveys": {
         "title": "2. Total Surveys Submitted",
-        "definition": "Total number of satisfaction questionnaires successfully completed and submitted by auditee representatives",
-        "flowTitle": "Validation Flow:",
-        "flow1": "Only audit reports with Final/Published status can be evaluated.",
-        "flow2": "Each published report is expected to receive 1 formal feedback from the auditee unit.",
-        "flow3": "Reports without survey submissions are marked as Pending Survey.",
-        "note": "Note: Updated in real-time with each new survey submission."
+        "definition": "Number of surveys completed by auditees.",
+        "flow1": "Only Final/Published reports can be rated.",
+        "flow2": "Reports without a survey show Pending Survey.",
+        "note": "Updates in real time"
       },
       "rate": {
         "title": "3. Response Rate",
-        "definition": "The ratio of evaluated audit reports to total published audit reports",
-        "formulaTitle": "Calculation Formula:",
-        "formula": "(Reports with Survey / Total Published Reports) × 100%",
-        "desc": "High response rate ensures statistical objectivity and representativeness.",
-        "target": "Performance Target: Minimum 80% auditee engagement."
+        "definition": "Share of published reports that have a survey.",
+        "formula": "(Reports with Survey / Published Reports) × 100%",
+        "target": "Target ≥ 80%"
       }
     },
     "table": {
@@ -5123,13 +5389,16 @@
     },
     "header": {
       "title": "Risk Control Matrix (RCM)",
-      "subtitle": "Internal control effectiveness measurement based on 5 COSO 2013 dimensions & integrated risk evaluation.",
+      "subtitle": "Internal control effectiveness measurement based on 5 COSO dimensions & integrated risk evaluation.",
       "addControlMatrix": "Add Control Matrix"
     },
     "filters": {
       "yearOption": "Year {year}",
-      "allDepartments": "All Departments / Branches",
-      "allBranches": "All Branches / Departments"
+      "allDepartments": "All Departments",
+      "allBranches": "All Branches",
+      "unassignedBranch": "Unassigned",
+      "branchLabel": "Branch",
+      "branchesUnavailable": "Branch master data could not be loaded."
     },
     "cards": {
       "effectiveness": {
@@ -5144,7 +5413,7 @@
         "syncNote": "Inherent & Residual Risk data is automatically integrated directly from Corporate Risk Profile."
       },
       "coso": {
-        "title": "COSO 2013 Average",
+        "title": "COSO Average",
         "totalControls": "Total Controls Evaluated:",
         "itemsCount": "{count} Items"
       }
@@ -5190,7 +5459,7 @@
     },
     "table": {
       "title": "Risk Control Matrix List",
-      "subtitle": "Evaluation results of 5 COSO 2013 Dimensions (Rating 1 - 5 represents 4% - 20% per dimension)",
+      "subtitle": "Evaluation results of 5 COSO Dimensions (Rating 1 - 5 represents 4% - 20% per dimension)",
       "searchPlaceholder": "Search risk / control...",
       "empty": {
         "label": "No Risk Control Matrix Data",
@@ -5221,23 +5490,33 @@
       "manageTitle": "Manage Risk Control Matrix",
       "editTitle": "Edit Risk Control Matrix",
       "addTitle": "Add New Risk Control Matrix",
+      "steps": {
+        "riskProfile": "Corporate Risk Profile",
+        "controlMitigation": "Mitigation Plan & Control",
+        "cosoEvaluation": "COSO 5 Dimensions Evaluation"
+      },
+      "previous": "Previous",
+      "next": "Next Step",
+      "stepNum": "Step {current} of {total}",
       "branchLabel": "Branch / Department",
       "branchPlaceholder": "Select Branch...",
       "riskSelectLabel": "Select Risk Name (Corporate Risk Profile)",
       "riskSelectPlaceholder": "Select Risk Name...",
       "riskCodeLabel": "Risk Code (Synchronized)",
-      "departmentLabel": "Department / Branch (Synchronized)",
+      "departmentLabel": "Branch (Synchronized)",
       "riskEventLabel": "Risk Event (Synchronized)",
       "controlSelectLabel": "Select Risk Control ID (Mitigation Plan & Control)",
       "controlSelectPlaceholder": "Select Risk Control ID...",
-      "controlCodeLabel": "Control Code (Risk Control ID)",
+      "noMitigationPlan": "No risk mitigation plan has been recorded for this risk yet. Add one in the Risk Mitigation Plan page to continue.",
+      "controlCodeLabel": "Control Code (Synchronized)",
       "controlCodePlaceholder": "e.g. CTL-FIN-001",
       "controlOwnerLabel": "PIC / Control Owner (Synchronized)",
       "controlOwnerPlaceholder": "Finance Manager",
-      "controlDescLabel": "Internal Control Activity Description",
+      "controlDescLabel": "Internal Control Activity Description (Synchronized)",
       "controlDescPlaceholder": "Explain operational control mechanism, review, verification, or systemic execution...",
-      "evaluationTitle": "Evaluation of 5 Internal Control Dimensions (COSO 2013)",
+      "evaluationTitle": "Evaluation of 5 Internal Control Dimensions (COSO)",
       "evaluationWeight": "Fixed Weight: 20% Each Dimension (Scale 1 - 5)",
+      "dimensionRequired": "Select a score for this dimension.",
       "totalWeightedScore": "Total Weighted Effectiveness Score:",
       "interpretation": "Interpretation:",
       "cancel": "Cancel",
@@ -5245,6 +5524,7 @@
     },
     "toasts": {
       "validationWarning": "Please select a risk and fill in the control description.",
+      "dimensionsRequired": "All 5 control dimensions must be scored before saving.",
       "updateSuccess": "Risk Control Matrix updated successfully",
       "addSuccess": "Risk Control Matrix added successfully",
       "deleteSuccess": "Risk Control Matrix deleted successfully"
@@ -5269,6 +5549,12 @@
     "codes": {
       "EMPLOYEE_NOT_FOUND": "The employee could not be found. It may have been deleted.",
       "EMPLOYEE_CODE_ALREADY_EXISTS": "This employee code is already in use. Please use a different code.",
+      "LOGIN_ACCOUNT_UNAVAILABLE": "The login account service is unavailable, so the employee was not saved. Please try again shortly.",
+      "LOGIN_ACCOUNT_NOT_CONFIGURED": "Login account creation is not configured for this organization. Please contact the platform administrator.",
+      "LOGIN_ACCOUNT_FORBIDDEN": "You are not allowed to create login accounts. The employee was not saved.",
+      "LOGIN_ACCOUNT_CONFLICT": "A login account with this username or email already exists and cannot be used. The employee was not saved.",
+      "LOGIN_ACCOUNT_LINKED_ELSEWHERE": "A login account with this email is already linked to another employee. The employee was not saved.",
+      "LOGIN_EMAIL_TOO_LONG": "The email is too long for a login account (maximum 50 characters). Please use a shorter email.",
       "EMPLOYEE_EMAIL_ALREADY_EXISTS": "This email is already registered to another employee.",
       "INVALID_EMPLOYEE_ID": "The employee reference is invalid. Please reload the page and try again.",
       "DEPARTMENT_NOT_FOUND": "The department could not be found. It may have been deleted.",
@@ -5362,6 +5648,7 @@
     "errors": {
       "fetchEmployees": "Failed to load employee data.",
       "fetchEmployee": "Failed to load employee details.",
+      "createLoginAccount": "Failed to create the login account.",
       "createEmployee": "Failed to create the employee.",
       "updateEmployee": "Failed to update the employee.",
       "deleteEmployee": "Failed to delete the employee.",
@@ -5370,6 +5657,10 @@
       "createDepartment": "Failed to create the department.",
       "updateDepartment": "Failed to update the department.",
       "deleteDepartment": "Failed to delete the department.",
+      "fetchJobRoles": "Failed to load job roles.",
+      "createJobRole": "Failed to create the job role.",
+      "updateJobRole": "Failed to update the job role.",
+      "deleteJobRole": "Failed to delete the job role. It may still be assigned to employees.",
       "fetchCompanies": "Failed to load company data.",
       "fetchCompany": "Failed to load company details.",
       "createCompany": "Failed to create the company.",
@@ -5390,6 +5681,9 @@
       "jobRoleRequired": "Job role is required.",
       "departmentCodeRequired": "Department code is required.",
       "departmentNameRequired": "Department name is required.",
+      "jobRoleCodeRequired": "Job role code is required.",
+      "jobRoleNameRequired": "Job role name is required.",
+      "jobPositionTypeRequired": "Position type is required.",
       "picRequired": "Person in charge (PIC) is required.",
       "companyCodeRequired": "Company code is required.",
       "companyNameRequired": "Company name is required.",
@@ -5435,6 +5729,26 @@
       "autoGenerated": "Auto-generated",
       "codeLoading": "Loading...",
       "codeUnavailable": "Unavailable",
+      "account": {
+        "createdToast": "Login account created for {username}.",
+        "linkedToast": "Linked to the existing login account {username}.",
+        "credentialsTitle": "Login account created",
+        "credentialsDescription": "A login account was created for {name}.",
+        "username": "Username",
+        "temporaryPassword": "Temporary password",
+        "copy": "Copy password",
+        "copied": "Copied",
+        "shownOnceNote": "This password is shown only once. Share it through a secure channel; the user must change it at first login.",
+        "done": "Done",
+        "createAccount": "Create login account",
+        "createAccountDescription": "This employee can not sign in yet. Create a login account to give them access, then share the temporary password with them.",
+        "accessRole": "Access role (optional)",
+        "accessRoleDefault": "Use the job role default",
+        "createdSuccess": "Login account created for {username}.",
+        "linkedInfo": "An existing login account with this email ({username}) was linked to this employee.",
+        "existsInfo": "This employee already has a login account ({username}). Nothing was changed.",
+        "continueReset": "Continue to password reset"
+      },
       "createdWithCode": "Employee created! Employee code: {code}",
       "level": "Level {level}",
       "active": "Active",
@@ -5448,6 +5762,11 @@
         "phone": "Phone",
         "level": "Level",
         "status": "Status"
+      },
+      "messages": {
+        "created": "Employee created successfully!",
+        "updated": "Employee updated successfully!",
+        "deleted": "Employee deleted successfully!"
       }
     },
     "location": {
@@ -5530,6 +5849,70 @@
         "description": "Description",
         "level": "Level",
         "status": "Status"
+      },
+      "messages": {
+        "created": "Department created successfully!",
+        "updated": "Department updated successfully!"
+      }
+    },
+    "jobRole": {
+      "title": "Job Role Management",
+      "subtitle": "Manage job roles and the default system access role granted to their holders",
+      "listTitle": "Job Role List",
+      "add": "Add Job Role",
+      "searchPlaceholder": "Search job role...",
+      "search": "Search",
+      "reset": "Reset",
+      "empty": "No job roles found.",
+      "active": "Active",
+      "inactive": "Inactive",
+      "noAccessRole": "None",
+      "deleteConfirm": "Are you sure you want to delete job role \"{name}\"? To keep it for existing employees, deactivate it instead.",
+      "created": "Job role created successfully.",
+      "updated": "Job role updated successfully.",
+      "deleted": "Job role deleted successfully.",
+      "createTitle": "Add New Job Role",
+      "editTitle": "Edit Job Role",
+      "sectionInfo": "Job Role Information",
+      "fieldCode": "Job Role Code *",
+      "fieldCodePlaceholder": "e.g. SM-001",
+      "fieldName": "Job Role Name *",
+      "fieldNamePlaceholder": "e.g. Senior Manager",
+      "fieldPositionType": "Position Type *",
+      "fieldPositionTypePlaceholder": "Select position type",
+      "fieldAccessRole": "Default Access Role",
+      "fieldAccessRolePlaceholder": "No default access role",
+      "fieldAccessRoleHelp": "The system access role assigned by default to employees who hold this job role. Leave empty to grant none.",
+      "suggestedHint": "Suggested for this position type: {role}",
+      "fieldDescription": "Description",
+      "fieldDescriptionPlaceholder": "Job role description (optional)",
+      "status": "Status",
+      "statusHelp": "Inactive job roles are kept for existing employees but should not be used for new ones.",
+      "columns": {
+        "code": "Code",
+        "name": "Job Role Name",
+        "positionType": "Position Type",
+        "accessRole": "Access Role",
+        "status": "Status"
+      },
+      "positionTypes": {
+        "STAFF": "Staff",
+        "SUPERVISOR": "Supervisor",
+        "MANAGER": "Manager",
+        "SENIOR_MANAGER": "Senior Manager",
+        "GENERAL_MANAGER": "General Manager",
+        "DIRECTOR": "Director",
+        "COMMISSIONER": "Commissioner",
+        "AUDIT_COMMITTEE": "Audit Committee",
+        "CHIEF_AUDIT_EXECUTIVE": "Chief Audit Executive",
+        "EXTERNAL_AUDITOR": "External Auditor"
+      },
+      "accessRoles": {
+        "EXECUTIVE": "Executive",
+        "AUDITOR": "Auditor",
+        "AUDITEE": "Auditee",
+        "DEPARTMENT_HEAD": "Department Head",
+        "VIEWER": "Viewer"
       }
     }
   },
@@ -6010,7 +6393,7 @@
       "number": "No",
       "plan": "Mitigation Plan & Controls",
       "timeline": "Timeline",
-      "unit": "Unit in Charge",
+      "unit": "Division in Charge",
       "pic": "Person in Charge",
       "supervisor": "Supervisor",
       "progress": "Monitoring Progress",
@@ -6043,7 +6426,7 @@
       "supervisorPlaceholder": "Select a supervisor...",
       "pic": "PIC",
       "picPlaceholder": "Select a PIC...",
-      "unit": "Unit in Charge",
+      "unit": "Division in Charge",
       "unitPlaceholder": "Select the responsible unit...",
       "startDate": "Start Date",
       "endDate": "End Date",

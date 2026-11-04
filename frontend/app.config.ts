@@ -5,7 +5,7 @@ export default defineAppConfig({
    * Icon system (Nuxt UI + Iconify)
    */
   icon: {
-    provider: "iconify",
+    // Provider/bundling is configured in nuxt.config.ts (local server bundle, no Iconify API).
     aliases: {
       // basic UI
       close: "heroicons:x-mark",

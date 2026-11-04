@@ -8,6 +8,7 @@ import { extractErrorMessage } from '~/utils/error'
 import { getRiskServiceBaseUrl } from '~/composables/useApiUrl'
 import { useFiscalYear } from '~/composables/useFiscalYear'
 import { useI18n } from '~/composables/useI18n'
+import { RCM_ALL_BRANCHES, resolveRcmItemLocationId, matchesBranchFilter, filterRcmItemsByBranch } from '~/utils/rcmBranch'
 
 export interface RCMItem {
   id: string
@@ -173,6 +174,8 @@ export const useRCMStore = defineStore('rcm', () => {
   const { selectedFiscalYear } = useFiscalYear()
   const selectedYear = selectedFiscalYear
   const selectedDepartment = ref('All Departments')
+  // RCM_ALL_BRANCHES, RCM_UNASSIGNED_BRANCH or a Location master ID. Independent of the CRP page's branch filter.
+  const selectedBranch = ref<string>(RCM_ALL_BRANCHES)
   const loading = ref(false)
   const errorMsg = ref('')
 
@@ -219,8 +222,14 @@ export const useRCMStore = defineStore('rcm', () => {
     return Math.round(des + op + cov + time + auto)
   }
 
-  // Filtered RCM list by selected year & department
-  const filteredRCMList = computed(() => {
+  // An item's branch = the Location master branch of its linked CRP risk (null = unassigned).
+  const findRawRisk = (riskId: string) =>
+    (riskProfileStore.rawRisks || []).find((r: any) => String(r.id) === riskId)
+  const itemLocationId = (item: RCMItem): string | null =>
+    resolveRcmItemLocationId(item, findRawRisk, risk => riskProfileStore.riskLocationId(risk))
+
+  // RCM list by selected year & department (before the branch filter)
+  const yearDepartmentRCMList = computed(() => {
     const currentYear = new Date().getFullYear()
     const isFutureYear = selectedYear.value > currentYear
 
@@ -232,12 +241,23 @@ export const useRCMStore = defineStore('rcm', () => {
     })
   })
 
+  /** True when an item of the selected year/department has no branch (drives the "Unassigned" option). */
+  const hasUnassignedBranchItems = computed(() =>
+    yearDepartmentRCMList.value.some(item => !itemLocationId(item))
+  )
+
+  // Filtered RCM list by selected year, department & branch
+  const filteredRCMList = computed(() =>
+    filterRcmItemsByBranch(yearDepartmentRCMList.value, selectedBranch.value, itemLocationId)
+  )
+
   // Synchronized Inherent Risk & Residual Risk from Corporate Risk Profile
   const synchronizedRiskCounts = computed(() => {
     const risks = riskProfileStore.risks || []
     
     // Filter risks by branch/department if selected
     const filteredRisks = risks.filter(r => {
+      if (!matchesBranchFilter(riskProfileStore.riskLocationId(r), selectedBranch.value)) return false
       if (selectedDepartment.value === 'All Departments') return true
       return r.branch === selectedDepartment.value || r.category === selectedDepartment.value
     })
@@ -458,6 +478,9 @@ export const useRCMStore = defineStore('rcm', () => {
     filteredRCMList,
     selectedYear,
     selectedDepartment,
+    selectedBranch,
+    hasUnassignedBranchItems,
+    itemLocationId,
     columns,
     totalInherentRisk,
     totalResidualRisk,

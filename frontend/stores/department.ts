@@ -9,6 +9,7 @@ import type {
 } from '~/types/master'
 import { getUserErrorMessage } from '~/utils/error'
 import { useI18n } from '~/composables/useI18n'
+import { useAppToast } from '~/composables/useAppToast'
 
 export const useDepartmentStore = defineStore('department', () => {
   // ============= State =============
@@ -269,13 +270,13 @@ export const useDepartmentStore = defineStore('department', () => {
       if (isEditing.value && editingId.value) {
         const success = await updateDepartment(editingId.value)
         if (success) {
-          alert('Department berhasil diperbarui!')
+          useAppToast().success(t('masterData.department.messages.updated'))
           closeModal()
         }
       } else {
         const success = await createDepartment()
         if (success) {
-          alert('Department berhasil dibuat!')
+          useAppToast().success(t('masterData.department.messages.created'))
           closeModal()
         }
       }
@@ -294,7 +295,7 @@ export const useDepartmentStore = defineStore('department', () => {
 
     const success = await deleteDepartment(department.id)
     if (success) {
-      alert('Department berhasil dihapus!')
+      useAppToast().success(t('masterData.department.deleted'))
     }
   }
 

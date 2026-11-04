@@ -9,6 +9,7 @@ import (
 )
 type JobRoleControllerInterface interface {
 	FindAll(ctx *gin.Context)
+	AccessRoles(ctx *gin.Context)
 	FindById(ctx *gin.Context)
 	Create(ctx *gin.Context)
 	Update(ctx *gin.Context)
@@ -23,9 +24,13 @@ func NewJobRoleController(roleSvc roleSvc.JobRoleServiceInterface, validator *va
 }
 func (d *JobRoleController) FindAll(ctx *gin.Context) {
 	baseService := base.NewBaseService().WithContext(ctx.Request.Context())
-	roles, err := d.roleSvc.FindAll(baseService)
+	roles, err := d.roleSvc.FindAll(baseService, ctx.Query("active") == "true")
 	if err != nil { d.RespondError(ctx, err); return }
 	response.OK(ctx, "Job roles fetched successfully", roles)
+}
+// AccessRoles lists the values default_access_role accepts (GET /job-roles/access-roles).
+func (d *JobRoleController) AccessRoles(ctx *gin.Context) {
+	response.OK(ctx, "Access roles fetched successfully", d.roleSvc.AccessRoles())
 }
 func (d *JobRoleController) FindById(ctx *gin.Context) {
 	baseService := base.NewBaseService().WithContext(ctx.Request.Context())

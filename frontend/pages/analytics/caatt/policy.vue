@@ -57,7 +57,7 @@ const paginatedRecords = computed<any[]>(() => {
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.common.violationCount') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ policyState.summary.totalViolations }}
               </h4>
             </div>
@@ -80,7 +80,7 @@ const paginatedRecords = computed<any[]>(() => {
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.policy.criticalLevel') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ policyState.summary.critical }}
               </h4>
             </div>
@@ -103,7 +103,7 @@ const paginatedRecords = computed<any[]>(() => {
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.policy.highLevel') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ policyState.summary.high }}
               </h4>
             </div>
@@ -126,7 +126,7 @@ const paginatedRecords = computed<any[]>(() => {
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.common.affectedBranches') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ policyState.summary.branchesAffected }}
               </h4>
             </div>
@@ -144,7 +144,7 @@ const paginatedRecords = computed<any[]>(() => {
       </div>
 
       <!-- Table -->
-      <UCard>
+      <UCard class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 divide-gray-200 dark:divide-gray-800">
         <template #header>
           <div class="flex items-center gap-2">
             <UIcon name="i-heroicons-table-cells" class="text-primary-500" />
@@ -155,7 +155,7 @@ const paginatedRecords = computed<any[]>(() => {
         <div class="hidden md:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
-              <tr class="border-b border-gray-200 dark:border-gray-700">
+              <tr class="bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
                 <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">ID</th>
                 <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.colDate') }}</th>
                 <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.policy.policyName') }}</th>
@@ -169,7 +169,7 @@ const paginatedRecords = computed<any[]>(() => {
             <tbody>
               <tr v-for="r in policyState.records" :key="r.id" class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
                 <td class="py-3 px-3 font-mono font-bold">{{ r.id }}</td>
-                <td class="py-3 px-3 text-gray-500 font-mono text-xs">{{ r.testDate }}</td>
+                <td class="py-3 px-3 text-gray-500 font-mono tabular-nums text-xs">{{ r.testDate }}</td>
                 <td class="py-3 px-3 font-bold text-primary-600 dark:text-primary-400">{{ r.ruleName }}</td>
                 <td class="py-3 px-3">{{ r.branchName }}</td>
                 <td class="py-3 px-3 font-semibold">{{ r.customerName }}</td>

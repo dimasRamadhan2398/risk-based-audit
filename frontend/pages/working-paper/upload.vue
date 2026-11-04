@@ -121,7 +121,7 @@
 
       <!-- Imported Files Table -->
       <div class="w-full">
-        <UCard :ui="{ body: 'p-4' }" class="shadow-sm border border-gray-200 dark:border-gray-800 h-full">
+        <UCard :ui="{ root: 'bg-transparent!', body: 'p-4 bg-transparent!' }" class="shadow-sm border border-gray-200 dark:border-gray-800 h-full">
           <template #header>
             <div class="flex justify-between items-center">
               <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -311,12 +311,12 @@ const handleImport = async () => {
 }
 
 const handleDelete = async (id: string) => {
-  if (confirm(t('workingPaper.upload.deleteConfirm'))) {
+  if (await useGlobalModalStore().confirmDelete({ description: t('workingPaper.upload.deleteConfirm') })) {
     try {
       await store.deleteImportedPaper(id)
       toast.showSuccess('Document deleted successfully!')
     } catch (err) {
-      toast.showError('Failed to delete file.')
+      toast.showError(t('workingPaper.upload.deleteFailed'))
     }
   }
 }

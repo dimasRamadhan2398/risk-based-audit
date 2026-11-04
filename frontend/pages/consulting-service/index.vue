@@ -38,7 +38,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('consultingService.dashboard.summary.total') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ store.services.length }}
             </h4>
           </div>
@@ -55,7 +55,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('consultingService.dashboard.summary.inProgress') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ store.services.filter(s => s.status === 'In Progress').length }}
             </h4>
           </div>
@@ -72,7 +72,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('consultingService.dashboard.summary.completed') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ store.services.filter(s => s.status === 'Completed').length }}
             </h4>
           </div>
@@ -89,7 +89,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('consultingService.dashboard.summary.planned') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ store.services.filter(s => s.status === 'Planned').length }}
             </h4>
           </div>
@@ -126,6 +126,7 @@
           :columns="columns"
           :items-per-page="itemsPerPage"
           :show-pagination="true"
+          :ui="frozenTableUi"
           class="w-full"
         >
           <!-- Status Cell -->
@@ -133,6 +134,11 @@
             <UBadge :color="store.getStatusColor((row.original as any).status)" variant="subtle" size="md">
               {{ getStatusLabel((row.original as any).status) }}
             </UBadge>
+          </template>
+
+          <!-- Requestor Department Cell -->
+          <template #requestorDept-cell="{ row }">
+            {{ store.formatDepartmentName((row.original as any).requestorDept) }}
           </template>
 
           <template #category-cell="{ row }">
@@ -238,7 +244,7 @@
             <div class="flex flex-wrap items-center justify-between gap-2 text-xs pt-2 border-t border-gray-100 dark:border-gray-800/80 text-slate-600 dark:text-slate-400">
               <div class="flex items-center gap-1.5 min-w-0">
                 <UIcon name="i-lucide-building-2" class="size-3.5 text-gray-400 shrink-0" />
-                <span class="truncate font-medium text-gray-700 dark:text-gray-300">{{ service.requestorDept }}</span>
+                <span class="truncate font-medium text-gray-700 dark:text-gray-300">{{ store.formatDepartmentName(service.requestorDept) || service.requestorDept }}</span>
               </div>
               <div class="flex items-center gap-1.5 shrink-0">
                 <UIcon name="i-lucide-user" class="size-3.5 text-gray-400 shrink-0" />
@@ -317,114 +323,278 @@
 
     <!-- Form Modal -->
     <UModal
-      v-model:open="store.isFormOpen"
+      :open="store.isFormOpen"
       :ui="{
-        content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
-        header: 'border-b border-gray-100 dark:border-gray-800 p-4 sm:p-5 text-gray-900 dark:text-white font-bold shrink-0',
-        body: 'p-4 sm:p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
-        footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
+        content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[92vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
         overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
       }"
+      @update:open="(open: boolean) => { if (!open) store.closeForm() }"
     >
       <template #content>
-        <UCard
-          class="w-full shadow-2xl flex flex-col max-h-[90vh]"
-          :ui="{ body: 'overflow-y-auto flex-1 p-4 sm:p-6' }"
-        >
-          <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-bold text-gray-900 dark:text-white">
-                {{ store.isEditing ? t('consultingService.dashboard.form.editTitle') : t('consultingService.dashboard.form.newTitle') }}
-              </h3>
-              <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" @click="store.closeForm" />
-            </div>
-          </template>
-
-          <UForm @submit.prevent="store.saveService" class="space-y-4">
-            <UFormField :label="t('consultingService.dashboard.form.projectTitle')" required>
-              <UInput
-                v-model="store.newService.title"
-                :placeholder="t('consultingService.dashboard.form.projectPlaceholder')"
-                class="w-full"
-                required
-                maxlength="100"
-                @invalid="($event.target as any)?.setCustomValidity(t('consultingService.dashboard.form.titleValidation'))"
-                @input="($event.target as any)?.setCustomValidity('')"
-              />
-              <div class="text-xs text-gray-500 mt-1 text-right">
-                {{ store.newService.title ? store.newService.title.length : 0 }}/100
+        <div class="relative flex max-h-[92vh] flex-col transition-colors duration-300">
+          <!-- Header -->
+          <div class="flex items-center justify-between border-b border-[var(--border-main)] bg-[var(--bg-surface)] p-4 sm:p-5">
+            <div class="flex items-center gap-3">
+              <div class="p-2 rounded-lg bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400">
+                <UIcon
+                  name="i-lucide-briefcase"
+                  class="size-6"
+                />
               </div>
-            </UFormField>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <UFormField :label="t('consultingService.dashboard.form.category')">
-                <USelect v-model="store.newService.category" :items="categoryOptions" value-key="value" class="w-full" />
-              </UFormField>
-
-              <UFormField :label="t('consultingService.dashboard.form.requestorDepartment')">
-                <USelect v-model="store.newService.requestorDept" :items="store.departments" class="w-full" />
-              </UFormField>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <UFormField :label="t('consultingService.dashboard.form.periodQuarter')">
-                <USelect v-model="store.newService.periodQuarter" :items="store.quarters" class="w-full" />
-              </UFormField>
-
-              <UFormField :label="t('consultingService.dashboard.form.periodYear')">
-                <USelect v-model="store.newService.periodYear" :items="store.years" class="w-full" />
-              </UFormField>
-
-              <UFormField :label="t('consultingService.dashboard.form.consultant')" required>
-                <UInput
-                  v-model="store.newService.consultantName"
-                  :placeholder="t('consultingService.dashboard.form.consultantPlaceholder')"
-                  class="w-full"
-                  required
-                  maxlength="50"
-                  @invalid="($event.target as any)?.setCustomValidity(t('consultingService.dashboard.form.consultantValidation'))"
-                  @input="($event.target as any)?.setCustomValidity('')"
-                />
-                <div class="text-xs text-gray-500 mt-1 text-right">
-                  {{ store.newService.consultantName ? store.newService.consultantName.length : 0 }}/50
-                </div>
-              </UFormField>
-            </div>
-
-            <UFormField :label="t('consultingService.dashboard.form.status')">
-              <USelect v-model="store.newService.status" :items="statusOptions" value-key="value" class="w-full" />
-            </UFormField>
-
-            <UFormField :label="t('consultingService.dashboard.form.notes')">
-              <UTextarea v-model="store.newService.notes" :placeholder="t('consultingService.dashboard.form.notesPlaceholder')" class="w-full" />
-            </UFormField>
-
-            <!-- File Upload -->
-            <UFormField :label="t('consultingService.dashboard.form.upload')">
-              <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary-500 transition cursor-pointer relative">
-                <input
-                  type="file"
-                  class="absolute inset-0 opacity-0 cursor-pointer"
-                  @change="(e: any) => store.handleFileUpload(e.target.files)"
-                />
-                <UIcon name="i-lucide-upload-cloud" class="w-10 h-10 text-gray-400 mx-auto mb-2" />
-                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {{ store.newService.attachment ? store.newService.attachment.name : t('consultingService.dashboard.form.uploadPrompt') }}
+              <div>
+                <h3 class="text-lg sm:text-xl font-bold text-[var(--text-main)]">
+                  {{ store.isEditing ? t('consultingService.dashboard.form.editTitle') : t('consultingService.dashboard.form.newTitle') }}
+                </h3>
+                <p class="mt-0.5 text-xs text-[var(--text-muted)]">
+                  {{ steps[currentStep]?.label }} ({{ t('auditActivityPlan.form.stepNum', { current: currentStep + 1, total: steps.length }) }})
                 </p>
-                <p class="text-md text-gray-500 mt-1">{{ t('consultingService.dashboard.form.uploadHint') }}</p>
               </div>
-            </UFormField>
+            </div>
+            <UButton
+              color="neutral"
+              variant="ghost"
+              icon="i-heroicons-x-mark-20-solid"
+              class="-my-1"
+              :aria-label="t('common.close')"
+              @click="store.closeForm"
+            />
+          </div>
 
-            <div v-if="store.errorMsg" class="text-red-500 text-sm font-medium">
-              {{ store.errorMsg }}
+          <!-- Stepper -->
+          <div class="w-full overflow-x-auto border-b border-[var(--border-main)] bg-[var(--bg-surface)] px-4 py-3 sm:px-6 sm:py-4 scrollbar-thin">
+            <div class="flex min-w-max items-center gap-3 px-1 sm:gap-4">
+              <template
+                v-for="(step, idx) in steps"
+                :key="step.key"
+              >
+                <div
+                  class="group flex shrink-0 cursor-pointer select-none items-center gap-2 sm:gap-2.5"
+                  data-testid="form-step"
+                  @click="goToStep(idx)"
+                >
+                  <div
+                    class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all duration-300 sm:h-8 sm:w-8"
+                    :class="currentStep === idx
+                      ? 'bg-primary text-white shadow-md ring-4 ring-primary/20 scale-105'
+                      : currentStep > idx
+                        ? 'bg-secondary text-white shadow-sm'
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-400 group-hover:bg-gray-200 dark:group-hover:bg-gray-700'"
+                  >
+                    <UIcon
+                      v-if="currentStep > idx"
+                      name="i-heroicons-check"
+                      class="h-3.5 w-3.5 stroke-[3]"
+                    />
+                    <span v-else>{{ idx + 1 }}</span>
+                  </div>
+                  <span
+                    class="whitespace-nowrap text-xs font-semibold transition-colors"
+                    :class="currentStep === idx
+                      ? 'text-primary font-bold'
+                      : currentStep > idx
+                        ? 'text-secondary font-semibold'
+                        : 'text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300'"
+                  >
+                    {{ step.label }}
+                  </span>
+                </div>
+                <div
+                  v-if="idx < steps.length - 1"
+                  class="h-0.5 w-8 shrink-0 rounded transition-all duration-300 sm:w-12"
+                  :class="currentStep > idx ? 'bg-secondary' : 'bg-gray-200 dark:bg-gray-800'"
+                />
+              </template>
+            </div>
+          </div>
+
+          <!-- Body -->
+          <div
+            ref="formBodyRef"
+            class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6"
+          >
+            <!-- Validation / Blocking Alert -->
+            <UAlert
+              v-if="formErrorMessage || store.errorMsg"
+              color="error"
+              variant="subtle"
+              icon="i-heroicons-exclamation-triangle"
+              :title="t('common.error')"
+              :description="formErrorMessage || store.errorMsg"
+              close
+              class="shadow-sm"
+              @update:open="(open: boolean) => { if (!open) { formErrorMessage = ''; store.errorMsg = '' } }"
+            />
+
+            <!-- Step 1: Project Information (Project Title sampai Consultant / Lead Auditor) -->
+            <div v-show="currentStep === 0" class="space-y-5">
+              <UCard
+                :ui="{ body: 'p-4 sm:p-6 space-y-5' }"
+                class="border border-[var(--border-main)]"
+              >
+                <template #header>
+                  <div class="flex items-center gap-2">
+                    <UIcon
+                      name="i-lucide-file-text"
+                      class="h-5 w-5 text-primary-500"
+                    />
+                    <h3 class="text-base sm:text-lg font-bold text-[var(--text-main)]">
+                      {{ t('consultingService.dashboard.form.stepper.assignmentInfo') }}
+                    </h3>
+                  </div>
+                </template>
+
+                <!-- Project Title -->
+                <UFormField :label="t('consultingService.dashboard.form.projectTitle')" required>
+                  <UInput
+                    v-model="store.newService.title"
+                    :placeholder="t('consultingService.dashboard.form.projectPlaceholder')"
+                    class="w-full"
+                    required
+                    maxlength="100"
+                  />
+                  <div class="text-xs text-gray-500 mt-1 text-right">
+                    {{ store.newService.title ? store.newService.title.length : 0 }}/100
+                  </div>
+                </UFormField>
+
+                <!-- Category & Requestor Department -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <UFormField :label="t('consultingService.dashboard.form.category')">
+                    <USelect v-model="store.newService.category" :items="categoryOptions" value-key="value" class="w-full" />
+                  </UFormField>
+
+                  <UFormField :label="t('consultingService.dashboard.form.requestorDepartment')" required>
+                    <USelectMenu
+                      v-model="store.newService.requestorDept"
+                      :items="store.departmentOptions"
+                      :loading="store.departmentsLoading"
+                      :placeholder="t('consultingService.dashboard.form.requestorDepartmentPlaceholder') || t('consultingService.dashboard.filters.selectDepartment')"
+                      class="w-full"
+                      create-item
+                      @create="(val: string) => { store.newService.requestorDept = val.trim() }"
+                    >
+                      <template #empty>
+                        {{ store.departmentsLoading ? t('common.loading') : (store.departmentsError || t('masterData.department.empty')) }}
+                      </template>
+                    </USelectMenu>
+                  </UFormField>
+                </div>
+
+                <!-- Period Quarter, Period Year & Consultant / Lead Auditor -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <UFormField :label="t('consultingService.dashboard.form.periodQuarter')">
+                    <USelect v-model="store.newService.periodQuarter" :items="store.quarters" class="w-full" />
+                  </UFormField>
+
+                  <UFormField :label="t('consultingService.dashboard.form.periodYear')">
+                    <USelect v-model="store.newService.periodYear" :items="store.years" class="w-full" />
+                  </UFormField>
+
+                  <UFormField :label="t('consultingService.dashboard.form.consultant')" required>
+                    <UInput
+                      v-model="store.newService.consultantName"
+                      :placeholder="t('consultingService.dashboard.form.consultantPlaceholder')"
+                      class="w-full"
+                      required
+                      maxlength="50"
+                    />
+                    <div class="text-xs text-gray-500 mt-1 text-right">
+                      {{ store.newService.consultantName ? store.newService.consultantName.length : 0 }}/50
+                    </div>
+                  </UFormField>
+                </div>
+              </UCard>
             </div>
 
-            <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t">
-              <UButton :label="t('consultingService.dashboard.form.cancel')" color="neutral" variant="ghost" class="w-full sm:w-auto" @click="store.closeForm" />
-              <UButton type="submit" :label="t('consultingService.dashboard.form.save')" color="primary" class="w-full sm:w-auto font-bold" :loading="store.loading" />
+            <!-- Step 2: Status sampai Upload Support Document / Report -->
+            <div v-show="currentStep === 1" class="space-y-5">
+              <UCard
+                :ui="{ body: 'p-4 sm:p-6 space-y-5' }"
+                class="border border-[var(--border-main)]"
+              >
+                <template #header>
+                  <div class="flex items-center gap-2">
+                    <UIcon
+                      name="i-lucide-file-check"
+                      class="h-5 w-5 text-secondary-500"
+                    />
+                    <h3 class="text-base sm:text-lg font-bold text-[var(--text-main)]">
+                      {{ t('consultingService.dashboard.form.stepper.statusAndDocument') }}
+                    </h3>
+                  </div>
+                </template>
+
+                <!-- Status -->
+                <UFormField :label="t('consultingService.dashboard.form.status')">
+                  <USelect v-model="store.newService.status" :items="statusOptions" value-key="value" class="w-full" />
+                </UFormField>
+
+                <!-- Notes / Description -->
+                <UFormField :label="t('consultingService.dashboard.form.notes')">
+                  <UTextarea v-model="store.newService.notes" :rows="3" :placeholder="t('consultingService.dashboard.form.notesPlaceholder')" class="w-full" />
+                </UFormField>
+
+                <!-- File Upload -->
+                <UFormField :label="t('consultingService.dashboard.form.upload')">
+                  <div class="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-6 text-center hover:border-primary-500 transition cursor-pointer relative bg-gray-50/50 dark:bg-gray-800/50">
+                    <input
+                      type="file"
+                      class="absolute inset-0 opacity-0 cursor-pointer"
+                      @change="(e: any) => store.handleFileUpload(e.target.files)"
+                    />
+                    <UIcon name="i-lucide-upload-cloud" class="w-10 h-10 text-gray-400 mx-auto mb-2" />
+                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {{ store.newService.attachment ? store.newService.attachment.name : t('consultingService.dashboard.form.uploadPrompt') }}
+                    </p>
+                    <p class="text-xs text-gray-500 mt-1">{{ t('consultingService.dashboard.form.uploadHint') }}</p>
+                  </div>
+                </UFormField>
+              </UCard>
             </div>
-          </UForm>
-        </UCard>
+          </div>
+
+          <!-- Footer Actions -->
+          <div class="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 border-t border-[var(--border-main)] bg-[var(--bg-surface)] p-4 sm:p-5">
+            <div class="flex w-full items-center justify-start gap-2 sm:w-auto">
+              <UButton
+                :label="t('common.cancel')"
+                color="neutral"
+                variant="ghost"
+                class="w-full sm:w-auto"
+                @click="store.closeForm"
+              />
+            </div>
+
+            <div class="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-3">
+              <UButton
+                v-if="currentStep > 0"
+                icon="i-heroicons-arrow-left"
+                :label="t('auditActivityPlan.stepper.previous')"
+                color="neutral"
+                variant="outline"
+                class="flex-1 sm:flex-none"
+                @click="() => { currentStep-- }"
+              />
+              <UButton
+                v-if="currentStep < steps.length - 1"
+                trailing-icon="i-heroicons-arrow-right"
+                :label="t('auditActivityPlan.stepper.next')"
+                color="primary"
+                class="flex-1 sm:flex-none font-bold shadow-md shadow-primary/20"
+                @click="handleNext"
+              />
+              <UButton
+                v-else
+                icon="i-heroicons-check"
+                :label="store.isEditing ? t('common.updateData') : t('consultingService.dashboard.form.save')"
+                color="primary"
+                class="flex-1 sm:flex-none font-bold shadow-md shadow-primary/20"
+                :loading="store.loading"
+                @click="handleSave"
+              />
+            </div>
+          </div>
+        </div>
       </template>
     </UModal>
 
@@ -470,7 +640,7 @@
               </div>
               <div>
                 <span class="text-md text-gray-400 block">{{ t('consultingService.dashboard.detail.requestorDepartment') }}</span>
-                <span class="font-semibold text-gray-800 dark:text-gray-200">{{ store.selectedService.requestorDept }}</span>
+                <span class="font-semibold text-gray-800 dark:text-gray-200">{{ store.formatDepartmentName(store.selectedService.requestorDept) }}</span>
               </div>
               <div>
                 <span class="text-md text-gray-400 block">{{ t('consultingService.dashboard.detail.consultantLead') }}</span>
@@ -524,7 +694,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive, computed, watch, nextTick } from 'vue'
 import { useRbac } from '~/composables/useRbac'
 import { useConsultingServiceStore } from '~/stores/consulting-service'
 import { useGlobalModalStore } from '~/stores/global-modal'
@@ -533,6 +703,125 @@ const store = useConsultingServiceStore()
 const { t } = useI18n()
 const { canWriteQaConsulting, canAccessFiles } = useRbac()
 store.fetchServices()
+store.fetchDepartments()
+
+const currentStep = ref(0)
+const formBodyRef = ref<HTMLElement | null>(null)
+const formErrorMessage = ref('')
+
+const steps = computed(() => [
+  { key: 'assignmentInfo', label: t('consultingService.dashboard.form.stepper.assignmentInfo') || 'Informasi Proyek & Konsultan' },
+  { key: 'statusAndDocument', label: t('consultingService.dashboard.form.stepper.statusAndDocument') || 'Status & Dokumen Pendukung' }
+])
+
+const validateStep = (idx: number): boolean => {
+  if (idx === 0) {
+    if (!store.newService.title?.trim()) {
+      formErrorMessage.value = t('consultingService.dashboard.form.titleRequired') || 'Judul Proyek wajib diisi'
+      return false
+    }
+    if (store.newService.title.length > 100) {
+      formErrorMessage.value = t('consultingService.dashboard.form.titleValidation') || 'Judul wajib diisi dan maksimal 100 karakter'
+      return false
+    }
+    if (!store.newService.requestorDept?.trim()) {
+      formErrorMessage.value = t('consultingService.dashboard.form.requestorDepartmentRequired') || 'Departemen Pemohon wajib diisi'
+      return false
+    }
+    if (!store.newService.consultantName?.trim()) {
+      formErrorMessage.value = t('consultingService.dashboard.form.consultantRequired') || 'Konsultan / Ketua Auditor wajib diisi'
+      return false
+    }
+    if (store.newService.consultantName.length > 50) {
+      formErrorMessage.value = t('consultingService.dashboard.form.consultantValidation') || 'Konsultan wajib diisi dan maksimal 50 karakter'
+      return false
+    }
+    formErrorMessage.value = ''
+    return true
+  }
+  if (idx === 1) {
+    formErrorMessage.value = ''
+    return true
+  }
+  return true
+}
+
+const goToStep = (targetIdx: number) => {
+  if (targetIdx <= currentStep.value) {
+    currentStep.value = targetIdx
+    formErrorMessage.value = ''
+    return
+  }
+  for (let i = currentStep.value; i < targetIdx; i++) {
+    if (!validateStep(i)) return
+  }
+  formErrorMessage.value = ''
+  currentStep.value = targetIdx
+  nextTick(() => {
+    formBodyRef.value?.scrollTo?.({ top: 0, behavior: 'smooth' })
+  })
+}
+
+const handleNext = () => {
+  if (!validateStep(currentStep.value)) return
+  formErrorMessage.value = ''
+  currentStep.value++
+  nextTick(() => {
+    formBodyRef.value?.scrollTo?.({ top: 0, behavior: 'smooth' })
+  })
+}
+
+const handleSave = async () => {
+  if (!validateStep(0)) {
+    currentStep.value = 0
+    return
+  }
+  if (!validateStep(1)) {
+    currentStep.value = 1
+    return
+  }
+  formErrorMessage.value = ''
+  await store.saveService()
+}
+
+watch(
+  () => store.isFormOpen,
+  (open) => {
+    if (open) {
+      currentStep.value = 0
+      formErrorMessage.value = ''
+    }
+  }
+)
+
+// UTable's root would bind sticky cells to a non-scrolling element; let the TableEntities wrapper scroll.
+const frozenTableUi = {
+  root: 'overflow-visible [&>table]:border-separate [&>table]:border-spacing-0'
+}
+
+const columns = computed(() => [
+  // First two columns are frozen (sticky); fixed widths keep the second column's left offset exact.
+  {
+    accessorKey: 'title',
+    header: t('consultingService.dashboard.columns.projectTitle'),
+    class: 'w-[240px] min-w-[240px] max-w-[240px] whitespace-normal break-words sticky left-0',
+    thClass: 'z-20 !bg-gray-100 dark:!bg-gray-800',
+    tdClass: 'z-10 bg-[var(--bg-main)]'
+  },
+  {
+    accessorKey: 'category',
+    header: t('consultingService.dashboard.columns.category'),
+    class: 'w-[160px] min-w-[160px] max-w-[160px] whitespace-normal break-words sticky left-[240px] border-r border-r-[var(--border-main)] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]',
+    thClass: 'z-20 !bg-gray-100 dark:!bg-gray-800',
+    tdClass: 'z-10 bg-[var(--bg-main)]'
+  },
+  { accessorKey: 'requestorDept', header: t('consultingService.dashboard.columns.department') },
+  { accessorKey: 'period', header: t('consultingService.dashboard.columns.period') },
+  { accessorKey: 'consultantName', header: t('consultingService.dashboard.columns.consultantLead') },
+  { accessorKey: 'status', header: t('consultingService.dashboard.columns.status') },
+  { accessorKey: 'attachment', header: t('consultingService.dashboard.columns.document') },
+  { accessorKey: 'actions', header: t('consultingService.dashboard.columns.actions') }
+])
 
 const statusKeys: Record<string, string> = {
   Planned: 'planned',
@@ -565,7 +854,7 @@ const statusFilterOptions = computed(() => [{ label: t('consultingService.dashbo
 const categoryFilterOptions = computed(() => [{ label: t('consultingService.dashboard.filters.all'), value: 'All' }, ...categoryOptions.value])
 const departmentFilterOptions = computed(() => [
   { label: t('consultingService.dashboard.filters.all'), value: 'All' },
-  ...store.departments.map(value => ({ label: value, value }))
+  ...store.departmentOptions.map(value => ({ label: value, value }))
 ])
 
 const filters = reactive({
@@ -581,7 +870,9 @@ const filteredServices = computed(() => {
       s.consultantName.toLowerCase().includes(filters.search.toLowerCase())
     const matchesCategory = filters.category === 'All' || s.category === filters.category
     const matchesStatus = filters.status === 'All' || s.status === filters.status
-    const matchesDept = filters.dept === 'All' || s.requestorDept === filters.dept
+    const matchesDept = filters.dept === 'All' ||
+      s.requestorDept === filters.dept ||
+      store.resolveDepartmentOption(s.requestorDept) === filters.dept
     return matchesSearch && matchesCategory && matchesStatus && matchesDept
   })
 })
@@ -597,17 +888,6 @@ const paginatedServices = computed(() => {
 watch(() => [filters.search, filters.category, filters.status, filters.dept], () => {
   currentPage.value = 1
 }, { deep: true })
-
-const columns = computed(() => [
-  { accessorKey: 'title', header: t('consultingService.dashboard.columns.projectTitle') },
-  { accessorKey: 'category', header: t('consultingService.dashboard.columns.category') },
-  { accessorKey: 'requestorDept', header: t('consultingService.dashboard.columns.department') },
-  { accessorKey: 'period', header: t('consultingService.dashboard.columns.period') },
-  { accessorKey: 'consultantName', header: t('consultingService.dashboard.columns.consultantLead') },
-  { accessorKey: 'status', header: t('consultingService.dashboard.columns.status') },
-  { accessorKey: 'attachment', header: t('consultingService.dashboard.columns.document') },
-  { accessorKey: 'actions', header: t('consultingService.dashboard.columns.actions') }
-])
 
 const confirmDelete = async (service: any) => {
   if (await useGlobalModalStore().confirmDelete({ description: t('consultingService.dashboard.deleteConfirm') })) {

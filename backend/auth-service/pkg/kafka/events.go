@@ -104,7 +104,12 @@ type EventPublisher struct {
 	topic     string
 	handlers  []EventHandler
 	enabled   bool
+	tap       EventTap
 }
+
+// EventTap sees every event passed to Publish, whether or not Kafka is
+// enabled. auth-service uses it to feed the activity log (pkg/activitylog).
+type EventTap func(ctx context.Context, event *Event)
 
 // EventPublisherConfig holds configuration for the event Publisher
 type EventPublisherConfig struct {
@@ -112,6 +117,8 @@ type EventPublisherConfig struct {
 	Consumer  *Consumer
 	Topic     string
 	Enabled   bool
+	// Tap, when set, is called for every published event (see EventTap).
+	Tap       EventTap
 }
 
 // NewEventPublisher creates a new event Publisher
@@ -122,11 +129,15 @@ func NewEventPublisher(cfg EventPublisherConfig) IEventPublisher {
 		topic:     cfg.Topic,
 		enabled:   cfg.Enabled,
 		handlers:  make([]EventHandler, 0),
+		tap:       cfg.Tap,
 	}
 }
 
 // Publish publishes an event to Kafka
 func (r *EventPublisher) Publish(ctx context.Context, event *Event) error {
+	if r.tap != nil && event != nil {
+		r.tap(ctx, event)
+	}
 	if !r.enabled || r.producer == nil {
 		return nil
 	}

@@ -70,14 +70,14 @@ func TestRequireStepUp(t *testing.T) {
 	store := &memStore{seen: map[string]bool{}}
 	r := stepUpRouter(store)
 
-	if c := doStepUp(r, ""); c != http.StatusUnauthorized {
+	if c := doStepUp(r, ""); c != http.StatusForbidden {
 		t.Fatalf("missing token: %d", c)
 	}
 	good := sign(t, key, stepUpClaims("u1", StepUpPurposeOrgLevels, "j1", StepUpTTL))
 	if c := doStepUp(r, good); c != http.StatusNoContent {
 		t.Fatalf("valid token: %d", c)
 	}
-	if c := doStepUp(r, good); c != http.StatusUnauthorized {
+	if c := doStepUp(r, good); c != http.StatusForbidden {
 		t.Fatalf("replayed token: %d", c)
 	}
 	cases := map[string]string{
@@ -89,7 +89,7 @@ func TestRequireStepUp(t *testing.T) {
 		"no jti":         sign(t, key, stepUpClaims("u1", StepUpPurposeOrgLevels, "", StepUpTTL)),
 	}
 	for name, tok := range cases {
-		if c := doStepUp(r, tok); c != http.StatusUnauthorized {
+		if c := doStepUp(r, tok); c != http.StatusForbidden {
 			t.Fatalf("%s: got %d", name, c)
 		}
 	}

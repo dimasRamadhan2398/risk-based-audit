@@ -39,7 +39,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('executiveSummaryIndividual.stats.total') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ syncedSummaries.length }}
             </h4>
           </div>
@@ -56,7 +56,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('executiveSummaryIndividual.stats.approved') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ syncedSummaries.filter(s => s.status === 'Approved').length }}
             </h4>
           </div>
@@ -73,7 +73,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('executiveSummaryIndividual.stats.draft') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ syncedSummaries.filter(s => s.status === 'Draft').length }}
             </h4>
           </div>
@@ -90,7 +90,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('executiveSummaryIndividual.stats.handling') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ totalHandling }}
             </h4>
           </div>
@@ -102,7 +102,7 @@
     </div>
 
     <!-- Main List & Filter Card -->
-    <UCard class="overflow-hidden">
+    <UCard :ui="{ root: 'bg-transparent!' }" class="overflow-hidden">
       <!-- Search and Filters -->
       <div class="mb-4 flex flex-col md:flex-row gap-4 items-center justify-between">
         <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto flex-1">
@@ -147,15 +147,15 @@
               <div>
                 <div class="flex items-center gap-2 flex-wrap">
                   <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ item.nomorDokumen || t('executiveSummaryIndividual.card.draftLha') }}</h3>
-                  <UBadge :color="getStatusColor(item.status)" variant="soft" class="font-semibold uppercase tracking-wider text-[10px]">
-                    {{ t('executiveSummaryIndividual.card.status', { status: item.status }) }}
+                  <UBadge :color="getStatusColor(item.status)" variant="soft" class="font-semibold text-[10px]">
+                    {{ item.status }}
                   </UBadge>
                   <UBadge v-if="item.assignmentLetterId" color="info" variant="subtle" class="font-mono text-[11px]">
                     {{ t('executiveSummaryForm.upload.assignmentLetter', { number: item.assignmentLetterId }) }}
                   </UBadge>
                 </div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  <span v-if="item.dokumenPath" class="inline-flex items-center gap-1 text-primary-600 dark:text-primary-400">
+                  <span v-if="item.dokumenPath" class="inline-flex items-center gap-1 font-bold text-primary-600 dark:text-primary-400">
                     <UIcon name="i-lucide-paperclip" class="size-3" />
                     {{ item.dokumenPath }}
                   </span>
@@ -202,7 +202,7 @@
           <div class="p-5 grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Narrative Preview -->
             <div class="md:col-span-2 space-y-2">
-              <span class="text-md font-bold uppercase tracking-wider text-gray-400">{{ t('executiveSummaryIndividual.card.narrativeSummary') }}</span>
+              <span class="text-md font-bold text-gray-400">{{ t('executiveSummaryIndividual.card.narrativeSummary') }}</span>
               <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed italic">
                 "{{ item.narrative || t('executiveSummaryIndividual.card.noNarrative') }}"
               </p>
@@ -210,13 +210,13 @@
 
             <!-- Metrics Overview -->
             <div class="bg-gray-50 dark:bg-gray-800/60 p-4 rounded-xl space-y-3 border border-gray-100 dark:border-gray-700/50">
-              <div class="text-md font-bold uppercase tracking-wider text-gray-400">{{ t('executiveSummaryIndividual.card.metrics') }}</div>
+              <div class="text-md font-bold text-gray-400">{{ t('executiveSummaryIndividual.card.metrics') }}</div>
               <div class="grid grid-cols-2 gap-2 text-center">
-                <div class="bg-white dark:bg-gray-800 p-2 rounded border">
+                <div class="bg-white dark:bg-gray-800 p-2 rounded border flex flex-col justify-between">
                   <div class="text-md text-gray-400">{{ t('executiveSummaryIndividual.card.highRisk') }}</div>
                   <div class="text-lg font-bold text-error-600">{{ item.risikoHigh || 0 }}</div>
                 </div>
-                <div class="bg-white dark:bg-gray-800 p-2 rounded border">
+                <div class="bg-white dark:bg-gray-800 p-2 rounded border flex flex-col justify-between">
                   <div class="text-md text-gray-400">{{ t('executiveSummaryIndividual.card.totalRecommendations') }}</div>
                   <div class="text-lg font-bold text-primary-600">{{ item.jumlahRekomendasi || 0 }}</div>
                 </div>
@@ -231,7 +231,7 @@
                 <UIcon name="i-lucide-message-square-text" class="size-4" />
               </div>
               <div class="flex-1 min-w-0">
-                <div class="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 mb-1 flex items-center gap-1.5">
+                <div class="text-xs font-bold text-amber-800 dark:text-amber-300 mb-1 flex items-center gap-1.5">
                   <span>{{ t('executiveSummaryForm.notes.title') }}</span>
                 </div>
                 <p class="text-sm text-amber-900 dark:text-amber-200/90 whitespace-pre-line leading-relaxed">
@@ -260,10 +260,10 @@
       </div>
     </UCard>
 
-    <!-- Fullscreen Builder Modal -->
-    <UModal v-model:open="store.showModal" fullscreen>
+    <!-- Builder Modal -->
+    <UModal v-model:open="store.showModal" :ui="{ content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden' }">
       <template #content>
-        <div class="flex flex-col h-screen bg-white dark:bg-gray-900">
+        <div class="flex flex-col flex-1 min-h-0 bg-white dark:bg-gray-900">
           <!-- Modal Header Bar -->
           <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-gray-50 dark:bg-gray-800 shrink-0">
             <div class="flex items-center gap-3">
@@ -300,7 +300,7 @@
           </div>
 
           <!-- Form Component Body -->
-          <div class="flex-1 overflow-hidden">
+          <div class="flex-1 min-h-0 overflow-hidden">
             <ExecutiveSummaryIndividualForm />
           </div>
         </div>
@@ -330,6 +330,10 @@ const auditReportStore = useAuditResultReportStore()
 const assignmentLetterStore = useAssignmentLetterStore()
 const searchQuery = ref('')
 const selectedLhaNumber = ref('')
+
+if (!store.departmentsLoaded && !store.departmentsLoading) {
+  store.fetchDepartments().catch(() => {})
+}
 
 const totalHandling = computed(() => {
   return syncedSummaries.value.reduce((total, summary) => {
@@ -477,9 +481,9 @@ const syncedSummaries = computed(() => {
           jumlahRekomendasi: lha.findingsCount || (lha.findings?.length || 0),
           followUpTable: [],
           topFindings: (lha.findings || []).map(f => ({
-            unitDivision: lha.reportTitle.includes('Keuangan') ? 'Finance' : 'Operasi',
+            unitDivision: store.resolveDepartmentOption(lha.department || (lha.reportTitle.includes('Keuangan') ? 'FIN' : 'OPS')) || (lha.reportTitle.includes('Keuangan') ? 'Finance' : 'Operasi'),
             judulTemuan: f.title,
-            risiko: f.category === 'Very Significant' || f.category === 'Significant' ? 'Tinggi' : f.category === 'Quite Significant' ? 'Sedang' : 'Rendah',
+            risiko: f.category || 'Significant',
             statusTL: 'In Progress',
             usulan: 'Rekomendasi Perbaikan'
           })),

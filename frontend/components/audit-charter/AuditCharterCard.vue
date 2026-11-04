@@ -87,9 +87,9 @@
                   store.activeCharter.date
                 }}</span>
               </div>
-              <div class="flex items-center gap-1">
-                <UIcon name="i-lucide-file-text" size="md"></UIcon>
-                  <span class="flex items-center truncate max-w-[200px]">{{
+              <div class="flex items-start gap-1 min-w-0 max-w-full">
+                <UIcon name="i-lucide-file-text" size="md" class="shrink-0 mt-0.5"></UIcon>
+                <span class="min-w-0 break-all">{{
                   store.activeCharter.fileName
                 }}</span>
               </div>

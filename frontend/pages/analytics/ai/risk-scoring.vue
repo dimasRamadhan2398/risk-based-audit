@@ -163,7 +163,7 @@ const paginatedPredictions = computed<any[]>(() => {
       </div>
 
       <!-- Predictions Table -->
-      <UCard>
+      <UCard class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 divide-gray-200 dark:divide-gray-800">
         <template #header>
           <div class="flex items-center gap-2">
             <UIcon name="i-heroicons-table-cells" class="text-blue-500" />
@@ -174,7 +174,7 @@ const paginatedPredictions = computed<any[]>(() => {
         <div class="hidden md:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
-              <tr class="border-b border-gray-200 dark:border-gray-700">
+              <tr class="bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
                 <th class="text-left py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colEntity') }}</th>
                 <th class="text-left py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colType') }}</th>
                 <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colRiskCategory') }}</th>
@@ -183,7 +183,6 @@ const paginatedPredictions = computed<any[]>(() => {
                 <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colTargetPeriod') }}</th>
                 <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colPredLikelihood') }}</th>
                 <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colPredImpact') }}</th>
-                <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colPredScore') }}</th>
                 <th class="text-center py-3 px-4 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.xgboost.colPredRiskLevel') }}</th>
               </tr>
             </thead>
@@ -192,7 +191,7 @@ const paginatedPredictions = computed<any[]>(() => {
                 <td class="py-3 px-4 font-bold">{{ row.entity }}</td>
                 <td class="py-3 px-4"><UBadge :color="row.type === 'Branch' ? 'primary' : 'warning'" variant="subtle" size="md">{{ row.type }}</UBadge></td>
                 <td class="text-center py-3 px-4"><UBadge :color="riskCategoryColor(row.riskCategory)" variant="subtle" size="md">{{ row.riskCategory }}</UBadge></td>
-                <td class="text-center py-3 px-4 font-mono">{{ formatNum(row.actualScore, 1) }}</td>
+                <td class="text-center py-3 px-4 tabular-nums">{{ formatNum(row.actualScore, 1) }}</td>
                 <td class="text-center py-3 px-4">
                   <UBadge
                     :class="getRiskConfig(row.actualRiskLevel).badgeClass"
@@ -204,9 +203,8 @@ const paginatedPredictions = computed<any[]>(() => {
                   </UBadge>
                 </td>
                 <td class="text-center py-3 px-4"><UBadge color="info" variant="subtle" size="md" class="font-bold">{{ row.targetTimeline || 'Q3 2026' }}</UBadge></td>
-                <td class="text-center py-3 px-4 font-mono">{{ formatNum(row.predictedLikelihood, 1) }}</td>
-                <td class="text-center py-3 px-4 font-mono">{{ formatNum(row.predictedImpact, 1) }}</td>
-                <td class="text-center py-3 px-4 font-mono font-bold">{{ formatNum(row.predictedScore, 1) }}</td>
+                <td class="text-center py-3 px-4 tabular-nums">{{ formatNum(row.predictedLikelihood, 1) }}</td>
+                <td class="text-center py-3 px-4 tabular-nums">{{ formatNum(row.predictedImpact, 1) }}</td>
                 <td class="text-center py-3 px-4">
                   <UBadge
                     :class="getRiskConfig(row.predictedRiskLevel).badgeClass"

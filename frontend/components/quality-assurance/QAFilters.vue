@@ -34,6 +34,7 @@
     />
 
     <UButton
+      v-if="hasActiveFilters"
       :label="t('qualityAssurance.dashboard.filters.reset')"
       icon="i-lucide-rotate-ccw"
       color="neutral"
@@ -50,6 +51,10 @@ import { useQualityAssuranceStore, QAStatus, QAType } from '~/stores/quality-ass
 
 const store = useQualityAssuranceStore()
 const { t } = useI18n()
+
+const hasActiveFilters = computed(() =>
+  !!(store.searchQuery || store.selectedType || store.selectedPeriod || store.selectedStatus)
+)
 
 const qaTypeOptions = computed(() => [
   { label: t('qualityAssurance.types.regular'), value: QAType.REGULAR },

@@ -1,5 +1,5 @@
 <template>
-    <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ body: 'p-0' }">
+    <div>
       <TableEntities
         :columns="store.columns"
         :data="store.filteredReports"
@@ -36,7 +36,7 @@
         </template>
 
         <template #conductedBy-cell="{ row }">
-          <span class="font-medium text-gray-700 dark:text-white">{{ row.original.conductedBy || '-' }}</span>
+          <span class="font-medium text-gray-700 dark:text-white">{{ store.formatCompanyName(row.original.conductedBy) }}</span>
         </template>
 
         <template #viewReport-cell="{ row }">
@@ -85,16 +85,23 @@
           </div>
         </template>
       </TableEntities>
-    </UCard>
+    </div>
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { useRbac } from '~/composables/useRbac'
 import { useQualityAssuranceStore, QAStatus, QAType } from '~/stores/quality-assurance'
 
 const store = useQualityAssuranceStore()
 const { t } = useI18n()
 const { canWriteQaConsulting, canAccessFiles } = useRbac()
+
+onMounted(() => {
+  if (!store.companiesLoaded && !store.companiesLoading) {
+    store.fetchCompanies().catch(() => {})
+  }
+})
 
 const formatStatus = (status: string) => {
   if (status === QAStatus.COMPLETED) return t('qualityAssurance.statuses.completed')

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { Line } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -14,15 +14,23 @@ import {
 } from 'chart.js'
 import { useAiAnalytics } from '~/composables/useAiAnalytics'
 import { useI18n } from '~/composables/useI18n'
+import {
+  buildKpiForecastChart,
+  horizonLabel,
+  kpiAuditActionKey,
+  selectAtRiskKpis,
+  toKpiForecastView,
+  type KpiForecastView
+} from '~/composables/useKpiForecast'
+import { formatKpiForecastValue, formatForecastPeriod } from '~/utils/analyticsFormat'
 import AiInsightHeader from '~/components/analytics/AiInsightHeader.vue'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const {
   loading,
   timeseriesState,
-  formatNum,
   getRiskConfig,
   trendColor,
   trendIcon,
@@ -33,84 +41,51 @@ onMounted(() => {
   fetchAiAnalytics()
 })
 
-const timeSeriesChartData = computed(() => ({
-  labels: (timeseriesState.value.historicalKPI || []).map((p: any) => p.period || ''),
-  datasets: [
-    {
-      label: t('analytics.timeseries.labelActualKPI'),
-      data: (timeseriesState.value.historicalKPI || []).map((p: any) => p.actual ?? null),
-      borderColor: 'rgb(59,130,246)',
-      backgroundColor: 'rgba(59,130,246,0.1)',
-      tension: 0.4,
-      pointRadius: 5,
-      pointBackgroundColor: 'rgb(59,130,246)',
-      spanGaps: false,
-    },
-    {
-      label: t('analytics.timeseries.labelForecast'),
-      data: (timeseriesState.value.historicalKPI || []).map((p: any) => p.forecast ?? null),
-      borderColor: 'rgb(139,92,246)',
-      backgroundColor: 'rgba(139,92,246,0.1)',
-      borderDash: [6, 4],
-      tension: 0.4,
-      pointRadius: 5,
-      pointStyle: 'rectRot',
-      pointBackgroundColor: 'rgb(139,92,246)',
-      spanGaps: false,
-    },
-    {
-      label: t('analytics.timeseries.labelUpperBound'),
-      data: (timeseriesState.value.historicalKPI || []).map((p: any) => p.upperBound ?? null),
-      borderColor: 'transparent',
-      backgroundColor: 'rgba(139,92,246,0.08)',
-      fill: '+1',
-      tension: 0.4,
-      pointRadius: 0,
-      spanGaps: false,
-    },
-    {
-      label: t('analytics.timeseries.labelLowerBound'),
-      data: (timeseriesState.value.historicalKPI || []).map((p: any) => p.lowerBound ?? null),
-      borderColor: 'transparent',
-      backgroundColor: 'rgba(139,92,246,0.08)',
-      fill: '-1',
-      tension: 0.4,
-      pointRadius: 0,
-      spanGaps: false,
-    },
-  ]
+// Same view model as the dashboard card: units, direction-aware trend, horizon.
+const kpiViews = computed<KpiForecastView[]>(() =>
+  (timeseriesState.value.kpiForecasts || []).map(toKpiForecastView)
+)
+const atRiskKpis = computed(() => selectAtRiskKpis(kpiViews.value))
+
+const selectedKpiName = ref('')
+const selectedKpi = computed<KpiForecastView | undefined>(() =>
+  kpiViews.value.find((k) => k.kpiName === selectedKpiName.value) ?? atRiskKpis.value[0] ?? kpiViews.value[0]
+)
+watch(selectedKpi, (kpi) => {
+  if (kpi && kpi.kpiName !== selectedKpiName.value) selectedKpiName.value = kpi.kpiName
+}, { immediate: true })
+const kpiOptions = computed(() => kpiViews.value.map((k) => ({ label: k.kpiName, value: k.kpiName })))
+
+const forecastMape = computed(() => Number(timeseriesState.value.forecastAccuracy?.mape ?? 0))
+const mapeLabel = computed(() =>
+  new Intl.NumberFormat(locale.value === 'en' ? 'en-US' : 'id-ID', { maximumFractionDigits: 1 }).format(forecastMape.value)
+)
+
+const chart = computed(() => buildKpiForecastChart(selectedKpi.value, forecastMape.value, t, locale.value, {
+  actualColor: 'rgb(59,130,246)',
+  forecastColor: 'rgb(139,92,246)',
+  bandColor: 'rgba(139,92,246,0.15)'
 }))
 
-const timeSeriesOptions = computed(() => ({
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: 'top' as const,
-      labels: {
-        filter: (item: any) => ![t('analytics.timeseries.labelUpperBound'), t('analytics.timeseries.labelLowerBound')].includes(item.text)
-      }
-    },
-    tooltip: {
-      callbacks: {
-        label: (ctx: any) => {
-          if ([t('analytics.timeseries.labelUpperBound'), t('analytics.timeseries.labelLowerBound')].includes(ctx.dataset.label)) return ''
-          return `${ctx.dataset.label}: ${formatNum(ctx.parsed.y, 1)}%`
-        }
-      }
-    }
-  },
-  scales: {
-    y: { title: { display: true, text: t('analytics.timeseries.axisKPIScore') } }
-  }
-}))
+const horizonOf = (kpi: KpiForecastView) => horizonLabel(kpi, locale.value)
+const horizonValue = (kpi: KpiForecastView) =>
+  kpi.forecast.length ? kpi.forecast[kpi.forecast.length - 1]!.value : kpi.forecastedValue
+
+const trendText = (trend: string) => t(`dashboard.overview.trend.${String(trend).toLowerCase()}`)
+
+const auditAction = (kpi: KpiForecastView) => {
+  const key = kpiAuditActionKey(kpi.meta)
+  if (kpi.trend !== 'Deteriorating') return kpi.recommendedAction || '-'
+  if (key) return t(`analytics.kpiAudit.actions.${key}`)
+  return kpi.recommendedAction || t('analytics.kpiAudit.actions.generic')
+}
 
 const mobilePage = ref(1)
 const mobilePageSize = ref(10)
 
-const paginatedKpiForecasts = computed<any[]>(() => {
+const paginatedKpiForecasts = computed<KpiForecastView[]>(() => {
   const start = (mobilePage.value - 1) * mobilePageSize.value
-  return timeseriesState.value.kpiForecasts.slice(start, start + mobilePageSize.value)
+  return kpiViews.value.slice(start, start + mobilePageSize.value)
 })
 </script>
 
@@ -119,7 +94,7 @@ const paginatedKpiForecasts = computed<any[]>(() => {
     <AiInsightHeader
       :title="t('navigation.kpiForecast')"
       :subtitle="t('analytics.subtitle')"
-      icon="i-lucide-trending-up"
+      icon="i-lucide-chart-line"
       currentSubModule="kpi-forecast"
     />
 
@@ -134,7 +109,7 @@ const paginatedKpiForecasts = computed<any[]>(() => {
     <!-- Content -->
     <div v-else class="space-y-6">
       <UAlert
-        icon="i-heroicons-arrow-trending-up"
+        icon="i-lucide-chart-line"
         color="info"
         variant="subtle"
         :title="t('analytics.timeseries.alertTitle')"
@@ -145,49 +120,82 @@ const paginatedKpiForecasts = computed<any[]>(() => {
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <UCard class="lg:col-span-2">
           <template #header>
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
               <UIcon name="i-heroicons-chart-bar" class="text-violet-500" />
               <h3 class="font-bold">{{ t('analytics.timeseries.chartTitle') }}</h3>
-              <UBadge color="info" variant="subtle" size="md" class="ml-auto">{{ t('analytics.timeseries.chartConfidenceBadge') }}</UBadge>
+              <USelect
+                v-if="kpiOptions.length"
+                v-model="selectedKpiName"
+                :items="kpiOptions"
+                size="sm"
+                class="w-60 ml-auto"
+                :aria-label="t('analytics.timeseries.selectKpi')"
+              />
+            </div>
+            <div v-if="selectedKpi" class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-gray-500">
+              <span v-if="selectedKpi.lastActualPeriod">{{ t('analytics.timeseries.dataAsOf', { period: formatForecastPeriod(selectedKpi.lastActualPeriod, locale) }) }}</span>
+              <span v-if="horizonOf(selectedKpi)">{{ t('analytics.timeseries.horizon', { range: horizonOf(selectedKpi) }) }}</span>
+              <span>{{ t('analytics.timeseries.accuracy', { mape: mapeLabel }) }}</span>
+              <span>{{ t('analytics.timeseries.chartConfidenceBadge') }}</span>
             </div>
           </template>
+          <UAlert
+            v-if="selectedKpi?.isStale"
+            color="warning"
+            variant="subtle"
+            icon="i-lucide-clock-alert"
+            :description="t('analytics.timeseries.staleWarning')"
+            class="mb-3"
+          />
           <div class="h-80">
-            <Line :data="timeSeriesChartData" :options="timeSeriesOptions" />
+            <Line :data="chart.data" :options="chart.options" />
           </div>
+          <p v-if="selectedKpi?.meta.key === 'nps'" class="text-xs text-gray-400 mt-2">{{ t('analytics.kpiAudit.kindHint.nps') }}</p>
         </UCard>
 
-        <!-- At-Risk Departments -->
+        <!-- At-risk KPIs: only those projected to deteriorate -->
         <div class="space-y-6">
           <UCard>
             <template #header>
               <h3 class="font-bold text-sm">{{ t('analytics.timeseries.atRiskTitle') }}</h3>
             </template>
             <div class="space-y-3">
-              <div v-for="dept in timeseriesState.atRiskDepartments" :key="dept.department" class="p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800">
+              <button
+                v-for="kpi in atRiskKpis"
+                :key="kpi.code"
+                type="button"
+                class="w-full text-left p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800"
+                @click="selectedKpiName = kpi.kpiName"
+              >
                 <div class="flex items-center justify-between gap-2">
-                  <div class="font-bold text-md">{{ dept.department }}</div>
+                  <div class="font-bold text-md">{{ kpi.kpiName }}</div>
                   <UBadge
-                    :class="getRiskConfig(dept.riskLevel).badgeClass"
+                    :class="getRiskConfig(kpi.riskLevel).badgeClass"
                     variant="solid"
                     size="md"
                     class="font-bold shrink-0"
                   >
-                    {{ getRiskConfig(dept.riskLevel).label }}
+                    {{ getRiskConfig(kpi.riskLevel).label }}
                   </UBadge>
                 </div>
-                <div class="text-[10px] text-gray-500 mt-0.5">{{ dept.kpi }}</div>
-                <div class="flex items-center gap-2 mt-1.5">
+                <div class="text-[11px] text-gray-500 mt-0.5">{{ kpi.entity }}</div>
+                <div class="flex items-center gap-2 mt-1.5 text-md">
                   <UIcon name="i-heroicons-arrow-trending-down" class="w-4 h-4 text-rose-500" />
-                  <span class="text-md font-bold text-rose-500">{{ formatNum(dept.predictedQ3, 1) }}{{ t('analytics.timeseries.projectedQ3') }}</span>
+                  <span class="font-mono text-gray-500">{{ formatKpiForecastValue(kpi.currentValue, kpi.meta, locale) }}</span>
+                  <span class="text-gray-400">&rarr;</span>
+                  <span class="font-mono font-bold text-rose-500">{{ formatKpiForecastValue(horizonValue(kpi), kpi.meta, locale) }}</span>
+                  <span class="text-[11px] text-gray-400">{{ t('analytics.timeseries.projectedBy', { period: formatForecastPeriod(kpi.horizonEnd, locale) }) }}</span>
                 </div>
-              </div>
+                <p class="text-[11px] text-gray-600 dark:text-gray-300 mt-1.5 leading-relaxed">{{ auditAction(kpi) }}</p>
+              </button>
+              <p v-if="!atRiskKpis.length" class="text-xs text-gray-500">{{ t('analytics.timeseries.noAtRisk') }}</p>
             </div>
           </UCard>
         </div>
       </div>
 
       <!-- KPI Forecasts Table -->
-      <UCard>
+      <UCard class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 divide-gray-200 dark:divide-gray-800">
         <template #header>
           <div class="flex items-center gap-2">
             <UIcon name="i-heroicons-table-cells" class="text-indigo-500" />
@@ -198,7 +206,7 @@ const paginatedKpiForecasts = computed<any[]>(() => {
         <div class="hidden md:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
-              <tr class="border-b border-gray-200 dark:border-gray-700">
+              <tr class="bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
                 <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colCode') }}</th>
                 <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colKPI') }}</th>
                 <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colEntity') }}</th>
@@ -212,18 +220,18 @@ const paginatedKpiForecasts = computed<any[]>(() => {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="kpi in timeseriesState.kpiForecasts" :key="kpi.code" class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+              <tr v-for="kpi in kpiViews" :key="kpi.code" class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                 <td class="py-3 px-3 font-mono font-bold text-md">{{ kpi.code }}</td>
                 <td class="py-3 px-3 font-bold text-md">{{ kpi.kpiName }}</td>
                 <td class="py-3 px-3 font-bold text-md">{{ kpi.entity || '-' }}</td>
-                <td class="text-center py-3 px-3"><UBadge :color="(kpi.entityType || kpi.type) === 'Branch' ? 'primary' : 'warning'" variant="subtle" size="md">{{ kpi.entityType || kpi.type || '-' }}</UBadge></td>
-                <td class="text-center py-3 px-3"><UBadge color="info" variant="subtle" size="md" class="font-bold">{{ kpi.targetHorizon || 'Q3 2026' }}</UBadge></td>
-                <td class="text-center py-3 px-3 font-mono">{{ formatNum(kpi.currentValue, 1) }}{{ kpi.unit === '%' ? '%' : '' }}</td>
-                <td class="text-center py-3 px-3 font-mono font-bold">{{ formatNum(kpi.forecastedValue, 1) }}{{ kpi.unit === '%' ? '%' : '' }}</td>
+                <td class="text-center py-3 px-3"><UBadge :color="kpi.entityType === 'Branch' ? 'primary' : 'warning'" variant="subtle" size="md">{{ kpi.entityType || '-' }}</UBadge></td>
+                <td class="text-center py-3 px-3"><UBadge color="info" variant="subtle" size="md" class="font-bold whitespace-nowrap">{{ horizonOf(kpi) || '-' }}</UBadge></td>
+                <td class="text-center py-3 px-3 font-mono whitespace-nowrap">{{ formatKpiForecastValue(kpi.currentValue, kpi.meta, locale) }}</td>
+                <td class="text-center py-3 px-3 font-mono font-bold whitespace-nowrap">{{ formatKpiForecastValue(horizonValue(kpi), kpi.meta, locale) }}</td>
                 <td class="text-center py-3 px-3">
                   <div class="flex items-center justify-center gap-1">
                     <UIcon :name="trendIcon(kpi.trend)" class="w-4 h-4" :class="trendColor(kpi.trend)" />
-                    <span class="text-md font-bold" :class="trendColor(kpi.trend)">{{ kpi.trend }}</span>
+                    <span class="text-md font-bold" :class="trendColor(kpi.trend)">{{ trendText(kpi.trend) }}</span>
                   </div>
                 </td>
                 <td class="text-center py-3 px-3">
@@ -236,7 +244,7 @@ const paginatedKpiForecasts = computed<any[]>(() => {
                     {{ getRiskConfig(kpi.riskLevel).label }}
                   </UBadge>
                 </td>
-                <td class="py-3 px-3 text-md text-gray-600 dark:text-gray-300 leading-relaxed">{{ kpi.recommendedAction }}</td>
+                <td class="py-3 px-3 text-md text-gray-600 dark:text-gray-300 leading-relaxed">{{ auditAction(kpi) }}</td>
               </tr>
             </tbody>
           </table>
@@ -246,7 +254,7 @@ const paginatedKpiForecasts = computed<any[]>(() => {
         <div class="block md:hidden">
           <!-- Empty State -->
           <div
-            v-if="!timeseriesState.kpiForecasts.length"
+            v-if="!kpiViews.length"
             class="py-8 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
           >
             <UIcon name="i-heroicons-table-cells" class="size-8 mx-auto text-gray-400 mb-2" />
@@ -267,11 +275,11 @@ const paginatedKpiForecasts = computed<any[]>(() => {
                     <UIcon name="i-heroicons-chart-bar" class="size-3 text-indigo-500" />
                     {{ kpi.code }}
                   </span>
-                  <UBadge :color="(kpi.entityType || kpi.type) === 'Branch' ? 'primary' : 'warning'" variant="subtle" size="sm">
-                    {{ kpi.entityType || kpi.type || '-' }}
+                  <UBadge :color="kpi.entityType === 'Branch' ? 'primary' : 'warning'" variant="subtle" size="sm">
+                    {{ kpi.entityType || '-' }}
                   </UBadge>
                   <UBadge color="info" variant="subtle" size="sm" class="font-bold">
-                    {{ kpi.targetHorizon || 'Q3 2026' }}
+                    {{ horizonOf(kpi) || '-' }}
                   </UBadge>
                 </div>
                 <UBadge
@@ -300,13 +308,13 @@ const paginatedKpiForecasts = computed<any[]>(() => {
                 <div class="p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800 space-y-1">
                   <span class="text-[10px] uppercase font-bold tracking-wider text-gray-400 block truncate text-center">{{ t('analytics.timeseries.colCurrent') }}</span>
                   <div class="font-mono font-bold text-sm text-neutral-900 dark:text-neutral-100 text-center">
-                    {{ formatNum(kpi.currentValue, 1) }}{{ kpi.unit === '%' ? '%' : '' }}
+                    {{ formatKpiForecastValue(kpi.currentValue, kpi.meta, locale) }}
                   </div>
                 </div>
                 <div class="p-2.5 rounded-lg bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 space-y-1">
                   <span class="text-[10px] uppercase font-bold tracking-wider text-secondary-700 dark:text-secondary-400 block truncate text-center">{{ t('analytics.timeseries.colForecast') }}</span>
                   <div class="font-mono font-bold text-sm text-secondary-700 dark:text-secondary-400 text-center">
-                    {{ formatNum(kpi.forecastedValue, 1) }}{{ kpi.unit === '%' ? '%' : '' }}
+                    {{ formatKpiForecastValue(horizonValue(kpi), kpi.meta, locale) }}
                   </div>
                 </div>
               </div>
@@ -316,14 +324,14 @@ const paginatedKpiForecasts = computed<any[]>(() => {
                 <span class="text-[11px] text-gray-500 dark:text-gray-400 font-medium">{{ t('analytics.timeseries.colTrend') }}</span>
                 <div class="flex items-center gap-1.5 font-bold" :class="trendColor(kpi.trend)">
                   <UIcon :name="trendIcon(kpi.trend)" class="w-4 h-4 shrink-0" />
-                  <span>{{ kpi.trend }}</span>
+                  <span>{{ trendText(kpi.trend) }}</span>
                 </div>
               </div>
 
               <!-- Recommended Action -->
-              <div v-if="kpi.recommendedAction" class="p-2.5 rounded-lg bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/40 text-xs text-amber-900 dark:text-amber-300 leading-relaxed">
+              <div class="p-2.5 rounded-lg bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/40 text-xs text-amber-900 dark:text-amber-300 leading-relaxed">
                 <span class="font-bold text-amber-950 dark:text-amber-200">{{ t('analytics.timeseries.colRecommendedAction') }}: </span>
-                <span>{{ kpi.recommendedAction }}</span>
+                <span>{{ auditAction(kpi) }}</span>
               </div>
 
               <!-- Card Footer: Index & Horizon -->
@@ -331,22 +339,22 @@ const paginatedKpiForecasts = computed<any[]>(() => {
                 <span class="text-xs text-slate-400 font-mono">
                   #{{ (mobilePage - 1) * mobilePageSize + Number(index) + 1 }}
                 </span>
-                <span class="text-[11px] text-gray-400">{{ kpi.targetHorizon || 'Q3 2026' }}</span>
+                <span class="text-[11px] text-gray-400">{{ horizonOf(kpi) }}</span>
               </div>
             </div>
 
             <!-- Mobile Pagination Controls -->
             <div
-              v-if="timeseriesState.kpiForecasts.length > mobilePageSize"
+              v-if="kpiViews.length > mobilePageSize"
               class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800"
             >
               <span class="text-xs text-slate-500 dark:text-slate-400">
-                {{ (mobilePage - 1) * mobilePageSize + 1 }}-{{ Math.min(mobilePage * mobilePageSize, timeseriesState.kpiForecasts.length) }} of {{ timeseriesState.kpiForecasts.length }}
+                {{ (mobilePage - 1) * mobilePageSize + 1 }}-{{ Math.min(mobilePage * mobilePageSize, kpiViews.length) }} of {{ kpiViews.length }}
               </span>
               <UPagination
                 v-model:page="mobilePage"
                 :items-per-page="mobilePageSize"
-                :total="timeseriesState.kpiForecasts.length"
+                :total="kpiViews.length"
                 size="md"
                 active-color="primary"
                 color="neutral"

@@ -473,13 +473,23 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       return
     }
 
+    const existingIdByTitle = new Map(
+      (reportForm.findings || [])
+        .filter(f => f.id)
+        .map(f => [f.title.trim().toLowerCase(), f.id])
+    )
+    const attachExistingId = (f: FindingItem): FindingItem => {
+      const matchId = existingIdByTitle.get(f.title.trim().toLowerCase())
+      return matchId ? { ...f, id: matchId } : { ...f }
+    }
+
     if (mode === 'replace' || !reportForm.findings || reportForm.findings.length === 0) {
-      reportForm.findings = JSON.parse(JSON.stringify(detected))
+      reportForm.findings = detected.map(attachExistingId)
     } else {
       const existing = new Set(reportForm.findings.map(f => f.title.toLowerCase().trim()))
       detected.forEach((d) => {
         if (!existing.has(d.title.toLowerCase().trim())) {
-          reportForm.findings.push(JSON.parse(JSON.stringify(d)))
+          reportForm.findings.push(attachExistingId(JSON.parse(JSON.stringify(d))))
           existing.add(d.title.toLowerCase().trim())
         }
       })

@@ -216,6 +216,31 @@ func (p *Producer) SendLogSync(ctx context.Context, level, message string, field
 	return nil
 }
 
+// SendRaw sends value to topic (not the producer's log topic) and waits for
+// the broker ack. Used by the activity log, which has its own topic.
+func (p *Producer) SendRaw(topic, key string, value []byte) error {
+	if p == nil || !p.IsEnabled() {
+		return fmt.Errorf("kafka producer disabled")
+	}
+	if p.producer == nil {
+		return fmt.Errorf("kafka sync producer not available")
+	}
+	msg := &sarama.ProducerMessage{
+		Topic: topic,
+		Value: sarama.ByteEncoder(value),
+		Headers: []sarama.RecordHeader{
+			{Key: []byte("service"), Value: []byte(p.serviceName)},
+		},
+	}
+	if key != "" {
+		msg.Key = sarama.StringEncoder(key)
+	}
+	if _, _, err := p.producer.SendMessage(msg); err != nil {
+		return fmt.Errorf("failed to send message: %w", err)
+	}
+	return nil
+}
+
 // Info sends an info level log
 func (p *Producer) Info(ctx context.Context, message string, fields map[string]interface{}) {
 	p.SendLog(ctx, "info", message, fields)
@@ -262,6 +287,9 @@ func (p *Producer) Close() error {
 
 // IsEnabled returns whether the producer is enabled
 func (p *Producer) IsEnabled() bool {
+	if p == nil {
+		return false
+	}
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 	return p.enabled

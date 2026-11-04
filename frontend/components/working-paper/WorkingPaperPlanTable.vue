@@ -1,6 +1,6 @@
 <template>
     <div class="mt-4 space-y-6">
-        <UCard class="shadow-sm mt-10">
+        <div class="mt-10">
         <TableEntities
           :data="store.filteredDataF05"
           :columns="store.columnsF05"
@@ -23,6 +23,12 @@
               >
                 {{ row.original.response || '-' }}
               </div>
+            </template>
+
+            <template #pic-cell="{ row }">
+              <span class="text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                {{ store.formatEmployeeName(row.original.pic) }}
+              </span>
             </template>
 
             <template #actions-cell="{ row }">
@@ -48,11 +54,12 @@
                 </div>
             </template>
         </TableEntities>
-        </UCard>
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { useRbac } from '~/composables/useRbac'
 import { useWorkingPaperStore } from '~/stores/working-paper'
 import { useI18n } from '~/composables/useI18n'
@@ -61,4 +68,8 @@ import { useI18n } from '~/composables/useI18n'
 const { t } = useI18n()
 const { canWrite } = useRbac()
 const store = useWorkingPaperStore()
+
+onMounted(() => {
+  store.fetchEmployees?.()
+})
 </script>

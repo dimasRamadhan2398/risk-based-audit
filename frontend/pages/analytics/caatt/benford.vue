@@ -115,7 +115,7 @@ const benfordChartOptions = computed(() => ({
         </UCard>
 
         <!-- Benford Table -->
-        <UCard>
+        <UCard class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 divide-gray-200 dark:divide-gray-800">
           <template #header>
             <div class="flex items-center gap-2">
               <UIcon name="i-heroicons-table-cells" class="text-primary-500" />
@@ -126,7 +126,7 @@ const benfordChartOptions = computed(() => ({
           <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
-                <tr class="border-b border-gray-200 dark:border-gray-700">
+                <tr class="bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
                   <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.benford.digit') }}</th>
                   <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.common.transactionCount') }}</th>
                   <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.benford.actualPercent') }}</th>
@@ -138,10 +138,10 @@ const benfordChartOptions = computed(() => ({
               <tbody>
                 <tr v-for="r in benfordState.records" :key="r.digit" :class="r.isSignificant ? 'bg-rose-50/50 dark:bg-rose-950/20' : ''" class="border-b border-gray-100 dark:border-gray-800">
                   <td class="text-center py-3 px-3 font-bold text-lg text-primary-600 dark:text-primary-400">{{ r.digit }}</td>
-                  <td class="text-right py-3 px-3 font-mono">{{ Number(r.actualCount).toLocaleString('id-ID') }}</td>
-                  <td class="text-right py-3 px-3 font-mono font-bold">{{ r.actualPct }}%</td>
-                  <td class="text-right py-3 px-3 font-mono text-gray-400">{{ r.expectedPct }}%</td>
-                  <td class="text-right py-3 px-3 font-mono font-bold" :class="r.deviationPct > 0 ? 'text-rose-500' : 'text-emerald-500'">
+                  <td class="text-right py-3 px-3 font-mono tabular-nums">{{ Number(r.actualCount).toLocaleString('id-ID') }}</td>
+                  <td class="text-right py-3 px-3 font-mono tabular-nums font-bold">{{ r.actualPct }}%</td>
+                  <td class="text-right py-3 px-3 font-mono tabular-nums text-gray-400">{{ r.expectedPct }}%</td>
+                  <td class="text-right py-3 px-3 font-mono tabular-nums font-bold" :class="r.deviationPct > 0 ? 'text-rose-500' : 'text-emerald-500'">
                     {{ r.deviationPct > 0 ? '+' : '' }}{{ r.deviationPct }}%
                   </td>
                   <td class="text-center py-3 px-3">

@@ -32,6 +32,9 @@
       <template #controlType-cell="{ row }">
         <UBadge :color="getControlTypeColor(row.original.controlType)" variant="subtle">{{ row.original.controlType }}</UBadge>
       </template>
+      <template #unitDivision-cell="{ row }">
+        <span class="text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">{{ store.formatDepartmentName(row.original.unitDivision) }}</span>
+      </template>
       <template #testResult-cell="{ row }">
         <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium" :class="getControlEffectivenessColorClass(row.original.testResult)">{{ row.original.testResult }}</span>
       </template>
@@ -50,6 +53,9 @@
         >
           {{ row.original.mitigationPlan || '-' }}
         </div>
+      </template>
+      <template #pic-cell="{ row }">
+        <span class="text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">{{ store.formatEmployeeName(row.original.pic) }}</span>
       </template>
       <template #dueDate-cell="{ row }">
         <span class="text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">{{ formatDate(row.original.dueDate) || '-' }}</span>
@@ -91,7 +97,7 @@
 
 <script setup lang="ts">
 import { useRbac } from '~/composables/useRbac'
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
 import { useI18n } from '~/composables/useI18n'
 import TableEntities from '~/components/shared/TableEntities.vue'
@@ -106,6 +112,7 @@ const { canWrite } = useRbac()
 const columns = computed(() => [
   { key: 'controlName', accessorKey: 'controlName', header: t('auditFieldwork.testControls.columns.name'), class: 'w-56 min-w-[180px]' },
   { key: 'controlType', accessorKey: 'controlType', header: t('auditFieldwork.testControls.columns.type'), class: 'w-36 min-w-[120px] whitespace-nowrap' },
+  { key: 'unitDivision', accessorKey: 'unitDivision', header: t('auditFieldwork.testControls.columns.unitDivision') || t('auditFieldwork.testControls.unitDivision') || 'Unit Divisi', class: 'w-44 min-w-[140px] whitespace-nowrap' },
   { key: 'testResult', accessorKey: 'testResult', header: t('auditFieldwork.testControls.columns.result'), class: 'w-36 min-w-[130px] whitespace-nowrap' },
   {
     key: 'finding',
@@ -121,6 +128,7 @@ const columns = computed(() => [
     class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
     tdClass: '!whitespace-normal break-words'
   },
+  { key: 'pic', accessorKey: 'pic', header: t('auditFieldwork.testControls.columns.pic') || t('auditFieldwork.testControls.pic') || 'PIC', class: 'w-44 min-w-[140px] whitespace-nowrap' },
   { key: 'dueDate', accessorKey: 'dueDate', header: t('auditFieldwork.testControls.columns.dueDate') || t('auditFieldwork.testControls.dueDate'), class: 'w-36 min-w-[120px] whitespace-nowrap' },
   { key: 'actions', accessorKey: 'actions', header: t('auditFieldwork.testControls.columns.actions'), class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
 ])
@@ -135,4 +143,9 @@ const getControlTypeColor = (type: string) => {
   }
   return colors[type] || 'neutral'
 }
+
+onMounted(() => {
+  store.fetchEmployees()
+  store.fetchDepartments()
+})
 </script>

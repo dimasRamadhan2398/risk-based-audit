@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"auth-service/pkg/activitylog"
 	"auth-service/pkg/config"
 	pkgKafka "auth-service/pkg/kafka"
 	pkgRedis "auth-service/pkg/redis"
@@ -16,6 +17,7 @@ type Registry struct {
 	config         *config.Config
 	eventPublisher pkgKafka.IEventPublisher
 	cacheRepo      ICacheRepository
+	activity       activitylog.Recorder
 }
 
 type IRepositoryRegistry interface {
@@ -31,6 +33,7 @@ type IRepositoryRegistry interface {
 	GetKafkaProducer() *pkgKafka.Producer
 	GetConfig() *config.Config
 	GetEventPublisher() pkgKafka.IEventPublisher
+	GetActivityRecorder() activitylog.Recorder
 }
 
 func NewRegistry(db *gorm.DB) IRepositoryRegistry {
@@ -68,6 +71,7 @@ func NewRegistryWithAll(
 	eventPublisher pkgKafka.IEventPublisher,
 	cacheRepo ICacheRepository,
 	cfg *config.Config,
+	activity activitylog.Recorder,
 ) IRepositoryRegistry {
 	return &Registry{
 		db:             db,
@@ -77,6 +81,7 @@ func NewRegistryWithAll(
 		config:         cfg,
 		eventPublisher: eventPublisher,
 		cacheRepo:      cacheRepo,
+		activity:       activity,
 	}
 }
 
@@ -132,4 +137,12 @@ func (r *Registry) GetConfig() *config.Config {
 
 func (r *Registry) GetEventPublisher() pkgKafka.IEventPublisher {
 	return r.eventPublisher
+}
+
+// GetActivityRecorder returns the activity log recorder (a no-op when none was wired).
+func (r *Registry) GetActivityRecorder() activitylog.Recorder {
+	if r.activity == nil {
+		return activitylog.NopRecorder{}
+	}
+	return r.activity
 }

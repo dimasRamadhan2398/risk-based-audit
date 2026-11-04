@@ -4,7 +4,7 @@
 
     <UDashboardPanelContent>
       <div class="space-y-6">
-        <UCard>
+        <UCard :ui="{ root: 'bg-transparent!' }" class="rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 divide-gray-200 dark:divide-gray-800">
           <template #header>
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <h3 class="text-lg font-semibold">{{ t('settings.devices.registeredDevices') }}</h3>
@@ -12,7 +12,7 @@
             </div>
           </template>
 
-          <UTable :rows="devices" :columns="columns">
+          <UTable :rows="devices" :columns="columns" :ui="{ th: 'bg-gray-100 dark:bg-gray-800/50' }">
             <template #created_at-data="{ row }">
               {{ formatDate(row.original.created_at) }}
             </template>

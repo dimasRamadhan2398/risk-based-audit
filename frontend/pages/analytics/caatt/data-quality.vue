@@ -181,7 +181,7 @@ const paginatedRecords = computed<any[]>(() => {
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.dataQuality.averageCompleteness') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ dqState.summary.avgCompleteness }}%
               </h4>
             </div>
@@ -204,7 +204,7 @@ const paginatedRecords = computed<any[]>(() => {
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.dataQuality.averageAccuracy') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ dqState.summary.avgAccuracy }}%
               </h4>
             </div>
@@ -227,7 +227,7 @@ const paginatedRecords = computed<any[]>(() => {
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.dataQuality.averageDelay') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ dqState.summary.avgTimelinessDays }}
               </h4>
             </div>
@@ -250,7 +250,7 @@ const paginatedRecords = computed<any[]>(() => {
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.dataQuality.profiledTables') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ dqState.summary.tablesProfiled }}
               </h4>
             </div>
@@ -283,7 +283,7 @@ const paginatedRecords = computed<any[]>(() => {
         </UCard>
 
         <!-- DQ Table -->
-        <UCard class="lg:col-span-2">
+        <UCard class="lg:col-span-2 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 divide-gray-200 dark:divide-gray-800">
           <template #header>
             <div class="flex items-center gap-2">
               <UIcon name="i-heroicons-table-cells" class="text-primary-500" />
@@ -294,7 +294,7 @@ const paginatedRecords = computed<any[]>(() => {
           <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
-                <tr class="border-b border-gray-200 dark:border-gray-700">
+                <tr class="bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
                   <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.dataQuality.tableName') }}</th>
                   <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.dataQuality.zone') }}</th>
                   <th class="text-right py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.caattUi.dataQuality.totalRows') }}</th>
@@ -321,11 +321,11 @@ const paginatedRecords = computed<any[]>(() => {
                       {{ r.zone }}
                     </UBadge>
                   </td>
-                  <td class="text-right py-3 px-3 font-mono">{{ Number(r.totalRows).toLocaleString('id-ID') }}</td>
-                  <td class="text-right py-3 px-3 font-mono font-bold text-emerald-500">{{ r.completenessPct }}%</td>
-                  <td class="text-right py-3 px-3 font-mono font-bold text-primary-600 dark:text-primary-400">{{ r.accuracyPct }}%</td>
-                  <td class="text-right py-3 px-3 font-mono text-gray-500">{{ r.timelinessDays }} h</td>
-                  <td class="text-right py-3 px-3 font-mono" :class="r.duplicateCount > 0 ? 'text-rose-500 font-bold' : 'text-gray-400'">
+                  <td class="text-right py-3 px-3 font-mono tabular-nums">{{ Number(r.totalRows).toLocaleString('id-ID') }}</td>
+                  <td class="text-right py-3 px-3 font-mono tabular-nums font-bold text-emerald-500">{{ r.completenessPct }}%</td>
+                  <td class="text-right py-3 px-3 font-mono tabular-nums font-bold text-primary-600 dark:text-primary-400">{{ r.accuracyPct }}%</td>
+                  <td class="text-right py-3 px-3 font-mono tabular-nums text-gray-500">{{ r.timelinessDays }} h</td>
+                  <td class="text-right py-3 px-3 font-mono tabular-nums" :class="r.duplicateCount > 0 ? 'text-rose-500 font-bold' : 'text-gray-400'">
                     {{ r.duplicateCount }}
                   </td>
                   <td class="text-center py-3 px-3">

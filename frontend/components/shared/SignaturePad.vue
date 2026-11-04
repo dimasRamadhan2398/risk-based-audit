@@ -101,6 +101,7 @@
 
 <script setup lang="ts">
 const { t } = useI18n()
+const appToast = useAppToast()
 import { ref, onMounted, watch, nextTick } from 'vue'
 
 const props = withDefaults(
@@ -265,7 +266,7 @@ const handleFileUpload = (e: Event) => {
   if (!file) return
 
   if (file.size > 2 * 1024 * 1024) {
-    alert('File gambar terlalu besar (maksimal 2MB).')
+    appToast.warning(t('common.signaturePad.fileTooLarge'))
     return
   }
 

@@ -1,4 +1,5 @@
 import { ref, computed } from 'vue'
+import { currentFiscalYear } from '~/utils/fiscalPeriod'
 
 /**
  * Returns a dynamic 7-year fiscal year range: 3 years back (historical CRP and
@@ -29,7 +30,7 @@ export function getFiscalYearSelectOptions(baseYear: number = new Date().getFull
 }
 
 // Module-level shared ref for synchronizing selected fiscal year across the Risk Profile module suite
-const sharedFiscalYear = ref<number>(new Date().getFullYear())
+const sharedFiscalYear = ref<number>(currentFiscalYear())
 
 export function useFiscalYear() {
   const currentYear = computed(() => new Date().getFullYear())

@@ -7,7 +7,7 @@ import {
   sumActivityMandays,
   toCount
 } from '~/utils/annualPlanPayload'
-import { ANNUAL_ACTIVITY_TYPE_OPTIONS, AnnualAuditPlanStatus, type AnnualPlanForm } from '~/types/audit'
+import { AnnualAuditPlanStatus, type AnnualPlanForm } from '~/types/audit'
 
 const row = (over: Record<string, unknown> = {}) => ({
   id: 'row-uuid-1',
@@ -59,14 +59,10 @@ describe('Formulir Rencana Kegiatan Audit: activity row payload', () => {
     expect(payload).toEqual({
       id: 'row-uuid-1',
       itemNumber: '1',
-      activityCode: 'ASR-2026-001',
       name: 'Keuangan Cabang',
       category: 'Assurance',
       departmentId: 'dept-fin',
       auditUniverseId: 'au-fin',
-      justification: 'Nilai transaksi tinggi',
-      auditObjective: 'Menilai kontrol kas',
-      auditFocus: 'Rekonsiliasi bank',
       timelineText: 'Q1 2026',
       auditorCount: 3,
       totalMandays: 30,
@@ -84,6 +80,14 @@ describe('Formulir Rencana Kegiatan Audit: activity row payload', () => {
     expect(payload).not.toHaveProperty('groupTitle')
     expect(payload).not.toHaveProperty('notesObjective')
     expect(payload.itemNumber).toBe('3')
+  })
+
+  it('does not send the fields that moved to the Audit Activity Plan', () => {
+    const payload = buildAnnualActivityPayload(row() as never, 0)
+
+    for (const key of ['activityCode', 'justification', 'auditObjective', 'auditFocus']) {
+      expect(payload).not.toHaveProperty(key)
+    }
   })
 
   it('keeps the row id on edit and omits it for a new row', () => {
@@ -107,11 +111,12 @@ describe('Formulir Rencana Kegiatan Audit: activity row payload', () => {
 })
 
 describe('Formulir Rencana Kegiatan Audit: plan payload', () => {
-  it('sends the plan header (title, activityType, year) and the rows', () => {
+  it('sends the plan header (title, year) and the rows, but not activityType', () => {
     const payload = buildAnnualPlanPayload(form(), { quarters: ['Q1', 'Q3'], attachments: [] })
 
     expect(payload.title).toBe('Rencana Audit 2026')
-    expect(payload.activityType).toBe('Assurance')
+    // Jenis Kegiatan Audit belongs to the Audit Activity Plan; PUT is partial, so the stored value stays.
+    expect(payload).not.toHaveProperty('activityType')
     expect(payload.year).toBe(2026)
     expect(payload.selectedMonths).toEqual([0, 2, 5])
     expect(payload.quarters).toEqual(['Q1', 'Q3'])
@@ -125,16 +130,6 @@ describe('Formulir Rencana Kegiatan Audit: plan payload', () => {
     for (const key of ['auditorCount', 'daysPerAuditor', 'supervisorId', 'supervisorName', 'totalMandays']) {
       expect(payload).not.toHaveProperty(key)
     }
-  })
-
-  it('allows an empty activityType for now', () => {
-    const payload = buildAnnualPlanPayload(form({ activityType: '' }), { quarters: [], attachments: [] })
-
-    expect(payload.activityType).toBe('')
-  })
-
-  it('offers exactly the four Jenis Kegiatan Audit values', () => {
-    expect([...ANNUAL_ACTIVITY_TYPE_OPTIONS]).toEqual(['Assurance', 'Audit Khusus', 'Audit Tujuan Tertentu', 'Audit Investigasi'])
   })
 })
 
@@ -158,15 +153,10 @@ describe('the form template matches the Formulir Rencana Kegiatan Audit fields',
 
   it.each([
     'annualAudit.form.year',
-    'annualAudit.form.activityType',
     'annualAudit.form.planTitle',
-    'annualAudit.form.assignmentCode',
     'annualAudit.form.objectName',
     'annualAudit.form.auditType',
     'annualAudit.form.auditableEntityLabel',
-    'annualAudit.form.justification',
-    'annualAudit.form.auditObjective',
-    'annualAudit.form.auditFocus',
     'annualAudit.form.scheduleText',
     'annualAudit.form.teamCount',
     'annualAudit.form.totalMandays',
@@ -175,11 +165,18 @@ describe('the form template matches the Formulir Rencana Kegiatan Audit fields',
     expect(src).toContain(`t('${key}')`)
   })
 
+  it.each([
+    'annualAudit.form.activityType',
+    'annualAudit.form.assignmentCode',
+    'annualAudit.form.justification',
+    'annualAudit.form.auditObjective',
+    'annualAudit.form.auditFocus'
+  ])('no longer has the %s field (moved to the Audit Activity Plan)', (key) => {
+    expect(src).not.toContain(`t('${key}')`)
+  })
+
   it('binds the Audit Universe picker and the row fields to the payload names', () => {
     expect(src).toContain('@update:model-value="(val: any) => handleSelectAuditableEntity(activity, val)"')
-    expect(src).toContain('v-model="activity.justification"')
-    expect(src).toContain('v-model="activity.auditObjective"')
-    expect(src).toContain('v-model="activity.auditFocus"')
     expect(src).toContain('v-model.number="activity.auditorCount"')
     expect(src).toContain('v-model.number="activity.totalMandays"')
     expect(src).toContain('v-model="activity.supervisorName"')

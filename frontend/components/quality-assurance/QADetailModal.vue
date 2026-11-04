@@ -123,7 +123,7 @@
                   {{ t('qualityAssurance.detailModal.conductedBy') }}
                 </p>
                 <p class="col-span-1 sm:col-span-2 font-bold text-orange-500">
-                  {{ store.selectedReport?.conductedBy }}
+                  {{ store.formatCompanyName(store.selectedReport?.conductedBy) }}
                 </p>
               </div>
               <div

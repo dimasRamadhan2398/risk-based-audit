@@ -152,6 +152,16 @@ func TestEveryWriteRouteRefusesNonWriters(t *testing.T) {
 		if !strings.HasPrefix(r.Path, "/api/v1/") || strings.HasPrefix(r.Path, "/api/v1/data-sources") {
 			continue
 		}
+		// Legacy mode: the org-levels catch-all answers 404 to everyone and
+		// never touches data; the flexible role checks live in org_structure_test.go.
+		if strings.HasPrefix(r.Path, "/api/v1/org-levels") {
+			for name, tok := range tokens {
+				if c := doViewerReq(engine, r.Method, "/api/v1/org-levels", tok); c != http.StatusNotFound {
+					t.Errorf("%s %s %s = %d, want 404 (org structure not enabled)", name, r.Method, r.Path, c)
+				}
+			}
+			continue
+		}
 		seen++
 		path := r.Path
 		for _, seg := range strings.Split(r.Path, "/") {

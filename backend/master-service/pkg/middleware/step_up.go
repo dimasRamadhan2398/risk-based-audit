@@ -67,9 +67,9 @@ func (s RedisJTIStore) ConsumeOnce(ctx context.Context, jti string, ttl time.Dur
 
 var (
 	errStepUpRequired = apperrors.New(apperrors.CodeStepUpRequired,
-		"Please confirm this change with your password.", http.StatusUnauthorized)
+		"Please confirm this change with your password.", http.StatusForbidden)
 	errStepUpInvalid = apperrors.New(apperrors.CodeStepUpInvalid,
-		"The password confirmation is invalid, expired or already used. Please confirm again.", http.StatusUnauthorized)
+		"The password confirmation is invalid, expired or already used. Please confirm again.", http.StatusForbidden)
 	errStepUpUnavailable = apperrors.New(apperrors.CodeStepUpUnavailable,
 		"The password confirmation cannot be checked right now. Please try again.", http.StatusServiceUnavailable)
 )

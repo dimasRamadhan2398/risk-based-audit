@@ -78,7 +78,7 @@
           <template #status-cell="{ row }">
             <div class="flex justify-center">
               <UBadge
-                :color="row.original.status === 'Aktif' ? 'success' : 'warning'"
+                :color="row.original.status === 'Aktif' ? 'secondary' : 'warning'"
                 variant="subtle"
                 class="rounded font-semibold"
               >
@@ -108,34 +108,34 @@
           <template #actions-cell="{ row }">
             <div class="flex justify-center items-center gap-1">
               <UTooltip v-if="canAccessFiles" :text="t('auditCharter.tooltips.viewGuideline')">
-              <UButton
-                v-if="row.original.file_url && row.original.file_url !== '#'"
-                icon="i-lucide-eye"
-                color="neutral"
-                variant="ghost"
-                size="md"
-                @click="openFile(row.original.file_url)"
-              />
+                <UButton
+                  v-if="row.original.file_url && row.original.file_url !== '#'"
+                  icon="i-lucide-eye"
+                  color="neutral"
+                  variant="ghost"
+                  size="md"
+                  @click="openFile(row.original.file_url, row.original.name)"
+                />
               </UTooltip>
               <UTooltip :text="t('auditCharter.tooltips.editGuideline')">
-              <UButton
-                v-if="canManageCharter"
-                size="md"
-                color="warning"
-                variant="ghost"
-                icon="i-lucide-edit"
-                @click="store.handleEdit(row.original)"
-              />
+                <UButton
+                  v-if="canManageCharter"
+                  size="md"
+                  color="warning"
+                  variant="ghost"
+                  icon="i-lucide-edit"
+                  @click="store.handleEdit(row.original)"
+                />
               </UTooltip>
               <UTooltip :text="t('auditCharter.tooltips.deleteGuideline')">
-              <UButton
-                v-if="canManageCharter"
-                size="md"
-                color="error"
-                variant="ghost"
-                icon="i-lucide-trash-2"
-                @click="confirmDelete(row.original)"
-              />
+                <UButton
+                  v-if="canManageCharter"
+                  size="md"
+                  color="error"
+                  variant="ghost"
+                  icon="i-lucide-trash-2"
+                  @click="confirmDelete(row.original)"
+                />
               </UTooltip>
             </div>
           </template>
@@ -182,7 +182,7 @@
                 #{{ item.no }}
               </span>
               <UBadge
-                :color="item.status === 'Aktif' ? 'success' : 'warning'"
+                :color="item.status === 'Aktif' ? 'secondary' : 'warning'"
                 variant="subtle"
                 class="rounded font-semibold text-xs"
               >
@@ -219,7 +219,7 @@
                 variant="soft"
                 size="xs"
                 :label="t('common.actions.view') || 'Lihat'"
-                @click="openFile(item.file_url)"
+                @click="openFile(item.file_url, item.name)"
               />
               <UButton
                 v-if="canManageCharter"
@@ -264,6 +264,30 @@
           </div>
         </div>
       </div>
+          </div>
+
+          <!-- Mobile Pagination -->
+          <div
+            v-if="store.pagination.total > store.pagination.page_size"
+            class="flex flex-col sm:flex-row items-center justify-between gap-2 pt-2 px-1"
+          >
+            <span class="text-xs text-[var(--text-muted)]">
+              Total: {{ store.pagination.total }} (Hal. {{ store.pagination.page }})
+            </span>
+            <UPagination
+              v-model:page="store.pagination.page"
+              :total="store.pagination.total"
+              :items-per-page="store.pagination.page_size"
+              size="xs"
+              active-color="primary"
+              color="neutral"
+              variant="outline"
+              class="max-w-full overflow-x-auto"
+              @update:page="(p) => store.fetchGuidelines(p)"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -277,6 +301,8 @@ import { useRbac } from '~/composables/useRbac'
 import TableEntities from '~/components/shared/TableEntities.vue'
 import { useGlobalModalStore } from '~/stores/global-modal'
 import ReadMoreText from '~/components/shared/ReadMoreText.vue'
+import { openUploadedFile } from '~/utils/documentViewer'
+import { extractErrorMessage } from '~/utils/error'
 
 const { t, locale } = useI18n()
 const store = useGuidelineStore()
@@ -319,15 +345,13 @@ const formatMonthYear = (val: string) => {
   return `${monthsEn[mIndex]} ${year}`
 }
 
-const openFile = (fileUrl: string) => {
-  if (!fileUrl || fileUrl === '#') return
-  if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
-    window.open(fileUrl, '_blank')
-    return
+const openFile = async (fileUrl: string, name?: string) => {
+  try {
+    await openUploadedFile(fileUrl, getAuditServiceBaseUrl(), name)
+  } catch (err) {
+    console.error('Failed to open guideline file:', err)
+    useAppToast().error(t('auditCharter.toasts.guideline.openFailed'), extractErrorMessage(err, t('auditCharter.toasts.guideline.openFailed')))
   }
-  const baseUrl = getAuditServiceBaseUrl()
-  const finalUrl = fileUrl.startsWith('/') ? `${baseUrl.replace(/\/api\/v1$/, '')}${fileUrl}` : `${baseUrl}/${fileUrl}`
-  window.open(finalUrl, '_blank')
 }
 
 const confirmDelete = async (item: any) => {

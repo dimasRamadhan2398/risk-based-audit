@@ -1,11 +1,14 @@
 <template>
   <div>
     <!-- Loading State -->
-    <UCard v-if="store.loading" class="w-full border border-[var(--border-main)] bg-[var(--bg-main)]">
+    <UCard
+      v-if="store.loading"
+      class="w-full border border-[var(--border-main)] bg-[var(--bg-main)]"
+    >
       <div class="space-y-4 py-4 animate-pulse">
-        <div class="h-6 bg-gray-200 rounded w-1/4"></div>
-        <div class="h-4 bg-gray-200 rounded w-3/4"></div>
-        <div class="h-4 bg-gray-200 rounded w-5/6"></div>
+        <div class="h-6 bg-gray-200 rounded w-1/4" />
+        <div class="h-4 bg-gray-200 rounded w-3/4" />
+        <div class="h-4 bg-gray-200 rounded w-5/6" />
       </div>
     </UCard>
 
@@ -26,7 +29,8 @@
             {{ t('strategicPlan.vmg.emptySubtitle') }}
           </p>
         </div>
-        <UButton v-if="canWriteMasterData"
+        <UButton
+          v-if="canWriteMasterData"
           :label="t('strategicPlan.vmg.addVmg')"
           icon="i-lucide-plus"
           color="primary"
@@ -47,20 +51,24 @@
           <h3 class="text-lg font-bold text-[var(--text-main)]">
             {{ t('strategicPlan.vmg.title') }}
           </h3>
-          <UButton v-if="canWriteMasterData"
+          <UButton
+            v-if="canWriteMasterData"
             icon="i-lucide-pencil"
             color="neutral"
             variant="ghost"
             size="sm"
-            @click="store.openModal"
             :aria-label="t('strategicPlan.vmg.editVmg')"
+            @click="store.openModal"
           />
         </div>
       </template>
 
       <div class="space-y-6">
         <!-- Target Period -->
-        <div v-if="parsedPeriod" class="pb-3 border-b border-[var(--border-main)]">
+        <div
+          v-if="parsedPeriod"
+          class="pb-3 border-b border-[var(--border-main)]"
+        >
           <p class="text-sm font-semibold text-[var(--text-main)]">
             {{ t('strategicPlan.vmg.targetPeriod', { start: parsedPeriod.start, end: parsedPeriod.end, duration: parsedPeriod.duration }) }}
           </p>
@@ -104,7 +112,10 @@
           <h4 class="text-sm font-bold uppercase tracking-wider text-[var(--text-muted)]">
             {{ t('strategicPlan.vmg.goals') }}
           </h4>
-          <div v-if="store.activeVmg.goals && store.activeVmg.goals.length > 0" class="mt-3 space-y-2 pl-1">
+          <div
+            v-if="store.activeVmg.goals && store.activeVmg.goals.length > 0"
+            class="mt-3 space-y-2 pl-1"
+          >
             <div
               v-for="g in store.activeVmg.goals"
               :key="g.id"

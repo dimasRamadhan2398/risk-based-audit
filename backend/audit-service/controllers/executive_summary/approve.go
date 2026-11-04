@@ -199,16 +199,17 @@ func ApproveHandler(db *gorm.DB) gin.HandlerFunc {
 		res := db.WithContext(ctx).Model(&models.ExecutiveSummary{}).
 			Where("id = ? AND status = ?", id, StatusDraft).
 			Updates(map[string]interface{}{
-				"status":            StatusApproved,
-				"signature_tempat":  place,
-				"signature_tanggal": date,
-				"signature_image":   image,
-				"signature_name":    signerName,
-				"signature_role":    signerRole,
-				"approved_by":       approvedBy,
-				"approved_by_role":  approverRole,
-				"approved_at":       now,
-				"updated_at":        now,
+				"status":              StatusApproved,
+				"signature_tempat":    place,
+				"signature_tanggal":   date,
+				"signature_image":     image,
+				"signature_name":      signerName,
+				"signature_role":      signerRole,
+				"approved_by":         approvedBy,
+				"approved_by_user_id": callerUserID(c),
+				"approved_by_role":    approverRole,
+				"approved_at":         now,
+				"updated_at":          now,
 			})
 		if res.Error != nil {
 			response.InternalServerError(c, "Failed to approve ExecutiveSummary")
@@ -228,6 +229,13 @@ func ApproveHandler(db *gorm.DB) gin.HandlerFunc {
 		}
 		response.OK(c, "Executive summary approved successfully", approved)
 	}
+}
+
+// callerUserID is the authenticated user's id (business key, survives username changes)
+func callerUserID(c *gin.Context) string {
+	userID, _ := c.Get("user_id")
+	s, _ := userID.(string)
+	return strings.TrimSpace(s)
 }
 
 // callerName is the authenticated user's username, falling back to the user id

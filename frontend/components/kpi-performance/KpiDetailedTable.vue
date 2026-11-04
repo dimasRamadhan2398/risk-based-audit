@@ -195,22 +195,22 @@ watch(() => store.isAddModalOpen, (open, wasOpen) => {
         class="w-full sm:w-48"
       />
       <UButton
+        v-if="hasFilters || search"
         :label="t('kpiPerformance.table.resetFilter')"
         icon="i-lucide-rotate-ccw"
         color="neutral"
         variant="outline"
         class="w-full sm:w-auto justify-center"
-        :disabled="!hasFilters && !search"
         @click="resetFilters"
       />
     </div>
 
-    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-x-auto shadow-sm">
+    <div class="bg-transparent rounded-xl border border-gray-200 dark:border-gray-800 overflow-x-auto shadow-sm">
       <UTable
         :columns="columns"
         :data="rows"
         :loading="perfStore.kpiBreakdownLoading"
-        :ui="{ th: 'bg-gray-100 dark:bg-gray-800/50' }"
+        :ui="{ th: 'bg-gray-100 dark:bg-gray-800/50', td: 'bg-transparent' }"
       >
         <template #metric-cell="{ row }">
           <span class="block font-bold text-gray-900 dark:text-white whitespace-normal break-words">{{ row.original.metric }}</span>

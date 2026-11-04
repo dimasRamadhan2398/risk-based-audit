@@ -90,6 +90,8 @@ type RiskRequest struct {
 
 type IRiskService interface {
 	GetAll(ctx context.Context) ([]RiskResponse, error)
+	List(ctx context.Context, f repositories.RiskFilter) (*RiskPage, error)
+	Categories(ctx context.Context, fiscalYear int) ([]string, error)
 	Create(ctx context.Context, req *RiskRequest) (*RiskResponse, error)
 	Update(ctx context.Context, id uuid.UUID, req *RiskRequest) (*RiskResponse, error)
 	Delete(id uuid.UUID) error
@@ -178,7 +180,38 @@ func (s *riskService) GetAll(ctx context.Context) ([]RiskResponse, error) {
 	if err != nil {
 		return nil, err
 	}
+	return s.toResponses(ctx, registers), nil
+}
 
+// RiskPage is one page of risks. Total counts every row matching the filter,
+// before pagination. For an unpaged call Page=1, PageSize=Total.
+type RiskPage struct {
+	Data       []RiskResponse
+	Page       int
+	PageSize   int
+	Total      int64
+	TotalPages int64
+}
+
+// List returns risks matching f in SQL (filter, order, then page).
+func (s *riskService) List(ctx context.Context, f repositories.RiskFilter) (*RiskPage, error) {
+	registers, total, err := s.repo.FindPage(f)
+	if err != nil {
+		return nil, err
+	}
+	page := &RiskPage{Data: s.toResponses(ctx, registers), Page: 1, PageSize: int(total), Total: total, TotalPages: 1}
+	if f.Paged {
+		page.Page, page.PageSize = f.Page, f.PageSize
+		page.TotalPages = (total + int64(f.PageSize) - 1) / int64(f.PageSize)
+	}
+	return page, nil
+}
+
+func (s *riskService) Categories(_ context.Context, fiscalYear int) ([]string, error) {
+	return s.repo.DistinctCategories(fiscalYear)
+}
+
+func (s *riskService) toResponses(ctx context.Context, registers []models.RiskRegister) []RiskResponse {
 	// One master snapshot for the whole list; nil if master is unreachable.
 	idx := s.locationIndexOrNil(ctx)
 
@@ -198,8 +231,7 @@ func (s *riskService) GetAll(ctx context.Context) ([]RiskResponse, error) {
 			Assessments: toAssessmentResponses(reg.Assessments),
 		})
 	}
-
-	return data, nil
+	return data
 }
 
 func (s *riskService) Create(ctx context.Context, req *RiskRequest) (*RiskResponse, error) {

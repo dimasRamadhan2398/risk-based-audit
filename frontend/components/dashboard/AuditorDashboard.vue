@@ -126,7 +126,7 @@
             @retry="card.retry"
           >
             <div class="mt-1">
-              <h4 class="text-xl font-extrabold leading-tight text-gray-900 dark:text-white">
+              <h4 class="text-xl font-extrabold leading-tight text-gray-900 dark:text-white tabular-nums">
                 {{ card.value }}
               </h4>
               <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">

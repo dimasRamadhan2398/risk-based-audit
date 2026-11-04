@@ -64,11 +64,14 @@ func (r *RiskRoute) Run() {
 	{
 		log.Printf("[RiskRoute] Registered routes under /api/v1/risks:")
 		log.Printf("  GET    /api/v1/risks")
+		log.Printf("  GET    /api/v1/risks/categories")
 		log.Printf("  POST   /api/v1/risks")
 		log.Printf("  PUT    /api/v1/risks/:id")
 		log.Printf("  DELETE /api/v1/risks/:id")
 
 		apiV1.GET("/risks", r.riskCtrl.ListRisks)
+		// Static path, registered ahead of the /risks/:id routes.
+		apiV1.GET("/risks/categories", r.riskCtrl.ListCategories)
 		apiV1.POST("/risks", r.riskCtrl.CreateRisk)
 		apiV1.PUT("/risks/:id", r.riskCtrl.UpdateRisk)
 		apiV1.DELETE("/risks/:id", r.riskCtrl.DeleteRisk)

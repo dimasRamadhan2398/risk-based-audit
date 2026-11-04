@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
 	"time"
 
 	"audit-service/models"
@@ -315,87 +317,129 @@ func seedAuditCharters(db *gorm.DB) error {
 	return nil
 }
 
+// seedDocumentName is the file the seeded guidelines and SOPs point at.
+const seedDocumentName = "DOKUMENTASI_FITUR_AUDITSPHERE.pdf"
+
+// placeholderPDF is a minimal one-page PDF, used only when the real document
+// cannot be found next to the repo.
+const placeholderPDF = "%PDF-1.4\n" +
+	"1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n" +
+	"2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n" +
+	"3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 300 144]/Contents 4 0 R/Resources<</Font<</F1 5 0 R>>>>>>endobj\n" +
+	"4 0 obj<</Length 46>>stream\nBT /F1 14 Tf 20 70 Td (AuditSphere document) Tj ET\nendstream endobj\n" +
+	"5 0 obj<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>endobj\n" +
+	"trailer<</Root 1 0 R/Size 6>>\n%%EOF\n"
+
+// ensureSeedDocument makes uploads/<seedDocumentName> exist and returns its size.
+// It copies docs/DOKUMENTASI FITUR AUDITSPHERE.pdf from the repo when that is
+// reachable, otherwise writes a small placeholder. An existing file is kept.
+func ensureSeedDocument() int64 {
+	dest := filepath.Join("uploads", seedDocumentName)
+	if info, err := os.Stat(dest); err == nil {
+		return info.Size()
+	}
+	if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
+		logger.Warn("Could not create uploads dir for the seed document: " + err.Error())
+		return int64(len(placeholderPDF))
+	}
+	for _, src := range []string{
+		filepath.Join("..", "..", "docs", "DOKUMENTASI FITUR AUDITSPHERE.pdf"),
+		filepath.Join("docs", "DOKUMENTASI FITUR AUDITSPHERE.pdf"),
+	} {
+		if data, err := os.ReadFile(src); err == nil {
+			if err := os.WriteFile(dest, data, 0o644); err == nil {
+				return int64(len(data))
+			}
+		}
+	}
+	if err := os.WriteFile(dest, []byte(placeholderPDF), 0o644); err != nil {
+		logger.Warn("Could not write the seed document: " + err.Error())
+	}
+	return int64(len(placeholderPDF))
+}
+
 func seedGuidelinesAndSops(db *gorm.DB) error {
+	docSize := ensureSeedDocument()
 	guidelines := []models.AuditGuideline{
 		{
 			Name:          "Pedoman pengelolaan Satuan Pengawasan Intern menjadi Kebijakan Satuan Pengelolaan Intern",
 			Status:        "Aktif",
 			EffectiveDate: "2026-06",
 			FileName:      "Pedoman_SPI_v1.0.pdf",
-			FileUrl:       "/uploads/dummy_guideline.pdf",
-			FileSize:      102400,
+			FileUrl:       "/uploads/" + seedDocumentName,
+			FileSize:      docSize,
 		},
 		{
 			Name:          "Draft Pedoman Pelaksanaan Quality Assurance and Improvement Program (QAIP)",
 			Status:        "Sedang Diperbarui",
 			EffectiveDate: "2026-06",
 			FileName:      "Draft_QAIP_v1.0.pdf",
-			FileUrl:       "/uploads/dummy_guideline.pdf",
-			FileSize:      102400,
+			FileUrl:       "/uploads/" + seedDocumentName,
+			FileSize:      docSize,
 		},
 		{
 			Name:          "Pedoman Pelaksanaan Audit Operasional",
 			Status:        "Sedang Diperbarui",
 			EffectiveDate: "2026-06",
 			FileName:      "Pedoman_Audit_Operasional.pdf",
-			FileUrl:       "/uploads/dummy_guideline.pdf",
-			FileSize:      102400,
+			FileUrl:       "/uploads/" + seedDocumentName,
+			FileSize:      docSize,
 		},
 		{
 			Name:          "Pedoman Pelaksanaan Probity Audit",
 			Status:        "Sedang Diperbarui",
 			EffectiveDate: "2026-06",
 			FileName:      "Pedoman_Probity_Audit.pdf",
-			FileUrl:       "/uploads/dummy_guideline.pdf",
-			FileSize:      102400,
+			FileUrl:       "/uploads/" + seedDocumentName,
+			FileSize:      docSize,
 		},
 		{
 			Name:          "Pedoman Pelaksanaan Assurance Non Audit (Evaluasi dan reviu)",
 			Status:        "Sedang Diperbarui",
 			EffectiveDate: "2026-06",
 			FileName:      "Pedoman_Assurance_Non_Audit.pdf",
-			FileUrl:       "/uploads/dummy_guideline.pdf",
-			FileSize:      102400,
+			FileUrl:       "/uploads/" + seedDocumentName,
+			FileSize:      docSize,
 		},
 		{
 			Name:          "Pedoman Penulisan dan Pelaporan Laporan Hasil Audit, Laporan Hasil Investigasi serta Laporan Hasil Evaluasi dan Laporan Hasil Reviu",
 			Status:        "Sedang Diperbarui",
 			EffectiveDate: "2026-06",
 			FileName:      "Pedoman_Pelaporan_Audit.pdf",
-			FileUrl:       "/uploads/dummy_guideline.pdf",
-			FileSize:      102400,
+			FileUrl:       "/uploads/" + seedDocumentName,
+			FileSize:      docSize,
 		},
 		{
 			Name:          "Pedoman Pelaksanaan Monitoring Tindak Lanjut Rekomendasi Audit Internal dan Eksternal",
 			Status:        "Aktif",
 			EffectiveDate: "2026-06",
 			FileName:      "Pedoman_Monitoring_Tindak_Lanjut.pdf",
-			FileUrl:       "/uploads/dummy_guideline.pdf",
-			FileSize:      102400,
+			FileUrl:       "/uploads/" + seedDocumentName,
+			FileSize:      docSize,
 		},
 		{
 			Name:          "Kerangka Kerja Penerapan Continous Auditing and Countinous Monitoring (CACM)",
 			Status:        "Aktif",
 			EffectiveDate: "2026-06",
 			FileName:      "Kerangka_Kerja_CACM.pdf",
-			FileUrl:       "/uploads/dummy_guideline.pdf",
-			FileSize:      102400,
+			FileUrl:       "/uploads/" + seedDocumentName,
+			FileSize:      docSize,
 		},
 		{
 			Name:          "Pedoman Kendali mutu Audit",
 			Status:        "Sedang Diperbarui",
 			EffectiveDate: "2026-06",
 			FileName:      "Pedoman_Kendali_Mutu.pdf",
-			FileUrl:       "/uploads/dummy_guideline.pdf",
-			FileSize:      102400,
+			FileUrl:       "/uploads/" + seedDocumentName,
+			FileSize:      docSize,
 		},
 		{
 			Name:          "Pedoman Penyusunan Program Kerja Audit Tahunan",
 			Status:        "Sedang Diperbarui",
 			EffectiveDate: "2026-06",
 			FileName:      "Pedoman_Penyusunan_PKAT.pdf",
-			FileUrl:       "/uploads/dummy_guideline.pdf",
-			FileSize:      102400,
+			FileUrl:       "/uploads/" + seedDocumentName,
+			FileSize:      docSize,
 		},
 	}
 
@@ -420,8 +464,8 @@ func seedGuidelinesAndSops(db *gorm.DB) error {
 			Status:        "Sedang Diperbarui",
 			EffectiveDate: "2026-06",
 			FileName:      "SOP_Kompilasi_Hasil_Audit.pdf",
-			FileUrl:       "/uploads/dummy_sop.pdf",
-			FileSize:      51200,
+			FileUrl:       "/uploads/" + seedDocumentName,
+			FileSize:      docSize,
 		},
 		{
 			Name:          "SOP/Working Instruction Penyusunan dan Pelaporan Laporan Kinerja Triwulan",
@@ -429,8 +473,8 @@ func seedGuidelinesAndSops(db *gorm.DB) error {
 			Status:        "Sedang Diperbarui",
 			EffectiveDate: "2026-06",
 			FileName:      "SOP_Laporan_Kinerja_Triwulan.pdf",
-			FileUrl:       "/uploads/dummy_sop.pdf",
-			FileSize:      51200,
+			FileUrl:       "/uploads/" + seedDocumentName,
+			FileSize:      docSize,
 		},
 	}
 

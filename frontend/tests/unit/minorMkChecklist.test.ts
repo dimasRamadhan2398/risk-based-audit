@@ -43,11 +43,11 @@ describe('PROD minor checklist items assigned to Mk', () => {
   it('marks Annual Audit scheduling fields as required and keeps generated fields read-only', () => {
     const form = read('components/annual-audit/AnnualAuditForm.vue')
 
+    // Plan-level auditors/duration/supervisor were removed (rows are the only entry point);
+    // the required scheduling fields are now the months and each row's team lead.
     for (const label of [
-      'label="Select Months"',
-      'label="Number of Auditors (1-10)"',
-      'label="Duration (Days)"',
-      'label="Supervisor"'
+      ':label="t(\'annualAudit.form.selectMonths\')"',
+      ':label="t(\'annualAudit.form.teamLead\')"'
     ]) {
       const labelPosition = form.indexOf(label)
       expect(labelPosition).toBeGreaterThan(-1)
@@ -56,7 +56,7 @@ describe('PROD minor checklist items assigned to Mk', () => {
 
     expect(form).toMatch(/:model-value="activityCodePreview"[\s\S]*?disabled/)
     expect(form).toMatch(/v-model="store\.form\.attachmentUploadedBy"[\s\S]*?disabled/)
-    expect(form).toContain('admin: \'System Administrator\'')
+    expect(form).toContain('ADMIN: \'System Administrator\'')
     expect(form).toContain('store.form.attachmentUploadedBy = signedInRoleLabel.value')
   })
 

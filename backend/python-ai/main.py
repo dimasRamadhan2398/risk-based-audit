@@ -134,6 +134,22 @@ def score_to_risk_level(score: float) -> str:
         return "LOW_MODERATE"
     return "LOW"
 
+def format_rupiah_millions(amount_millions: float) -> str:
+    """Rupiah amount given in millions, written with Indonesian scale words:
+    20114.34 -> 'Rp 20,11 miliar'. Never 'M' (reads as miliar in Indonesian)."""
+    v = float(amount_millions or 0.0) * 1_000_000
+    for factor, word in ((1e12, 'triliun'), (1e9, 'miliar'), (1e6, 'juta')):
+        if abs(v) >= factor:
+            num = f"{v / factor:,.2f}".rstrip('0').rstrip('.')
+            # Indonesian separators: '.' for thousands, ',' for decimals.
+            num = num.replace(',', '_').replace('.', ',').replace('_', '.')
+            return f"Rp {num} {word}"
+    return f"Rp {v:,.0f}".replace(',', '.')
+
+def normalize_rupiah_text(text: str) -> str:
+    """Rewrites 'Rp 20114.34 Juta' inside dataset text into 'Rp 20,11 miliar'."""
+    return re.sub(r'Rp\s?(\d+(?:\.\d+)?)\s?Juta', lambda m: format_rupiah_millions(float(m.group(1))), str(text))
+
 def get_current_target_timeline() -> str:
     """Calculate target horizon/timeline dynamically based on current running date."""
     now = datetime.now()
@@ -445,7 +461,7 @@ def predict_anomaly(req: AnomalyRequest):
             "entity": req.entity,
             "type": chosen_type,
             "anomaly_score": round(anom_score, 4),
-            "description": f"{req.description or chosen_type} - Rp {amt_val:,.2f}M (Jam {hour_val}:00)",
+            "description": f"{req.description or chosen_type} - {format_rupiah_millions(amt_val)} (Jam {hour_val}:00)",
             "severity": "Critical" if is_anom else "Low",
             "date": "2026-06-01",
             "amount": amt_val * 1000000,
@@ -537,7 +553,7 @@ def predict_anomaly(req: AnomalyRequest):
                 "entity": req.entity,
                 "type": b_cat,
                 "anomaly_score": round(prob, 4),
-                "description": f"{req.description or b_cat} - Rp {b_amt:,.2f}M (Jam {b_hour}:00)",
+                "description": f"{req.description or b_cat} - {format_rupiah_millions(b_amt)} (Jam {b_hour}:00)",
                 "severity": sev,
                 "date": "2026-06-01",
                 "amount": b_amt * 1000000,
@@ -617,7 +633,7 @@ def predict_anomaly(req: AnomalyRequest):
             "entity": req.entity,
             "type": mapped_type,
             "anomaly_score": round(prob, 4),
-            "description": f"{req.description or 'Transaksi'} - Rp {amt_val:,.2f}M (Jam {hour_val}:00)",
+            "description": f"{req.description or 'Transaksi'} - {format_rupiah_millions(amt_val)} (Jam {hour_val}:00)",
             "severity": sev,
             "date": "2026-06-01",
             "amount": amt_val * 1000000,
@@ -639,7 +655,7 @@ def predict_anomaly(req: AnomalyRequest):
             "entity": req.entity,
             "type": chosen_type,
             "anomaly_score": 0.85 if is_anom else 0.15,
-            "description": f"{req.description or chosen_type} - Rp {amt_val:,.2f}M",
+            "description": f"{req.description or chosen_type} - {format_rupiah_millions(amt_val)}",
             "severity": "High" if is_anom else "Low",
             "date": "2026-06-01",
             "amount": amt_val * 1000000,
@@ -715,6 +731,7 @@ def get_anomaly_batch():
             fails = int(pd.to_numeric(r['Jumlah Gagal Login'], errors='coerce') or 0)
             deviasi = float(pd.to_numeric(r['Deviasi terhadap Profil Historis (%)'], errors='coerce') or 0.0)
             desc = str(r['Alasan Anomali']).strip() if (str(r.get('Alasan Anomali', '-')).strip() != '-') else f"Transaksi anomali {cat} pada {ent}"
+            desc = normalize_rupiah_text(desc)
 
             req_obj = AnomalyRequest(
                 entity=ent,
@@ -734,6 +751,9 @@ def get_anomaly_batch():
             pred['id'] = trx_id
             pred['type'] = cat
             pred['xMetric'] = get_metric_x_value(cat, amt, hour, idx, deviasi, fails)
+            pred['hour'] = hour
+            # The dataset reason already states the amount; don't append it twice.
+            pred['description'] = desc
             pred['target_timeline'] = get_current_target_timeline()
             anomalies_list.append(pred)
 
@@ -748,14 +768,11 @@ def get_anomaly_batch():
             is_anom = (str(r['TARGET: is_anomaly']).strip() == 'Ya (Anomali)')
             x_val = get_metric_x_value(cat, amt, hour, idx, deviasi, fails)
 
-            # Sumbu Y: Risk score / jam transaksi
-            y_val = round(float(hour * 2.5 + (idx % 9)), 2)
-            if is_anom:
-                y_val = round(float(25.0 + (hour * 1.5) + (idx % 12)), 2)
-
+            # Y axis is the transaction hour (0-23) taken from the data, not a
+            # synthetic "frequency".
             scatter_data.append({
                 "x": x_val,
-                "y": y_val,
+                "y": hour,
                 "type": cat,
                 "is_anomaly": is_anom,
                 "label": str(r['ID Transaksi']) if 'ID Transaksi' in r else f"BANK-{idx}"
@@ -820,6 +837,7 @@ def get_anomaly_batch():
         pred['id'] = trx_id
         pred['type'] = atype
         pred['xMetric'] = get_metric_x_value(atype, amt, hour, idx)
+        pred['hour'] = hour
         pred['target_timeline'] = get_current_target_timeline()
         anomalies_list.append(pred)
 
@@ -834,7 +852,7 @@ def get_anomaly_batch():
         x_val = get_metric_x_value(atype, amt, hour, idx)
         scatter_data.append({
             "x": x_val,
-            "y": round(float(hour * 2.5 + (idx % 7)), 2),
+            "y": hour,
             "type": atype,
             "is_anomaly": is_anom,
             "label": str(r['ID Transaksi']) if 'ID Transaksi' in r else f"TRX-{idx}"
@@ -1186,6 +1204,31 @@ def get_performance_trend_batch():
         },
     }
 
+    # Not every KPI in the dataset is a percentage, and for some a lower value is better.
+    kpi_unit_map = {
+        'Net Promoter Score': 'score',
+        'Customer Lifetime Value': 'Rp',
+        'Average Order Value': 'Rp',
+        'Customer Acquisition Cost': 'Rp',
+        'Monthly Recurring Revenue': 'Rp',
+    }
+    lower_is_better = {'Employee Turnover Rate', 'Customer Acquisition Cost'}
+
+    def parse_month(label) -> Optional[str]:
+        """'Bulan 01 2015' -> '2015-01'."""
+        m = re.search(r'(\d{1,2})\D+(\d{4})', str(label))
+        if not m:
+            return None
+        return f"{int(m.group(2)):04d}-{int(m.group(1)):02d}"
+
+    def next_month(period: str, steps: int) -> str:
+        y, mth = int(period[:4]), int(period[5:7])
+        idx = y * 12 + (mth - 1) + steps
+        return f"{idx // 12:04d}-{idx % 12 + 1:02d}"
+
+    HISTORY_POINTS = 12
+    series_by_kpi = {}
+
     for kpi_name in unique_kpis:
         group = kpi_groups.get_group(kpi_name)
         hist = pd.to_numeric(group['TARGET: Nilai Aktual (%)'], errors='coerce').dropna().values.tolist()
@@ -1193,10 +1236,32 @@ def get_performance_trend_batch():
             continue
 
         pred = predict_performance_trend(PerformanceTrendRequest(kpi_name=kpi_name, historical_data=hist))
-        
+
+        # Periods of the actual data; the forecast horizon follows the last actual month.
+        periods = [parse_month(p) for p in group['Periode']] if 'Periode' in group else []
+        periods = [p for p in periods if p]
+        last_period = periods[-1] if periods else None
+        history_points = []
+        if last_period:
+            tail = list(zip(periods, hist))[-HISTORY_POINTS:]
+            history_points = [{"period": p, "value": round(float(v), 2)} for p, v in tail]
+        forecast_points = []
+        if last_period:
+            forecast_points = [
+                {"period": next_month(last_period, i + 1), "value": round(float(v), 2)}
+                for i, v in enumerate(pred.get('forecast_series') or [pred['predicted_performance']])
+            ]
+
+        # Direction-aware trend, judged at the end of the horizon.
+        end_val = forecast_points[-1]['value'] if forecast_points else pred['predicted_performance']
+        went_up = end_val >= hist[-1]
+        improving = (not went_up) if kpi_name in lower_is_better else went_up
+        pred['trend'] = 'Improving' if improving else 'Deteriorating'
+        pred['alert_level'] = 'None' if improving else 'Watch'
+
         curr_val = round(hist[-1], 1)
         fore_val = pred['predicted_performance']
-        
+
         code_str = f"KPI-00{len(forecasts)+1}"
 
         # Get entity and type
@@ -1211,39 +1276,53 @@ def get_performance_trend_batch():
             'Lakukan audit investigasi atas penurunan performa KPI' if trend_key == 'Deteriorating' 
             else 'Monitoring berkala performa KPI sesuai target')
 
+        horizon_start = forecast_points[0]['period'] if forecast_points else None
+        horizon_end = forecast_points[-1]['period'] if forecast_points else None
+
         forecasts.append({
             "kpiName": kpi_name,
             "code": code_str,
-            "unit": "%",
+            "unit": kpi_unit_map.get(kpi_name, "%"),
             "entity": entity_name,
             "entityType": entity_type,
-            "targetHorizon": get_current_target_timeline(),
+            "targetHorizon": f"{horizon_start}..{horizon_end}" if horizon_start else get_current_target_timeline(),
             "currentValue": curr_val,
             "forecastedValue": fore_val,
             "trend": pred['trend'],
             "alertLevel": pred['alert_level'],
             "recommendedAction": rec_action,
-            "riskLevel": pred['risk_level']
+            "riskLevel": pred['risk_level'],
+            "lastActualPeriod": last_period,
+            "history": history_points,
+            "forecast": forecast_points
         })
+        series_by_kpi[kpi_name] = (history_points, forecast_points)
 
         if pred['trend'] == "Deteriorating":
+            change_pct = round((end_val - hist[-1]) / abs(hist[-1]) * 100, 2) if hist[-1] else 0.0
             at_risk.append({
                 "department": entity_name,
                 "kpi": kpi_name,
-                "currentTrend": -3.5,
-                "predictedQ3": fore_val,
+                "currentTrend": change_pct,
+                "predictedValue": fore_val,
+                "horizonEnd": horizon_end,
                 "riskLevel": pred['risk_level']
             })
 
-    # Time series points for chart
-    historical_kpi = [
-        {"period": "Q1 2025", "actual": 85.2, "forecast": 85.2, "upperBound": 88.0, "lowerBound": 82.0},
-        {"period": "Q2 2025", "actual": 82.0, "forecast": 82.0, "upperBound": 85.0, "lowerBound": 79.0},
-        {"period": "Q3 2025", "actual": 79.5, "forecast": 79.5, "upperBound": 82.5, "lowerBound": 76.5},
-        {"period": "Q4 2025", "actual": 76.0, "forecast": 76.0, "upperBound": 79.0, "lowerBound": 73.0},
-        {"period": "Q1 2026 (Pred)", "actual": None, "forecast": 73.5, "upperBound": 77.0, "lowerBound": 70.0},
-        {"period": "Q2 2026 (Pred)", "actual": None, "forecast": 71.2, "upperBound": 75.0, "lowerBound": 67.5}
-    ]
+    # Legacy single-series shape (kept for older clients): the first KPI's real
+    # history plus its forecast, the forecast line starting at the last actual.
+    historical_kpi = []
+    if series_by_kpi:
+        hist_pts, fc_pts = next(iter(series_by_kpi.values()))
+        for i, p in enumerate(hist_pts):
+            is_last = i == len(hist_pts) - 1
+            historical_kpi.append({"period": p['period'], "actual": p['value'],
+                                   "forecast": p['value'] if is_last else None,
+                                   "upperBound": p['value'] if is_last else None,
+                                   "lowerBound": p['value'] if is_last else None})
+        for p in fc_pts:
+            historical_kpi.append({"period": p['period'], "actual": None, "forecast": p['value'],
+                                   "upperBound": None, "lowerBound": None})
 
     return {
         "kpi_forecasts": forecasts,

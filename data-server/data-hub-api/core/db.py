@@ -93,8 +93,8 @@ def get_read_only_client_conn(src: dict):
 
     if "postgres" in stype:
         conn_str = build_client_conn_string(src)
-        # Connect with psycopg3
-        with psycopg.connect(conn_str, autocommit=True) as conn:
+        # Connect with psycopg3 (fail-fast within 3s if external host is down)
+        with psycopg.connect(conn_str, autocommit=True, connect_timeout=3) as conn:
             with conn.cursor() as cur:
                 cur.execute(f"SET TRANSACTION READ ONLY;")
                 cur.execute(f"SET statement_timeout = '{timeout_ms}';")

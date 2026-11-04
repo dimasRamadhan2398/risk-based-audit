@@ -1,9 +1,11 @@
 import { defineStore } from 'pinia'
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, markRaw } from 'vue'
 import { extractErrorMessage } from '~/utils/error'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { getFiscalYearStrings } from '~/composables/useFiscalYear'
 import { useI18n } from '~/composables/useI18n'
+import { useDepartmentApi } from '~/composables/useDepartmentApi'
+import type { Department } from '~/types/master'
 
 export interface ConsultingAttachment {
   name: string
@@ -40,14 +42,84 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
 
   const categories = ['Operational Advisory', 'IT Advisory', 'Training & Workshops', 'Policy & SOP Review', 'Governance Assessment']
   const statuses = ['Planned', 'In Progress', 'Completed', 'Cancelled']
-  const departments = ['IT', 'Finance', 'HR', 'Ops', 'Procurement', 'Legal', 'Sales']
   const quarters = ['Q1', 'Q2', 'Q3', 'Q4']
   const years = getFiscalYearStrings()
+
+  // Master Data Departemen (Department Management Sync)
+  const departments = ref<Department[]>([])
+  const departmentsLoading = ref(false)
+  const departmentsLoaded = ref(false)
+  const departmentsError = ref('')
+
+  const resolveDepartmentOption = (val?: string): string => {
+    if (!val) return ''
+    const match = departments.value.find(
+      d => d.id === val ||
+        d.department_code === val ||
+        d.department_name === val ||
+        `${d.department_name} (${d.department_code})` === val
+    )
+    if (match) {
+      return match.department_code ? `${match.department_name} (${match.department_code})` : match.department_name
+    }
+    return val
+  }
+
+  const formatDepartmentName = (value?: string): string => {
+    if (!value) return '-'
+    const found = departments.value.find(
+      d => d.id === value ||
+        d.department_code === value ||
+        d.department_name === value ||
+        `${d.department_name} (${d.department_code})` === value
+    )
+    if (found) {
+      return found.department_code ? `${found.department_name} (${found.department_code})` : found.department_name
+    }
+    return value
+  }
+
+  const fetchDepartments = async (force = false) => {
+    if (departmentsLoaded.value && !force) return
+    if (departmentsLoading.value) return
+    departmentsLoading.value = true
+    departmentsError.value = ''
+    try {
+      const api = useDepartmentApi()
+      const list = await api.getAllDepartments()
+      departments.value = (Array.isArray(list) ? list : [])
+        .filter(d => d?.department_name && d.is_active !== false)
+        .sort((a, b) => a.department_name.localeCompare(b.department_name, 'id', { sensitivity: 'base' }))
+      departmentsLoaded.value = true
+
+      if (newService.requestorDept) {
+        newService.requestorDept = resolveDepartmentOption(newService.requestorDept)
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch departments for consulting service:', error)
+      departmentsError.value = extractErrorMessage(error, t('consultingService.dashboard.messages.departmentFetchFailed') || 'Gagal memuat data departemen.')
+      if (!departmentsLoaded.value) {
+        departments.value = []
+      }
+    } finally {
+      departmentsLoading.value = false
+    }
+  }
+
+  const departmentOptions = computed(() => {
+    const list = departments.value.map(d =>
+      d.department_code ? `${d.department_name} (${d.department_code})` : d.department_name
+    )
+    if (newService.requestorDept && !list.includes(newService.requestorDept)) {
+      list.unshift(newService.requestorDept)
+    }
+    return Array.from(new Set(list)).sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
+  })
 
   const newService = reactive({
     title: '',
     category: 'Operational Advisory',
-    requestorDept: 'IT',
+    requestorDept: '',
     periodQuarter: 'Q1',
     periodYear: new Date().getFullYear().toString(),
     consultantName: '',
@@ -60,7 +132,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
     Object.assign(newService, {
       title: '',
       category: 'Operational Advisory',
-      requestorDept: 'IT',
+      requestorDept: '',
       periodQuarter: 'Q1',
       periodYear: new Date().getFullYear().toString(),
       consultantName: '',
@@ -84,6 +156,9 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
         services.value = data
       } else {
         services.value = []
+      }
+      if (!departmentsLoaded.value && !departmentsLoading.value) {
+        fetchDepartments().catch(() => {})
       }
     } catch (error) {
       console.error('Failed to fetch consulting services:', error)
@@ -259,6 +334,9 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
   const openForm = () => {
     isEditing.value = false
     resetForm()
+    if (!departmentsLoaded.value && !departmentsLoading.value) {
+      fetchDepartments().catch(() => {})
+    }
     isFormOpen.value = true
   }
 
@@ -276,7 +354,7 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
     Object.assign(newService, {
       title: selectedService.value.title,
       category: selectedService.value.category,
-      requestorDept: selectedService.value.requestorDept,
+      requestorDept: resolveDepartmentOption(selectedService.value.requestorDept),
       periodQuarter: periodParts[0] || 'Q1',
       periodYear: periodParts[1] || '2026',
       consultantName: selectedService.value.consultantName,
@@ -284,6 +362,10 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
       notes: selectedService.value.notes || '',
       attachment: selectedService.value.attachment ? { ...selectedService.value.attachment } : null
     })
+
+    if (!departmentsLoaded.value && !departmentsLoading.value) {
+      fetchDepartments().catch(() => {})
+    }
 
     isDetailOpen.value = false
     isFormOpen.value = true
@@ -316,6 +398,9 @@ export const useConsultingServiceStore = defineStore('consulting-service', () =>
   return {
     services, loading, errorMsg, isFormOpen, isDetailOpen, isImportOpen, isEditing, selectedService,
     categories, statuses, departments, quarters, years, newService,
+    departmentsLoading, departmentsLoaded, departmentsError,
+    departmentOptions, requestorDeptOptions: departmentOptions,
+    fetchDepartments, resolveDepartmentOption, formatDepartmentName,
     fetchServices, saveService, deleteService, handleFileUpload, downloadAttachment, viewAttachment,
     openForm, editService, closeForm, openDetail, closeDetail, getStatusColor
   }

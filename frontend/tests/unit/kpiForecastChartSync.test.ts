@@ -1,74 +1,59 @@
 // @ts-nocheck
 /**
- * KPI Performance Forecast chart sync.
+ * KPI Performance Forecast — dashboard card vs /analytics/ai/kpi-forecast.
  *
- * The dashboard renders a "KPI Performance Forecasting" line chart
- * (pages/dashboard/index.vue) and the AI Insights tab renders the same chart
- * (pages/analytics/ai/kpi-forecast.vue). Both are supposed to show the same
- * series. These tests pin down where the two diverge.
+ * Both render the chart and the at-risk list through the same view model
+ * (composables/useKpiForecast.ts) from the same shared state
+ * (useAiAnalytics().timeseriesState.kpiForecasts).
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-import { useTimeSeriesData } from '~/composables/useAnalyticsData'
 import { useAiAnalytics } from '~/composables/useAiAnalytics'
+import {
+  buildKpiForecastChart,
+  selectAtRiskKpis,
+  toKpiForecastView
+} from '~/composables/useKpiForecast'
 
 const DASHBOARD_PAGE = resolve(__dirname, '../../pages/dashboard/index.vue')
 const TAB_PAGE = resolve(__dirname, '../../pages/analytics/ai/kpi-forecast.vue')
 
-/** Shape of /performance-trend/batch as returned by backend/python-ai/main.py */
-const backendTimeSeries = [
-  { period: 'Q1 2025', actual: 85.2, forecast: 85.2, upperBound: 88.0, lowerBound: 82.0 },
-  { period: 'Q2 2025', actual: 82.0, forecast: 82.0, upperBound: 85.0, lowerBound: 79.0 },
-  { period: 'Q3 2025', actual: 79.5, forecast: 79.5, upperBound: 82.5, lowerBound: 76.5 },
-  { period: 'Q4 2025', actual: 76.0, forecast: 76.0, upperBound: 79.0, lowerBound: 73.0 },
-  { period: 'Q1 2026 (Pred)', actual: null, forecast: 73.5, upperBound: 77.0, lowerBound: 70.0 },
-  { period: 'Q2 2026 (Pred)', actual: null, forecast: 71.2, upperBound: 75.0, lowerBound: 67.5 }
-]
+const t = (key: string, params?: any) => (params ? `${key}:${JSON.stringify(params)}` : key)
 
+/** Shape of /performance-trend/batch as returned by backend/python-ai/main.py */
 const performanceTrendPayload = {
   kpi_forecasts: [
     {
-      kpiName: 'Revenue Operational Cost',
-      code: 'KPI-001',
-      unit: '%',
-      entity: 'Finance Dept',
-      entityType: 'Department',
-      targetHorizon: 'Q3 2026',
-      currentValue: 41.2,
-      forecastedValue: 37.9,
-      trend: 'Deteriorating',
-      recommendedAction: 'Audit biaya operasional',
-      riskLevel: 'HIGH'
+      kpiName: 'Net Promoter Score', code: 'KPI-001', unit: 'score', entity: 'Jakarta Branch', entityType: 'Branch',
+      targetHorizon: '2026-01..2026-03', currentValue: 47.7, forecastedValue: 47.17, trend: 'Deteriorating',
+      recommendedAction: 'Survey NPS', riskLevel: 'MODERATE', lastActualPeriod: '2025-12',
+      history: [{ period: '2025-11', value: 47.0 }, { period: '2025-12', value: 47.7 }],
+      forecast: [{ period: '2026-01', value: 47.17 }, { period: '2026-02', value: 46.64 }, { period: '2026-03', value: 46.11 }]
+    },
+    {
+      kpiName: 'Customer Retention Rate', code: 'KPI-006', unit: '%', entity: 'Bandung Branch', entityType: 'Branch',
+      targetHorizon: '2026-01..2026-03', currentValue: 91.7, forecastedValue: 92.1, trend: 'Improving',
+      recommendedAction: 'NPS membaik — teruskan inisiatif', riskLevel: 'LOW', lastActualPeriod: '2025-12',
+      history: [{ period: '2025-11', value: 91.5 }, { period: '2025-12', value: 91.7 }],
+      forecast: [{ period: '2026-01', value: 92.1 }, { period: '2026-02', value: 92.5 }, { period: '2026-03', value: 92.87 }]
+    },
+    {
+      // Lower is better: a rising turnover is a deterioration even though the number goes up.
+      kpiName: 'Employee Turnover Rate', code: 'KPI-007', unit: '%', entity: 'HR Dept', entityType: 'Department',
+      targetHorizon: '2026-01..2026-03', currentValue: 12.0, forecastedValue: 12.6, trend: 'Improving',
+      recommendedAction: '', riskLevel: 'MODERATE_HIGH', lastActualPeriod: '2025-12',
+      history: [{ period: '2025-12', value: 12.0 }],
+      forecast: [{ period: '2026-01', value: 12.6 }, { period: '2026-02', value: 13.1 }, { period: '2026-03', value: 13.5 }]
     }
   ],
-  at_risk_departments: [
-    { department: 'Finance Dept', kpi: 'Revenue Operational Cost', currentTrend: -3.5, predictedQ3: 37.9, riskLevel: 'HIGH' }
-  ],
-  time_series_data: backendTimeSeries,
+  at_risk_departments: [],
+  time_series_data: [],
   forecast_accuracy: { mape: 3.82, rmse: 1.45, r2Score: 0.942 }
 }
 
-/** Replica of the dataset builder in pages/analytics/ai/kpi-forecast.vue */
-const buildTabChartData = (points: any[]) => ({
-  labels: (points || []).map((p: any) => p.period || ''),
-  actual: (points || []).map((p: any) => p.actual ?? null),
-  forecast: (points || []).map((p: any) => p.forecast ?? null),
-  upperBound: (points || []).map((p: any) => p.upperBound ?? null),
-  lowerBound: (points || []).map((p: any) => p.lowerBound ?? null)
-})
-
-/** Replica of the dataset builder in pages/dashboard/index.vue */
-const buildDashboardChartData = (points: any[]) => ({
-  labels: points.map((p: any) => p.period),
-  actual: points.map((p: any) => p.actual),
-  forecast: points.map((p: any) => p.forecast),
-  upperBound: points.map((p: any) => p.upperBound),
-  lowerBound: points.map((p: any) => p.lowerBound)
-})
-
-describe('KPI Performance Forecast chart — dashboard vs AI Insights tab', () => {
+describe('KPI forecast view model', () => {
   beforeEach(() => {
     localStorage.clear()
     global.$fetch = vi.fn(async (url: string) => {
@@ -77,65 +62,73 @@ describe('KPI Performance Forecast chart — dashboard vs AI Insights tab', () =
     })
   })
 
-  it('both charts read from the same source of truth', async () => {
+  it('keeps per-KPI history, forecast and the model accuracy from the backend', async () => {
     const { timeseriesState, fetchAiAnalytics } = useAiAnalytics()
     await fetchAiAnalytics(true)
-
-    // Both pages now map `useAiAnalytics().timeseriesState.historicalKPI`
-    const points = timeseriesState.value.historicalKPI
-
-    expect(buildDashboardChartData(points)).toEqual(buildTabChartData(points))
-    // ...and that shared state is the backend series, not the static seed mock
-    expect(buildDashboardChartData(points).labels).toEqual(backendTimeSeries.map((p) => p.period))
-    expect(buildDashboardChartData(points)).not.toEqual(
-      buildDashboardChartData(useTimeSeriesData().historicalKPI)
-    )
+    const nps = timeseriesState.value.kpiForecasts[0]
+    expect(nps.history).toHaveLength(2)
+    expect(nps.forecast.map((p) => p.period)).toEqual(['2026-01', '2026-02', '2026-03'])
+    expect(nps.lastActualPeriod).toBe('2025-12')
+    expect(timeseriesState.value.forecastAccuracy.mape).toBe(3.82)
   })
 
-  it('the AI Insights tab picks up backend time_series_data with camelCase bound keys', async () => {
-    const { timeseriesState, fetchAiAnalytics } = useAiAnalytics()
-    await fetchAiAnalytics(true)
-
-    const chart = buildTabChartData(timeseriesState.value.historicalKPI)
-    expect(chart.labels).toEqual(backendTimeSeries.map((p) => p.period))
-    expect(chart.upperBound).toEqual(backendTimeSeries.map((p) => p.upperBound))
-    expect(chart.lowerBound).toEqual(backendTimeSeries.map((p) => p.lowerBound))
+  it('the horizon follows the last actual month, and a past horizon is flagged stale', () => {
+    const view = toKpiForecastView(performanceTrendPayload.kpi_forecasts[0])
+    expect(view.horizonStart).toBe('2026-01')
+    expect(view.horizonEnd).toBe('2026-03')
+    expect(view.isStale).toBe(true) // March 2026 is before "now" (Nov 2026)
   })
 
-  it('the dashboard chart is wired to the shared AI analytics state, not the static mock', () => {
-    const src = readFileSync(DASHBOARD_PAGE, 'utf-8')
-    const chartBlock = src.slice(src.indexOf('const kpiChartData'), src.indexOf('const kpiChartOptions'))
-
-    expect(src.includes('useAiAnalytics'), 'dashboard/index.vue does not import useAiAnalytics').toBe(true)
-    expect(
-      /useTimeSeriesData/.test(src),
-      'dashboard/index.vue still reads the static useTimeSeriesData() mock'
-    ).toBe(false)
-    expect(
-      /historicalKPI/.test(chartBlock),
-      'kpiChartData no longer maps any historicalKPI series'
-    ).toBe(true)
+  it('at-risk lists only deteriorating KPIs, judged by KPI direction', () => {
+    const views = performanceTrendPayload.kpi_forecasts.map(toKpiForecastView)
+    const atRisk = selectAtRiskKpis(views).map((v) => v.kpiName)
+    expect(atRisk).toEqual(['Employee Turnover Rate', 'Net Promoter Score'])
+    expect(atRisk).not.toContain('Customer Retention Rate')
   })
 
-  it('the dashboard fetches forecast data so its chart can refresh', () => {
-    const src = readFileSync(DASHBOARD_PAGE, 'utf-8')
-    expect(src.includes('fetchAiAnalytics'), 'dashboard/index.vue never calls fetchAiAnalytics').toBe(true)
+  it('the band starts at the last actual point with zero width and only covers forecast points', () => {
+    const view = toKpiForecastView(performanceTrendPayload.kpi_forecasts[0])
+    const { data } = buildKpiForecastChart(view, 3.82, t, 'id')
+    const [actual, forecast, upper, lower] = data.datasets.map((d) => d.data)
+    // 2 actual + 3 forecast periods
+    expect(data.labels).toEqual(['Nov 2025', 'Des 2025', 'Jan 2026', 'Feb 2026', 'Mar 2026'])
+    expect(actual).toEqual([47.0, 47.7, null, null, null])
+    expect(forecast).toEqual([null, 47.7, 47.17, 46.64, 46.11])
+    expect(upper[0]).toBeNull()
+    expect(upper[1]).toBe(47.7)
+    expect(lower[1]).toBe(47.7)
+    expect(upper[2]).toBeGreaterThan(47.17)
+    expect(lower[2]).toBeLessThan(47.17)
+    // widens with the horizon
+    expect(upper[4] - lower[4]).toBeGreaterThan(upper[2] - lower[2])
   })
 
-  it('both charts label their series identically', () => {
-    const dashboardSrc = readFileSync(DASHBOARD_PAGE, 'utf-8')
-    const tabSrc = readFileSync(TAB_PAGE, 'utf-8')
+  it('names the KPI on the y axis instead of a generic "KPI score (%)"', () => {
+    const view = toKpiForecastView(performanceTrendPayload.kpi_forecasts[0])
+    const { options } = buildKpiForecastChart(view, 3.82, t, 'id')
+    expect(options.scales.y.title.text).toContain('analytics.kpiAudit.axis.score')
+    expect(options.scales.y.title.text).toContain('Net Promoter Score')
+  })
+})
 
-    const labelKeys = [
-      'analytics.timeseries.labelActualKPI',
-      'analytics.timeseries.labelForecast',
-      'analytics.timeseries.labelUpperBound',
-      'analytics.timeseries.labelLowerBound'
-    ]
-    const missingInTab = labelKeys.filter((k) => !tabSrc.includes(k))
-    const missingInDashboard = labelKeys.filter((k) => !dashboardSrc.includes(k))
+describe('dashboard card and AI Insights tab share the view model', () => {
+  const dashboardSrc = readFileSync(DASHBOARD_PAGE, 'utf-8')
+  const tabSrc = readFileSync(TAB_PAGE, 'utf-8')
 
-    expect(missingInTab, 'i18n label keys missing in the AI Insights tab chart').toEqual([])
-    expect(missingInDashboard, 'i18n label keys missing in the dashboard chart (labels hardcoded)').toEqual([])
+  it.each([
+    ['dashboard', dashboardSrc],
+    ['AI Insights tab', tabSrc]
+  ])('%s builds the chart and at-risk list through useKpiForecast', (_, src) => {
+    expect(src).toContain('buildKpiForecastChart')
+    expect(src).toContain('selectAtRiskKpis')
+    expect(src).toContain('toKpiForecastView')
+    expect(src).toContain('fetchAiAnalytics')
+    expect(src).not.toMatch(/useTimeSeriesData/)
+  })
+
+  it('no hardcoded horizon, confidence level or MAPE remains in the dashboard card', () => {
+    expect(dashboardSrc).not.toMatch(/Q3 2026/)
+    expect(dashboardSrc).not.toMatch(/95%/)
+    expect(dashboardSrc).not.toMatch(/4[.,]8%/)
   })
 })
