@@ -1248,8 +1248,7 @@
       "yearly": "Tahunan",
       "quartal": "Kuartal",
       "allYears": "Semua Tahun",
-      "allQuarters": "Semua Kuartal",
-      "allObjectives": "Semua Strategic Objective"
+      "allQuarters": "Semua Kuartal"
     },
     "columns": {
       "code": "ID Strategic Objective",

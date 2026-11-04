@@ -7,6 +7,11 @@ import { useAuditeeSurveyStore } from '~/stores/auditee-survey'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import { useAuthStore } from '~/stores/auth'
 
+// The dashboard page picks AuditorDashboard (isAuditorView), AuditeeDashboard (isAuditeeView),
+// else the shared admin/executive "macro" dashboard (pages/dashboard/index.vue).
+const dashboardView = (rbac: { isAuditorView: { value: boolean }, isAuditeeView: { value: boolean } }) =>
+  rbac.isAuditorView.value ? 'auditor' : rbac.isAuditeeView.value ? 'auditee' : 'macro'
+
 describe('Role-Based Dashboard Switching & Auditee Store Integration', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
@@ -15,9 +20,9 @@ describe('Role-Based Dashboard Switching & Auditee Store Integration', () => {
     setRoleView(null)
   })
 
-  it('correctly determines currentDashboardRole based strictly on authentic user roles', () => {
+  it('picks the dashboard view based strictly on authentic user roles', () => {
     const authStore = useAuthStore()
-    const { currentDashboardRole } = useRbac()
+    const rbac = useRbac()
 
     // Test Auditee user
     authStore.user = {
@@ -27,7 +32,7 @@ describe('Role-Based Dashboard Switching & Auditee Store Integration', () => {
       roles: ['AUDITEE'],
       mustChangePassword: false,
     } as any
-    expect(currentDashboardRole.value).toBe('auditee')
+    expect(dashboardView(rbac)).toBe('auditee')
 
     // Test Auditor user
     authStore.user = {
@@ -37,7 +42,7 @@ describe('Role-Based Dashboard Switching & Auditee Store Integration', () => {
       roles: ['AUDITOR'],
       mustChangePassword: false,
     } as any
-    expect(currentDashboardRole.value).toBe('auditor')
+    expect(dashboardView(rbac)).toBe('auditor')
 
     // Test Executive user
     authStore.user = {
@@ -47,7 +52,7 @@ describe('Role-Based Dashboard Switching & Auditee Store Integration', () => {
       roles: ['CHIEF_AUDIT_EXECUTIVE'],
       mustChangePassword: false,
     } as any
-    expect(currentDashboardRole.value).toBe('executive')
+    expect(dashboardView(rbac)).toBe('macro')
 
     // Test Admin user
     authStore.user = {
@@ -57,7 +62,7 @@ describe('Role-Based Dashboard Switching & Auditee Store Integration', () => {
       roles: ['ADMIN'],
       mustChangePassword: false,
     } as any
-    expect(currentDashboardRole.value).toBe('admin')
+    expect(dashboardView(rbac)).toBe('macro')
   })
 
   it('handles ATR store items calculation and overdue status correctly', () => {
@@ -187,7 +192,7 @@ describe('Role-Based Dashboard Switching & Auditee Store Integration', () => {
     } as any
     const rbacAuditee = useRbac()
     expect(rbacAuditee.isAuditee.value).toBe(true)
-    expect(rbacAuditee.currentDashboardRole.value).toBe('auditee')
+    expect(dashboardView(rbacAuditee)).toBe('auditee')
 
     // 2. Role as string array: ['Auditor']
     authStore.user = {
@@ -198,18 +203,27 @@ describe('Role-Based Dashboard Switching & Auditee Store Integration', () => {
     } as any
     const rbacAuditor = useRbac()
     expect(rbacAuditor.isAuditor.value).toBe(true)
-    expect(rbacAuditor.currentDashboardRole.value).toBe('auditor')
+    expect(dashboardView(rbacAuditor)).toBe('auditor')
 
-    // 3. Role from position: 'Senior Auditor'
+    // 3. Role from position: an exact role name counts, a free-text job title does not
+    //    (strict role matching since the 2026-10-21 merge; a title must never grant a role).
     authStore.user = {
       id: 'u-3',
+      username: 'auditor_by_position',
+      position: 'AUDITOR',
+      roles: []
+    } as any
+    const rbacPositionAuditor = useRbac()
+    expect(rbacPositionAuditor.isAuditor.value).toBe(true)
+    expect(dashboardView(rbacPositionAuditor)).toBe('auditor')
+
+    authStore.user = {
+      id: 'u-3b',
       username: 'senior_auditor',
       position: 'Senior Auditor',
       roles: []
     } as any
-    const rbacSeniorAuditor = useRbac()
-    expect(rbacSeniorAuditor.isAuditor.value).toBe(true)
-    expect(rbacSeniorAuditor.currentDashboardRole.value).toBe('auditor')
+    expect(useRbac().isAuditor.value).toBe(false)
 
     // 4. Role Admin
     authStore.user = {
@@ -219,7 +233,7 @@ describe('Role-Based Dashboard Switching & Auditee Store Integration', () => {
     } as any
     const rbacAdmin = useRbac()
     expect(rbacAdmin.isAdmin.value).toBe(true)
-    expect(rbacAdmin.currentDashboardRole.value).toBe('admin')
+    expect(dashboardView(rbacAdmin)).toBe('macro')
 
     // 5. Role Executive / Viewer
     authStore.user = {
@@ -229,6 +243,6 @@ describe('Role-Based Dashboard Switching & Auditee Store Integration', () => {
     } as any
     const rbacExecutive = useRbac()
     expect(rbacExecutive.isExecutive.value).toBe(true)
-    expect(rbacExecutive.currentDashboardRole.value).toBe('executive')
+    expect(dashboardView(rbacExecutive)).toBe('macro')
   })
 })

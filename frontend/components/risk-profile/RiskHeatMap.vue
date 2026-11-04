@@ -849,19 +849,7 @@ const emptyDescText = computed(() =>
 
 const totalRisks = computed(() => filteredRisks.value.length)
 
-const priorityRisks = computed(() => {
-  return filteredRisks.value
-    .filter(r => {
-      const level = store.getRiskLevel(r.likelihood, r.impact)
-      return riskLevelConfig[level].priority
-    })
-    .sort((a, b) => {
-      const scoreA = getRiskScore(a.likelihood, a.impact)
-      const scoreB = getRiskScore(b.likelihood, b.impact)
-      if (scoreB !== scoreA) return scoreB - scoreA
-      return b.severity - a.severity
-    })
-})
+const priorityRisks = computed(() => store.sortPriorityRisks(filteredRisks.value))
 
 // Priority is derived from the period's computed risk level, so it pages client-side
 // over the full filtered list (the heat map and tab counts use that list too).

@@ -390,6 +390,7 @@
                     :label="t('annualAudit.form.teamLead')"
                     size="lg"
                     class="md:col-span-2"
+                    required
                   >
                     <USelectMenu
                       v-model="activity.supervisorName"

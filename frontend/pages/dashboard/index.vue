@@ -1474,7 +1474,8 @@ const tableColumns = [
   { accessorKey: "status", header: () => t("actionTakenReport.table.columns.status"), class: "min-w-32" },
 ];
 
-const registeredRiskHeatMap = computed(() => riskProfileStore.risks.slice(0, 5));
+// Top five of the CRP Priority list (same filter and order as /risk-profile), not API order.
+const registeredRiskHeatMap = computed(() => riskProfileStore.sortPriorityRisks(riskProfileStore.risks).slice(0, 5));
 
 const registeredRiskColumns = [
   {

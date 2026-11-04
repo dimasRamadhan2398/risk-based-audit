@@ -380,6 +380,8 @@ export const useRbac = () => {
     canWriteAuditUniverse,
     canWriteAuditUniverseFor,
     isAuditor,
+    isAuditee,
+    isExecutive,
     isPureAuditor,
     isAuditorView,
     isPureAuditee,

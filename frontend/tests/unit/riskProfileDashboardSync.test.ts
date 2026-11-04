@@ -12,9 +12,9 @@
  *  - Risk Level column = store.getRiskLevel(likelihood, impact), with the same
  *    label (riskProfile.riskLevelLabels.*) and colour (riskLevelConfig) as CRP.
  *
- * Still open (out of scope, the last three tests fail on purpose): the
- * dashboard takes the first five rows in API order (risk-service FindAll has
- * no ORDER BY), while the CRP lists risks sorted by score (Priority tab).
+ * Row selection: the dashboard shows the top five of the CRP Priority list
+ * (store.sortPriorityRisks), not the first five rows in API order
+ * (risk-service FindAll has no ORDER BY).
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
@@ -64,7 +64,7 @@ async function loadStore(risks = backendRisks) {
 }
 
 // --- Dashboard formulas, replicated from pages/dashboard/index.vue (SFC not importable) ---
-//  registeredRiskHeatMap = riskProfileStore.risks.slice(0, 5)          (~line 1419)
+//  registeredRiskHeatMap = sortPriorityRisks(riskProfileStore.risks).slice(0, 5)
 //  Score column  = risk.impact * risk.likelihood                       (~line 1438)
 //  Level column  = riskProfileStore.getRiskLevel(likelihood, impact),
 //                  badge colour riskLevelConfig[level].color           (~line 1441)
@@ -77,8 +77,9 @@ const dashboardRow = (store, r) => {
     color: riskLevelConfig[level]?.color
   }
 }
+const dashboardTopRisks = store => store.sortPriorityRisks(store.risks).slice(0, 5)
 const dashboardRegisteredRisks = store =>
-  store.risks.slice(0, 5).map(r => dashboardRow(store, r))
+  dashboardTopRisks(store).map(r => dashboardRow(store, r))
 
 // --- CRP formulas, replicated from components/risk-profile/RiskHeatMap.vue ---
 //  filteredRisks: store.selectedBranch filter                         (~line 746)
@@ -153,24 +154,23 @@ describe('Dashboard Registered Risks vs Corporate Risk Profile', () => {
   it('scores a risk as impact × likelihood', async () => {
     const store = await loadStore()
     const dash = Object.fromEntries(dashboardRegisteredRisks(store).map(r => [r.name, r.score]))
-    // Q1 2026 values from the fixture assessments.
+    // Q1 2026 values from the fixture assessments (priority risks only).
     expect(dash).toEqual({
-      'Office supplies shortage': 2, // I1 × L2
-      'Vendor delay': 9, // I3 × L3
-      'Minor policy gap': 4, // I2 × L2
-      'Printer downtime': 1, // I1 × L1
-      'Revenue target missed': 20 // I5 × L4
+      'Cyber security breach': 25, // I5 × L5
+      'Revenue target missed': 20, // I5 × L4
+      'Fraud': 20, // I4 × L5
+      'Vendor delay': 9 // I3 × L3
     })
   })
 
   it('shows the same risk level (and colour) as the CRP for each risk', async () => {
     const store = await loadStore()
-    for (const r of store.risks.slice(0, 5)) {
+    for (const r of store.risks) {
       const row = dashboardRow(store, r)
       expect({ name: row.name, level: row.level }).toEqual({ name: r.name, level: crpLevel(store, r) })
       expect(row.color).toBe(riskLevelConfig[crpLevel(store, r)].color)
     }
-    const byName = Object.fromEntries(dashboardRegisteredRisks(store).map(r => [r.name, r.level]))
+    const byName = Object.fromEntries(store.risks.map(r => [r.name, dashboardRow(store, r).level]))
     expect(byName['Revenue target missed']).toBe(RiskLevel.HIGH)
     expect(byName['Vendor delay']).toBe(RiskLevel.MODERATE)
     expect(byName['Printer downtime']).toBe(RiskLevel.LOW)
@@ -181,20 +181,20 @@ describe('Dashboard Registered Risks vs Corporate Risk Profile', () => {
     const store = await loadStore([
       { id: 'r-asym', name: 'Frequent but trivial', impact: 1, likelihood: 5, severity: 50, category: 'Operations', branch: 'Head Office', assessments: [assessment(1, 5)] }
     ])
-    const [row] = dashboardRegisteredRisks(store)
+    const row = dashboardRow(store, store.risks[0])
     expect(row.level).toBe(RiskLevel.LOW_MODERATE)
     expect(row.level).toBe(crpLevel(store, store.risks[0]))
   })
 
-  // --- Row selection / order: still open (out of scope), these fail on purpose ---
+  // --- Row selection / order: same as the CRP Priority list ---
 
   it('lists the same top risks, in the same order, as the CRP priority list', async () => {
     const store = await loadStore()
     const dash = dashboardRegisteredRisks(store).map(r => r.name)
     const crp = crpPriorityList(store).slice(0, 5).map(r => r.name)
     // CRP: Cyber (25), Revenue (24), Fraud (22), Vendor (13).
-    // Dashboard: first five rows in API order, incl. Low risks the CRP never prioritises.
     expect(dash).toEqual(crp)
+    expect(dash).toEqual(['Cyber security breach', 'Revenue target missed', 'Fraud', 'Vendor delay'])
   })
 
   it('does not depend on the order the API returns rows in', async () => {
@@ -206,14 +206,11 @@ describe('Dashboard Registered Risks vs Corporate Risk Profile', () => {
 
   it('does not show Low risks while higher-scoring CRP risks are left out', async () => {
     const store = await loadStore()
-    const shownLevels = store.risks
-      .slice(0, 5)
-      .map(r => store.getRiskLevel(r.likelihood, r.impact))
-    const hidden = store.risks.slice(5)
+    const shown = dashboardTopRisks(store)
+    const shownLevels = shown.map(r => store.getRiskLevel(r.likelihood, r.impact))
+    const hidden = store.risks.filter(r => !shown.includes(r))
     const hiddenPriority = hidden.filter(r => riskLevelConfig[store.getRiskLevel(r.likelihood, r.impact)].priority)
-    // With the fixture above: Low/Low-Moderate rows shown, Cyber (High) and Fraud (High) hidden.
-    if (hiddenPriority.length > 0) {
-      expect(shownLevels).not.toContain(RiskLevel.LOW)
-    }
+    expect(hiddenPriority).toEqual([])
+    expect(shownLevels).not.toContain(RiskLevel.LOW)
   })
 })

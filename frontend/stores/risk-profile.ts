@@ -428,6 +428,19 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     return matrix[likelihood]?.[impact] || 0
   }
 
+  /**
+   * CRP "Priority" list: only levels flagged `priority` in riskLevelConfig, highest matrix score
+   * first, then highest severity. Shared by the CRP page and the dashboard Registered Risks card
+   * so both show the same risks in the same order, whatever order the API returned.
+   */
+  const sortPriorityRisks = <T extends { likelihood?: number, impact?: number, severity?: number }>(list: readonly T[]): T[] =>
+    list
+      .filter(r => riskLevelConfig[getRiskLevel(r.likelihood, r.impact)]?.priority)
+      .sort((a, b) => {
+        const diff = getRiskScore(b.likelihood, b.impact) - getRiskScore(a.likelihood, a.impact)
+        return diff !== 0 ? diff : (b.severity ?? 0) - (a.severity ?? 0)
+      })
+
   const getFormattedId = (risk: any): string => {
     if (!risk) return 'RSK-000'
     const prefix = categoryPrefixes[risk.category] || 'RSK'
@@ -671,6 +684,7 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     syncDefaultPeriod,
     getRiskLevel,
     getRiskScore,
+    sortPriorityRisks,
     getFormattedId,
     getRiskById,
     openAddModal,
