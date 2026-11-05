@@ -1,0 +1,243 @@
+# AuditSphere training environment: a full, isolated clone of prod
+# (https://training.auditsphere.app). Lives on the VPS in /root/auditsphere-training/.
+#
+# - Own compose project (rb_audit_training) and own network
+#   (rb_audit_training_network, created by start-training.sh as external so
+#   `compose down` never tries to remove it while ClamAV is attached).
+# - Inside that network every service keeps its prod DNS name (postgres, redis,
+#   kafka, kong, auth-service, ...), so the prod images, their baked
+#   config.yaml and the prod frontend build (proxies to kong:8080 and
+#   python-ai:8000) work unchanged and resolve to the training services only.
+# - Kafka runs in KRaft mode (no ZooKeeper) and advertises PLAIN://kafka:29092,
+#   the broker address baked into every service's config.yaml.
+# - Migrate-only start commands. Never add `seed`: seeders overwrite real rows.
+# - ClamAV is NOT duplicated: start-training.sh attaches prod rb_audit_clamav
+#   to this network with the alias "clamav" (the services' default address).
+# - Only the frontend has a host port, on 127.0.0.1, for host nginx.
+#
+# All secrets come from ./training.env (chmod 600, not in git):
+#   TRAINING_TAG, FRONTEND_IMAGE, JWT_SECRET, POSTGRES_PASSWORD,
+#   PYTHON_AI_API_KEY, DATA_HUB_URL, DATA_HUB_API_KEY, KAFKA_CLUSTER_ID,
+#   FRONTEND_HOST_PORT
+#
+# Run only through start-training.sh / stop-training.sh / reset-training.sh.
+name: rb_audit_training
+
+x-common: &common
+  restart: unless-stopped
+  networks: [training]
+  logging:
+    driver: json-file
+    options: { max-size: "10m", max-file: "3" }
+
+x-go: &go
+  <<: *common
+  mem_limit: 192m
+  cpus: 0.5
+  depends_on:
+    postgres: { condition: service_healthy }
+    redis: { condition: service_healthy }
+    kafka: { condition: service_healthy }
+
+services:
+  postgres:
+    <<: *common
+    image: postgres:16
+    container_name: rb_audit_postgres_training
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in training.env}
+      POSTGRES_DB: rb_audit
+    command: ["postgres", "-c", "shared_buffers=64MB", "-c", "work_mem=4MB", "-c", "max_connections=100"]
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    mem_limit: 384m
+    cpus: 1.0
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    <<: *common
+    image: redis:7-alpine
+    container_name: rb_audit_redis_training
+    command: ["redis-server", "--maxmemory", "48mb", "--maxmemory-policy", "allkeys-lru"]
+    volumes:
+      - redis_data:/data
+    mem_limit: 64m
+    cpus: 0.25
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # Single-node KRaft (combined broker + controller). No ZooKeeper.
+  kafka:
+    <<: *common
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: rb_audit_kafka_training
+    environment:
+      CLUSTER_ID: ${KAFKA_CLUSTER_ID:?set in training.env}
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+      KAFKA_LISTENERS: PLAIN://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093
+      KAFKA_ADVERTISED_LISTENERS: PLAIN://kafka:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAIN:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAIN
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_HEAP_OPTS: "-Xmx256M -Xms128M"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_LOG_RETENTION_HOURS: 168
+      KAFKA_LOG_SEGMENT_BYTES: 1073741824
+      KAFKA_NUM_PARTITIONS: 3
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    mem_limit: 512m
+    cpus: 0.75
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/29092' || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 15
+      start_period: 40s
+
+  auth-service:
+    <<: *go
+    image: auditsphere-training/auth-service:${TRAINING_TAG:?}
+    container_name: rb_audit_auth_service_training
+    environment:
+      JWT_SECRET: ${JWT_SECRET:?set in training.env}
+    command: ["sh", "-c", "./auth --config ./pkg/config/config.yaml migrate up && ./auth --config ./pkg/config/config.yaml serve"]
+
+  audit-service:
+    <<: *go
+    image: auditsphere-training/audit-service:${TRAINING_TAG:?}
+    container_name: rb_audit_audit_service_training
+    environment:
+      JWT_SECRET: ${JWT_SECRET:?set in training.env}
+      CLAMAV_ADDRESS: clamav:3310
+      CLAMAV_MODE: required
+    volumes:
+      - ./config/audit-service:/root/pkg/config
+      - /var/data/auditsphere/storage/training/audit-uploads:/root/uploads
+    command: ["sh", "-c", "./audit migrate up && ./audit serve"]
+
+  master-service:
+    <<: *go
+    image: auditsphere-training/master-service:${TRAINING_TAG:?}
+    container_name: rb_audit_master_service_training
+    environment:
+      JWT_SECRET: ${JWT_SECRET:?set in training.env}
+      # Disabled on purpose: master-service WRITES to the shared Data Hub
+      # (register/deregister sources, trigger ingest). Training must not.
+      DATA_HUB_URL: http://datahub-disabled-in-training.invalid:8100
+      DATA_HUB_API_KEY: disabled-in-training
+      CLAMAV_ADDRESS: clamav:3310
+      CLAMAV_MODE: required
+    volumes:
+      - /var/data/auditsphere/storage/training/master-uploads:/root/uploads
+    command: ["sh", "-c", "./master migrate && ./master serve"]
+
+  risk-service:
+    <<: *go
+    image: auditsphere-training/risk-service:${TRAINING_TAG:?}
+    container_name: rb_audit_risk_service_training
+    environment:
+      JWT_SECRET: ${JWT_SECRET:?set in training.env}
+      SEED_ON_BOOT: "false"
+    command: ["sh", "-c", "./risk up && ./risk serve"]
+
+  analytics-service:
+    <<: *go
+    image: auditsphere-training/analytics-service:${TRAINING_TAG:?}
+    container_name: rb_audit_analytics_service_training
+    environment:
+      JWT_SECRET: ${JWT_SECRET:?set in training.env}
+      PYTHON_AI_URL: http://python-ai:8000
+      PYTHON_AI_API_KEY: ${PYTHON_AI_API_KEY:?set in training.env}
+      # analytics-service only READS from the Data Hub (GET endpoints)
+      DATA_HUB_URL: ${DATA_HUB_URL:?set in training.env}
+      DATA_HUB_API_KEY: ${DATA_HUB_API_KEY:?set in training.env}
+    command: ["./analytics"]
+    depends_on:
+      kafka: { condition: service_healthy }
+      python-ai: { condition: service_started }
+
+  python-ai:
+    <<: *common
+    image: auditsphere-training/python-ai:${TRAINING_TAG:?}
+    container_name: rb_audit_python_ai_training
+    environment:
+      PYTHONUNBUFFERED: "1"
+      API_KEY: ${PYTHON_AI_API_KEY:?set in training.env}
+    volumes:
+      - /var/data/auditsphere/storage/training/python-ai-models:/app/models
+      - ./ai_model_training:/app/ai_model_training:ro
+    mem_limit: 768m
+    cpus: 1.0
+
+  kong:
+    <<: *common
+    image: kong:3.8
+    user: root
+    container_name: rb_audit_kong_training
+    volumes:
+      - ./kong:/usr/local/kong/declarative:ro
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
+      KONG_PROXY_LISTEN: 0.0.0.0:8080
+      KONG_ADMIN_LISTEN: 127.0.0.1:8001
+      KONG_LOG_LEVEL: info
+      KONG_PLUGINS: bundled
+      KONG_NGINX_WORKER_PROCESSES: 1
+      KONG_NGINX_PROXY_PROXY_BUFFERING: "off"
+      KONG_CLIENT_MAX_BODY_SIZE: 100m
+      KONG_NGINX_PROXY_CLIENT_MAX_BODY_SIZE: 100m
+    tmpfs:
+      - /usr/local/kong/sockets
+    mem_limit: 256m
+    cpus: 0.5
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 20s
+      retries: 10
+      start_period: 20s
+    depends_on:
+      - auth-service
+      - audit-service
+      - master-service
+      - risk-service
+      - analytics-service
+      - python-ai
+
+  frontend:
+    <<: *common
+    image: ${FRONTEND_IMAGE:?set in training.env}
+    container_name: rbia-frontend-training
+    env_file: ./frontend.env
+    ports:
+      - "127.0.0.1:${FRONTEND_HOST_PORT:-3020}:3000"
+    mem_limit: 256m
+    cpus: 0.5
+    depends_on:
+      - kong
+
+volumes:
+  postgres_data:
+  redis_data:
+  kafka_data:
+
+networks:
+  training:
+    name: rb_audit_training_network
+    external: true

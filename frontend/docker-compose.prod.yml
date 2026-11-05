@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: rbia-frontend-prod
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     environment:
       - NODE_ENV=production
       - HOST=0.0.0.0
