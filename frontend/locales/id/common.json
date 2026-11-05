@@ -1459,7 +1459,7 @@
       "title": "Prioritas Audit ({year})",
       "subtitle": "Prioritas Rencana Audit Tahunan berdasarkan tingkat risiko yang dihitung.",
       "prioritizedCount": "{count} Diprioritaskan",
-      "priorityRule": "Prioritas Audit = Tingkat Risiko Sedang ke Tinggi atau Tinggi",
+      "priorityRule": "Prioritas Audit = Tingkat Risiko Sedang, Sedang ke Tinggi atau Tinggi",
       "no": "No",
       "auditableEntity": "Entitas Auditee",
       "riskIndex": "Indeks Risiko",
@@ -1618,7 +1618,7 @@
     "onlyPrioritized": "Hanya Diprioritaskan",
     "onlyNonPrioritized": "Tidak Diprioritaskan",
     "refresh": "Segarkan",
-    "ruleInfo": "Prioritas Audit = Tingkat Risiko Sedang ke Tinggi atau Tinggi"
+    "ruleInfo": "Prioritas Audit = Tingkat Risiko Sedang, Sedang ke Tinggi atau Tinggi"
   },
   "auditFieldwork": {
     "extra": {
@@ -5281,6 +5281,7 @@
         "inherentRiskLabel": "Inherent Risk (Risiko Prioritas Awal Tahun):",
         "riskCount": "{count} Risiko",
         "residualRiskLabel": "Residual Risk (Kuartal Berjalan, {quarter}):",
+        "residualRiskLabelYearEnd": "Residual Risk (Tutup Buku, {quarter}):",
         "cosoInterpretation": "Interpretasi Hasil COSO ({rating}):",
         "mitigationCoverage": "{covered} dari {total} risiko residual memiliki rencana mitigasi",
         "syncNote": "Data Inherent & Residual Risk terintegrasi otomatis dari Corporate Risk Profile (Q1 dibanding kuartal berjalan) beserta rencana mitigasinya."

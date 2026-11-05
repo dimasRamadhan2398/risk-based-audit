@@ -189,4 +189,30 @@ describe('RCM store wiring', () => {
     await mitigationStore.fetchMitigations('r1')
     expect(rcmStore.mitigationCoverage).toEqual({ covered: 1, total: 2 })
   })
+
+  it('reads residual from Q4 for a past year and from the current quarter otherwise', async () => {
+    vi.setSystemTime(new Date('2027-05-10T10:00:00'))
+    const { useRiskProfileStore } = await import('~/stores/risk-profile')
+    const { useRCMStore } = await import('~/stores/rcm')
+    const riskStore = useRiskProfileStore()
+    const rcmStore = useRCMStore()
+    await vi.waitFor(() => expect(riskStore.loading).toBe(false))
+
+    riskStore.rawRisks = [
+      { id: 'r1', assessments: [
+        { year: 2026, likelihood_q1: 4, impact_q1: 4, likelihood_q2: 4, impact_q2: 4, likelihood_q4: 1, impact_q4: 1 },
+        { year: 2027, likelihood_q1: 4, impact_q1: 4, likelihood_q2: 4, impact_q2: 4, likelihood_q4: 1, impact_q4: 1 }
+      ] }
+    ]
+
+    rcmStore.selectedYear = 2026
+    expect(rcmStore.residualIsYearEnd).toBe(true)
+    expect(rcmStore.residualQuarter).toBe('Q4')
+    expect(rcmStore.synchronizedRiskCounts).toEqual({ inherent: 1, residual: 0 })
+
+    rcmStore.selectedYear = 2027
+    expect(rcmStore.residualIsYearEnd).toBe(false)
+    expect(rcmStore.residualQuarter).toBe('Q2')
+    expect(rcmStore.synchronizedRiskCounts).toEqual({ inherent: 1, residual: 1 })
+  })
 })

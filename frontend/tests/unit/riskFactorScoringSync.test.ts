@@ -83,7 +83,7 @@ describe('risk index preview mirrors the backend formula', () => {
     ])
     expect(isPrioritizedRiskLevel('High')).toBe(true)
     expect(isPrioritizedRiskLevel('Medium to High')).toBe(true)
-    expect(isPrioritizedRiskLevel('Medium')).toBe(false)
+    expect(isPrioritizedRiskLevel('Medium')).toBe(true)
     expect(isPrioritizedRiskLevel('')).toBe(false)
   })
 })

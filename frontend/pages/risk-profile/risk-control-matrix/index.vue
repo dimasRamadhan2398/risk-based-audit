@@ -101,7 +101,7 @@
               </span>
             </div>
             <div class="flex items-center justify-between text-sm">
-              <span class="text-slate-600 dark:text-slate-300 font-medium">{{ t('rcm.cards.effectiveness.residualRiskLabel', { quarter: rcmStore.residualQuarter }) }}</span>
+              <span class="text-slate-600 dark:text-slate-300 font-medium">{{ t(rcmStore.residualIsYearEnd ? 'rcm.cards.effectiveness.residualRiskLabelYearEnd' : 'rcm.cards.effectiveness.residualRiskLabel', { quarter: rcmStore.residualQuarter }) }}</span>
               <span class="font-bold text-red-600 dark:text-red-400 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                 {{ t('rcm.cards.effectiveness.riskCount', { count: rcmStore.totalResidualRisk }) }}
               </span>

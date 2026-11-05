@@ -65,7 +65,7 @@ describe('Audit Priority Feature Restructuring', () => {
   it('keeps the reference ranges of the shared thresholds', async () => {
     const { RISK_LEVEL_THRESHOLDS, formatRiskLevelRange } = await import('~/utils/riskLevelBadge')
     expect(RISK_LEVEL_THRESHOLDS.map(formatRiskLevelRange)).toEqual(['80 - 100%', '60 - 79%', '40 - 59%', '20 - 39%', '0 - 19%'])
-    expect(RISK_LEVEL_THRESHOLDS.filter(th => th.prioritized).map(th => th.level)).toEqual(['High', 'Medium to High'])
+    expect(RISK_LEVEL_THRESHOLDS.filter(th => th.prioritized).map(th => th.level)).toEqual(['High', 'Medium to High', 'Medium'])
   })
 
   it('verifies localization keys for auditPriority exist in en and id locales', () => {

@@ -1556,7 +1556,7 @@
       "title": "Audit Priority ({year})",
       "subtitle": "Annual Audit Plan priorities based on calculated risk levels.",
       "prioritizedCount": "{count} Prioritized",
-      "priorityRule": "Audit Priority = Risk Level Medium to High or High",
+      "priorityRule": "Audit Priority = Risk Level Medium, Medium to High or High",
       "no": "No",
       "auditableEntity": "Auditable Entity",
       "riskIndex": "Risk Index",
@@ -1730,7 +1730,7 @@
     "onlyPrioritized": "Prioritized Only",
     "onlyNonPrioritized": "Non-Prioritized",
     "refresh": "Refresh",
-    "ruleInfo": "Audit Priority = Risk Level Medium to High or High"
+    "ruleInfo": "Audit Priority = Risk Level Medium, Medium to High or High"
   },
   "auditFieldwork": {
     "extra": {
@@ -5400,6 +5400,7 @@
         "inherentRiskLabel": "Inherent Risk (Beginning Year Priority Risk):",
         "riskCount": "{count} Risks",
         "residualRiskLabel": "Residual Risk (Current Quarter, {quarter}):",
+        "residualRiskLabelYearEnd": "Residual Risk (Year-End, {quarter}):",
         "cosoInterpretation": "COSO Result Interpretation ({rating}):",
         "mitigationCoverage": "{covered} of {total} residual risks have a mitigation plan",
         "syncNote": "Inherent & Residual Risk data is automatically integrated from the Corporate Risk Profile (Q1 vs the current quarter) and its mitigation plans."

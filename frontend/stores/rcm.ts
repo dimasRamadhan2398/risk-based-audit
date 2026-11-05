@@ -254,12 +254,17 @@ export const useRCMStore = defineStore('rcm', () => {
     filterRcmItemsByBranch(yearDepartmentRCMList.value, selectedBranch.value, itemLocationId)
   )
 
-  // Calendar quarter residual risk is read from. A ref (not a constant) so a
-  // tab left open across a quarter boundary picks up the new quarter.
-  const residualQuarter = ref<Quarter>(currentQuarter())
+  // Quarter residual risk is read from: the current calendar quarter for the
+  // current (or a future) year, Q4 (year end) for a past year. `now` is a ref so
+  // a tab left open across a quarter or year boundary catches up on focus.
+  const now = ref(new Date())
   if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
-    window.addEventListener('focus', () => { residualQuarter.value = currentQuarter() })
+    window.addEventListener('focus', () => { now.value = new Date() })
   }
+  const residualIsYearEnd = computed(() => Number(selectedYear.value) < now.value.getFullYear())
+  const residualQuarter = computed<Quarter>(() =>
+    residualIsYearEnd.value ? 'Q4' : currentQuarter(now.value)
+  )
 
   // Inherent (Q1 priority) & residual (still priority on the current quarter)
   // risk counts, from the raw CRP rows so they do not follow the period the CRP
@@ -488,6 +493,7 @@ export const useRCMStore = defineStore('rcm', () => {
     totalResidualRisk,
     synchronizedRiskCounts,
     residualQuarter,
+    residualIsYearEnd,
     mitigationCoverage,
     ensureRiskSummaryData,
     inherentVsResidualByDepartment,
