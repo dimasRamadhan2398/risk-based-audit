@@ -38,13 +38,10 @@
             >
               {{ riskLabel(finding.risiko) }}
             </UBadge>
-            <UBadge
-              :color="statusColor(finding.statusTL)"
-              variant="subtle"
-              size="xs"
-            >
-              {{ finding.statusTL }}
-            </UBadge>
+            <FollowUpStatusBadge
+              :status="finding.statusTL"
+              :reason="finding.noActionReason"
+            />
           </span>
         </UButton>
       </template>
@@ -94,14 +91,28 @@
             />
           </UFormField>
 
-          <UFormField :label="t('executiveSummaryForm.table.followUpStatus')">
+          <!-- A finding taken from the LHA follows the bucket of its ATR; only manual rows pick a status -->
+          <UFormField
+            :label="t('executiveSummaryForm.table.followUpStatus')"
+            :hint="finding.findingId ? t('executiveSummaryForm.followUp.atrLinked') : undefined"
+          >
             <USelectMenu
               v-model="finding.statusTL"
               :items="statusOptions"
+              value-key="value"
               :placeholder="t('executiveSummaryForm.table.followUpStatus')"
-              :disabled="disabled"
+              :disabled="disabled || !!finding.findingId"
               class="w-full"
             />
+            <div
+              v-if="finding.statusTL === 'No Action' && finding.noActionReason"
+              class="mt-1"
+            >
+              <FollowUpStatusBadge
+                status="No Action"
+                :reason="finding.noActionReason"
+              />
+            </div>
           </UFormField>
 
           <UFormField
@@ -136,9 +147,11 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { computed, reactive } from 'vue'
 import type { SignificantFinding } from '~/stores/executive-summary'
 import { createFindingExpansion } from '~/utils/findingCardState'
+import { FOLLOW_UP_STATUSES, followUpStatusI18nKey } from '~/utils/executiveSummaryFollowUp'
+import FollowUpStatusBadge from './FollowUpStatusBadge.vue'
 
 const { t } = useI18n()
 
@@ -161,7 +174,7 @@ const emit = defineEmits<{
   remove: [index: number]
 }>()
 
-const statusOptions = ['Closed', 'In Progress', 'Overdue']
+const statusOptions = computed(() => FOLLOW_UP_STATUSES.map(value => ({ label: t(followUpStatusI18nKey(value)), value })))
 
 // Expanded state keyed by finding identity (see utils/findingCardState.ts). Nothing is open on load.
 const expansion = createFindingExpansion(reactive(new Set<object>()))
@@ -184,14 +197,6 @@ const riskColor = (value: string) => {
     case 'Significant': return 'warning'
     case 'Quite Significant': return 'info'
     default: return 'neutral'
-  }
-}
-
-const statusColor = (value: string) => {
-  switch (value) {
-    case 'Closed': return 'success'
-    case 'Overdue': return 'error'
-    default: return 'info'
   }
 }
 </script>

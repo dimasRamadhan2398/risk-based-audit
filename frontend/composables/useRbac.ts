@@ -278,6 +278,19 @@ export const useRbac = () => {
   // VIEWER keeps its existing ATR list scope (view only; every ATR write action stays hidden by the checks below).
   const canViewAllAtr = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE, UserRole.AUDITOR, UserRole.VIEWER]))
   const canAssignAtr = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.AUDITOR]))
+  /**
+   * Holders of view_all_action_taken_report as the follow-up-status endpoint checks it
+   * (ADMIN, EXECUTIVE/CAE, AUDIT_MANAGER, AUDITOR). Unlike canViewAllAtr this leaves out VIEWER.
+   * Used for the live "current status" of an approved executive summary; the endpoint also restricts
+   * the per-finding detail on its side (findingsRestricted).
+   */
+  const canViewLiveFollowUpStatus = computed(() => hasAnyRole([
+    UserRole.ADMIN,
+    UserRole.EXECUTIVE,
+    UserRole.CHIEF_AUDIT_EXECUTIVE,
+    UserRole.AUDIT_MANAGER,
+    UserRole.AUDITOR
+  ]))
   const canReviewAtr = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE, UserRole.AUDITOR]))
   const canCancelAtr = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE]))
   /** True when the item is assigned to the logged-in user. */
@@ -403,6 +416,7 @@ export const useRbac = () => {
     canImportPlanDocs,
     canReviewExecutiveSummary,
     canViewAllAtr,
+    canViewLiveFollowUpStatus,
     canAssignAtr,
     canReviewAtr,
     canCancelAtr,

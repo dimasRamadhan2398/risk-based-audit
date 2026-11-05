@@ -481,6 +481,9 @@ func (h *RouteHandler) RegisterRoutes() {
 		// "no Route matched with those values". Registered before /:id for readability;
 		// gin matches the static segment first either way.
 		executiveSummaries.GET("/compilation-stats", ctrlExecutiveSummary.CompilationStatsHandler(h.db))
+		// Follow-up (ATR) status of the findings of one LHA or of a year/quarter.
+		// Counts for any caller; the finding list needs ATR view_all.
+		executiveSummaries.GET("/follow-up-status", ctrlExecutiveSummary.FollowUpStatusHandler(h.db))
 		executiveSummaries.GET("/:id", crud.GetByID(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
 		// A summary cannot be created as Approved, see GuardCreateHook
 		executiveSummaries.POST("", crud.CreateWithHook(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }, ctrlExecutiveSummary.GuardCreateHook))

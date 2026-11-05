@@ -1368,11 +1368,12 @@ const statusBadgeColorMap = {
   'Overdue': 'error'
 }
 
-const getStatusBadgeClass = (status: 'Closed' | 'In Progress' | 'Overdue') => {
+const getStatusBadgeClass = (status: 'Closed' | 'In Progress' | 'Overdue' | 'No Action') => {
   const colors = {
     'Closed': 'bg-success-100 text-success-800 dark:bg-success-950 dark:text-success-300 px-2.5 py-0.5 rounded text-md font-bold uppercase',
     'In Progress': 'bg-info-100 text-info-800 dark:bg-info-950 dark:text-info-300 px-2.5 py-0.5 rounded text-md font-bold uppercase',
-    'Overdue': 'bg-error-100 text-error-800 dark:bg-error-950 dark:text-error-300 px-2.5 py-0.5 rounded text-md font-bold uppercase'
+    'Overdue': 'bg-error-100 text-error-800 dark:bg-error-950 dark:text-error-300 px-2.5 py-0.5 rounded text-md font-bold uppercase',
+    'No Action': 'bg-warning-100 text-warning-800 dark:bg-warning-950 dark:text-warning-300 px-2.5 py-0.5 rounded text-md font-bold uppercase'
   }
   return colors[status]
 }
