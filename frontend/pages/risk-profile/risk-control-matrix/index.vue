@@ -665,6 +665,21 @@
                       :ui="{ base: 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 cursor-not-allowed' }"
                     />
                   </UFormField>
+                </div>
+
+                <UFormField
+                  :label="t('rcm.modal.controlDescLabel')"
+                  required
+                >
+                  <UTextarea
+                    v-model="formData.control_description"
+                    :rows="3"
+                    :placeholder="t('rcm.modal.controlDescPlaceholder')"
+                    disabled
+                    class="w-full"
+                    :ui="{ base: 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 cursor-not-allowed' }"
+                  />
+                </UFormField>
                 </template>
               </UCard>
             </div>
