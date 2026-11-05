@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6 max-w-6xl">
     <!-- Main Connections Card -->
-    <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
+    <UCard class="border border-gray-200 dark:border-slate-800 dark:bg-slate-900 dark:ring-slate-800 rounded-2xl shadow-md">
       <template #header>
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -185,7 +185,7 @@
     </UCard>
 
     <!-- Recent Data Integration Activity Card -->
-    <UCard class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 divide-gray-200 dark:divide-gray-800">
+    <UCard class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm ring-0 divide-gray-200 dark:divide-slate-800">
       <template #header>
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('settings.dataSource.recentLogsTitle') }}</h3>
