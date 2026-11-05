@@ -264,30 +264,6 @@
           </div>
         </div>
       </div>
-          </div>
-
-          <!-- Mobile Pagination -->
-          <div
-            v-if="store.pagination.total > store.pagination.page_size"
-            class="flex flex-col sm:flex-row items-center justify-between gap-2 pt-2 px-1"
-          >
-            <span class="text-xs text-[var(--text-muted)]">
-              Total: {{ store.pagination.total }} (Hal. {{ store.pagination.page }})
-            </span>
-            <UPagination
-              v-model:page="store.pagination.page"
-              :total="store.pagination.total"
-              :items-per-page="store.pagination.page_size"
-              size="xs"
-              active-color="primary"
-              color="neutral"
-              variant="outline"
-              class="max-w-full overflow-x-auto"
-              @update:page="(p) => store.fetchGuidelines(p)"
-            />
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>

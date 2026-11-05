@@ -383,7 +383,6 @@
                 </div>
               </div>
             </div>
-            </div>
           </div>
 
           <!-- Tab 3: Statements Registry (CRUD) -->

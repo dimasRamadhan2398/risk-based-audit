@@ -348,7 +348,7 @@
               :label="t('qualityAssurance.modal.cancel')"
               variant="ghost"
               color="neutral"
-              class="w-full sm:w-auto"
+              class="w-full sm:w-auto justify-center text-center"
               @click="store.closeForm"
             />
           </div>
@@ -376,7 +376,7 @@
               icon="i-heroicons-check"
               :label="store.isEditing ? t('qualityAssurance.modal.updateReport') : t('qualityAssurance.modal.saveReport')"
               color="primary"
-              class="flex-1 sm:flex-none font-bold shadow-md shadow-primary/20"
+              class="flex-1 sm:flex-none font-bold shadow-md shadow-primary/20 justify-center text-center"
               :loading="store.loading"
               @click="validateAndSave"
             />

@@ -80,6 +80,7 @@
                     v-model="store.form.department_description"
                     :placeholder="t('masterData.department.fieldDescriptionPlaceholder')"
                     :rows="3"
+                    class="w-full"
                     autoresize
                   />
                 </UFormField>

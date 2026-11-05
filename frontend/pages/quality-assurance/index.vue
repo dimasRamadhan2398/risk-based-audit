@@ -37,7 +37,7 @@ onMounted(() => {
           color="primary"
           :label="t('qualityAssurance.dashboard.addReport')"
           icon="i-lucide-plus"
-          class="w-full sm:w-auto px-6 py-2.5 font-bold rounded-lg shadow-lg"
+          class="w-full sm:w-auto px-6 py-2.5 font-bold rounded-lg shadow-lg justify-center text-center"
           @click="store.openForm"
         />
       </div>

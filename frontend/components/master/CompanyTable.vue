@@ -21,19 +21,7 @@
         class="w-full sm:w-72"
         @keyup.enter="handleSearch"
         @clear="handleSearch"
-      />
-      <UButton
-        :label="t('masterData.company.search')"
-        color="primary"
-        variant="soft"
-        @click="handleSearch"
-      />
-      <UButton
-        :label="t('masterData.company.reset')"
-        color="neutral"
-        variant="outline"
-        @click="resetSearch"
-      />
+      />    
     </div>
 
 

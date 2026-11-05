@@ -294,210 +294,449 @@ const filterByLha = (id: string) => {
       />
     </div>
 
-    <div class="space-y-2">
+    <div class="space-y-4">
       <p class="text-sm text-gray-500 font-semibold">
         {{ rangeText }}
       </p>
-      <TableEntities
-        :data="rows"
-        :columns="columns"
-        :loading="store.loading"
-        :server-side="true"
-        :total="pagination.total"
-        :items-per-page="pagination.page_size"
-        :page="pagination.page"
-        @update:page="(p: number) => store.setPage(p)"
-        @update:items-per-page="(size: number) => store.setFilters({ pageSize: size })"
-      >
-        <template #finding_title-cell="{ row }">
-          <div class="space-y-1.5">
-            <p class="font-semibold text-gray-900 dark:text-white whitespace-normal break-words">
-              {{ row.original.finding_title || '-' }}
-            </p>
-            <UBadge
-              v-if="row.original.finding_category"
-              :color="atrFindingCategoryColor(row.original.finding_category)"
-              variant="subtle"
-              size="sm"
-              :label="categoryLabel(row.original.finding_category)"
-            />
-          </div>
-        </template>
 
-        <template #report_number-cell="{ row }">
-          <div class="space-y-0.5">
-            <p class="font-mono text-sm font-semibold text-primary-600 dark:text-primary-400">
-              {{ row.original.report_number || '-' }}
-            </p>
-            <p
-              v-if="row.original.report_title"
-              class="text-xs text-gray-500 dark:text-gray-400 whitespace-normal break-words"
-            >
-              {{ row.original.report_title }}
-            </p>
-          </div>
-        </template>
+      <!-- Desktop View (>= md): Full Table Entities -->
+      <div class="hidden md:block">
+        <TableEntities
+          :data="rows"
+          :columns="columns"
+          :loading="store.loading"
+          :server-side="true"
+          :total="pagination.total"
+          :items-per-page="pagination.page_size"
+          :page="pagination.page"
+          @update:page="(p: number) => store.setPage(p)"
+          @update:items-per-page="(size: number) => store.setFilters({ pageSize: size })"
+        >
+          <template #finding_title-cell="{ row }">
+            <div class="space-y-1.5">
+              <p class="font-semibold text-gray-900 dark:text-white whitespace-normal break-words">
+                {{ row.original.finding_title || '-' }}
+              </p>
+              <UBadge
+                v-if="row.original.finding_category"
+                :color="atrFindingCategoryColor(row.original.finding_category)"
+                variant="subtle"
+                size="sm"
+                :label="categoryLabel(row.original.finding_category)"
+              />
+            </div>
+          </template>
 
-        <template #pic_name-cell="{ row }">
-          <div class="flex items-center gap-1.5">
-            <span
-              v-if="row.original.pic_user_id"
-              class="font-medium"
-            >{{ row.original.pic_name || '-' }}</span>
-            <span
-              v-else
-              class="italic text-gray-400"
-            >{{ t('actionTakenReport.table.unassigned') }}</span>
-            <UBadge
-              v-if="isAtrPic(row.original)"
-              color="primary"
-              variant="soft"
-              size="sm"
-              :label="t('actionTakenReport.table.you')"
-            />
-          </div>
-        </template>
+          <template #report_number-cell="{ row }">
+            <div class="space-y-0.5">
+              <p class="font-mono text-sm font-semibold text-primary-600 dark:text-primary-400">
+                {{ row.original.report_number || '-' }}
+              </p>
+              <p
+                v-if="row.original.report_title"
+                class="text-xs text-gray-500 dark:text-gray-400 whitespace-normal break-words"
+              >
+                {{ row.original.report_title }}
+              </p>
+            </div>
+          </template>
 
-        <template #due_date-cell="{ row }">
-          <div class="space-y-0.5 whitespace-nowrap">
-            <p :class="row.original.is_overdue ? 'font-semibold text-error-600 dark:text-error-400' : ''">
-              {{ formatAtrDate(row.original.due_date, locale) }}
-            </p>
-            <p
-              v-if="row.original.is_overdue"
-              class="flex items-center gap-1 text-xs font-medium text-error-600 dark:text-error-400"
+          <template #pic_name-cell="{ row }">
+            <div class="flex items-center gap-1.5">
+              <span
+                v-if="row.original.pic_user_id"
+                class="font-medium"
+              >{{ row.original.pic_name || '-' }}</span>
+              <span
+                v-else
+                class="italic text-gray-400"
+              >{{ t('actionTakenReport.table.unassigned') }}</span>
+              <UBadge
+                v-if="isAtrPic(row.original)"
+                color="primary"
+                variant="soft"
+                size="sm"
+                :label="t('actionTakenReport.table.you')"
+              />
+            </div>
+          </template>
+
+          <template #due_date-cell="{ row }">
+            <div class="space-y-0.5 whitespace-nowrap">
+              <p :class="row.original.is_overdue ? 'font-semibold text-error-600 dark:text-error-400' : ''">
+                {{ formatAtrDate(row.original.due_date, locale) }}
+              </p>
+              <p
+                v-if="row.original.is_overdue"
+                class="flex items-center gap-1 text-xs font-medium text-error-600 dark:text-error-400"
+              >
+                <UIcon
+                  name="i-lucide-alarm-clock"
+                  class="w-3.5 h-3.5"
+                />
+                {{ t('actionTakenReport.daysOverdue', { days: row.original.overdue_days }) }}
+              </p>
+            </div>
+          </template>
+
+          <template #progress-cell="{ row }">
+            <div class="flex items-center gap-2 min-w-[120px]">
+              <UProgress
+                :model-value="row.original.progress"
+                :max="100"
+                size="sm"
+                class="flex-1"
+              />
+              <span class="text-xs font-semibold tabular-nums w-9 text-right">{{ row.original.progress }}%</span>
+            </div>
+          </template>
+
+          <template #status-cell="{ row }">
+            <AtrStatusBadge :status="row.original.status" />
+          </template>
+
+          <template #actions-cell="{ row }">
+            <div class="flex items-center gap-1">
+              <UTooltip :text="t('actionTakenReport.actions.view')">
+                <UButton
+                  icon="i-lucide-eye"
+                  color="neutral"
+                  variant="ghost"
+                  :aria-label="t('actionTakenReport.actions.view')"
+                  @click="store.openDetail(row.original)"
+                />
+              </UTooltip>
+              <UTooltip
+                v-if="availableActions(row.original).actionPlan"
+                :text="t('actionTakenReport.actions.fillActionPlan')"
+              >
+                <UButton
+                  icon="i-lucide-pencil-line"
+                  color="primary"
+                  variant="ghost"
+                  :aria-label="t('actionTakenReport.actions.fillActionPlan')"
+                  @click="store.openActionPlan(row.original)"
+                />
+              </UTooltip>
+              <UTooltip
+                v-if="availableActions(row.original).assign"
+                :text="row.original.pic_user_id ? t('actionTakenReport.actions.reassign') : t('actionTakenReport.actions.assign')"
+              >
+                <UButton
+                  icon="i-lucide-user-check"
+                  color="neutral"
+                  variant="ghost"
+                  :aria-label="t('actionTakenReport.actions.assign')"
+                  @click="store.openAssignment(row.original)"
+                />
+              </UTooltip>
+              <UTooltip
+                v-if="availableActions(row.original).review"
+                :text="t('actionTakenReport.actions.review')"
+              >
+                <UButton
+                  icon="i-lucide-clipboard-check"
+                  color="success"
+                  variant="ghost"
+                  :aria-label="t('actionTakenReport.actions.review')"
+                  @click="store.openReview(row.original)"
+                />
+              </UTooltip>
+              <UTooltip
+                v-if="availableActions(row.original).cancel"
+                :text="t('actionTakenReport.actions.cancel')"
+              >
+                <UButton
+                  icon="i-lucide-ban"
+                  color="error"
+                  variant="ghost"
+                  :aria-label="t('actionTakenReport.actions.cancel')"
+                  @click="store.openCancel(row.original)"
+                />
+              </UTooltip>
+            </div>
+          </template>
+
+          <template #empty>
+            <div
+              v-if="store.errorMsg"
+              class="flex flex-col items-center justify-center gap-2 py-8 text-center"
             >
               <UIcon
-                name="i-lucide-alarm-clock"
-                class="w-3.5 h-3.5"
+                name="i-lucide-alert-triangle"
+                class="w-8 h-8 text-error-500"
               />
-              {{ t('actionTakenReport.daysOverdue', { days: row.original.overdue_days }) }}
-            </p>
+              <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                {{ t('actionTakenReport.table.errorTitle') }}
+              </p>
+              <p class="text-sm text-gray-500">
+                {{ store.errorMsg }}
+              </p>
+              <UButton
+                :label="t('actionTakenReport.table.retry')"
+                icon="i-lucide-refresh-cw"
+                color="neutral"
+                variant="outline"
+                size="sm"
+                @click="store.fetchReports()"
+              />
+            </div>
+            <div
+              v-else
+              class="flex flex-col items-center justify-center gap-2 py-8 px-4 text-center"
+            >
+              <UIcon
+                :name="hasFilters ? 'i-lucide-search-x' : 'i-lucide-clipboard-list'"
+                class="w-10 h-10 text-gray-400 opacity-70"
+              />
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-300">
+                {{ hasFilters ? t('actionTakenReport.table.emptyFiltered') : (query.scope === 'mine' ? t('actionTakenReport.table.emptyMine') : t('actionTakenReport.table.empty')) }}
+              </p>
+              <p
+                v-if="!hasFilters"
+                class="text-xs text-gray-500 dark:text-gray-400 max-w-md"
+              >
+                {{ t('actionTakenReport.table.emptyHint') }}
+              </p>
+            </div>
+          </template>
+        </TableEntities>
+      </div>
+
+      <!-- Mobile & Tablet View (< md): Stacked Cards List -->
+      <div class="block md:hidden">
+        <!-- Loading State Skeleton -->
+        <div v-if="store.loading" class="space-y-3">
+          <div v-for="i in 3" :key="i" class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] animate-pulse space-y-2.5">
+            <div class="flex justify-between items-center">
+              <div class="h-4 w-28 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              <div class="h-5 w-20 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+            </div>
+            <div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div class="h-2 w-full bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div class="flex gap-4 pt-1">
+              <div class="h-3 w-28 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              <div class="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            </div>
           </div>
-        </template>
+        </div>
 
-        <template #progress-cell="{ row }">
-          <div class="flex items-center gap-2 min-w-[120px]">
-            <UProgress
-              :model-value="row.original.progress"
-              :max="100"
-              size="sm"
-              class="flex-1"
-            />
-            <span class="text-xs font-semibold tabular-nums w-9 text-right">{{ row.original.progress }}%</span>
-          </div>
-        </template>
+        <!-- Error State -->
+        <div
+          v-else-if="store.errorMsg"
+          class="flex flex-col items-center justify-center gap-2 py-8 px-4 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+        >
+          <UIcon
+            name="i-lucide-alert-triangle"
+            class="w-8 h-8 text-error-500"
+          />
+          <p class="text-sm font-semibold text-gray-900 dark:text-white">
+            {{ t('actionTakenReport.table.errorTitle') }}
+          </p>
+          <p class="text-sm text-gray-500">
+            {{ store.errorMsg }}
+          </p>
+          <UButton
+            :label="t('actionTakenReport.table.retry')"
+            icon="i-lucide-refresh-cw"
+            color="neutral"
+            variant="outline"
+            size="md"
+            @click="store.fetchReports()"
+          />
+        </div>
 
-        <template #status-cell="{ row }">
-          <AtrStatusBadge :status="row.original.status" />
-        </template>
+        <!-- Empty State -->
+        <div
+          v-else-if="!rows.length"
+          class="flex flex-col items-center justify-center gap-2 py-8 px-4 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+        >
+          <UIcon
+            :name="hasFilters ? 'i-lucide-search-x' : 'i-lucide-clipboard-list'"
+            class="size-8 mx-auto text-gray-400 opacity-70"
+          />
+          <p class="text-sm font-medium text-gray-600 dark:text-gray-300">
+            {{ hasFilters ? t('actionTakenReport.table.emptyFiltered') : (query.scope === 'mine' ? t('actionTakenReport.table.emptyMine') : t('actionTakenReport.table.empty')) }}
+          </p>
+          <p
+            v-if="!hasFilters"
+            class="text-xs text-gray-500 dark:text-gray-400 max-w-md mx-auto"
+          >
+            {{ t('actionTakenReport.table.emptyHint') }}
+          </p>
+        </div>
 
-        <template #actions-cell="{ row }">
-          <div class="flex items-center gap-1">
-            <UTooltip :text="t('actionTakenReport.actions.view')">
+        <!-- Cards List -->
+        <div v-else class="space-y-3">
+          <div
+            v-for="item in rows"
+            :key="item.id"
+            class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3 cursor-pointer"
+            @click="store.openDetail(item)"
+          >
+            <!-- Card Header: Report Number & Status Badge -->
+            <div class="flex items-center justify-between gap-2">
+              <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/40 px-2 py-0.5 rounded-md border border-primary-200/50 dark:border-primary-800/40 tabular-nums">
+                <UIcon name="i-lucide-file-text" class="size-3" />
+                {{ item.report_number || '-' }}
+              </span>
+              <AtrStatusBadge :status="item.status" />
+            </div>
+
+            <!-- Card Body: Finding Title & Category Badge -->
+            <div>
+              <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-snug line-clamp-2">
+                {{ item.finding_title || '-' }}
+              </h4>
+              <div class="flex items-center gap-2 mt-1.5 flex-wrap">
+                <UBadge
+                  v-if="item.finding_category"
+                  :color="atrFindingCategoryColor(item.finding_category)"
+                  variant="subtle"
+                  size="xs"
+                  :label="categoryLabel(item.finding_category)"
+                />
+                <span
+                  v-if="item.report_title"
+                  class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[220px]"
+                >
+                  {{ item.report_title }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="space-y-1 pt-0.5">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-slate-500 dark:text-slate-400 font-medium">{{ t('actionTakenReport.table.columns.progress') }}</span>
+                <span class="font-bold tabular-nums text-slate-800 dark:text-slate-200">{{ item.progress }}%</span>
+              </div>
+              <UProgress
+                :model-value="item.progress"
+                :max="100"
+                size="xs"
+                class="w-full"
+              />
+            </div>
+
+            <!-- Card Metadata: PIC & Due Date -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-gray-800/80 text-xs text-[var(--text-muted)]">
+              <!-- PIC info -->
+              <div class="flex items-center gap-1.5 min-w-0">
+                <UIcon name="i-lucide-user" class="size-3.5 shrink-0 text-gray-400" />
+                <span
+                  v-if="item.pic_user_id"
+                  class="font-medium text-gray-700 dark:text-gray-300 truncate"
+                >
+                  {{ item.pic_name || '-' }}
+                </span>
+                <span
+                  v-else
+                  class="italic text-gray-400"
+                >
+                  {{ t('actionTakenReport.table.unassigned') }}
+                </span>
+                <UBadge
+                  v-if="isAtrPic(item)"
+                  color="primary"
+                  variant="soft"
+                  size="xs"
+                  :label="t('actionTakenReport.table.you')"
+                />
+              </div>
+
+              <!-- Due Date info -->
+              <div class="flex items-center gap-1 shrink-0">
+                <UIcon
+                  :name="item.is_overdue ? 'i-lucide-alarm-clock' : 'i-lucide-calendar'"
+                  :class="item.is_overdue ? 'text-error-500' : 'text-gray-400'"
+                  class="size-4.5"
+                />
+                <span :class="item.is_overdue ? 'text-error-600 dark:text-error-400 font-bold' : 'text-gray-600 dark:text-gray-400'">
+                  {{ formatAtrDate(item.due_date, locale) }}
+                </span>
+                <span
+                  v-if="item.is_overdue"
+                  class="text-[10px] font-bold text-error-600 dark:text-error-400"
+                >
+                  ({{ t('actionTakenReport.daysOverdue', { days: item.overdue_days }) }})
+                </span>
+              </div>
+            </div>
+
+            <!-- Card Footer Actions -->
+            <div class="flex items-center justify-end gap-1.5 pt-2 border-t border-gray-100 dark:border-gray-800/80" @click.stop>
               <UButton
                 icon="i-lucide-eye"
                 color="neutral"
-                variant="ghost"
-                :aria-label="t('actionTakenReport.actions.view')"
-                @click="store.openDetail(row.original)"
+                variant="outline"
+                size="md"
+                :label="t('actionTakenReport.actions.view')"
+                class="font-semibold"
+                @click="store.openDetail(item)"
               />
-            </UTooltip>
-            <UTooltip
-              v-if="availableActions(row.original).actionPlan"
-              :text="t('actionTakenReport.actions.fillActionPlan')"
-            >
               <UButton
+                v-if="availableActions(item).actionPlan"
                 icon="i-lucide-pencil-line"
                 color="primary"
-                variant="ghost"
-                :aria-label="t('actionTakenReport.actions.fillActionPlan')"
-                @click="store.openActionPlan(row.original)"
+                variant="subtle"
+                size="md"
+                :label="t('actionTakenReport.actions.fillActionPlan')"
+                class="font-semibold"
+                @click="store.openActionPlan(item)"
               />
-            </UTooltip>
-            <UTooltip
-              v-if="availableActions(row.original).assign"
-              :text="row.original.pic_user_id ? t('actionTakenReport.actions.reassign') : t('actionTakenReport.actions.assign')"
-            >
               <UButton
+                v-if="availableActions(item).assign"
                 icon="i-lucide-user-check"
                 color="neutral"
                 variant="ghost"
+                size="md"
                 :aria-label="t('actionTakenReport.actions.assign')"
-                @click="store.openAssignment(row.original)"
+                @click="store.openAssignment(item)"
               />
-            </UTooltip>
-            <UTooltip
-              v-if="availableActions(row.original).review"
-              :text="t('actionTakenReport.actions.review')"
-            >
               <UButton
+                v-if="availableActions(item).review"
                 icon="i-lucide-clipboard-check"
                 color="success"
                 variant="ghost"
+                size="xs"
                 :aria-label="t('actionTakenReport.actions.review')"
-                @click="store.openReview(row.original)"
+                @click="store.openReview(item)"
               />
-            </UTooltip>
-            <UTooltip
-              v-if="availableActions(row.original).cancel"
-              :text="t('actionTakenReport.actions.cancel')"
-            >
               <UButton
+                v-if="availableActions(item).cancel"
                 icon="i-lucide-ban"
                 color="error"
                 variant="ghost"
+                size="md"
                 :aria-label="t('actionTakenReport.actions.cancel')"
-                @click="store.openCancel(row.original)"
+                @click="store.openCancel(item)"
               />
-            </UTooltip>
+            </div>
           </div>
-        </template>
 
-        <template #empty>
+          <!-- Mobile Pagination Controls -->
           <div
-            v-if="store.errorMsg"
-            class="flex flex-col items-center justify-center gap-2 py-8 text-center"
+            v-if="pagination.total > pagination.page_size"
+            class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800"
           >
-            <UIcon
-              name="i-lucide-alert-triangle"
-              class="w-8 h-8 text-error-500"
-            />
-            <p class="text-sm font-semibold text-gray-900 dark:text-white">
-              {{ t('actionTakenReport.table.errorTitle') }}
-            </p>
-            <p class="text-sm text-gray-500">
-              {{ store.errorMsg }}
-            </p>
-            <UButton
-              :label="t('actionTakenReport.table.retry')"
-              icon="i-lucide-refresh-cw"
+            <span class="text-xs text-slate-500 dark:text-slate-400">
+              {{ rangeText }}
+            </span>
+            <UPagination
+              :page="pagination.page"
+              :items-per-page="pagination.page_size"
+              :total="pagination.total"
+              size="sm"
+              active-color="primary"
               color="neutral"
               variant="outline"
-              size="sm"
-              @click="store.fetchReports()"
+              class="max-w-full overflow-x-auto"
+              @update:page="(p: number) => store.setPage(p)"
             />
           </div>
-          <div
-            v-else
-            class="flex flex-col items-center justify-center gap-2 py-8 px-4 text-center"
-          >
-            <UIcon
-              :name="hasFilters ? 'i-lucide-search-x' : 'i-lucide-clipboard-list'"
-              class="w-10 h-10 text-gray-400 opacity-70"
-            />
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">
-              {{ hasFilters ? t('actionTakenReport.table.emptyFiltered') : (query.scope === 'mine' ? t('actionTakenReport.table.emptyMine') : t('actionTakenReport.table.empty')) }}
-            </p>
-            <p
-              v-if="!hasFilters"
-              class="text-xs text-gray-500 dark:text-gray-400 max-w-md"
-            >
-              {{ t('actionTakenReport.table.emptyHint') }}
-            </p>
-          </div>
-        </template>
-      </TableEntities>
+        </div>
+      </div>
     </div>
 
     <ATRDetail @filter-lha="filterByLha" />

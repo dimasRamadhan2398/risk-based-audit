@@ -593,7 +593,7 @@
               class="-my-1"
               aria-label="Tutup form Risk Control Matrix"
               :title="t('common.close')"
-              @click="isModalOpen = false" 
+              @click="() => { isModalOpen = false }" 
             />
           </div>
 
@@ -949,7 +949,7 @@
                 color="neutral"
                 variant="ghost"
                 class="w-full sm:w-auto"
-                @click="isModalOpen = false"
+                @click="() => { isModalOpen = false }"
               />
             </div>
 
@@ -961,7 +961,7 @@
                 color="neutral"
                 variant="outline"
                 class="flex-1 sm:flex-none"
-                @click="currentStep--"
+                @click="() => { currentStep-- }"
               />
               <UButton
                 v-if="currentStep < steps.length - 1"

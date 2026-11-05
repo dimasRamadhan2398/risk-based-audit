@@ -22,18 +22,6 @@
         @keyup.enter="handleSearch"
         @clear="handleSearch"
       />
-      <UButton
-        :label="t('masterData.department.search')"
-        color="primary"
-        variant="soft"
-        @click="handleSearch"
-      />
-      <UButton
-        :label="t('masterData.department.reset')"
-        color="neutral"
-        variant="outline"
-        @click="resetSearch"
-      />
     </div>
 
     <!-- Loading State -->

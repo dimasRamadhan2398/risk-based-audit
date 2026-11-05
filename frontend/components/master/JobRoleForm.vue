@@ -2,7 +2,7 @@
   <UModal
     v-model:open="store.showModal"
     dismissible
-    :ui="{ content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden' }"
+    :ui="{ content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-2xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden' }"
     @update:open="(val: boolean) => { if (!val) store.closeModal() }"
   >
     <template #content>
@@ -120,14 +120,17 @@
                 <UFormField
                   :label="t('masterData.jobRole.fieldDescription')"
                   size="lg"
-                  class="md:col-span-2"
+                  class="md:col-span-2 w-full"
                 >
-                  <UTextarea
-                    v-model="store.form.job_role_description"
-                    :placeholder="t('masterData.jobRole.fieldDescriptionPlaceholder')"
-                    :rows="3"
-                    autoresize
-                  />
+                  <div class="w-full">
+                    <UTextarea
+                      v-model="store.form.job_role_description"
+                      :placeholder="t('masterData.jobRole.fieldDescriptionPlaceholder')"
+                      :rows="3"
+                      class="w-full"
+                      autoresize
+                    />
+                  </div>
                 </UFormField>
               </div>
 
@@ -135,9 +138,25 @@
                 :label="t('masterData.jobRole.status')"
                 size="lg"
               >
-                <div class="flex items-center gap-3">
-                  <USwitch v-model="store.form.is_active" />
-                  <span>{{ store.form.is_active ? t('masterData.jobRole.active') : t('masterData.jobRole.inactive') }}</span>
+                <div class="flex items-center gap-4">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      :checked="store.form.is_active"
+                      class="w-4 h-4 text-primary-600 focus:ring-primary-500"
+                      @change="store.form.is_active = true"
+                    />
+                    <span>{{ t('masterData.jobRole.active') }}</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      :checked="!store.form.is_active"
+                      class="w-4 h-4 text-error-600 focus:ring-error-500"
+                      @change="store.form.is_active = false"
+                    />
+                    <span>{{ t('masterData.jobRole.inactive') }}</span>
+                  </label>
                 </div>
                 <p class="text-xs text-gray-500 mt-1">
                   {{ t('masterData.jobRole.statusHelp') }}
@@ -151,8 +170,8 @@
             <UButton
               :label="t('common.cancel')"
               color="neutral"
-              variant="soft"
-              class="w-full sm:w-auto"
+              variant="ghost"
+              class="w-full sm:w-auto justify-center text-center"
               type="button"
               @click="store.closeModal"
             />
@@ -160,7 +179,7 @@
               :label="store.isEditing ? t('common.update') : t('common.create')"
               color="primary"
               :loading="store.loading"
-              class="w-full sm:w-auto font-bold"
+              class="w-full sm:w-auto font-bold justify-center text-center"
               type="submit"
             />
           </div>

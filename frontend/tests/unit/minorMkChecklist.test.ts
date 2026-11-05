@@ -37,7 +37,7 @@ describe('PROD minor checklist items assigned to Mk', () => {
     const rcm = read('pages/risk-profile/risk-control-matrix/index.vue')
 
     expect(rcm).toContain('aria-label="Tutup form Risk Control Matrix"')
-    expect(rcm).toContain('@click="isModalOpen = false"')
+    expect(rcm).toMatch(/isModalOpen = false/)
   })
 
   it('marks Annual Audit scheduling fields as required and keeps generated fields read-only', () => {

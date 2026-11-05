@@ -289,7 +289,6 @@
             <div class="hidden sm:block mt-4 sm:mt-6 md:mt-8 text-center text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em]">
               {{ t('riskProfile.impactLevel') }}
             </div>
-          </div> -->
           </div>
         </div>
       </div>

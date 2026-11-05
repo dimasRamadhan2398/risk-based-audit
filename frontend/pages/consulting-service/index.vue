@@ -16,14 +16,14 @@
           variant="outline"
           :label="t('consultingService.dashboard.importDocument')"
           icon="i-lucide-upload"
-          class="px-5 py-2.5 font-bold rounded-lg shadow w-full sm:w-auto"
+          class="px-5 py-2.5 font-bold rounded-lg shadow w-full sm:w-auto justify-center text-center"
           to="/consulting-service/upload"
         />
         <UButton v-if="canWriteQaConsulting"
           color="primary"
           :label="t('consultingService.dashboard.newAssignment')"
           icon="i-lucide-plus"
-          class="px-6 py-2.5 font-bold rounded-lg shadow-lg w-full sm:w-auto"
+          class="px-6 py-2.5 font-bold rounded-lg shadow-lg w-full sm:w-auto justify-center text-center"
           @click="store.openForm()"
         />
       </div>
@@ -361,14 +361,14 @@
           </div>
 
           <!-- Stepper -->
-          <div class="w-full overflow-x-auto border-b border-[var(--border-main)] bg-[var(--bg-surface)] px-4 py-3 sm:px-6 sm:py-4 scrollbar-thin">
-            <div class="flex min-w-max items-center gap-3 px-1 sm:gap-4">
+          <div class="w-full border-b border-[var(--border-main)] bg-[var(--bg-surface)] px-3 py-3 sm:px-6 sm:py-4">
+            <div class="flex w-full items-center justify-center gap-2 sm:gap-4">
               <template
                 v-for="(step, idx) in steps"
                 :key="step.key"
               >
                 <div
-                  class="group flex shrink-0 cursor-pointer select-none items-center gap-2 sm:gap-2.5"
+                  class="group flex min-w-0 shrink cursor-pointer select-none items-center gap-1.5 sm:gap-2.5"
                   data-testid="form-step"
                   @click="goToStep(idx)"
                 >
@@ -388,7 +388,7 @@
                     <span v-else>{{ idx + 1 }}</span>
                   </div>
                   <span
-                    class="whitespace-nowrap text-xs font-semibold transition-colors"
+                    class="text-[11px] sm:text-xs font-semibold transition-colors truncate sm:whitespace-nowrap"
                     :class="currentStep === idx
                       ? 'text-primary font-bold'
                       : currentStep > idx
@@ -400,7 +400,7 @@
                 </div>
                 <div
                   v-if="idx < steps.length - 1"
-                  class="h-0.5 w-8 shrink-0 rounded transition-all duration-300 sm:w-12"
+                  class="h-0.5 w-4 sm:w-8 shrink-0 rounded transition-all duration-300"
                   :class="currentStep > idx ? 'bg-secondary' : 'bg-gray-200 dark:bg-gray-800'"
                 />
               </template>
@@ -560,27 +560,18 @@
                 :label="t('common.cancel')"
                 color="neutral"
                 variant="ghost"
-                class="w-full sm:w-auto"
+                class="w-full sm:w-auto justify-center text-center"
                 @click="store.closeForm"
               />
             </div>
 
             <div class="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-3">
               <UButton
-                v-if="currentStep > 0"
-                icon="i-heroicons-arrow-left"
-                :label="t('auditActivityPlan.stepper.previous')"
-                color="neutral"
-                variant="outline"
-                class="flex-1 sm:flex-none"
-                @click="() => { currentStep-- }"
-              />
-              <UButton
                 v-if="currentStep < steps.length - 1"
                 trailing-icon="i-heroicons-arrow-right"
                 :label="t('auditActivityPlan.stepper.next')"
                 color="primary"
-                class="flex-1 sm:flex-none font-bold shadow-md shadow-primary/20"
+                class="flex-1 sm:flex-none font-bold shadow-md shadow-primary/20 justify-center text-center"
                 @click="handleNext"
               />
               <UButton
@@ -588,7 +579,7 @@
                 icon="i-heroicons-check"
                 :label="store.isEditing ? t('common.updateData') : t('consultingService.dashboard.form.save')"
                 color="primary"
-                class="flex-1 sm:flex-none font-bold shadow-md shadow-primary/20"
+                class="flex-1 sm:flex-none font-bold shadow-md shadow-primary/20 text-center justify-center"
                 :loading="store.loading"
                 @click="handleSave"
               />

@@ -200,7 +200,7 @@ const handleRemind = (audit: any) => {
           <UButton
             icon="i-lucide-refresh-cw"
             :label="t('auditExecution.sync.button')"
-            color="primary"
+            color="neutral"
             variant="outline"
             size="md"
             class="font-bold w-full sm:w-auto justify-center"
@@ -213,7 +213,7 @@ const handleRemind = (audit: any) => {
           icon="i-lucide-help-circle"
           :label="t('auditExecution.cycleGuideButton')"
           color="primary"
-          variant="soft"
+          variant="outline"
           size="md"
           class="font-bold w-full sm:w-auto justify-center"
           @click="() => { isHelpModalOpen = true }"
