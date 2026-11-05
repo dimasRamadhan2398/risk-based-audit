@@ -5280,9 +5280,10 @@
         "realScore": "Skor Efektivitas Riil",
         "inherentRiskLabel": "Inherent Risk (Risiko Prioritas Awal Tahun):",
         "riskCount": "{count} Risiko",
-        "residualRiskLabel": "Residual Risk (Sisa Risiko Tutup Buku):",
+        "residualRiskLabel": "Residual Risk (Kuartal Berjalan, {quarter}):",
         "cosoInterpretation": "Interpretasi Hasil COSO ({rating}):",
-        "syncNote": "Data Inherent & Residual Risk terintegrasi langsung secara otomatis dari Corporate Risk Profile."
+        "mitigationCoverage": "{covered} dari {total} risiko residual memiliki rencana mitigasi",
+        "syncNote": "Data Inherent & Residual Risk terintegrasi otomatis dari Corporate Risk Profile (Q1 dibanding kuartal berjalan) beserta rencana mitigasinya."
       },
       "coso": {
         "title": "Rata-Rata COSO",

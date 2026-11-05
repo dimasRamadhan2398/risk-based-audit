@@ -5399,9 +5399,10 @@
         "realScore": "Real Effectiveness Score",
         "inherentRiskLabel": "Inherent Risk (Beginning Year Priority Risk):",
         "riskCount": "{count} Risks",
-        "residualRiskLabel": "Residual Risk (Year-End Residual Risk):",
+        "residualRiskLabel": "Residual Risk (Current Quarter, {quarter}):",
         "cosoInterpretation": "COSO Result Interpretation ({rating}):",
-        "syncNote": "Inherent & Residual Risk data is automatically integrated directly from Corporate Risk Profile."
+        "mitigationCoverage": "{covered} of {total} residual risks have a mitigation plan",
+        "syncNote": "Inherent & Residual Risk data is automatically integrated from the Corporate Risk Profile (Q1 vs the current quarter) and its mitigation plans."
       },
       "coso": {
         "title": "COSO Average",

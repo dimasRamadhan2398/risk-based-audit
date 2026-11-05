@@ -93,6 +93,46 @@ export const useMitigationStore = defineStore('mitigation', () => {
     const loading = ref(false)
     const errorMsg = ref('')
 
+    // Every plan of every risk (GET /mitigations, no riskId), for counts such as
+    // the RCM mitigation coverage. `mitigations` above is replaced by one risk's
+    // plans whenever a risk is opened, so it cannot be used for that.
+    const allMitigations = ref<RiskMitigation[]>([])
+    const allMitigationsLoaded = ref(false)
+    const allMitigationsLoading = ref(false)
+
+    const parseMitigationList = (response: any): any[] =>
+        (response && response.success && Array.isArray(response.data)) ? response.data : (Array.isArray(response) ? response : [])
+
+    const fetchAllMitigations = async (force = false) => {
+        if (allMitigationsLoading.value) return
+        if (allMitigationsLoaded.value && !force) return
+        allMitigationsLoading.value = true
+        try {
+            const response: any = await $fetch(`${getRiskServiceBaseUrl()}/mitigations`, { method: 'GET' })
+            allMitigations.value = parseMitigationList(response)
+            allMitigationsLoaded.value = true
+        } catch (error: any) {
+            console.error('Failed to fetch all mitigations:', error)
+        } finally {
+            allMitigationsLoading.value = false
+        }
+    }
+
+    /** Keep allMitigations in step with a fresh server list (one risk's plans, or all of them). */
+    const syncAllMitigations = (serverList: any[], riskId?: string) => {
+        if (!riskId) {
+            allMitigations.value = serverList
+            allMitigationsLoaded.value = true
+            return
+        }
+        if (!allMitigationsLoaded.value) return
+        const target = String(riskId).trim().toLowerCase()
+        allMitigations.value = [
+            ...allMitigations.value.filter(m => String(m.riskId ?? '').trim().toLowerCase() !== target),
+            ...serverList
+        ]
+    }
+
 
 
     // Data Master untuk Dropdown
@@ -273,8 +313,9 @@ export const useMitigationStore = defineStore('mitigation', () => {
             const baseUrl = getRiskServiceBaseUrl()
             const url = riskId ? `${baseUrl}/mitigations?riskId=${riskId}` : `${baseUrl}/mitigations`
             const response: any = await $fetch(url, { method: 'GET' })
-            const responseData = (response && response.success && Array.isArray(response.data)) ? response.data : (Array.isArray(response) ? response : [])
-            
+            const responseData = parseMitigationList(response)
+            syncAllMitigations(responseData, riskId)
+
             if (responseData.length > 0) {
                 const riskProfileStore = useRiskProfileStore()
                 mitigations.value = responseData.map((m: any, idx: number) => {
@@ -473,6 +514,7 @@ export const useMitigationStore = defineStore('mitigation', () => {
 
     return {
         mitigations, isFormOpen, isEditing, form, getMitigationsByRiskId,
+        allMitigations, allMitigationsLoaded, allMitigationsLoading, fetchAllMitigations,
         employees, employeesLoading, employeesLoaded, employeesError, fetchEmployees, formatEmployeeName,
         departments, departmentsLoading, departmentsLoaded, departmentsError, fetchDepartments, formatDepartmentName,
         supervisorOptions, unitInChargeOptions, picOptions,

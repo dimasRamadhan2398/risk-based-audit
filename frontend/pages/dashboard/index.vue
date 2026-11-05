@@ -447,9 +447,13 @@
                 {{ rcmStore.totalInherentRisk }} {{ t('settings.faq.categories.Risk') }} </span>
             </div>
             <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm">
-              <span class="text-slate-600 dark:text-slate-300 font-medium">{{ t('rcm.cards.effectiveness.residualRiskLabel') }}</span>
+              <span class="text-slate-600 dark:text-slate-300 font-medium">{{ t('rcm.cards.effectiveness.residualRiskLabel', { quarter: rcmStore.residualQuarter }) }}</span>
               <span class="font-bold text-red-600 dark:text-red-400 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 whitespace-nowrap">
                 {{ rcmStore.totalResidualRisk }} {{ t('settings.faq.categories.Risk') }} </span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+              <UIcon name="i-lucide-shield-check" class="size-4 shrink-0 text-emerald-500" />
+              <span>{{ t('rcm.cards.effectiveness.mitigationCoverage', { covered: rcmStore.mitigationCoverage.covered, total: rcmStore.mitigationCoverage.total }) }}</span>
             </div>
             <UAlert
               :color="(rcmStore.effectivenessRating.alertColor as any) || 'info'"
@@ -1121,6 +1125,8 @@ onMounted(() => {
   auditResultStore.fetchRecentFindings(5);
   // RCM-based figures (control effectiveness etc.) come only from the risk-service API.
   rcmStore.fetchRCMList();
+  // Inherent/residual counts + mitigation coverage: CRP risks and all mitigation plans (skipped when already loaded).
+  rcmStore.ensureRiskSummaryData();
   // ATR donut, compliance, Open Findings and the ATR table: every ATR the user can see.
   atrStore.fetchSummary();
   // Audit Execution Status card and the Execution Status tile (same list as /audit-execution-status).
