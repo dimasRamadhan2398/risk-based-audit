@@ -229,7 +229,7 @@
                           <UInput
                             v-model.number="item.weight"
                             type="number"
-                            step="0.01"
+                            step="0.5"
                             min="0"
                             size="sm"
                             placeholder="0"
@@ -684,7 +684,7 @@ import {
   buildScoringRows,
   computeRiskIndexPreview,
   isUniverseYearScored,
-  isValidWeightTotal,
+  isWeightSumExactly100,
   normalizeWeightPercent,
   sumWeightPercents,
   weightFractionToPercent,
@@ -811,10 +811,12 @@ const parsedGuidelines = computed(() => {
   }
 })
 
-// Weights are percentages with up to 2 decimals; the backend accepts a total of 99.9–100.1.
+// Weights are percentages with up to 2 decimals; the total must be exactly 100 (compared in integer hundredths).
+// The arrows step by 0.5 but typed values like 33.33 are kept — the input is not inside a <form>, so the
+// native step constraint never blocks anything.
 const totalWeight = computed(() => sumWeightPercents(selectedCorporateList.value.map(item => item.weight)))
 
-const isValidWeightSum = computed(() => isValidWeightTotal(totalWeight.value))
+const isValidWeightSum = computed(() => isWeightSumExactly100(selectedCorporateList.value.map(item => item.weight)))
 
 const dropdownEntities = computed(() => {
   return auditStore.yearlyUniverse.map(item => ({
