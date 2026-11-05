@@ -37,6 +37,7 @@ type Config struct {
 	Resend           ResendConfig        `mapstructure:"resend"`
 	MasterService    MasterServiceConfig `mapstructure:"master_service"`
 	ActivityLog      ActivityLogConfig   `mapstructure:"activity_log"`
+	MFA              MFAConfig           `mapstructure:"mfa"`
 }
 
 // ActivityLogConfig controls the admin user activity log (pkg/activitylog).
@@ -241,6 +242,10 @@ func Load(configPath string) (*Config, error) {
 	viper.AutomaticEnv()
 	// jwt.secret is bound explicitly so JWT_SECRET overrides the file even when the file has no secret key.
 	_ = viper.BindEnv("jwt.secret", JWTSecretEnv)
+	// MFA secret encryption keys come from the environment only; see mfa_encryption.go.
+	_ = viper.BindEnv("mfa.encryption_key", MFAEncryptionKeyEnv)
+	_ = viper.BindEnv("mfa.encryption_key_old", MFAEncryptionKeyOldEnv)
+	_ = viper.BindEnv("mfa.encryption_required", MFAEncryptionRequiredEnv)
 
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("failed to read config: %w", err)

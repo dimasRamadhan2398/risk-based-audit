@@ -77,6 +77,7 @@
         "serverError": "Terjadi kesalahan internal pada server (500). Coba lagi dalam beberapa saat.",
         "invalidCredentials": "Username atau password salah. Periksa kembali dan coba lagi.",
         "tooManyRequests": "Terlalu banyak percobaan login. Silakan tunggu beberapa saat sebelum mencoba kembali.",
+        "accountLocked": "Akun Anda dikunci karena terlalu banyak kode verifikasi salah. Coba lagi dalam {minutes} menit.",
         "networkError": "Gagal menghubungi server. Pastikan koneksi internet Anda aktif dan server telah berjalan.",
         "generic": "Terjadi kesalahan saat login. Coba lagi."
       }
@@ -128,7 +129,8 @@
       "sessionExpired": "Sesi verifikasi telah kedaluwarsa.",
       "retryLogin": "Ulangi Login",
       "invalidCode": "Kode verifikasi tidak valid",
-      "attemptsWarning": "Gagal memverifikasi: {attempts}/3 percobaan. Akun akan terkunci jika terlalu banyak kesalahan.",
+      "attemptsWarning": "Sisa {remaining} dari {max} percobaan. Setelah itu, akun Anda dikunci selama 15 menit.",
+      "accountLocked": "Terlalu banyak kode salah. Akun Anda dikunci. Coba lagi dalam {minutes} menit.",
       "verifyBtn": "Verifikasi & Masuk",
       "verifyingBtn": "Memverifikasi...",
       "backToLogin": "← Kembali ke halaman login",
@@ -852,7 +854,20 @@
       "enabledToast": "MFA Diaktifkan",
       "enabledDesc": "Autentikasi Dua Faktor berhasil diaktifkan.",
       "disabledToast": "MFA Dinonaktifkan",
-      "disabledDesc": "Autentikasi dua faktor akun Anda telah dinonaktifkan."
+      "disabledDesc": "Autentikasi dua faktor akun Anda telah dinonaktifkan.",
+      "statusFailedTitle": "Gagal memuat status MFA",
+      "statusFailedDesc": "Status MFA Anda tidak dapat dimuat. Silakan coba lagi.",
+      "retry": "Coba lagi",
+      "verifyingCode": "Memverifikasi kode...",
+      "setupFailedTitle": "Gagal Memulai Pengaturan MFA",
+      "setupFailedDesc": "Pengaturan MFA tidak dapat dimulai. Silakan coba lagi.",
+      "verifyFailedTitle": "Verifikasi Gagal",
+      "verifyFailedDesc": "Kode verifikasi tidak valid atau sudah kedaluwarsa.",
+      "disableFailedTitle": "Gagal Menonaktifkan MFA",
+      "disableFailedDesc": "MFA tidak dapat dinonaktifkan. Periksa password Anda lalu coba lagi.",
+      "setupChangedTitle": "Kode QR ini sudah tidak berlaku",
+      "setupChangedDesc": "Pengaturan MFA dimulai ulang (misalnya di tab lain), sehingga kode QR ini sudah diganti. Buat kode QR baru, pindai dengan aplikasi autentikator Anda, lalu masukkan kode yang baru.",
+      "newQrButton": "Buat kode QR baru"
     },
     "activity": {
       "fingerprintLabel": "Sidik Perangkat:",
@@ -884,7 +899,38 @@
       "confirmRemove": "Hapus Akses",
       "cancelRemove": "Batalkan",
       "deviceRemovedToast": "Perangkat Dihapus",
-      "deviceRemovedDesc": "Akses terpercaya untuk perangkat \"{name}\" telah dihapus."
+      "deviceRemovedDesc": "Akses terpercaya untuk perangkat \"{name}\" telah dihapus.",
+      "devicesTitle": "Perangkat",
+      "devicesSubtitle": "Perangkat yang pernah masuk ke akun Anda. Perangkat terpercaya tidak perlu memasukkan kode MFA saat masuk.",
+      "refresh": "Muat ulang",
+      "retry": "Coba lagi",
+      "devicesErrorTitle": "Gagal memuat perangkat Anda",
+      "devicesErrorDesc": "Daftar perangkat terpercaya tidak dapat dimuat. Silakan coba lagi.",
+      "trusted": "Terpercaya",
+      "notTrusted": "Belum terpercaya",
+      "osLabel": "Sistem operasi",
+      "locationLabel": "Lokasi",
+      "lastActiveLabel": "Terakhir aktif",
+      "noTrustedDevices": "Belum ada perangkat terpercaya. Saat Anda memverifikasi login dengan MFA dan mencentang \"Percayai Perangkat Ini\", perangkat tersebut akan muncul di sini.",
+      "recentTitle": "Aktivitas terbaru",
+      "recentSubtitle": "Login terakhir Anda dan perubahan pada perangkat terpercaya.",
+      "openSystemLogs": "Buka Log Sistem",
+      "recentErrorTitle": "Gagal memuat aktivitas terbaru",
+      "recentErrorDesc": "Riwayat login Anda tidak dapat dimuat. Silakan coba lagi.",
+      "recentEmpty": "Belum ada aktivitas yang tercatat.",
+      "browserOnOs": "{browser} di {os}",
+      "unknownDevice": "Perangkat tidak dikenal",
+      "activeNow": "Aktif sekarang",
+      "lastSignIn": "Login terakhir {date}",
+      "trustedOn": "Dipercaya {date}",
+      "onThisDevice": "Di perangkat ini",
+      "eventLastSignIn": "Masuk",
+      "eventDeviceTrusted": "Perangkat terpercaya ditambahkan",
+      "removeFailedTitle": "Gagal Menghapus",
+      "removeFailedDesc": "Gagal menghapus perangkat terpercaya.",
+      "lastActive": "Terakhir aktif {date}",
+      "firstSeen": "Pertama terlihat {date}",
+      "eventNewDevice": "Perangkat baru masuk"
     },
     "permission": {
       "matrix": {
@@ -3301,7 +3347,44 @@
     "followUp": {
       "title": "Status Tindak Lanjut",
       "description": "Kalkulasi persentase dan rekap status penyelesaian temuan audit.",
-      "notePlaceholder": "Keterangan tindak lanjut..."
+      "notePlaceholder": "Keterangan tindak lanjut...",
+      "statuses": {
+        "closed": "Selesai",
+        "inProgress": "Dalam Proses",
+        "overdue": "Terlambat",
+        "noAction": "Belum Ditindaklanjuti"
+      },
+      "noActionReasons": {
+        "noPic": "Belum ada PIC",
+        "noPlan14d": "Belum ada rencana aksi > 14 hari",
+        "noPlan": "Belum ada rencana aksi"
+      },
+      "statusAsOf": "Status per {date}",
+      "frozenHint": "Dibekukan saat ringkasan disetujui. Pembaruan ATR setelahnya tidak mengubah angka ini.",
+      "dataAsOf": "Data ATR per {time}",
+      "readOnlyHint": "Jumlah berasal dari Action Taken Report dan tidak dapat diubah. ATR yang dibatalkan tidak dihitung.",
+      "refresh": "Perbarui status",
+      "loading": "Memuat status tindak lanjut dari Action Taken Report...",
+      "error": "Gagal memuat status tindak lanjut: {message}",
+      "errorToast": "Status tindak lanjut gagal dimuat",
+      "retry": "Coba lagi",
+      "selectLha": "Pilih LHA untuk memuat status tindak lanjut.",
+      "empty": "Belum ada temuan dengan tindak lanjut untuk laporan ini.",
+      "atrLinked": "Mengikuti ATR temuan ini",
+      "overdueDays": "Terlambat {days} hari",
+      "current": {
+        "title": "Status terkini",
+        "description": "Status langsung dari Action Taken Report, hanya sebagai pembanding. Angka yang disetujui tidak berubah.",
+        "restricted": "Rincian per temuan tidak tersedia untuk peran Anda.",
+        "columns": {
+          "finding": "Temuan",
+          "report": "LHA",
+          "pic": "PIC",
+          "dueDate": "Batas Waktu",
+          "progress": "Progres",
+          "status": "Status"
+        }
+      }
     },
     "table": {
       "status": "Status",
@@ -3523,6 +3606,9 @@
       "title": "Matriks Kompilasi Temuan LHA Individual",
       "description": "Daftar LHA Individual yang dikompilasi ke dalam laporan eksekutif ini.",
       "total": "Total: {count} LHA",
+      "totalFindings": "Total: {count} temuan",
+      "restricted": "Matriks per temuan tidak tersedia untuk peran Anda.",
+      "noFollowUp": "Matriks diisi dari status tindak lanjut. Perbarui setelah status termuat.",
       "empty": "Belum ada matriks kompilasi yang disinkronkan.",
       "emptyAction": "Klik untuk menyinkronkan data dari LHA Individual.",
       "columns": {
@@ -3531,7 +3617,11 @@
         "title": "Judul / Objek Audit",
         "risk": "Tingkat Risiko",
         "recommendation": "Rekomendasi Utama",
-        "followUpStatus": "Status TL"
+        "followUpStatus": "Status TL",
+        "dueDate": "Batas Waktu",
+        "pic": "PIC",
+        "progress": "Progres",
+        "evidence": "Bukti TL"
       }
     },
     "defaults": {
@@ -5382,6 +5472,11 @@
       "controlSelectLabel": "Pilih Risk Control ID (Rencana Mitigasi & Kontrol)",
       "controlSelectPlaceholder": "Pilih Risk Control ID...",
       "noMitigationPlan": "Belum ada rencana mitigasi risiko untuk risiko ini. Tambahkan di halaman Rencana Mitigasi Risiko untuk melanjutkan.",
+      "noMitigationPlanTitle": "Belum ada rencana mitigasi",
+      "noMitigationPlanHint": "Halaman dibuka di tab baru agar isian formulir ini tetap tersimpan. Muat ulang di sini setelah rencana disimpan.",
+      "openMitigationPlan": "Buka Rencana Mitigasi Risiko",
+      "refreshMitigations": "Muat Ulang",
+      "loadingMitigations": "Memuat rencana mitigasi...",
       "controlCodeLabel": "Kode Kontrol (Sinkron)",
       "controlCodePlaceholder": "misal: CTL-FIN-001",
       "controlOwnerLabel": "PIC / Owner Kontrol (Sinkron)",
@@ -5399,6 +5494,7 @@
     "toasts": {
       "validationWarning": "Mohon pilih risiko dan lengkapi deskripsi kontrol.",
       "dimensionsRequired": "Kelima dimensi pengendalian wajib dinilai sebelum menyimpan.",
+      "mitigationPlanRequired": "Risiko ini belum memiliki rencana mitigasi. Tambahkan di halaman Rencana Mitigasi Risiko sebelum melanjutkan.",
       "updateSuccess": "Risk Control Matrix berhasil diperbarui",
       "addSuccess": "Risk Control Matrix berhasil ditambahkan",
       "deleteSuccess": "Risk Control Matrix berhasil dihapus"

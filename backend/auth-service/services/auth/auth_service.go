@@ -17,6 +17,7 @@ import (
 	"crypto/subtle"
 	"encoding/base32"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -31,6 +32,15 @@ type AuthServiceInterface interface {
 	ValidateToken(token string) (*utils.Claims, error)
 	ResolveEmployeeLink(ctx context.Context, userID uuid.UUID, authHeader string) (models.EmployeeLink, error)
 	ChangePassword(ctx context.Context, userID uuid.UUID, req *models.ChangePasswordRequest, ipAddress string) error
+	// PermissionNames returns the sorted, deduped permission names of roles
+	// (matched case-insensitively), or nil when the lookup failed.
+	PermissionNames(roles []string) *[]string
+}
+
+// PermissionNameLister is the slice of the permission repository AuthService
+// needs: one DISTINCT join over roles/role_permissions/permissions.
+type PermissionNameLister interface {
+	NamesForRoles(roleNames []string) ([]string, error)
 }
 
 // AuthService handles authentication logic
@@ -46,6 +56,8 @@ type AuthService struct {
 	employeeClient *masterclient.EmployeeClient
 	// activity receives login, logout and password events (may be nil).
 	activity activitylog.Recorder
+	// permRepo resolves role names to permission names for login and /auth/me (may be nil).
+	permRepo PermissionNameLister
 }
 
 // NewAuthService creates a new auth service
@@ -53,6 +65,7 @@ func NewAuthService(
 	userRepo repositories.UserRepositoryInterface,
 	mfaRepo repositories.MFASetupRepositoryInterface,
 	trustedRepo repositories.ITrustedDeviceRepository,
+	permRepo PermissionNameLister,
 	rdb *redis.Client,
 	cfg *config.Config,
 	kafkaProducer *kafka.Producer,
@@ -76,7 +89,33 @@ func NewAuthService(
 		kafkaProducer:  kafkaProducer,
 		employeeClient: employeeClient,
 		activity:       activity,
+		permRepo:       permRepo,
 	}
+}
+
+// PermissionNames implements AuthServiceInterface. A user with no roles, or
+// roles that grant nothing, gets an empty (non-nil) list. nil means the lookup
+// failed; callers then omit the field rather than claim "no permissions".
+func (s *AuthService) PermissionNames(roles []string) *[]string {
+	if s.permRepo == nil {
+		return nil
+	}
+	names, err := s.permRepo.NamesForRoles(roles)
+	if err != nil {
+		s.LogWarning("Failed to load permissions for roles", utils.LogField("error", err))
+		return nil
+	}
+	seen := make(map[string]struct{}, len(names))
+	out := make([]string, 0, len(names))
+	for _, n := range names {
+		if _, dup := seen[n]; dup {
+			continue
+		}
+		seen[n] = struct{}{}
+		out = append(out, n)
+	}
+	sort.Strings(out)
+	return &out
 }
 
 // Login authenticates a user and returns a token
@@ -112,15 +151,33 @@ func (s *AuthService) Login(ctx context.Context, req *models.LoginRequest, ipAdd
 		isNewDevice = true
 	}
 
-	// Check for MFA
+	// Check for MFA. Only "no MFA row" means no MFA: any other error (database,
+	// or a secret that cannot be decrypted) must fail closed, never skip the step.
 	mfa, err := s.mfaRepo.FindByUserID(user.ID)
+	if err != nil && !errors.Is(err, errors.ErrNotFound) {
+		s.LogError("MFA lookup failed during login", utils.LogField("user_id", user.ID), utils.LogField("error", err.Error()))
+		return nil, errors.ErrInternalServer
+	}
 	if err == nil && mfa != nil && mfa.IsEnabled {
+		// An account locked by too many wrong MFA codes cannot sign in at all
+		// until the lock expires, trusted device or not. Checked after the
+		// password so the lock state is only disclosed to someone who knows it.
+		if err := s.checkMFALock(ctx, user.ID); err != nil {
+			if !errors.Is(err, errors.ErrInternalServer) {
+				s.recordLoginFailed(ctx, user.ID.String(), user.Username, ipAddress, userAgent, loginFailAccountLocked)
+			}
+			return nil, err
+		}
+
 		// Check if device is trusted
 		isTrusted := false
 		if req.DeviceFingerprint != "" {
 			device, _ := s.trustedRepo.FindByFingerprint(user.ID, req.DeviceFingerprint)
-			if device != nil && !s.trustedRepo.IsExpired(device) {
+			// Session-only devices (recorded without "trust this device") are
+			// listed on the Activity page but still need the MFA step.
+			if s.trustedRepo.IsTrusted(device) {
 				isTrusted = true
+				s.recordDevice(user.ID, req.DeviceFingerprint, req.DeviceName, req.DeviceType, ipAddress, userAgent, false)
 			}
 		}
 
@@ -237,6 +294,7 @@ func (s *AuthService) completeLogin(ctx context.Context, user *models.User, fing
 			EmployeeCode: link.EmployeeCode,
 			EmployeeID:   link.EmployeeID,
 			DepartmentID: link.DepartmentID,
+			Permissions:  s.PermissionNames(roles),
 		},
 		IsNewDevice: isNewDevice,
 	}, nil
@@ -306,7 +364,21 @@ func (s *AuthService) VerifyMFALogin(ctx context.Context, req *models.VerifyMFAL
 	}
 
 	userID, _ := uuid.Parse(userIDStr)
+
+	// A lock set from another MFA login token also covers this one.
+	if err := s.checkMFALock(ctx, userID); err != nil {
+		if !errors.Is(err, errors.ErrInternalServer) {
+			s.redis.Del(ctx, key)
+			s.recordLoginFailed(ctx, userID.String(), "", ipAddress, userAgent, loginFailAccountLocked)
+		}
+		return nil, err
+	}
+
 	mfa, err := s.mfaRepo.FindByUserID(userID)
+	if err != nil && !errors.Is(err, errors.ErrNotFound) {
+		s.LogError("MFA lookup failed during MFA login", utils.LogField("user_id", userID), utils.LogField("error", err.Error()))
+		return nil, errors.ErrInternalServer
+	}
 	if err != nil || !mfa.IsEnabled {
 		return nil, errors.Wrap("MFA_NOT_ENABLED", "MFA is not enabled for this user", 400, nil)
 	}
@@ -329,29 +401,24 @@ func (s *AuthService) VerifyMFALogin(ctx context.Context, req *models.VerifyMFAL
 			username = u.Username
 		}
 		s.recordLoginFailed(ctx, userID.String(), username, ipAddress, userAgent, loginFailInvalidMFACode)
-		return nil, errors.Wrap("INVALID_CODE", "Invalid MFA code", 400, nil)
+		failErr := s.registerMFAFailure(ctx, userID)
+		if appErr, ok := failErr.(*errors.AppError); ok && appErr.Code == ErrCodeAccountLocked {
+			// The token is spent: after the lock the user must sign in again.
+			s.redis.Del(ctx, key)
+			s.recordLoginFailed(ctx, userID.String(), username, ipAddress, userAgent, loginFailAccountLocked)
+		}
+		return nil, failErr
 	}
+	s.clearMFAFailures(ctx, userID)
 
 	user, err := s.userRepo.FindByID(userID)
 	if err != nil {
 		return nil, errors.ErrNotFound
 	}
 
-	if req.TrustDevice && req.DeviceFingerprint != "" {
-		expiresAt := time.Now().Add(90 * 24 * time.Hour)
-		device := &models.TrustedDevice{
-			ID:                uuid.New(),
-			UserID:            userID,
-			DeviceFingerprint: req.DeviceFingerprint,
-			DeviceName:        req.DeviceName,
-			DeviceType:        req.DeviceType,
-			UserAgent:         userAgent,
-			IPAddress:         ipAddress,
-			ExpiresAt:         &expiresAt,
-			CreatedAt:         time.Now(),
-		}
-		s.trustedRepo.Create(device)
-	}
+	// Every MFA-verified sign-in is listed on the Activity page; "trust this
+	// device" additionally lets it skip MFA. One row per (user, fingerprint).
+	s.recordDevice(userID, req.DeviceFingerprint, req.DeviceName, req.DeviceType, ipAddress, userAgent, req.TrustDevice)
 
 	s.redis.Del(ctx, key)
 
@@ -361,6 +428,26 @@ func (s *AuthService) VerifyMFALogin(ctx context.Context, req *models.VerifyMFAL
 	}
 
 	return s.completeLogin(ctx, user, req.DeviceFingerprint, ipAddress, userAgent, isNewDevice)
+}
+
+// recordDevice registers or refreshes the sign-in device. A sign-in without a
+// fingerprint cannot be matched to a device and is skipped. Failures are logged
+// only: they must not fail the sign-in.
+func (s *AuthService) recordDevice(userID uuid.UUID, fingerprint, name, deviceType, ipAddress, userAgent string, trust bool) {
+	if s.trustedRepo == nil || strings.TrimSpace(fingerprint) == "" {
+		return
+	}
+	if _, err := s.trustedRepo.RecordSeen(repositories.DeviceSighting{
+		UserID:      userID,
+		Fingerprint: fingerprint,
+		Name:        name,
+		Type:        deviceType,
+		UserAgent:   userAgent,
+		IPAddress:   ipAddress,
+		Trust:       trust,
+	}); err != nil {
+		s.LogWarning("Failed to record sign-in device", utils.LogField("user_id", userID), utils.LogField("error", err))
+	}
 }
 
 // verifyTOTP is a helper to verify TOTP code
@@ -532,6 +619,7 @@ const (
 	loginFailInvalidPassword = "invalid_password"
 	loginFailInvalidMFACode  = "invalid_mfa_code"
 	loginFailInvalidMFAToken = "invalid_mfa_token"
+	loginFailAccountLocked   = "account_locked_mfa"
 )
 
 // record sends an activity event; a service built without a recorder drops it.

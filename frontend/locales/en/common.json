@@ -77,6 +77,7 @@
         "serverError": "An internal server error occurred (500). Please try again in a few moments.",
         "invalidCredentials": "Incorrect username or password. Please check and try again.",
         "tooManyRequests": "Too many login attempts. Please wait a few moments before trying again.",
+        "accountLocked": "Your account is locked after too many incorrect verification codes. Try again in {minutes} minutes.",
         "networkError": "Failed to connect to the server. Please ensure your internet connection is active and the server is running.",
         "generic": "An error occurred during login. Please try again."
       }
@@ -128,11 +129,12 @@
       "sessionExpired": "Verification session has expired.",
       "retryLogin": "Login Again",
       "invalidCode": "Invalid verification code",
-      "attemptsWarning": "Verification failed: {attempts}/3 attempts. Account will be locked after too many errors.",
+      "attemptsWarning": "{remaining} of {max} attempts left. After that, your account is locked for 15 minutes.",
+      "accountLocked": "Too many incorrect codes. Your account is locked. Try again in {minutes} minutes.",
       "verifyBtn": "Verify & Login",
       "verifyingBtn": "Verifying...",
       "backToLogin": "← Back to login page",
-      "legalFooter": "Security guaranteed · Login verification activity is logged for compliance audit."
+      "legalFooter": "Security guaranteed. Login verification activity is logged for compliance audit."
     }
   },
   "common": {
@@ -887,7 +889,14 @@
       "verifyFailedTitle": "Verification Failed",
       "verifyFailedDesc": "Invalid verification code.",
       "disableFailedTitle": "Failed to Disable",
-      "disableFailedDesc": "The password you entered is incorrect."
+      "disableFailedDesc": "The password you entered is incorrect.",
+      "statusFailedTitle": "Could not load MFA status",
+      "statusFailedDesc": "Your MFA status could not be loaded. Please try again.",
+      "retry": "Try again",
+      "verifyingCode": "Verifying code...",
+      "setupChangedTitle": "This QR code is no longer valid",
+      "setupChangedDesc": "MFA setup was restarted (for example in another tab), so this QR code was replaced. Generate a new QR code, scan it with your authenticator app, then enter the new code.",
+      "newQrButton": "Generate new QR code"
     },
     "activity": {
       "fingerprintLabel": "Fingerprint:",
@@ -921,7 +930,36 @@
       "deviceRemovedToast": "Device Removed",
       "deviceRemovedDesc": "Trusted access for device \"{name}\" has been removed.",
       "removeFailedTitle": "Failed to Remove",
-      "removeFailedDesc": "Failed to remove trusted device."
+      "removeFailedDesc": "Failed to remove trusted device.",
+      "devicesTitle": "Devices",
+      "devicesSubtitle": "Devices that have signed in to your account. Trusted devices skip the MFA code at sign-in.",
+      "refresh": "Refresh",
+      "retry": "Try again",
+      "devicesErrorTitle": "Could not load your devices",
+      "devicesErrorDesc": "The trusted device list could not be loaded. Please try again.",
+      "trusted": "Trusted",
+      "notTrusted": "Not trusted",
+      "osLabel": "Operating system",
+      "locationLabel": "Location",
+      "lastActiveLabel": "Last active",
+      "noTrustedDevices": "No trusted devices yet. When you verify a sign-in with MFA and tick \"Trust this device\", that device appears here.",
+      "recentTitle": "Recent activity",
+      "recentSubtitle": "Your last sign-in and changes to your trusted devices.",
+      "openSystemLogs": "Open System Logs",
+      "recentErrorTitle": "Could not load recent activity",
+      "recentErrorDesc": "Your sign-in history could not be loaded. Please try again.",
+      "recentEmpty": "No activity recorded yet.",
+      "browserOnOs": "{browser} on {os}",
+      "unknownDevice": "Unknown device",
+      "activeNow": "Active now",
+      "lastSignIn": "Last sign-in {date}",
+      "trustedOn": "Trusted {date}",
+      "onThisDevice": "On this device",
+      "eventLastSignIn": "Signed in",
+      "eventDeviceTrusted": "Trusted device added",
+      "lastActive": "Last active {date}",
+      "firstSeen": "First seen {date}",
+      "eventNewDevice": "New device signed in"
     },
     "permission": {
       "matrix": {
@@ -3414,7 +3452,44 @@
     "followUp": {
       "title": "Follow-up Status",
       "description": "Percentage calculation and summary of audit finding resolution status.",
-      "notePlaceholder": "Follow-up notes..."
+      "notePlaceholder": "Follow-up notes...",
+      "statuses": {
+        "closed": "Closed",
+        "inProgress": "In Progress",
+        "overdue": "Overdue",
+        "noAction": "No Action"
+      },
+      "noActionReasons": {
+        "noPic": "No PIC assigned",
+        "noPlan14d": "No action plan > 14 days",
+        "noPlan": "No action plan yet"
+      },
+      "statusAsOf": "Status as of {date}",
+      "frozenHint": "Frozen when the summary was approved. Later ATR updates do not change these figures.",
+      "dataAsOf": "ATR data as of {time}",
+      "readOnlyHint": "Counts come from the Action Taken Reports and cannot be edited. Cancelled ATRs are excluded.",
+      "refresh": "Refresh status",
+      "loading": "Loading the follow-up status from the Action Taken Reports...",
+      "error": "Failed to load the follow-up status: {message}",
+      "errorToast": "The follow-up status could not be loaded",
+      "retry": "Try again",
+      "selectLha": "Select an LHA to load the follow-up status.",
+      "empty": "No findings with a follow-up exist for this report yet.",
+      "atrLinked": "Follows the ATR of this finding",
+      "overdueDays": "{days} days overdue",
+      "current": {
+        "title": "Current status",
+        "description": "Live status from the Action Taken Reports, for comparison only. The approved figures do not change.",
+        "restricted": "Per-finding detail is not available for your role.",
+        "columns": {
+          "finding": "Finding",
+          "report": "LHA",
+          "pic": "PIC",
+          "dueDate": "Due Date",
+          "progress": "Progress",
+          "status": "Status"
+        }
+      }
     },
     "table": {
       "status": "Status",
@@ -3636,6 +3711,9 @@
       "title": "Findings Matrix from Individual LHA",
       "description": "Individual LHAs compiled into this executive report.",
       "total": "Total: {count} LHA",
+      "totalFindings": "Total: {count} findings",
+      "restricted": "The per-finding matrix is not available for your role.",
+      "noFollowUp": "The matrix is filled from the follow-up status. Refresh once it loads.",
       "empty": "No compilation matrix has been synced yet.",
       "emptyAction": "Click to sync data from the Individual LHAs.",
       "columns": {
@@ -3644,7 +3722,11 @@
         "title": "Title / Audit Object",
         "risk": "Risk Level",
         "recommendation": "Key Recommendation",
-        "followUpStatus": "Follow-up Status"
+        "followUpStatus": "Follow-up Status",
+        "dueDate": "Due Date",
+        "pic": "PIC",
+        "progress": "Progress",
+        "evidence": "Evidence"
       }
     },
     "defaults": {
@@ -5501,6 +5583,11 @@
       "controlSelectLabel": "Select Risk Control ID (Mitigation Plan & Control)",
       "controlSelectPlaceholder": "Select Risk Control ID...",
       "noMitigationPlan": "No risk mitigation plan has been recorded for this risk yet. Add one in the Risk Mitigation Plan page to continue.",
+      "noMitigationPlanTitle": "No mitigation plan yet",
+      "noMitigationPlanHint": "Opens in a new tab so this form is kept. Refresh here once the plan is saved.",
+      "openMitigationPlan": "Open Risk Mitigation Plan",
+      "refreshMitigations": "Refresh",
+      "loadingMitigations": "Loading mitigation plans...",
       "controlCodeLabel": "Control Code (Synchronized)",
       "controlCodePlaceholder": "e.g. CTL-FIN-001",
       "controlOwnerLabel": "PIC / Control Owner (Synchronized)",
@@ -5518,6 +5605,7 @@
     "toasts": {
       "validationWarning": "Please select a risk and fill in the control description.",
       "dimensionsRequired": "All 5 control dimensions must be scored before saving.",
+      "mitigationPlanRequired": "This risk has no mitigation plan yet. Add one in the Risk Mitigation Plan page before continuing.",
       "updateSuccess": "Risk Control Matrix updated successfully",
       "addSuccess": "Risk Control Matrix added successfully",
       "deleteSuccess": "Risk Control Matrix deleted successfully"

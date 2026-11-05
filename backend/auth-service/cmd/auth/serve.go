@@ -56,6 +56,11 @@ func runServe(cmd *cobra.Command, args []string) error {
 	if err := cfg.ValidateJWT(); err != nil {
 		logger.Fatal("Refusing to start: invalid JWT_SECRET", logger.LogField("error", err.Error()))
 	}
+	if mfaCipher, err := cfg.MFACipher(); err != nil {
+		logger.Fatal("Refusing to start: invalid MFA encryption settings", logger.LogField("error", err.Error()))
+	} else if !mfaCipher.Enabled() {
+		logger.Warn("MFA_ENCRYPTION_KEY is not set: new MFA secrets are stored in plaintext. Set it (openssl rand -base64 32) and run 'auth migrate encrypt-mfa-secrets'.")
+	}
 
 	// Set Gin mode
 	if cfg.Server.Mode == "release" {

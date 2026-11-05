@@ -16,6 +16,7 @@ import (
 	"auth-service/models"
 	apperrors "auth-service/pkg/errors"
 	pkgKafka "auth-service/pkg/kafka"
+	"auth-service/pkg/logger"
 	"auth-service/pkg/redis"
 	"auth-service/pkg/utils"
 	"auth-service/repositories"
@@ -28,7 +29,7 @@ import (
 type MfaServiceInterface interface {
 	SetupMFA(ctx context.Context, userID uuid.UUID, mfaSetupReq models.MFAType, ipAddress string) (*models.MfaSetupResponse, error)
 	VerifyMFA(ctx context.Context, userID uuid.UUID, code string, ipAddress string) (bool, error)
-	EnableMFA(ctx context.Context, userID uuid.UUID, code string, ipAddress string) error
+	EnableMFA(ctx context.Context, userID uuid.UUID, req models.VerifyMfaRequest, ipAddress, userAgent string) (*models.EnableMfaResult, error)
 	DisableMFA(ctx context.Context, userID uuid.UUID, password string, ipAddress string) error
 	GetMFAStatus(ctx context.Context, userID uuid.UUID) (*models.MfaSetupResponse, error)
 	GenerateEmailCode(ctx context.Context, userID uuid.UUID, email string, ipAddress string) error
@@ -39,6 +40,7 @@ type MfaServiceInterface interface {
 type MfaService struct {
 	mfaRepo      repositories.MFASetupRepositoryInterface
 	userRepo     repositories.UserRepositoryInterface
+	trustedRepo  repositories.ITrustedDeviceRepository
 	publisher    pkgKafka.IEventPublisher
 	redis        *redis.Client
 	emailService email.EmailServiceInterface
@@ -48,6 +50,7 @@ type MfaService struct {
 func NewMfaService(
 	mfaRepo repositories.MFASetupRepositoryInterface,
 	userRepo repositories.UserRepositoryInterface,
+	trustedRepo repositories.ITrustedDeviceRepository,
 	publisher pkgKafka.IEventPublisher,
 	rdb *redis.Client,
 	emailService email.EmailServiceInterface,
@@ -55,6 +58,7 @@ func NewMfaService(
 	return &MfaService{
 		mfaRepo:      mfaRepo,
 		userRepo:     userRepo,
+		trustedRepo:  trustedRepo,
 		publisher:    publisher,
 		redis:        rdb,
 		emailService: emailService,
@@ -64,7 +68,12 @@ func NewMfaService(
 // SetupMFA sets up MFA for a user
 func (s *MfaService) SetupMFA(ctx context.Context, userID uuid.UUID, mfaType models.MFAType, ipAddress string) (*models.MfaSetupResponse, error) {
 	// Check if MFA already exists
-	existingMFA, _ := s.mfaRepo.FindByUserID(userID)
+	existingMFA, err := s.mfaRepo.FindByUserID(userID)
+	if err != nil && !apperrors.Is(err, apperrors.ErrNotFound) {
+		// Fail closed: an unreadable row may be an enabled MFA; never overwrite it.
+		logger.Error("MFA lookup failed during setup", logger.LogField("user_id", userID.String()), logger.LogField("error", err.Error()))
+		return nil, apperrors.Wrap("MFA_LOOKUP_FAILED", "Failed to read MFA settings", 500, nil)
+	}
 	if existingMFA != nil && existingMFA.IsEnabled {
 		return nil, apperrors.Wrap("MFA_ALREADY_ENABLED", "MFA is already enabled", 400, nil)
 	}
@@ -107,6 +116,7 @@ func (s *MfaService) SetupMFA(ctx context.Context, userID uuid.UUID, mfaType mod
 
 	if existingMFA != nil {
 		mfa.ID = existingMFA.ID
+		mfa.CreatedAt = existingMFA.CreatedAt
 		if err := s.mfaRepo.Update(mfa); err != nil {
 			return nil, apperrors.Wrap("UPDATE_MFA_FAILED", "Failed to update MFA", 500, nil)
 		}
@@ -165,39 +175,100 @@ func (s *MfaService) VerifyMFA(ctx context.Context, userID uuid.UUID, code strin
 	return valid, nil
 }
 
-// EnableMFA enables MFA for a user after verifying the code
-func (s *MfaService) EnableMFA(ctx context.Context, userID uuid.UUID, code string, ipAddress string) error {
+// EnableMFA checks the code against the pending secret written by SetupMFA and
+// only then turns MFA on. It is idempotent: when MFA is already on with the
+// same TOTP secret and the code is valid (a retried or double-submitted
+// verify), it returns AlreadyEnabled instead of an error. The device the call
+// came from is recorded so it is listed on the Activity page.
+func (s *MfaService) EnableMFA(ctx context.Context, userID uuid.UUID, req models.VerifyMfaRequest, ipAddress, userAgent string) (*models.EnableMfaResult, error) {
 	mfa, err := s.mfaRepo.FindByUserID(userID)
 	if err != nil {
-		return apperrors.Wrap("MFA_NOT_SETUP", "MFA is not set up", 404, nil)
+		return nil, apperrors.Wrap("MFA_NOT_SETUP", "MFA is not set up", 404, nil)
 	}
+
+	// The username is only for events; a lookup failure must not block enabling.
+	user, _ := s.userRepo.FindByID(userID)
 
 	if mfa.IsEnabled {
-		return apperrors.Wrap("MFA_ALREADY_ENABLED", "MFA is already enabled", 400, nil)
+		// Only TOTP can be re-checked without side effects: an email code is
+		// consumed on use, so a retry has nothing left to compare against.
+		if mfa.MFAType == models.MFATypeTOTP {
+			if valid, _ := s.verifyTOTP(mfa.SecretKey, req.Code); valid {
+				s.recordDevice(userID, user, req, ipAddress, userAgent)
+				return &models.EnableMfaResult{AlreadyEnabled: true}, nil
+			}
+		}
+		return nil, apperrors.Wrap("MFA_ALREADY_ENABLED", "MFA is already enabled", 400, nil)
 	}
 
-	// Verify the code first
+	// Verify the code against the pending secret first.
 	var valid bool
 	switch mfa.MFAType {
 	case models.MFATypeTOTP:
-		valid, _ = s.verifyTOTP(mfa.SecretKey, code)
+		valid, _ = s.verifyTOTP(mfa.SecretKey, req.Code)
 	case models.MFATypeEmail:
-		valid, _ = s.verifyEmailCode(ctx, userID, code)
+		valid, _ = s.verifyEmailCode(ctx, userID, req.Code)
 	default:
-		return apperrors.Wrap("INVALID_MFA_TYPE", "Invalid MFA type", 400, nil)
+		return nil, apperrors.Wrap("INVALID_MFA_TYPE", "Invalid MFA type", 400, nil)
 	}
 
 	if !valid {
-		return apperrors.Wrap("INVALID_CODE", "Invalid verification code", 400, nil)
+		return nil, apperrors.Wrap("INVALID_CODE", "Invalid verification code", 400, nil)
 	}
 
-	// Enable MFA
-	if err := s.mfaRepo.Enable(userID); err != nil {
-		return apperrors.Wrap("ENABLE_MFA_FAILED", "Failed to enable MFA", 500, nil)
+	switched, err := s.mfaRepo.EnablePending(userID, mfa.SecretKey)
+	if err != nil {
+		return nil, apperrors.Wrap("ENABLE_MFA_FAILED", "Failed to enable MFA", 500, nil)
+	}
+	result := &models.EnableMfaResult{}
+	if !switched {
+		// Another request changed the row since it was read: either a
+		// concurrent verify already enabled this same secret (success), or a
+		// new setup replaced the secret the code was checked against.
+		current, err := s.mfaRepo.FindByUserID(userID)
+		if err != nil || !current.IsEnabled || current.SecretKey != mfa.SecretKey {
+			return nil, apperrors.Wrap("MFA_SETUP_CHANGED", "MFA setup was restarted; scan the new QR code and try again", 409, nil)
+		}
+		result.AlreadyEnabled = true
 	}
 
-	s.publisher.PublishMFAEvent(ctx, userID.String(), mfa.User.Username, pkgKafka.EventMFAEnabled, true, ipAddress)
-	return nil
+	s.recordDevice(userID, user, req, ipAddress, userAgent)
+
+	if !result.AlreadyEnabled && s.publisher != nil {
+		username := ""
+		if user != nil {
+			username = user.Username
+		}
+		s.publisher.PublishMFAEvent(ctx, userID.String(), username, pkgKafka.EventMFAEnabled, true, ipAddress)
+	}
+	return result, nil
+}
+
+// recordDevice lists the device that enabled MFA on the Activity page. It is
+// session-only: enabling MFA does not trust the device. Without a fingerprint
+// in the request it falls back to the fingerprint of the user's last sign-in,
+// which is the browser the user is signed in with. Failures are logged only.
+func (s *MfaService) recordDevice(userID uuid.UUID, user *models.User, req models.VerifyMfaRequest, ipAddress, userAgent string) {
+	if s.trustedRepo == nil {
+		return
+	}
+	fingerprint := strings.TrimSpace(req.DeviceFingerprint)
+	if fingerprint == "" && user != nil {
+		fingerprint = user.LastLoginFingerprint
+	}
+	if fingerprint == "" {
+		return
+	}
+	if _, err := s.trustedRepo.RecordSeen(repositories.DeviceSighting{
+		UserID:      userID,
+		Fingerprint: fingerprint,
+		Name:        req.DeviceName,
+		Type:        req.DeviceType,
+		UserAgent:   userAgent,
+		IPAddress:   ipAddress,
+	}); err != nil {
+		logger.Warn("Failed to record device on MFA enable", logger.LogField("user_id", userID.String()), logger.LogField("error", err))
+	}
 }
 
 // DisableMFA disables MFA for a user

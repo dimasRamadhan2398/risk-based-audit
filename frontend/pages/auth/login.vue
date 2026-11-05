@@ -256,6 +256,10 @@ const handleLogin = async (event: FormSubmitEvent<Schema>) => {
       errMsg = t('auth.login.errors.serverError')
     } else if (status === 401 || status === 403 || apiMsg.toLowerCase().includes('invalid credentials') || apiMsg.toLowerCase().includes('unauthorized')) {
       errMsg = t('auth.login.errors.invalidCredentials')
+    } else if (err?.data?.error?.code === 'ACCOUNT_LOCKED') {
+      // Locked by auth-service after too many wrong MFA codes.
+      const secs = Number(err?.data?.data?.retry_after_seconds) || 900
+      errMsg = t('auth.login.errors.accountLocked', { minutes: Math.max(1, Math.ceil(secs / 60)) })
     } else if (status === 429) {
       errMsg = t('auth.login.errors.tooManyRequests')
     } else if (apiMsg.includes('Failed to fetch') || apiMsg.includes('fetch failed') || apiMsg.includes('ECONNREFUSED') || apiMsg.includes('NetworkError')) {

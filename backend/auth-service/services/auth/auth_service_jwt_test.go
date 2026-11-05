@@ -76,7 +76,7 @@ func newClaimsTestService(t *testing.T, masterStatus int, masterAuth *string) (*
 		JWT:           config.JWTConfig{Secret: jwtTestSecret, ExpiryHour: 1},
 		MasterService: config.MasterServiceConfig{URL: srv.URL, TimeoutSeconds: 2},
 	}
-	svc := NewAuthService(stubUserRepo{}, nil, nil, rdb, cfg, nil, nil).(*AuthService)
+	svc := NewAuthService(stubUserRepo{}, nil, nil, nil, rdb, cfg, nil, nil).(*AuthService)
 	return svc, &calls
 }
 
