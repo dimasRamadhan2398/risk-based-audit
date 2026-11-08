@@ -13,7 +13,7 @@
           icon="i-lucide-upload"
           :label="t('auditResultReport.dashboard.importDocument')"
           to="/audit-result-report/upload"
-          class="w-full sm:w-auto font-bold shadow"
+          class="w-full sm:w-auto font-bold shadow justify-center"
         />
       </div>
     </div>
