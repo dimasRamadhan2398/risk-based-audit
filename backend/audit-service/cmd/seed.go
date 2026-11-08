@@ -262,6 +262,15 @@ func runMigrations(db *gorm.DB) error {
 	); err != nil {
 		return err
 	}
+	// COSO internal control assessment tables (new tables only) and the
+	// settings row (insert-if-missing). No assessment is seeded here; the demo
+	// assessment is "audit seed-ic-demo".
+	if err := db.AutoMigrate(models.ICAssessmentModels()...); err != nil {
+		return err
+	}
+	if err := migrateICAssessment(db); err != nil {
+		return err
+	}
 	// Same data steps as "migrate up": LHA finding ids, old ATR columns
 	return runATRDataMigrations(db)
 }

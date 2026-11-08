@@ -117,7 +117,11 @@ func (r *RiskRoute) Run() {
 		// Re-emits the full universe state to Kafka (see pkg/kafka/events.go).
 		universe.POST("/events/resync", r.auditUniverseCtrl.ResyncEvents)
 
-		// Routes for Risk Control Matrix (RCM)
+		// Routes for Risk Control Matrix (RCM). Static paths first, ahead of
+		// /rcm/:id. coso-principles and coso-signals are read-only (any
+		// authenticated role; VIEWER included).
+		apiV1.GET("/rcm/coso-principles", r.rcmCtrl.ListCosoPrinciples)
+		apiV1.GET("/rcm/coso-signals", r.rcmCtrl.GetCosoSignals)
 		apiV1.GET("/rcm", r.rcmCtrl.ListRCM)
 		apiV1.POST("/rcm", r.rcmCtrl.CreateRCM)
 		apiV1.PUT("/rcm/:id", r.rcmCtrl.UpdateRCM)

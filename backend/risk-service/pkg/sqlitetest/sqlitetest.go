@@ -48,6 +48,13 @@ func CreateTable(t *testing.T, db *gorm.DB, model any) {
 	if err := stmt.Parse(model); err != nil {
 		t.Fatal(err)
 	}
+	// A composite primary key (join tables) is a table constraint; sqlite
+	// refuses PRIMARY KEY on more than one column definition.
+	var pkCols []string
+	for _, f := range stmt.Schema.PrimaryFields {
+		pkCols = append(pkCols, "`"+f.DBName+"`")
+	}
+	composite := len(pkCols) > 1
 	var cols []string
 	for _, f := range stmt.Schema.Fields {
 		if f.DBName == "" {
@@ -65,13 +72,16 @@ func CreateTable(t *testing.T, db *gorm.DB, model any) {
 			typ = "DATETIME"
 		}
 		col := "`" + f.DBName + "` " + typ
-		if f.PrimaryKey {
+		if f.PrimaryKey && !composite {
 			col += " PRIMARY KEY"
 			if strings.Contains(f.DefaultValue, "gen_random_uuid") {
 				col += " DEFAULT " + sqliteUUID
 			}
 		}
 		cols = append(cols, col)
+	}
+	if composite {
+		cols = append(cols, "PRIMARY KEY ("+strings.Join(pkCols, ", ")+")")
 	}
 	if err := db.Exec("CREATE TABLE `" + stmt.Schema.Table + "` (" + strings.Join(cols, ", ") + ")").Error; err != nil {
 		t.Fatal(err)

@@ -179,7 +179,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 	auditUniverseCtrl := controllers.NewAuditUniverseController(db, universeEvents, deptClient)
 	// Weight changes re-score year rows, so this controller publishes too.
 	riskFactorCtrl := controllers.NewRiskFactorController(db, universeEvents)
-	rcmCtrl := controllers.NewRCMController(db)
+	rcmCtrl := controllers.NewRCMController(db, deptClient, locationClient)
 
 	// Register Routes
 	riskRoute := routes.NewRiskRoute(riskCtrl, mitigationCtrl, riskFactorCtrl, auditUniverseCtrl, rcmCtrl, &r.RouterGroup, authMiddleware)
