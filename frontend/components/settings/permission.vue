@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Main Card Container -->
-    <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xs">
+    <UCard class="border border-gray-200 dark:border-slate-800 dark:bg-slate-900 dark:ring-slate-800 rounded-2xl shadow-xs">
       <template #header>
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>

@@ -1,5 +1,5 @@
 <template>
-  <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
+  <UCard class="border border-gray-200 dark:border-slate-800 dark:bg-slate-900 dark:ring-slate-800 rounded-2xl shadow-md">
     <template #header>
       <div>
         <h3 class="text-lg font-bold text-gray-900 dark:text-white">

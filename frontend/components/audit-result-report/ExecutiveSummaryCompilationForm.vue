@@ -388,53 +388,25 @@
             <p class="text-xs text-gray-400 mt-1">{{ t('executiveSummaryCompilation.sources.hintFollowUp') }}</p>
           </div>
 
-          <div class="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm" :class="statsBusyClass">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
-              <thead class="bg-gray-50 dark:bg-gray-800/80">
-                <tr>
-                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryForm.table.status') }}</th>
-                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">{{ t('executiveSummaryForm.table.count') }}</th>
-                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">{{ t('executiveSummaryForm.table.percent') }}</th>
-                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryForm.table.notes') }}</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800 font-medium">
-                <tr v-for="(row, idx) in store.form.followUpTable" :key="row.status">
-                  <td class="px-6 py-4 text-sm font-bold">
-                    <span :class="getStatusBadgeClass(row.status)">{{ row.status }}</span>
-                  </td>
-                  <td class="px-6 py-2">
-                    <UInput
-                      type="number"
-                      :model-value="row.jumlah"
-                      placeholder="0"
-                      class="font-semibold"
-                      disabled
-                      readonly
-                    />
-                  </td>
-                  <td class="px-6 py-4 text-sm font-semibold text-gray-600 dark:text-white">
-                    {{ formatPercent(row.persentase) }}%
-                  </td>
-                  <td class="px-6 py-2">
-                    <UTextarea
-                      v-model="row.keterangan"
-                      :placeholder="t('executiveSummaryForm.followUp.notePlaceholder')"
-                      class="w-full"
-                      :disabled="isLocked"
-                    />
-                  </td>
-                </tr>
-                <!-- Total Row -->
-                <tr class="bg-gray-50 dark:bg-gray-800/40 font-bold border-t-2">
-                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryForm.table.total') }}</td>
-                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white tabular-nums font-extrabold">{{ totalFollowUpCount }}</td>
-                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white tabular-nums font-extrabold">100.0%</td>
-                  <td class="px-6 py-4 text-md text-gray-400 italic">{{ t('executiveSummaryForm.table.autoCalculated') }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <!-- Counts from the ATR buckets of every finding in the quarter (read-only); frozen once approved -->
+          <ExecutiveSummaryFollowUpTable
+            :rows="store.form.followUpTable"
+            :locked="isLocked"
+            :loading="followUp.loading.value"
+            :error="followUp.error.value"
+            :approved-date-label="approvedDateLabel"
+            :as-of-label="followUpAsOfLabel"
+            :refreshable="!isLocked"
+            :empty-hint="followUpEmptyHint"
+            @refresh="refreshFollowUpStatus"
+          />
+
+          <!-- Live status next to the frozen snapshot, only for users who may view every ATR -->
+          <ExecutiveSummaryCurrentFollowUp
+            v-if="isLocked && canViewLiveFollowUpStatus"
+            :query="followUpQuery"
+            show-report-column
+          />
         </section>
 
         <!-- 5. Section Top 5 Significant Findings -->
@@ -596,9 +568,14 @@
               <p class="text-sm text-gray-400">{{ t('executiveSummaryCompilation.matrix.description') }}</p>
             </div>
             <UBadge color="primary" variant="subtle" size="md">
-              {{ t('executiveSummaryCompilation.matrix.total', { count: store.form.matriksKompilasi.length || store.form.jumlahLaporan }) }}
+              {{ matrixTotalLabel }}
             </UBadge>
           </div>
+
+          <p v-if="!isLocked && currentFollowUp?.findingsRestricted" class="text-sm text-gray-400 flex items-center gap-1.5">
+            <UIcon name="i-lucide-eye-off" class="size-4" />
+            {{ t('executiveSummaryCompilation.matrix.restricted') }}
+          </p>
 
           <div v-if="store.form.matriksKompilasi.length > 0" class="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
@@ -609,22 +586,31 @@
                   <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryCompilation.matrix.columns.title') }}</th>
                   <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryCompilation.matrix.columns.risk') }}</th>
                   <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryCompilation.matrix.columns.recommendation') }}</th>
+                  <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryCompilation.matrix.columns.dueDate') }}</th>
+                  <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryCompilation.matrix.columns.pic') }}</th>
+                  <th class="px-4 py-3 text-right text-xs font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryCompilation.matrix.columns.progress') }}</th>
+                  <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryCompilation.matrix.columns.evidence') }}</th>
                   <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryCompilation.matrix.columns.followUpStatus') }}</th>
                 </tr>
               </thead>
               <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800 text-sm">
-                <tr v-for="(row, idx) in store.form.matriksKompilasi" :key="idx">
-                  <td class="px-4 py-3 font-mono font-semibold text-primary-600 dark:text-primary-400">{{ row.nomor }}</td>
-                  <td class="px-4 py-3 font-medium text-gray-800 dark:text-gray-200">{{ row.division || 'OP' }}</td>
-                  <td class="px-4 py-3 text-gray-700 dark:text-gray-300 max-w-xs truncate" :title="row.judulTemuan">{{ row.judulTemuan }}</td>
+                <tr v-for="(row, idx) in store.form.matriksKompilasi" :key="row.findingId || idx">
+                  <td class="px-4 py-3 font-mono font-semibold text-primary-600 dark:text-primary-400 whitespace-nowrap">{{ row.nomor }}</td>
+                  <td class="px-4 py-3 font-medium text-gray-800 dark:text-gray-200">{{ row.division ? store.formatDepartmentName(row.division) : '-' }}</td>
+                  <td class="px-4 py-3 text-gray-700 dark:text-gray-300 max-w-xs truncate" :title="row.judulTemuan">{{ row.judulTemuan || '-' }}</td>
                   <td class="px-4 py-3">
-                    <UBadge :color="row.nilaiRisiko === 'Tinggi' ? 'error' : row.nilaiRisiko === 'Sedang' ? 'warning' : 'success'" variant="subtle" size="xs">
-                      {{ row.nilaiRisiko }}
+                    <UBadge v-if="row.nilaiRisiko" :color="matrixRiskColor(row.nilaiRisiko)" variant="subtle" size="xs">
+                      {{ matrixRiskLabel(row.nilaiRisiko) }}
                     </UBadge>
+                    <span v-else class="text-gray-400">-</span>
                   </td>
-                  <td class="px-4 py-3 text-gray-600 dark:text-gray-400 max-w-xs truncate" :title="row.rekomendasi">{{ row.rekomendasi }}</td>
+                  <td class="px-4 py-3 text-gray-600 dark:text-gray-400 max-w-xs truncate" :title="row.rekomendasi">{{ row.rekomendasi || '-' }}</td>
+                  <td class="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">{{ formatFollowUpDate(row.dueDate, locale) || row.dueDate || '-' }}</td>
+                  <td class="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">{{ row.picUnit || '-' }}</td>
+                  <td class="px-4 py-3 text-right tabular-nums text-gray-600 dark:text-gray-400">{{ Number(row.progres) || 0 }}%</td>
+                  <td class="px-4 py-3 text-gray-600 dark:text-gray-400 max-w-[12rem] truncate" :title="row.buktiTL">{{ row.buktiTL || '-' }}</td>
                   <td class="px-4 py-3">
-                    <span :class="getStatusBadgeClass(row.status || 'In Progress')">{{ row.status || 'In Progress' }}</span>
+                    <FollowUpStatusBadge :status="row.status || 'No Action'" :reason="row.noActionReason" />
                   </td>
                 </tr>
               </tbody>
@@ -751,15 +737,19 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import { useExecutiveSummaryStore } from '~/stores/executive-summary'
+import { useExecutiveSummaryStore, type SignificantFinding } from '~/stores/executive-summary'
 import { useAuthStore } from '~/stores/auth'
 import { useRbac } from '~/composables/useRbac'
 import { useI18n } from '~/composables/useI18n'
 import { useAppToast } from '~/composables/useAppToast'
 import { useExecutiveSummarySources } from '~/composables/useExecutiveSummarySources'
+import { useExecutiveSummaryFollowUp } from '~/composables/useExecutiveSummaryFollowUp'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import ExecutiveSummaryApproveModal from './ExecutiveSummaryApproveModal.vue'
+import ExecutiveSummaryCurrentFollowUp from './ExecutiveSummaryCurrentFollowUp.vue'
+import ExecutiveSummaryFollowUpTable from './ExecutiveSummaryFollowUpTable.vue'
+import FollowUpStatusBadge from './FollowUpStatusBadge.vue'
 import SignificantFindingCards from './SignificantFindingCards.vue'
 import { scrollStepIntoView } from '~/utils/stepperScroll'
 import {
@@ -773,14 +763,25 @@ import {
   type RiskBucket
 } from '~/utils/executiveSummaryCompilation'
 import { formatQuarterPeriod, refreshNarrativePeriod } from '~/utils/executiveSummaryNarrative'
+import {
+  BUCKET_STATUS,
+  applyFollowUpToTopFindings,
+  formatFollowUpDate,
+  matrixRowsFromFollowUp,
+  type FollowUpStatusQuery,
+  type FollowUpStatusResult,
+  type LhaFindingInfo
+} from '~/utils/executiveSummaryFollowUp'
 const store = useExecutiveSummaryStore()
 const authStore = useAuthStore()
 const auditReportStore = useAuditResultReportStore()
 const assignmentLetterStore = useAssignmentLetterStore()
-const { canReviewExecutiveSummary } = useRbac()
+const { canReviewExecutiveSummary, canViewLiveFollowUpStatus } = useRbac()
 const { t, locale } = useI18n()
 const appToast = useAppToast()
 const { loading: sourcesLoading, error: sourcesError, fetchCompilationStats } = useExecutiveSummarySources()
+// Follow-up status of every finding in the selected year and quarter, from the Action Taken Reports
+const followUp = useExecutiveSummaryFollowUp()
 const fileInput = ref<HTMLInputElement | null>(null)
 const activeSection = ref('sec-upload')
 const scrollContainer = ref<HTMLElement | null>(null)
@@ -794,6 +795,30 @@ const displayedStats = computed<CompilationStats | null>(() =>
   lastStats.value && syncedStatsKey.value === currentStatsKey.value ? lastStats.value : null
 )
 const lastSyncedLabel = computed(() => formatSyncedAt(displayedStats.value?.syncedAt, locale.value))
+
+// Follow-up status: the response in followUp.data and the 'year-quarter' key it was read for
+const followUpLoadedKey = ref('')
+const currentFollowUp = computed<FollowUpStatusResult | null>(() =>
+  followUpLoadedKey.value === currentStatsKey.value ? followUp.data.value : null
+)
+const followUpQuery = computed<FollowUpStatusQuery>(() => ({
+  year: Number(store.form.tahun) || 2026,
+  quarter: Number(store.form.quarter) || 1
+}))
+const followUpAsOfLabel = computed(() => formatSyncedAt(currentFollowUp.value?.asOf, locale.value))
+const approvedDateLabel = computed(() =>
+  isLocked.value ? formatFollowUpDate(store.form.approvedAt || store.form.signatureTanggal, locale.value) : ''
+)
+const followUpEmptyHint = computed(() =>
+  !isLocked.value && currentFollowUp.value && currentFollowUp.value.total === 0 ? t('executiveSummaryCompilation.sources.emptyFollowUp') : ''
+)
+// Rows saved by the old per-LHA matrix carry no findingId and are counted as LHA
+const matrixTotalLabel = computed(() => {
+  const rows = store.form.matriksKompilasi
+  if (rows.length > 0 && rows.every(r => !r.findingId)) return t('executiveSummaryCompilation.matrix.total', { count: rows.length })
+  return t('executiveSummaryCompilation.matrix.totalFindings', { count: rows.length })
+})
+
 // Saving a draft is blocked while the statistics are loading or the last sync failed
 const canSaveDraft = computed(() => !sourcesLoading.value && !sourcesError.value)
 const statsBusyClass = computed(() => (sourcesLoading.value ? 'opacity-50 pointer-events-none' : ''))
@@ -814,7 +839,8 @@ const sourceEmptyNotes = computed<string[]>(() => {
   const notes: string[] = []
   if (stats.jumlahRekomendasi === 0) notes.push(t('executiveSummaryCompilation.sources.emptyRecommendation'))
   if (stats.totalTemuan === 0) notes.push(t('executiveSummaryCompilation.sources.emptyRisk'))
-  if (stats.followUp.closed + stats.followUp.inProgress + stats.followUp.overdue === 0) {
+  const fu = currentFollowUp.value?.buckets ?? stats.followUp
+  if (fu && fu.closed + fu.inProgress + fu.overdue + (fu.noAction ?? 0) === 0) {
     notes.push(t('executiveSummaryCompilation.sources.emptyFollowUp'))
   }
   return notes
@@ -970,16 +996,6 @@ const quarterlyLhas = computed(() => {
 // Section II total: totalTemuan from the backend after a sync; the stored risk fields otherwise (saved or approved summaries)
 const totalTemuanSummary = computed(() => displayedStats.value?.totalTemuan ?? riskBucketTotal(riskBuckets.value))
 
-// Section III computed auto-sums
-const totalFollowUpCount = computed(() => {
-  return store.form.followUpTable.reduce((acc, row) => acc + (row.jumlah || 0), 0)
-})
-
-// Helper formatting percentage
-const formatPercent = (val: number) => {
-  return val ? val.toFixed(1) : '0.0'
-}
-
 // The narrative starts with the selected quarter and year: "Periode Kuartal 4 2026, SPI telah menerbitkan ..."
 const narrativePeriod = computed(() => formatQuarterPeriod(t, Number(store.form.quarter) || 1, Number(store.form.tahun) || null))
 
@@ -1042,13 +1058,92 @@ const removeTopFinding = (idx: number) => {
   store.form.topFindings.splice(idx, 1)
 }
 
-const getStatusBadgeClass = (status: 'Closed' | 'In Progress' | 'Overdue') => {
-  const colors = {
-    Closed: 'bg-success-100 text-success-800 dark:bg-success-950 dark:text-success-300 px-2.5 py-0.5 rounded text-md font-bold uppercase',
-    'In Progress': 'bg-info-100 text-info-800 dark:bg-info-950 dark:text-info-300 px-2.5 py-0.5 rounded text-md font-bold uppercase',
-    Overdue: 'bg-error-100 text-error-800 dark:bg-error-950 dark:text-error-300 px-2.5 py-0.5 rounded text-md font-bold uppercase'
+// Matrix risk badge: LHA significance levels, plus the Tinggi/Sedang/Rendah of older documents
+const matrixRiskColor = (value: string) => {
+  if (['Very Significant', 'Significant', 'Tinggi'].includes(value)) return 'error'
+  if (['Quite Significant', 'Sedang'].includes(value)) return 'warning'
+  return 'success'
+}
+const matrixRiskLabel = (value: string) => significanceLevelOptions.value.find(o => o.value === value)?.label || value
+
+const normalizeSignificance = (value?: string): string => {
+  if (value === 'Tinggi') return 'Significant'
+  if (value === 'Sedang') return 'Quite Significant'
+  if (value === 'Rendah') return 'Not Significant'
+  return value || ''
+}
+const SEVERITY_RANK: Record<string, number> = { 'Very Significant': 4, Significant: 3, 'Quite Significant': 2, 'Not Significant': 1 }
+
+// LHA details of a finding (significance, recommendation, audit object) by finding id, from the loaded LHAs
+const lhaFindingInfo = computed(() => {
+  const map = new Map<string, LhaFindingInfo>()
+  for (const r of auditReportStore.reportList) {
+    for (const f of (r.findings || []) as any[]) {
+      if (!f?.id) continue
+      map.set(f.id, {
+        category: normalizeSignificance(f.category || f.significanceLevel || f.risiko),
+        action: f.action || f.recommendation || '',
+        reportTitle: r.reportTitle || '',
+        department: r.department || ''
+      })
+    }
   }
-  return colors[status]
+  return map
+})
+
+/** Matrix: one row per finding of the quarter, with the status, progress, due date, PIC and evidence of its ATR. */
+const buildMatrix = (data: FollowUpStatusResult) =>
+  matrixRowsFromFollowUp(data, id => lhaFindingInfo.value.get(id))
+
+/** Top 5: the most significant findings of the quarter, with the status of their ATR. */
+const buildTopFindings = (data: FollowUpStatusResult): SignificantFinding[] => {
+  const ranked = data.findings.map((f) => {
+    const info = lhaFindingInfo.value.get(f.findingId)
+    const risiko = info?.category || 'Significant'
+    const division = f.divisi || info?.department || ''
+    return {
+      rank: SEVERITY_RANK[risiko] ?? 0,
+      row: {
+        unitDivision: division ? store.resolveDepartmentOption(division) : '',
+        judulTemuan: f.title,
+        risiko,
+        statusTL: BUCKET_STATUS[f.bucket],
+        usulan: info?.action || '',
+        findingId: f.findingId,
+        atrId: f.atrId,
+        noActionReason: f.noActionReason
+      } as SignificantFinding
+    }
+  })
+  ranked.sort((a, b) => b.rank - a.rank)
+  return ranked.slice(0, 5).map(r => r.row)
+}
+
+const notifyFollowUpError = () => {
+  if (followUp.error.value) appToast.error(t('executiveSummaryForm.followUp.errorToast'), followUp.error.value)
+}
+
+/**
+ * Refreshes only the ATR-driven parts of a draft (follow-up table, matrix, Top 5 statuses) without
+ * touching the Top 5 selection or the text the user wrote. Used on open of a saved draft and by Refresh.
+ */
+const refreshFollowUpStatus = async () => {
+  if (isLocked.value) return
+  const key = currentStatsKey.value
+  const data = await followUp.load(followUpQuery.value)
+  if (!data) {
+    notifyFollowUpError()
+    return
+  }
+  followUpLoadedKey.value = key
+  if (key !== currentStatsKey.value || isLocked.value) return
+  store.form.followUpTable = followUpRowsFromStats(data.buckets, store.form.followUpTable)
+  if (data.findingsRestricted) return
+  store.form.matriksKompilasi = buildMatrix(data)
+  applyFollowUpToTopFindings(store.form.topFindings, data.findings)
+  // A finding whose ATR was cancelled is not counted, so it leaves the Top 5
+  const ids = new Set(data.findings.map(f => f.findingId))
+  store.form.topFindings = store.form.topFindings.filter(f => !f.findingId || ids.has(f.findingId))
 }
 
 // Automatic compilation synchronization for the selected year and quarter.
@@ -1067,19 +1162,20 @@ const syncFromIndividualLha = async () => {
 
   if (isLocked.value) return
 
-  // 1. Statistics (read-only) from the backend
+  // 1. Statistics (read-only) and the ATR follow-up status of the quarter, from the backend
   const key = `${targetYear}-${targetQuarter}`
-  const stats = await fetchCompilationStats({ year: targetYear, quarter: targetQuarter })
+  const [stats, followUpData] = await Promise.all([
+    fetchCompilationStats({ year: targetYear, quarter: targetQuarter }),
+    followUp.load({ year: targetYear, quarter: targetQuarter })
+  ])
   if (stats) {
     lastStats.value = stats
     syncedStatsKey.value = key
     Object.assign(store.form, riskBreakdownToFields(stats.riskBreakdown))
     store.form.jumlahLaporan = stats.jumlahLaporan
     store.form.jumlahRekomendasi = stats.jumlahRekomendasi
-    store.form.followUpTable = followUpRowsFromStats(stats.followUp, store.form.followUpTable)
   } else if (sourcesError.value) {
     // A failed sync drops the statistics, so saving stays blocked until a sync succeeds.
-    // The Top 5 list and matrix below come from the LHAs already loaded, so they are still filled.
     lastStats.value = null
     syncedStatsKey.value = ''
   } else {
@@ -1087,64 +1183,20 @@ const syncFromIndividualLha = async () => {
     return
   }
 
-  // 2. LHA findings for the Top 5 list and the compilation matrix (not statistics)
-  const individualReports = quarterlyLhas.value
-  const allFindings: any[] = []
-  const matriks: any[] = []
-
-  individualReports.forEach(r => {
-    const findings = r.findings || []
-    const rNum = r.reportNumber || (r as any).report_number
-    let div = r.department || 'OP'
-    if (r.reportTitle.includes('Keuangan')) div = 'FIN'
-    else if (r.reportTitle.includes('Sistem') || r.reportTitle.includes('TI') || r.reportTitle.includes('ERP')) div = 'IT'
-    else if (r.reportTitle.includes('SDM') || r.reportTitle.includes('Payroll')) div = 'HR'
-    else if (r.reportTitle.includes('Procurement') || r.reportTitle.includes('SCM')) div = 'KK/KSD'
-
-    findings.forEach((f: any) => {
-      let sigLevel = f.category || f.significanceLevel || f.risiko || 'Significant'
-      if (sigLevel === 'Tinggi') sigLevel = 'Significant'
-      else if (sigLevel === 'Sedang') sigLevel = 'Quite Significant'
-      else if (sigLevel === 'Rendah') sigLevel = 'Not Significant'
-
-      allFindings.push({
-        unitDivision: div,
-        judulTemuan: f.title || f.finding || '',
-        risiko: sigLevel,
-        statusTL: 'In Progress',
-        usulan: f.action || f.recommendation || '',
-        severityRank: sigLevel === 'Very Significant' ? 4 : sigLevel === 'Significant' ? 3 : sigLevel === 'Quite Significant' ? 2 : 1
-      })
-    })
-
-    const highestRisk = findings.some((f: any) => ['Very Significant', 'Significant'].includes(f.category)) ? 'Tinggi' : 'Sedang'
-    matriks.push({
-      nomor: rNum,
-      division: div,
-      unitKerja: r.department || r.reportTitle,
-      prosesBisnis: r.reportTitle,
-      judulTemuan: (findings[0]?.title) || r.reportTitle,
-      nilaiRisiko: highestRisk,
-      rekomendasi: (findings[0]?.action) || '',
-      dueDate: r.reportDate || '',
-      picUnit: `PIC ${div}`,
-      progres: r.status === 'Final' || (r.status as any) === 'Approved' ? 100 : 60,
-      status: r.status === 'Final' || (r.status as any) === 'Approved' ? 'Closed' : 'In Progress',
-      buktiTL: `LHA_${rNum.replace(/[\/\s]/g, '_')}.pdf`
-    })
-  })
-
-  store.form.matriksKompilasi = matriks
-
-  // Sort findings by severity (High first) and pick Top 5
-  allFindings.sort((a, b) => b.severityRank - a.severityRank)
-  store.form.topFindings = allFindings.slice(0, 5).map(f => ({
-    unitDivision: f.unitDivision,
-    judulTemuan: f.judulTemuan,
-    risiko: f.risiko,
-    statusTL: f.statusTL,
-    usulan: f.usulan
-  }))
+  // 2. Follow-up table, matrix (one row per finding) and Top 5 from the ATR follow-up status.
+  // On failure they keep their current values; the error is shown with a retry.
+  if (followUpData) {
+    followUpLoadedKey.value = key
+    store.form.followUpTable = followUpRowsFromStats(followUpData.buckets, store.form.followUpTable)
+    if (!followUpData.findingsRestricted) {
+      store.form.matriksKompilasi = buildMatrix(followUpData)
+      store.form.topFindings = buildTopFindings(followUpData)
+    }
+  } else if (followUp.error.value) {
+    notifyFollowUpError()
+    // Older follow-up counts from the statistics, when the backend sent a usable table
+    if (stats?.followUp) store.form.followUpTable = followUpRowsFromStats(stats.followUp, store.form.followUpTable)
+  }
   // Narrative, root cause and conclusion are written by the user; the sync does not generate text.
 }
 
@@ -1218,7 +1270,13 @@ watch(() => auditReportStore.reportList.length, (newLen) => {
   if (newLen > 0 && !store.isViewing && !store.isEditing) {
     if (store.form.jumlahLaporan === 0 || store.form.matriksKompilasi.length === 0) {
       syncFromIndividualLha()
+      return
     }
+  }
+  // LHA details (significance, recommendation) complete the matrix rows once the LHAs are loaded
+  const data = currentFollowUp.value
+  if (newLen > 0 && data && !data.findingsRestricted && !isLocked.value) {
+    store.form.matriksKompilasi = buildMatrix(data)
   }
 })
 
@@ -1228,6 +1286,9 @@ onMounted(() => {
       store.form.nomorDokumen = generateEscDocNumber(Number(store.form.tahun) || 2026)
     }
     syncFromIndividualLha()
+  } else if (!isLocked.value) {
+    // A saved draft shows the current ATR status when it is opened
+    refreshFollowUpStatus()
   }
 })
 </script>

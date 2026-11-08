@@ -15,8 +15,8 @@ func TestClassifyRiskIndexRoundsBeforeClassifying(t *testing.T) {
 		{0, 0, RiskLevelLow, false},
 		{19.94, 19.9, RiskLevelLow, false},
 		{19.95, 20, RiskLevelLowToMedium, false},
-		{39.95, 40, RiskLevelMedium, false},
-		{59.94, 59.9, RiskLevelMedium, false},
+		{39.95, 40, RiskLevelMedium, true},
+		{59.94, 59.9, RiskLevelMedium, true},
 		{59.95, 60, RiskLevelMediumToHigh, true}, // stored as 60.0, so never "Medium"
 		{60, 60, RiskLevelMediumToHigh, true},
 		{79.94, 79.9, RiskLevelMediumToHigh, true},

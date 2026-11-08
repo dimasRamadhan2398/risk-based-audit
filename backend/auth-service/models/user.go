@@ -45,6 +45,12 @@ type TrustedDevice struct {
 	UserAgent 		  string     `gorm:"type:varchar(255)" json:"user_agent"`
     IPAddress         string     `gorm:"type:varchar(45)" json:"ip_address"`
     ExpiresAt         *time.Time `json:"expires_at,omitempty"`
+	// SessionOnly marks a device recorded from an MFA sign-in or MFA enrolment
+	// without "trust this device". It is listed on the Activity page but never
+	// skips the MFA step. false (the default for existing rows) = trusted.
+	SessionOnly bool `gorm:"not null;default:false" json:"session_only"`
+	// LastSeenAt is the last sign-in or MFA check from this device.
+	LastSeenAt *time.Time `json:"last_seen_at,omitempty"`
     CreatedAt         time.Time  `json:"created_at"`
 }
 

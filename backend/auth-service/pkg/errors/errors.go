@@ -11,6 +11,16 @@ type AppError struct {
 	Message    string
 	StatusCode int
 	Err        error
+	// Data is optional machine-readable context returned to the client in the
+	// response "data" field (for example remaining MFA attempts).
+	Data map[string]interface{}
+}
+
+// WithData returns a copy of e carrying data for the response body.
+func (e *AppError) WithData(data map[string]interface{}) *AppError {
+	cp := *e
+	cp.Data = data
+	return &cp
 }
 
 // Error implements the error interface

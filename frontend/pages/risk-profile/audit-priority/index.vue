@@ -180,15 +180,13 @@
       <!-- Desktop View (>= md): Full Table Entities -->
       <div class="hidden md:block">
         <TableEntities
-          v-model:page="currentPage"
           :columns="priorityColumns"
-          :data="filteredYearlyUniverse"
+          :data="priorityPage.items"
           :loading="loading"
-          :items-per-page="itemsPerPage"
-          :show-pagination="true"
+          :show-pagination="false"
         >
           <template #no-cell="{ row }">
-            <span class="text-slate-500 font-medium">{{ (currentPage - 1) * itemsPerPage + row.index + 1 }}</span>
+            <span class="text-slate-500 font-medium">{{ pageFrom + row.index }}</span>
           </template>
 
           <template #name-cell="{ row }">
@@ -303,14 +301,14 @@
         <!-- Cards List -->
         <div v-else class="space-y-3">
           <div
-            v-for="(row, index) in paginatedUniverse"
+            v-for="(row, index) in priorityPage.items"
             :key="row.id || index"
             class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs"
           >
             <!-- Card Header: No. & Risk Level Badge -->
             <div class="flex items-center justify-between gap-2 mb-2">
               <span class="inline-flex items-center justify-center font-mono text-[11px] font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-200/80 dark:border-slate-700">
-                #{{ (currentPage - 1) * itemsPerPage + index + 1 }}
+                #{{ pageFrom + index }}
               </span>
               <span
                 v-if="!isUniverseYearScored(row)"
@@ -353,31 +351,30 @@
               </div>
             </div>
           </div>
-
-          <!-- Mobile Pagination Controls -->
-          <div v-if="filteredYearlyUniverse.length > itemsPerPage" class="flex justify-center pt-2">
-            <UPagination
-              v-model:page="currentPage"
-              :items-per-page="itemsPerPage"
-              :total="filteredYearlyUniverse.length"
-              size="sm"
-              active-color="primary"
-              color="neutral"
-              variant="outline"
-              class="max-w-full overflow-x-auto"
-            />
-          </div>
         </div>
+      </div>
+
+      <div
+        v-if="priorityPage.totalPages > 1"
+        class="flex justify-center sm:justify-end px-2 sm:px-3 pt-3 overflow-x-auto max-w-full"
+      >
+        <UPagination
+          :page="priorityPage.page"
+          :items-per-page="priorityPage.pageSize"
+          :total="priorityPage.total"
+          size="sm"
+          active-color="primary"
+          color="neutral"
+          variant="outline"
+          class="max-w-full overflow-x-auto"
+          @update:page="(p: number) => { tablePage = p }"
+        />
       </div>
 
       <template #footer>
         <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
           <span>{{ t('riskFactors.priority.sortedNote') }}</span>
-          <span>
-            {{ t('executiveSummaryIndividual.filters.showingPrefix') }}
-            {{ filteredYearlyUniverse.length > 0 ? `${(currentPage - 1) * itemsPerPage + 1}-${Math.min(currentPage * itemsPerPage, filteredYearlyUniverse.length)}` : '0' }}
-            {{ t('auditPriority.ofEntities', { total: filteredYearlyUniverse.length }) }}
-          </span>
+          <span>{{ t('executiveSummaryIndividual.filters.showingPrefix') }} {{ pageFrom }}–{{ pageTo }} {{ t('auditPriority.ofEntities', { total: priorityPage.total }) }}</span>
         </div>
       </template>
     </UCard>
@@ -441,6 +438,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
 import { useI18n } from '~/composables/useI18n'
 import { useFiscalYear } from '~/composables/useFiscalYear'
+import { usePagedList } from '~/composables/usePagedList'
 import {
   formatRiskLevelRange,
   getRiskLevelBadgeClass,
@@ -458,8 +456,6 @@ const { fiscalYears, selectedFiscalYear } = useFiscalYear()
 const selectedYear = selectedFiscalYear
 const searchQuery = ref('')
 const statusFilter = ref<'all' | 'prioritized' | 'non_prioritized'>('all')
-const currentPage = ref(1)
-const itemsPerPage = ref(10)
 const alertMessage = ref('')
 const alertType = ref('success')
 
@@ -510,15 +506,13 @@ const filteredYearlyUniverse = computed(() => {
   })
 })
 
-const paginatedUniverse = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value
-  return filteredYearlyUniverse.value.slice(start, start + itemsPerPage.value)
-})
-
-// Reset to first page when search query, status filter, or fiscal year changes
-watch([searchQuery, statusFilter, selectedYear], () => {
-  currentPage.value = 1
-})
+// 10 rows per page, applied after filtering and sorting; search, status filter, year and reset go back to page 1.
+const {
+  page: tablePage,
+  pageData: priorityPage,
+  from: pageFrom,
+  to: pageTo
+} = usePagedList(filteredYearlyUniverse, [searchQuery, statusFilter, selectedYear], 10)
 
 const loadData = async () => {
   try {

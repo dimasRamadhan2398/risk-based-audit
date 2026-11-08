@@ -126,9 +126,13 @@ func (s *TrustedDevicesService) GetTrustedDevices(ctx context.Context, userID uu
 		return nil, err
 	}
 
-	deviceResults := make([]models.TrustedDeviceResponse, len(devices))
+	// Length 0: a length-len(devices) slice plus append returned one empty
+	// entry (zero id) per real device ahead of the real ones.
+	deviceResults := make([]models.TrustedDeviceResponse, 0, len(devices))
 	for _, device := range devices {
 		deviceResults = append(deviceResults, models.TrustedDeviceResponse{
+			IsTrusted:         s.devicesRepo.IsTrusted(device),
+			LastSeenAt:        device.LastSeenAt,
 			ID:                device.ID,
 			DeviceFingerprint: device.DeviceFingerprint,
 			DeviceName:        device.DeviceName,

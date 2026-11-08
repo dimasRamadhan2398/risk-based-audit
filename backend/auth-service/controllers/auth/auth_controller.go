@@ -77,12 +77,7 @@ func (ctrl *AuthController) Login(c *gin.Context) {
 
 	result, err := ctrl.authService.Login(c.Request.Context(), &req, ipAddress, userAgent)
 	if err != nil {
-		appErr, ok := err.(*apperrors.AppError)
-		if ok {
-			response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
-		} else {
-			response.InternalServerError(c, err.Error())
-		}
+		writeAppError(c, err)
 		return
 	}
 
@@ -106,12 +101,7 @@ func (ctrl *AuthController) VerifyMFALogin(c *gin.Context) {
 
 	result, err := ctrl.authService.VerifyMFALogin(c.Request.Context(), &req, ipAddress, userAgent)
 	if err != nil {
-		appErr, ok := err.(*apperrors.AppError)
-		if ok {
-			response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
-		} else {
-			response.InternalServerError(c, err.Error())
-		}
+		writeAppError(c, err)
 		return
 	}
 
@@ -216,6 +206,8 @@ func (ctrl *AuthController) Me(c *gin.Context) {
 		ID:        claims.UserID,
 		Username:  claims.Username,
 		Roles:     claims.Roles,
+		// From the token's roles, the same roles system-logs checks against.
+		Permissions: ctrl.authService.PermissionNames(claims.Roles),
 	}
 
 	// The employee link is best-effort: a lookup failure must not fail /auth/me.
@@ -227,4 +219,14 @@ func (ctrl *AuthController) Me(c *gin.Context) {
 	}
 
 	response.OK(c, "User retrieved successfully", info)
+}
+
+// writeAppError renders a service error, including any AppError.Data (remaining
+// MFA attempts, lockout retry time) in the response "data" field.
+func writeAppError(c *gin.Context, err error) {
+	if appErr, ok := err.(*apperrors.AppError); ok {
+		response.ErrorWithData(c, appErr.StatusCode, appErr.Code, appErr.Message, "", appErr.Data)
+		return
+	}
+	response.InternalServerError(c, err.Error())
 }

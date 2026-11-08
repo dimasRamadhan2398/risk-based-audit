@@ -7,9 +7,11 @@ import {
   computeRiskIndexPreview,
   isUniverseYearPrioritized,
   isUniverseYearScored,
+  isWeightSumExactly100,
   isValidWeightTotal,
   normalizeWeightPercent,
   sortUniverseYearsByRisk,
+  sumWeightHundredths,
   sumWeightPercents,
   weightFractionToPercent
 } from '~/utils/riskScoring'
@@ -83,7 +85,7 @@ describe('risk index preview mirrors the backend formula', () => {
     ])
     expect(isPrioritizedRiskLevel('High')).toBe(true)
     expect(isPrioritizedRiskLevel('Medium to High')).toBe(true)
-    expect(isPrioritizedRiskLevel('Medium')).toBe(false)
+    expect(isPrioritizedRiskLevel('Medium')).toBe(true)
     expect(isPrioritizedRiskLevel('')).toBe(false)
   })
 })
@@ -134,14 +136,36 @@ describe('corporate weights', () => {
     expect(normalizeWeightPercent('33.333')).toBe(33.33)
   })
 
-  it('accepts a total within 99.9–100.1 like the backend', () => {
-    expect(isValidWeightTotal(sumWeightPercents([33.33, 33.33, 33.33]))).toBe(true) // 99.99
-    expect(isValidWeightTotal(sumWeightPercents([33.3, 33.3, 33.3]))).toBe(true) // 99.9
-    expect(isValidWeightTotal(sumWeightPercents([50.05, 50.05]))).toBe(true) // 100.1
+  it('accepts a total of exactly 100 only', () => {
     expect(isValidWeightTotal(100)).toBe(true)
-    expect(isValidWeightTotal(sumWeightPercents([33.3, 33.3, 33.29]))).toBe(false) // 99.89
-    expect(isValidWeightTotal(100.11)).toBe(false)
+    expect(isValidWeightTotal(99.99)).toBe(false)
+    expect(isValidWeightTotal(100.01)).toBe(false)
+    expect(isValidWeightTotal(sumWeightPercents([33.33, 33.33, 33.33]))).toBe(false) // 99.99
+    expect(isValidWeightTotal(sumWeightPercents([33.3, 33.3, 33.3]))).toBe(false) // 99.9
+    expect(isValidWeightTotal(sumWeightPercents([50.05, 50.05]))).toBe(false) // 100.1
     expect(isValidWeightTotal(NaN)).toBe(false)
+  })
+
+  it('validates a list of weights by summing integer hundredths', () => {
+    expect(isWeightSumExactly100([100])).toBe(true)
+    expect(isWeightSumExactly100([25, 25, 25, 25])).toBe(true)
+    expect(isWeightSumExactly100([99.99])).toBe(false)
+    expect(isWeightSumExactly100([100.01])).toBe(false)
+    expect(isWeightSumExactly100([50, 49.99])).toBe(false) // one arrow click of 0.01 below 100
+    expect(isWeightSumExactly100([50, 50.01])).toBe(false)
+    expect(isWeightSumExactly100([33.33, 33.33, 33.34])).toBe(true)
+    expect(isWeightSumExactly100([0.1, 0.2, 99.7])).toBe(true) // 0.1 + 0.2 + 99.7 !== 100 in plain floats
+    expect(isWeightSumExactly100(['60', 40])).toBe(true)
+    expect(isWeightSumExactly100([])).toBe(false)
+    expect(sumWeightHundredths([33.33, 33.33, 33.34])).toBe(10000)
+  })
+
+  it('uses the same exact check for the save button, badge and save guard', () => {
+    const page = read('pages/risk-profile/risk-factors/index.vue')
+    expect(page).toContain('const isValidWeightSum = computed(() => isWeightSumExactly100(')
+    expect(page).toContain(':disabled="!isValidWeightSum"')
+    expect(page).toContain('if (!isValidWeightSum.value)')
+    expect(page).toMatch(/v-model\.number="item\.weight"\s+type="number"\s+step="0\.5"/)
   })
 
   it('sums without floating point noise', () => {

@@ -111,14 +111,43 @@ describe('parseCompilationStats', () => {
     expect(() => parseCompilationStats(statsBody({}, { risikoHigh: '2' }))).toThrow(/risikoHigh/)
   })
 
-  it('rejects a follow-up table that is not exactly the three statuses', () => {
-    expect(() => parseCompilationStats(statsBody({}, { followUpTable: [{ status: 'Closed', jumlah: 1 }] }))).toThrow(/followUpTable/)
-    expect(() => parseCompilationStats(statsBody({}, {
-      followUpTable: [{ status: 'Closed', jumlah: 1 }, { status: 'Closed', jumlah: 1 }, { status: 'Overdue', jumlah: 0 }]
-    }))).toThrow(/followUpTable/)
-    expect(() => parseCompilationStats(statsBody({}, {
-      followUpTable: [{ status: 'constructor', jumlah: 1 }, { status: 'Closed', jumlah: 0 }, { status: 'Overdue', jumlah: 0 }]
-    }))).toThrow(/followUpTable/)
+  it('accepts a four-row follow-up table with No Action', () => {
+    const stats = parseCompilationStats(statsBody({}, {
+      followUpTable: [
+        { status: 'Closed', jumlah: 2 },
+        { status: 'In Progress', jumlah: 1 },
+        { status: 'Overdue', jumlah: 1 },
+        { status: 'No Action', jumlah: 3 }
+      ]
+    }))
+    expect(stats.followUp).toEqual({ closed: 2, inProgress: 1, overdue: 1, noAction: 3 })
+  })
+
+  it('takes the four counts from followUpBuckets, whose No Action the three-row table leaves out', () => {
+    const stats = parseCompilationStats(statsBody({}, {
+      followUpClosed: 2,
+      followUpInProgress: 1,
+      followUpOverdue: 1,
+      followUpNoAction: 5,
+      followUpBuckets: { closed: 2, inProgress: 1, overdue: 1, noAction: 5 }
+    }))
+    expect(stats.followUp).toEqual({ closed: 2, inProgress: 1, overdue: 1, noAction: 5 })
+    expect(followUpRowsFromStats(stats.followUp!).map(r => r.jumlah)).toEqual([2, 1, 1, 5])
+  })
+
+  it('does not throw on an unusable follow-up table: followUp is null and the other figures are kept', () => {
+    const unusable = [
+      [{ status: 'Closed', jumlah: 1 }],
+      [{ status: 'Closed', jumlah: 1 }, { status: 'Closed', jumlah: 1 }, { status: 'Overdue', jumlah: 0 }],
+      [{ status: 'constructor', jumlah: 1 }, { status: 'Closed', jumlah: 0 }, { status: 'Overdue', jumlah: 0 }],
+      [{ status: 'Closed', jumlah: 1 }, { status: 'In Progress', jumlah: 1 }, { status: 'No Action', jumlah: 1 }],
+      undefined
+    ]
+    for (const followUpTable of unusable) {
+      const stats = parseCompilationStats(statsBody({}, { followUpTable }))
+      expect(stats.followUp).toBeNull()
+      expect(stats.jumlahRekomendasi).toBe(7)
+    }
   })
 
   it('rejects a missing body or an invalid syncedAt', () => {
@@ -137,10 +166,15 @@ describe('followUpRowsFromStats', () => {
         { status: 'Overdue', jumlah: 0, persentase: 0, keterangan: '' }
       ]
     )
-    expect(rows.map(r => r.status)).toEqual(['Closed', 'In Progress', 'Overdue'])
-    expect(rows.map(r => r.jumlah)).toEqual([2, 1, 1])
-    expect(rows.map(r => r.persentase)).toEqual([50, 25, 25])
-    expect(rows.map(r => r.keterangan)).toEqual(['Catatan user', '', ''])
+    expect(rows.map(r => r.status)).toEqual(['Closed', 'In Progress', 'Overdue', 'No Action'])
+    expect(rows.map(r => r.jumlah)).toEqual([2, 1, 1, 0])
+    expect(rows.map(r => r.persentase)).toEqual([50, 25, 25, 0])
+    expect(rows.map(r => r.keterangan)).toEqual(['Catatan user', '', '', ''])
+  })
+
+  it('counts No Action in the percentages', () => {
+    const rows = followUpRowsFromStats({ closed: 1, inProgress: 1, overdue: 1, noAction: 1 })
+    expect(rows.map(r => r.persentase)).toEqual([25, 25, 25, 25])
   })
 
   it('writes no generated note text and zero percentages when there are no follow-ups', () => {
@@ -148,7 +182,8 @@ describe('followUpRowsFromStats', () => {
     expect(rows).toEqual([
       { status: 'Closed', jumlah: 0, persentase: 0, keterangan: '' },
       { status: 'In Progress', jumlah: 0, persentase: 0, keterangan: '' },
-      { status: 'Overdue', jumlah: 0, persentase: 0, keterangan: '' }
+      { status: 'Overdue', jumlah: 0, persentase: 0, keterangan: '' },
+      { status: 'No Action', jumlah: 0, persentase: 0, keterangan: '' }
     ])
   })
 })

@@ -13,7 +13,7 @@
 //   - Everything else is derived from the in-scope LHAs: the assignment letters
 //     they reference (by letter number or letter UUID), the working paper risks
 //     and test controls of those letters (each row counted once), and the
-//     action taken reports of those LHAs.
+//     follow-up status of the findings of those LHAs (see LoadFollowUp).
 package executivesummary
 
 import (
@@ -55,15 +55,27 @@ type CompilationStats struct {
 	JumlahRekomendasi int64     `json:"jumlahRekomendasi"`
 	// Breakdown by the five working paper risk levels (see RiskBucket);
 	// RisikoLainnya counts empty or unrecognised levels and is not part of TotalTemuan
-	TotalTemuan        int64         `json:"totalTemuan"`
-	RisikoHigh         int64         `json:"risikoHigh"`
-	RisikoModerateHigh int64         `json:"risikoModerateHigh"`
-	RisikoModerate     int64         `json:"risikoModerate"`
-	RisikoLowModerate  int64         `json:"risikoLowModerate"`
-	RisikoLow          int64         `json:"risikoLow"`
-	RisikoLainnya      int64         `json:"risikoLainnya"`
-	FollowUpTable      []FollowUpRow `json:"followUpTable"`
-	FollowUpCancelled  int64         `json:"followUpCancelled"`
+	TotalTemuan        int64 `json:"totalTemuan"`
+	RisikoHigh         int64 `json:"risikoHigh"`
+	RisikoModerateHigh int64 `json:"risikoModerateHigh"`
+	RisikoModerate     int64 `json:"risikoModerate"`
+	RisikoLowModerate  int64 `json:"risikoLowModerate"`
+	RisikoLow          int64 `json:"risikoLow"`
+	RisikoLainnya      int64 `json:"risikoLainnya"`
+	// FollowUpTable always has exactly the three rows Closed, In Progress and
+	// Overdue (older frontends reject any other shape). Findings with no
+	// action (FollowUpNoAction) are in none of them.
+	FollowUpTable []FollowUpRow `json:"followUpTable"`
+	// Follow-up buckets of every finding of the in-scope LHAs (see
+	// models.ClassifyFollowUp); the same counts flat and as an object
+	FollowUpClosed     int64           `json:"followUpClosed"`
+	FollowUpInProgress int64           `json:"followUpInProgress"`
+	FollowUpOverdue    int64           `json:"followUpOverdue"`
+	FollowUpNoAction   int64           `json:"followUpNoAction"`
+	FollowUpBuckets    FollowUpBuckets `json:"followUpBuckets"`
+	// FollowUpCancelled counts findings whose ATR was cancelled (or deleted).
+	// They are excluded from every bucket and total; kept for information.
+	FollowUpCancelled int64 `json:"followUpCancelled"`
 }
 
 // Risk levels of the compilation, as the frontend stores them in
@@ -104,12 +116,6 @@ func RiskBucket(raw string) (bucket string, ok bool) {
 func quarterBounds(year, quarter int) (start, end time.Time) {
 	start = time.Date(year, time.Month((quarter-1)*3+1), 1, 0, 0, 0, 0, time.UTC)
 	return start, start.AddDate(0, 3, 0)
-}
-
-// lhaScope is the id and letter reference of one in-scope LHA
-type lhaScope struct {
-	ID                 uuid.UUID
-	AssignmentLetterID string
 }
 
 // letterKeysForYear returns every key the year's letters are referenced by:
@@ -164,12 +170,18 @@ func letterKeysFor(db *gorm.DB, refs []string) ([]string, error) {
 	return keys.list, nil
 }
 
+// lhaColumns are the audit_result_reports columns the compilation and the
+// follow-up status read
+var lhaColumns = []string{"id", "assignment_letter_id", "report_number", "department", "status", "findings"}
+
 // approvedLHAs returns the approved, non-deleted LHAs in scope (see the package
-// comment). An empty year yields no rows.
-func approvedLHAs(db *gorm.DB, year, quarter int) ([]lhaScope, error) {
+// comment), with their findings, ordered by report number. An empty year
+// yields no rows.
+func approvedLHAs(db *gorm.DB, year, quarter int) ([]models.AuditResultReport, error) {
 	q := db.Model(&models.AuditResultReport{}).
-		Select("id, assignment_letter_id").
-		Where("UPPER(TRIM(status)) IN ?", models.LHAApprovedStatuses)
+		Select(lhaColumns).
+		Where("UPPER(TRIM(status)) IN ?", models.LHAApprovedStatuses).
+		Order("report_number ASC").Order("id ASC")
 
 	if quarter == 0 {
 		keys, err := letterKeysForYear(db, year)
@@ -185,8 +197,8 @@ func approvedLHAs(db *gorm.DB, year, quarter int) ([]lhaScope, error) {
 		q = q.Where("report_date >= ? AND report_date < ?", start, end)
 	}
 
-	var rows []lhaScope
-	if err := q.Scan(&rows).Error; err != nil {
+	var rows []models.AuditResultReport
+	if err := q.Find(&rows).Error; err != nil {
 		return nil, err
 	}
 	return rows, nil
@@ -221,11 +233,9 @@ func LoadCompilationStats(db *gorm.DB, year, quarter int, now time.Time) (Compil
 		return stats, nil
 	}
 
-	reportIDs := make([]uuid.UUID, 0, len(lhas))
 	refs := make([]string, 0, len(lhas))
 	seenRef := map[string]bool{}
 	for _, l := range lhas {
-		reportIDs = append(reportIDs, l.ID)
 		if ref := strings.TrimSpace(l.AssignmentLetterID); ref != "" && !seenRef[ref] {
 			seenRef[ref] = true
 			refs = append(refs, ref)
@@ -277,33 +287,22 @@ func LoadCompilationStats(db *gorm.DB, year, quarter int, now time.Time) (Compil
 		stats.TotalTemuan = stats.RisikoHigh + stats.RisikoModerateHigh + stats.RisikoModerate + stats.RisikoLowModerate + stats.RisikoLow
 	}
 
-	// Status Tindak Lanjut: ATRs of the in-scope LHAs (one per finding)
-	var atrs []struct {
-		Status  string
-		DueDate *time.Time
-	}
-	if err := db.Model(&models.ActionTakenReport{}).
-		Select("COALESCE(status, '') AS status, due_date").
-		Where("audit_result_report_id IN ?", reportIDs).
-		Scan(&atrs).Error; err != nil {
+	// Status Tindak Lanjut: every finding of the in-scope LHAs, bucketed by
+	// its ATR (models.ClassifyFollowUp). The 3-row table carries Closed, In
+	// Progress and Overdue; No Action is only in FollowUpBuckets.
+	followUp, err := LoadFollowUp(db, lhas, now, false)
+	if err != nil {
 		return stats, err
 	}
-	for _, a := range atrs {
-		status, _ := models.NormalizeATRStatus(a.Status)
-		switch {
-		case status == models.ATRStatusCompleted:
-			stats.FollowUpTable[0].Jumlah++
-		case status == models.ATRStatusCancelled:
-			stats.FollowUpCancelled++
-		default:
-			// Any open status (or an unrecognised legacy value) is open
-			if overdue, _ := models.ComputeATROverdue(a.DueDate, a.Status, now); overdue {
-				stats.FollowUpTable[2].Jumlah++
-			} else {
-				stats.FollowUpTable[1].Jumlah++
-			}
-		}
-	}
+	stats.FollowUpBuckets = followUp.Buckets
+	stats.FollowUpTable[0].Jumlah = followUp.Buckets.Closed
+	stats.FollowUpTable[1].Jumlah = followUp.Buckets.InProgress
+	stats.FollowUpTable[2].Jumlah = followUp.Buckets.Overdue
+	stats.FollowUpClosed = followUp.Buckets.Closed
+	stats.FollowUpInProgress = followUp.Buckets.InProgress
+	stats.FollowUpOverdue = followUp.Buckets.Overdue
+	stats.FollowUpNoAction = followUp.Buckets.NoAction
+	stats.FollowUpCancelled = followUp.Cancelled
 
 	return stats, nil
 }

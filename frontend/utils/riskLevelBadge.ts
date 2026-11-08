@@ -43,7 +43,7 @@ export interface RiskLevelThreshold {
 export const RISK_LEVEL_THRESHOLDS: RiskLevelThreshold[] = [
   { level: 'High', min: 80, max: 100, prioritized: true },
   { level: 'Medium to High', min: 60, max: 79, prioritized: true },
-  { level: 'Medium', min: 40, max: 59, prioritized: false },
+  { level: 'Medium', min: 40, max: 59, prioritized: true },
   { level: 'Low to Medium', min: 20, max: 39, prioritized: false },
   { level: 'Low', min: 0, max: 19, prioritized: false }
 ]

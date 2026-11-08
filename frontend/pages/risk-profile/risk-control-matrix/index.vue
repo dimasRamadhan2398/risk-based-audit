@@ -101,10 +101,14 @@
               </span>
             </div>
             <div class="flex items-center justify-between text-sm">
-              <span class="text-slate-600 dark:text-slate-300 font-medium">{{ t('rcm.cards.effectiveness.residualRiskLabel') }}</span>
+              <span class="text-slate-600 dark:text-slate-300 font-medium">{{ t(rcmStore.residualIsYearEnd ? 'rcm.cards.effectiveness.residualRiskLabelYearEnd' : 'rcm.cards.effectiveness.residualRiskLabel', { quarter: rcmStore.residualQuarter }) }}</span>
               <span class="font-bold text-red-600 dark:text-red-400 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                 {{ t('rcm.cards.effectiveness.riskCount', { count: rcmStore.totalResidualRisk }) }}
               </span>
+            </div>
+            <div class="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
+              <UIcon name="i-lucide-shield-check" class="size-4 shrink-0 text-emerald-500" />
+              <span>{{ t('rcm.cards.effectiveness.mitigationCoverage', { covered: rcmStore.mitigationCoverage.covered, total: rcmStore.mitigationCoverage.total }) }}</span>
             </div>
             <UAlert
               :color="(rcmStore.effectivenessRating.alertColor as any) || 'info'"
@@ -820,46 +824,46 @@
                 </div>
 
                 <template v-else>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <UFormField
+                      :label="t('rcm.modal.controlCodeLabel')"
+                      required
+                    >
+                      <UInput
+                        v-model="formData.control_code"
+                        :placeholder="t('rcm.modal.controlCodePlaceholder')"
+                        disabled
+                        class="w-full font-bold"
+                        :ui="{ base: 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 cursor-not-allowed' }"
+                      />
+                    </UFormField>
+                    <UFormField
+                      :label="t('rcm.modal.controlOwnerLabel')"
+                      required
+                    >
+                      <UInput
+                        v-model="formData.control_owner"
+                        :placeholder="t('rcm.modal.controlOwnerPlaceholder')"
+                        disabled
+                        class="w-full"
+                        :ui="{ base: 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 cursor-not-allowed' }"
+                      />
+                    </UFormField>
+                  </div>
+  
                   <UFormField
-                    :label="t('rcm.modal.controlCodeLabel')"
+                    :label="t('rcm.modal.controlDescLabel')"
                     required
                   >
-                    <UInput
-                      v-model="formData.control_code"
-                      :placeholder="t('rcm.modal.controlCodePlaceholder')"
-                      disabled
-                      class="w-full font-bold"
-                      :ui="{ base: 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 cursor-not-allowed' }"
-                    />
-                  </UFormField>
-                  <UFormField
-                    :label="t('rcm.modal.controlOwnerLabel')"
-                    required
-                  >
-                    <UInput
-                      v-model="formData.control_owner"
-                      :placeholder="t('rcm.modal.controlOwnerPlaceholder')"
+                    <UTextarea
+                      v-model="formData.control_description"
+                      :rows="3"
+                      :placeholder="t('rcm.modal.controlDescPlaceholder')"
                       disabled
                       class="w-full"
                       :ui="{ base: 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 cursor-not-allowed' }"
                     />
                   </UFormField>
-                </div>
-
-                <UFormField
-                  :label="t('rcm.modal.controlDescLabel')"
-                  required
-                >
-                  <UTextarea
-                    v-model="formData.control_description"
-                    :rows="3"
-                    :placeholder="t('rcm.modal.controlDescPlaceholder')"
-                    disabled
-                    class="w-full"
-                    :ui="{ base: 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 cursor-not-allowed' }"
-                  />
-                </UFormField>
                 </template>
               </UCard>
             </div>
@@ -1295,6 +1299,8 @@ watch(
 onMounted(() => {
   rcmStore.fetchRCMList()
   mitigationStore.fetchMitigations()
+  // CRP risks + all mitigation plans for the effectiveness card (skipped when already loaded).
+  rcmStore.ensureRiskSummaryData()
 })
 
 const filteredList = computed(() => {

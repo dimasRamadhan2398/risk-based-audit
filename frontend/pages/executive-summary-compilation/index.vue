@@ -221,10 +221,10 @@
               <div class="w-full max-w-[120px]">
                 <div class="flex justify-between text-md font-medium text-gray-700 dark:text-gray-300 mb-1">
                   <span>{{ t('executiveSummary.cardStats.progress') }}</span>
-                  <span class="text-success-600">{{ item.followUpTable?.[0]?.jumlah ? Math.round((Number(item.followUpTable[0].jumlah) / ((Number(item.followUpTable[0].jumlah) || 0) + (Number(item.followUpTable[1]?.jumlah) || 0) + (Number(item.followUpTable[2]?.jumlah) || 0))) * 100) : 0 }}%</span>
+                  <span class="text-success-600">{{ followUpClosedPercent(item.followUpTable) }}%</span>
                 </div>
                 <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2">
-                  <div class="bg-success-500 h-2 rounded-full transition-all" :style="{ width: `${item.followUpTable?.[0]?.jumlah ? Math.round((Number(item.followUpTable[0].jumlah) / ((Number(item.followUpTable[0].jumlah) || 0) + (Number(item.followUpTable[1]?.jumlah) || 0) + (Number(item.followUpTable[2]?.jumlah) || 0))) * 100) : 0}%` }"></div>
+                  <div class="bg-success-500 h-2 rounded-full transition-all" :style="{ width: `${followUpClosedPercent(item.followUpTable)}%` }"></div>
                 </div>
               </div>
             </div>
@@ -308,6 +308,7 @@ import { UserRole } from '~/types/auth'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import ExecutiveSummaryCompilationForm from '~/components/audit-result-report/ExecutiveSummaryCompilationForm.vue'
+import { followUpClosedPercent } from '~/utils/executiveSummaryFollowUp'
 import { RISK_LEVELS, RISK_LEVEL_STYLE, riskFieldsToBreakdown, riskBreakdownTotal, riskLevelI18nKey } from '~/utils/executiveSummaryCompilation'
 
 definePageMeta({

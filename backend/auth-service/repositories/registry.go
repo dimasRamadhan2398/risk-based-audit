@@ -1,10 +1,14 @@
 package repositories
 
 import (
+	"sync"
+
 	"auth-service/pkg/activitylog"
 	"auth-service/pkg/config"
 	pkgKafka "auth-service/pkg/kafka"
+	"auth-service/pkg/logger"
 	pkgRedis "auth-service/pkg/redis"
+	"auth-service/pkg/secretcrypt"
 
 	"gorm.io/gorm"
 )
@@ -18,6 +22,9 @@ type Registry struct {
 	eventPublisher pkgKafka.IEventPublisher
 	cacheRepo      ICacheRepository
 	activity       activitylog.Recorder
+
+	mfaCipherOnce sync.Once
+	mfaCipher     *secretcrypt.Cipher
 }
 
 type IRepositoryRegistry interface {
@@ -106,7 +113,26 @@ func (r *Registry) GetSystemAlertLogRepository() ISysAlertLogRepository {
 }
 
 func (r *Registry) GetMFASetupRepository() IMFASetupRepository {
-	return NewMFASetupRepository(r.db)
+	return NewMFASetupRepositoryWithCipher(r.db, r.getMFACipher())
+}
+
+// getMFACipher builds the MFA secret cipher from config once. serve validates
+// the settings before the registry is used, so an error here means the
+// registry was built without that check; it is logged and secrets are then
+// written as plaintext while encrypted rows fail closed on read.
+func (r *Registry) getMFACipher() *secretcrypt.Cipher {
+	r.mfaCipherOnce.Do(func() {
+		if r.config == nil {
+			return
+		}
+		c, err := r.config.MFACipher()
+		if err != nil {
+			logger.Error("MFA secret encryption is misconfigured", logger.LogField("error", err.Error()))
+			return
+		}
+		r.mfaCipher = c
+	})
+	return r.mfaCipher
 }
 
 func (r *Registry) GetTrustedDeviceRepository() ITrustedDeviceRepository {

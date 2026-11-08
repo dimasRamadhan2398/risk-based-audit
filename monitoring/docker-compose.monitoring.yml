@@ -34,7 +34,7 @@ services:
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--web.enable-lifecycle'
     ports:
-      - "9090:9090"
+      - "127.0.0.1:9090:9090"
     deploy:
       resources:
         limits:
@@ -59,7 +59,7 @@ services:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
     ports:
-      - "9300:3000"
+      - "127.0.0.1:9300:3000"
     deploy:
       resources:
         limits:
@@ -84,7 +84,7 @@ services:
       - /sys:/host/sys:ro
       - /:/rootfs:ro
     ports:
-      - "9100:9100"
+      - "127.0.0.1:9100:9100"
     deploy:
       resources:
         limits:
@@ -103,7 +103,7 @@ services:
       - ./loki/loki-config.yml:/etc/loki/local-config.yaml:ro
       - loki_data:/loki
     ports:
-      - "3100:3100"
+      - "127.0.0.1:3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
     deploy:
       resources:

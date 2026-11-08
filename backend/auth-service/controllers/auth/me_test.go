@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"auth-service/models"
@@ -18,12 +19,32 @@ import (
 // fakeAuthService overrides only the methods /auth/me uses.
 type fakeAuthService struct {
 	authService.AuthServiceInterface
-	link models.EmployeeLink
-	err  error
+	link  models.EmployeeLink
+	err   error
+	roles []string // token roles; default AUDITOR
+	// perms maps a role to its permissions; nil makes the lookup fail.
+	perms    map[string][]string
+	gotRoles []string
 }
 
 func (f *fakeAuthService) ValidateToken(string) (*utils.Claims, error) {
-	return &utils.Claims{UserID: uuid.New().String(), Username: "auditor1", Roles: []string{"AUDITOR"}}, nil
+	roles := f.roles
+	if roles == nil {
+		roles = []string{"AUDITOR"}
+	}
+	return &utils.Claims{UserID: uuid.New().String(), Username: "auditor1", Roles: roles}, nil
+}
+
+func (f *fakeAuthService) PermissionNames(roles []string) *[]string {
+	f.gotRoles = roles
+	if f.perms == nil {
+		return nil
+	}
+	out := []string{}
+	for _, r := range roles {
+		out = append(out, f.perms[r]...)
+	}
+	return &out
 }
 
 func (f *fakeAuthService) ResolveEmployeeLink(context.Context, uuid.UUID, string) (models.EmployeeLink, error) {
@@ -76,5 +97,46 @@ func TestMe_UnlinkedOrMasterDownReturnsNullsNotError(t *testing.T) {
 		if v, ok := data[k]; !ok || v != nil {
 			t.Fatalf("%s = %v, want null", k, v)
 		}
+	}
+}
+
+func TestMe_IncludesPermissionsForTokenRoles(t *testing.T) {
+	perms := map[string][]string{
+		"ADMIN":     {"export_system_logs", "view_system_logs"},
+		"EXECUTIVE": {"view_reports"},
+		"VIEWER":    {"view_reports"},
+	}
+	cases := []struct {
+		roles []string
+		want  []string
+	}{
+		{[]string{"ADMIN", "EXECUTIVE"}, []string{"export_system_logs", "view_system_logs", "view_reports"}},
+		{[]string{"VIEWER"}, []string{"view_reports"}},
+		{[]string{}, []string{}},
+	}
+	for _, tc := range cases {
+		svc := &fakeAuthService{roles: tc.roles, perms: perms}
+		data := meResponse(t, svc)
+		raw, ok := data["permissions"].([]interface{})
+		if !ok {
+			t.Fatalf("roles %v: permissions = %#v, want an array", tc.roles, data["permissions"])
+		}
+		got := make([]string, len(raw))
+		for i, v := range raw {
+			got[i], _ = v.(string)
+		}
+		if strings.Join(got, ",") != strings.Join(tc.want, ",") {
+			t.Fatalf("roles %v: permissions = %v, want %v", tc.roles, got, tc.want)
+		}
+		if strings.Join(svc.gotRoles, ",") != strings.Join(tc.roles, ",") {
+			t.Fatalf("looked up roles %v, want the token roles %v", svc.gotRoles, tc.roles)
+		}
+	}
+}
+
+func TestMe_PermissionLookupFailureOmitsField(t *testing.T) {
+	data := meResponse(t, &fakeAuthService{})
+	if v, ok := data["permissions"]; ok {
+		t.Fatalf("permissions = %v, want omitted", v)
 	}
 }

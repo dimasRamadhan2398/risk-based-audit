@@ -26,6 +26,7 @@ func (r *Registry) GetAuthService() authServices.AuthServiceInterface {
 		r.repository.GetUserRepository(),
 		r.repository.GetMFASetupRepository(),
 		r.repository.GetTrustedDeviceRepository(),
+		r.repository.GetPermissionRepository(),
 		r.repository.GetCacheRepository().GetClient(),
 		r.repository.GetConfig(),
 		r.repository.GetKafkaProducer(),
@@ -59,7 +60,7 @@ func (r *Registry) GetEmailService() emailServices.EmailServiceInterface {
 
 // GetMfaService implements IServiceRegistry.
 func (r *Registry) GetMfaService() mfaServices.MfaServiceInterface {
-	return mfaServices.NewMfaService(r.repository.GetMFASetupRepository(), r.repository.GetUserRepository(), r.repository.GetEventPublisher(), r.repository.GetCacheRepository().GetClient(), r.GetEmailService())
+	return mfaServices.NewMfaService(r.repository.GetMFASetupRepository(), r.repository.GetUserRepository(), r.repository.GetTrustedDeviceRepository(), r.repository.GetEventPublisher(), r.repository.GetCacheRepository().GetClient(), r.GetEmailService())
 }
 
 // GetUserService implements IServiceRegistry.

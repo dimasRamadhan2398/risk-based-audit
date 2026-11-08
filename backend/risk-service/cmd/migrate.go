@@ -104,9 +104,32 @@ func autoMigrate(db *gorm.DB) error {
 		return err
 	}
 
+	if err := prioritizeMediumUniverseYears(db); err != nil {
+		return err
+	}
+
 	// Migrations never delete data. The legacy dummy audit-universe cleanup is
 	// an explicit operator command (cleanup-dummy-universe), not a boot step.
 	return backfillAssessmentSnapshots(db)
+}
+
+// prioritizeMediumUniverseYears brings rows scored before "Medium" became an
+// audit priority level in line with models.ClassifyRiskIndex. Only the
+// audit_priority flag of "Medium" rows changes (index, level and scored_at are
+// untouched), and re-running is a no-op.
+func prioritizeMediumUniverseYears(db *gorm.DB) error {
+	if !db.Migrator().HasTable(&models.AuditUniverseYear{}) {
+		return nil
+	}
+	res := db.Exec(`UPDATE "audit_universe_years" SET "audit_priority" = ? WHERE "risk_level" = ? AND "audit_priority" = ?`,
+		true, models.RiskLevelMedium, false)
+	if res.Error != nil {
+		return fmt.Errorf("prioritize Medium audit_universe_years: %w", res.Error)
+	}
+	if res.RowsAffected > 0 {
+		log.Printf("marked %d Medium audit_universe_years rows as audit priority", res.RowsAffected)
+	}
+	return nil
 }
 
 // addAuditUniverseScoredAt adds audit_universe_years.scored_at and, in the same

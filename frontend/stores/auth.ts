@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import type { User, LoginCredentials, MFAVerifyPayload } from '~/types/auth'
 import { extractErrorMessage } from '~/utils/error'
 import { getAuthServiceBaseUrl } from '~/composables/useApiUrl'
+import { normalizeTrustedDevices, type TrustedDeviceView } from '~/utils/trustedDevices'
 
 interface AuthState {
   user: User | null
@@ -11,6 +12,8 @@ interface AuthState {
   mfaToken: string | null
   isNewDevice: boolean
   needsConfidentialityAgreement: boolean
+  /** Last GET /devices result, shared by Settings > Activity and the MFA form (which refreshes it) */
+  trustedDevices: TrustedDeviceView[]
   _initialized: boolean
   _profileHydrated: boolean
 }
@@ -31,6 +34,7 @@ export const useAuthStore = defineStore('auth', {
     mfaToken: null,
     isNewDevice: false,
     needsConfidentialityAgreement: false,
+    trustedDevices: [],
     _initialized: false,
     _profileHydrated: false,
   }),
@@ -143,7 +147,17 @@ export const useAuthStore = defineStore('auth', {
       }
       catch (error: any) {
         const msg = extractErrorMessage(error, 'MFA verification failed')
-        throw new Error(msg)
+        const err = new Error(msg) as any
+        err.status = error?.status ?? error?.statusCode ?? error?.response?.status
+        err.code = error?.data?.error?.code
+        // remaining_attempts / max_attempts / retry_after_seconds from auth-service
+        err.details = error?.data?.data ?? null
+        if (err.code === 'ACCOUNT_LOCKED') {
+          // auth-service has deleted the MFA token; a new sign-in is needed.
+          this.mfaRequired = false
+          this.mfaToken = null
+        }
+        throw err
       }
     },
 
@@ -375,6 +389,7 @@ export const useAuthStore = defineStore('auth', {
       this.mfaToken = null
       this.isNewDevice = false
       this.needsConfidentialityAgreement = false
+      this.trustedDevices = []
       this._profileHydrated = false
 
       const tokenCookie = useCookie('auth-token')
@@ -414,22 +429,16 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async fetchTrustedDevices() {
+    /**
+     * Load the trusted devices (GET /api/v1/devices) into `trustedDevices` and return them.
+     * Throws on failure (the list keeps its previous value) so the caller can show an error state.
+     * The api-auth plugin attaches the token.
+     */
+    async fetchTrustedDevices(): Promise<TrustedDeviceView[]> {
       if (!this.token) return []
-      const config = useRuntimeConfig()
-      try {
-        const response = await $fetch<any>(
-          `${getAuthServiceBaseUrl()}/devices`,
-          {
-            headers: { Authorization: `Bearer ${this.token}` },
-          },
-        )
-        return response.data ?? response
-      }
-      catch (error) {
-        console.error('Failed to fetch trusted devices:', error)
-        return []
-      }
+      const response = await $fetch<unknown>(`${getAuthServiceBaseUrl()}/devices`)
+      this.trustedDevices = normalizeTrustedDevices(response)
+      return this.trustedDevices
     },
 
     async unenrollDevice(deviceId: string) {

@@ -3,7 +3,7 @@
     <!-- No view_system_logs (backend 403) -->
     <UCard
       v-if="forbidden"
-      class="w-full"
+      class="w-full dark:bg-slate-900 dark:ring-slate-800"
     >
       <div class="flex flex-col items-center justify-center text-center py-10 px-4">
         <UIcon
@@ -21,7 +21,7 @@
 
     <UCard
       v-else
-      class="w-full"
+      class="w-full dark:bg-slate-900 dark:ring-slate-800"
       :ui="{ body: 'p-0 sm:p-0' }"
     >
       <template #header>
@@ -51,22 +51,12 @@
               role="status"
               aria-live="polite"
             >
-              <span class="relative flex h-2 w-2">
-                <span
-                  v-if="liveState === 'live'"
-                  class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"
-                />
-                <span
-                  class="relative inline-flex rounded-full h-2 w-2"
-                  :class="liveDotClass"
-                />
-              </span>
               <span>{{ liveLabel }}</span>
               <span
                 v-if="lastUpdated"
                 class="tabular-nums text-gray-500 dark:text-gray-400 hidden sm:inline"
               >
-                · {{ t('settings.systemLogs.updatedAt', { time: formatClock(lastUpdated) }) }}
+                {{ t('settings.systemLogs.updatedAt', { time: formatClock(lastUpdated) }) }}
               </span>
             </div>
             <UTooltip :text="paused ? t('settings.systemLogs.resume') : t('settings.systemLogs.pause')">
