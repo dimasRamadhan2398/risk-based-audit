@@ -23,7 +23,7 @@ import (
 // DB (REDIS_DB), like the other services. Every Redis failure falls back to
 // calling python-ai directly, so a Redis outage only costs speed.
 
-const cacheKeyPrefix = "analytics:v1:"
+const cacheKeyPrefix = "analytics:v2:"
 
 var errCacheMiss = errors.New("cache miss")
 
@@ -32,6 +32,7 @@ type kvStore interface {
 	Get(ctx context.Context, key string) ([]byte, error) // errCacheMiss when absent
 	Set(ctx context.Context, key string, val []byte, ttl time.Duration) error
 	SetNX(ctx context.Context, key string, ttl time.Duration) (bool, error)
+	Del(ctx context.Context, keys ...string) error
 }
 
 type redisStore struct{ client *redis.Client }
@@ -50,6 +51,10 @@ func (s redisStore) Set(ctx context.Context, key string, val []byte, ttl time.Du
 
 func (s redisStore) SetNX(ctx context.Context, key string, ttl time.Duration) (bool, error) {
 	return s.client.SetNX(ctx, key, time.Now().UTC().Format(time.RFC3339), ttl).Result()
+}
+
+func (s redisStore) Del(ctx context.Context, keys ...string) error {
+	return s.client.Del(ctx, keys...).Err()
 }
 
 type AnalyticsCache struct {
@@ -140,6 +145,32 @@ func (c *AnalyticsCache) AllowRetrain() bool {
 		return true
 	}
 	return ok
+}
+
+// Invalidate deletes a specific batch cache key.
+func (c *AnalyticsCache) Invalidate(name string) {
+	if c == nil || c.store == nil {
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	_ = c.store.Del(ctx, cacheKeyPrefix+"batch:"+name)
+}
+
+// InvalidateAll clears all cached batch responses and resets the auto-retrain throttle.
+func (c *AnalyticsCache) InvalidateAll() {
+	if c == nil || c.store == nil {
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	_ = c.store.Del(ctx,
+		cacheKeyPrefix+"batch:performance-trend",
+		cacheKeyPrefix+"batch:risk-score",
+		cacheKeyPrefix+"batch:anomaly",
+		cacheKeyPrefix+"batch:text-analysis",
+		cacheKeyPrefix+"retrain:auto:last",
+	)
 }
 
 func envDuration(key string, def time.Duration) time.Duration {

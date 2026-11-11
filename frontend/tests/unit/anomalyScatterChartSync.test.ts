@@ -12,6 +12,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 import { useAiAnalytics } from '~/composables/useAiAnalytics'
+import { useIsolationForestData } from '~/composables/useAnalyticsData'
 import {
   buildAnomalyScatterPoints,
   listAnomalyTypes,
@@ -124,9 +125,36 @@ describe('buildAnomalyScatterPoints', () => {
   })
 
   it('returns empty series for a type that has no data', () => {
-    const { normalPoints, anomalyPoints } = buildAnomalyScatterPoints(anomalies, scatterData, 'KYC')
+    const { normalPoints, anomalyPoints } = buildAnomalyScatterPoints(anomalies, scatterData, 'UnknownCategory')
     expect(normalPoints).toEqual([])
     expect(anomalyPoints).toEqual([])
+  })
+
+  it('does not generate synthetic normal baseline points when scatterData lacks normal points (leaves it empty)', () => {
+    const customAnomalies = [{ id: 'TXN-01', type: 'Transaction', xMetric: 450, amount: 450_000_000 }]
+    const { normalPoints, anomalyPoints } = buildAnomalyScatterPoints(customAnomalies, [], 'Transaction')
+    expect(anomalyPoints.length).toBe(1)
+    expect(normalPoints).toEqual([])
+  })
+
+  it('supports case-insensitive type matching (e.g. transaction vs Transaction)', () => {
+    const customAnomalies = [{ id: 'TXN-01', type: 'Transaction', xMetric: 200 }]
+    const customScatter = [{ x: 50, y: 15, type: 'transaction', isAnomaly: false }]
+    const { normalPoints, anomalyPoints } = buildAnomalyScatterPoints(customAnomalies, customScatter, 'transaction')
+    expect(anomalyPoints.length).toBe(1)
+    expect(normalPoints.length).toBe(1)
+  })
+
+  it('provides all 150 real anomaly records in useIsolationForestData covering all 6 banking categories', () => {
+    const { anomalies, summary } = useIsolationForestData()
+    expect(anomalies.length).toBe(150)
+    expect(summary.anomaliesFound).toBe(150)
+
+    const categories = ['Funding', 'Lending', 'Treasury', 'Payment', 'KYC', 'IT Control']
+    categories.forEach((cat) => {
+      const catCount = anomalies.filter((a: any) => a.type === cat).length
+      expect(catCount).toBe(25)
+    })
   })
 
   it('tolerates missing/empty inputs', () => {

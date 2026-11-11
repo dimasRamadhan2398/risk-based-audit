@@ -60,22 +60,22 @@ var DefaultCacheConfigs = map[string]CacheConfig{
 		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/anomaly/batch": {
-		MaxAge:   600,
+		MaxAge:   0,
 		IsPublic: false,
 		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/text-analysis": {
-		MaxAge:   300, // 5 minutes
+		MaxAge:   0,
 		IsPublic: false,
 		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"POST /api/analytics/text-analysis": {
-		MaxAge:   300,
+		MaxAge:   0,
 		IsPublic: false,
 		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/text-analysis/batch": {
-		MaxAge:   300,
+		MaxAge:   0,
 		IsPublic: false,
 		VaryBy:   "Accept-Encoding, Authorization",
 	},

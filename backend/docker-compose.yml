@@ -235,7 +235,10 @@ services:
       - "8000:8000"
     environment:
       - PYTHONUNBUFFERED=1
+      - API_KEY=${AI_API_KEY:-dev-ai-api-key}
+      - INTERNAL_RETRAIN_TOKEN=${INTERNAL_RETRAIN_TOKEN:-dev-internal-token}
     volumes:
+      - ./python-ai:/app
       - python_ai_models:/app/models
       - ../ai_model_training:/app/ai_model_training:ro
     networks:

@@ -46,6 +46,16 @@ func (f *fakeStore) SetNX(_ context.Context, key string, _ time.Duration) (bool,
 	return true, nil
 }
 
+func (f *fakeStore) Del(_ context.Context, keys ...string) error {
+	if f.failAll {
+		return errors.New("redis down")
+	}
+	for _, k := range keys {
+		delete(f.data, k)
+	}
+	return nil
+}
+
 func countingLoader(body string, err error) (func() ([]byte, error), *int) {
 	calls := 0
 	return func() ([]byte, error) {

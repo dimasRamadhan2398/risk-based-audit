@@ -4,6 +4,7 @@
  */
 
 import { RiskLevel } from '~/types/risk'
+import { BANK_ANOMALIES_SEED, BANK_SCATTER_SEED } from './bankAnomalyDataset'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -69,11 +70,18 @@ export interface AnomalySummary {
 export interface NLPDocumentResult {
   docId: string
   title: string
-  source: 'Working Paper' | 'Audit Result Report'
+  source: string
+  sourceType?: 'Imported Document' | 'Internal Note' | 'External Database' | string
+  fileName?: string
+  fileType?: string
+  extractionMethod?: string
   autoCategory: string
   confidence: number
   sentiment: 'Positive' | 'Neutral' | 'Negative'
   severityScore: number
+  controlIndicator?: string
+  extractedFinding?: string
+  extractedRecommendation?: string
   date: string
   excerpt: string
   riskLevel: RiskLevel
@@ -117,6 +125,38 @@ export interface AtRiskDepartment {
   riskLevel: RiskLevel
 }
 
+export interface AuditorKPIForecast {
+  code: string
+  kpiName: string
+  category: string
+  strategicObjective: string
+  hibHig: 'HIG' | 'HIB'
+  unit: string
+  targetHorizon: string
+  targetValue: number
+  currentValue: number
+  forecastedValue: number
+  achievementRate: number
+  forecastedAchievementRate: number
+  currentStatus: 'Good' | 'Moderate' | 'Poor'
+  predictedStatus: 'Good' | 'Moderate' | 'Poor'
+  trend: 'Improving' | 'Deteriorating' | 'Stable'
+  confidenceLower?: number
+  confidenceUpper?: number
+  aiNarrative?: string
+  recommendedAction?: string
+}
+
+export interface AuditorAtRiskPillar {
+  pillar: string
+  code: string
+  kpi: string
+  target: number
+  predicted: number
+  achievementRate: number
+  predictedStatus: 'Good' | 'Moderate' | 'Poor'
+}
+
 // ─── Data Generators ────────────────────────────────────────────────────────
 
 export function useXGBoostData() {
@@ -157,55 +197,14 @@ export function useXGBoostData() {
 }
 
 export function useIsolationForestData() {
-  const anomalies: AnomalyRecord[] = [
-    { id: 'BANK-TRX-0001', entity: 'Cabang Medan', type: 'IT Control', anomalyScore: -0.95, description: 'Aktivitas akses administratif basis data core banking pada dini hari (02:00) tanpa tiket Change Request', severity: 'Critical', date: '2026-06-01', amount: 0, isAnomaly: true, riskLevel: RiskLevel.HIGH, xMetric: 7 },
-    { id: 'BANK-TRX-0003', entity: 'Cabang Bali', type: 'Funding', anomalyScore: -0.91, description: 'Pemberian suku bunga deposito ekstrem (8.86%) di atas batas penjaminan LPS tanpa persetujuan ALCO', severity: 'Critical', date: '2026-06-01', amount: 21465500000, isAnomaly: true, riskLevel: RiskLevel.HIGH, xMetric: 21465.5 },
-    { id: 'BANK-TRX-0007', entity: 'Kantor Pusat', type: 'Lending', anomalyScore: -0.89, description: 'Pencairan kredit bernilai Rp 66.662 Juta dengan bunga murah ekstrem (4.18%) melanggar BMPK', severity: 'Critical', date: '2026-06-01', amount: 66662330000, isAnomaly: true, riskLevel: RiskLevel.HIGH, xMetric: 66662.33 },
-    { id: 'BANK-TRX-0009', entity: 'Cabang Jakarta', type: 'Treasury', anomalyScore: -0.84, description: 'Transaksi valas dealing room bernilai Rp 62.412 Juta di luar rentang kuotasi pasar resmi', severity: 'High', date: '2026-06-01', amount: 62412080000, isAnomaly: true, riskLevel: RiskLevel.MODERATE_HIGH, xMetric: 62412.08 },
-    { id: 'BANK-TRX-0014', entity: 'Cabang Surabaya', type: 'KYC', anomalyScore: -0.82, description: 'Profil transaksi nasabah high risk deviasi 123.5% dari profil historis tanpa pembaruan EDD', severity: 'High', date: '2026-06-01', amount: 0, isAnomaly: true, riskLevel: RiskLevel.MODERATE_HIGH, xMetric: 123.53 },
-    { id: 'BANK-TRX-0018', entity: 'Cabang Bandung', type: 'Payment', anomalyScore: -0.78, description: 'Transaksi pembayaran split-bill berulang dengan frekuensi tinggi mendekati batas threshold harian', severity: 'High', date: '2026-06-01', amount: 55950000, isAnomaly: true, riskLevel: RiskLevel.MODERATE_HIGH, xMetric: 55.95 },
-  ]
-
-  // Generate scatter plot data covering 6 bank categories
-  const scatterData: ScatterPoint[] = []
-  const bankCategories = ['Funding', 'Lending', 'Treasury', 'Payment', 'KYC', 'IT Control']
-
-  // Normal points for each category
-  bankCategories.forEach((cat) => {
-    for (let i = 0; i < 15; i++) {
-      let xVal = 0
-      if (cat === 'Funding') xVal = Math.round(Math.random() * 800 + 50)
-      else if (cat === 'Lending') xVal = Math.round(Math.random() * 3000 + 200)
-      else if (cat === 'Treasury') xVal = Math.round(Math.random() * 5000 + 500)
-      else if (cat === 'Payment') xVal = Math.round(Math.random() * 150 + 5)
-      else if (cat === 'KYC') xVal = Math.round(Math.random() * 25 + 1)
-      else xVal = Math.round(Math.random() * 3)
-
-      scatterData.push({
-        x: xVal,
-        y: Math.round(Math.random() * 25 + 10),
-        type: cat,
-        isAnomaly: false,
-        label: `NORM-${cat.substring(0, 3).toUpperCase()}-${i + 1}`
-      })
-    }
-  })
-
-  // Anomaly outlier points
-  scatterData.push(
-    { x: 21465.5, y: 55.0, type: 'Funding', isAnomaly: true, label: 'BANK-TRX-0003' },
-    { x: 66662.33, y: 58.0, type: 'Lending', isAnomaly: true, label: 'BANK-TRX-0007' },
-    { x: 62412.08, y: 52.0, type: 'Treasury', isAnomaly: true, label: 'BANK-TRX-0009' },
-    { x: 55.95, y: 48.0, type: 'Payment', isAnomaly: true, label: 'BANK-TRX-0018' },
-    { x: 123.53, y: 46.0, type: 'KYC', isAnomaly: true, label: 'BANK-TRX-0014' },
-    { x: 7.0, y: 50.0, type: 'IT Control', isAnomaly: true, label: 'BANK-TRX-0001' }
-  )
+  const anomalies: AnomalyRecord[] = [...BANK_ANOMALIES_SEED]
+  const scatterData: ScatterPoint[] = [...BANK_SCATTER_SEED]
 
   const summary: AnomalySummary = {
     totalScanned: 1200,
-    anomaliesFound: 150,
+    anomaliesFound: anomalies.length,
     contaminationRate: 0.125,
-    topCategory: 'Funding',
+    topCategory: 'IT Control',
   }
 
   return { anomalies, scatterData, summary }
@@ -213,35 +212,187 @@ export function useIsolationForestData() {
 
 export function useIndoBERTData() {
   const documents: NLPDocumentResult[] = [
-    { docId: 'WP-2026-041', title: 'Evaluasi Pengendalian Internal atas Pengelolaan Kas', source: 'Working Paper', autoCategory: 'Financial', confidence: 0.96, sentiment: 'Negative', severityScore: 82, date: '2026-05-28', excerpt: 'Ditemukan kelemahan signifikan dalam prosedur otorisasi pembayaran kas besar...', riskLevel: RiskLevel.HIGH },
-    { docId: 'ARR-2026-018', title: 'Laporan Hasil Audit Kepatuhan TI Cabang Jakarta', source: 'Audit Result Report', autoCategory: 'Technology', confidence: 0.93, sentiment: 'Negative', severityScore: 78, date: '2026-06-01', excerpt: 'Beberapa sistem kritis tidak memiliki prosedur backup yang memadai dan patch keamanan tertunda...', riskLevel: RiskLevel.MODERATE_HIGH },
-    { docId: 'WP-2026-042', title: 'Review Proses Pengadaan Barang dan Jasa', source: 'Working Paper', autoCategory: 'Operations', confidence: 0.91, sentiment: 'Neutral', severityScore: 65, date: '2026-05-20', excerpt: 'Proses tender telah mengikuti SOP namun ditemukan keterlambatan dalam evaluasi penawaran...', riskLevel: RiskLevel.MODERATE },
-    { docId: 'ARR-2026-019', title: 'Audit Kepatuhan Regulasi Anti Pencucian Uang', source: 'Audit Result Report', autoCategory: 'Compliance', confidence: 0.94, sentiment: 'Negative', severityScore: 88, date: '2026-05-15', excerpt: 'Prosedur KYC (Know Your Customer) belum sepenuhnya dilaksanakan untuk nasabah risiko tinggi...', riskLevel: RiskLevel.HIGH },
-    { docId: 'WP-2026-043', title: 'Pemeriksaan Efektivitas Program Pelatihan SDM', source: 'Working Paper', autoCategory: 'Human Resources', confidence: 0.88, sentiment: 'Positive', severityScore: 35, date: '2026-06-03', excerpt: 'Program pelatihan menunjukkan peningkatan kompetensi yang terukur berdasarkan pre-post assessment...', riskLevel: RiskLevel.LOW_MODERATE },
-    { docId: 'WP-2026-044', title: 'Evaluasi Tata Kelola Perusahaan (GCG)', source: 'Working Paper', autoCategory: 'Governance', confidence: 0.90, sentiment: 'Neutral', severityScore: 52, date: '2026-05-25', excerpt: 'Implementasi GCG secara umum telah berjalan baik, namun perlu penguatan fungsi whistle-blowing...', riskLevel: RiskLevel.MODERATE },
-    { docId: 'ARR-2026-020', title: 'Laporan Audit Operasional Cabang Surabaya', source: 'Audit Result Report', autoCategory: 'Operations', confidence: 0.87, sentiment: 'Neutral', severityScore: 58, date: '2026-06-05', excerpt: 'Operasional cabang berjalan sesuai target namun utilisasi aset masih di bawah standar optimal...', riskLevel: RiskLevel.MODERATE },
-    { docId: 'WP-2026-045', title: 'Analisis Risiko Kredit Portofolio Mikro', source: 'Working Paper', autoCategory: 'Financial', confidence: 0.95, sentiment: 'Negative', severityScore: 75, date: '2026-05-30', excerpt: 'NPL ratio untuk segmen mikro meningkat 2.3% YoY, mengindikasikan penurunan kualitas aset...', riskLevel: RiskLevel.MODERATE_HIGH },
-    { docId: 'ARR-2026-021', title: 'Audit Keamanan Siber dan Perlindungan Data', source: 'Audit Result Report', autoCategory: 'Technology', confidence: 0.92, sentiment: 'Negative', severityScore: 85, date: '2026-06-08', excerpt: 'Penetration testing mengungkapkan 3 kerentanan kritis yang belum diperbaiki sejak audit terakhir...', riskLevel: RiskLevel.HIGH },
-    { docId: 'WP-2026-046', title: 'Review Strategi Ekspansi Pasar Regional', source: 'Working Paper', autoCategory: 'Strategic', confidence: 0.86, sentiment: 'Positive', severityScore: 30, date: '2026-06-10', excerpt: 'Rencana ekspansi ke wilayah Kalimantan telah didukung studi kelayakan yang komprehensif...', riskLevel: RiskLevel.LOW },
+    {
+      docId: 'WP-2026-001',
+      title: 'Kertas Kerja Pemeriksaan Kas & Otorisasi Pembayaran Cabang Surabaya',
+      source: 'Working Paper',
+      sourceType: 'Imported Document',
+      fileName: 'KKP_Kas_Cabang_Surabaya_2026.pdf',
+      fileType: 'PDF',
+      extractionMethod: 'PDF Text & OCR Engine',
+      autoCategory: 'Financial',
+      confidence: 0.96,
+      sentiment: 'Negative',
+      severityScore: 91,
+      controlIndicator: 'Fraud Indication',
+      extractedFinding: 'Ditemukan 14 transaksi pembayaran vendor senilai Rp 1,85 Miliar yang dipecah (split transaction) untuk menghindari batas otorisasi Pimpinan Cabang dengan bukti penerimaan barang yang terindikasi fiktif.',
+      extractedRecommendation: 'Lakukan audit investigatif khusus atas 14 transaksi vendor tersebut, blokir sementara pembayaran ke rekening vendor terkait, dan terapkan validasi otomatis pendeteksi split invoice pada sistem ERP.',
+      date: '2026-06-15',
+      excerpt: 'Hasil ekstraksi KKP_Kas_Cabang_Surabaya_2026.pdf: Ditemukan 14 transaksi pembayaran vendor senilai Rp 1,85 Miliar yang dipecah (split transaction) untuk menghindari batas otorisasi Pimpinan Cabang dengan bukti penerimaan barang yang terindikasi fiktif.',
+      riskLevel: RiskLevel.HIGH
+    },
+    {
+      docId: 'LHA-2026-002',
+      title: 'Laporan Hasil Audit Keamanan Akses Core Banking & Server Database',
+      source: 'Audit Result Report',
+      sourceType: 'Imported Document',
+      fileName: 'LHA_IT_Security_CoreBanking_Q2.docx',
+      fileType: 'DOCX',
+      extractionMethod: 'OOXML Word Extractor',
+      autoCategory: 'Technology',
+      confidence: 0.95,
+      sentiment: 'Negative',
+      severityScore: 84,
+      controlIndicator: 'IT & Access Control Weakness',
+      extractedFinding: 'Terdapat 23 akun administrator database dan pegawai yang telah mutasi/resign masih berstatus aktif serta ditemukan penggunaan shared account pada server produksi tanpa pencatatan log individual.',
+      extractedRecommendation: 'Cabut segera hak akses 23 akun pegawai mutasi/resign, hapus penggunaan shared account pada server produksi, dan integrasikan proses offboarding HR dengan pencabutan akses otomatis (IAM).',
+      date: '2026-06-14',
+      excerpt: 'Hasil ekstraksi LHA_IT_Security_CoreBanking_Q2.docx: Terdapat 23 akun administrator database dan pegawai yang telah mutasi/resign masih berstatus aktif serta ditemukan penggunaan shared account pada server produksi.',
+      riskLevel: RiskLevel.HIGH
+    },
+    {
+      docId: 'EXT-DB-003',
+      title: 'Compliance Incident DB: Alert Transaksi Rekening Dormant & Eskalasi PPATK',
+      source: 'External DB: Compliance Incident Records',
+      sourceType: 'External Database',
+      fileName: 'compliance_incident_records.investigator_notes',
+      fileType: 'DB_RECORD',
+      extractionMethod: 'External Data Source Sync',
+      autoCategory: 'Compliance',
+      confidence: 0.95,
+      sentiment: 'Negative',
+      severityScore: 92,
+      controlIndicator: 'Fraud Indication',
+      extractedFinding: 'Terjadi perputaran dana mencurigakan (rapid turnover of funds) sebesar Rp 4,2 Miliar pada rekening korporasi dormant tanpa pembaruan dokumen Enhanced Due Diligence (EDD) dan berstatus ESCALATED_TO_PPATK.',
+      extractedRecommendation: 'Selesaikan pelaporan Laporan Transaksi Keuangan Mencurigakan (LTKM/STR) ke PPATK tepat waktu, lakukan pemblokiran sementara mutasi debit rekening dormant, dan wajibkan verifikasi ulang Beneficial Owner.',
+      date: '2026-06-13',
+      excerpt: 'Catatan Database Eksternal (compliance_incident_records.investigator_notes): Terjadi perputaran dana mencurigakan (rapid turnover of funds) sebesar Rp 4,2 Miliar pada rekening korporasi dormant tanpa pembaruan dokumen EDD.',
+      riskLevel: RiskLevel.HIGH
+    },
+    {
+      docId: 'EXT-DB-004',
+      title: 'External Audit Log DB: Override Otorisasi Jurnal Buku Besar Tanpa Dual Control',
+      source: 'External DB: User Access Audit Logs',
+      sourceType: 'External Database',
+      fileName: 'user_access_audit_logs.action_notes',
+      fileType: 'DB_RECORD',
+      extractionMethod: 'External Data Source Sync',
+      autoCategory: 'Financial',
+      confidence: 0.94,
+      sentiment: 'Negative',
+      severityScore: 85,
+      controlIndicator: 'Segregation of Duties (SoD) Violation',
+      extractedFinding: 'Pejabat yang sama menginisiasi sekaligus mengotorisasi penyesuaian jurnal buku besar (Same user initiated and authorized ledger adjustment) senilai Rp 890 Juta melalui jalur BRANCH_OVERRIDE.',
+      extractedRecommendation: 'Terapkan pemisahan fungsi (Maker-Checker) secara sistemik pada modul jurnal buku besar, nonaktifkan fitur self-approval pada parameter BRANCH_OVERRIDE, dan lakukan verifikasi bukti pendukung atas jurnal Rp 890 Juta.',
+      date: '2026-06-12',
+      excerpt: 'Catatan Database Eksternal (user_access_audit_logs & gl_transactions): Pejabat yang sama menginisiasi sekaligus mengotorisasi penyesuaian jurnal buku besar (SOD_VIOLATION) senilai Rp 890 Juta.',
+      riskLevel: RiskLevel.HIGH
+    },
+    {
+      docId: 'NOTE-FW-005',
+      title: 'Catatan Observasi Fieldwork: Pemeriksaan Fisik Persediaan & Kontrak Pengadaan Logistik',
+      source: 'Internal Note: Fieldwork Observation',
+      sourceType: 'Internal Note',
+      fileName: 'fieldwork_observations.notes',
+      fileType: 'NOTE',
+      extractionMethod: 'Internal Feature Note Sync',
+      autoCategory: 'Operational',
+      confidence: 0.92,
+      sentiment: 'Negative',
+      severityScore: 74,
+      controlIndicator: 'Internal Control Weakness',
+      extractedFinding: 'Terdapat keterlambatan pengiriman barang pengadaan logistik rata-rata 18 hari kerja di 4 kantor wilayah serta kartu stok gudang belum direkonsiliasi dengan pencatatan modul persediaan selama 2 kuartal.',
+      extractedRecommendation: 'Lakukan stock opname dan rekonsiliasi fisik persediaan setiap akhir bulan, serta kenakan klaim penalti keterlambatan (SLA) sesuai klausul kontrak kepada vendor logistik.',
+      date: '2026-06-10',
+      excerpt: 'Catatan Observasi Fieldwork: Terdapat keterlambatan pengiriman barang pengadaan logistik rata-rata 18 hari kerja di 4 kantor wilayah serta kartu stok gudang belum direkonsiliasi dengan modul persediaan.',
+      riskLevel: RiskLevel.MODERATE_HIGH
+    },
+    {
+      docId: 'PKPT-2026-006',
+      title: 'Evaluasi Matriks Pengendalian Risiko (RCM) & Kepatuhan Pelaporan OJK',
+      source: 'Annual Audit Plan',
+      sourceType: 'Imported Document',
+      fileName: 'Evaluasi_RCM_Kepatuhan_2026.xlsx',
+      fileType: 'XLSX',
+      extractionMethod: 'Spreadsheet Table Extractor',
+      autoCategory: 'Compliance',
+      confidence: 0.91,
+      sentiment: 'Neutral',
+      severityScore: 52,
+      controlIndicator: 'Compliance Deviation',
+      extractedFinding: 'Sebanyak 3 dari 28 kewajiban pelaporan berkala regulator memerlukan pembaruan format template sesuai SEOJK terbaru yang mulai berlaku pada Semester II.',
+      extractedRecommendation: 'Perbarui template otomasi pelaporan pada modul Compliance sebelum tenggat waktu Semester II dan lakukan uji coba validasi pelaporan bersama Divisi Kepatuhan.',
+      date: '2026-06-08',
+      excerpt: 'Hasil ekstraksi Evaluasi_RCM_Kepatuhan_2026.xlsx: Sebanyak 3 dari 28 kewajiban pelaporan berkala regulator memerlukan pembaruan format template sesuai SEOJK terbaru.',
+      riskLevel: RiskLevel.MODERATE
+    },
+    {
+      docId: 'QA-2026-007',
+      title: 'Laporan Quality Assurance (QAR) Pelaksanaan Standar Audit Internal',
+      source: 'Quality Assurance',
+      sourceType: 'Imported Document',
+      fileName: 'Laporan_QAR_Internal_Audit_2026.pdf',
+      fileType: 'PDF',
+      extractionMethod: 'PDF Text & OCR Engine',
+      autoCategory: 'Operational',
+      confidence: 0.94,
+      sentiment: 'Positive',
+      severityScore: 22,
+      controlIndicator: 'Adequate Control',
+      extractedFinding: 'Pelaksanaan supervisi berjenjang dan dokumentasi kertas kerja audit pada 94% penugasan telah memadai dan berjalan efektif sesuai Standar Internasional Praktik Profesional Audit Internal.',
+      extractedRecommendation: 'Pertahankan standar reviu berjenjang kertas kerja audit dan lanjutkan program sertifikasi berkelanjutan bagi seluruh auditor.',
+      date: '2026-06-05',
+      excerpt: 'Hasil ekstraksi Laporan_QAR_Internal_Audit_2026.pdf: Pelaksanaan supervisi berjenjang dan dokumentasi kertas kerja audit pada 94% penugasan telah memadai dan berjalan efektif sesuai standar.',
+      riskLevel: RiskLevel.LOW
+    }
   ]
 
   const sentimentDistribution: SentimentDistribution = {
-    positive: 2,
-    neutral: 3,
+    positive: 1,
+    neutral: 1,
     negative: 5,
   }
 
-  const categoryDistribution = {
-    'Financial': 3,
-    'Technology': 2,
-    'Operations': 2,
-    'Compliance': 1,
-    'Human Resources': 1,
-    'Governance': 1,
-    'Strategic': 1,
+  const categoryDistribution: Record<string, number> = {
+    'Financial': 2,
+    'Operational': 2,
+    'Compliance': 2,
+    'Technology': 1,
   }
 
-  return { documents, sentimentDistribution, categoryDistribution }
+  const controlIndicatorDistribution: Record<string, number> = {
+    'Fraud Indication': 2,
+    'Internal Control Weakness': 1,
+    'Segregation of Duties (SoD) Violation': 1,
+    'IT & Access Control Weakness': 1,
+    'Compliance Deviation': 1,
+    'Adequate Control': 1,
+  }
+
+  const sourceTypeDistribution: Record<string, number> = {
+    'Imported Document': 4,
+    'Internal Note': 1,
+    'External Database': 2,
+  }
+
+  const taxonomy = {
+    risk_categories: [
+      { name: 'Financial', is_default: true },
+      { name: 'Operational', is_default: true },
+      { name: 'Compliance', is_default: true },
+      { name: 'Technology', is_default: true }
+    ],
+    control_indicators: [
+      { name: 'Fraud Indication', is_default: true },
+      { name: 'Internal Control Weakness', is_default: true },
+      { name: 'Segregation of Duties (SoD) Violation', is_default: true },
+      { name: 'IT & Access Control Weakness', is_default: true },
+      { name: 'Compliance Deviation', is_default: true },
+      { name: 'Adequate Control', is_default: true }
+    ]
+  }
+
+  return { documents, sentimentDistribution, categoryDistribution, controlIndicatorDistribution, sourceTypeDistribution, taxonomy }
 }
 
 export function useTimeSeriesData() {
@@ -278,7 +429,309 @@ export function useTimeSeriesData() {
     r2Score: 0.923,
   }
 
-  return { historicalKPI, kpiForecasts, atRiskDepartments, forecastAccuracy }
+  const initialAuditorKPIs: AuditorKPIForecast[] = [
+    {
+      code: 'SO-IA01',
+      kpiName: 'Presentase Penyelesaian PKAT (Annual Audit Plan)',
+      category: 'Pelaksanaan Audit & PKAT',
+      strategicObjective: 'Pelaksanaan Audit & PKAT',
+      hibHig: 'HIG',
+      unit: '%',
+      targetHorizon: 'Akhir Tahun 2026',
+      targetValue: 100.0,
+      currentValue: 85.0,
+      forecastedValue: 82.4,
+      achievementRate: 85.0,
+      forecastedAchievementRate: 82.4,
+      currentStatus: 'Moderate',
+      predictedStatus: 'Moderate',
+      trend: 'Deteriorating',
+      confidenceLower: 78.5,
+      confidenceUpper: 86.0,
+      aiNarrative: 'Dengan kecepatan saat ini, diprediksi audit plan hanya selesai 82.4% di akhir tahun. Diperlukan akselerasi pada pilar Pelaksanaan Audit & PKAT.',
+      recommendedAction: 'Akselerasi penerbitan surat tugas audit dan tingkatkan otomatisasi pengujian substantif dengan CAATT.'
+    },
+    {
+      code: 'SO-IA02',
+      kpiName: 'Ketepatan Waktu Penerbitan LHA',
+      category: 'Kualitas & Pelaporan Audit',
+      strategicObjective: 'Kualitas & Pelaporan Audit',
+      hibHig: 'HIG',
+      unit: '%',
+      targetHorizon: 'Akhir Tahun 2026',
+      targetValue: 90.0,
+      currentValue: 88.0,
+      forecastedValue: 91.5,
+      achievementRate: 97.8,
+      forecastedAchievementRate: 101.7,
+      currentStatus: 'Moderate',
+      predictedStatus: 'Good',
+      trend: 'Improving',
+      confidenceLower: 88.0,
+      confidenceUpper: 94.5,
+      aiNarrative: 'Dengan kecepatan saat ini, target Ketepatan Waktu Penerbitan LHA diproyeksikan tercapai sangat baik (101.7%, Good) di akhir tahun.',
+      recommendedAction: 'Pertahankan efisiensi reviu berjenjang laporan hasil audit.'
+    },
+    {
+      code: 'SO-IA03',
+      kpiName: 'Tindak Lanjut Temuan Audit Selesai',
+      category: 'Monitoring & Tindak Lanjut',
+      strategicObjective: 'Monitoring & Tindak Lanjut',
+      hibHig: 'HIG',
+      unit: '%',
+      targetHorizon: 'Akhir Tahun 2026',
+      targetValue: 85.0,
+      currentValue: 72.0,
+      forecastedValue: 68.5,
+      achievementRate: 84.7,
+      forecastedAchievementRate: 80.6,
+      currentStatus: 'Moderate',
+      predictedStatus: 'Moderate',
+      trend: 'Deteriorating',
+      confidenceLower: 65.0,
+      confidenceUpper: 72.0,
+      aiNarrative: 'Dengan kecepatan saat ini, diprediksi target Tindak Lanjut Temuan Audit Selesai tercapai 80.6% (Moderate) di akhir tahun.',
+      recommendedAction: 'Eskalasi komitmen auditee kepada Direksi untuk percepatan penyelesaian komitmen perbaikan jatuh tempo.'
+    },
+    {
+      code: 'SO-IA04',
+      kpiName: 'Utilisasi Jam Kerja Audit Efektif',
+      category: 'Efisiensi Sumber Daya & Operasional',
+      strategicObjective: 'Efisiensi Sumber Daya & Operasional',
+      hibHig: 'HIG',
+      unit: '%',
+      targetHorizon: 'Akhir Tahun 2026',
+      targetValue: 80.0,
+      currentValue: 82.5,
+      forecastedValue: 84.0,
+      achievementRate: 103.1,
+      forecastedAchievementRate: 105.0,
+      currentStatus: 'Good',
+      predictedStatus: 'Good',
+      trend: 'Improving',
+      confidenceLower: 81.0,
+      confidenceUpper: 87.0,
+      aiNarrative: 'Dengan kecepatan saat ini, target Utilisasi Jam Kerja Audit Efektif diproyeksikan tercapai sangat baik (105.0%, Good) di akhir tahun.',
+      recommendedAction: 'Pertahankan alokasi jam kerja audit langsung di atas 80% per auditor per tahun.'
+    },
+    {
+      code: 'SO-IA05',
+      kpiName: 'Rata-rata Hari Penyelesaian Fieldwork',
+      category: 'Pelaksanaan Audit & PKAT',
+      strategicObjective: 'Pelaksanaan Audit & PKAT',
+      hibHig: 'HIB',
+      unit: 'Hari',
+      targetHorizon: 'Akhir Tahun 2026',
+      targetValue: 15.0,
+      currentValue: 16.5,
+      forecastedValue: 17.8,
+      achievementRate: 90.9,
+      forecastedAchievementRate: 84.3,
+      currentStatus: 'Moderate',
+      predictedStatus: 'Moderate',
+      trend: 'Deteriorating',
+      confidenceLower: 16.0,
+      confidenceUpper: 19.5,
+      aiNarrative: 'Dengan kecepatan saat ini, diprediksi rata-rata fieldwork membutuhkan 17.8 hari (ketercapaian target 84.3%, Moderate).',
+      recommendedAction: 'Optimalkan preliminary survey dan perjelas batasan audit scope sebelum fieldwork dimulai.'
+    },
+    {
+      code: 'SO-IA06',
+      kpiName: 'Cakupan Audit Berbasis Risiko (RBIA Coverage)',
+      category: 'Tata Kelola Perusahaan & GCG',
+      strategicObjective: 'Tata Kelola Perusahaan & GCG',
+      hibHig: 'HIG',
+      unit: '%',
+      targetHorizon: 'Akhir Tahun 2026',
+      targetValue: 100.0,
+      currentValue: 95.0,
+      forecastedValue: 96.0,
+      achievementRate: 95.0,
+      forecastedAchievementRate: 96.0,
+      currentStatus: 'Moderate',
+      predictedStatus: 'Moderate',
+      trend: 'Improving',
+      confidenceLower: 93.0,
+      confidenceUpper: 98.0,
+      aiNarrative: 'Dengan kecepatan saat ini, target Cakupan Audit Berbasis Risiko diproyeksikan tercapai 96.0% (Moderate) di akhir tahun.',
+      recommendedAction: 'Prioritaskan audit entitas auditee berkategori risiko High dan Critical.'
+    },
+    {
+      code: 'SO-IA07',
+      kpiName: 'Indeks Kepuasan Auditee (CSAT Audit)',
+      category: 'Kualitas & Pelaporan Audit',
+      strategicObjective: 'Kualitas & Pelaporan Audit',
+      hibHig: 'HIG',
+      unit: 'Score',
+      targetHorizon: 'Akhir Tahun 2026',
+      targetValue: 85.0,
+      currentValue: 86.5,
+      forecastedValue: 87.2,
+      achievementRate: 101.8,
+      forecastedAchievementRate: 102.6,
+      currentStatus: 'Good',
+      predictedStatus: 'Good',
+      trend: 'Improving',
+      confidenceLower: 84.5,
+      confidenceUpper: 89.5,
+      aiNarrative: 'Dengan kecepatan saat ini, target Indeks Kepuasan Auditee diproyeksikan tercapai sangat baik (102.6%, Good) di akhir tahun.',
+      recommendedAction: 'Tingkatkan diskusi rekomendasi bernilai tambah (value-added audit findings).'
+    },
+    {
+      code: 'SO-IA08',
+      kpiName: 'Rasio Temuan Berulang (Repeat Findings)',
+      category: 'Monitoring & Tindak Lanjut',
+      strategicObjective: 'Monitoring & Tindak Lanjut',
+      hibHig: 'HIB',
+      unit: '%',
+      targetHorizon: 'Akhir Tahun 2026',
+      targetValue: 5.0,
+      currentValue: 6.8,
+      forecastedValue: 7.5,
+      achievementRate: 73.5,
+      forecastedAchievementRate: 66.7,
+      currentStatus: 'Moderate',
+      predictedStatus: 'Poor',
+      trend: 'Deteriorating',
+      confidenceLower: 6.8,
+      confidenceUpper: 8.5,
+      aiNarrative: 'Dengan kecepatan saat ini, diprediksi target Rasio Temuan Berulang hanya tercapai 66.7% (Poor) di akhir tahun.',
+      recommendedAction: 'Lakukan root-cause analysis mendalam dan reviu pengendalian internal preventif di unit bersangkutan.'
+    },
+    {
+      code: 'SO-IA09',
+      kpiName: 'Keikutsertaan Pelatihan & Sertifikasi Auditor',
+      category: 'Pengembangan Kompetensi SDM',
+      strategicObjective: 'Pengembangan Kompetensi SDM',
+      hibHig: 'HIG',
+      unit: 'Jam',
+      targetHorizon: 'Akhir Tahun 2026',
+      targetValue: 40.0,
+      currentValue: 42.0,
+      forecastedValue: 45.0,
+      achievementRate: 105.0,
+      forecastedAchievementRate: 112.5,
+      currentStatus: 'Good',
+      predictedStatus: 'Good',
+      trend: 'Improving',
+      confidenceLower: 42.0,
+      confidenceUpper: 48.0,
+      aiNarrative: 'Dengan kecepatan saat ini, target Pelatihan & Sertifikasi Auditor diproyeksikan tercapai sangat baik (112.5%, Good) di akhir tahun.',
+      recommendedAction: 'Fasilitasi sertifikasi profesi CIA/CISA/CRMA bagi auditor senior.'
+    },
+    {
+      code: 'SO-IA10',
+      kpiName: 'Implementasi Continuous Auditing & CAATT',
+      category: 'Teknologi & Otomasi Audit',
+      strategicObjective: 'Teknologi & Otomasi Audit',
+      hibHig: 'HIG',
+      unit: '%',
+      targetHorizon: 'Akhir Tahun 2026',
+      targetValue: 75.0,
+      currentValue: 70.0,
+      forecastedValue: 78.0,
+      achievementRate: 93.3,
+      forecastedAchievementRate: 104.0,
+      currentStatus: 'Moderate',
+      predictedStatus: 'Good',
+      trend: 'Improving',
+      confidenceLower: 73.0,
+      confidenceUpper: 82.0,
+      aiNarrative: 'Dengan kecepatan saat ini, target Implementasi Continuous Auditing diproyeksikan tercapai sangat baik (104.0%, Good) di akhir tahun.',
+      recommendedAction: 'Perluas script audit terotomasi pada data transaksi pinjaman dan operasional cabang.'
+    },
+    {
+      code: 'SO-IA11',
+      kpiName: 'Validitas Temuan Deviasi Material & Fraud',
+      category: 'Tata Kelola Perusahaan & GCG',
+      strategicObjective: 'Tata Kelola Perusahaan & GCG',
+      hibHig: 'HIG',
+      unit: '%',
+      targetHorizon: 'Akhir Tahun 2026',
+      targetValue: 100.0,
+      currentValue: 100.0,
+      forecastedValue: 100.0,
+      achievementRate: 100.0,
+      forecastedAchievementRate: 100.0,
+      currentStatus: 'Good',
+      predictedStatus: 'Good',
+      trend: 'Stable',
+      confidenceLower: 98.0,
+      confidenceUpper: 100.0,
+      aiNarrative: 'Dengan kecepatan saat ini, target Validitas Temuan Fraud diproyeksikan tercapai 100.0% (Good) di akhir tahun.',
+      recommendedAction: 'Pertahankan standar bukti audit forensik dan kecukupan dokumen pembuktian.'
+    },
+    {
+      code: 'SO-IA12',
+      kpiName: 'Kepatuhan terhadap Standar Profesi (QAR Internal)',
+      category: 'Kualitas & Pelaporan Audit',
+      strategicObjective: 'Kualitas & Pelaporan Audit',
+      hibHig: 'HIG',
+      unit: '%',
+      targetHorizon: 'Akhir Tahun 2026',
+      targetValue: 95.0,
+      currentValue: 92.0,
+      forecastedValue: 90.5,
+      achievementRate: 96.8,
+      forecastedAchievementRate: 95.3,
+      currentStatus: 'Moderate',
+      predictedStatus: 'Moderate',
+      trend: 'Deteriorating',
+      confidenceLower: 87.0,
+      confidenceUpper: 93.5,
+      aiNarrative: 'Dengan kecepatan saat ini, target Kepatuhan Standar Profesi diproyeksikan tercapai 95.3% (Moderate) di akhir tahun.',
+      recommendedAction: 'Tingkatkan pelaksanaan Quality Assurance and Improvement Program (QAIP) berkala.'
+    }
+  ]
+
+  const initialAuditorTimeSeries: TimeSeriesPoint[] = [
+    { period: 'Q1 2025', actual: 88.5, forecast: 88.5, upperBound: 91.0, lowerBound: 86.0 },
+    { period: 'Q2 2025', actual: 90.2, forecast: 90.2, upperBound: 93.0, lowerBound: 87.5 },
+    { period: 'Q3 2025', actual: 89.0, forecast: 89.0, upperBound: 92.0, lowerBound: 86.0 },
+    { period: 'Q4 2025', actual: 91.8, forecast: 91.8, upperBound: 94.5, lowerBound: 89.0 },
+    { period: 'Q1 2026 (Pred)', actual: null, forecast: 86.4, upperBound: 89.5, lowerBound: 83.0 },
+    { period: 'Akhir Tahun 2026 (Pred)', actual: null, forecast: 82.4, upperBound: 86.0, lowerBound: 78.5 }
+  ]
+
+  const initialAuditorAtRiskPillars: AuditorAtRiskPillar[] = [
+    {
+      pillar: 'Pelaksanaan Audit & PKAT',
+      code: 'SO-IA01',
+      kpi: 'Presentase Penyelesaian PKAT (Annual Audit Plan)',
+      target: 100.0,
+      predicted: 82.4,
+      achievementRate: 82.4,
+      predictedStatus: 'Moderate'
+    },
+    {
+      pillar: 'Monitoring & Tindak Lanjut',
+      code: 'SO-IA08',
+      kpi: 'Rasio Temuan Berulang (Repeat Findings)',
+      target: 5.0,
+      predicted: 7.5,
+      achievementRate: 66.7,
+      predictedStatus: 'Poor'
+    },
+    {
+      pillar: 'Pelaksanaan Audit & PKAT',
+      code: 'SO-IA05',
+      kpi: 'Rata-rata Hari Penyelesaian Fieldwork',
+      target: 15.0,
+      predicted: 17.8,
+      achievementRate: 84.3,
+      predictedStatus: 'Moderate'
+    }
+  ]
+
+  return {
+    historicalKPI,
+    kpiForecasts,
+    atRiskDepartments,
+    forecastAccuracy,
+    auditorKPIForecasts: initialAuditorKPIs,
+    auditorTimeSeries: initialAuditorTimeSeries,
+    auditorAtRiskPillars: initialAuditorAtRiskPillars
+  }
 }
 
 // ─── Summary Stats ──────────────────────────────────────────────────────────

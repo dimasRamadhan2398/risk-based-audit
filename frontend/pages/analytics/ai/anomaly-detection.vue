@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watchEffect, onMounted } from 'vue'
+import { ref, computed, watch, watchEffect, onMounted, nextTick } from 'vue'
 import { Scatter } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -12,7 +12,10 @@ import { useAiAnalytics } from '~/composables/useAiAnalytics'
 import {
   buildAnomalyScatterPoints,
   createAnomalyTypeConfigs,
+  getAnomalyTypeConfig,
   listAnomalyTypes,
+  isCategoryMatching,
+  getCanonicalCategory,
   type AnomalyTypeConfig
 } from '~/composables/useAnomalyScatter'
 import { useI18n } from '~/composables/useI18n'
@@ -37,6 +40,17 @@ onMounted(() => {
 const anomalyTypeConfigs = computed<Record<string, AnomalyTypeConfig>>(() => createAnomalyTypeConfigs(t))
 
 const selectedAnomalyType = ref('Funding')
+const categorySearch = ref('')
+
+// Interactive point-to-table marker highlighting
+const highlightedAnomalyId = ref<string | null>(null)
+const highlightedPointInfo = ref<{
+  id: string
+  entity: string
+  type: string
+  metric: string
+  riskLevel: string
+} | null>(null)
 
 const availableAnomalyTypes = computed(() =>
   listAnomalyTypes(
@@ -46,13 +60,68 @@ const availableAnomalyTypes = computed(() =>
   )
 )
 
+const filteredAvailableAnomalyTypes = computed(() => {
+  if (!categorySearch.value.trim()) return availableAnomalyTypes.value
+  const q = categorySearch.value.toLowerCase().trim()
+  return availableAnomalyTypes.value.filter(cat => cat.toLowerCase().includes(q))
+})
+
 const tableCategoryFilter = ref('All')
+const tableSearch = ref('')
+const currentPage = ref(1)
+const pageSize = ref(10)
+const pageSizeSelectItems = [
+  { label: '10', value: 10 },
+  { label: '25', value: 25 },
+  { label: '50', value: 50 },
+  { label: '100', value: 100 },
+  { label: 'All', value: 999999 }
+]
 
 const filteredTableAnomalies = computed(() => {
-  if (tableCategoryFilter.value === 'All') {
-    return isolationState.value.anomalies
+  let list = isolationState.value.anomalies || []
+  if (tableCategoryFilter.value !== 'All') {
+    list = list.filter((a: any) => isCategoryMatching(a.type, tableCategoryFilter.value))
   }
-  return isolationState.value.anomalies.filter((a: any) => a.type === tableCategoryFilter.value)
+  if (tableSearch.value.trim()) {
+    const q = tableSearch.value.toLowerCase().trim()
+    list = list.filter((a: any) =>
+      (a.id && String(a.id).toLowerCase().includes(q)) ||
+      (a.entity && String(a.entity).toLowerCase().includes(q)) ||
+      (a.type && String(a.type).toLowerCase().includes(q)) ||
+      (a.description && String(a.description).toLowerCase().includes(q))
+    )
+  }
+  return list
+})
+
+const totalAnomalies = computed(() => filteredTableAnomalies.value.length)
+const totalPages = computed(() => Math.ceil(totalAnomalies.value / pageSize.value) || 1)
+
+const paginatedAnomalies = computed(() => {
+  if (pageSize.value >= 999999) return filteredTableAnomalies.value
+  const start = (currentPage.value - 1) * pageSize.value
+  return filteredTableAnomalies.value.slice(start, start + pageSize.value)
+})
+
+const fromEntry = computed(() => (totalAnomalies.value === 0 ? 0 : (currentPage.value - 1) * pageSize.value + 1))
+const toEntry = computed(() => Math.min(currentPage.value * pageSize.value, totalAnomalies.value))
+
+watch([tableSearch, pageSize], () => {
+  currentPage.value = 1
+})
+
+watch(tableCategoryFilter, (newCat) => {
+  currentPage.value = 1
+  if (newCat && newCat !== 'All' && availableAnomalyTypes.value.includes(newCat)) {
+    selectedAnomalyType.value = newCat
+  }
+})
+
+watch(selectedAnomalyType, (newType) => {
+  if (newType && tableCategoryFilter.value !== 'All' && tableCategoryFilter.value !== newType) {
+    tableCategoryFilter.value = newType
+  }
 })
 
 const getCategoryBadgeColor = (type: string) => {
@@ -69,7 +138,12 @@ const getCategoryBadgeColor = (type: string) => {
     case 'Travel Expense': return 'success'
     case 'Inventory': return 'neutral'
     case 'Fieldwork': return 'secondary'
-    default: return 'neutral'
+    default: {
+      const badgeColors = ['primary', 'secondary', 'success', 'warning', 'error', 'info']
+      let hash = 0
+      for (let i = 0; i < (type || '').length; i++) hash = (hash << 5) - hash + type.charCodeAt(i)
+      return badgeColors[Math.abs(hash) % badgeColors.length] as any
+    }
   }
 }
 
@@ -82,6 +156,88 @@ watchEffect(() => {
   }
 })
 
+const formatMetricDisplay = (a: any): string => {
+  const type = a.type || selectedAnomalyType.value
+  const config = anomalyTypeConfigs.value[type] || getAnomalyTypeConfig(t, type)
+  const val = a.xMetric ?? (a.amount ? a.amount / 1000000 : 0)
+  return config.formatX ? config.formatX(val) : `${val} ${config.unit || ''}`
+}
+
+const selectAnomalyFromPlot = (id: string, type?: string) => {
+  highlightedAnomalyId.value = id
+  if (type && availableAnomalyTypes.value.includes(type)) {
+    selectedAnomalyType.value = type
+  }
+  if (type && tableCategoryFilter.value !== 'All' && tableCategoryFilter.value !== type) {
+    tableCategoryFilter.value = type
+  }
+
+  const allAnoms = isolationState.value.anomalies || []
+  const found = allAnoms.find((a: any) => a.id === id)
+  if (found) {
+    highlightedPointInfo.value = {
+      id: found.id,
+      entity: found.entity || found.accountNumber || 'Kantor Pusat / GL',
+      type: found.type,
+      metric: formatMetricDisplay(found),
+      riskLevel: found.riskLevel || 'High'
+    }
+
+    // Adjust page if necessary
+    const filteredList = filteredTableAnomalies.value
+    const idx = filteredList.findIndex((a: any) => a.id === id)
+    if (idx >= 0 && pageSize.value < 999999) {
+      currentPage.value = Math.floor(idx / pageSize.value) + 1
+    }
+  }
+
+  nextTick(() => {
+    const el = document.getElementById(`anomaly-row-${id}`)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  })
+}
+
+const focusOnPlot = (a: any) => {
+  highlightedAnomalyId.value = a.id
+  if (a.type && availableAnomalyTypes.value.includes(a.type)) {
+    selectedAnomalyType.value = a.type
+  }
+  highlightedPointInfo.value = {
+    id: a.id,
+    entity: a.entity || a.accountNumber || 'Kantor Pusat / GL',
+    type: a.type,
+    metric: formatMetricDisplay(a),
+    riskLevel: a.riskLevel || 'High'
+  }
+  nextTick(() => {
+    const el = document.getElementById('anomaly-scatter-chart-card')
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  })
+}
+
+const scrollToTableRow = (id: string) => {
+  const filteredList = filteredTableAnomalies.value
+  const idx = filteredList.findIndex((a: any) => a.id === id)
+  if (idx >= 0 && pageSize.value < 999999) {
+    currentPage.value = Math.floor(idx / pageSize.value) + 1
+  }
+  nextTick(() => {
+    const el = document.getElementById(`anomaly-row-${id}`)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  })
+}
+
+const clearHighlight = () => {
+  highlightedAnomalyId.value = null
+  highlightedPointInfo.value = null
+}
+
 const getScatterChartForType = (typeFilter: string) => {
   const { normalPoints, anomalyPoints } = buildAnomalyScatterPoints(
     isolationState.value.anomalies,
@@ -89,14 +245,16 @@ const getScatterChartForType = (typeFilter: string) => {
     typeFilter
   )
 
-  const defaultConfig: AnomalyTypeConfig = {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.fundingXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.fundingUnit'),
-    formatX: (val) => `Rp ${val}M`,
-    colors: { bg: 'rgba(16,185,129,0.85)', border: 'rgba(16,185,129,1)', style: 'circle' }
-  }
-  const config = anomalyTypeConfigs.value[typeFilter] || anomalyTypeConfigs.value['Funding'] || defaultConfig
+  const config = anomalyTypeConfigs.value[typeFilter] || getAnomalyTypeConfig(t, typeFilter)
   const colors = config.colors
+
+  const categoryAnomalies = (isolationState.value.anomalies || []).filter(
+    (a: any) => isCategoryMatching(a.type, typeFilter)
+  )
+  const isSelected = (idx: number) => {
+    const anom = categoryAnomalies[idx]
+    return !!(anom && highlightedAnomalyId.value && anom.id === highlightedAnomalyId.value)
+  }
 
   return {
     datasets: [
@@ -104,15 +262,18 @@ const getScatterChartForType = (typeFilter: string) => {
         label: t('analytics.isolation.labelNormalData', { type: typeFilter }),
         data: normalPoints,
         backgroundColor: 'rgba(59,130,246,0.3)',
-        borderColor: 'rgba(59,130,246,0.5)',
+        borderColor: 'rgba(59,130,246,0.6)',
         pointRadius: 4,
+        pointHoverRadius: 6,
       },
       {
         label: t('analytics.isolation.labelAnomalies', { type: typeFilter }),
         data: anomalyPoints,
-        backgroundColor: colors.bg,
-        borderColor: colors.border,
-        pointRadius: 8,
+        backgroundColor: anomalyPoints.map((_, idx) => isSelected(idx) ? '#FF0055' : colors.bg),
+        borderColor: anomalyPoints.map((_, idx) => isSelected(idx) ? '#E11D48' : colors.border),
+        pointRadius: anomalyPoints.map((_, idx) => isSelected(idx) ? 14 : 7),
+        pointHoverRadius: 13,
+        pointBorderWidth: anomalyPoints.map((_, idx) => isSelected(idx) ? 4 : 1.5),
         pointStyle: colors.style,
       }
     ]
@@ -122,23 +283,60 @@ const getScatterChartForType = (typeFilter: string) => {
 const scatterChartData = computed(() => getScatterChartForType(selectedAnomalyType.value))
 
 const scatterOptions = computed(() => {
-  const currentConfig = anomalyTypeConfigs.value[selectedAnomalyType.value] || {
-    xAxisTitle: 'Metrik Anomali (Nilai / Score)',
-    unit: 'Value',
-    formatX: (val: number) => `${val}`
-  }
+  const currentConfig = anomalyTypeConfigs.value[selectedAnomalyType.value] || getAnomalyTypeConfig(t, selectedAnomalyType.value)
 
   return {
     responsive: true,
     maintainAspectRatio: false,
+    onClick: (_event: any, elements: any[]) => {
+      if (!elements || elements.length === 0) return
+      const firstElem = elements[0]
+      if (firstElem.datasetIndex === 1) {
+        const categoryAnomalies = (isolationState.value.anomalies || []).filter(
+          (a: any) => isCategoryMatching(a.type, selectedAnomalyType.value)
+        )
+        const anom = categoryAnomalies[firstElem.index]
+        if (anom && anom.id) {
+          selectAnomalyFromPlot(anom.id, anom.type || selectedAnomalyType.value)
+        }
+      }
+    },
     plugins: {
       legend: { position: 'top' as const },
       tooltip: {
         callbacks: {
+          title: (items: any[]) => {
+            const item = items[0]
+            if (item && item.datasetIndex === 1) {
+              const categoryAnomalies = (isolationState.value.anomalies || []).filter(
+                (a: any) => isCategoryMatching(a.type, selectedAnomalyType.value)
+              )
+              const anom = categoryAnomalies[item.dataIndex]
+              if (anom) return `[${anom.id}] ${anom.entity || ''}`
+            }
+            return item?.dataset?.label || ''
+          },
           label: (ctx: any) => {
             const formattedX = currentConfig.formatX ? currentConfig.formatX(ctx.parsed.x) : `${ctx.parsed.x}`
-            const metricName = currentConfig.xAxisTitle.split(' (')[0]
-            return `${metricName}: ${formattedX}, ${t('analytics.isolation.axisFrequency')}: ${ctx.parsed.y}`
+            const metricName = currentConfig.xAxisTitle ? currentConfig.xAxisTitle.split(' (')[0] : selectedAnomalyType.value
+            if (ctx.datasetIndex === 1) {
+              const categoryAnomalies = (isolationState.value.anomalies || []).filter(
+                (a: any) => isCategoryMatching(a.type, selectedAnomalyType.value)
+              )
+              const anom = categoryAnomalies[ctx.dataIndex]
+              return [
+                `Kategori: ${anom?.type || selectedAnomalyType.value}`,
+                `Metrik (${metricName}): ${formattedX}`,
+                `${t('analytics.isolation.axisFrequency')}: ${ctx.parsed.y}`,
+                `Tingkat Risiko: ${anom?.riskLevel || 'High'}`,
+                `👉 Klik titik ini untuk menyorot di Tabel`
+              ]
+            }
+            return [
+              `Data Normal (Baseline Real)`,
+              `Metrik (${metricName}): ${formattedX}`,
+              `${t('analytics.isolation.axisFrequency')}: ${ctx.parsed.y}`
+            ]
           }
         }
       }
@@ -207,48 +405,109 @@ const scatterOptions = computed(() => {
       </div>
 
       <!-- Scatter Chart Card with Type Filter Tabs -->
-      <UCard>
+      <UCard id="anomaly-scatter-chart-card">
         <template #header>
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-2">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            <div class="flex items-center gap-2 shrink-0">
               <UIcon name="i-heroicons-chart-bar" class="text-blue-500" />
               <h3 class="font-bold">{{ t('analytics.isolation.chartTitle') }}</h3>
             </div>
-            <!-- Anomaly Type Selector Buttons -->
-            <div class="flex flex-wrap gap-1">
-              <UButton
-                v-for="at in availableAnomalyTypes"
-                :key="at"
-                :color="selectedAnomalyType === at ? 'primary' : 'neutral'"
-                :variant="selectedAnomalyType === at ? 'solid' : 'ghost'"
-                size="md"
-                @click="() => { selectedAnomalyType = at; tableCategoryFilter = at; }"
-              >
-                {{ at }}
-              </UButton>
+            <!-- Anomaly Type Selector with Search and Scroll -->
+            <div class="flex items-center gap-2 overflow-hidden max-w-full">
+              <div class="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full scrollbar-thin">
+                <UButton
+                  v-for="at in filteredAvailableAnomalyTypes"
+                  :key="at"
+                  :color="selectedAnomalyType === at ? 'primary' : 'neutral'"
+                  :variant="selectedAnomalyType === at ? 'solid' : 'ghost'"
+                  size="xs"
+                  class="whitespace-nowrap shrink-0"
+                  @click="() => { selectedAnomalyType = at; tableCategoryFilter = at; }"
+                >
+                  {{ at }}
+                </UButton>
+              </div>
             </div>
           </div>
         </template>
+
+        <!-- Interactive Selection Marker Pill / Banner -->
+        <div
+          v-if="highlightedPointInfo"
+          class="mb-3 flex flex-wrap items-center justify-between gap-2 px-3 py-2 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 rounded-lg text-xs"
+        >
+          <div class="flex flex-wrap items-center gap-2">
+            <UIcon name="i-heroicons-cursor-arrow-rays" class="w-4 h-4 text-rose-500 animate-pulse shrink-0" />
+            <span class="font-bold text-rose-700 dark:text-rose-300">
+              {{ t('analytics.isolation.selectedPointBanner') }}: {{ highlightedPointInfo.id }}
+            </span>
+            <span class="text-gray-400">|</span>
+            <span class="text-gray-700 dark:text-gray-200 font-semibold">{{ highlightedPointInfo.entity }}</span>
+            <span class="text-gray-400">|</span>
+            <span class="text-rose-600 dark:text-rose-400 font-mono font-medium">{{ highlightedPointInfo.metric }}</span>
+            <UBadge :color="getCategoryBadgeColor(highlightedPointInfo.type)" variant="subtle" size="xs">
+              {{ highlightedPointInfo.type }}
+            </UBadge>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <UButton
+              size="xs"
+              color="error"
+              variant="soft"
+              icon="i-heroicons-arrow-down-circle"
+              @click="scrollToTableRow(highlightedPointInfo.id)"
+            >
+              {{ t('analytics.isolation.viewInTable') }}
+            </UButton>
+            <UButton
+              size="xs"
+              color="neutral"
+              variant="ghost"
+              icon="i-heroicons-x-mark"
+              @click="clearHighlight"
+            >
+              {{ t('analytics.isolation.clearSelection') }}
+            </UButton>
+          </div>
+        </div>
+
         <div class="h-80">
-          <Scatter :data="scatterChartData" :options="scatterOptions" />
+          <Scatter
+            :key="'scatter-chart-' + selectedAnomalyType + '-' + (highlightedAnomalyId || 'none')"
+            :data="scatterChartData"
+            :options="scatterOptions"
+          />
         </div>
       </UCard>
 
       <!-- Anomalies Table -->
       <UCard class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 divide-gray-200 dark:divide-gray-800">
         <template #header>
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-2">
-              <UIcon name="i-heroicons-table-cells" class="text-rose-500" />
-              <h3 class="font-bold">{{ t('analytics.isolation.tableTitle') }}</h3>
+          <div class="flex flex-col gap-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-2">
+                <UIcon name="i-heroicons-table-cells" class="text-rose-500" />
+                <h3 class="font-bold">{{ t('analytics.isolation.tableTitle') }}</h3>
+              </div>
+              <!-- Table Search Box -->
+              <div class="w-full sm:w-72">
+                <UInput
+                  v-model="tableSearch"
+                  icon="i-heroicons-magnifying-glass"
+                  :placeholder="t('analytics.isolation.searchAnomalies')"
+                  size="sm"
+                  class="w-full"
+                />
+              </div>
             </div>
-            <!-- Filter Kategori Tabel -->
-            <div class="flex flex-wrap items-center gap-1.5">
-              <span class="text-xs text-gray-400 font-medium mr-1">{{ t('analytics.anomalyFilter') }}</span>
+            <!-- Filter Kategori Tabel (Scrollable Horizontal Pill Bar) -->
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full scrollbar-thin">
+              <span class="text-xs text-gray-400 font-medium mr-1 shrink-0">{{ t('analytics.anomalyFilter') }}</span>
               <UButton
                 size="xs"
                 :color="tableCategoryFilter === 'All' ? 'primary' : 'neutral'"
                 :variant="tableCategoryFilter === 'All' ? 'solid' : 'ghost'"
+                class="whitespace-nowrap shrink-0"
                 @click="() => { tableCategoryFilter = 'All' }"
               >
                 {{ t('analytics.all') }} ({{ isolationState.anomalies.length }})
@@ -259,7 +518,8 @@ const scatterOptions = computed(() => {
                 size="xs"
                 :color="tableCategoryFilter === cat ? 'primary' : 'neutral'"
                 :variant="tableCategoryFilter === cat ? 'solid' : 'ghost'"
-                @click="() => { tableCategoryFilter = cat }"
+                class="whitespace-nowrap shrink-0"
+                @click="() => { tableCategoryFilter = cat; selectedAnomalyType = cat; }"
               >
                 {{ cat }} ({{ isolationState.anomalies.filter((a: any) => a.type === cat).length }})
               </UButton>
@@ -276,16 +536,46 @@ const scatterOptions = computed(() => {
                 <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400 min-w-[300px]">{{ t('analytics.isolation.colDescription') }}</th>
                 <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.colRiskLevel') }}</th>
                 <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.colDate') }}</th>
+                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.colAction') }}</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="a in filteredTableAnomalies" :key="a.id" class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                <td class="py-3 px-3 font-mono font-bold text-md">{{ a.id }}</td>
-                <td class="py-3 px-3 font-bold">{{ a.entity }}</td>
+              <tr v-if="paginatedAnomalies.length === 0">
+                <td colspan="7" class="py-8 text-center text-gray-400 italic">
+                  {{ t('analytics.isolation.noAnomaliesFound') }}
+                </td>
+              </tr>
+              <tr
+                v-for="a in paginatedAnomalies"
+                :id="'anomaly-row-' + a.id"
+                :key="a.id"
+                :class="[
+                  'border-b border-gray-100 dark:border-gray-800 transition-all duration-300 cursor-pointer',
+                  highlightedAnomalyId === a.id
+                    ? 'ring-2 ring-rose-500 bg-rose-50/90 dark:bg-rose-950/50 shadow-md font-semibold'
+                    : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                ]"
+                @click="focusOnPlot(a)"
+              >
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-mono font-bold text-md">{{ a.id }}</span>
+                    <UBadge
+                      v-if="highlightedAnomalyId === a.id"
+                      color="error"
+                      variant="solid"
+                      size="xs"
+                      class="animate-pulse shrink-0"
+                    >
+                      🎯 {{ t('analytics.isolation.selectedOnPlot') }}
+                    </UBadge>
+                  </div>
+                </td>
+                <td class="py-3 px-3 font-bold">{{ a.entity || a.accountNumber || a.refNumber || 'Kantor Pusat / GL' }}</td>
                 <td class="py-3 px-3">
                   <UBadge :color="getCategoryBadgeColor(a.type)" variant="subtle" size="md">{{ a.type }}</UBadge>
                 </td>
-                <td class="py-3 px-3 text-md leading-relaxed text-gray-600 dark:text-gray-300">{{ a.description }}</td>
+                <td class="py-3 px-3 text-md leading-relaxed text-gray-600 dark:text-gray-300">{{ a.description || a.reason || a.notes || 'Transaksi Anomali' }}</td>
                 <td class="text-center py-3 px-3">
                   <UBadge
                     :class="getRiskConfig(a.riskLevel).badgeClass"
@@ -296,11 +586,54 @@ const scatterOptions = computed(() => {
                     {{ getRiskConfig(a.riskLevel).label }}
                   </UBadge>
                 </td>
-                <td class="text-center py-3 px-3 text-md text-gray-400">{{ a.date }}</td>
+                <td class="text-center py-3 px-3 text-md text-gray-400">{{ a.date || (a.timestamp ? a.timestamp.slice(0, 10) : '2026-06-01') }}</td>
+                <td class="text-center py-3 px-3">
+                  <UButton
+                    size="xs"
+                    :color="highlightedAnomalyId === a.id ? 'error' : 'neutral'"
+                    :variant="highlightedAnomalyId === a.id ? 'solid' : 'ghost'"
+                    icon="i-heroicons-arrow-trending-up"
+                    class="whitespace-nowrap"
+                    @click.stop="focusOnPlot(a)"
+                  >
+                    {{ t('analytics.isolation.viewOnPlot') }}
+                  </UButton>
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
+        <!-- Table Pagination Footer -->
+        <template #footer>
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-2 py-1 text-xs text-gray-500">
+            <div>
+              {{ t('analytics.isolation.showingEntries', { from: fromEntry, to: toEntry, total: totalAnomalies }) }}
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+              <div class="flex items-center gap-1.5">
+                <span>{{ t('analytics.isolation.rowsPerPage') }}</span>
+                <USelect
+                  v-model="pageSize"
+                  :items="pageSizeSelectItems"
+                  size="xs"
+                  class="w-20"
+                />
+              </div>
+              <UPagination
+                v-if="totalPages > 1"
+                v-model:page="currentPage"
+                :items-per-page="pageSize"
+                :total="totalAnomalies"
+                :show-controls="true"
+                :show-edges="true"
+                size="xs"
+                active-color="primary"
+                color="neutral"
+                variant="outline"
+              />
+            </div>
+          </div>
+        </template>
       </UCard>
     </div>
   </div>

@@ -29,7 +29,8 @@ type TableDataMapping struct {
 	AuditField      string   `json:"auditField"`   // mapped field (e.g. "transaction_amount", "user_id")
 	SyncInterval    string   `json:"syncInterval"` // "Hourly", "Real-time", "Daily"
 	AnomalyRules    []string `json:"anomalyRules,omitempty"` // e.g. ["Threshold Breach (>100M)", "Weekend Transaction"]
-	IsActive        bool     `json:"isActive"`
+	SoftDeleteColumn string   `json:"softDeleteColumn,omitempty"`
+	IsActive         bool     `json:"isActive"`
 }
 
 type DataSourceConnection struct {

@@ -11,7 +11,212 @@ import {
   type KPIForecast
 } from '~/composables/useAnalyticsData'
 import { normalizeRiskLevel, getRiskLevelColorClass } from '~/utils/riskLevelBadge'
-import { getAnalyticsServiceBaseUrl, getPythonAiBaseUrl } from '~/composables/useApiUrl'
+import { getAnalyticsServiceBaseUrl, getPythonAiBaseUrl, getAuditServiceBaseUrl } from '~/composables/useApiUrl'
+import { getCanonicalCategory } from '~/composables/useAnomalyScatter'
+
+const CUSTOM_ANOMALIES_KEY = 'auditsphere_custom_anomaly_records_v1'
+const CUSTOM_SCATTER_KEY = 'auditsphere_custom_scatter_records_v1'
+const CUSTOM_NLP_DOCS_KEY = 'auditsphere_custom_nlp_docs_v3'
+const CUSTOM_NLP_TAXONOMY_KEY = 'auditsphere_custom_nlp_taxonomy_v2'
+
+export const getPersistedCustomAnomalies = (): any[] => {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = localStorage.getItem(CUSTOM_ANOMALIES_KEY)
+    const list = raw ? JSON.parse(raw) : []
+    return Array.isArray(list) ? list.map(a => ({
+      ...a,
+      type: getCanonicalCategory(a.type),
+      category: getCanonicalCategory(a.category || a.type)
+    })) : []
+  } catch {
+    return []
+  }
+}
+
+export const getPersistedCustomScatter = (): any[] => {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = localStorage.getItem(CUSTOM_SCATTER_KEY)
+    const list = raw ? JSON.parse(raw) : []
+    return Array.isArray(list) ? list.map(s => ({
+      ...s,
+      type: getCanonicalCategory(s.type)
+    })) : []
+  } catch {
+    return []
+  }
+}
+
+export const getPersistedCustomNlpDocs = (): any[] => {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = localStorage.getItem(CUSTOM_NLP_DOCS_KEY)
+    const list = raw ? JSON.parse(raw) : []
+    return Array.isArray(list) ? list : []
+  } catch {
+    return []
+  }
+}
+
+export const savePersistedCustomNlpDoc = (doc: any) => {
+  if (typeof window === 'undefined' || !doc) return
+  try {
+    const current = getPersistedCustomNlpDocs()
+    const targetId = doc.docId
+    const existsIdx = current.findIndex(d => d.docId === targetId)
+    if (existsIdx >= 0) {
+      current[existsIdx] = doc
+    } else {
+      current.unshift(doc)
+    }
+    localStorage.setItem(CUSTOM_NLP_DOCS_KEY, JSON.stringify(current))
+  } catch (e) {
+    console.warn('Failed to save persisted custom NLP doc', e)
+  }
+}
+
+export const deletePersistedCustomNlpDoc = (docId: string) => {
+  if (typeof window === 'undefined') return
+  try {
+    const current = getPersistedCustomNlpDocs().filter(d => d.docId !== docId)
+    localStorage.setItem(CUSTOM_NLP_DOCS_KEY, JSON.stringify(current))
+  } catch (e) {
+    console.warn('Failed to delete persisted custom NLP doc', e)
+  }
+}
+
+export const clearAllPersistedCustomNlpDocs = () => {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.removeItem(CUSTOM_NLP_DOCS_KEY)
+  } catch (e) {
+    console.warn('Failed to clear persisted custom NLP docs', e)
+  }
+}
+
+export const getPersistedCustomNlpTaxonomy = (): { risk_categories: any[], control_indicators: any[] } => {
+  if (typeof window === 'undefined') return { risk_categories: [], control_indicators: [] }
+  try {
+    const raw = localStorage.getItem(CUSTOM_NLP_TAXONOMY_KEY)
+    const parsed = raw ? JSON.parse(raw) : null
+    if (parsed && typeof parsed === 'object') {
+      return {
+        risk_categories: Array.isArray(parsed.risk_categories) ? parsed.risk_categories : [],
+        control_indicators: Array.isArray(parsed.control_indicators) ? parsed.control_indicators : []
+      }
+    }
+    return { risk_categories: [], control_indicators: [] }
+  } catch {
+    return { risk_categories: [], control_indicators: [] }
+  }
+}
+
+export const mergeNlpTaxonomy = (baseTax: any = {}, customTax: any = {}): { risk_categories: any[], control_indicators: any[] } => {
+  const baseCats = Array.isArray(baseTax?.risk_categories) ? baseTax.risk_categories : []
+  const customCats = Array.isArray(customTax?.risk_categories) ? customTax.risk_categories : []
+  const catMap = new Map<string, any>()
+  baseCats.forEach((c: any) => {
+    const name = (c.name || c).toLowerCase()
+    catMap.set(name, typeof c === 'string' ? { name: c, is_default: true } : c)
+  })
+  customCats.forEach((c: any) => {
+    const name = (c.name || c).toLowerCase()
+    catMap.set(name, typeof c === 'string' ? { name: c, is_default: false } : c)
+  })
+
+  const baseInds = Array.isArray(baseTax?.control_indicators) ? baseTax.control_indicators : []
+  const customInds = Array.isArray(customTax?.control_indicators) ? customTax.control_indicators : []
+  const indMap = new Map<string, any>()
+  baseInds.forEach((i: any) => {
+    const name = (i.name || i).toLowerCase()
+    indMap.set(name, typeof i === 'string' ? { name: i, is_default: true } : i)
+  })
+  customInds.forEach((i: any) => {
+    const name = (i.name || i).toLowerCase()
+    indMap.set(name, typeof i === 'string' ? { name: i, is_default: false } : i)
+  })
+
+  return {
+    risk_categories: Array.from(catMap.values()),
+    control_indicators: Array.from(indMap.values())
+  }
+}
+
+export const savePersistedCustomNlpTaxonomy = (taxonomy: any) => {
+  if (typeof window === 'undefined' || !taxonomy) return
+  try {
+    const current = getPersistedCustomNlpTaxonomy()
+    const merged = mergeNlpTaxonomy(taxonomy, current)
+    localStorage.setItem(CUSTOM_NLP_TAXONOMY_KEY, JSON.stringify(merged))
+  } catch (e) {
+    console.warn('Failed to save persisted custom NLP taxonomy', e)
+  }
+}
+
+export const mergeNlpDocuments = (baseDocs: any[] = [], customDocs: any[] = []): any[] => {
+  const customIds = new Set(customDocs.map(c => c.docId))
+  const filteredBase = (baseDocs || []).filter(b => !customIds.has(b.docId))
+  return [...customDocs, ...filteredBase]
+}
+
+export const savePersistedCustomAnomaly = (anom: any, scatter?: any) => {
+  if (typeof window === 'undefined') return
+  try {
+    const normalizedAnom = {
+      ...anom,
+      type: getCanonicalCategory(anom.type),
+      category: getCanonicalCategory(anom.category || anom.type)
+    }
+    const current = getPersistedCustomAnomalies()
+    const existsIdx = current.findIndex(a => a.id === normalizedAnom.id)
+    if (existsIdx >= 0) {
+      current[existsIdx] = normalizedAnom
+    } else {
+      current.unshift(normalizedAnom)
+    }
+    localStorage.setItem(CUSTOM_ANOMALIES_KEY, JSON.stringify(current))
+
+    if (scatter) {
+      const normalizedScatter = {
+        ...scatter,
+        type: getCanonicalCategory(scatter.type)
+      }
+      const currentScatter = getPersistedCustomScatter()
+      const sIdx = currentScatter.findIndex(s => s.label === normalizedScatter.label)
+      if (sIdx >= 0) {
+        currentScatter[sIdx] = normalizedScatter
+      } else {
+        currentScatter.push(normalizedScatter)
+      }
+      localStorage.setItem(CUSTOM_SCATTER_KEY, JSON.stringify(currentScatter))
+    }
+  } catch (e) {
+    console.warn('Failed to save persisted custom anomaly', e)
+  }
+}
+
+export const savePersistedCustomScatterBatch = (points: any[]) => {
+  if (typeof window === 'undefined' || !Array.isArray(points) || points.length === 0) return
+  try {
+    const currentScatter = getPersistedCustomScatter()
+    for (const rawPt of points) {
+      const pt = {
+        ...rawPt,
+        type: getCanonicalCategory(rawPt.type)
+      }
+      const sIdx = currentScatter.findIndex(s => s.label === pt.label)
+      if (sIdx >= 0) {
+        currentScatter[sIdx] = pt
+      } else {
+        currentScatter.push(pt)
+      }
+    }
+    localStorage.setItem(CUSTOM_SCATTER_KEY, JSON.stringify(currentScatter))
+  } catch (e) {
+    console.warn('Failed to save persisted custom scatter batch', e)
+  }
+}
 
 // Module-level singletons so all AI Insight sub-pages share data & connection status
 const initialXGB = useXGBoostData()
@@ -27,6 +232,14 @@ const usingCachedRealData = ref(false)
 const lastSyncedTime = ref<string | null>(null)
 const hasFetchedOnce = ref(false)
 
+const initialCustomAnoms = typeof window !== 'undefined' ? getPersistedCustomAnomalies() : []
+const initialCustomScatter = typeof window !== 'undefined' ? getPersistedCustomScatter() : []
+const initialCustomDocs = typeof window !== 'undefined' ? getPersistedCustomNlpDocs() : []
+const initialCustomTax = typeof window !== 'undefined' ? getPersistedCustomNlpTaxonomy() : { risk_categories: [], control_indicators: [] }
+
+const mergedInitialDocs = mergeNlpDocuments(initialNLP.documents, initialCustomDocs)
+const mergedInitialTax = mergeNlpTaxonomy((initialNLP as any).taxonomy || { risk_categories: [], control_indicators: [] }, initialCustomTax)
+
 const xgboostState = ref<any>({
   predictions: [...initialXGB.predictions],
   featureImportance: [...initialXGB.featureImportance],
@@ -34,25 +247,99 @@ const xgboostState = ref<any>({
 })
 
 const isolationState = ref<any>({
-  anomalies: [...initialIso.anomalies],
-  scatterData: [...initialIso.scatterData],
+  anomalies: [...initialCustomAnoms, ...initialIso.anomalies],
+  scatterData: [...initialCustomScatter, ...initialIso.scatterData],
   summary: { ...initialIso.summary }
 })
 
 const nlpState = ref<any>({
-  documents: [...initialNLP.documents],
+  documents: mergedInitialDocs,
   categoryDistribution: { ...initialNLP.categoryDistribution },
-  sentimentDistribution: { ...initialNLP.sentimentDistribution }
+  sentimentDistribution: { ...initialNLP.sentimentDistribution },
+  controlIndicatorDistribution: { ...((initialNLP as any).controlIndicatorDistribution || {}) },
+  sourceTypeDistribution: { ...((initialNLP as any).sourceTypeDistribution || {}) },
+  taxonomy: mergedInitialTax
 })
+
+export const recalculateNlpDistributions = () => {
+  const docs = nlpState.value.documents || []
+  const taxCats = (nlpState.value.taxonomy?.risk_categories || []).map((c: any) => c.name || c)
+  const baseCats = taxCats.length > 0 ? taxCats : ['Financial', 'Operational', 'Compliance', 'Technology']
+  const catDist: Record<string, number> = {}
+  baseCats.forEach((c: string) => { catDist[c] = 0 })
+
+  const sentDist = { positive: 0, neutral: 0, negative: 0 }
+  const indDist: Record<string, number> = {}
+  const srcDist: Record<string, number> = {
+    'Imported Document': 0,
+    'Internal Note': 0,
+    'External Database': 0
+  }
+
+  docs.forEach((d: any) => {
+    const cat = d.autoCategory || d.risk_category || 'Operational'
+    catDist[cat] = (catDist[cat] || 0) + 1
+
+    const s = String(d.sentiment || 'Neutral').toLowerCase()
+    if (s === 'positive') sentDist.positive++
+    else if (s === 'negative') sentDist.negative++
+    else sentDist.neutral++
+
+    const ind = d.controlIndicator || d.control_indicator || 'Internal Control Weakness'
+    indDist[ind] = (indDist[ind] || 0) + 1
+
+    const st = d.sourceType || 'Imported Document'
+    srcDist[st] = (srcDist[st] || 0) + 1
+  })
+
+  nlpState.value.categoryDistribution = catDist
+  nlpState.value.sentimentDistribution = sentDist
+  nlpState.value.controlIndicatorDistribution = indDist
+  nlpState.value.sourceTypeDistribution = srcDist
+}
+
+if (initialCustomDocs.length > 0 || initialCustomTax.risk_categories.length > 0 || initialCustomTax.control_indicators.length > 0) {
+  recalculateNlpDistributions()
+}
 
 const timeseriesState = ref<any>({
   historicalKPI: [...initialTS.historicalKPI],
   kpiForecasts: [...initialTS.kpiForecasts],
   atRiskDepartments: [...initialTS.atRiskDepartments],
-  forecastAccuracy: { ...initialTS.forecastAccuracy }
+  forecastAccuracy: { ...initialTS.forecastAccuracy },
+  auditorForecast: {
+    kpiForecasts: [...initialTS.auditorKPIForecasts],
+    atRiskPillars: [...initialTS.auditorAtRiskPillars],
+    timeSeriesData: [...initialTS.auditorTimeSeries],
+    executiveSummary: 'Dengan kecepatan saat ini, diprediksi audit plan hanya selesai 82.4% di akhir tahun. Diperlukan akselerasi pada pilar Pelaksanaan Audit & PKAT dan Investigasi Khusus.'
+  },
+  auditeeForecast: {
+    kpiForecasts: [...initialTS.kpiForecasts],
+    atRiskDepartments: [...initialTS.atRiskDepartments],
+    timeSeriesData: [...initialTS.historicalKPI],
+    executiveSummary: 'Diprediksi Cabang Surabaya akan mengalami lonjakan NPL dalam 2 kuartal ke depan akibat kenaikan rasio kredit berisiko. Diperlukan pemantauan kredit macet dan pengetatan threshold Continuous Auditing.'
+  }
 })
 
-const CACHE_KEY = 'auditsphere_real_analytics_cache_v6'
+const CACHE_KEY = 'auditsphere_real_analytics_cache_v12'
+
+const clearLegacyAnalyticsCaches = () => {
+  if (typeof window === 'undefined') return
+  const legacyKeys = [
+    'auditsphere_real_analytics_cache_v11',
+    'auditsphere_real_analytics_cache_v10',
+    'auditsphere_real_analytics_cache_v9',
+    'auditsphere_real_analytics_cache_v8',
+    'auditsphere_real_analytics_cache_v6',
+    'auditsphere_real_analytics_cache_v5',
+    'auditsphere_real_analytics_cache_v4',
+    'auditsphere_real_analytics_cache_v3',
+    'auditsphere_real_analytics_cache',
+    'auditsphere_custom_nlp_docs_v2',
+    'auditsphere_custom_nlp_docs_v1'
+  ]
+  legacyKeys.forEach(k => localStorage.removeItem(k))
+}
 
 const saveRealCache = () => {
   if (typeof window === 'undefined') return
@@ -66,10 +353,7 @@ const saveRealCache = () => {
       timeseries: timeseriesState.value
     }
     localStorage.setItem(CACHE_KEY, JSON.stringify(cacheObj))
-    localStorage.removeItem('auditsphere_real_analytics_cache_v5')
-    localStorage.removeItem('auditsphere_real_analytics_cache_v4')
-    localStorage.removeItem('auditsphere_real_analytics_cache_v3')
-    localStorage.removeItem('auditsphere_real_analytics_cache')
+    clearLegacyAnalyticsCaches()
     lastSyncedTime.value = timeStr
   } catch (e) {
     console.warn('Failed to save real analytics cache', e)
@@ -79,26 +363,77 @@ const saveRealCache = () => {
 const loadRealCache = (): boolean => {
   if (typeof window === 'undefined') return false
   try {
-    localStorage.removeItem('auditsphere_real_analytics_cache_v5')
-    localStorage.removeItem('auditsphere_real_analytics_cache_v4')
-    localStorage.removeItem('auditsphere_real_analytics_cache_v3')
-    localStorage.removeItem('auditsphere_real_analytics_cache')
+    clearLegacyAnalyticsCaches()
 
     const raw = localStorage.getItem(CACHE_KEY)
     if (!raw) return false
     const parsed = JSON.parse(raw)
 
     const bankCats = ['Funding', 'Lending', 'Treasury', 'Payment', 'KYC', 'IT Control']
-    const hasBank = parsed.isolation?.anomalies?.some((a: any) => bankCats.includes(a.type))
-    if (!hasBank) {
+    const anomList = parsed.isolation?.anomalies || []
+    // Verify that the cached isolation has all 150 anomalies and covers all 6 banking categories (at least 20 per category)
+    const hasAllBank = bankCats.every((cat) => anomList.filter((a: any) => a.type === cat).length >= 20)
+    if (!hasAllBank || anomList.length < 150) {
       localStorage.removeItem(CACHE_KEY)
+      // Restore from full 150 seed dataset
+      const freshIso = useIsolationForestData()
+      isolationState.value = {
+        anomalies: [...freshIso.anomalies],
+        scatterData: [...freshIso.scatterData],
+        summary: { ...freshIso.summary }
+      }
       return false
     }
 
     if (parsed.xgboost) xgboostState.value = parsed.xgboost
     if (parsed.isolation) isolationState.value = parsed.isolation
-    if (parsed.nlp) nlpState.value = parsed.nlp
-    if (parsed.timeseries) timeseriesState.value = parsed.timeseries
+
+    // Merge persisted custom anomalies so they are never lost
+    const customAnoms = getPersistedCustomAnomalies()
+    if (customAnoms.length > 0) {
+      const existingIds = new Set((isolationState.value.anomalies || []).map((a: any) => a.id))
+      customAnoms.forEach((ca: any) => {
+        if (!existingIds.has(ca.id)) {
+          isolationState.value.anomalies.unshift(ca)
+          existingIds.add(ca.id)
+        }
+      })
+    }
+    const customScatter = getPersistedCustomScatter()
+    if (customScatter.length > 0) {
+      const existingScatterLabels = new Set((isolationState.value.scatterData || []).map((s: any) => s.label || `${s.x}_${s.y}`))
+      customScatter.forEach((cs: any) => {
+        const key = cs.label || `${cs.x}_${cs.y}`
+        if (!existingScatterLabels.has(key)) {
+          isolationState.value.scatterData.push(cs)
+          existingScatterLabels.add(key)
+        }
+      })
+    }
+    if (parsed.nlp) {
+      const customDocs = getPersistedCustomNlpDocs()
+      const customTax = getPersistedCustomNlpTaxonomy()
+      nlpState.value = {
+        ...parsed.nlp,
+        documents: mergeNlpDocuments(parsed.nlp.documents || [], customDocs),
+        taxonomy: mergeNlpTaxonomy(parsed.nlp.taxonomy || { risk_categories: [], control_indicators: [] }, customTax)
+      }
+      recalculateNlpDistributions()
+    }
+    if (parsed.timeseries) {
+      timeseriesState.value = {
+        ...timeseriesState.value,
+        ...parsed.timeseries
+      }
+      if (!timeseriesState.value.auditorForecast?.kpiForecasts?.length) {
+        timeseriesState.value.auditorForecast = {
+          kpiForecasts: [...initialTS.auditorKPIForecasts],
+          atRiskPillars: [...initialTS.auditorAtRiskPillars],
+          timeSeriesData: [...initialTS.auditorTimeSeries],
+          executiveSummary: 'Dengan kecepatan saat ini, diprediksi audit plan hanya selesai 82.4% di akhir tahun. Diperlukan akselerasi pada pilar Pelaksanaan Audit & PKAT dan Investigasi Khusus.'
+        }
+      }
+    }
     if (parsed.time) lastSyncedTime.value = parsed.time
     return true
   } catch (e) {
@@ -127,11 +462,20 @@ export const useAiAnalytics = () => {
       else if (endpoint === '/risk-score/batch') pyEndpoint = '/predict/risk-score/batch'
       else if (endpoint === '/anomaly/batch') pyEndpoint = '/predict/anomaly/batch'
       else if (endpoint === '/text-analysis/batch') pyEndpoint = '/predict/text-analysis/batch'
+      else if (endpoint === '/text-analysis/taxonomy') pyEndpoint = '/taxonomy/nlp'
+      else if (endpoint === '/text-analysis/sync-sources') pyEndpoint = '/predict/text-analysis/sync-sources'
       else if (endpoint === '/performance-trend/batch') pyEndpoint = '/predict/performance-trend/batch'
       else if (endpoint === '/retrain/auto') pyEndpoint = '/retrain/auto'
 
       try {
-        return await $fetch(`${pyUrl}${pyEndpoint}`, options)
+        const pyOptions = {
+          ...options,
+          headers: {
+            ...(options.headers || {}),
+            'X-API-Key': 'dev-ai-api-key'
+          }
+        }
+        return await $fetch(`${pyUrl}${pyEndpoint}`, pyOptions)
       } catch (e2) {
         return null
       }
@@ -167,11 +511,80 @@ export const useAiAnalytics = () => {
 
   const riskCategoryColor = (cat: string): BadgeColor => {
     const map: Record<string, BadgeColor> = {
-      'Financial': 'error', 'Technology': 'info', 'Operational': 'warning',
-      'Compliance': 'success', 'Strategic': 'primary', 'Reputational': 'neutral',
-      'Legal': 'warning', 'Security': 'error', 'Fraud & Security': 'error'
+      'Financial': 'error',
+      'Technology': 'info',
+      'Operational': 'warning',
+      'Operations': 'warning',
+      'Compliance': 'success',
+      'Strategic': 'primary',
+      'Reputational': 'neutral',
+      'Governance': 'primary',
+      'Human Resources': 'info',
+      'Legal': 'warning',
+      'Security': 'error',
+      'Cybersecurity': 'info',
+      'ESG': 'success',
+      'Fraud & Security': 'error'
     }
-    return map[cat] || 'neutral'
+    if (map[cat]) return map[cat]
+    const dynamicPalette: BadgeColor[] = ['primary', 'info', 'warning', 'success', 'error']
+    const hash = Array.from(cat || '').reduce((acc, ch) => acc + ch.charCodeAt(0), 0)
+    return dynamicPalette[hash % dynamicPalette.length]
+  }
+
+  const controlIndicatorColor = (ind?: string): BadgeColor => {
+    const val = (ind || '').trim()
+    const map: Record<string, BadgeColor> = {
+      'Fraud Indication': 'error',
+      'Segregation of Duties (SoD) Violation': 'error',
+      'IT & Access Control Weakness': 'warning',
+      'Internal Control Weakness': 'warning',
+      'Compliance Deviation': 'info',
+      'Adequate Control': 'success'
+    }
+    if (map[val]) return map[val]
+    if (val.toLowerCase().includes('fraud') || val.toLowerCase().includes('violation') || val.toLowerCase().includes('breach')) return 'error'
+    if (val.toLowerCase().includes('adequate') || val.toLowerCase().includes('effective')) return 'success'
+    const dynamicPalette: BadgeColor[] = ['warning', 'info', 'primary', 'error']
+    const hash = Array.from(val).reduce((acc, ch) => acc + ch.charCodeAt(0), 0)
+    return dynamicPalette[hash % dynamicPalette.length]
+  }
+
+  const recalculateNlpDistributions = () => {
+    const docs = nlpState.value.documents || []
+    const taxCats = (nlpState.value.taxonomy?.risk_categories || []).map((c: any) => c.name || c)
+    const baseCats = taxCats.length > 0 ? taxCats : ['Financial', 'Operational', 'Compliance', 'Technology']
+    const catDist: Record<string, number> = {}
+    baseCats.forEach((c: string) => { catDist[c] = 0 })
+
+    const sentDist = { positive: 0, neutral: 0, negative: 0 }
+    const indDist: Record<string, number> = {}
+    const srcDist: Record<string, number> = {
+      'Imported Document': 0,
+      'Internal Note': 0,
+      'External Database': 0
+    }
+
+    docs.forEach((d: any) => {
+      const cat = d.autoCategory || d.risk_category || 'Operational'
+      catDist[cat] = (catDist[cat] || 0) + 1
+
+      const s = String(d.sentiment || 'Neutral').toLowerCase()
+      if (s === 'positive') sentDist.positive++
+      else if (s === 'negative') sentDist.negative++
+      else sentDist.neutral++
+
+      const ind = d.controlIndicator || d.control_indicator || 'Internal Control Weakness'
+      indDist[ind] = (indDist[ind] || 0) + 1
+
+      const st = d.sourceType || 'Imported Document'
+      srcDist[st] = (srcDist[st] || 0) + 1
+    })
+
+    nlpState.value.categoryDistribution = catDist
+    nlpState.value.sentimentDistribution = sentDist
+    nlpState.value.controlIndicatorDistribution = indDist
+    nlpState.value.sourceTypeDistribution = srcDist
   }
 
   const trendIcon = (t: string) => {
@@ -194,7 +607,7 @@ export const useAiAnalytics = () => {
   }
 
   const fetchAiAnalytics = async (force = false) => {
-    if (hasFetchedOnce.value && !force) return
+    if (hasFetchedOnce.value && !force && timeseriesState.value.auditorForecast?.kpiForecasts?.length > 0) return
 
     try {
       loading.value = true
@@ -238,74 +651,251 @@ export const useAiAnalytics = () => {
         if (resAnomalyBatch?.data || resAnomalyBatch?.anomalies) {
           const bData = resAnomalyBatch.data || resAnomalyBatch
           if (bData.anomalies && bData.anomalies.length > 0) {
-            isolationState.value.anomalies = bData.anomalies.map((a: any) => ({
+            const fetchedAnomalies = bData.anomalies.map((a: any) => ({
               id: a.id || 'ANM-001',
-              entity: a.entity || 'Jakarta Branch',
-              type: a.type || 'Funding',
+              entity: a.entity || a.accountNumber || a.refNumber || 'Kantor Pusat / GL',
+              type: a.type || a.category || 'Funding',
               anomalyScore: a.anomaly_score ?? a.anomalyScore ?? 0.85,
-              description: a.description || '',
+              description: a.description || a.reason || a.notes || 'Transaksi Anomali',
               severity: a.severity || 'High',
-              date: a.date || '2026-06-01',
+              date: a.date || a.timestamp?.slice(0, 10) || '2026-06-01',
               amount: a.amount ?? 0,
               xMetric: a.xMetric ?? (a.amount ? a.amount / 1000000 : 0),
               isAnomaly: a.is_anomaly !== undefined ? a.is_anomaly : true,
               riskLevel: a.risk_level || a.riskLevel || 'HIGH'
             }))
+
+            // Merge persisted custom anomalies so dynamic categories are NEVER wiped on refresh/fetch
+            const customAnoms = getPersistedCustomAnomalies()
+            const customIds = new Set(customAnoms.map((ca: any) => ca.id))
+            const filteredFetched = fetchedAnomalies.filter((fa: any) => !customIds.has(fa.id))
+            isolationState.value.anomalies = [...customAnoms, ...filteredFetched]
           }
           if (bData.scatter_data && bData.scatter_data.length > 0) {
-            isolationState.value.scatterData = bData.scatter_data.map((s: any) => ({
+            const fetchedScatter = bData.scatter_data.map((s: any) => ({
               x: s.x ?? 0,
               y: s.y ?? 0,
               type: s.type,
               isAnomaly: s.is_anomaly ?? false,
               label: s.label || ''
             }))
+            const customScatter = getPersistedCustomScatter()
+            const customLabels = new Set(customScatter.map((cs: any) => cs.label || `${cs.x}_${cs.y}`))
+            const filteredFetchedScatter = fetchedScatter.filter((fs: any) => !customLabels.has(fs.label || `${fs.x}_${fs.y}`))
+            isolationState.value.scatterData = [...customScatter, ...filteredFetchedScatter]
           }
           if (bData.summary) {
-            isolationState.value.summary = bData.summary
-            summary.value.anomaliesDetected = bData.summary.anomaliesFound || isolationState.value.anomalies.length
+            isolationState.value.summary = {
+              ...bData.summary,
+              anomaliesFound: isolationState.value.anomalies.length
+            }
+            summary.value.anomaliesDetected = isolationState.value.anomalies.length
           }
         }
 
         if (resTextBatch?.data || resTextBatch?.documents) {
           const bData = resTextBatch.data || resTextBatch
           if (bData.documents && bData.documents.length > 0) {
-            nlpState.value.documents = bData.documents.map((d: any) => ({
+            const fetchedDocs = bData.documents.map((d: any) => ({
               docId: d.docId || 'WP-001',
               title: d.title || 'Document Title',
               source: d.source || 'Working Paper',
-              autoCategory: d.risk_category || d.autoCategory || 'Financial',
-              confidence: d.confidence ?? 0.91,
+              sourceType: d.sourceType || (String(d.source || '').toLowerCase().includes('external') ? 'External Database' : (String(d.source || '').toLowerCase().includes('note') ? 'Internal Note' : 'Imported Document')),
+              fileName: d.fileName || d.source || '',
+              fileType: d.fileType || 'PDF',
+              extractionMethod: d.extractionMethod || 'PDF Text & OCR Engine',
+              autoCategory: d.risk_category || d.autoCategory || 'Operational',
+              confidence: d.confidence ?? 0.92,
               sentiment: d.sentiment || 'Negative',
               severityScore: d.severityScore ?? 80,
-              date: d.date || '2026-06-01',
+              controlIndicator: d.control_indicator || d.controlIndicator || (d.sentiment === 'Positive' ? 'Adequate Control' : 'Internal Control Weakness'),
+              extractedFinding: d.extracted_finding || d.extractedFinding || d.excerpt || '',
+              extractedRecommendation: d.extracted_recommendation || d.extractedRecommendation || 'Perkuat pengendalian internal dan lakukan verifikasi berjenjang.',
+              date: d.date || '2026-06-15',
               excerpt: d.excerpt || '',
               riskLevel: d.risk_level || d.riskLevel || 'HIGH'
             }))
+            const customDocs = getPersistedCustomNlpDocs()
+            nlpState.value.documents = mergeNlpDocuments(fetchedDocs, customDocs)
           }
-          if (bData.category_distribution) nlpState.value.categoryDistribution = bData.category_distribution
-          if (bData.sentiment_distribution) nlpState.value.sentimentDistribution = bData.sentiment_distribution
+          if (bData.taxonomy) {
+            const customTax = getPersistedCustomNlpTaxonomy()
+            nlpState.value.taxonomy = mergeNlpTaxonomy(bData.taxonomy, customTax)
+          }
+          recalculateNlpDistributions()
         }
 
-        if (resPerfBatch?.data || resPerfBatch?.kpi_forecasts) {
+        if (resPerfBatch?.data || resPerfBatch?.kpi_forecasts || resPerfBatch?.auditor_forecast) {
           const bData = resPerfBatch.data || resPerfBatch
-          if (bData.kpi_forecasts && bData.kpi_forecasts.length > 0) {
-            timeseriesState.value.kpiForecasts = bData.kpi_forecasts.map((f: any) => ({
+
+          // Auditee perspective (Gold Zone / CAATT)
+          const auditeeSource = bData.auditee_forecast || bData
+          if (auditeeSource.kpi_forecasts && auditeeSource.kpi_forecasts.length > 0) {
+            const mappedAuditee = auditeeSource.kpi_forecasts.map((f: any) => ({
               kpiName: f.kpiName || f.kpi_name,
               code: f.code || 'KPI-001',
               unit: f.unit || '%',
               entity: f.entity || 'Finance Dept',
               entityType: f.entityType || f.entity_type || 'Department',
+              syncFrequency: f.syncFrequency || f.sync_frequency || 'Real-time (CDC)',
+              lastSyncedAt: f.lastSyncedAt || f.last_synced_at || '',
               targetHorizon: f.targetHorizon || f.target_horizon || 'Q3 2026',
               currentValue: f.currentValue ?? f.current_value ?? 0,
               forecastedValue: f.forecastedValue ?? f.forecasted_value ?? 0,
+              deltaPct: f.deltaPct ?? f.delta_pct ?? 0,
               trend: f.trend || 'Stable',
-              recommendedAction: f.recommendedAction || f.recommended_action || '',
-              riskLevel: f.riskLevel || f.risk_level || 'LOW'
+              impactScore: f.impactScore ?? f.impact ?? 3,
+              likelihoodScore: f.likelihoodScore ?? f.likelihood ?? 3,
+              riskLevel: f.riskLevel || f.risk_level || 'LOW',
+              aiNarrative: f.aiNarrative || f.ai_narrative || '',
+              recommendedAction: f.recommendedAction || f.recommended_action || ''
             }))
+
+            timeseriesState.value.auditeeForecast = {
+              kpiForecasts: mappedAuditee,
+              atRiskDepartments: auditeeSource.at_risk_departments || [],
+              timeSeriesData: auditeeSource.time_series_data || auditeeSource.historical_kpi || [],
+              executiveSummary: auditeeSource.executive_summary || ''
+            }
+            // backward compatibility
+            timeseriesState.value.kpiForecasts = mappedAuditee
+            timeseriesState.value.atRiskDepartments = auditeeSource.at_risk_departments || []
+            timeseriesState.value.historicalKPI = auditeeSource.time_series_data || auditeeSource.historical_kpi || []
           }
-          if (bData.at_risk_departments) timeseriesState.value.atRiskDepartments = bData.at_risk_departments
-          if (bData.time_series_data) timeseriesState.value.historicalKPI = bData.time_series_data
+
+          // Auditor perspective (Strategic Audit Plan)
+          if (bData.auditor_forecast && bData.auditor_forecast.kpi_forecasts?.length > 0) {
+            const audSource = bData.auditor_forecast
+            timeseriesState.value.auditorForecast = {
+              kpiForecasts: (audSource.kpi_forecasts || []).map((f: any) => ({
+                code: f.code || 'SO-IA01',
+                kpiName: f.kpiName || f.kpi_name,
+                category: f.category || 'Tata Kelola Perusahaan & GCG',
+                strategicObjective: f.strategicObjective || f.strategic_objective || '',
+                hibHig: f.hibHig || f.hib_hig || 'HIG',
+                unit: f.unit || '%',
+                targetHorizon: f.targetHorizon || 'Akhir Tahun 2026',
+                targetValue: f.targetValue ?? f.target_value ?? 100,
+                currentValue: f.currentValue ?? f.current_value ?? 0,
+                forecastedValue: f.forecastedValue ?? f.forecasted_value ?? 0,
+                achievementRate: f.achievementRate ?? f.achievement_rate ?? 0,
+                forecastedAchievementRate: f.forecastedAchievementRate ?? f.forecasted_achievement_rate ?? 0,
+                currentStatus: f.currentStatus || 'Good',
+                predictedStatus: f.predictedStatus || 'Good',
+                trend: f.trend || 'Improving',
+                confidenceLower: f.confidenceLower ?? f.confidence_lower,
+                confidenceUpper: f.confidenceUpper ?? f.confidence_upper,
+                aiNarrative: f.aiNarrative || f.ai_narrative || '',
+                recommendedAction: f.recommendedAction || f.recommended_action || ''
+              })),
+              atRiskPillars: audSource.at_risk_pillars || [],
+              timeSeriesData: audSource.time_series_data || audSource.historical_kpi || [],
+              executiveSummary: audSource.executive_summary || ''
+            }
+          }
+        }
+
+        // Live fallback to user's real Strategic Audit Plan data if auditor_forecast was not returned from AI batch
+        if (!timeseriesState.value.auditorForecast?.kpiForecasts?.length) {
+          try {
+            const auditBase = getAuditServiceBaseUrl()
+            const stratRes: any = await $fetch(`${auditBase}/strategic-plans?page=1&page_size=100&order=code ASC`).catch(() => null)
+            const items = stratRes?.data?.items || stratRes?.items || (Array.isArray(stratRes) ? stratRes : [])
+            if (items.length > 0) {
+              const mappedLiveAuditor = items.map((item: any, idx: number) => {
+                const targetVal = parseFloat(item.target) || 100.0
+                const actualVal = parseFloat(item.actual) || targetVal
+                const pol = (item.hibHig || 'HIG').toUpperCase()
+                
+                let currRatio = 100.0
+                if (pol === 'HIG') {
+                  currRatio = targetVal > 0 ? (actualVal / targetVal) * 100.0 : 100.0
+                } else {
+                  currRatio = actualVal <= 0 ? 100.0 : (targetVal / actualVal) * 100.0
+                }
+
+                const deltaMomentum = pol === 'HIG' 
+                  ? (actualVal >= targetVal ? 1.02 : 0.97) 
+                  : (actualVal <= targetVal ? 0.98 : 1.05)
+                const forecastedVal = Math.round((actualVal * deltaMomentum) * 10) / 10
+                
+                let foreRatio = 100.0
+                if (pol === 'HIG') {
+                  foreRatio = targetVal > 0 ? (forecastedVal / targetVal) * 100.0 : 100.0
+                } else {
+                  foreRatio = forecastedVal <= 0 ? 100.0 : (targetVal / forecastedVal) * 100.0
+                }
+
+                const currStatus = currRatio >= 100 ? 'Good' : (currRatio >= 70 ? 'Moderate' : 'Poor')
+                const predStatus = foreRatio >= 100 ? 'Good' : (foreRatio >= 70 ? 'Moderate' : 'Poor')
+                const trend = (pol === 'HIG' ? forecastedVal >= actualVal : forecastedVal <= actualVal) ? 'Improving' : 'Deteriorating'
+
+                let aiNarrative = `Dengan kecepatan saat ini, diprediksi target ${item.kpi || item.strategicObjective} tercapai ${foreRatio.toFixed(1)}% (${predStatus}) di akhir tahun.`
+                if (item.code === 'SO-IA01' || (item.kpi && item.kpi.toLowerCase().includes('pkat'))) {
+                  aiNarrative = `Dengan kecepatan saat ini, diprediksi audit plan hanya selesai ${foreRatio.toFixed(1)}% di akhir tahun.`
+                }
+
+                const recAction = predStatus === 'Poor'
+                  ? `Eskalasi kendala pencapaian target ${item.code || 'KPI'} ke Komite Audit dan susun corrective action plan segera.`
+                  : (predStatus === 'Moderate'
+                    ? 'Tingkatkan koordinasi antar-tim audit dan percepat reviu kertas kerja oleh pengendali mutu.'
+                    : 'Pertahankan kualitas fieldwork dan dokumentasikan metodologi sebagai best practice audit internal.')
+
+                return {
+                  code: item.code || `SO-IA${String(idx + 1).padStart(2, '0')}`,
+                  kpiName: item.kpi || item.strategicObjective || 'Indikator Audit',
+                  category: item.category || 'Pelaksanaan Audit & PKAT',
+                  strategicObjective: item.strategicObjective || item.kpi || '',
+                  hibHig: pol,
+                  unit: item.unit || '%',
+                  targetHorizon: 'Akhir Tahun 2026',
+                  targetValue: targetVal,
+                  currentValue: actualVal,
+                  forecastedValue: forecastedVal,
+                  achievementRate: Math.round(currRatio * 10) / 10,
+                  forecastedAchievementRate: Math.round(foreRatio * 10) / 10,
+                  currentStatus: currStatus,
+                  predictedStatus: predStatus,
+                  trend: trend,
+                  confidenceLower: Math.round(forecastedVal * 0.95 * 10) / 10,
+                  confidenceUpper: Math.round(forecastedVal * 1.05 * 10) / 10,
+                  aiNarrative,
+                  recommendedAction: recAction
+                }
+              })
+
+              const atRiskPillars = mappedLiveAuditor
+                .filter((k: any) => k.predictedStatus === 'Poor' || k.predictedStatus === 'Moderate' || k.trend === 'Deteriorating')
+                .map((k: any) => ({
+                  pillar: k.category,
+                  code: k.code,
+                  kpi: k.kpiName,
+                  target: k.targetValue,
+                  predicted: k.forecastedValue,
+                  achievementRate: k.forecastedAchievementRate,
+                  predictedStatus: k.predictedStatus
+                }))
+
+              timeseriesState.value.auditorForecast = {
+                kpiForecasts: mappedLiveAuditor,
+                atRiskPillars,
+                timeSeriesData: [...initialTS.auditorTimeSeries],
+                executiveSummary: 'Dengan kecepatan saat ini, diprediksi audit plan hanya selesai 82.4% di akhir tahun. Diperlukan akselerasi pada pilar Pelaksanaan Audit & PKAT dan Investigasi Khusus.'
+              }
+            }
+          } catch (liveErr) {
+            console.warn('Failed to fetch live strategic plans fallback', liveErr)
+          }
+        }
+
+        // Guarantee fallback is never empty
+        if (!timeseriesState.value.auditorForecast?.kpiForecasts?.length) {
+          timeseriesState.value.auditorForecast = {
+            kpiForecasts: [...initialTS.auditorKPIForecasts],
+            atRiskPillars: [...initialTS.auditorAtRiskPillars],
+            timeSeriesData: [...initialTS.auditorTimeSeries],
+            executiveSummary: 'Dengan kecepatan saat ini, diprediksi audit plan hanya selesai 82.4% di akhir tahun. Diperlukan akselerasi pada pilar Pelaksanaan Audit & PKAT dan Investigasi Khusus.'
+          }
         }
 
         saveRealCache()
@@ -326,6 +916,479 @@ export const useAiAnalytics = () => {
     }
   }
 
+  const analyzeDocumentOrText = async (payload: {
+    title?: string
+    text?: string
+    source?: string
+    sourceType?: string
+    fileName?: string
+    fileType?: string
+    fileContentBase64?: string
+    riskCategory?: string
+  }) => {
+    const reqBody = {
+      ...payload,
+      persist: true
+    }
+    const res = await safeApiFetch('/text-analysis', {
+      method: 'POST',
+      body: reqBody
+    })
+
+    const rawDoc = res?.data || res
+    let mappedDoc: any
+
+    const resolveDynamicCategory = (text: string, title?: string, fileName?: string, explicitCat?: string): string => {
+      if (explicitCat) return explicitCat
+      const txt = `${title || ''} ${fileName || ''} ${text || ''}`.toLowerCase()
+      if (
+        txt.includes('keamanan') || txt.includes('security') || txt.includes('server') ||
+        txt.includes('jaringan') || txt.includes('network') || txt.includes('cyber') ||
+        txt.includes('akses') || txt.includes('access') || txt.includes('firewall') ||
+        txt.includes('database') || txt.includes('patch') || txt.includes('malware') ||
+        txt.includes('sistem') || txt.includes('system') || txt.includes('infrastruktur') ||
+        txt.includes('infrastructure') || txt.includes('it control') || /\b(it|ti)\b/.test(txt) ||
+        txt.includes('spesifikasi') || txt.includes('specification') || txt.includes('resource') ||
+        txt.includes('arsitektur') || txt.includes('architecture') || txt.includes('hardware') ||
+        txt.includes('software') || txt.includes('cpu') || txt.includes('ram') ||
+        txt.includes('storage') || txt.includes('kapasitas') || txt.includes('capacity') ||
+        txt.includes('auditsphere') || txt.includes('cloud') || txt.includes('konfigurasi')
+      ) {
+        return 'Technology'
+      }
+      if (
+        txt.includes('pojk') || txt.includes('ojk') || txt.includes('regulasi') ||
+        txt.includes('kepatuhan') || txt.includes('compliance') || txt.includes('sop') ||
+        txt.includes('ppatk') || txt.includes('aml') || txt.includes('kyc') ||
+        txt.includes('hukum') || txt.includes('legal') || /\b(bi)\b/.test(txt)
+      ) {
+        return 'Compliance'
+      }
+      if (
+        txt.includes('kas') || txt.includes('keuangan') || txt.includes('kredit') ||
+        txt.includes('pembayaran') || txt.includes('invoice') || txt.includes('jurnal') ||
+        txt.includes('buku besar') || txt.includes('pajak') || txt.includes('financial') ||
+        txt.includes('voucher') || txt.includes('disbursement') || txt.includes('piutang') ||
+        txt.includes('utang')
+      ) {
+        return 'Financial'
+      }
+      return 'Operational'
+    }
+
+    const resolveDynamicRecommendation = (cat: string, indicator: string, isFraud = false, isSoD = false): string => {
+      if (isFraud || indicator === 'Fraud Indication') {
+        return 'Lakukan audit investigatif khusus (forensik), amankan jejak audit (audit trail), bekukan sementara transaksi terkait, dan eskalasikan ke Unit Anti-Fraud.'
+      }
+      if (isSoD || indicator === 'Segregation of Duties (SoD) Violation') {
+        return 'Terapkan pemisahan fungsi (Maker-Checker) secara sistemik, cabut hak override tunggal, dan terapkan otorisasi berjenjang.'
+      }
+      if (cat === 'Technology' || indicator === 'IT & Access Control Weakness') {
+        if (combinedTxt.includes('spesifikasi') || combinedTxt.includes('resource') || combinedTxt.includes('kapasitas')) {
+          return 'Lakukan capacity planning dan uji beban berkala, pastikan alokasi resource CPU, RAM, & storage sesuai proyeksi beban kerja, serta optimalkan arsitektur server.'
+        }
+        return 'Lakukan User Access Review (UAR) berkala, nonaktifkan akun dormant/shared account, terapkan patch keamanan terbaru, serta aktifkan pemantauan log akses real-time.'
+      }
+      if (cat === 'Compliance' || indicator === 'Compliance Deviation') {
+        return 'Lakukan pemenuhan regulasi dan SOP terkait segera, lengkapi dokumen kepatuhan, serta perbarui template pelaporan berkala.'
+      }
+      if (cat === 'Financial') {
+        return 'Perkuat verifikasi bukti pendukung transaksi keuangan, lakukan rekonsiliasi independen secara berkala, dan patuhi limit otorisasi bertingkat.'
+      }
+      return 'Tingkatkan pengendalian internal operasional, lakukan evaluasi berkala atas proses bisnis, dan dokumentasikan tindak lanjut perbaikan.'
+    }
+
+    const isBadFallbackFinding = (str?: string): boolean => {
+      if (!str) return false
+      const s = str.toLowerCase()
+      return s.includes('kelemahan pengendalian internal pada otorisasi kas') ||
+        s.includes('otorisasi kas') ||
+        s.includes('perkuat verifikasi dokumen pendukung dan terapkan otorisasi berjenjang') ||
+        s.includes('berhasil diekstrak dan dianalisis dalam kategori') ||
+        s.includes('berhasil diekstrak dan dianalisis')
+    }
+
+    const isBadTitle = (t?: string): boolean => {
+      if (!t) return true
+      const tl = t.trim().toLowerCase()
+      return isBadFallbackFinding(tl) || tl.startsWith('ditemukan indikasi') || tl.startsWith('hasil ekstraksi')
+    }
+
+    const cleanTitle = (!isBadTitle(rawDoc?.title) ? rawDoc?.title : '') ||
+      payload.title?.trim() ||
+      payload.fileName?.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ') ||
+      'Dokumen Audit Teranalisis'
+
+    const combinedTxt = `${cleanTitle} ${payload.fileName || ''} ${payload.text || ''}`.toLowerCase()
+    const isFraud = combinedTxt.includes('fiktif') || combinedTxt.includes('fraud') || combinedTxt.includes('manipulasi') || combinedTxt.includes('penggelapan') || combinedTxt.includes('split') || combinedTxt.includes('mencurigakan')
+    const isSoD = combinedTxt.includes('dual control') || combinedTxt.includes('maker-checker') || combinedTxt.includes('override') || combinedTxt.includes('pejabat yang sama')
+    const isPos = combinedTxt.includes('memadai') || combinedTxt.includes('efektif') || combinedTxt.includes('sesuai prosedur')
+
+    const heuristicCategory = resolveDynamicCategory(payload.text || '', cleanTitle, payload.fileName, payload.riskCategory)
+    let resolvedCategory = heuristicCategory
+
+    if (payload.riskCategory) {
+      resolvedCategory = payload.riskCategory
+    } else if (rawDoc?.risk_category && !isBadFallbackFinding(rawDoc.extracted_finding || rawDoc.title) && rawDoc.risk_category !== 'Financial') {
+      resolvedCategory = rawDoc.risk_category
+    } else if (rawDoc?.risk_category && rawDoc.risk_category === 'Financial') {
+      if (heuristicCategory === 'Financial') {
+        resolvedCategory = 'Financial'
+      } else {
+        resolvedCategory = heuristicCategory
+      }
+    }
+
+    const defaultIndicator = isPos
+      ? 'Adequate Control'
+      : (isFraud
+        ? 'Fraud Indication'
+        : (isSoD
+          ? 'Segregation of Duties (SoD) Violation'
+          : (resolvedCategory === 'Technology'
+            ? 'IT & Access Control Weakness'
+            : (resolvedCategory === 'Compliance' ? 'Compliance Deviation' : 'Internal Control Weakness'))))
+
+    let resolvedIndicator = defaultIndicator
+    if (rawDoc?.control_indicator && !isBadFallbackFinding(rawDoc.control_indicator)) {
+      resolvedIndicator = rawDoc.control_indicator
+    } else if (rawDoc?.controlIndicator && !isBadFallbackFinding(rawDoc.controlIndicator)) {
+      resolvedIndicator = rawDoc.controlIndicator
+    }
+
+    const defaultRec = resolveDynamicRecommendation(resolvedCategory, resolvedIndicator, isFraud, isSoD)
+
+    // Guaranteed Unique Document ID to prevent overwriting
+    const uniqueDocId = `DOC-${Date.now()}-${Math.floor(Math.random() * 90000 + 10000)}`
+    let resolvedDocId = uniqueDocId
+    if (rawDoc?.docId && rawDoc.docId !== 'WP-2026-99' && !nlpState.value.documents.some((d: any) => d.docId === rawDoc.docId)) {
+      resolvedDocId = rawDoc.docId
+    }
+
+    const extractFindingClause = (docText: string, cat: string): string => {
+      const clean = docText.replace(/\s+/g, ' ').trim()
+      const sentences = clean
+        .split(/(?<=[.!?])\s+|\n+/)
+        .map(s => s.trim())
+        .filter(s => s.length >= 15)
+      if (sentences.length === 0) return clean.slice(0, 260)
+
+      const markers = [
+        'temuan', 'kondisi', 'ditemukan', 'terdapat', 'kelemahan', 'indikasi', 'belum',
+        'tidak', 'selisih', 'penyimpangan', 'pelanggaran', 'keterlambatan', 'fiktif',
+        'spesifikasi', 'resource', 'kapasitas', 'utilisasi', 'arsitektur', 'server',
+        'cpu', 'ram', 'memory', 'storage', 'override', 'anomali', 'bypass', 'warning'
+      ]
+
+      for (const sent of sentences) {
+        const sl = sent.toLowerCase()
+        if (markers.some(m => sl.includes(m))) {
+          if (cat === 'Technology' && (sl.includes('spesifikasi') || sl.includes('resource') || sl.includes('kapasitas')) && !sl.startsWith('temuan') && !sl.startsWith('observasi')) {
+            return `Observasi Teknis & Spesifikasi: ${sent}`
+          }
+          return sent
+        }
+      }
+      return sentences[0]
+    }
+
+    let findingText = ''
+    if (rawDoc?.extracted_finding && !isBadFallbackFinding(rawDoc.extracted_finding)) {
+      findingText = rawDoc.extracted_finding
+    } else if (rawDoc?.extractedFinding && !isBadFallbackFinding(rawDoc.extractedFinding)) {
+      findingText = rawDoc.extractedFinding
+    } else if (payload.text && payload.text.trim()) {
+      findingText = extractFindingClause(payload.text, resolvedCategory)
+    } else if (rawDoc?.excerpt && !isBadFallbackFinding(rawDoc.excerpt)) {
+      findingText = rawDoc.excerpt
+    }
+
+    if (!findingText || isBadFallbackFinding(findingText)) {
+      if (resolvedCategory === 'Technology') {
+        if (combinedTxt.includes('spesifikasi') || combinedTxt.includes('resource') || combinedTxt.includes('kapasitas')) {
+          findingText = `Observasi Teknis & Spesifikasi: Tinjauan alokasi parameter resource, kapasitas sistem, dan arsitektur infrastruktur pada dokumen ${cleanTitle}.`
+        } else {
+          findingText = `Ditemukan beberapa indikasi kelemahan konfigurasi hak akses pengguna dan parameter keamanan sistem pada dokumen ${cleanTitle}.`
+        }
+      } else if (resolvedCategory === 'Compliance') {
+        findingText = `Observasi Kepatuhan & Regulasi: Tinjauan pemenuhan standar prosedur operasional dan kepatuhan regulasi pada dokumen ${cleanTitle}.`
+      } else if (isFraud) {
+        findingText = `Indikasi Fraud & Anomali: Tinjauan transaksi mencurigakan dan potensi manipulasi data pada dokumen ${cleanTitle}.`
+      } else if (resolvedCategory === 'Financial') {
+        findingText = `Observasi Pengendalian Keuangan: Tinjauan keandalan bukti transaksi dan batas otorisasi keuangan pada dokumen ${cleanTitle}.`
+      } else {
+        findingText = `Observasi Operasional: Tinjauan alur proses bisnis dan kepatuhan pengendalian internal pada dokumen ${cleanTitle}.`
+      }
+    }
+
+    let recText = defaultRec
+    if (rawDoc?.extracted_recommendation && !isBadFallbackFinding(rawDoc.extracted_recommendation)) {
+      recText = rawDoc.extracted_recommendation
+    } else if (rawDoc?.extractedRecommendation && !isBadFallbackFinding(rawDoc.extractedRecommendation)) {
+      recText = rawDoc.extractedRecommendation
+    }
+
+    let finalExcerpt = ''
+    if (rawDoc?.excerpt && !isBadFallbackFinding(rawDoc.excerpt)) {
+      finalExcerpt = rawDoc.excerpt
+    } else if (payload.text && !isBadFallbackFinding(payload.text)) {
+      finalExcerpt = payload.text
+    } else if (rawDoc?.text && !isBadFallbackFinding(rawDoc.text)) {
+      finalExcerpt = rawDoc.text
+    } else {
+      finalExcerpt = findingText
+    }
+
+    mappedDoc = {
+      docId: resolvedDocId,
+      title: cleanTitle,
+      source: rawDoc?.source || payload.source || 'Working Paper',
+      sourceType: rawDoc?.sourceType || payload.sourceType || 'Imported Document',
+      fileName: rawDoc?.fileName || payload.fileName || `${cleanTitle.replace(/\s+/g, '_')}.${payload.fileType?.toLowerCase() || 'pdf'}`,
+      fileType: rawDoc?.fileType || payload.fileType || 'PDF',
+      extractionMethod: rawDoc?.extractionMethod || (payload.fileType === 'DOCX' ? 'Client Word (DOCX) Parser' : (payload.fileType === 'XLSX' ? 'Client Excel (XLSX) Parser' : (payload.fileContentBase64 ? 'Client PDF Stream & Text Engine' : 'Direct Text Input'))),
+      autoCategory: resolvedCategory,
+      confidence: rawDoc?.confidence ?? 0.94,
+      sentiment: rawDoc?.sentiment || (isPos ? 'Positive' : 'Negative'),
+      severityScore: rawDoc?.severityScore ?? (isPos ? 24 : (isFraud ? 92 : (resolvedCategory === 'Technology' ? 84 : 80))),
+      controlIndicator: resolvedIndicator,
+      extractedFinding: findingText,
+      extractedRecommendation: recText,
+      date: rawDoc?.date || new Date().toISOString().slice(0, 10),
+      excerpt: finalExcerpt.slice(0, 340),
+      riskLevel: rawDoc?.risk_level || rawDoc?.riskLevel || (isPos ? 'LOW' : (isFraud ? 'CRITICAL' : 'HIGH'))
+    }
+
+    nlpState.value.documents = [
+      mappedDoc,
+      ...(nlpState.value.documents || []).filter((d: any) => d.docId !== mappedDoc.docId)
+    ]
+    savePersistedCustomNlpDoc(mappedDoc)
+    recalculateNlpDistributions()
+    saveRealCache()
+    return mappedDoc
+  }
+
+  const addNlpTaxonomyItem = async (payload: {
+    itemType: 'risk_category' | 'control_indicator'
+    name: string
+    keywords: string[]
+    description?: string
+    severityBoost?: number
+  }) => {
+    const cleanName = payload.name.trim()
+    if (!cleanName) return null
+
+    const res = await safeApiFetch('/text-analysis/taxonomy', {
+      method: 'POST',
+      body: payload
+    })
+
+    const updatedTax = res?.data?.taxonomy || res?.taxonomy
+    if (updatedTax) {
+      nlpState.value.taxonomy = updatedTax
+    } else {
+      if (!nlpState.value.taxonomy) {
+        nlpState.value.taxonomy = { risk_categories: [], control_indicators: [] }
+      }
+      if (payload.itemType === 'risk_category') {
+        const exists = (nlpState.value.taxonomy.risk_categories || []).some((c: any) => (c.name || c).toLowerCase() === cleanName.toLowerCase())
+        if (!exists) {
+          nlpState.value.taxonomy.risk_categories.push({
+            name: cleanName,
+            is_default: false,
+            description: payload.description || '',
+            keywords: payload.keywords
+          })
+        }
+      } else {
+        const exists = (nlpState.value.taxonomy.control_indicators || []).some((c: any) => (c.name || c).toLowerCase() === cleanName.toLowerCase())
+        if (!exists) {
+          nlpState.value.taxonomy.control_indicators.push({
+            name: cleanName,
+            is_default: false,
+            description: payload.description || '',
+            keywords: payload.keywords,
+            severity_boost: payload.severityBoost ?? 12
+          })
+        }
+      }
+    }
+
+    savePersistedCustomNlpTaxonomy(nlpState.value.taxonomy)
+    recalculateNlpDistributions()
+    saveRealCache()
+    return nlpState.value.taxonomy
+  }
+
+  const syncNlpMultiSources = async () => {
+    const res = await safeApiFetch('/text-analysis/sync-sources', { method: 'POST' })
+    const bData = res?.data || res
+    if (bData?.documents && bData.documents.length > 0) {
+      const mappedSynced = bData.documents.map((d: any) => ({
+        docId: d.docId || 'WP-001',
+        title: d.title || 'Document Title',
+        source: d.source || 'Working Paper',
+        sourceType: d.sourceType || 'Imported Document',
+        fileName: d.fileName || d.source || '',
+        fileType: d.fileType || 'PDF',
+        extractionMethod: d.extractionMethod || 'PDF Text & OCR Engine',
+        autoCategory: d.risk_category || d.autoCategory || 'Operational',
+        confidence: d.confidence ?? 0.92,
+        sentiment: d.sentiment || 'Negative',
+        severityScore: d.severityScore ?? 80,
+        controlIndicator: d.control_indicator || d.controlIndicator || 'Internal Control Weakness',
+        extractedFinding: d.extracted_finding || d.extractedFinding || d.excerpt || '',
+        extractedRecommendation: d.extracted_recommendation || d.extractedRecommendation || '',
+        date: d.date || '2026-06-15',
+        excerpt: d.excerpt || '',
+        riskLevel: d.risk_level || d.riskLevel || 'HIGH'
+      }))
+      const customDocs = getPersistedCustomNlpDocs()
+      nlpState.value.documents = mergeNlpDocuments(mappedSynced, customDocs)
+      if (bData.taxonomy) {
+        const customTax = getPersistedCustomNlpTaxonomy()
+        nlpState.value.taxonomy = mergeNlpTaxonomy(bData.taxonomy, customTax)
+      }
+      recalculateNlpDistributions()
+      saveRealCache()
+    } else {
+      await fetchAiAnalytics(true)
+    }
+    return bData
+  }
+
+  const deleteNlpDocument = async (docId: string) => {
+    if (!docId) return
+    if (nlpState.value?.documents) {
+      nlpState.value.documents = nlpState.value.documents.filter((d: any) => d.docId !== docId)
+    }
+    deletePersistedCustomNlpDoc(docId)
+    recalculateNlpDistributions()
+    saveRealCache()
+    try {
+      await safeApiFetch(`/text-analysis/document/${docId}`, { method: 'DELETE' })
+    } catch {
+      // local deletion takes effect immediately
+    }
+  }
+
+  const clearAllCustomNlpDocuments = async () => {
+    clearAllPersistedCustomNlpDocs()
+    clearLegacyAnalyticsCaches()
+    const baselineIds = [
+      'WP-2026-001', 'LHA-2026-002', 'EXT-DB-003', 'EXT-DB-004', 'NOTE-FW-005', 'PKPT-2026-006', 'QA-2026-007',
+      'WP-001', 'LHA-002', 'PKPT-003', 'NOTE-004'
+    ]
+    if (nlpState.value?.documents) {
+      nlpState.value.documents = nlpState.value.documents.filter((d: any) =>
+        baselineIds.includes(d.docId) || (d.docId && !d.docId.startsWith('DOC-') && !d.docId.startsWith('CUSTOM-'))
+      )
+    }
+    recalculateNlpDistributions()
+    saveRealCache()
+    try {
+      await safeApiFetch('/text-analysis/reset', { method: 'POST' })
+    } catch {
+      // local reset takes effect immediately
+    }
+  }
+
+  const addCustomAnomalyRecord = (anom: any, scatter?: any) => {
+    if (!anom) return null
+
+    const record = {
+      id: anom.id || `ANM-${Date.now().toString().slice(-4)}`,
+      entity: anom.entity || 'Kantor Pusat / GL',
+      type: anom.type || anom.category || 'Custom',
+      category: anom.type || anom.category || 'Custom',
+      anomalyScore: anom.anomalyScore ?? 0.88,
+      description: anom.description || anom.reason || 'Transaksi Anomali Terdeteksi',
+      severity: anom.severity || 'High',
+      date: anom.date || new Date().toISOString().slice(0, 10),
+      amount: anom.amount ?? (anom.xMetric ? anom.xMetric * 1000000 : 0),
+      xMetric: anom.xMetric ?? (anom.amount ? anom.amount / 1000000 : 15),
+      isAnomaly: true,
+      riskLevel: anom.riskLevel || 'HIGH'
+    }
+
+    const scatterPoint = scatter || {
+      x: record.xMetric,
+      y: Math.min(80, Math.max(20, Math.round((record.anomalyScore || 0.85) * 60 + 10))),
+      type: record.type,
+      isAnomaly: true,
+      label: record.id
+    }
+
+    savePersistedCustomAnomaly(record, scatterPoint)
+
+    if (isolationState.value) {
+      if (!Array.isArray(isolationState.value.anomalies)) {
+        isolationState.value.anomalies = []
+      }
+      const existingIdx = isolationState.value.anomalies.findIndex((a: any) => a.id === record.id)
+      if (existingIdx >= 0) {
+        isolationState.value.anomalies[existingIdx] = record
+      } else {
+        isolationState.value.anomalies.unshift(record)
+      }
+
+      if (!Array.isArray(isolationState.value.scatterData)) {
+        isolationState.value.scatterData = []
+      }
+      const sExistingIdx = isolationState.value.scatterData.findIndex((s: any) => s.label === scatterPoint.label)
+      if (sExistingIdx >= 0) {
+        isolationState.value.scatterData[sExistingIdx] = scatterPoint
+      } else {
+        isolationState.value.scatterData.push(scatterPoint)
+      }
+
+      if (isolationState.value.summary) {
+        isolationState.value.summary.anomaliesFound = isolationState.value.anomalies.length
+        isolationState.value.summary.totalScanned = (isolationState.value.summary.totalScanned || 1200) + 1
+      }
+      summary.value.anomaliesDetected = isolationState.value.anomalies.length
+    }
+
+    saveRealCache()
+    return record
+  }
+
+  const removeCustomAnomalyRecord = (id: string) => {
+    if (typeof window !== 'undefined') {
+      const anomList = getPersistedCustomAnomalies().filter(a => a.id !== id)
+      localStorage.setItem(CUSTOM_ANOMALIES_KEY, JSON.stringify(anomList))
+      const scatterList = getPersistedCustomScatter().filter(s => s.label !== id)
+      localStorage.setItem(CUSTOM_SCATTER_KEY, JSON.stringify(scatterList))
+    }
+    if (isolationState.value?.anomalies) {
+      isolationState.value.anomalies = isolationState.value.anomalies.filter((a: any) => a.id !== id)
+    }
+    if (isolationState.value?.scatterData) {
+      isolationState.value.scatterData = isolationState.value.scatterData.filter((s: any) => s.label !== id)
+    }
+    if (isolationState.value?.summary) {
+      isolationState.value.summary.anomaliesFound = isolationState.value.anomalies.length
+    }
+    summary.value.anomaliesDetected = isolationState.value?.anomalies?.length || 0
+    saveRealCache()
+  }
+
+  const addCustomScatterBatch = (points: any[]) => {
+    savePersistedCustomScatterBatch(points)
+    if (isolationState.value?.scatterData && Array.isArray(points)) {
+      for (const pt of points) {
+        const idx = isolationState.value.scatterData.findIndex((s: any) => s.label === pt.label)
+        if (idx >= 0) {
+          isolationState.value.scatterData[idx] = pt
+        } else {
+          isolationState.value.scatterData.push(pt)
+        }
+      }
+    }
+    saveRealCache()
+  }
+
   return {
     loading,
     error,
@@ -341,8 +1404,21 @@ export const useAiAnalytics = () => {
     getRiskConfig,
     sentimentColor,
     riskCategoryColor,
+    controlIndicatorColor,
     trendIcon,
     trendColor,
-    fetchAiAnalytics
+    safeApiFetch,
+    fetchAiAnalytics,
+    analyzeDocumentOrText,
+    addNlpTaxonomyItem,
+    syncNlpMultiSources,
+    deleteNlpDocument,
+    clearAllCustomNlpDocuments,
+    deletePersistedCustomNlpDoc,
+    clearAllPersistedCustomNlpDocs,
+    addCustomAnomalyRecord,
+    removeCustomAnomalyRecord,
+    addCustomScatterBatch,
+    savePersistedCustomScatterBatch
   }
 }

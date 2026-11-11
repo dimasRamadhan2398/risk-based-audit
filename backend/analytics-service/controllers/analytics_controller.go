@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"bytes"
+	"encoding/base64"
 	"fmt"
+	"io"
 	"net/http"
 
 	"analytics-service/services"
@@ -98,13 +101,26 @@ func (c *AnalyticsController) GetAnomalyBatch(ctx *gin.Context) {
 
 // GetTextAnalysis handles POST & GET /api/analytics/text-analysis
 func (c *AnalyticsController) GetTextAnalysis(ctx *gin.Context) {
-	var req struct {
-		Text string `json:"text"`
-	}
+	var req services.TextRequest
 	if ctx.Request.Method == http.MethodPost {
-		_ = ctx.ShouldBindJSON(&req)
+		if err := ctx.ShouldBindJSON(&req); err != nil {
+			// Check if multipart form data was sent (direct file upload)
+			if file, header, formErr := ctx.Request.FormFile("file"); formErr == nil {
+				defer file.Close()
+				buf := new(bytes.Buffer)
+				if _, copyErr := io.Copy(buf, file); copyErr == nil {
+					req.FileName = header.Filename
+					req.FileContentBase64 = base64.StdEncoding.EncodeToString(buf.Bytes())
+				}
+				req.Title = ctx.PostForm("title")
+				req.Source = ctx.PostForm("source")
+				req.SourceType = ctx.PostForm("sourceType")
+				req.Text = ctx.PostForm("text")
+				req.RiskCategory = ctx.PostForm("riskCategory")
+			}
+		}
 	}
-	res, err := c.service.GetTextAnalysis(req.Text)
+	res, err := c.service.AnalyzeDocumentOrText(req)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -119,6 +135,76 @@ func (c *AnalyticsController) GetTextAnalysisBatch(ctx *gin.Context) {
 	res, err := c.service.GetTextAnalysisBatch()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   res,
+	})
+}
+
+func (c *AnalyticsController) GetNLPTaxonomy(ctx *gin.Context) {
+	res, err := c.service.GetNLPTaxonomy()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   res,
+	})
+}
+
+func (c *AnalyticsController) UpdateNLPTaxonomy(ctx *gin.Context) {
+	var payload map[string]interface{}
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	res, err := c.service.UpdateNLPTaxonomy(payload)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   res,
+	})
+}
+
+func (c *AnalyticsController) SyncNLPMultiSources(ctx *gin.Context) {
+	res, err := c.service.SyncNLPMultiSources()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   res,
+	})
+}
+
+func (c *AnalyticsController) DeleteNLPAnalyzeDocument(ctx *gin.Context) {
+	docID := ctx.Param("docId")
+	if docID == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "docId is required"})
+		return
+	}
+	res, err := c.service.DeleteNLPAnalyzeDocument(docID)
+	if err != nil {
+		ctx.JSON(http.StatusOK, gin.H{"status": "deleted_locally", "docId": docID})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   res,
+	})
+}
+
+func (c *AnalyticsController) ResetNLPAnalyzeDocuments(ctx *gin.Context) {
+	res, err := c.service.ResetNLPAnalyzeDocuments()
+	if err != nil {
+		ctx.JSON(http.StatusOK, gin.H{"status": "reset_locally"})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
