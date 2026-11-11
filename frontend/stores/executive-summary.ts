@@ -6,11 +6,39 @@ import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 import { useAuditResultReportStore } from './audit-result-report'
 import { useI18n } from '~/composables/useI18n'
 import { buildDefaultNarrative, formatQuarterPeriod } from '~/utils/executiveSummaryNarrative'
+import type { ExecutiveSummaryApprovePayload } from '~/types/signature'
 import { useDepartmentApi } from '~/composables/useDepartmentApi'
 import type { Department } from '~/types/master'
+import {
+  followUpStatusParams,
+  parseFollowUpStatus,
+  type FollowUpStatusQuery,
+  type FollowUpStatusResult,
+  type NoActionReason
+} from '~/utils/executiveSummaryFollowUp'
+
+/** Follow-up status of a finding, from the bucket of its Action Taken Report (ATR). */
+export type FollowUpStatusValue = 'Closed' | 'In Progress' | 'Overdue' | 'No Action'
+
+/** Default follow-up table: one row per ATR bucket. Documents saved before No Action existed keep their three rows. */
+export const defaultFollowUpTable = (): FollowUpRow[] => [
+  { status: 'Closed', jumlah: 0, persentase: 0, keterangan: '' },
+  { status: 'In Progress', jumlah: 0, persentase: 0, keterangan: '' },
+  { status: 'Overdue', jumlah: 0, persentase: 0, keterangan: '' },
+  { status: 'No Action', jumlah: 0, persentase: 0, keterangan: '' }
+]
+
+/**
+ * Follow-up rows of a draft completed with any missing status (count 0), in the default order.
+ * The backend freezes four rows on approval only when the saved draft already has a No Action row.
+ */
+export const withAllFollowUpRows = (rows: FollowUpRow[] | null | undefined): FollowUpRow[] => {
+  const list = Array.isArray(rows) ? rows : []
+  return defaultFollowUpTable().map(def => list.find(r => r.status === def.status) ?? def)
+}
 
 export interface FollowUpRow {
-  status: 'Closed' | 'In Progress' | 'Overdue'
+  status: FollowUpStatusValue
   jumlah: number
   persentase: number
   keterangan: string
@@ -22,8 +50,12 @@ export interface SignificantFinding {
   risiko: 'Very Significant' | 'Significant' | 'Quite Significant' | 'Not Significant' | 'Tinggi' | 'Sedang' | 'Rendah' | string
   category?: string
   significanceLevel?: string
-  statusTL: 'Closed' | 'In Progress' | 'Overdue'
+  statusTL: FollowUpStatusValue
   usulan: string
+  /** LHA finding the row was taken from; when set, statusTL follows the ATR of that finding */
+  findingId?: string
+  atrId?: string | null
+  noActionReason?: NoActionReason | null
 }
 
 export interface MatriksRow {
@@ -37,8 +69,12 @@ export interface MatriksRow {
   dueDate: string
   picUnit: string
   progres: number
-  status: 'Closed' | 'In Progress' | 'Overdue'
+  status: FollowUpStatusValue
   buktiTL: string
+  findingId?: string
+  atrId?: string | null
+  noActionReason?: NoActionReason | null
+  auditResultReportId?: string
 }
 
 export interface ExecutiveSummary {
@@ -51,6 +87,8 @@ export interface ExecutiveSummary {
   dokumenPath: string
   status: 'Draft' | 'Approved' | 'Rejected'
   executiveNote?: string
+  /** Approval time (backend); the follow-up figures of an approved summary are frozen as of this date */
+  approvedAt?: string
 
   // Section I
   narrative: string
@@ -177,6 +215,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     dokumenPath: '',
     status: 'Draft',
     executiveNote: '',
+    approvedAt: '',
     narrative: '',
     jumlahLaporan: 0,
     risikoHigh: 0,
@@ -185,11 +224,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     risikoLowModerate: 0,
     risikoLow: 0,
     jumlahRekomendasi: 0,
-    followUpTable: [
-      { status: 'Closed', jumlah: 0, persentase: 0, keterangan: '' },
-      { status: 'In Progress', jumlah: 0, persentase: 0, keterangan: '' },
-      { status: 'Overdue', jumlah: 0, persentase: 0, keterangan: '' }
-    ],
+    followUpTable: defaultFollowUpTable(),
     topFindings: [],
     matriksKompilasi: [],
     akarMasalah: '',
@@ -332,6 +367,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       ...item,
       assignmentLetterId: item.assignmentLetterId || item.assignment_letter_id || '',
       executiveNote: item.executiveNote || item.executive_note || '',
+      approvedAt: item.approvedAt || item.approved_at || '',
       quarter: Number(item.quarter),
       tahun: Number(item.tahun),
       jumlahLaporan: Number(item.jumlahLaporan),
@@ -440,6 +476,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       dokumenPath: '',
       status: 'Draft',
       executiveNote: '',
+      approvedAt: '',
       // Compilation: the selected quarter. Individual: no period until an LHA is selected (the form adds the audit period).
       narrative: isCompilation ? defaultNarrativeTemplate(formatQuarterPeriod(t, quarterNum || 1, targetYear)) : defaultNarrativeTemplate(),
       jumlahLaporan: 0,
@@ -449,11 +486,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       risikoLowModerate: 0,
       risikoLow: 0,
       jumlahRekomendasi: 0,
-      followUpTable: [
-        { status: 'Closed', jumlah: 0, persentase: 0, keterangan: '' },
-        { status: 'In Progress', jumlah: 0, persentase: 0, keterangan: '' },
-        { status: 'Overdue', jumlah: 0, persentase: 0, keterangan: '' }
-      ],
+      followUpTable: defaultFollowUpTable(),
       topFindings: [],
       matriksKompilasi: [],
       akarMasalah: '',
@@ -530,6 +563,9 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     try {
       if (!form.nomorDokumen) {
         form.nomorDokumen = generateEscDocNumber(form.tahun || 2026)
+      }
+      if (form.status !== 'Approved') {
+        form.followUpTable = withAllFollowUpRows(form.followUpTable)
       }
       const baseUrl = getAuditServiceBaseUrl()
       const payload = serializeSummaryForBackend(form)
@@ -762,7 +798,88 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     }
   }
 
+  // Approval with a signature: the only way to move a Draft to Approved. The backend refuses a PUT that sets
+  // status Approved (APPROVE_REQUIRES_SIGNATURE), so the status change happens in POST /:id/approve instead.
+  const approveWithSignature = async (payload: ExecutiveSummaryApprovePayload): Promise<boolean> => {
+    const target = currentSummary.value
+    if (!target) return false
+    if (!isValidUuid(target.id)) {
+      toast.showError(t('executiveSummaryForm.approval.errors.saveFirst'))
+      return false
+    }
+
+    loading.value = true
+    errorMsg.value = ''
+    try {
+      const baseUrl = getAuditServiceBaseUrl()
+      await $fetch(`${baseUrl}/executive-summaries/${target.id}/approve`, {
+        method: 'POST',
+        body: payload
+      })
+    } catch (error: any) {
+      const fallback = t('executiveSummaryForm.approval.errors.failed')
+      const detail = extractErrorMessage(error, fallback)
+      errorMsg.value = detail
+      toast.showError(fallback, detail)
+      return false
+    } finally {
+      loading.value = false
+    }
+
+    // The backend accepted the approval: mirror it locally. Nothing is written on failure, so a Draft is never shown as Approved.
+    const approvedFields: Partial<ExecutiveSummary> = {
+      status: 'Approved',
+      approvedAt: new Date().toISOString(),
+      signatureTempat: payload.signaturePlace,
+      signatureTanggal: payload.signatureDate
+    }
+    const idx = summaryList.value.findIndex(s => s.id === target.id)
+    if (idx !== -1) {
+      summaryList.value[idx] = { ...summaryList.value[idx]!, ...approvedFields }
+    }
+    summaryList.value = [...summaryList.value]
+    currentSummary.value = { ...target, ...approvedFields }
+    form.status = 'Approved'
+    form.approvedAt = approvedFields.approvedAt
+    form.signatureTempat = payload.signaturePlace
+    form.signatureTanggal = payload.signatureDate
+    savePersistedExecutiveSummaryOverride([target.nomorDokumen, target.id], { status: 'Approved' })
+
+    // The backend freezes the follow-up figures on approval; show its snapshot instead of the local draft values
+    try {
+      await fetchSummaries()
+      const frozen = summaryList.value.find(s => s.id === target.id)
+      if (frozen && currentSummary.value?.id === target.id) {
+        if (frozen.approvedAt) form.approvedAt = frozen.approvedAt
+        if (frozen.followUpTable?.length) form.followUpTable = JSON.parse(JSON.stringify(frozen.followUpTable))
+        if (frozen.topFindings?.length) form.topFindings = JSON.parse(JSON.stringify(frozen.topFindings))
+        if (frozen.matriksKompilasi?.length) form.matriksKompilasi = JSON.parse(JSON.stringify(frozen.matriksKompilasi))
+        currentSummary.value = { ...currentSummary.value, ...frozen }
+      }
+    } catch (e) {
+      console.warn('Reloading the approved executive summary failed:', e)
+    }
+
+    try {
+      const auditReportStore = useAuditResultReportStore()
+      const matchedReport = auditReportStore.reportList.find(r => r.reportNumber === target.nomorDokumen)
+      if (matchedReport) {
+        matchedReport.status = 'Final'
+      }
+    } catch (e) {
+      console.warn('Sync status to AuditResultReport failed:', e)
+    }
+
+    toast.showSuccess(t('executiveSummaryForm.approval.success'))
+    return true
+  }
+
   const updateStatus = async (id: string, newStatus: 'Draft' | 'Approved' | 'Rejected') => {
+    if (newStatus === 'Approved') {
+      // Approval must carry a signature; see approveWithSignature. A plain status change is refused here.
+      toast.showError(t('executiveSummaryForm.approval.errors.signatureRequired'))
+      return
+    }
     loading.value = true
     errorMsg.value = ''
     const item = summaryList.value.find(s => s.id === id)
@@ -832,7 +949,8 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
         const targetDocNum = updated.nomorDokumen
         const matchedReport = auditReportStore.reportList.find(r => r.reportNumber === targetDocNum)
         if (matchedReport) {
-          matchedReport.status = newStatus === 'Approved' ? 'Final' : 'Draft'
+          // Approved never reaches here (see the guard above); Draft and Rejected map to a Draft report
+          matchedReport.status = 'Draft'
         }
       } catch (e) {
         console.warn('Sync status to AuditResultReport failed:', e)
@@ -841,6 +959,20 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       toast.showSuccess('Status Executive Summary berhasil diperbarui!')
       loading.value = false
     }
+  }
+
+  /**
+   * Live follow-up status from the Action Taken Reports:
+   * GET /executive-summaries/follow-up-status?audit_result_report_id= | ?report_number= | ?year=&quarter=
+   * Throws on a failed request or an unusable response; callers show the error.
+   */
+  const fetchFollowUpStatus = async (query: FollowUpStatusQuery): Promise<FollowUpStatusResult> => {
+    const baseUrl = getAuditServiceBaseUrl()
+    const response = await $fetch<unknown>(`${baseUrl}/executive-summaries/follow-up-status`, {
+      method: 'GET',
+      params: followUpStatusParams(query)
+    })
+    return parseFollowUpStatus(response)
   }
 
   // Load initially
@@ -864,6 +996,8 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     saveExecutiveNote,
     deleteSummary,
     updateStatus,
+    approveWithSignature,
+    fetchFollowUpStatus,
     fetchSummaries,
     defaultNarrativeTemplate,
     generateEscDocNumber,

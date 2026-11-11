@@ -17,7 +17,7 @@ const item = (id: number, status: string, deadline: string) => ({
   auditRef: `ST-00${id}/SKAI/2026`,
   title: `Finding ${id}`,
   department: 'Operations',
-  deadline,
+  due_date: deadline,
   status
 })
 
@@ -40,7 +40,8 @@ const frontendCasing = {
 async function loadStore(items) {
   global.$fetch = vi.fn().mockResolvedValue({ data: { items } })
   const store = useActionTakenReportStore()
-  await store.fetchReports()
+  // Dashboard and ATR summary stats come from the summary fetch (every ATR the user can see).
+  await store.fetchSummary()
   return store
 }
 
@@ -70,7 +71,7 @@ describe('ATR dashboard donut vs ATR feature sync', () => {
 
   it('stats reflect backend data: done 50%, wip 17%', async () => {
     const store = await loadStore(backendItems())
-    expect(store.reportList).toHaveLength(6)
+    expect(store.summaryItems).toHaveLength(6)
     expect(store.stats.donePercent).toBe(50)
     // Changed: wipPercent is the non-overlapping "In Progress (on time)" slice; the only IN_PROGRESS
     // item (deadline 2026-05-15) is overdue, so it lands in Overdue. The raw status count is still 1 (17%).
@@ -80,7 +81,7 @@ describe('ATR dashboard donut vs ATR feature sync', () => {
 
   it('stat categories cover every item (PLANNED accounted for, slices sum to ~100)', async () => {
     const store = await loadStore(backendItems())
-    const total = store.reportList.length
+    const total = store.summaryItems.length
     const s = store.stats
     // Changed: originally assumed "late" == CANCELLED. Partition is now done + wip(on time) + planned(on time)
     // + overdue + cancelled = 50 + 0 + 0 + 33 + 17 = 100; accept 99..101 for rounding
@@ -90,15 +91,12 @@ describe('ATR dashboard donut vs ATR feature sync', () => {
     expect(sum).toBeLessThanOrEqual(101)
   })
 
-  it('status filter finds items for each status present in the data', async () => {
-    const store = await loadStore(backendItems())
-    const expected = { COMPLETED: 3, IN_PROGRESS: 1, PLANNED: 1, CANCELLED: 1 }
-    // the ATR page builds filter options from Object.values(AuditStatus)
-    const optionValues = Object.values(AuditStatus)
-    for (const [raw, count] of Object.entries(expected)) {
-      const option = optionValues.find(v => v.toLowerCase().replace(/[\s_]/g, '') === raw.toLowerCase().replace(/[\s_]/g, ''))
-      store.selectedStatus = option
-      expect(store.filteredReports, `status ${raw} via option ${option}`).toHaveLength(count)
+  it('status filter sends the backend status value to the server (filtering is server-side)', async () => {
+    const store = useActionTakenReportStore()
+    for (const raw of ['COMPLETED', 'IN_PROGRESS', 'PLANNED', 'CANCELLED']) {
+      global.$fetch = vi.fn().mockResolvedValue({ data: { items: [] } })
+      await store.setFilters({ status: raw })
+      expect(global.$fetch.mock.calls.at(-1)[1].params.status, `status ${raw}`).toBe(raw)
     }
   })
 
@@ -136,7 +134,6 @@ describe('ATR dashboard donut vs ATR feature sync', () => {
     expect(store.stats.wipPercent).toBe(0)
     expect(store.stats.overduePercent).toBe(33)
     expect(dashboard(store).openFindingsCount).toBe(2)
-    store.selectedStatus = AuditStatus.IN_PROGRESS
-    expect(store.filteredReports).toHaveLength(1)
+    expect(store.stats.counts.inProgress).toBe(1)
   })
 })

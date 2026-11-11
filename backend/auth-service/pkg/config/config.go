@@ -36,6 +36,36 @@ type Config struct {
 	SMTP             SMTPConfig          `mapstructure:"smtp"`
 	Resend           ResendConfig        `mapstructure:"resend"`
 	MasterService    MasterServiceConfig `mapstructure:"master_service"`
+	ActivityLog      ActivityLogConfig   `mapstructure:"activity_log"`
+	MFA              MFAConfig           `mapstructure:"mfa"`
+}
+
+// ActivityLogConfig controls the admin user activity log (pkg/activitylog).
+// Env overrides (viper key replacer):
+//
+//	ACTIVITY_LOG_TOPIC              explicit topic; default [<KAFKA_TOPIC_PREFIX>.]activity-logs,
+//	                                the prefix falling back to the slug in KAFKA_SERVICE_NAME
+//	ACTIVITY_LOG_CONSUMER_ENABLED   run the topic -> sys_alert_logs consumer (default true; needs KAFKA_ENABLED)
+//	ACTIVITY_LOG_CONSUMER_GROUP_ID  default "<KAFKA_SERVICE_NAME>-activity-log"
+//	ACTIVITY_LOG_RETENTION_DAYS     rows older than this are purged daily (default 90)
+//	ACTIVITY_LOG_PURGE_ENABLED      run the daily purge (default true)
+type ActivityLogConfig struct {
+	Topic           string `mapstructure:"topic"`
+	ConsumerEnabled bool   `mapstructure:"consumer_enabled"`
+	ConsumerGroupID string `mapstructure:"consumer_group_id"`
+	RetentionDays   int    `mapstructure:"retention_days"`
+	PurgeEnabled    bool   `mapstructure:"purge_enabled"`
+}
+
+// DefaultActivityLogRetentionDays is used when retention_days is unset or not positive.
+const DefaultActivityLogRetentionDays = 90
+
+// EffectiveRetentionDays returns RetentionDays, or the default when it is not positive.
+func (c ActivityLogConfig) EffectiveRetentionDays() int {
+	if c.RetentionDays <= 0 {
+		return DefaultActivityLogRetentionDays
+	}
+	return c.RetentionDays
 }
 
 // MasterServiceConfig points auth-service at the master-service of this stack.
@@ -191,6 +221,11 @@ func setDefaults() {
 	viper.SetDefault("resend.from", "AuditSphere <no-reply@mail.auditsphere.app>")
 	viper.SetDefault("resend.webhook_secret", "") // Override via RESEND_WEBHOOK_SECRET env var
 	viper.SetDefault("master_service.timeout_seconds", 2)
+	viper.SetDefault("activity_log.topic", "")
+	viper.SetDefault("activity_log.consumer_enabled", true)
+	viper.SetDefault("activity_log.consumer_group_id", "")
+	viper.SetDefault("activity_log.retention_days", DefaultActivityLogRetentionDays)
+	viper.SetDefault("activity_log.purge_enabled", true)
 }
 
 func Load(configPath string) (*Config, error) {
@@ -207,6 +242,10 @@ func Load(configPath string) (*Config, error) {
 	viper.AutomaticEnv()
 	// jwt.secret is bound explicitly so JWT_SECRET overrides the file even when the file has no secret key.
 	_ = viper.BindEnv("jwt.secret", JWTSecretEnv)
+	// MFA secret encryption keys come from the environment only; see mfa_encryption.go.
+	_ = viper.BindEnv("mfa.encryption_key", MFAEncryptionKeyEnv)
+	_ = viper.BindEnv("mfa.encryption_key_old", MFAEncryptionKeyOldEnv)
+	_ = viper.BindEnv("mfa.encryption_required", MFAEncryptionRequiredEnv)
 
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("failed to read config: %w", err)

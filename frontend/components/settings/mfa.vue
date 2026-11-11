@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-6 w-full">
-    <UCard variant="outline" color="neutral" class="w-full overflow-hidden shadow-sm rounded-2xl">
+    <UCard variant="outline" color="neutral" class="w-full overflow-hidden shadow-sm rounded-2xl dark:bg-slate-900 dark:ring-slate-800">
       <template #header>
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div class="flex items-center gap-3 min-w-0">
@@ -25,7 +25,7 @@
             </div>
           </div>
 
-          <div v-if="!loadingStatus" class="self-start sm:self-center shrink-0">
+          <div v-if="!loadingStatus && !statusError" class="self-start sm:self-center shrink-0">
             <UBadge
               :color="isMfaEnabled ? (isDisabling ? 'error' : 'success') : 'warning'"
               variant="soft"
@@ -43,7 +43,7 @@
               {{ isMfaEnabled ? (isDisabling ? t('settings.mfa.confirmDisable') : t('settings.mfa.activeProtected')) : t('settings.mfa.notEnabled') }}
             </UBadge>
           </div>
-          <USkeleton v-else class="h-7 w-28 rounded-full" />
+          <USkeleton v-else-if="loadingStatus" class="h-7 w-28 rounded-full" />
         </div>
       </template>
 
@@ -52,6 +52,17 @@
         <USkeleton class="h-4 w-3/4" />
         <USkeleton class="h-10 w-48 rounded-xl" />
       </div>
+
+      <!-- Status could not be loaded: don't offer setup on a guess -->
+      <UAlert
+        v-else-if="statusError"
+        color="error"
+        variant="subtle"
+        icon="i-lucide-alert-triangle"
+        :title="t('settings.mfa.statusFailedTitle')"
+        :description="statusError"
+        :actions="[{ label: t('settings.mfa.retry'), color: 'neutral', variant: 'outline', icon: 'i-lucide-refresh-cw', onClick: () => fetchStatus() }]"
+      />
 
       <!-- State 1 & 2: MFA Disabled Flow (Begin Component / Setup Stepper) -->
       <div v-else-if="!isMfaEnabled" class="space-y-6 p-2">
@@ -70,6 +81,7 @@
             size="lg"
             class="font-bold px-6 py-3 rounded-xl transition-all duration-200 shadow-md cursor-pointer"
             :loading="loading"
+            :disabled="loading"
             @click="handleSetup"
           >
             {{ t('settings.mfa.enableButton') }}
@@ -118,36 +130,51 @@
                   {{ t('settings.mfa.verifyTitle') }}
                 </h4>
 
-                <div class="max-w-md space-y-3">
-                  <UFormField :label="t('settings.mfa.verificationCodeLabel')" :help="t('settings.mfa.verificationCodeHelp')">
+                <!-- Enter and the submit button both submit the form; handleVerifySetup drops overlapping calls -->
+                <form class="max-w-md space-y-3" novalidate @submit.prevent="handleVerifySetup">
+                  <UAlert
+                    v-if="setupChanged"
+                    color="warning"
+                    variant="subtle"
+                    icon="i-lucide-qr-code"
+                    :title="t('settings.mfa.setupChangedTitle')"
+                    :description="t('settings.mfa.setupChangedDesc')"
+                    :actions="[{ label: t('settings.mfa.newQrButton'), color: 'warning', variant: 'solid', icon: 'i-lucide-refresh-cw', loading, disabled: loading, onClick: () => handleSetup() }]"
+                  />
+                  <UFormField :label="t('settings.mfa.verificationCodeLabel')" :help="verifying ? t('settings.mfa.verifyingCode') : t('settings.mfa.verificationCodeHelp')">
                     <UInput
                       v-model="verificationCode"
-                      placeholder="000 000"
-                      maxlength="6"
+                      placeholder="000000"
+                      inputmode="numeric"
+                      autocomplete="one-time-code"
                       size="lg"
+                      :disabled="verifying"
                       class="w-full font-mono text-center text-xl tracking-[0.3em] font-bold"
                     />
                   </UFormField>
 
                   <div class="flex gap-3 pt-2">
                     <UButton
+                      type="button"
                       variant="subtle"
                       color="neutral"
                       class="flex-1 rounded-xl font-semibold"
-                      @click="() => {setupData = null}"
+                      :disabled="verifying"
+                      @click="cancelSetup"
                     >
                       {{ t('settings.mfa.cancel') }}
                     </UButton>
                     <UButton
+                      type="submit"
                       color="primary"
                       class="flex-1 rounded-xl font-bold transition-all duration-200 shadow-md"
-                      :loading="loading"
-                      @click="handleVerifySetup"
+                      :loading="verifying"
+                      :disabled="verifying || !canSubmitCode"
                     >
                       {{ t('settings.mfa.verifyEnableButton') }}
                     </UButton>
                   </div>
-                </div>
+                </form>
               </div>
             </div>
           </div>
@@ -203,37 +230,41 @@
           </div>
         </div>
 
-        <div class="max-w-md space-y-4">
+        <form class="max-w-md space-y-4" novalidate @submit.prevent="handleDisable">
           <UFormField :label="t('settings.mfa.passwordLabel')">
             <UInput
               v-model="password"
               type="password"
+              autocomplete="current-password"
               :placeholder="t('settings.mfa.passwordPlaceholder')"
               size="lg"
               class="w-full"
-              @keyup.enter="handleDisable"
+              :disabled="loading"
             />
           </UFormField>
 
           <div class="flex items-center gap-3 pt-2">
             <UButton
+              type="button"
               variant="subtle"
               color="neutral"
               class="rounded-xl font-semibold px-5"
+              :disabled="loading"
               @click="cancelDisable"
             >
               {{ t('settings.mfa.cancelModal') }}
             </UButton>
             <UButton
+              type="submit"
               color="error"
               class="rounded-xl text-white font-bold px-6 cursor-pointer"
               :loading="loading"
-              @click="handleDisable"
+              :disabled="loading || !password"
             >
               {{ t('settings.mfa.confirmDisable') }}
             </UButton>
           </div>
-        </div>
+        </form>
       </div>
     </UCard>
   </div>
@@ -243,17 +274,26 @@
 import QRCode from 'qrcode'
 import { useAuthStore } from '~/stores/auth'
 import { extractErrorMessage } from '~/utils/error'
+import { useDeviceFingerprint } from '~/composables/useDeviceFingerprint'
+import { TOTP_LENGTH, isMfaAlreadyEnabledError, isMfaSetupChangedError, sanitizeTotp, singleFlight } from '~/utils/mfa'
 
-const config = useRuntimeConfig()
+// The api-auth plugin attaches the bearer token to these $fetch calls
 const authStore = useAuthStore()
+const { getDeviceFingerprint } = useDeviceFingerprint()
 const { t } = useI18n()
 
 const mfaStatus = ref<any>(null)
 const loadingStatus = ref(true)
+const statusError = ref('')
 const setupData = ref<any>(null)
 const qrCodeDataURL = ref('')
 const verificationCode = ref('')
+/** Code the 6th-digit auto-submit last sent (not reactive: only the watcher reads it) */
+let lastAutoSubmitted = ''
 const loading = ref(false)
+const verifying = ref(false)
+/** The secret on screen was replaced by a newer setup (409 MFA_SETUP_CHANGED) */
+const setupChanged = ref(false)
 const isDisabling = ref(false)
 const password = ref('')
 const toast = useToast()
@@ -263,41 +303,72 @@ const isMfaEnabled = computed(() => {
   return Boolean(mfaStatus.value.is_enabled ?? mfaStatus.value.data?.is_enabled)
 })
 
-const fetchStatus = async () => {
+const canSubmitCode = computed(() => verificationCode.value.length === TOTP_LENGTH)
+
+/** `silent` refreshes in place (no skeleton; a failure keeps the current view). */
+const fetchStatus = async ({ silent = false } = {}) => {
   if (!authStore.token) {
     loadingStatus.value = false
     return
   }
-  loadingStatus.value = true
+  if (!silent) loadingStatus.value = true
   try {
-    const response = await $fetch<any>(`${getAuthServiceBaseUrl()}/mfa/status`, {
-      headers: { Authorization: `Bearer ${authStore.token}` }
-    })
-    const rawData = response?.data?.data ?? response?.data ?? response
-    mfaStatus.value = rawData
+    const response = await $fetch<any>(`${getAuthServiceBaseUrl()}/mfa/status`)
+    mfaStatus.value = response?.data?.data ?? response?.data ?? response
+    statusError.value = ''
   } catch (err) {
     console.error('Failed to fetch MFA status:', err)
+    if (!silent) statusError.value = extractErrorMessage(err, t('settings.mfa.statusFailedDesc'))
   } finally {
     loadingStatus.value = false
   }
 }
 
-const handleSetup = async () => {
+const resetSetup = () => {
+  setupData.value = null
+  qrCodeDataURL.value = ''
+  verificationCode.value = ''
+  lastAutoSubmitted = ''
+  setupChanged.value = false
+}
+
+/**
+ * MFA is on: leave the setup flow, show the enabled view right away, then reload the status from the
+ * server and the trusted device list (Settings > Activity reads it from the auth store).
+ */
+const finishEnable = async () => {
+  resetSetup()
+  mfaStatus.value = { ...(mfaStatus.value ?? {}), is_enabled: true }
+  toast.add({
+    title: t('settings.mfa.enabledToast'),
+    description: t('settings.mfa.enabledDesc'),
+    color: 'success',
+    icon: 'i-lucide-circle-check'
+  })
+  await Promise.allSettled([fetchStatus({ silent: true }), authStore.fetchTrustedDevices()])
+}
+
+const handleSetup = singleFlight(async () => {
   if (!authStore.token) return
   loading.value = true
   try {
     const response = await $fetch<any>(`${getAuthServiceBaseUrl()}/mfa/enroll`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${authStore.token}` },
       body: { mfa_type: 'TOTP' }
     })
-    
-    const data = response?.data?.data ?? response?.data ?? response
-    setupData.value = data
+
+    resetSetup()
+    setupData.value = response?.data?.data ?? response?.data ?? response
     if (setupData.value?.qr_code_url) {
       qrCodeDataURL.value = await QRCode.toDataURL(setupData.value.qr_code_url)
     }
-  } catch (err: any) {
+  } catch (err) {
+    // The status shown was stale (e.g. enabled in another tab): show the enabled view, not an error
+    if (isMfaAlreadyEnabledError(err)) {
+      mfaStatus.value = { ...(mfaStatus.value ?? {}), is_enabled: true }
+      await fetchStatus({ silent: true })
+      return
+    }
     toast.add({
       title: t('settings.mfa.setupFailedTitle'),
       description: extractErrorMessage(err, t('settings.mfa.setupFailedDesc')),
@@ -307,6 +378,10 @@ const handleSetup = async () => {
   } finally {
     loading.value = false
   }
+})
+
+const cancelSetup = () => {
+  if (!verifying.value) resetSetup()
 }
 
 const copySecret = () => {
@@ -320,27 +395,40 @@ const copySecret = () => {
   })
 }
 
-const handleVerifySetup = async () => {
-  if (!authStore.token || !verificationCode.value) return
-  loading.value = true
+// Enter, the submit button and the auto-submit on the 6th digit all go through this one guarded call:
+// a trigger while a request is in flight reuses it instead of sending the code again
+// (that second request is what came back as "MFA is already enabled").
+const handleVerifySetup = singleFlight(async () => {
+  const code = sanitizeTotp(verificationCode.value)
+  if (!authStore.token || !setupData.value || code.length !== TOTP_LENGTH) return
+  verifying.value = true
   try {
+    // Same fingerprint as the login flow, so this browser is listed under Settings > Activity.
+    // A retried or double-submitted verify answers 200 with already_enabled; finishEnable covers both.
+    const device = getDeviceFingerprint()
     await $fetch(`${getAuthServiceBaseUrl()}/mfa/verify`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${authStore.token}` },
-      body: { code: verificationCode.value }
+      body: {
+        code,
+        device_fingerprint: device.deviceFingerprint,
+        device_name: device.deviceName,
+        device_type: device.deviceType
+      }
     })
-    
-    toast.add({
-      title: t('settings.mfa.enabledToast'),
-      description: t('settings.mfa.enabledDesc'),
-      color: 'success',
-      icon: 'i-lucide-circle-check'
-    })
-    
-    setupData.value = null
-    verificationCode.value = ''
-    await fetchStatus()
-  } catch (err: any) {
+    await finishEnable()
+  } catch (err) {
+    // Enabled by an earlier request (or another tab): that is the outcome the user wanted
+    if (isMfaAlreadyEnabledError(err)) {
+      await finishEnable()
+      return
+    }
+    // A newer setup (another tab, or a second Enable click) replaced the secret behind this QR code
+    if (isMfaSetupChangedError(err)) {
+      setupChanged.value = true
+      verificationCode.value = ''
+      lastAutoSubmitted = ''
+      return
+    }
     toast.add({
       title: t('settings.mfa.verifyFailedTitle'),
       description: extractErrorMessage(err, t('settings.mfa.verifyFailedDesc')),
@@ -348,36 +436,51 @@ const handleVerifySetup = async () => {
       icon: 'i-lucide-alert-triangle'
     })
   } finally {
-    loading.value = false
+    verifying.value = false
   }
-}
+})
+
+// Digits only; auto-submit once per complete code (deleting a digit and retyping re-arms it)
+watch(verificationCode, (value) => {
+  const clean = sanitizeTotp(value)
+  if (clean !== value) {
+    verificationCode.value = clean
+    return
+  }
+  if (clean.length < TOTP_LENGTH) {
+    lastAutoSubmitted = ''
+    return
+  }
+  if (clean === lastAutoSubmitted || handleVerifySetup.running) return
+  lastAutoSubmitted = clean
+  void handleVerifySetup()
+})
 
 const cancelDisable = () => {
   isDisabling.value = false
   password.value = ''
 }
 
-const handleDisable = async () => {
+const handleDisable = singleFlight(async () => {
   if (!authStore.token || !password.value) return
   loading.value = true
   try {
     await $fetch(`${getAuthServiceBaseUrl()}/mfa/disable`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${authStore.token}` },
       body: { password: password.value }
     })
-    
+
     toast.add({
       title: t('settings.mfa.disabledToast'),
       description: t('settings.mfa.disabledDesc'),
       color: 'success',
       icon: 'i-lucide-circle-check'
     })
-    
+
     isDisabling.value = false
     password.value = ''
-    await fetchStatus()
-  } catch (err: any) {
+    await fetchStatus({ silent: true })
+  } catch (err) {
     toast.add({
       title: t('settings.mfa.disableFailedTitle'),
       description: extractErrorMessage(err, t('settings.mfa.disableFailedDesc')),
@@ -387,7 +490,7 @@ const handleDisable = async () => {
   } finally {
     loading.value = false
   }
-}
+})
 
-onMounted(fetchStatus)
+onMounted(() => fetchStatus())
 </script>

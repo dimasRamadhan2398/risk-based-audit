@@ -28,7 +28,7 @@
           </div>
         </div>
         <div class="mt-1">
-          <h4 class="text-2xl font-bold text-slate-900 dark:text-white">
+          <h4 class="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">
             {{ totalRisks }}
           </h4>
           <p class="text-[11px] mt-1 text-slate-400 dark:text-slate-300 font-normal">
@@ -49,7 +49,7 @@
           </div>
         </div>
         <div class="mt-1">
-          <h4 class="text-2xl font-bold text-slate-900 dark:text-white">
+          <h4 class="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">
             {{ highRisks }}
           </h4>
           <p class="text-[11px] mt-1 text-slate-400 dark:text-slate-300 font-normal">
@@ -70,7 +70,7 @@
           </div>
         </div>
         <div class="mt-1">
-          <h4 class="text-2xl font-bold text-slate-900 dark:text-white">
+          <h4 class="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">
             {{ auditPlansCount }}
           </h4>
           <p class="text-[11px] mt-1 text-slate-400 dark:text-slate-300 font-normal">
@@ -91,7 +91,7 @@
           </div>
         </div>
         <div class="mt-1">
-          <h4 class="text-2xl font-bold text-slate-900 dark:text-white">
+          <h4 class="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">
             {{ completedAuditsCount }}
           </h4>
           <p class="text-[11px] mt-1 text-slate-400 dark:text-slate-300 font-normal">
@@ -119,7 +119,7 @@
             </div>
           </div>
           <div class="mt-1">
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">
               {{ auditMainStats.plannedAudit }}
             </h4>
             <p class="text-[11px] mt-1" :class="plannedAuditTrend.color">
@@ -140,7 +140,7 @@
             </div>
           </div>
           <div class="mt-1">
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">
               {{ auditMainStats.openFinding }}
             </h4>
             <p class="text-[11px] mt-1" :class="openFindingTrend.color">
@@ -161,7 +161,7 @@
             </div>
           </div>
           <div class="mt-1">
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">
               {{ (auditMainStats.executionStatus * 100).toFixed(0) }}%
             </h4>
             <p class="text-[11px] mt-1" :class="executionStatusTrend.color">
@@ -182,7 +182,7 @@
             </div>
           </div>
           <div class="mt-1">
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">
               {{ (auditMainStats.atrCompliance * 100).toFixed(0) }}%
             </h4>
             <p class="text-[11px] mt-1" :class="atrComplianceTrend.color">
@@ -199,10 +199,10 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
         <div>
           <div class="flex items-center gap-2">
-            <UIcon name="i-heroicons-sparkles" class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             <h2 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
               Predictive Intelligence & Anomaly Analytics
             </h2>
+            <UBadge :label="t('common.systemFlagged')" color="neutral" variant="subtle" size="sm" />
           </div>
           <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Analisis proyeksi masa depan KPI dan deteksi anomali finansial/operasional.
@@ -249,7 +249,7 @@
             <!-- Forecast Highlights Table / Cards -->
             <div class="mt-6 space-y-3">
               <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-                At-Risk KPI Projections & Audit Recommendations
+                KPI Projections & Audit Recommendations at Risk
               </h4>
 
               <div
@@ -272,7 +272,7 @@
 
                 <div class="text-right shrink-0 flex sm:flex-col items-center sm:items-end justify-between gap-2 sm:gap-0">
                   <span class="text-xs text-slate-400">Proyeksi</span>
-                  <span class="text-sm font-extrabold font-mono text-violet-600 dark:text-violet-400">
+                  <span class="text-sm font-extrabold tabular-nums text-violet-600 dark:text-violet-400">
                     {{ kpi.forecastedValue }}{{ kpi.unit === "%" ? "%" : "" }}
                   </span>
                 </div>
@@ -337,10 +337,10 @@
                 </div>
 
                 <div class="text-right shrink-0 flex sm:flex-col items-center sm:items-end justify-between gap-2 sm:gap-0">
-                  <span class="text-xs font-mono text-rose-600 dark:text-rose-400 font-bold">
+                  <span class="text-xs tabular-nums text-rose-600 dark:text-rose-400 font-bold">
                     Score: {{ anm.anomalyScore }}
                   </span>
-                  <span v-if="anm.amount" class="text-xs font-bold text-slate-800 dark:text-slate-200">
+                  <span v-if="anm.amount" class="text-xs font-bold text-slate-800 dark:text-slate-200 tabular-nums">
                     Rp {{ (anm.amount / 1000000).toLocaleString() }}M
                   </span>
                 </div>
@@ -388,7 +388,7 @@
           <div class="flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 pb-3 md:pb-0 md:pr-4">
             <span class="text-sm text-slate-500 dark:text-slate-400 font-medium">Real Effectiveness Score</span>
             <div class="flex items-baseline gap-2 mt-1">
-              <span class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              <span class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white tabular-nums">
                 {{ rcmStore.internalControlEffectiveness }}%
               </span>
             </div>

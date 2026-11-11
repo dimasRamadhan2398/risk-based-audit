@@ -119,7 +119,7 @@
               </div>
             </div>
             <div class="mt-3">
-              <div class="text-2xl font-black text-gray-900 dark:text-white">
+              <div class="text-2xl font-black text-gray-900 dark:text-white tabular-nums">
                 {{ card.value }}
               </div>
               <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1">

@@ -5,7 +5,10 @@
     :ui="{ content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-2xl bg-[var(--bg-main)] border border-[var(--border-main)]' }"
   >
     <template #body>
-      <UForm :state="store.form" @submit.prevent="handleSubmit">
+      <UForm
+        :state="store.form"
+        @submit.prevent="handleSubmit"
+      >
         <div class="space-y-6">
           <!-- Error Alert -->
           <UAlert
@@ -23,7 +26,11 @@
             <label class="block text-sm font-semibold text-[var(--text-main)]">
               {{ t('strategicPlan.vmg.vision') }} <span class="text-orange-500">*</span>
             </label>
-            <div v-for="(visi, index) in store.form.visis" :key="'visi-' + index" class="flex gap-2 items-center">
+            <div
+              v-for="(visi, index) in store.form.visis"
+              :key="'visi-' + index"
+              class="flex gap-2 items-center"
+            >
               <UInput
                 v-model="store.form.visis[index]"
                 :placeholder="t('strategicPlan.vmg.visionPlaceholder')"
@@ -35,8 +42,8 @@
                 icon="i-lucide-trash"
                 color="error"
                 variant="ghost"
-                @click="() => { store.form.visis.splice(index, 1) }"
                 :aria-label="t('strategicPlan.vmg.deleteVision')"
+                @click="() => { store.form.visis.splice(index, 1) }"
               />
             </div>
             <UButton
@@ -54,7 +61,11 @@
             <label class="block text-sm font-semibold text-[var(--text-main)]">
               {{ t('strategicPlan.vmg.mission') }} <span class="text-orange-500">*</span>
             </label>
-            <div v-for="(misi, index) in store.form.misis" :key="'misi-' + index" class="flex gap-2 items-center">
+            <div
+              v-for="(misi, index) in store.form.misis"
+              :key="'misi-' + index"
+              class="flex gap-2 items-center"
+            >
               <UInput
                 v-model="store.form.misis[index]"
                 :placeholder="t('strategicPlan.vmg.missionPlaceholder')"
@@ -66,8 +77,8 @@
                 icon="i-lucide-trash"
                 color="error"
                 variant="ghost"
-                @click="() => { store.form.misis.splice(index, 1) }"
                 :aria-label="t('strategicPlan.vmg.deleteMission')"
+                @click="() => { store.form.misis.splice(index, 1) }"
               />
             </div>
             <UButton
@@ -88,7 +99,11 @@
             <p class="text-md text-[var(--text-muted)]">
               {{ t('strategicPlan.vmg.goalsSubtitle') }}
             </p>
-            <div v-for="(goal, index) in store.form.goals" :key="'goal-' + index" class="flex gap-2 items-center">
+            <div
+              v-for="(goal, index) in store.form.goals"
+              :key="'goal-' + index"
+              class="flex gap-2 items-center"
+            >
               <UInput
                 v-model="goal.goal_code"
                 :placeholder="t('strategicPlan.vmg.goalCodePlaceholder')"
@@ -106,8 +121,8 @@
                 icon="i-lucide-trash"
                 color="error"
                 variant="ghost"
-                @click="() => { store.form.goals.splice(index, 1) }"
                 :aria-label="t('strategicPlan.vmg.deleteGoal')"
+                @click="() => { store.form.goals.splice(index, 1) }"
               />
             </div>
             <UButton

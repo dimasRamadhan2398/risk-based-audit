@@ -14,6 +14,7 @@ import (
 	mfaCtrl "auth-service/controllers/mfa"
 	resendCtrl "auth-service/controllers/resend"
 	roleCtrl "auth-service/controllers/role"
+	systemLogCtrl "auth-service/controllers/systemlog"
 	trustedDevicesCtrl "auth-service/controllers/trusted-devices"
 	userCtrl "auth-service/controllers/user"
 	"auth-service/pkg/middleware"
@@ -77,6 +78,10 @@ func (vControllers) GetResend() resendCtrl.ResendControllerInterface {
 	}{}
 }
 
+func (vControllers) GetSystemLog() systemLogCtrl.ControllerInterface {
+	return struct{ systemLogCtrl.ControllerInterface }{}
+}
+
 func viewerAuthEngine(t *testing.T) *gin.Engine {
 	t.Helper()
 	gin.SetMode(gin.TestMode)
@@ -138,6 +143,7 @@ func TestViewerAuthServiceAllowList(t *testing.T) {
 		{"GET", "/api/v1/users/assignable"},
 		{"GET", "/api/v1/users/contacts"},
 		{"GET", "/api/v1/users/lookup"},
+		{"GET", "/api/v1/system-logs"},
 		{"GET", "/api/v1/users/u2"}, // someone else's profile
 		{"PUT", "/api/v1/users/u1"}, // profile update is not on the viewer list
 		{"POST", "/api/v1/users"},

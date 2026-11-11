@@ -8,64 +8,65 @@ import (
 )
 
 type ExecutiveSummary struct {
-	ID                  uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	AssignmentLetterID  string         `gorm:"type:varchar(100)" json:"assignmentLetterId"`
-	Quarter             int            `gorm:"type:int" json:"quarter"` // 1, 2, 3, 4
-	PeriodeBulan        string         `gorm:"type:varchar(50)" json:"periodeBulan"`
-	Tahun               int            `gorm:"type:int" json:"tahun"`
-	NomorDokumen        string         `gorm:"type:varchar(100)" json:"nomorDokumen"`
-	DokumenPath         string         `gorm:"type:varchar(255)" json:"dokumenPath"` // Uploaded file
-	Status              string         `gorm:"type:varchar(50);default:'Draft'" json:"status"` // Draft, Approved, Rejected
-	ExecutiveNote       string         `gorm:"type:text" json:"executiveNote"`                // Note from Executive to Auditor
+	ID                 uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
+	AssignmentLetterID string    `gorm:"type:varchar(100)" json:"assignmentLetterId"`
+	Quarter            int       `gorm:"type:int" json:"quarter"` // 1, 2, 3, 4
+	PeriodeBulan       string    `gorm:"type:varchar(50)" json:"periodeBulan"`
+	Tahun              int       `gorm:"type:int" json:"tahun"`
+	NomorDokumen       string    `gorm:"type:varchar(100)" json:"nomorDokumen"`
+	DokumenPath        string    `gorm:"type:varchar(255)" json:"dokumenPath"`           // Uploaded file
+	Status             string    `gorm:"type:varchar(50);default:'Draft'" json:"status"` // Draft, Approved, Rejected
+	ExecutiveNote      string    `gorm:"type:text" json:"executiveNote"`                 // Note from Executive to Auditor
 
 	// Section I
-	Narrative           string         `gorm:"type:text" json:"narrative"`
+	Narrative string `gorm:"type:text" json:"narrative"`
 
 	// Section II
-	JumlahLaporan       int            `gorm:"type:int" json:"jumlahLaporan"`
+	JumlahLaporan int `gorm:"type:int" json:"jumlahLaporan"`
 	// Findings by the five working paper risk levels
-	RisikoHigh          int            `gorm:"type:int;not null;default:0" json:"risikoHigh"`
-	RisikoModerateHigh  int            `gorm:"type:int;not null;default:0" json:"risikoModerateHigh"`
-	RisikoModerate      int            `gorm:"type:int;not null;default:0" json:"risikoModerate"`
-	RisikoLowModerate   int            `gorm:"type:int;not null;default:0" json:"risikoLowModerate"`
-	RisikoLow           int            `gorm:"type:int;not null;default:0" json:"risikoLow"`
+	RisikoHigh         int `gorm:"type:int;not null;default:0" json:"risikoHigh"`
+	RisikoModerateHigh int `gorm:"type:int;not null;default:0" json:"risikoModerateHigh"`
+	RisikoModerate     int `gorm:"type:int;not null;default:0" json:"risikoModerate"`
+	RisikoLowModerate  int `gorm:"type:int;not null;default:0" json:"risikoLowModerate"`
+	RisikoLow          int `gorm:"type:int;not null;default:0" json:"risikoLow"`
 	// Legacy three-level counts, kept for backward compatibility. Writes keep
 	// them in step with the five levels (see SyncRiskCounts).
-	RisikoTinggi        int            `gorm:"type:int" json:"risikoTinggi"`
-	RisikoSedang        int            `gorm:"type:int" json:"risikoSedang"`
-	RisikoRendah        int            `gorm:"type:int" json:"risikoRendah"`
-	JumlahRekomendasi   int            `gorm:"type:int" json:"jumlahRekomendasi"`
+	RisikoTinggi      int `gorm:"type:int" json:"risikoTinggi"`
+	RisikoSedang      int `gorm:"type:int" json:"risikoSedang"`
+	RisikoRendah      int `gorm:"type:int" json:"risikoRendah"`
+	JumlahRekomendasi int `gorm:"type:int" json:"jumlahRekomendasi"`
 
 	// Section III & IV & Matriks Induk are stored as serialized JSON strings for simplicity & database compatibility
-	FollowUpTable       string         `gorm:"type:text" json:"followUpTable"` // JSON array
-	TopFindings         string         `gorm:"type:text" json:"topFindings"`   // JSON array
-	MatriksKompilasi    string         `gorm:"type:text" json:"matriksKompilasi"` // JSON array
+	FollowUpTable    string `gorm:"type:text" json:"followUpTable"`    // JSON array
+	TopFindings      string `gorm:"type:text" json:"topFindings"`      // JSON array
+	MatriksKompilasi string `gorm:"type:text" json:"matriksKompilasi"` // JSON array
 
 	// Section V & VII
-	AkarMasalah         string         `gorm:"type:text" json:"akarMasalah"`
-	Kesimpulan          string         `gorm:"type:text" json:"kesimpulan"`
+	AkarMasalah string `gorm:"type:text" json:"akarMasalah"`
+	Kesimpulan  string `gorm:"type:text" json:"kesimpulan"`
 
 	// Signature
-	SignatureTempat     string         `gorm:"type:varchar(100)" json:"signatureTempat"`
-	SignatureTanggal    string         `gorm:"type:varchar(100)" json:"signatureTanggal"`
-	SignatureNamaKepala string         `gorm:"type:varchar(200)" json:"signatureNamaKepala"`
-	SignatureNIK        string         `gorm:"type:varchar(50)" json:"signatureNIK"`
+	SignatureTempat     string `gorm:"type:varchar(100)" json:"signatureTempat"`
+	SignatureTanggal    string `gorm:"type:varchar(100)" json:"signatureTanggal"`
+	SignatureNamaKepala string `gorm:"type:varchar(200)" json:"signatureNamaKepala"`
+	SignatureNIK        string `gorm:"type:varchar(50)" json:"signatureNIK"`
 
 	// Approval signature, written only by POST /executive-summaries/:id/approve.
 	// SignatureImage is a PNG/JPEG data URL drawn on the signature pad (same
 	// approach as ReportSignature in AuditResultReport). SignatureName and
 	// SignatureRole are the signer as printed; ApprovedBy and ApprovedByRole
 	// record the authenticated user who approved, and ApprovedAt when.
-	SignatureImage      string         `gorm:"type:text" json:"signatureImage"`
-	SignatureName       string         `gorm:"type:varchar(200)" json:"signatureName"`
-	SignatureRole       string         `gorm:"type:varchar(100)" json:"signatureRole"`
-	ApprovedBy          string         `gorm:"type:varchar(200)" json:"approvedBy"`
-	ApprovedByRole      string         `gorm:"type:varchar(100)" json:"approvedByRole"`
-	ApprovedAt          *time.Time     `json:"approvedAt"`
+	SignatureImage   string     `gorm:"type:text" json:"signatureImage"`
+	SignatureName    string     `gorm:"type:varchar(200)" json:"signatureName"`
+	SignatureRole    string     `gorm:"type:varchar(100)" json:"signatureRole"`
+	ApprovedBy       string     `gorm:"type:varchar(200)" json:"approvedBy"`
+	ApprovedByUserID string     `gorm:"type:varchar(64)" json:"approvedByUserId"`
+	ApprovedByRole   string     `gorm:"type:varchar(100)" json:"approvedByRole"`
+	ApprovedAt       *time.Time `json:"approvedAt"`
 
-	CreatedAt           time.Time      `json:"created_at"`
-	UpdatedAt           time.Time      `json:"updated_at"`
-	DeletedAt           gorm.DeletedAt `gorm:"index" json:"-"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
 func (e *ExecutiveSummary) BeforeCreate(tx *gorm.DB) (err error) {
@@ -117,4 +118,3 @@ func NormalizeExecutiveSummaryRiskCounts(db *gorm.DB) (int64, error) {
 		})
 	return res.RowsAffected, res.Error
 }
-

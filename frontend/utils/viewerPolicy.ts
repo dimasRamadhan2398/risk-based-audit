@@ -21,16 +21,27 @@ export function isViewerOnly(roles: string[]): boolean {
 
 export const SETTINGS_TABS_ALL = ['profile', 'settings', 'mfa', 'activity', 'permissions', 'datasource', 'faq'] as const
 export const SETTINGS_TABS_VIEWER = ['profile', 'activity', 'faq'] as const
+/** Admin user activity log; shown only with view_system_logs (useSystemLogAccess), never to VIEWER. */
+export const SETTINGS_TAB_SYSTEM_LOGS = 'systemlogs'
+
+export interface SettingsTabOptions {
+  /** The user holds view_system_logs. Ignored for VIEWER. */
+  systemLogs?: boolean
+}
 
 /** Account Settings tabs visible to the role. */
-export function getSettingsTabs(viewer: boolean): string[] {
-  return [...(viewer ? SETTINGS_TABS_VIEWER : SETTINGS_TABS_ALL)]
+export function getSettingsTabs(viewer: boolean, opts: SettingsTabOptions = {}): string[] {
+  if (viewer) return [...SETTINGS_TABS_VIEWER]
+  const tabs: string[] = [...SETTINGS_TABS_ALL]
+  // Before FAQ, after the other admin tabs
+  if (opts.systemLogs) tabs.splice(tabs.indexOf('faq'), 0, SETTINGS_TAB_SYSTEM_LOGS)
+  return tabs
 }
 
 /** Resolve a ?tab= query to an allowed tab, falling back to profile. */
-export function resolveSettingsTab(query: unknown, viewer: boolean): string {
+export function resolveSettingsTab(query: unknown, viewer: boolean, opts: SettingsTabOptions = {}): string {
   const tab = Array.isArray(query) ? query[0] : query
-  return typeof tab === 'string' && getSettingsTabs(viewer).includes(tab) ? tab : 'profile'
+  return typeof tab === 'string' && getSettingsTabs(viewer, opts).includes(tab) ? tab : 'profile'
 }
 
 /** Master data pages (/master/*). */

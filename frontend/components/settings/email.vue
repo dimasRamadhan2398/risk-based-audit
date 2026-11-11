@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6 max-w-5xl">
     <!-- Header Status Card -->
-    <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
+    <UCard class="border border-gray-200 dark:border-slate-800 dark:bg-slate-900 dark:ring-slate-800 rounded-2xl shadow-md">
       <template #header>
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div class="flex items-center gap-3">
@@ -52,7 +52,7 @@
     </UCard>
 
     <!-- Provision Domain Form Card -->
-    <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
+    <UCard class="border border-gray-200 dark:border-slate-800 dark:bg-slate-900 dark:ring-slate-800 rounded-2xl shadow-md">
       <template #header>
         <div class="flex items-center justify-between">
           <h3 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -102,7 +102,6 @@
             color="primary"
             class="rounded-xl font-bold"
             :loading="isProvisioning"
-            icon="i-lucide-sparkles"
           >
             {{ t('settings.email.provisionButton') }}
           </UButton>

@@ -217,7 +217,7 @@
                   <span>{{ t('auditFieldwork.testControls.sectionMitigation') }}</span>
                 </div>
                 <div v-if="store.testControlForm.pic" class="flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
-                  <UIcon name="i-heroicons-user-circle" class="w-4 h-4" />
+                  <UIcon name="i-lucide-user-check" class="w-4 h-4" />
                   <span class="font-medium text-[var(--text-main)]">{{ t('auditFieldwork.extra.pic') }} {{ store.formatEmployeeName(store.testControlForm.pic) }}</span>
                 </div>
               </div>

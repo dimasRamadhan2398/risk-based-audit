@@ -52,7 +52,7 @@ const trendClass = (trendUp: boolean | null) =>
         </div>
       </div>
       <div class="mt-1">
-        <h4 class="text-2xl font-bold text-slate-900 dark:text-white">
+        <h4 class="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">
           {{ card.value }}
         </h4>
         <p class="flex flex-col gap-1 text-[11px] mt-1 text-slate-400 dark:text-slate-300 font-normal">

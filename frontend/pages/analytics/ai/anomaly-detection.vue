@@ -11,6 +11,7 @@ import {
 import { useAiAnalytics } from '~/composables/useAiAnalytics'
 import {
   buildAnomalyScatterPoints,
+  ANOMALY_POINT_COLORS,
   createAnomalyTypeConfigs,
   getAnomalyTypeConfig,
   listAnomalyTypes,
@@ -18,26 +19,55 @@ import {
   getCanonicalCategory,
   type AnomalyTypeConfig
 } from '~/composables/useAnomalyScatter'
+import { formatRupiahFromMillions, normalizeRupiahInText } from '~/utils/analyticsFormat'
 import { useI18n } from '~/composables/useI18n'
 import AiInsightHeader from '~/components/analytics/AiInsightHeader.vue'
 
 ChartJS.register(LinearScale, PointElement, Tooltip, Legend)
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const {
   loading,
   isolationState,
   summary,
+  automatedAnomalyRules,
+  trainAnomalyWithRules,
   formatNum,
   getRiskConfig,
   fetchAiAnalytics
 } = useAiAnalytics()
 
+const isRetrainingRules = ref(false)
+
+async function reSyncAllAutomatedRules() {
+  if (!automatedAnomalyRules.value || automatedAnomalyRules.value.length === 0) return
+  isRetrainingRules.value = true
+  try {
+    const rulesByTable: Record<string, any[]> = {}
+    automatedAnomalyRules.value.forEach((r: any) => {
+      const tbl = r.table_name || 'gl_transactions'
+      if (!rulesByTable[tbl]) rulesByTable[tbl] = []
+      rulesByTable[tbl].push(r)
+    })
+
+    for (const [tbl, rules] of Object.entries(rulesByTable)) {
+      await trainAnomalyWithRules({
+        table_name: tbl,
+        connection_name: rules[0]?.connection_name || 'Core Banking',
+        category: rules[0]?.category || 'Transaction',
+        rules
+      })
+    }
+  } finally {
+    isRetrainingRules.value = false
+  }
+}
+
 onMounted(() => {
   fetchAiAnalytics()
 })
 
-const anomalyTypeConfigs = computed<Record<string, AnomalyTypeConfig>>(() => createAnomalyTypeConfigs(t))
+const anomalyTypeConfigs = computed<Record<string, AnomalyTypeConfig>>(() => createAnomalyTypeConfigs(t, locale.value))
 
 const selectedAnomalyType = ref('Funding')
 const categorySearch = ref('')
@@ -126,7 +156,7 @@ watch(selectedAnomalyType, (newType) => {
 
 const getCategoryBadgeColor = (type: string) => {
   switch (type) {
-    case 'Funding': return 'success'
+    case 'Funding': return 'info'
     case 'Lending': return 'error'
     case 'Treasury': return 'primary'
     case 'Payment': return 'warning'
@@ -135,7 +165,7 @@ const getCategoryBadgeColor = (type: string) => {
     case 'Transaction': return 'error'
     case 'Procurement': return 'primary'
     case 'Expense Report': return 'warning'
-    case 'Travel Expense': return 'success'
+    case 'Travel Expense': return 'neutral'
     case 'Inventory': return 'neutral'
     case 'Fieldwork': return 'secondary'
     default: {
@@ -238,21 +268,30 @@ const clearHighlight = () => {
   highlightedPointInfo.value = null
 }
 
+const getPlottedAnomaliesForType = (typeFilter: string) => {
+  const allScatter = isolationState.value.scatterData || []
+  return (isolationState.value.anomalies || [])
+    .filter((a: any) => isCategoryMatching(a.type, typeFilter))
+    .filter((a: any) => {
+      const matchedScatter = allScatter.find((s: any) => s.label === a.id)
+      const yVal = matchedScatter?.y ?? a.hour ?? a.hour_of_day ?? a.y
+      return yVal !== undefined && yVal !== null
+    })
+}
+
 const getScatterChartForType = (typeFilter: string) => {
   const { normalPoints, anomalyPoints } = buildAnomalyScatterPoints(
     isolationState.value.anomalies,
     isolationState.value.scatterData,
     typeFilter
   )
+  const plottedAnomalies = getPlottedAnomaliesForType(typeFilter)
 
   const config = anomalyTypeConfigs.value[typeFilter] || getAnomalyTypeConfig(t, typeFilter)
   const colors = config.colors
 
-  const categoryAnomalies = (isolationState.value.anomalies || []).filter(
-    (a: any) => isCategoryMatching(a.type, typeFilter)
-  )
   const isSelected = (idx: number) => {
-    const anom = categoryAnomalies[idx]
+    const anom = plottedAnomalies[idx]
     return !!(anom && highlightedAnomalyId.value && anom.id === highlightedAnomalyId.value)
   }
 
@@ -292,10 +331,8 @@ const scatterOptions = computed(() => {
       if (!elements || elements.length === 0) return
       const firstElem = elements[0]
       if (firstElem.datasetIndex === 1) {
-        const categoryAnomalies = (isolationState.value.anomalies || []).filter(
-          (a: any) => isCategoryMatching(a.type, selectedAnomalyType.value)
-        )
-        const anom = categoryAnomalies[firstElem.index]
+        const plottedAnomalies = getPlottedAnomaliesForType(selectedAnomalyType.value)
+        const anom = plottedAnomalies[firstElem.index]
         if (anom && anom.id) {
           selectAnomalyFromPlot(anom.id, anom.type || selectedAnomalyType.value)
         }
@@ -308,10 +345,8 @@ const scatterOptions = computed(() => {
           title: (items: any[]) => {
             const item = items[0]
             if (item && item.datasetIndex === 1) {
-              const categoryAnomalies = (isolationState.value.anomalies || []).filter(
-                (a: any) => isCategoryMatching(a.type, selectedAnomalyType.value)
-              )
-              const anom = categoryAnomalies[item.dataIndex]
+              const plottedAnomalies = getPlottedAnomaliesForType(selectedAnomalyType.value)
+              const anom = plottedAnomalies[item.dataIndex]
               if (anom) return `[${anom.id}] ${anom.entity || ''}`
             }
             return item?.dataset?.label || ''
@@ -320,10 +355,8 @@ const scatterOptions = computed(() => {
             const formattedX = currentConfig.formatX ? currentConfig.formatX(ctx.parsed.x) : `${ctx.parsed.x}`
             const metricName = currentConfig.xAxisTitle ? currentConfig.xAxisTitle.split(' (')[0] : selectedAnomalyType.value
             if (ctx.datasetIndex === 1) {
-              const categoryAnomalies = (isolationState.value.anomalies || []).filter(
-                (a: any) => isCategoryMatching(a.type, selectedAnomalyType.value)
-              )
-              const anom = categoryAnomalies[ctx.dataIndex]
+              const plottedAnomalies = getPlottedAnomaliesForType(selectedAnomalyType.value)
+              const anom = plottedAnomalies[ctx.dataIndex]
               return [
                 `Kategori: ${anom?.type || selectedAnomalyType.value}`,
                 `Metrik (${metricName}): ${formattedX}`,
@@ -342,8 +375,12 @@ const scatterOptions = computed(() => {
       }
     },
     scales: {
-      x: { title: { display: true, text: currentConfig.xAxisTitle } },
-      y: { title: { display: true, text: t('analytics.isolation.axisFrequency') } }
+      x: {
+        title: { display: true, text: currentConfig.xAxisTitle },
+        ticks: { maxTicksLimit: 6, callback: (v: any) => currentConfig.formatX ? currentConfig.formatX(Number(v)) : v }
+      },
+      // Y = transaction hour from the data (0-24).
+      y: { suggestedMin: 0, suggestedMax: 24, ticks: { stepSize: 3 }, title: { display: true, text: t('analytics.isolation.axisHour') } }
     }
   }
 })
@@ -381,19 +418,19 @@ const scatterOptions = computed(() => {
         <UCard>
           <div class="text-center">
             <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.recordsScanned') }}</div>
-            <div class="text-2xl font-black mt-1">{{ (isolationState.summary?.totalScanned || 0).toLocaleString() }}</div>
+            <div class="text-2xl font-black mt-1 tabular-nums">{{ (isolationState.summary?.totalScanned || 0).toLocaleString() }}</div>
           </div>
         </UCard>
         <UCard>
           <div class="text-center">
             <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.anomaliesFound') }}</div>
-            <div class="text-2xl font-black text-rose-500 mt-1">{{ isolationState.summary?.anomaliesFound || summary.anomaliesDetected || 150 }}</div>
+            <div class="text-2xl font-black text-rose-500 mt-1 tabular-nums">{{ isolationState.summary?.anomaliesFound || summary.anomaliesDetected || 150 }}</div>
           </div>
         </UCard>
         <UCard>
           <div class="text-center">
             <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">{{ t('analytics.isolation.contaminationRate') }}</div>
-            <div class="text-2xl font-black text-amber-500 mt-1">{{ formatNum((isolationState.summary?.contaminationRate || 0.125) * 100, 1) }}%</div>
+            <div class="text-2xl font-black text-amber-500 mt-1 tabular-nums">{{ formatNum((isolationState.summary?.contaminationRate || 0.125) * 100, 1) }}%</div>
           </div>
         </UCard>
         <UCard>
@@ -403,6 +440,73 @@ const scatterOptions = computed(() => {
           </div>
         </UCard>
       </div>
+
+      <!-- Automated Anomaly Rules (from Data Source Pipeline) Banner -->
+      <UCard v-if="automatedAnomalyRules && automatedAnomalyRules.length > 0" class="border border-primary-200/60 dark:border-primary-900/40 bg-gradient-to-r from-primary-50/40 via-white to-primary-50/20 dark:from-primary-950/20 dark:via-gray-900 dark:to-primary-950/10">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <UIcon name="i-lucide-sparkles" class="text-primary-500 w-5 h-5 shrink-0" />
+              <h4 class="font-bold text-sm text-gray-900 dark:text-white">
+                Automated Anomaly Rules (Terkoneksi dari Data Source)
+              </h4>
+              <UBadge color="primary" variant="solid" size="xs">
+                {{ automatedAnomalyRules.length }} Aturan Aktif
+              </UBadge>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              Model AI Anomaly Detection (Isolation Forest & XGBoost) secara otomatis dilatih berdasarkan kriteria dan aturan anomali berikut:
+            </p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <UButton
+              size="xs"
+              color="primary"
+              variant="subtle"
+              icon="i-lucide-refresh-cw"
+              :loading="isRetrainingRules"
+              class="font-semibold rounded-lg"
+              @click="reSyncAllAutomatedRules"
+            >
+              Latih Ulang Model AI
+            </UButton>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 mt-3 pt-3 border-t border-primary-100 dark:border-primary-900/40">
+          <div
+            v-for="rule in automatedAnomalyRules"
+            :key="rule.id || rule.name"
+            class="flex items-start justify-between p-2.5 rounded-xl border bg-white dark:bg-gray-800/80 border-gray-200 dark:border-gray-700/70 shadow-xs"
+          >
+            <div class="space-y-1 overflow-hidden pr-2">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <UBadge
+                  :color="rule.severity === 'CRITICAL' ? 'error' : rule.severity === 'HIGH' ? 'warning' : 'neutral'"
+                  size="xs"
+                  variant="subtle"
+                  class="font-mono text-[9px]"
+                >
+                  {{ rule.severity || 'HIGH' }}
+                </UBadge>
+                <span class="text-xs font-bold text-gray-900 dark:text-white truncate">{{ rule.name }}</span>
+              </div>
+              <p class="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-1">
+                {{ rule.description || (rule.field ? `${rule.field} ${rule.operator} ${rule.threshold}` : 'Aturan operasional standar') }}
+              </p>
+              <div class="flex items-center gap-2 text-[10px] text-gray-400 font-mono">
+                <span v-if="rule.table_name" class="flex items-center gap-1">
+                  <UIcon name="i-lucide-database" class="w-3 h-3 text-primary-500" />
+                  {{ rule.table_name }}
+                </span>
+                <span v-if="rule.category" class="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
+                  {{ rule.category }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </UCard>
 
       <!-- Scatter Chart Card with Type Filter Tabs -->
       <UCard id="anomaly-scatter-chart-card">
@@ -575,7 +679,20 @@ const scatterOptions = computed(() => {
                 <td class="py-3 px-3">
                   <UBadge :color="getCategoryBadgeColor(a.type)" variant="subtle" size="md">{{ a.type }}</UBadge>
                 </td>
-                <td class="py-3 px-3 text-md leading-relaxed text-gray-600 dark:text-gray-300">{{ a.description || a.reason || a.notes || 'Transaksi Anomali' }}</td>
+                <td class="py-3 px-3 text-md leading-relaxed text-gray-600 dark:text-gray-300">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <UBadge
+                      v-if="a.id?.startsWith('RULE-') || a.description?.includes('[Rule:') || a.reason?.includes('[Rule:')"
+                      color="primary"
+                      variant="subtle"
+                      size="xs"
+                      class="font-mono text-[10px]"
+                    >
+                      ⚡ Rule Match
+                    </UBadge>
+                    <span>{{ a.description || a.reason || a.notes || 'Transaksi Anomali' }}</span>
+                  </div>
+                </td>
                 <td class="text-center py-3 px-3">
                   <UBadge
                     :class="getRiskConfig(a.riskLevel).badgeClass"

@@ -119,9 +119,12 @@ export const computeRiskIndexPreview = (rows: Pick<ScoringRow, 'weight' | 'score
 
 // ─── Corporate weights ──────────────────────────────────────────────
 
-/** The backend accepts a weight total within this range (percent). */
-export const WEIGHT_SUM_MIN = 99.9
-export const WEIGHT_SUM_MAX = 100.1
+/**
+ * The weight total must be exactly 100%. Weights carry up to 2 decimals, so totals are compared in integer
+ * hundredths of a percent (10000 = 100%) to avoid floating point noise without allowing any tolerance:
+ * 99.99 and 100.01 are invalid. (The backend is looser, 99.9–100.1, so anything valid here is accepted there.)
+ */
+export const WEIGHT_TOTAL_HUNDREDTHS = 10000
 export const WEIGHT_DECIMALS = 2
 
 /** Normalises a weight percentage to at most 2 decimals. */
@@ -130,9 +133,20 @@ export const normalizeWeightPercent = (value: unknown): number => roundDecimals(
 /** Stored fraction (0.1234) to a percentage for the form (12.34). */
 export const weightFractionToPercent = (fraction: number): number => roundDecimals((Number(fraction) || 0) * 100, WEIGHT_DECIMALS)
 
-/** Sum of weight percentages, each normalised to 2 decimals, without floating point noise. */
-export const sumWeightPercents = (weights: unknown[]): number =>
-  roundDecimals(weights.reduce<number>((sum, w) => sum + normalizeWeightPercent(w), 0), WEIGHT_DECIMALS)
+/** A weight percentage as integer hundredths (33.33 -> 3333). Non-numeric values count as 0. */
+const toHundredths = (value: unknown): number => Math.round((Number(value) || 0) * 100)
 
+/** Sum of weight percentages in integer hundredths (100% = 10000). */
+export const sumWeightHundredths = (weights: unknown[]): number =>
+  weights.reduce<number>((sum, w) => sum + toHundredths(w), 0)
+
+/** Sum of weight percentages, each normalised to 2 decimals, without floating point noise. */
+export const sumWeightPercents = (weights: unknown[]): number => sumWeightHundredths(weights) / 100
+
+/** True only when the total percentage is exactly 100 (to the hundredth). */
 export const isValidWeightTotal = (total: number): boolean =>
-  Number.isFinite(total) && total >= WEIGHT_SUM_MIN && total <= WEIGHT_SUM_MAX
+  Number.isFinite(total) && toHundredths(total) === WEIGHT_TOTAL_HUNDREDTHS
+
+/** True only when the weights add up to exactly 100%. */
+export const isWeightSumExactly100 = (weights: unknown[]): boolean =>
+  sumWeightHundredths(weights) === WEIGHT_TOTAL_HUNDREDTHS

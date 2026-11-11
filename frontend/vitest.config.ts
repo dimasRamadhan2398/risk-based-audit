@@ -8,6 +8,8 @@ export default defineConfig({
     globals: true,
     environment: 'happy-dom',
     setupFiles: ['./tests/setup.ts'],
+    // tests/e2e holds Playwright specs (npm run test:e2e); vitest cannot load them.
+    exclude: ['**/node_modules/**', '**/.nuxt/**', '**/.output/**', 'tests/e2e/**', '.claude/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

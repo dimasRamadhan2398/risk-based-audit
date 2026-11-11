@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"auth-service/models"
+	"auth-service/pkg/activitylog"
 	baseService "auth-service/pkg/base"
 	"auth-service/pkg/errors"
 	"auth-service/pkg/kafka"
@@ -109,14 +110,22 @@ type UserService struct {
 	*baseService.BaseService
 	userRepo     repositories.UserRepositoryInterface
 	kafkaProducer *kafka.Producer
+	activity      activitylog.Recorder
 }
 
-// NewUserService creates a new user service
+// NewUserService creates a new user service without an activity recorder
 func NewUserService(userRepo repositories.UserRepositoryInterface, kafkaProducer *kafka.Producer) UserServiceInterface {
+	return NewUserServiceWithActivity(userRepo, kafkaProducer, nil)
+}
+
+// NewUserServiceWithActivity creates a user service that records admin actions
+// (password reset) in the activity log. activity may be nil.
+func NewUserServiceWithActivity(userRepo repositories.UserRepositoryInterface, kafkaProducer *kafka.Producer, activity activitylog.Recorder) UserServiceInterface {
 	return &UserService{
 		BaseService:   baseService.NewBaseService(),
 		userRepo:      userRepo,
 		kafkaProducer: kafkaProducer,
+		activity:      activity,
 	}
 }
 
@@ -476,6 +485,20 @@ func (s *UserService) AdminResetPassword(ctx context.Context, actorID, targetID 
 		utils.LogField("user_id", user.ID),
 		utils.LogField("reset_by", actorID),
 	)
+
+	// The temporary password is returned to the admin only; it is never logged.
+	if s.activity != nil {
+		s.activity.Record(ctx, activitylog.Entry{
+			ActorUserID: actorID.String(),
+			Action:      activitylog.ActionPasswordResetByAdmin,
+			EntityType:  "user",
+			EntityID:    user.ID.String(),
+			Result:      activitylog.ResultSuccess,
+			IPAddress:   ipAddress,
+			Summary:     "Password reset for " + user.Username,
+			Details:     map[string]interface{}{"target_username": user.Username},
+		})
+	}
 
 	// Send to Kafka for centralized audit logging
 	if s.kafkaProducer != nil && s.kafkaProducer.IsEnabled() {

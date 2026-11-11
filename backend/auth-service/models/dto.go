@@ -46,6 +46,11 @@ type UserInfo struct {
 	// DepartmentID is the master-data department UUID of the employee.
 	// Null when unlinked or when master-service could not be reached.
 	DepartmentID *string `json:"department_id"`
+	// Permissions is the sorted, deduped union of permission names granted to
+	// Roles. [] when the roles grant nothing. Omitted only when the lookup
+	// failed, so the frontend falls back to probing (useRbac().getUserPermissions).
+	// Never put in the JWT.
+	Permissions *[]string `json:"permissions,omitempty"`
 }
 
 // EmployeeLink is the master-data employee behind a login account.
@@ -178,6 +183,18 @@ type SetupMfaRequest struct {
 // VerifyMfaRequest represents a request to verify MFA code
 type VerifyMfaRequest struct {
 	Code string `json:"code" binding:"required" validate:"required,len=6"`
+	// Optional: the device enabling MFA, so it is listed on the Activity page.
+	// When DeviceFingerprint is empty the fingerprint of the last sign-in is used.
+	DeviceFingerprint string `json:"device_fingerprint"`
+	DeviceName        string `json:"device_name"`
+	DeviceType        string `json:"device_type"`
+}
+
+// EnableMfaResult is the outcome of POST /mfa/verify.
+type EnableMfaResult struct {
+	// AlreadyEnabled is true when MFA was already on with the same secret and
+	// the code was valid (a retried or double-submitted verify).
+	AlreadyEnabled bool `json:"already_enabled"`
 }
 
 type MfaSetupRequest struct {
@@ -236,6 +253,9 @@ type TrustedDeviceResponse struct {
 	IPAddress         string     `json:"ip_address"`
 	ExpiresAt         *time.Time `json:"expires_at,omitempty"`
 	CreatedAt         time.Time  `json:"created_at"`
+	// IsTrusted is true when the device skips the MFA step (trusted, not expired).
+	IsTrusted  bool       `json:"is_trusted"`
+	LastSeenAt *time.Time `json:"last_seen_at,omitempty"`
 }
 
 type QREnrollmentResponse struct {

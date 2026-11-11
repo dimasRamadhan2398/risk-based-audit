@@ -182,7 +182,7 @@ const featureBarOptions = computed(() => ({
                 <td class="py-3 px-4 font-bold">{{ row.entity }}</td>
                 <td class="py-3 px-4"><UBadge :color="row.type === 'Branch' ? 'primary' : 'warning'" variant="subtle" size="md">{{ row.type }}</UBadge></td>
                 <td class="text-center py-3 px-4"><UBadge :color="riskCategoryColor(row.riskCategory)" variant="subtle" size="md">{{ row.riskCategory }}</UBadge></td>
-                <td class="text-center py-3 px-4 font-mono">{{ formatNum(row.actualScore, 1) }}</td>
+                <td class="text-center py-3 px-4 tabular-nums">{{ formatNum(row.actualScore, 1) }}</td>
                 <td class="text-center py-3 px-4">
                   <UBadge
                     :class="getRiskConfig(row.actualRiskLevel).badgeClass"
@@ -194,8 +194,8 @@ const featureBarOptions = computed(() => ({
                   </UBadge>
                 </td>
                 <td class="text-center py-3 px-4"><UBadge color="info" variant="subtle" size="md" class="font-bold">{{ row.targetTimeline || 'Q3 2026' }}</UBadge></td>
-                <td class="text-center py-3 px-4 font-mono">{{ formatNum(row.predictedLikelihood, 1) }}</td>
-                <td class="text-center py-3 px-4 font-mono">{{ formatNum(row.predictedImpact, 1) }}</td>
+                <td class="text-center py-3 px-4 tabular-nums">{{ formatNum(row.predictedLikelihood, 1) }}</td>
+                <td class="text-center py-3 px-4 tabular-nums">{{ formatNum(row.predictedImpact, 1) }}</td>
                 <td class="text-center py-3 px-4">
                   <UBadge
                     :class="getRiskConfig(row.predictedRiskLevel).badgeClass"

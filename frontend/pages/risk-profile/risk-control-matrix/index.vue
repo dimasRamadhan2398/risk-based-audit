@@ -34,6 +34,19 @@
           class="w-full sm:w-64"
         />
 
+        <USelect
+          v-model="rcmStore.selectedBranch"
+          :items="branchOptions"
+          value-key="value"
+          size="md"
+          icon="i-heroicons-building-office"
+          :loading="riskProfileStore.branchesLoading"
+          :disabled="!!riskProfileStore.branchesError"
+          :title="riskProfileStore.branchesError ? t('rcm.filters.branchesUnavailable') : undefined"
+          :aria-label="t('rcm.filters.branchLabel')"
+          class="w-full sm:w-56"
+        />
+
         <UButton v-if="canWrite"
           color="primary"
           variant="solid"
@@ -57,7 +70,7 @@
               <span class="text-sm font-semibold tracking-wider text-slate-400 dark:text-slate-400">{{ t('rcm.cards.effectiveness.badge') }}</span>
             </div>
             <span class="text-sm font-medium text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md border border-transparent dark:border-slate-700">
-              {{ t('rcm.cards.effectiveness.periodInfo', { year: rcmStore.selectedYear, department: selectedDepartmentLabel }) }}
+              {{ t('rcm.cards.effectiveness.periodInfo', { year: rcmStore.selectedYear, department: selectedScopeLabel }) }}
             </span>
           </div>
           <h2 class="text-xl font-bold text-slate-900 dark:text-white mt-1">{{ t('rcm.cards.effectiveness.title') }}</h2>
@@ -68,7 +81,7 @@
           <div class="flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 pb-3 md:pb-0 md:pr-4">
             <span class="text-sm text-slate-500 dark:text-slate-400 font-medium">{{ t('rcm.cards.effectiveness.realScore') }}</span>
             <div class="flex items-baseline gap-2 mt-1">
-              <span class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              <span class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white tabular-nums">
                 {{ rcmStore.internalControlEffectiveness }}%
               </span>
             </div>
@@ -88,10 +101,14 @@
               </span>
             </div>
             <div class="flex items-center justify-between text-sm">
-              <span class="text-slate-600 dark:text-slate-300 font-medium">{{ t('rcm.cards.effectiveness.residualRiskLabel') }}</span>
+              <span class="text-slate-600 dark:text-slate-300 font-medium">{{ t(rcmStore.residualIsYearEnd ? 'rcm.cards.effectiveness.residualRiskLabelYearEnd' : 'rcm.cards.effectiveness.residualRiskLabel', { quarter: rcmStore.residualQuarter }) }}</span>
               <span class="font-bold text-red-600 dark:text-red-400 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                 {{ t('rcm.cards.effectiveness.riskCount', { count: rcmStore.totalResidualRisk }) }}
               </span>
+            </div>
+            <div class="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
+              <UIcon name="i-lucide-shield-check" class="size-4 shrink-0 text-emerald-500" />
+              <span>{{ t('rcm.cards.effectiveness.mitigationCoverage', { covered: rcmStore.mitigationCoverage.covered, total: rcmStore.mitigationCoverage.total }) }}</span>
             </div>
             <UAlert
               :color="(rcmStore.effectivenessRating.alertColor as any) || 'info'"
@@ -228,6 +245,7 @@
 
       <div class="rcm-table w-full min-w-0">
       <TableEntities
+        v-model:page="tablePage"
         :data="filteredList"
         :columns="rcmStore.columns"
         :items-per-page="10"
@@ -385,7 +403,7 @@
                 {{ isEditMode ? t('rcm.modal.editTitle') : t('rcm.modal.addTitle') }}
               </h3>
               <p class="mt-0.5 text-xs text-[var(--text-muted)]">
-                {{ t('rcm.modal.manageTitle') }} — {{ steps[currentStep]?.label }} ({{ t('rcm.modal.stepNum', { current: currentStep + 1, total: steps.length }) }})
+                {{ steps[currentStep]?.label }} ({{ t('rcm.modal.stepNum', { current: currentStep + 1, total: steps.length }) }})
               </p>
             </div>
             <UButton
@@ -401,7 +419,7 @@
 
           <!-- Stepper -->
           <div class="w-full overflow-x-auto border-b border-[var(--border-main)] bg-[var(--bg-surface)] px-4 py-3 sm:px-6 sm:py-4 scrollbar-thin">
-            <div class="flex min-w-max items-center gap-3 px-1 sm:gap-4">
+            <div class="flex min-w-max items-center justify-center gap-3 px-1 sm:gap-4">
               <template
                 v-for="(step, idx) in steps"
                 :key="step.key"
@@ -552,7 +570,7 @@
 
                 <!-- Synchronized Control & Mitigation Selection from Risk Mitigation Plans & Controls -->
                 <UFormField
-                  v-if="availableMitigations.length > 0"
+                  v-if="selectedRiskId && availableMitigations.length > 0"
                   :label="t('rcm.modal.controlSelectLabel')"
                 >
                   <USelectMenu
@@ -564,44 +582,105 @@
                     @update:model-value="onControlSelected"
                   />
                 </UFormField>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <UFormField
-                    :label="t('rcm.modal.controlCodeLabel')"
-                    required
-                  >
-                    <UInput
-                      v-model="formData.control_code"
-                      :placeholder="t('rcm.modal.controlCodePlaceholder')"
-                      disabled
-                      class="w-full font-bold"
-                    />
-                  </UFormField>
-                  <UFormField
-                    :label="t('rcm.modal.controlOwnerLabel')"
-                    required
-                  >
-                    <UInput
-                      v-model="formData.control_owner"
-                      :placeholder="t('rcm.modal.controlOwnerPlaceholder')"
-                      disabled
-                      class="w-full"
-                    />
-                  </UFormField>
+                <div
+                  v-if="mitigationsLoading && availableMitigations.length === 0"
+                  class="flex items-center justify-center gap-2 py-10 text-sm text-[var(--text-muted)]"
+                >
+                  <UIcon
+                    name="i-heroicons-arrow-path"
+                    class="h-5 w-5 animate-spin"
+                  />
+                  {{ t('rcm.modal.loadingMitigations') }}
                 </div>
 
-                <UFormField
-                  :label="t('rcm.modal.controlDescLabel')"
-                  required
+                <!-- Empty state: the synced control fields are hidden until the risk has a mitigation plan. -->
+                <div
+                  v-else-if="hasNoMitigationPlan"
+                  data-testid="rcm-no-mitigation-plan"
+                  class="text-center py-10 px-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/30 space-y-4"
                 >
-                  <UTextarea
-                    v-model="formData.control_description"
-                    :rows="3"
-                    :placeholder="t('rcm.modal.controlDescPlaceholder')"
-                    disabled
-                    class="w-full"
-                  />
-                </UFormField>
+                  <div class="w-12 h-12 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto">
+                    <UIcon
+                      name="i-heroicons-shield-exclamation"
+                      class="w-6 h-6"
+                    />
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-bold text-gray-800 dark:text-gray-200">
+                      {{ t('rcm.modal.noMitigationPlanTitle') }}
+                    </h4>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-md mx-auto">
+                      {{ t('rcm.modal.noMitigationPlan') }}
+                    </p>
+                  </div>
+                  <div class="flex flex-col sm:flex-row items-center justify-center gap-2">
+                    <!-- New tab so the wizard state here is not lost. -->
+                    <UButton
+                      icon="i-heroicons-arrow-top-right-on-square"
+                      :label="t('rcm.modal.openMitigationPlan')"
+                      color="primary"
+                      size="sm"
+                      variant="outline"
+                      :to="{ path: '/mitigation', query: { id: selectedRiskId } }"
+                      target="_blank"
+                    />
+                    <UButton
+                      icon="i-heroicons-arrow-path"
+                      :label="t('rcm.modal.refreshMitigations')"
+                      color="neutral"
+                      size="sm"
+                      variant="ghost"
+                      :loading="mitigationsLoading"
+                      @click="onRiskSelected(selectedRiskId)"
+                    />
+                  </div>
+                  <p class="text-xs text-gray-400 dark:text-gray-500">
+                    {{ t('rcm.modal.noMitigationPlanHint') }}
+                  </p>
+                </div>
+
+                <template v-else>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <UFormField
+                      :label="t('rcm.modal.controlCodeLabel')"
+                      required
+                    >
+                      <UInput
+                        v-model="formData.control_code"
+                        :placeholder="t('rcm.modal.controlCodePlaceholder')"
+                        disabled
+                        class="w-full font-bold"
+                        :ui="{ base: 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 cursor-not-allowed' }"
+                      />
+                    </UFormField>
+                    <UFormField
+                      :label="t('rcm.modal.controlOwnerLabel')"
+                      required
+                    >
+                      <UInput
+                        v-model="formData.control_owner"
+                        :placeholder="t('rcm.modal.controlOwnerPlaceholder')"
+                        disabled
+                        class="w-full"
+                        :ui="{ base: 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 cursor-not-allowed' }"
+                      />
+                    </UFormField>
+                  </div>
+  
+                  <UFormField
+                    :label="t('rcm.modal.controlDescLabel')"
+                    required
+                  >
+                    <UTextarea
+                      v-model="formData.control_description"
+                      :rows="3"
+                      :placeholder="t('rcm.modal.controlDescPlaceholder')"
+                      disabled
+                      class="w-full"
+                      :ui="{ base: 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 cursor-not-allowed' }"
+                    />
+                  </UFormField>
+                </template>
               </UCard>
             </div>
 
@@ -643,7 +722,7 @@
                         <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">{{ dim.desc }}</p>
                       </div>
                       <span class="font-extrabold text-primary-700 dark:text-primary-300 bg-white dark:bg-slate-900 px-2.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-sm shrink-0">
-                        {{ (formData[dim.key] || 1) * 4 }}%
+                        {{ formData[dim.key] ? `${formData[dim.key]! * 4}%` : '-' }}
                       </span>
                     </div>
                     <div class="grid grid-cols-5 gap-1.5 sm:gap-2">
@@ -652,12 +731,19 @@
                         :key="star"
                         type="button"
                         class="py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer"
-                        :class="getRatingBtnClass(formData[dim.key] || 1, star)"
+                        :class="getRatingBtnClass(formData[dim.key], star)"
+                        :aria-pressed="formData[dim.key] === star"
                         @click="formData[dim.key] = star"
                       >
                         {{ star }} <span class="hidden sm:inline">({{ star * 4 }}%)</span>
                       </button>
                     </div>
+                    <p
+                      v-if="showRatingErrors && !formData[dim.key]"
+                      class="text-xs font-medium text-red-600 dark:text-red-400"
+                    >
+                      {{ t('rcm.modal.dimensionRequired') }}
+                    </p>
                   </div>
                 </div>
 
@@ -666,10 +752,10 @@
                   <div>
                     <span class="text-sm sm:text-base font-bold text-white">{{ t('rcm.modal.totalWeightedScore') }}</span>
                     <p class="text-xs sm:text-sm text-primary-100 mt-0.5">
-                      {{ t('rcm.modal.interpretation') }} <strong class="text-white font-extrabold">{{ getLocalizedRating(calculatedModalScorePercent) }}</strong>
+                      {{ t('rcm.modal.interpretation') }} <strong class="text-white font-extrabold">{{ calculatedModalScorePercent === null ? '-' : getLocalizedRating(calculatedModalScorePercent) }}</strong>
                     </p>
                   </div>
-                  <span class="text-2xl sm:text-3xl font-extrabold text-white">{{ calculatedModalScorePercent }}%</span>
+                  <span class="text-2xl sm:text-3xl font-extrabold text-white tabular-nums">{{ calculatedModalScorePercent === null ? '-' : `${calculatedModalScorePercent}%` }}</span>
                 </div>
               </UCard>
             </div>
@@ -703,6 +789,7 @@
                 :label="t('rcm.modal.next')"
                 color="primary"
                 class="flex-1 sm:flex-none font-bold shadow-md shadow-primary/20"
+                :disabled="currentStep === 1 && (hasNoMitigationPlan || mitigationsLoading)"
                 @click="handleNext"
               />
               <UButton
@@ -771,6 +858,8 @@ import TableEntities from '~/components/shared/TableEntities.vue'
 import type { RiskMitigation } from '~/types/risk'
 import { useGlobalModalStore } from '~/stores/global-modal'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
+import { RCM_ALL_BRANCHES, buildRcmBranchOptions } from '~/utils/rcmBranch'
+import { createEmptyRcmForm, rcmFormFromItem, hasAllRatings, calculateFormScorePercent, toRcmItemForSave, type RCMFormData } from '~/utils/rcmForm'
 
 definePageMeta({
   middleware: 'auth'
@@ -791,6 +880,8 @@ const isEditMode = ref(false)
 const selectedRiskId = ref('')
 const selectedMitigationId = ref('')
 const currentStep = ref(0)
+// Turns on the per-dimension "required" hints once the user tries to save with missing scores.
+const showRatingErrors = ref(false)
 const bodyRef = ref<HTMLElement | null>(null)
 
 const steps = computed(() => [
@@ -844,8 +935,18 @@ const validateStep = (stepIdx: number): boolean => {
       return false
     }
   } else if (stepIdx === 1) {
+    if (hasNoMitigationPlan.value) {
+      toast.showWarning(t('rcm.toasts.mitigationPlanRequired'))
+      return false
+    }
     if (!formData.value.control_code || !formData.value.control_description) {
       toast.showWarning(t('rcm.toasts.validationWarning'))
+      return false
+    }
+  } else if (stepIdx === 2) {
+    if (!hasAllRatings(formData.value)) {
+      showRatingErrors.value = true
+      toast.showWarning(t('rcm.toasts.dimensionsRequired'))
       return false
     }
   }
@@ -910,28 +1011,7 @@ const departmentOptions = computed(() => [
   { label: 'Bali Branch', value: 'Bali Branch' }
 ])
 
-const formData = ref<Partial<RCMItem>>({
-  risk_id: '',
-  risk_code: '',
-  risk_event: '',
-  control_code: '',
-  control_description: '',
-  control_type: 'Preventive',
-  control_owner: 'Finance Manager',
-  department: 'Head Office',
-  year: 2026,
-  design_effectiveness_weight: 20,
-  design_effectiveness_rating: 4,
-  operating_effectiveness_weight: 20,
-  operating_effectiveness_rating: 3,
-  coverage_completeness_weight: 20,
-  coverage_completeness_rating: 4,
-  timeliness_weight: 20,
-  timeliness_rating: 3,
-  automation_monitoring_weight: 20,
-  automation_monitoring_rating: 3,
-  notes: ''
-})
+const formData = ref<RCMFormData>(createEmptyRcmForm(rcmStore.selectedYear))
 
 const dynamicYears = computed(() => {
   const years = new Set<number>()
@@ -988,9 +1068,42 @@ const selectedDepartmentLabel = computed(() =>
     : rcmStore.selectedDepartment
 )
 
+// Branch filter: same options as the Corporate Risk Profile branch filter (Location master),
+// plus "Unassigned" while some items have no branch through their linked risk.
+const branchOptions = computed(() =>
+  buildRcmBranchOptions(riskProfileStore.locations, rcmStore.hasUnassignedBranchItems, {
+    all: t('rcm.filters.allBranches'),
+    unassigned: t('rcm.filters.unassignedBranch')
+  })
+)
+
+// Drop a selection that is no longer offered (location deactivated, master failed to load,
+// last unassigned item got a branch).
+watch(branchOptions, (options) => {
+  if (riskProfileStore.branchesLoading) return
+  if (!options.some(o => o.value === rcmStore.selectedBranch)) {
+    rcmStore.selectedBranch = RCM_ALL_BRANCHES
+  }
+})
+
+const selectedScopeLabel = computed(() => {
+  if (rcmStore.selectedBranch === RCM_ALL_BRANCHES) return selectedDepartmentLabel.value
+  const branch = branchOptions.value.find(o => o.value === rcmStore.selectedBranch)?.label
+  return branch ? `${selectedDepartmentLabel.value} · ${branch}` : selectedDepartmentLabel.value
+})
+
+// Any filter change sends the table back to page 1.
+const tablePage = ref(1)
+watch(
+  () => [rcmStore.selectedYear, rcmStore.selectedDepartment, rcmStore.selectedBranch, searchQuery.value],
+  () => { tablePage.value = 1 }
+)
+
 onMounted(() => {
   rcmStore.fetchRCMList()
   mitigationStore.fetchMitigations()
+  // CRP risks + all mitigation plans for the effectiveness card (skipped when already loaded).
+  rcmStore.ensureRiskSummaryData()
 })
 
 const filteredList = computed(() => {
@@ -1009,10 +1122,26 @@ const filteredList = computed(() => {
   return list
 })
 
+// Only plans linked to the selected Corporate Risk Profile risk (no fallback to unlinked plans).
 const availableMitigations = computed(() => {
   if (!selectedRiskId.value) return []
-  return mitigationStore.getMitigationsByRiskId(selectedRiskId.value)
+  const target = String(selectedRiskId.value).trim().toLowerCase()
+  return mitigationStore.mitigations.filter(m =>
+    !!m.riskId && String(m.riskId).trim().toLowerCase() === target
+  )
 })
+
+// True while the selected risk's mitigation plans are being fetched (local, not the shared store flag).
+const mitigationsLoading = ref(false)
+
+// No plan to sync from: show the empty state instead of the read-only control fields.
+// A row being edited keeps its saved control text visible even if its plan was removed since.
+const hasNoMitigationPlan = computed(() =>
+  !!selectedRiskId.value
+  && !mitigationsLoading.value
+  && availableMitigations.value.length === 0
+  && !formData.value.control_description
+)
 
 const getDimAverage = (dimKey: string) => {
   const map: Record<string, number> = {
@@ -1038,40 +1167,46 @@ const getLocalizedInterpretation = (scorePercent: number) =>
 const getRatingBadgeClass = (ratingLabel: string) =>
   `font-bold px-2.5 py-1 rounded-md text-sm shadow-md whitespace-nowrap inline-block ${getControlEffectivenessColorClass(ratingLabel)}`
 
-const getRatingBtnClass = (current: number, star: number) => {
+const getRatingBtnClass = (current: number | null | undefined, star: number) => {
   if (current === star) {
     return 'bg-primary-600 dark:bg-primary-600 text-white shadow-sm font-bold border border-primary-700 dark:border-primary-500'
   }
   return 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700'
 }
 
-const calculatedModalScorePercent = computed(() => {
-  return rcmStore.calculateItemScorePercent(formData.value)
-})
+// null while any dimension is still unscored, so the preview shows "-" instead of a made-up score.
+const calculatedModalScorePercent = computed(() => calculateFormScorePercent(formData.value))
 
-const onRiskSelected = (newVal?: any) => {
+const onRiskSelected = async (newVal?: any) => {
   const riskId = typeof newVal === 'object' && newVal !== null ? (newVal.value || newVal.id) : (newVal || selectedRiskId.value)
   if (!riskId) return
   selectedRiskId.value = String(riskId)
 
   const risk = riskProfileStore.getRiskById(riskId)
-  if (risk) {
-    formData.value.risk_id = String(risk.id)
-    formData.value.risk_code = riskProfileStore.getFormattedId(risk)
-    formData.value.risk_event = risk.name
-    formData.value.department = risk.branch || risk.category || 'Head Office'
+  if (!risk) return
 
-    const mits = mitigationStore.getMitigationsByRiskId(String(risk.id))
-    const firstMit = mits && mits.length > 0 ? mits[0] : undefined
-    if (firstMit) {
-      selectedMitigationId.value = firstMit.id
-      onControlSelected(firstMit.id)
-    } else {
-      selectedMitigationId.value = ''
-      formData.value.control_code = 'CTL-' + formData.value.risk_code
-      formData.value.control_description = t('rcm.defaults.mitigationDescPrefix') + risk.name
-      formData.value.control_owner = 'Department Lead'
-    }
+  formData.value.risk_id = String(risk.id)
+  formData.value.risk_code = riskProfileStore.getFormattedId(risk)
+  formData.value.risk_event = risk.name
+  formData.value.department = risk.branch || risk.category || 'Head Office'
+
+  // Sync the control fields from the risk's mitigation plans (empty until a plan exists).
+  selectedMitigationId.value = ''
+  formData.value.control_code = ''
+  formData.value.control_description = ''
+  formData.value.control_owner = ''
+  mitigationsLoading.value = true
+  try {
+    await mitigationStore.fetchMitigations(String(risk.id)).catch(() => {})
+  } finally {
+    if (selectedRiskId.value === String(risk.id)) mitigationsLoading.value = false
+  }
+  if (selectedRiskId.value !== String(risk.id)) return
+
+  const firstMit = availableMitigations.value[0]
+  if (firstMit) {
+    selectedMitigationId.value = firstMit.id
+    onControlSelected(firstMit.id)
   }
 }
 
@@ -1092,6 +1227,9 @@ const onControlSelected = (newVal?: any) => {
 const openAddModal = () => {
   isEditMode.value = false
   currentStep.value = 0
+  showRatingErrors.value = false
+  selectedRiskId.value = ''
+  selectedMitigationId.value = ''
 
   const defaultRisks = riskOptionsForModal.value
   const defaultRiskItem = defaultRisks.length > 0 && defaultRisks[0] ? riskProfileStore.getRiskById(defaultRisks[0].value) : (riskProfileStore.risks && riskProfileStore.risks.length > 0 ? riskProfileStore.risks[0] : undefined)
@@ -1099,28 +1237,14 @@ const openAddModal = () => {
   const defaultEvent = defaultRiskItem ? defaultRiskItem.name : ''
   const defaultDept = defaultRiskItem ? (defaultRiskItem.branch || defaultRiskItem.category || 'Head Office') : 'Head Office'
 
-  formData.value = {
+  // Dimension scores always start empty (null) for a new item; the user must pick all five.
+  formData.value = createEmptyRcmForm(rcmStore.selectedYear, {
     risk_id: defaultRiskItem ? String(defaultRiskItem.id) : '',
     risk_code: defaultCode,
     risk_event: defaultEvent,
     control_code: defaultCode ? 'CTL-' + defaultCode : '',
-    control_description: '',
-    control_type: 'Preventive',
-    control_owner: '',
-    department: defaultDept,
-    year: rcmStore.selectedYear,
-    design_effectiveness_weight: 20,
-    design_effectiveness_rating: 4,
-    operating_effectiveness_weight: 20,
-    operating_effectiveness_rating: 3,
-    coverage_completeness_weight: 20,
-    coverage_completeness_rating: 4,
-    timeliness_weight: 20,
-    timeliness_rating: 3,
-    automation_monitoring_weight: 20,
-    automation_monitoring_rating: 3,
-    notes: ''
-  }
+    department: defaultDept
+  })
 
   if (defaultRiskItem) {
     selectedRiskId.value = String(defaultRiskItem.id)
@@ -1133,10 +1257,8 @@ const openAddModal = () => {
 const openEditModal = (item: RCMItem) => {
   isEditMode.value = true
   currentStep.value = 0
-  formData.value = JSON.parse(JSON.stringify(item))
-  if (!formData.value.control_type) {
-    formData.value.control_type = 'Preventive'
-  }
+  showRatingErrors.value = false
+  formData.value = rcmFormFromItem(item)
   selectedRiskId.value = item.risk_id || ''
   isModalOpen.value = true
 }
@@ -1147,12 +1269,17 @@ const saveForm = async () => {
     return
   }
 
+  // Never let an unscored dimension reach the store (buildPayload would silently default it).
+  if (!validateStep(2)) return
+  const item = toRcmItemForSave(formData.value)
+  if (!item) return
+
   try {
-    if (isEditMode.value && formData.value.id) {
-      await rcmStore.updateRCMItem(formData.value as RCMItem)
+    if (isEditMode.value && item.id) {
+      await rcmStore.updateRCMItem(item)
       toast.showSuccess(t('rcm.toasts.updateSuccess'))
     } else {
-      await rcmStore.addRCMItem(formData.value as any)
+      await rcmStore.addRCMItem(item)
       toast.showSuccess(t('rcm.toasts.addSuccess'))
     }
     isModalOpen.value = false

@@ -253,7 +253,7 @@
           <UButton
             v-if="actions.assign"
             :label="item.pic_user_id ? t('actionTakenReport.actions.reassign') : t('actionTakenReport.actions.assign')"
-            icon="i-lucide-user-plus"
+            icon="i-lucide-user-check"
             color="neutral"
             variant="outline"
             class="justify-center"

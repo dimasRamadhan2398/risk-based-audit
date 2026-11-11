@@ -39,7 +39,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('executiveSummary.stats.total') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ store.summaryList.length }}
             </h4>
           </div>
@@ -56,7 +56,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('executiveSummary.stats.approved') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ store.summaryList.filter(s => s.status === 'Approved').length }}
             </h4>
           </div>
@@ -73,7 +73,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('executiveSummary.stats.draft') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ store.summaryList.filter(s => s.status === 'Draft').length }}
             </h4>
           </div>
@@ -90,7 +90,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('executiveSummaryIndividual.stats.handling') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ totalHandling }}
             </h4>
           </div>
@@ -195,11 +195,11 @@
           <div class="p-5 grid grid-cols-2 md:grid-cols-4 gap-4 divide-y md:divide-y-0 md:divide-x divide-gray-100 dark:divide-gray-800 text-center">
             <div>
               <span class="block text-md font-semibold text-gray-400 mb-1">{{ t('executiveSummary.cardStats.reportsCount') }}</span>
-              <span class="block text-2xl font-bold text-gray-800 dark:text-white">{{ item.jumlahLaporan }}</span>
+              <span class="block text-2xl font-bold text-gray-800 dark:text-white tabular-nums">{{ item.jumlahLaporan }}</span>
             </div>
             <div class="pt-4 md:pt-0">
               <span class="block text-md font-semibold text-gray-400 mb-1">{{ t('executiveSummary.cardStats.totalFindings') }}</span>
-              <span class="block text-2xl font-bold text-gray-800 dark:text-white">
+              <span class="block text-2xl font-bold text-gray-800 dark:text-white tabular-nums">
                 {{ riskBreakdownTotal(riskFieldsToBreakdown(item)) }}
               </span>
               <div class="flex flex-wrap justify-center gap-1.5 mt-1.5 text-md">
@@ -214,17 +214,17 @@
             </div>
             <div class="pt-4 md:pt-0">
               <span class="block text-md font-semibold text-gray-400 mb-1">{{ t('executiveSummary.cardStats.totalRecommendations') }}</span>
-              <span class="block text-2xl font-bold text-gray-800 dark:text-white">{{ item.jumlahRekomendasi }}</span>
+              <span class="block text-2xl font-bold text-gray-800 dark:text-white tabular-nums">{{ item.jumlahRekomendasi }}</span>
             </div>
             <div class="pt-4 md:pt-0 flex flex-col justify-center items-center">
               <span class="block text-md font-semibold text-gray-400 mb-2">{{ t('executiveSummary.cardStats.completionClosed') }}</span>
               <div class="w-full max-w-[120px]">
                 <div class="flex justify-between text-md font-medium text-gray-700 dark:text-gray-300 mb-1">
                   <span>{{ t('executiveSummary.cardStats.progress') }}</span>
-                  <span class="text-success-600">{{ item.followUpTable?.[0]?.jumlah ? Math.round((Number(item.followUpTable[0].jumlah) / ((Number(item.followUpTable[0].jumlah) || 0) + (Number(item.followUpTable[1]?.jumlah) || 0) + (Number(item.followUpTable[2]?.jumlah) || 0))) * 100) : 0 }}%</span>
+                  <span class="text-success-600">{{ followUpClosedPercent(item.followUpTable) }}%</span>
                 </div>
                 <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2">
-                  <div class="bg-success-500 h-2 rounded-full transition-all" :style="{ width: `${item.followUpTable?.[0]?.jumlah ? Math.round((Number(item.followUpTable[0].jumlah) / ((Number(item.followUpTable[0].jumlah) || 0) + (Number(item.followUpTable[1]?.jumlah) || 0) + (Number(item.followUpTable[2]?.jumlah) || 0))) * 100) : 0}%` }"></div>
+                  <div class="bg-success-500 h-2 rounded-full transition-all" :style="{ width: `${followUpClosedPercent(item.followUpTable)}%` }"></div>
                 </div>
               </div>
             </div>
@@ -308,6 +308,7 @@ import { UserRole } from '~/types/auth'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import ExecutiveSummaryCompilationForm from '~/components/audit-result-report/ExecutiveSummaryCompilationForm.vue'
+import { followUpClosedPercent } from '~/utils/executiveSummaryFollowUp'
 import { RISK_LEVELS, RISK_LEVEL_STYLE, riskFieldsToBreakdown, riskBreakdownTotal, riskLevelI18nKey } from '~/utils/executiveSummaryCompilation'
 
 definePageMeta({

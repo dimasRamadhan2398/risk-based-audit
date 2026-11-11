@@ -11,8 +11,8 @@ import { extractErrorMessage } from '~/utils/error'
 export const COMPILATION_STATS_PATH = '/executive-summaries/compilation-stats'
 
 /** Error text for the form: the server's message plus the HTTP status, so a 404/403/500 is told apart. */
-export const describeStatsError = (err: unknown): string => {
-  const message = extractErrorMessage(err, 'Failed to load compilation statistics.')
+export const describeStatsError = (err: unknown, fallback: string = 'Failed to load compilation statistics.'): string => {
+  const message = extractErrorMessage(err, fallback)
   const e = err as { statusCode?: unknown, status?: unknown, response?: { status?: unknown } } | null
   const status = Number(e?.statusCode ?? e?.status ?? e?.response?.status)
   if (!Number.isInteger(status) || status <= 0 || message.includes(String(status))) return message

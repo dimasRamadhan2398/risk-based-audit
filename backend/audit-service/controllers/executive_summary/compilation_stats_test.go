@@ -242,7 +242,7 @@ func TestLoadCompilationStatsQuarter(t *testing.T) {
 
 	type want struct {
 		laporan, rekomendasi, temuan, closed, inProgress, overdue, cancelled int64
-		high, low, moderate                                                  int64
+		high, low, moderate, noAction                                        int64
 	}
 	cases := []struct {
 		quarter int
@@ -256,8 +256,9 @@ func TestLoadCompilationStatsQuarter(t *testing.T) {
 		{3, want{laporan: 1, rekomendasi: 1, temuan: 1, closed: 0, inProgress: 0, overdue: 0, cancelled: 1, high: 0, low: 0, moderate: 1}},
 		// Q4: nothing, but the table rows are present
 		{4, want{}},
-		// Year: all approved LHAs of the year, including bNoDate (open, no due date: in progress)
-		{0, want{laporan: 6, rekomendasi: 4, temuan: 3, closed: 1, inProgress: 2, overdue: 1, cancelled: 1, high: 1, low: 1, moderate: 1}},
+		// Year: all approved LHAs of the year, including bNoDate (PLANNED, no due date: no action,
+		// which is in none of the three table rows)
+		{0, want{laporan: 6, rekomendasi: 4, temuan: 3, closed: 1, inProgress: 1, overdue: 1, cancelled: 1, high: 1, low: 1, moderate: 1, noAction: 1}},
 	}
 	for _, c := range cases {
 		s, err := LoadCompilationStats(db, 2026, c.quarter, testNow)
@@ -278,6 +279,13 @@ func TestLoadCompilationStatsQuarter(t *testing.T) {
 		if followUp(s, FollowUpClosed) != w.closed || followUp(s, FollowUpInProgress) != w.inProgress || followUp(s, FollowUpOverdue) != w.overdue {
 			t.Errorf("quarter %d: follow-up closed/inProgress/overdue = %d/%d/%d", c.quarter,
 				followUp(s, FollowUpClosed), followUp(s, FollowUpInProgress), followUp(s, FollowUpOverdue))
+		}
+		b := s.FollowUpBuckets
+		if b.Closed != w.closed || b.InProgress != w.inProgress || b.Overdue != w.overdue || b.NoAction != w.noAction {
+			t.Errorf("quarter %d: followUpBuckets = %+v", c.quarter, b)
+		}
+		if s.FollowUpClosed != w.closed || s.FollowUpInProgress != w.inProgress || s.FollowUpOverdue != w.overdue || s.FollowUpNoAction != w.noAction {
+			t.Errorf("quarter %d: flat follow-up = %d/%d/%d/%d", c.quarter, s.FollowUpClosed, s.FollowUpInProgress, s.FollowUpOverdue, s.FollowUpNoAction)
 		}
 		if s.FollowUpCancelled != w.cancelled {
 			t.Errorf("quarter %d: followUpCancelled = %d, want %d", c.quarter, s.FollowUpCancelled, w.cancelled)
@@ -382,7 +390,7 @@ func TestCompilationStatsJSONContract(t *testing.T) {
 	if err := json.Unmarshal(raw, &fields); err != nil {
 		t.Fatal(err)
 	}
-	for _, k := range []string{"year", "quarter", "syncedAt", "jumlahLaporan", "jumlahRekomendasi", "totalTemuan", "risikoHigh", "risikoModerateHigh", "risikoModerate", "risikoLowModerate", "risikoLow", "risikoLainnya", "followUpTable", "followUpCancelled"} {
+	for _, k := range []string{"year", "quarter", "syncedAt", "jumlahLaporan", "jumlahRekomendasi", "totalTemuan", "risikoHigh", "risikoModerateHigh", "risikoModerate", "risikoLowModerate", "risikoLow", "risikoLainnya", "followUpTable", "followUpCancelled", "followUpClosed", "followUpInProgress", "followUpOverdue", "followUpNoAction", "followUpBuckets"} {
 		if _, ok := fields[k]; !ok {
 			t.Errorf("json field %s missing", k)
 		}

@@ -38,7 +38,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('consultingService.dashboard.summary.total') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ store.services.length }}
             </h4>
           </div>
@@ -55,7 +55,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('consultingService.dashboard.summary.inProgress') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ store.services.filter(s => s.status === 'In Progress').length }}
             </h4>
           </div>
@@ -72,7 +72,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('consultingService.dashboard.summary.completed') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ store.services.filter(s => s.status === 'Completed').length }}
             </h4>
           </div>
@@ -89,7 +89,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('consultingService.dashboard.summary.planned') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ store.services.filter(s => s.status === 'Planned').length }}
             </h4>
           </div>

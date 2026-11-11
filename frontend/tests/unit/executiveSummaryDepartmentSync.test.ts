@@ -21,6 +21,7 @@ vi.mock('~/components/shared/ToastNotification.vue', () => ({
 ;(globalThis as any).$fetch = vi.fn().mockResolvedValue({ data: [] })
 
 const FORM_SFC = resolve(__dirname, '../../components/audit-result-report/ExecutiveSummaryIndividualForm.vue')
+const FINDING_CARDS_SFC = resolve(__dirname, '../../components/audit-result-report/SignificantFindingCards.vue')
 const PAGE_SFC = resolve(__dirname, '../../pages/executive-summary/index.vue')
 
 const mockDepartments: Department[] = [
@@ -266,15 +267,16 @@ describe('Executive Summary (Individual) - Unit Division Synchronized with Maste
   })
 
   it('ExecutiveSummaryIndividualForm.vue binds unitDivision to store.unitDivisionOptions with loading, create-item and empty fallback', () => {
-    const sfc = readFileSync(FORM_SFC, 'utf-8')
+    // The finding cards (SignificantFindingCards.vue) render the unit division field; the form passes the store options in
+    const sfc = readFileSync(FORM_SFC, 'utf-8') + readFileSync(FINDING_CARDS_SFC, 'utf-8')
 
     // Table Header
     expect(sfc).toContain("t('executiveSummaryForm.table.unitDivision')")
 
     // Unit Division field binding
-    expect(sfc).toContain(':items="store.unitDivisionOptions"')
+    expect(sfc).toContain(':unit-options="store.unitDivisionOptions"')
     expect(sfc).toContain('v-model="finding.unitDivision"')
-    expect(sfc).toContain(':loading="store.departmentsLoading"')
+    expect(sfc).toContain(':unit-loading="store.departmentsLoading"')
     expect(sfc).toContain('create-item')
     expect(sfc).toContain('@create=')
     expect(sfc).toContain('masterData.department.empty')
@@ -292,7 +294,7 @@ describe('Executive Summary (Individual) - Unit Division Synchronized with Maste
   })
 
   it('synchronizes Significance Level column header and options with Result Reports (LHA)', () => {
-    const formSfc = readFileSync(FORM_SFC, 'utf-8')
+    const formSfc = readFileSync(FORM_SFC, 'utf-8') + readFileSync(FINDING_CARDS_SFC, 'utf-8')
     const idLocale = JSON.parse(readFileSync(resolve(__dirname, '../../locales/id/common.json'), 'utf-8'))
     const enLocale = JSON.parse(readFileSync(resolve(__dirname, '../../locales/en/common.json'), 'utf-8'))
 
@@ -307,7 +309,7 @@ describe('Executive Summary (Individual) - Unit Division Synchronized with Maste
 
     // USelectMenu binds finding.risiko with significanceLevelOptions
     expect(formSfc).toContain('v-model="finding.risiko"')
-    expect(formSfc).toContain(':items="significanceLevelOptions"')
+    expect(formSfc).toContain(':risk-options="significanceLevelOptions"')
     expect(formSfc).toContain('value-key="value"')
 
     // Form defines 4 significance level options matching Result Reports (LHA)

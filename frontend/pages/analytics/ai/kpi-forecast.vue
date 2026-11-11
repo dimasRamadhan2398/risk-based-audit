@@ -14,11 +14,86 @@ import {
 } from 'chart.js'
 import { useAiAnalytics } from '~/composables/useAiAnalytics'
 import { useI18n } from '~/composables/useI18n'
+import {
+  buildKpiForecastChart,
+  selectAtRiskKpis,
+  toKpiForecastView,
+  type KpiForecastView
+} from '~/composables/useKpiForecast'
 import AiInsightHeader from '~/components/analytics/AiInsightHeader.vue'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
 
-const { t } = useI18n()
+interface TimeSeriesPoint {
+  period?: string
+  actual?: number | null
+  forecast?: number | null
+  upperBound?: number | null
+  lowerBound?: number | null
+}
+
+interface AuditorKpiItem {
+  code: string
+  kpiName: string
+  category: string
+  strategicObjective?: string
+  hibHig: string
+  unit: string
+  targetHorizon?: string
+  targetValue: number
+  currentValue: number
+  forecastedValue: number
+  achievementRate?: number
+  forecastedAchievementRate: number
+  currentStatus?: string
+  predictedStatus: string
+  trend: string
+  confidenceLower?: number
+  confidenceUpper?: number
+  aiNarrative?: string
+  recommendedAction?: string
+}
+
+interface AuditeeKpiItem {
+  code: string
+  kpiName: string
+  entity?: string
+  entityType?: string
+  syncFrequency?: string
+  targetHorizon?: string
+  currentValue: number
+  forecastedValue: number
+  deltaPct?: number
+  trend: string
+  impactScore?: number
+  likelihoodScore?: number
+  riskLevel: string
+  aiNarrative?: string
+  recommendedAction?: string
+}
+
+interface AtRiskPillarItem {
+  pillar?: string
+  code: string
+  kpi?: string
+  kpiName?: string
+  target?: number | string
+  targetValue?: number | string
+  predicted?: number
+  achievementRate?: number
+  forecastedAchievementRate?: number
+  predictedStatus: string
+}
+
+interface AtRiskDepartmentItem {
+  department: string
+  kpi: string
+  currentTrend?: number
+  predictedQ3?: number
+  riskLevel: string
+}
+
+const { t, locale } = useI18n()
 const toast = useToast()
 const {
   loading,
@@ -47,23 +122,43 @@ const handleManualRetrain = async () => {
       method: 'POST',
       body: { trigger: 'user_perspective_refresh' }
     })
-    
+
     await fetchAiAnalytics(true)
     toast.add({
       title: t('analytics.timeseries.retrainSuccess'),
       color: 'success',
       icon: 'i-lucide-check-circle'
     })
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.warn('Retrain error:', err)
   } finally {
     isRetraining.value = false
   }
 }
 
+// ─── Shared View Model (useKpiForecast) ──────────────────────────────────────
+const kpiViews = computed<KpiForecastView[]>(() =>
+  (timeseriesState.value.kpiForecasts || []).map(toKpiForecastView)
+)
+const atRiskKpis = computed(() => selectAtRiskKpis(kpiViews.value))
+const selectedKpiName = ref('')
+const selectedKpi = computed<KpiForecastView | undefined>(() =>
+  kpiViews.value.find(k => k.kpiName === selectedKpiName.value) ?? atRiskKpis.value[0] ?? kpiViews.value[0]
+)
+watch(selectedKpi, (kpi) => {
+  if (kpi && kpi.kpiName !== selectedKpiName.value) selectedKpiName.value = kpi.kpiName
+}, { immediate: true })
+
+const forecastMape = computed(() => Number(timeseriesState.value.forecastAccuracy?.mape ?? 0))
+const kpiChart = computed(() => buildKpiForecastChart(selectedKpi.value, forecastMape.value, t, locale.value, {
+  actualColor: 'rgb(59,130,246)',
+  forecastColor: 'rgb(139,92,246)',
+  bandColor: 'rgba(139,92,246,0.15)'
+}))
+
 // ─── AUDITOR TIME SERIES CHART DATA ──────────────────────────────────────────
 const auditorTimeSeriesChartData = computed(() => {
-  const points = timeseriesState.value.auditorForecast?.timeSeriesData || [
+  const points: TimeSeriesPoint[] = timeseriesState.value.auditorForecast?.timeSeriesData || [
     { period: 'Q1 2025', actual: 88.5, forecast: 88.5, upperBound: 91.0, lowerBound: 86.0 },
     { period: 'Q2 2025', actual: 90.2, forecast: 90.2, upperBound: 93.0, lowerBound: 87.5 },
     { period: 'Q3 2025', actual: 89.0, forecast: 89.0, upperBound: 92.0, lowerBound: 86.0 },
@@ -73,7 +168,7 @@ const auditorTimeSeriesChartData = computed(() => {
   ]
 
   return {
-    labels: points.map((p: any) => p.period || ''),
+    labels: points.map(p => p.period || ''),
     datasets: [
       {
         label: 'Target Tahunan (100%)',
@@ -87,7 +182,7 @@ const auditorTimeSeriesChartData = computed(() => {
       },
       {
         label: 'Realisasi Aktual PKAT (%)',
-        data: points.map((p: any) => p.actual ?? null),
+        data: points.map(p => p.actual ?? null),
         borderColor: 'rgb(59, 130, 246)',
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
         tension: 0.3,
@@ -97,7 +192,7 @@ const auditorTimeSeriesChartData = computed(() => {
       },
       {
         label: 'Proyeksi AI LSTM (%)',
-        data: points.map((p: any) => p.forecast ?? null),
+        data: points.map(p => p.forecast ?? null),
         borderColor: 'rgb(147, 51, 234)',
         backgroundColor: 'rgba(147, 51, 234, 0.1)',
         borderDash: [6, 4],
@@ -109,7 +204,7 @@ const auditorTimeSeriesChartData = computed(() => {
       },
       {
         label: t('analytics.timeseries.labelUpperBound'),
-        data: points.map((p: any) => p.upperBound ?? null),
+        data: points.map(p => p.upperBound ?? null),
         borderColor: 'transparent',
         backgroundColor: 'rgba(147, 51, 234, 0.08)',
         fill: '+1',
@@ -119,7 +214,7 @@ const auditorTimeSeriesChartData = computed(() => {
       },
       {
         label: t('analytics.timeseries.labelLowerBound'),
-        data: points.map((p: any) => p.lowerBound ?? null),
+        data: points.map(p => p.lowerBound ?? null),
         borderColor: 'transparent',
         backgroundColor: 'rgba(147, 51, 234, 0.08)',
         fill: '-1',
@@ -133,23 +228,26 @@ const auditorTimeSeriesChartData = computed(() => {
 
 // ─── AUDITEE TIME SERIES CHART DATA ──────────────────────────────────────────
 const auditeeTimeSeriesChartData = computed(() => {
-  const points = timeseriesState.value.auditeeForecast?.timeSeriesData || timeseriesState.value.historicalKPI || []
+  const points: TimeSeriesPoint[] = timeseriesState.value.auditeeForecast?.timeSeriesData || timeseriesState.value.historicalKPI || []
+  if (!points.length && kpiChart.value.data.labels.length) {
+    return kpiChart.value.data
+  }
   return {
-    labels: points.map((p: any) => p.period || ''),
+    labels: points.map(p => p.period || ''),
     datasets: [
       {
         label: t('analytics.timeseries.labelActualKPI'),
-        data: points.map((p: any) => p.actual ?? null),
+        data: points.map(p => p.actual ?? null),
         borderColor: 'rgb(59,130,246)',
         backgroundColor: 'rgba(59,130,246,0.1)',
         tension: 0.4,
         pointRadius: 5,
         pointBackgroundColor: 'rgb(59,130,246)',
-        spanGaps: false,
+        spanGaps: false
       },
       {
         label: t('analytics.timeseries.labelForecast'),
-        data: points.map((p: any) => p.forecast ?? null),
+        data: points.map(p => p.forecast ?? null),
         borderColor: 'rgb(139,92,246)',
         backgroundColor: 'rgba(139,92,246,0.1)',
         borderDash: [6, 4],
@@ -157,28 +255,28 @@ const auditeeTimeSeriesChartData = computed(() => {
         pointRadius: 5,
         pointStyle: 'rectRot',
         pointBackgroundColor: 'rgb(139,92,246)',
-        spanGaps: false,
+        spanGaps: false
       },
       {
         label: t('analytics.timeseries.labelUpperBound'),
-        data: points.map((p: any) => p.upperBound ?? null),
+        data: points.map(p => p.upperBound ?? null),
         borderColor: 'transparent',
         backgroundColor: 'rgba(139,92,246,0.08)',
         fill: '+1',
         tension: 0.4,
         pointRadius: 0,
-        spanGaps: false,
+        spanGaps: false
       },
       {
         label: t('analytics.timeseries.labelLowerBound'),
-        data: points.map((p: any) => p.lowerBound ?? null),
+        data: points.map(p => p.lowerBound ?? null),
         borderColor: 'transparent',
         backgroundColor: 'rgba(139,92,246,0.08)',
         fill: '-1',
         tension: 0.4,
         pointRadius: 0,
-        spanGaps: false,
-      },
+        spanGaps: false
+      }
     ]
   }
 })
@@ -194,14 +292,16 @@ const timeSeriesOptions = computed(() => ({
     legend: {
       position: 'top' as const,
       labels: {
-        filter: (item: any) => ![t('analytics.timeseries.labelUpperBound'), t('analytics.timeseries.labelLowerBound')].includes(item.text)
+        filter: (item: { text?: string }) =>
+          ![t('analytics.timeseries.labelUpperBound'), t('analytics.timeseries.labelLowerBound')].includes(item.text || '')
       }
     },
     tooltip: {
       callbacks: {
-        label: (ctx: any) => {
-          if ([t('analytics.timeseries.labelUpperBound'), t('analytics.timeseries.labelLowerBound')].includes(ctx.dataset.label)) return ''
-          return `${ctx.dataset.label}: ${formatNum(ctx.parsed.y, 1)}%`
+        label: (ctx: { dataset: { label?: string }, parsed: { y: number } }) => {
+          const label = ctx.dataset.label || ''
+          if ([t('analytics.timeseries.labelUpperBound'), t('analytics.timeseries.labelLowerBound')].includes(label)) return ''
+          return `${label}: ${formatNum(ctx.parsed.y, 1)}%`
         }
       }
     }
@@ -230,17 +330,19 @@ const getStatusBadgeConfig = (status: string) => {
 }
 
 // Active forecast list
-const auditorForecasts = computed(() => timeseriesState.value.auditorForecast?.kpiForecasts || [])
-const auditeeForecasts = computed(() => timeseriesState.value.auditeeForecast?.kpiForecasts || timeseriesState.value.kpiForecasts || [])
+const auditorForecasts = computed<AuditorKpiItem[]>(() => timeseriesState.value.auditorForecast?.kpiForecasts || [])
+const auditeeForecasts = computed<AuditeeKpiItem[]>(() => timeseriesState.value.auditeeForecast?.kpiForecasts || timeseriesState.value.kpiForecasts || [])
 
-const auditorAtRiskPillars = computed(() => {
+const auditorAtRiskPillars = computed<AtRiskPillarItem[]>(() => {
   if (timeseriesState.value.auditorForecast?.atRiskPillars?.length) {
     return timeseriesState.value.auditorForecast.atRiskPillars
   }
-  return auditorForecasts.value.filter((k: any) => k.predictedStatus === 'Poor' || k.predictedStatus === 'Moderate' || k.trend === 'Deteriorating')
+  return auditorForecasts.value.filter((k: AuditorKpiItem) =>
+    k.predictedStatus === 'Poor' || k.predictedStatus === 'Moderate' || k.trend === 'Deteriorating'
+  )
 })
 
-const auditeeAtRisk = computed(() => {
+const auditeeAtRisk = computed<AtRiskDepartmentItem[]>(() => {
   return timeseriesState.value.auditeeForecast?.atRiskDepartments || timeseriesState.value.atRiskDepartments || []
 })
 
@@ -261,7 +363,7 @@ const pageSizeOptions = [
 // Distinct pillars for Auditor KPI filter
 const distinctAuditorPillars = computed(() => {
   const set = new Set<string>()
-  auditorForecasts.value.forEach((k: any) => {
+  auditorForecasts.value.forEach((k: AuditorKpiItem) => {
     if (k.category) set.add(k.category)
   })
   return Array.from(set).sort()
@@ -272,19 +374,21 @@ const filteredAuditorForecasts = computed(() => {
   let list = auditorForecasts.value
   const q = searchQuery.value.trim().toLowerCase()
   if (q) {
-    list = list.filter((k: any) =>
-      (k.code && k.code.toLowerCase().includes(q)) ||
-      (k.kpiName && k.kpiName.toLowerCase().includes(q)) ||
-      (k.category && k.category.toLowerCase().includes(q)) ||
-      (k.aiNarrative && k.aiNarrative.toLowerCase().includes(q)) ||
-      (k.recommendedAction && k.recommendedAction.toLowerCase().includes(q))
+    list = list.filter((k: AuditorKpiItem) =>
+      Boolean(
+        (k.code && k.code.toLowerCase().includes(q))
+        || (k.kpiName && k.kpiName.toLowerCase().includes(q))
+        || (k.category && k.category.toLowerCase().includes(q))
+        || (k.aiNarrative && k.aiNarrative.toLowerCase().includes(q))
+        || (k.recommendedAction && k.recommendedAction.toLowerCase().includes(q))
+      )
     )
   }
   if (selectedStatusFilter.value !== 'ALL') {
-    list = list.filter((k: any) => k.predictedStatus === selectedStatusFilter.value)
+    list = list.filter((k: AuditorKpiItem) => k.predictedStatus === selectedStatusFilter.value)
   }
   if (selectedPillarFilter.value !== 'ALL') {
-    list = list.filter((k: any) => k.category === selectedPillarFilter.value)
+    list = list.filter((k: AuditorKpiItem) => k.category === selectedPillarFilter.value)
   }
   return list
 })
@@ -294,16 +398,18 @@ const filteredAuditeeForecasts = computed(() => {
   let list = auditeeForecasts.value
   const q = searchQuery.value.trim().toLowerCase()
   if (q) {
-    list = list.filter((k: any) =>
-      (k.code && k.code.toLowerCase().includes(q)) ||
-      (k.kpiName && k.kpiName.toLowerCase().includes(q)) ||
-      (k.entity && k.entity.toLowerCase().includes(q)) ||
-      (k.aiNarrative && k.aiNarrative.toLowerCase().includes(q)) ||
-      (k.recommendedAction && k.recommendedAction.toLowerCase().includes(q))
+    list = list.filter((k: AuditeeKpiItem) =>
+      Boolean(
+        (k.code && k.code.toLowerCase().includes(q))
+        || (k.kpiName && k.kpiName.toLowerCase().includes(q))
+        || (k.entity && k.entity.toLowerCase().includes(q))
+        || (k.aiNarrative && k.aiNarrative.toLowerCase().includes(q))
+        || (k.recommendedAction && k.recommendedAction.toLowerCase().includes(q))
+      )
     )
   }
   if (selectedRiskFilter.value !== 'ALL') {
-    list = list.filter((k: any) => {
+    list = list.filter((k: AuditeeKpiItem) => {
       const r = String(k.riskLevel || '').toUpperCase()
       return r === selectedRiskFilter.value || r.includes(selectedRiskFilter.value)
     })
@@ -344,8 +450,8 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
     <AiInsightHeader
       :title="t('navigation.kpiForecast')"
       :subtitle="t('analytics.subtitle')"
-      icon="i-lucide-trending-up"
-      currentSubModule="kpi-forecast"
+      icon="i-lucide-chart-line"
+      :current-sub-module="'kpi-forecast'"
     />
 
     <!-- Perspective Tabs Switcher & Dynamic Sync Toolbar -->
@@ -359,9 +465,19 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
             : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium'"
           @click="selectedPerspective = 'auditor'"
         >
-          <UIcon name="i-lucide-clipboard-check" class="w-4 h-4 text-primary-500" />
+          <UIcon
+            name="i-lucide-clipboard-check"
+            class="w-4 h-4 text-primary-500"
+          />
           <span>{{ t('analytics.timeseries.tabAuditor') }}</span>
-          <UBadge color="primary" variant="subtle" size="xs" class="ml-1 font-mono">{{ auditorForecasts.length || 12 }} KPI</UBadge>
+          <UBadge
+            color="primary"
+            variant="subtle"
+            size="xs"
+            class="ml-1 font-mono"
+          >
+            {{ auditorForecasts.length || 12 }} KPI
+          </UBadge>
         </button>
 
         <button
@@ -372,15 +488,30 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
             : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium'"
           @click="selectedPerspective = 'auditee'"
         >
-          <UIcon name="i-lucide-building-2" class="w-4 h-4 text-indigo-500" />
+          <UIcon
+            name="i-lucide-building-2"
+            class="w-4 h-4 text-indigo-500"
+          />
           <span>{{ t('analytics.timeseries.tabAuditee') }}</span>
-          <UBadge color="info" variant="subtle" size="xs" class="ml-1 font-mono">{{ auditeeForecasts.length || 37 }} KPI (Gold/CAATT)</UBadge>
+          <UBadge
+            color="info"
+            variant="subtle"
+            size="xs"
+            class="ml-1 font-mono"
+          >
+            {{ auditeeForecasts.length || 37 }} KPI (Gold/CAATT)
+          </UBadge>
         </button>
       </div>
 
       <!-- Sync & Webhook Retrain Button -->
       <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-        <UBadge color="neutral" variant="subtle" size="sm" class="hidden md:flex items-center gap-1 text-xs">
+        <UBadge
+          color="neutral"
+          variant="subtle"
+          size="sm"
+          class="hidden md:flex items-center gap-1 text-xs"
+        >
           <span class="size-2 rounded-full bg-emerald-500 animate-pulse" />
           <span>Sync CDC: Live</span>
         </UBadge>
@@ -399,25 +530,46 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center items-center h-96">
+    <div
+      v-if="loading"
+      class="flex justify-center items-center h-96"
+    >
       <div class="flex flex-col items-center gap-4">
-        <UIcon name="i-heroicons-cpu-chip" class="w-12 h-12 animate-pulse text-primary-500" />
+        <UIcon
+          name="i-heroicons-cpu-chip"
+          class="w-12 h-12 animate-pulse text-primary-500"
+        />
         <span class="text-sm font-semibold text-gray-500 animate-pulse">{{ t('analytics.loading') }}</span>
       </div>
     </div>
 
     <!-- Content Area -->
-    <div v-else class="space-y-6">
+    <div
+      v-else
+      class="space-y-6"
+    >
       <!-- Perspective Executive AI Narrative Banner -->
-      <div v-if="selectedPerspective === 'auditor'" class="p-4 rounded-xl bg-gradient-to-r from-primary-50 via-indigo-50 to-purple-50 dark:from-primary-950/30 dark:via-indigo-950/30 dark:to-purple-950/30 border border-primary-200 dark:border-primary-800 shadow-xs">
+      <div
+        v-if="selectedPerspective === 'auditor'"
+        class="p-4 rounded-xl bg-gradient-to-r from-primary-50 via-indigo-50 to-purple-50 dark:from-primary-950/30 dark:via-indigo-950/30 dark:to-purple-950/30 border border-primary-200 dark:border-primary-800 shadow-xs"
+      >
         <div class="flex items-start gap-3">
           <div class="p-2 rounded-lg bg-primary-500 text-white shrink-0 mt-0.5">
-            <UIcon name="i-lucide-sparkles" class="w-5 h-5" />
+            <UIcon
+              name="i-lucide-sparkles"
+              class="w-5 h-5"
+            />
           </div>
           <div class="space-y-1">
             <h4 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <span>{{ t('analytics.timeseries.tabAuditor') }} — AI Forecast Insight</span>
-              <UBadge color="primary" variant="subtle" size="xs">PyTorch LSTM + HIG/HIB</UBadge>
+              <UBadge
+                color="primary"
+                variant="subtle"
+                size="xs"
+              >
+                PyTorch LSTM + HIG/HIB
+              </UBadge>
             </h4>
             <p class="text-sm text-gray-700 dark:text-gray-300 font-medium leading-relaxed">
               {{ timeseriesState.auditorForecast?.executiveSummary || "Dengan kecepatan saat ini, diprediksi audit plan hanya selesai 82.4% di akhir tahun. Diperlukan akselerasi pada pilar Pelaksanaan Audit & PKAT dan Investigasi Khusus." }}
@@ -429,15 +581,27 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
         </div>
       </div>
 
-      <div v-else class="p-4 rounded-xl bg-gradient-to-r from-amber-50 via-orange-50 to-indigo-50 dark:from-amber-950/30 dark:via-orange-950/30 dark:to-indigo-950/30 border border-amber-200 dark:border-amber-800 shadow-xs">
+      <div
+        v-else
+        class="p-4 rounded-xl bg-gradient-to-r from-amber-50 via-orange-50 to-indigo-50 dark:from-amber-950/30 dark:via-orange-950/30 dark:to-indigo-950/30 border border-amber-200 dark:border-amber-800 shadow-xs"
+      >
         <div class="flex items-start gap-3">
           <div class="p-2 rounded-lg bg-amber-500 text-white shrink-0 mt-0.5">
-            <UIcon name="i-lucide-building-2" class="w-5 h-5" />
+            <UIcon
+              name="i-lucide-building-2"
+              class="w-5 h-5"
+            />
           </div>
           <div class="space-y-1">
             <h4 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <span>{{ t('analytics.timeseries.tabAuditee') }} — AI Business Trend Projection</span>
-              <UBadge color="warning" variant="subtle" size="xs">Gold Zone / CAATT Multi-Source</UBadge>
+              <UBadge
+                color="warning"
+                variant="subtle"
+                size="xs"
+              >
+                Gold Zone / CAATT Multi-Source
+              </UBadge>
             </h4>
             <p class="text-sm text-gray-700 dark:text-gray-300 font-medium leading-relaxed">
               {{ timeseriesState.auditeeForecast?.executiveSummary || "Diprediksi Cabang Surabaya akan mengalami lonjakan NPL dalam 2 kuartal ke depan akibat kenaikan rasio kredit berisiko. Diperlukan pemantauan kredit macet dan pengetatan threshold Continuous Auditing." }}
@@ -455,18 +619,44 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
         <UCard class="lg:col-span-2">
           <template #header>
             <div class="flex items-center gap-2">
-              <UIcon :name="selectedPerspective === 'auditor' ? 'i-lucide-clipboard-check' : 'i-heroicons-chart-bar'" :class="selectedPerspective === 'auditor' ? 'text-primary-500' : 'text-violet-500'" class="w-5 h-5" />
+              <UIcon
+                :name="selectedPerspective === 'auditor' ? 'i-lucide-clipboard-check' : 'i-heroicons-chart-bar'"
+                :class="selectedPerspective === 'auditor' ? 'text-primary-500' : 'text-violet-500'"
+                class="w-5 h-5"
+              />
               <h3 class="font-bold text-sm sm:text-base">
                 {{ selectedPerspective === 'auditor' ? t('analytics.timeseries.chartTitleAuditor') : t('analytics.timeseries.chartTitle') }}
               </h3>
-              <UBadge color="info" variant="subtle" size="md" class="ml-auto font-medium">
+              <UBadge
+                color="info"
+                variant="subtle"
+                size="md"
+                class="ml-auto font-medium"
+              >
                 {{ t('analytics.timeseries.chartConfidenceBadge') }}
               </UBadge>
             </div>
           </template>
+          <UAlert
+            v-if="selectedKpi?.isStale"
+            color="warning"
+            variant="subtle"
+            icon="i-lucide-clock-alert"
+            :description="t('analytics.timeseries.staleWarning')"
+            class="mb-3"
+          />
           <div class="h-80">
-            <Line :data="activeChartData" :options="timeSeriesOptions" />
+            <Line
+              :data="activeChartData"
+              :options="timeSeriesOptions"
+            />
           </div>
+          <p
+            v-if="selectedKpi?.meta?.key === 'nps'"
+            class="text-xs text-gray-400 mt-2"
+          >
+            {{ t('analytics.kpiAudit.kindHint.nps') }}
+          </p>
         </UCard>
 
         <!-- Right Side: At Risk List Card -->
@@ -476,10 +666,19 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
             <template #header>
               <div class="flex items-center justify-between">
                 <h3 class="font-bold text-sm flex items-center gap-1.5">
-                  <UIcon name="i-lucide-alert-triangle" class="w-4 h-4 text-amber-500" />
+                  <UIcon
+                    name="i-lucide-alert-triangle"
+                    class="w-4 h-4 text-amber-500"
+                  />
                   <span>{{ t('analytics.timeseries.atRiskPillarsTitle') }}</span>
                 </h3>
-                <UBadge color="warning" variant="subtle" size="xs">{{ auditorAtRiskPillars.length }} Pilar</UBadge>
+                <UBadge
+                  color="warning"
+                  variant="subtle"
+                  size="xs"
+                >
+                  {{ auditorAtRiskPillars.length }} Pilar
+                </UBadge>
               </div>
             </template>
             <div class="space-y-3 max-h-72 overflow-y-auto pr-1">
@@ -489,7 +688,9 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
                 class="p-3 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-200 dark:border-amber-800/60"
               >
                 <div class="flex items-center justify-between gap-2">
-                  <div class="font-bold text-sm text-gray-900 dark:text-white">{{ item.code }}</div>
+                  <div class="font-bold text-sm text-gray-900 dark:text-white">
+                    {{ item.code }}
+                  </div>
                   <UBadge
                     :class="getStatusBadgeConfig(item.predictedStatus).badgeClass"
                     variant="solid"
@@ -499,13 +700,18 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
                     {{ item.predictedStatus }}
                   </UBadge>
                 </div>
-                <div class="text-xs text-gray-600 dark:text-gray-300 mt-0.5 line-clamp-1 font-medium">{{ item.kpi || item.kpiName }}</div>
+                <div class="text-xs text-gray-600 dark:text-gray-300 mt-0.5 line-clamp-1 font-medium">
+                  {{ item.kpi || item.kpiName }}
+                </div>
                 <div class="flex items-center justify-between mt-2 pt-1 border-t border-amber-200/50 dark:border-amber-800/40 text-xs">
                   <span class="text-gray-500">Target: <strong class="text-gray-700 dark:text-gray-200">{{ item.target || item.targetValue }}</strong></span>
                   <span class="font-bold text-amber-600 dark:text-amber-400">Proyeksi: {{ formatNum(item.achievementRate || item.forecastedAchievementRate, 1) }}%</span>
                 </div>
               </div>
-              <div v-if="auditorAtRiskPillars.length === 0" class="text-center py-6 text-sm text-gray-400">
+              <div
+                v-if="auditorAtRiskPillars.length === 0"
+                class="text-center py-6 text-sm text-gray-400"
+              >
                 Semua indikator audit diproyeksikan berstatus Good.
               </div>
             </div>
@@ -516,10 +722,19 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
             <template #header>
               <div class="flex items-center justify-between">
                 <h3 class="font-bold text-sm flex items-center gap-1.5">
-                  <UIcon name="i-lucide-alert-octagon" class="w-4 h-4 text-rose-500" />
+                  <UIcon
+                    name="i-lucide-alert-octagon"
+                    class="w-4 h-4 text-rose-500"
+                  />
                   <span>{{ t('analytics.timeseries.atRiskTitle') }}</span>
                 </h3>
-                <UBadge color="error" variant="subtle" size="xs">{{ auditeeAtRisk.length }} Unit</UBadge>
+                <UBadge
+                  color="error"
+                  variant="subtle"
+                  size="xs"
+                >
+                  {{ auditeeAtRisk.length }} Unit
+                </UBadge>
               </div>
             </template>
             <div class="space-y-3 max-h-72 overflow-y-auto pr-1">
@@ -529,7 +744,9 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
                 class="p-3 bg-rose-50 dark:bg-rose-900/20 rounded-xl border border-rose-200 dark:border-rose-800"
               >
                 <div class="flex items-center justify-between gap-2">
-                  <div class="font-bold text-sm text-gray-900 dark:text-white">{{ dept.department }}</div>
+                  <div class="font-bold text-sm text-gray-900 dark:text-white">
+                    {{ dept.department }}
+                  </div>
                   <UBadge
                     :class="getRiskConfig(dept.riskLevel).badgeClass"
                     variant="solid"
@@ -539,11 +756,22 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
                     {{ getRiskConfig(dept.riskLevel).label }}
                   </UBadge>
                 </div>
-                <div class="text-xs text-gray-500 mt-0.5 line-clamp-1">{{ dept.kpi }}</div>
+                <div class="text-xs text-gray-500 mt-0.5 line-clamp-1">
+                  {{ dept.kpi }}
+                </div>
                 <div class="flex items-center gap-2 mt-2">
-                  <UIcon name="i-heroicons-arrow-trending-down" class="w-4 h-4 text-rose-500" />
+                  <UIcon
+                    name="i-heroicons-arrow-trending-down"
+                    class="w-4 h-4 text-rose-500"
+                  />
                   <span class="text-sm font-bold text-rose-500">{{ formatNum(dept.predictedQ3, 1) }}{{ t('analytics.timeseries.projectedQ3') }}</span>
                 </div>
+              </div>
+              <div
+                v-if="auditeeAtRisk.length === 0"
+                class="text-center py-6 text-sm text-gray-400"
+              >
+                {{ t('analytics.timeseries.noAtRisk') }}
               </div>
             </div>
           </UCard>
@@ -559,13 +787,28 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
           <div class="flex flex-col gap-3">
             <div class="flex flex-wrap items-center justify-between gap-3">
               <div class="flex items-center gap-2">
-                <UIcon name="i-lucide-clipboard-check" class="text-primary-500 w-5 h-5" />
-                <h3 class="font-bold text-base">{{ t('analytics.timeseries.tableTitleAuditor') }}</h3>
-                <UBadge color="primary" variant="subtle" size="xs" class="font-mono">
+                <UIcon
+                  name="i-lucide-clipboard-check"
+                  class="text-primary-500 w-5 h-5"
+                />
+                <h3 class="font-bold text-base">
+                  {{ t('analytics.timeseries.tableTitleAuditor') }}
+                </h3>
+                <UBadge
+                  color="primary"
+                  variant="subtle"
+                  size="xs"
+                  class="font-mono"
+                >
                   Total: {{ filteredAuditorForecasts.length }} KPI
                 </UBadge>
               </div>
-              <UBadge color="primary" variant="subtle" size="sm" class="font-mono">
+              <UBadge
+                color="primary"
+                variant="subtle"
+                size="sm"
+                class="font-mono"
+              >
                 Model: PyTorch Auditor LSTM + HIG/HIB
               </UBadge>
             </div>
@@ -579,23 +822,38 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
                   placeholder="Cari kode, nama KPI, atau rekomendasi..."
                   size="sm"
                   class="w-full sm:w-72"
-                  clearable
                 />
                 <select
                   v-model="selectedStatusFilter"
                   class="text-xs rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 py-1.5 px-2.5 focus:ring-1 focus:ring-primary-500"
                 >
-                  <option value="ALL">Semua Status (Good / Moderate / Poor)</option>
-                  <option value="Good">Good (≥100%)</option>
-                  <option value="Moderate">Moderate (70-99%)</option>
-                  <option value="Poor">Poor (&lt;70%)</option>
+                  <option value="ALL">
+                    Semua Status (Good / Moderate / Poor)
+                  </option>
+                  <option value="Good">
+                    Good (≥100%)
+                  </option>
+                  <option value="Moderate">
+                    Moderate (70-99%)
+                  </option>
+                  <option value="Poor">
+                    Poor (&lt;70%)
+                  </option>
                 </select>
                 <select
                   v-model="selectedPillarFilter"
                   class="text-xs rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 py-1.5 px-2.5 focus:ring-1 focus:ring-primary-500 max-w-[220px]"
                 >
-                  <option value="ALL">Semua Pilar Audit</option>
-                  <option v-for="p in distinctAuditorPillars" :key="p" :value="p">{{ p }}</option>
+                  <option value="ALL">
+                    Semua Pilar Audit
+                  </option>
+                  <option
+                    v-for="p in distinctAuditorPillars"
+                    :key="p"
+                    :value="p"
+                  >
+                    {{ p }}
+                  </option>
                 </select>
               </div>
 
@@ -605,7 +863,13 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
                   v-model="pageSize"
                   class="text-xs rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 py-1.5 px-2.5"
                 >
-                  <option v-for="opt in pageSizeOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                  <option
+                    v-for="opt in pageSizeOptions"
+                    :key="opt.value"
+                    :value="opt.value"
+                  >
+                    {{ opt.label }}
+                  </option>
                 </select>
               </div>
             </div>
@@ -616,16 +880,36 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
           <table class="w-full text-sm">
             <thead>
               <tr class="bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colCode') }}</th>
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400 min-w-[200px]">{{ t('analytics.timeseries.colKPI') }}</th>
-                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colPolarity') }}</th>
-                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colTarget') }}</th>
-                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colCurrent') }}</th>
-                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colForecast') }}</th>
-                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colForecastAchvRate') }}</th>
-                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colPredictedStatus') }}</th>
-                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colTrend') }}</th>
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400 min-w-[260px]">{{ t('analytics.timeseries.colRecommendedAction') }}</th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">
+                  {{ t('analytics.timeseries.colCode') }}
+                </th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400 min-w-[200px]">
+                  {{ t('analytics.timeseries.colKPI') }}
+                </th>
+                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">
+                  {{ t('analytics.timeseries.colPolarity') }}
+                </th>
+                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">
+                  {{ t('analytics.timeseries.colTarget') }}
+                </th>
+                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">
+                  {{ t('analytics.timeseries.colCurrent') }}
+                </th>
+                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">
+                  {{ t('analytics.timeseries.colForecast') }}
+                </th>
+                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">
+                  {{ t('analytics.timeseries.colForecastAchvRate') }}
+                </th>
+                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">
+                  {{ t('analytics.timeseries.colPredictedStatus') }}
+                </th>
+                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">
+                  {{ t('analytics.timeseries.colTrend') }}
+                </th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400 min-w-[260px]">
+                  {{ t('analytics.timeseries.colRecommendedAction') }}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -634,10 +918,16 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
                 :key="kpi.code"
                 class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
               >
-                <td class="py-3 px-3 font-mono font-bold text-xs text-primary-600 dark:text-primary-400">{{ kpi.code }}</td>
+                <td class="py-3 px-3 font-mono font-bold text-xs text-primary-600 dark:text-primary-400">
+                  {{ kpi.code }}
+                </td>
                 <td class="py-3 px-3">
-                  <div class="font-bold text-gray-900 dark:text-white leading-tight">{{ kpi.kpiName }}</div>
-                  <div class="text-[11px] text-gray-400 mt-0.5">{{ kpi.category }}</div>
+                  <div class="font-bold text-gray-900 dark:text-white leading-tight">
+                    {{ kpi.kpiName }}
+                  </div>
+                  <div class="text-[11px] text-gray-400 mt-0.5">
+                    {{ kpi.category }}
+                  </div>
                 </td>
                 <td class="text-center py-3 px-3">
                   <UBadge
@@ -650,8 +940,12 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
                     {{ kpi.hibHig }}
                   </UBadge>
                 </td>
-                <td class="text-center py-3 px-3 font-mono font-semibold">{{ kpi.targetValue }} {{ kpi.unit === '%' ? '%' : '' }}</td>
-                <td class="text-center py-3 px-3 font-mono">{{ formatNum(kpi.currentValue, 1) }}{{ kpi.unit === '%' ? '%' : '' }}</td>
+                <td class="text-center py-3 px-3 font-mono font-semibold">
+                  {{ kpi.targetValue }} {{ kpi.unit === '%' ? '%' : '' }}
+                </td>
+                <td class="text-center py-3 px-3 font-mono">
+                  {{ formatNum(kpi.currentValue, 1) }}{{ kpi.unit === '%' ? '%' : '' }}
+                </td>
                 <td class="text-center py-3 px-3 font-mono font-bold text-primary-600 dark:text-primary-400">
                   {{ formatNum(kpi.forecastedValue, 1) }}{{ kpi.unit === '%' ? '%' : '' }}
                 </td>
@@ -672,17 +966,31 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
                 </td>
                 <td class="text-center py-3 px-3">
                   <div class="flex items-center justify-center gap-1">
-                    <UIcon :name="trendIcon(kpi.trend)" class="w-4 h-4" :class="trendColor(kpi.trend)" />
-                    <span class="text-xs font-bold" :class="trendColor(kpi.trend)">{{ kpi.trend }}</span>
+                    <UIcon
+                      :name="trendIcon(kpi.trend)"
+                      class="w-4 h-4"
+                      :class="trendColor(kpi.trend)"
+                    />
+                    <span
+                      class="text-xs font-bold"
+                      :class="trendColor(kpi.trend)"
+                    >{{ kpi.trend }}</span>
                   </div>
                 </td>
                 <td class="py-3 px-3 text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
-                  <div class="font-semibold text-gray-800 dark:text-gray-200">{{ kpi.aiNarrative }}</div>
-                  <div class="text-[11px] text-gray-500 mt-0.5">{{ kpi.recommendedAction }}</div>
+                  <div class="font-semibold text-gray-800 dark:text-gray-200">
+                    {{ kpi.aiNarrative }}
+                  </div>
+                  <div class="text-[11px] text-gray-500 mt-0.5">
+                    {{ kpi.recommendedAction }}
+                  </div>
                 </td>
               </tr>
               <tr v-if="paginatedAuditorForecasts.length === 0">
-                <td colspan="10" class="py-8 text-center text-gray-400">
+                <td
+                  colspan="10"
+                  class="py-8 text-center text-gray-400"
+                >
                   Tidak ada data KPI Auditor yang sesuai dengan filter pencarian.
                 </td>
               </tr>
@@ -706,7 +1014,10 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
               KPI Auditor
             </div>
 
-            <div v-if="totalAuditorPages > 1" class="flex items-center gap-1">
+            <div
+              v-if="totalAuditorPages > 1"
+              class="flex items-center gap-1"
+            >
               <UButton
                 icon="i-lucide-chevron-left"
                 size="xs"
@@ -738,13 +1049,28 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
           <div class="flex flex-col gap-3">
             <div class="flex flex-wrap items-center justify-between gap-3">
               <div class="flex items-center gap-2">
-                <UIcon name="i-lucide-building-2" class="text-indigo-500 w-5 h-5" />
-                <h3 class="font-bold text-base">{{ t('analytics.timeseries.tableTitleAuditee') }}</h3>
-                <UBadge color="info" variant="subtle" size="xs" class="font-mono">
+                <UIcon
+                  name="i-lucide-building-2"
+                  class="text-indigo-500 w-5 h-5"
+                />
+                <h3 class="font-bold text-base">
+                  {{ t('analytics.timeseries.tableTitleAuditee') }}
+                </h3>
+                <UBadge
+                  color="info"
+                  variant="subtle"
+                  size="xs"
+                  class="font-mono"
+                >
                   Total: {{ filteredAuditeeForecasts.length }} Indikator
                 </UBadge>
               </div>
-              <UBadge color="info" variant="subtle" size="sm" class="font-mono">
+              <UBadge
+                color="info"
+                variant="subtle"
+                size="sm"
+                class="font-mono"
+              >
                 Sumber: Datalake Zona Gold (Multi-Source CDC)
               </UBadge>
             </div>
@@ -758,17 +1084,26 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
                   placeholder="Cari indikator bisnis, cabang, atau rekomendasi..."
                   size="sm"
                   class="w-full sm:w-72"
-                  clearable
                 />
                 <select
                   v-model="selectedRiskFilter"
                   class="text-xs rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 py-1.5 px-2.5 focus:ring-1 focus:ring-indigo-500"
                 >
-                  <option value="ALL">Semua Risk Level</option>
-                  <option value="CRITICAL">Critical</option>
-                  <option value="HIGH">High</option>
-                  <option value="MODERATE">Moderate / Moderate to High</option>
-                  <option value="LOW">Low</option>
+                  <option value="ALL">
+                    Semua Risk Level
+                  </option>
+                  <option value="CRITICAL">
+                    Critical
+                  </option>
+                  <option value="HIGH">
+                    High
+                  </option>
+                  <option value="MODERATE">
+                    Moderate / Moderate to High
+                  </option>
+                  <option value="LOW">
+                    Low
+                  </option>
                 </select>
               </div>
 
@@ -778,7 +1113,13 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
                   v-model="pageSize"
                   class="text-xs rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 py-1.5 px-2.5"
                 >
-                  <option v-for="opt in pageSizeOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                  <option
+                    v-for="opt in pageSizeOptions"
+                    :key="opt.value"
+                    :value="opt.value"
+                  >
+                    {{ opt.label }}
+                  </option>
                 </select>
               </div>
             </div>
@@ -789,16 +1130,36 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
           <table class="w-full text-sm">
             <thead>
               <tr class="bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colCode') }}</th>
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400 min-w-[180px]">{{ t('analytics.timeseries.colKPI') }}</th>
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colEntity') }}</th>
-                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colSyncFreq') }}</th>
-                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colForecastHorizon') }}</th>
-                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colCurrent') }}</th>
-                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colForecast') }}</th>
-                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colTrend') }}</th>
-                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">{{ t('analytics.timeseries.colRiskLevel') }}</th>
-                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400 min-w-[260px]">{{ t('analytics.timeseries.colRecommendedAction') }}</th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">
+                  {{ t('analytics.timeseries.colCode') }}
+                </th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400 min-w-[180px]">
+                  {{ t('analytics.timeseries.colKPI') }}
+                </th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">
+                  {{ t('analytics.timeseries.colEntity') }}
+                </th>
+                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">
+                  {{ t('analytics.timeseries.colSyncFreq') }}
+                </th>
+                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">
+                  {{ t('analytics.timeseries.colForecastHorizon') }}
+                </th>
+                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">
+                  {{ t('analytics.timeseries.colCurrent') }}
+                </th>
+                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">
+                  {{ t('analytics.timeseries.colForecast') }}
+                </th>
+                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">
+                  {{ t('analytics.timeseries.colTrend') }}
+                </th>
+                <th class="text-center py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400">
+                  {{ t('analytics.timeseries.colRiskLevel') }}
+                </th>
+                <th class="text-left py-3 px-3 font-bold text-[10px] uppercase tracking-widest text-gray-400 min-w-[260px]">
+                  {{ t('analytics.timeseries.colRecommendedAction') }}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -807,11 +1168,19 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
                 :key="kpi.code"
                 class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
               >
-                <td class="py-3 px-3 font-mono font-bold text-xs text-indigo-600 dark:text-indigo-400">{{ kpi.code }}</td>
-                <td class="py-3 px-3 font-bold text-gray-900 dark:text-white">{{ kpi.kpiName }}</td>
+                <td class="py-3 px-3 font-mono font-bold text-xs text-indigo-600 dark:text-indigo-400">
+                  {{ kpi.code }}
+                </td>
+                <td class="py-3 px-3 font-bold text-gray-900 dark:text-white">
+                  {{ kpi.kpiName }}
+                </td>
                 <td class="py-3 px-3">
-                  <div class="font-semibold text-gray-800 dark:text-gray-200">{{ kpi.entity || '-' }}</div>
-                  <div class="text-[11px] text-gray-400">{{ kpi.entityType || '-' }}</div>
+                  <div class="font-semibold text-gray-800 dark:text-gray-200">
+                    {{ kpi.entity || '-' }}
+                  </div>
+                  <div class="text-[11px] text-gray-400">
+                    {{ kpi.entityType || '-' }}
+                  </div>
                 </td>
                 <td class="text-center py-3 px-3">
                   <UBadge
@@ -824,18 +1193,32 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
                   </UBadge>
                 </td>
                 <td class="text-center py-3 px-3">
-                  <UBadge color="neutral" variant="subtle" size="xs" class="font-mono font-medium">
+                  <UBadge
+                    color="neutral"
+                    variant="subtle"
+                    size="xs"
+                    class="font-mono font-medium"
+                  >
                     {{ kpi.targetHorizon || 'Q3 2026' }}
                   </UBadge>
                 </td>
-                <td class="text-center py-3 px-3 font-mono">{{ formatNum(kpi.currentValue, 1) }}{{ kpi.unit === '%' ? '%' : '' }}</td>
+                <td class="text-center py-3 px-3 font-mono">
+                  {{ formatNum(kpi.currentValue, 1) }}{{ kpi.unit === '%' ? '%' : '' }}
+                </td>
                 <td class="text-center py-3 px-3 font-mono font-bold text-indigo-600 dark:text-indigo-400">
                   {{ formatNum(kpi.forecastedValue, 1) }}{{ kpi.unit === '%' ? '%' : '' }}
                 </td>
                 <td class="text-center py-3 px-3">
                   <div class="flex items-center justify-center gap-1">
-                    <UIcon :name="trendIcon(kpi.trend)" class="w-4 h-4" :class="trendColor(kpi.trend)" />
-                    <span class="text-xs font-bold" :class="trendColor(kpi.trend)">{{ kpi.trend }}</span>
+                    <UIcon
+                      :name="trendIcon(kpi.trend)"
+                      class="w-4 h-4"
+                      :class="trendColor(kpi.trend)"
+                    />
+                    <span
+                      class="text-xs font-bold"
+                      :class="trendColor(kpi.trend)"
+                    >{{ kpi.trend }}</span>
                   </div>
                 </td>
                 <td class="text-center py-3 px-3">
@@ -849,12 +1232,19 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
                   </UBadge>
                 </td>
                 <td class="py-3 px-3 text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
-                  <div class="font-semibold text-gray-800 dark:text-gray-200">{{ kpi.aiNarrative }}</div>
-                  <div class="text-[11px] text-gray-500 mt-0.5">{{ kpi.recommendedAction }}</div>
+                  <div class="font-semibold text-gray-800 dark:text-gray-200">
+                    {{ kpi.aiNarrative }}
+                  </div>
+                  <div class="text-[11px] text-gray-500 mt-0.5">
+                    {{ kpi.recommendedAction }}
+                  </div>
                 </td>
               </tr>
               <tr v-if="paginatedAuditeeForecasts.length === 0">
-                <td colspan="10" class="py-8 text-center text-gray-400">
+                <td
+                  colspan="10"
+                  class="py-8 text-center text-gray-400"
+                >
                   Tidak ada data Indikator Auditee yang sesuai dengan filter pencarian.
                 </td>
               </tr>
@@ -878,7 +1268,10 @@ watch([selectedPerspective, searchQuery, selectedStatusFilter, selectedPillarFil
               Indikator Auditee
             </div>
 
-            <div v-if="totalAuditeePages > 1" class="flex items-center gap-1">
+            <div
+              v-if="totalAuditeePages > 1"
+              class="flex items-center gap-1"
+            >
               <UButton
                 icon="i-lucide-chevron-left"
                 size="xs"

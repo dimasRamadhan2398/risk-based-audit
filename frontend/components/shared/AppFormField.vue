@@ -123,7 +123,7 @@
         <div
           v-if="showCounter"
           :class="[
-            'text-xs tabular-nums font-mono select-none transition-colors',
+            'text-xs tabular-nums select-none transition-colors',
             counterColorClass,
             uiClasses.counter
           ]"

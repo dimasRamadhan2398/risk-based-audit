@@ -285,7 +285,20 @@ func (ctrl *RiskFactorController) ListCorporateRiskFactors(c *gin.Context) {
 
 type CorporateRiskFactorReq struct {
 	StandardRiskFactorID string  `json:"standard_risk_factor_id" binding:"required"`
-	Weight               float64 `json:"weight" binding:"required"` // weight in percent (e.g. 15.0)
+	Weight               float64 `json:"weight" binding:"gt=0,lte=100"` // weight in percent (e.g. 15.0); "required" would reject 0 with a cryptic message
+}
+
+// corporateWeightsTotalIsExact sums the request weights (percent) in integer
+// hundredths of a percent and reports whether the total is exactly 100.00%.
+// Comparing integers avoids float drift (33.33+33.33+33.34 is accepted) while
+// rejecting near misses such as 99.99 or 100.01. Hundredths match the stored
+// precision: decimal(5,4) as a fraction is two decimals in percent.
+func corporateWeightsTotalIsExact(reqs []CorporateRiskFactorReq) (int64, bool) {
+	var total int64
+	for _, r := range reqs {
+		total += int64(math.Round(r.Weight * 100))
+	}
+	return total, total == 10000
 }
 
 // UpdateCorporateRiskFactors replaces all corporate risk factors and weights
@@ -299,17 +312,11 @@ func (ctrl *RiskFactorController) UpdateCorporateRiskFactors(c *gin.Context) {
 		return
 	}
 
-	// Validate weights sum to 100%
-	var totalWeight float64
-	for _, req := range reqs {
-		totalWeight += req.Weight
-	}
-
-	// Allow slight rounding tolerance (e.g., 99.9% to 100.1%)
-	if totalWeight < 99.9 || totalWeight > 100.1 {
+	// Validate weights sum to exactly 100%
+	if hundredths, ok := corporateWeightsTotalIsExact(reqs); !ok {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
-			"error":   "Total weight must equal exactly 100% (currently: " + fmt.Sprintf("%.2f", totalWeight) + "%)",
+			"error":   "Total weight must equal exactly 100% (currently: " + fmt.Sprintf("%.2f", float64(hundredths)/100) + "%)",
 		})
 		return
 	}

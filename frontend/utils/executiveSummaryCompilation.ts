@@ -94,12 +94,15 @@ export const riskFieldsToBreakdown = (fields: Partial<Record<RiskField, unknown>
   low: toCount(fields.risikoLow)
 })
 
-export type FollowUpStatus = 'Closed' | 'In Progress' | 'Overdue'
+/** 'No Action': a finding whose ATR has no PIC or no action plan yet (see utils/executiveSummaryFollowUp.ts). */
+export type FollowUpStatus = 'Closed' | 'In Progress' | 'Overdue' | 'No Action'
 
 export interface CompilationFollowUp {
   closed: number
   inProgress: number
   overdue: number
+  /** Absent in older backend responses (three-row follow-up table) */
+  noAction?: number
 }
 
 /** Statistics of GET /executive-summaries/compilation-stats (data payload), already validated. */
@@ -116,15 +119,20 @@ export interface CompilationStats {
   riskBreakdown: RiskBreakdown
   /** Findings with an empty or unrecognised risk level; shown as a note, not counted in totalTemuan */
   risikoLainnya: number
-  followUp: CompilationFollowUp
+  /** null when the follow-up table of the response is not usable; the form then relies on follow-up-status */
+  followUp: CompilationFollowUp | null
   followUpCancelled: number
 }
 
 const FOLLOW_UP_STATUS_KEYS = new Map<string, keyof CompilationFollowUp>([
   ['Closed', 'closed'],
   ['In Progress', 'inProgress'],
-  ['Overdue', 'overdue']
+  ['Overdue', 'overdue'],
+  ['No Action', 'noAction']
 ])
+
+/** The three statuses every follow-up table has; 'No Action' is optional (older backends send three rows). */
+const REQUIRED_FOLLOW_UP_STATUSES = ['Closed', 'In Progress', 'Overdue']
 
 const COUNT_FIELDS = [
   'year',
@@ -144,10 +152,36 @@ const COUNT_FIELDS = [
 const isCount = (value: unknown): value is number =>
   typeof value === 'number' && Number.isInteger(value) && value >= 0
 
+/** followUpBuckets {closed, inProgress, overdue, noAction} with valid counts; null when absent or invalid. */
+const parseFollowUpBuckets = (value: unknown): CompilationFollowUp | null => {
+  if (!value || typeof value !== 'object') return null
+  const b = value as Record<string, unknown>
+  if (!isCount(b.closed) || !isCount(b.inProgress) || !isCount(b.overdue) || !isCount(b.noAction)) return null
+  return { closed: b.closed, inProgress: b.inProgress, overdue: b.overdue, noAction: b.noAction }
+}
+
+/** Three rows (Closed, In Progress, Overdue) or four (plus No Action), each once with a valid count; null otherwise. */
+const parseFollowUpTable = (table: unknown): CompilationFollowUp | null => {
+  if (!Array.isArray(table) || table.length < 3 || table.length > 4) return null
+  const followUp: CompilationFollowUp = { closed: 0, inProgress: 0, overdue: 0 }
+  const seen = new Set<string>()
+  for (const row of table as { status?: unknown, jumlah?: unknown }[]) {
+    const status = typeof row?.status === 'string' ? row.status : ''
+    const key = FOLLOW_UP_STATUS_KEYS.get(status)
+    if (!key || !isCount(row.jumlah) || seen.has(status)) return null
+    seen.add(status)
+    followUp[key] = row.jumlah
+  }
+  if (!REQUIRED_FOLLOW_UP_STATUSES.every(s => seen.has(s))) return null
+  return followUp
+}
+
 /**
  * Validates the body of GET /executive-summaries/compilation-stats and maps it to CompilationStats.
- * Throws when a count is missing or not a non-negative integer, or when the follow-up table does not
- * have exactly the three statuses, so that a partial response is never written to the form.
+ * Throws when a count is missing or not a non-negative integer, so that a partial response is never
+ * written to the form. Follow-up counts come from followUpBuckets (four buckets) when present, else from the
+ * follow-up table with three rows (Closed, In Progress, Overdue) or four (plus No Action); any other shape
+ * gives followUp = null instead of an error, so it never blocks saving.
  */
 export const parseCompilationStats = (body: unknown): CompilationStats => {
   const data = (body as { data?: Record<string, unknown> } | null | undefined)?.data
@@ -160,19 +194,8 @@ export const parseCompilationStats = (body: unknown): CompilationStats => {
   if (typeof syncedAt !== 'string' || Number.isNaN(Date.parse(syncedAt))) {
     throw new Error('Invalid compilation statistics field: syncedAt')
   }
-  if (!Array.isArray(data.followUpTable)) throw new Error('Invalid compilation statistics field: followUpTable')
-
-  const followUp: CompilationFollowUp = { closed: 0, inProgress: 0, overdue: 0 }
-  const seen = new Set<string>()
-  for (const row of data.followUpTable as { status?: unknown, jumlah?: unknown }[]) {
-    const key = typeof row?.status === 'string' ? FOLLOW_UP_STATUS_KEYS.get(row.status) : undefined
-    if (!key || !isCount(row.jumlah) || seen.has(row.status as string)) {
-      throw new Error('Invalid compilation statistics field: followUpTable')
-    }
-    seen.add(row.status as string)
-    followUp[key] = row.jumlah
-  }
-  if (seen.size !== FOLLOW_UP_STATUS_KEYS.size) throw new Error('Invalid compilation statistics field: followUpTable')
+  // The four ATR buckets when the backend sends them; its three-row followUpTable leaves No Action out
+  const followUp = parseFollowUpBuckets(data.followUpBuckets) ?? parseFollowUpTable(data.followUpTable)
 
   const count = (field: typeof COUNT_FIELDS[number]) => data[field] as number
   return {
@@ -211,18 +234,21 @@ export interface CompilationFollowUpRow {
 }
 
 /**
- * Follow-up table rows from the counts. Percentages are derived from the counts; the notes (keterangan)
- * are kept from the previous rows of the same status and are never generated text.
+ * Follow-up table rows (Closed, In Progress, Overdue, No Action) from the counts. Percentages are derived
+ * from the counts; the notes (keterangan) are kept from the previous rows of the same status and are
+ * never generated text.
  */
 export const followUpRowsFromStats = (
   followUp: CompilationFollowUp,
   previous: readonly CompilationFollowUpRow[] = []
 ): CompilationFollowUpRow[] => {
-  const total = followUp.closed + followUp.inProgress + followUp.overdue
+  const noAction = followUp.noAction ?? 0
+  const total = followUp.closed + followUp.inProgress + followUp.overdue + noAction
   const statuses: [FollowUpStatus, number][] = [
     ['Closed', followUp.closed],
     ['In Progress', followUp.inProgress],
-    ['Overdue', followUp.overdue]
+    ['Overdue', followUp.overdue],
+    ['No Action', noAction]
   ]
   return statuses.map(([status, jumlah]) => ({
     status,

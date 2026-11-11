@@ -77,6 +77,7 @@
         "serverError": "An internal server error occurred (500). Please try again in a few moments.",
         "invalidCredentials": "Incorrect username or password. Please check and try again.",
         "tooManyRequests": "Too many login attempts. Please wait a few moments before trying again.",
+        "accountLocked": "Your account is locked after too many incorrect verification codes. Try again in {minutes} minutes.",
         "networkError": "Failed to connect to the server. Please ensure your internet connection is active and the server is running.",
         "generic": "An error occurred during login. Please try again."
       }
@@ -128,15 +129,17 @@
       "sessionExpired": "Verification session has expired.",
       "retryLogin": "Login Again",
       "invalidCode": "Invalid verification code",
-      "attemptsWarning": "Verification failed: {attempts}/3 attempts. Account will be locked after too many errors.",
+      "attemptsWarning": "{remaining} of {max} attempts left. After that, your account is locked for 15 minutes.",
+      "accountLocked": "Too many incorrect codes. Your account is locked. Try again in {minutes} minutes.",
       "verifyBtn": "Verify & Login",
       "verifyingBtn": "Verifying...",
       "backToLogin": "← Back to login page",
-      "legalFooter": "Security guaranteed · Login verification activity is logged for compliance audit."
+      "legalFooter": "Security guaranteed. Login verification activity is logged for compliance audit."
     }
   },
   "common": {
     "clearSearch": "Clear search",
+    "systemFlagged": "System-flagged",
     "datePicker": {
       "clearDate": "Clear date",
       "openCalendar": "Open calendar",
@@ -167,6 +170,16 @@
         "Fri",
         "Sat"
       ]
+    },
+    "signatureBox": {
+      "notSigned": "Not signed yet",
+      "signHere": "Sign here",
+      "hint": "Draw with a mouse, finger, or stylus. The signature is recorded when you lift the pen.",
+      "name": "Signer name",
+      "namePlaceholder": "Full name",
+      "title": "Signer title",
+      "titlePlaceholder": "e.g. Head of SPI",
+      "timestamp": "Signed at"
     },
     "signaturePad": {
       "draw": "Draw",
@@ -258,12 +271,12 @@
       "predictiveDescription": "Future KPI projections and detection of financial and operational anomalies.",
       "openAnalytics": "Open Deep Analytics Center",
       "kpiForecasting": "KPI Performance Forecasting",
-      "forecastPeriod": "Historical trends versus Q3 2026–Q1 2027 forecasts (95% confidence interval)",
+      "forecastPeriod": "Historical trend and forecast per KPI",
       "details": "Details",
-      "atRiskKpi": "At-Risk KPI Projections & Audit Recommendations",
+      "atRiskKpi": "At-Risk KPIs and Audit Actions",
       "projection": "Projection",
-      "predictionInterval": "Prediction interval ±4.8% MAPE",
-      "targetHorizon": "Target horizon: Q3 2026",
+      "predictionInterval": "Model accuracy: MAPE {mape}%",
+      "targetHorizon": "Forecast horizon: {range}",
       "transactionAnomalies": "Transaction Anomaly Detection",
       "transactionAnomaliesDescription": "Detect transaction outliers and unusual patterns using unsupervised machine learning",
       "criticalAnomalies": "Critical Anomaly Alerts Requiring Investigation",
@@ -739,7 +752,8 @@
       "permissions": "Permissions",
       "dataSources": "Data Sources",
       "emailService": "Email Service (Resend)",
-      "faq": "FAQ"
+      "faq": "FAQ",
+      "systemLogs": "System Logs"
     },
     "titles": {
       "profile": "My Profile",
@@ -749,7 +763,8 @@
       "permissions": "Permissions",
       "datasource": "Data Source Connections",
       "email": "Email Dispatcher (Resend API)",
-      "faq": "FAQ"
+      "faq": "FAQ",
+      "systemLogs": "System Logs"
     },
     "general": {
       "cardTitle": "General Settings",
@@ -874,7 +889,14 @@
       "verifyFailedTitle": "Verification Failed",
       "verifyFailedDesc": "Invalid verification code.",
       "disableFailedTitle": "Failed to Disable",
-      "disableFailedDesc": "The password you entered is incorrect."
+      "disableFailedDesc": "The password you entered is incorrect.",
+      "statusFailedTitle": "Could not load MFA status",
+      "statusFailedDesc": "Your MFA status could not be loaded. Please try again.",
+      "retry": "Try again",
+      "verifyingCode": "Verifying code...",
+      "setupChangedTitle": "This QR code is no longer valid",
+      "setupChangedDesc": "MFA setup was restarted (for example in another tab), so this QR code was replaced. Generate a new QR code, scan it with your authenticator app, then enter the new code.",
+      "newQrButton": "Generate new QR code"
     },
     "activity": {
       "fingerprintLabel": "Fingerprint:",
@@ -908,7 +930,36 @@
       "deviceRemovedToast": "Device Removed",
       "deviceRemovedDesc": "Trusted access for device \"{name}\" has been removed.",
       "removeFailedTitle": "Failed to Remove",
-      "removeFailedDesc": "Failed to remove trusted device."
+      "removeFailedDesc": "Failed to remove trusted device.",
+      "devicesTitle": "Devices",
+      "devicesSubtitle": "Devices that have signed in to your account. Trusted devices skip the MFA code at sign-in.",
+      "refresh": "Refresh",
+      "retry": "Try again",
+      "devicesErrorTitle": "Could not load your devices",
+      "devicesErrorDesc": "The trusted device list could not be loaded. Please try again.",
+      "trusted": "Trusted",
+      "notTrusted": "Not trusted",
+      "osLabel": "Operating system",
+      "locationLabel": "Location",
+      "lastActiveLabel": "Last active",
+      "noTrustedDevices": "No trusted devices yet. When you verify a sign-in with MFA and tick \"Trust this device\", that device appears here.",
+      "recentTitle": "Recent activity",
+      "recentSubtitle": "Your last sign-in and changes to your trusted devices.",
+      "openSystemLogs": "Open System Logs",
+      "recentErrorTitle": "Could not load recent activity",
+      "recentErrorDesc": "Your sign-in history could not be loaded. Please try again.",
+      "recentEmpty": "No activity recorded yet.",
+      "browserOnOs": "{browser} on {os}",
+      "unknownDevice": "Unknown device",
+      "activeNow": "Active now",
+      "lastSignIn": "Last sign-in {date}",
+      "trustedOn": "Trusted {date}",
+      "onThisDevice": "On this device",
+      "eventLastSignIn": "Signed in",
+      "eventDeviceTrusted": "Trusted device added",
+      "lastActive": "Last active {date}",
+      "firstSeen": "First seen {date}",
+      "eventNewDevice": "New device signed in"
     },
     "permission": {
       "matrix": {
@@ -1177,6 +1228,90 @@
       "provisionSuccessDesc": "Domain {domain} registered with {count} DNS verification records.",
       "provisionFailedToast": "Provisioning Failed",
       "provisionFailedDesc": "Failed to provision domain."
+    },
+    "systemLogs": {
+      "title": "User activity log",
+      "subtitle": "Sign-ins, account changes and other user actions recorded by the system.",
+      "loading": "Loading activity log",
+      "systemActor": "System",
+      "updatedAt": "updated {time}",
+      "pause": "Pause live updates",
+      "resume": "Resume live updates",
+      "refresh": "Refresh",
+      "retry": "Try again",
+      "loadMore": "Load older events",
+      "endOfList": "No older events",
+      "errorTitle": "Could not load the activity log",
+      "forbiddenTitle": "You do not have access to the activity log",
+      "forbiddenDesc": "Viewing the activity log requires the View system logs permission. Ask an administrator if you need access.",
+      "emptyTitle": "No activity recorded yet",
+      "emptyDesc": "Events will appear here as soon as users sign in or change data.",
+      "emptyFilteredTitle": "No events match the filters",
+      "emptyFilteredDesc": "Try a wider date range or clear the filters.",
+      "live": {
+        "live": "Live",
+        "paused": "Paused",
+        "hidden": "Paused while tab is hidden",
+        "retrying": "Reconnecting"
+      },
+      "columns": {
+        "time": "Time",
+        "user": "User",
+        "action": "Action",
+        "entity": "Entity",
+        "result": "Result",
+        "ip": "IP address",
+        "summary": "Summary"
+      },
+      "result": {
+        "success": "Success",
+        "failure": "Failed"
+      },
+      "filters": {
+        "search": "Search",
+        "searchPlaceholder": "Username or summary",
+        "action": "Action",
+        "allActions": "All actions",
+        "result": "Result",
+        "allResults": "All results",
+        "from": "From",
+        "to": "To",
+        "clear": "Clear filters",
+        "invalidRange": "The start date must be on or before the end date."
+      },
+      "detail": {
+        "time": "Time",
+        "action": "Action code",
+        "entity": "Entity",
+        "userId": "User ID",
+        "ip": "IP address",
+        "userAgent": "User agent",
+        "summary": "Summary",
+        "details": "Details",
+        "noDetails": "No additional details"
+      },
+      "actions": {
+        "user_login": "Signed in",
+        "user_logout": "Signed out",
+        "user_login_failed": "Sign-in failed",
+        "user_password_changed": "Password changed",
+        "user_password_reset_by_admin": "Password reset by admin",
+        "mfa_enabled": "MFA enabled",
+        "mfa_disabled": "MFA disabled",
+        "mfa_verified": "MFA verified",
+        "mfa_failed": "MFA verification failed",
+        "role_created": "Role created",
+        "role_deleted": "Role deleted",
+        "role_permissions_assigned": "Permissions added to role",
+        "role_permissions_revoked": "Permissions removed from role",
+        "role_assigned": "Role assigned to user",
+        "role_revoked": "Role removed from user",
+        "device_trusted_added": "Trusted device added",
+        "device_trusted_removed": "Trusted device removed",
+        "permission_denied": "Access denied",
+        "security_step_up": "Identity re-confirmed",
+        "system_logs_viewed": "Activity log viewed"
+      }
     }
   },
   "strategicPlan": {
@@ -1286,6 +1421,16 @@
       "kpiPlaceholder": "Ex: Revenue Operational Cost",
       "unit": "Unit",
       "selectUnit": "Select Unit",
+      "units": {
+        "percentage": "Percentage (%)",
+        "rupiah": "Rupiah (Rp)",
+        "usd": "US Dollar ($)",
+        "gbp": "British Pound (£)",
+        "quantity": "Quantity",
+        "score": "Score",
+        "hour": "Hour",
+        "day": "Day"
+      },
       "hibHig": "HIB/HIG",
       "higLabel": "HIG (High is Good)",
       "hibLabel": "HIB (High is Bad)",
@@ -1449,7 +1594,7 @@
       "title": "Audit Priority ({year})",
       "subtitle": "Annual Audit Plan priorities based on calculated risk levels.",
       "prioritizedCount": "{count} Prioritized",
-      "priorityRule": "Audit Priority = Risk Level Medium to High or High",
+      "priorityRule": "Audit Priority = Risk Level Medium, Medium to High or High",
       "no": "No",
       "auditableEntity": "Auditable Entity",
       "riskIndex": "Risk Index",
@@ -1484,6 +1629,7 @@
       "scoresSaved": "Risk scores saved and priority calculated successfully.",
       "scoresSaveFailed": "Failed to save risk scores.",
       "weightSumMustBe100": "Total weight must be exactly 100%. Current sum: {total}%",
+      "zeroWeightFactorsRemoved": "Removed factors with 0% weight: {names}",
       "weightsUpdated": "Corporate risk factors weights successfully updated.",
       "weightsUpdateFailed": "Failed to save corporate risk factor weights.",
       "factorCreated": "Standard risk factor created successfully.",
@@ -1622,7 +1768,7 @@
     "onlyPrioritized": "Prioritized Only",
     "onlyNonPrioritized": "Non-Prioritized",
     "refresh": "Refresh",
-    "ruleInfo": "Audit Priority = Risk Level Medium to High or High"
+    "ruleInfo": "Audit Priority = Risk Level Medium, Medium to High or High"
   },
   "auditFieldwork": {
     "extra": {
@@ -1851,7 +1997,7 @@
   },
   "riskProfile": {
     "title": "Corporate Risk Profile",
-    "subtitle": "Enterprise Risk Profile for Fiscal Year {year} - {period}",
+    "subtitle": "Enterprise Risk Profile Fiscal Year {year} for {period}",
     "total": "Total",
     "priority": "Priority",
     "addRisk": "Add Risk",
@@ -1863,6 +2009,17 @@
     "impactLevel": "Impact Level",
     "allBranches": "All Branches",
     "unassignedBranch": "Unassigned",
+    "filterCategory": "Filter by Category",
+    "allCategories": "All Categories",
+    "categories": {
+      "financial": "Financial",
+      "technology": "Technology",
+      "compliance": "Compliance",
+      "governance": "Governance",
+      "operations": "Operations",
+      "humanResources": "Human Resources",
+      "strategic": "Strategic"
+    },
     "selectBranch": "Select a branch",
     "branchesLoadError": "Could not load branches from the Location master data.",
     "noBranches": "No active branches in the Location master data yet.",
@@ -1897,6 +2054,9 @@
       "priority": "Priority ({count})",
       "all": "All Risks ({count})",
       "progress": "Quarterly Progress"
+    },
+    "pagination": {
+      "showing": "Showing {from} - {to} of {total} risks"
     },
     "emptyTitle": "No risk data available for year {year}",
     "emptyDesc": "Risk profile data for future years must be inputted by the user.",
@@ -2220,7 +2380,7 @@
     "statusActive": "4 Trained Models Active & Synchronized",
     "statusOffline": "Offline - Displaying Saved Real Data",
     "statusDisconnected": "AI Backend Disconnected",
-    "warningTitleCached": "Warning: AI Backend Service Disconnected (Showing Last Real Data)",
+    "warningTitleCached": "Server Error, showing previous real data",
     "warningTitleDisconnected": "Warning: AI Analytics Feature Not Running / Not Connected to Backend",
     "warningDescCached": "AI Analytics is currently displaying the last real data successfully synced at {time} before the connection was lost. Please ensure the Python AI Service (Port 8000) or Go Analytics (Port 8084) is running on the backend.",
     "warningDescDisconnected": "AI Analytics is currently not connected to the backend. Please ensure the Python AI Service (Port 8000) or Go Analytics (Port 8084) is running on the backend.",
@@ -2297,14 +2457,14 @@
       "viewInTable": "View in Table",
       "clearSelection": "Reset Selection",
       "anomalyTypes": {
-        "fundingXAxis": "Deposit / Savings Nominal (IDR Million)",
-        "fundingUnit": "IDR Million",
-        "lendingXAxis": "Credit / Loan Limit (IDR Million)",
-        "lendingUnit": "IDR Million",
-        "treasuryXAxis": "Treasury / FX Deal Volume (IDR Million)",
-        "treasuryUnit": "IDR Million",
-        "paymentXAxis": "Payment System Transaction Value (IDR Million)",
-        "paymentUnit": "IDR Million",
+        "fundingXAxis": "Savings account transaction amount (deposit/withdrawal)",
+        "fundingUnit": "IDR",
+        "lendingXAxis": "Credit / loan facility amount",
+        "lendingUnit": "IDR",
+        "treasuryXAxis": "Treasury / FX deal volume",
+        "treasuryUnit": "IDR",
+        "paymentXAxis": "Payment system transaction amount",
+        "paymentUnit": "IDR",
         "kycXAxis": "Customer Historical Profile Deviation (%)",
         "kycUnit": "%",
         "itControlXAxis": "Failed Login Attempts / Unauthorized Hits",
@@ -2315,17 +2475,19 @@
         "accessPatternUnit": "Hour",
         "dataAccessXAxis": "Data Export Volume (MB)",
         "dataAccessUnit": "MB",
-        "inventoryXAxis": "Stock Adjustment Value (IDR Million)",
-        "inventoryUnit": "IDR Million",
-        "expenseReportXAxis": "Expense Claim Amount (IDR Million)",
-        "expenseReportUnit": "IDR Million",
-        "travelExpenseXAxis": "Travel Cost Amount (IDR Million)",
-        "travelExpenseUnit": "IDR Million",
-        "procurementXAxis": "Procurement / Vendor Value (IDR Million)",
-        "procurementUnit": "IDR Million",
-        "transactionXAxis": "Transaction Amount (IDR Million)",
-        "transactionUnit": "IDR Million"
-      }
+        "inventoryXAxis": "Stock adjustment value",
+        "inventoryUnit": "IDR",
+        "expenseReportXAxis": "Expense claim amount",
+        "expenseReportUnit": "IDR",
+        "travelExpenseXAxis": "Travel cost amount",
+        "travelExpenseUnit": "IDR",
+        "procurementXAxis": "Procurement / vendor value",
+        "procurementUnit": "IDR",
+        "transactionXAxis": "Transaction amount",
+        "transactionUnit": "IDR"
+      },
+      "axisHour": "Transaction hour (0–23)",
+      "hourValue": "at {hour}:00"
     },
     "nlp": {
       "alertTitle": "IndoBERT NLP + OCR Multi-Source Document & Note Analysis Model",
@@ -2385,8 +2547,8 @@
       "colRiskLevel": "Risk Level",
       "colSyncFreq": "Sync Frequency",
       "colRecommendedAction": "Recommended Action",
-      "labelActualKPI": "Actual KPI (%)",
-      "labelForecast": "PyTorch LSTM Forecast",
+      "labelActualKPI": "Actual value",
+      "labelForecast": "Model forecast (LSTM)",
       "labelUpperBound": "Upper Bound",
       "labelLowerBound": "Lower Bound",
       "axisKPIScore": "KPI Score (%)",
@@ -3144,6 +3306,7 @@
       },
       "guideline": {
         "loadFailed": "Failed to load Audit Guideline data.",
+        "openFailed": "Failed to open the guideline file.",
         "uploadFailed": "Failed to upload the document file.",
         "added": "Audit Guideline added successfully!",
         "addFailed": "Failed to add Audit Guideline.",
@@ -3154,6 +3317,7 @@
       },
       "sop": {
         "loadFailed": "Failed to load Technical Instruction / SOP data.",
+        "openFailed": "Failed to open the SOP file.",
         "uploadFailed": "Failed to upload the document file.",
         "added": "Technical Instruction / SOP added successfully!",
         "addFailed": "Failed to add Technical Instruction / SOP.",
@@ -3170,6 +3334,21 @@
     }
   },
   "executiveSummaryForm": {
+    "approval": {
+      "title": "Executive Summary Approval",
+      "description": "Sign Executive Summary {report} to approve it.",
+      "lockNotice": "Once approved, the summary is locked and its signature and approval record cannot be changed.",
+      "confirm": "Approve with signature",
+      "confirmDescription": "Approve this Executive Summary?",
+      "confirmBody": "Once approved, the document is locked and the signature cannot be changed.",
+      "incomplete": "Complete the signing place, date, signature, and signer name.",
+      "success": "Executive Summary approved and signed.",
+      "errors": {
+        "saveFirst": "Save the Executive Summary to the server before approving it.",
+        "signatureRequired": "Approval requires a signature. Use the Approve button.",
+        "failed": "Failed to approve the Executive Summary."
+      }
+    },
     "stepper": {
       "previous": "Previous",
       "next": "Next"
@@ -3189,7 +3368,7 @@
       "lowRisk": "Low Risk",
       "lowRiskHint": "Automatically calculated from Low-to-Moderate and Low risk levels",
       "followUpSection": "Section III: Follow-up Status",
-      "topFindingsSection": "Section IV: Top 5 Significant Findings",
+      "topFindingsSection": "Section IV: Top Significant Findings",
       "analysisSection": "Sections V and VII: Recurring Findings Analysis and Conclusion",
       "recurringThemes": "Section V: Recurring Themes (Root Causes and Proposed Policy Revisions)",
       "managementConclusion": "Section VII: Management Conclusion and Recommendations",
@@ -3287,7 +3466,44 @@
     "followUp": {
       "title": "Follow-up Status",
       "description": "Percentage calculation and summary of audit finding resolution status.",
-      "notePlaceholder": "Follow-up notes..."
+      "notePlaceholder": "Follow-up notes...",
+      "statuses": {
+        "closed": "Closed",
+        "inProgress": "In Progress",
+        "overdue": "Overdue",
+        "noAction": "No Action"
+      },
+      "noActionReasons": {
+        "noPic": "No PIC assigned",
+        "noPlan14d": "No action plan > 14 days",
+        "noPlan": "No action plan yet"
+      },
+      "statusAsOf": "Status as of {date}",
+      "frozenHint": "Frozen when the summary was approved. Later ATR updates do not change these figures.",
+      "dataAsOf": "ATR data as of {time}",
+      "readOnlyHint": "Counts come from the Action Taken Reports and cannot be edited. Cancelled ATRs are excluded.",
+      "refresh": "Refresh status",
+      "loading": "Loading the follow-up status from the Action Taken Reports...",
+      "error": "Failed to load the follow-up status: {message}",
+      "errorToast": "The follow-up status could not be loaded",
+      "retry": "Try again",
+      "selectLha": "Select an LHA to load the follow-up status.",
+      "empty": "No findings with a follow-up exist for this report yet.",
+      "atrLinked": "Follows the ATR of this finding",
+      "overdueDays": "{days} days overdue",
+      "current": {
+        "title": "Current status",
+        "description": "Live status from the Action Taken Reports, for comparison only. The approved figures do not change.",
+        "restricted": "Per-finding detail is not available for your role.",
+        "columns": {
+          "finding": "Finding",
+          "report": "LHA",
+          "pic": "PIC",
+          "dueDate": "Due Date",
+          "progress": "Progress",
+          "status": "Status"
+        }
+      }
     },
     "table": {
       "status": "Status",
@@ -3304,11 +3520,14 @@
       "actions": "Actions"
     },
     "topFindings": {
-      "title": "Top 5 Significant Findings",
+      "title": "Top Significant Findings",
       "description": "Critical findings that require escalation or action from the Board of Directors.",
       "add": "Add Finding",
       "empty": "No top significant findings added yet.",
-      "emptyAction": "Click here to add one."
+      "emptyAction": "Click here to add one.",
+      "cardTitle": "Finding {number}",
+      "untitled": "Untitled finding",
+      "remove": "Remove finding"
     },
     "sync": {
       "findings": "Sync Findings from LHA",
@@ -3450,7 +3669,7 @@
       "narrative": "Narrative Summary",
       "stats": "Compilation Statistics",
       "followUp": "Follow-up Status",
-      "topFindings": "Top 5 Significant",
+      "topFindings": "Top Significant",
       "analysis": "Root Causes & Conclusion",
       "matrix": "LHA Compilation Matrix",
       "notes": "Noted"
@@ -3506,6 +3725,9 @@
       "title": "Findings Matrix from Individual LHA",
       "description": "Individual LHAs compiled into this executive report.",
       "total": "Total: {count} LHA",
+      "totalFindings": "Total: {count} findings",
+      "restricted": "The per-finding matrix is not available for your role.",
+      "noFollowUp": "The matrix is filled from the follow-up status. Refresh once it loads.",
       "empty": "No compilation matrix has been synced yet.",
       "emptyAction": "Click to sync data from the Individual LHAs.",
       "columns": {
@@ -3514,7 +3736,11 @@
         "title": "Title / Audit Object",
         "risk": "Risk Level",
         "recommendation": "Key Recommendation",
-        "followUpStatus": "Follow-up Status"
+        "followUpStatus": "Follow-up Status",
+        "dueDate": "Due Date",
+        "pic": "PIC",
+        "progress": "Progress",
+        "evidence": "Evidence"
       }
     },
     "defaults": {
@@ -5256,7 +5482,10 @@
     "filters": {
       "yearOption": "Year {year}",
       "allDepartments": "All Departments",
-      "allBranches": "All Branches"
+      "allBranches": "All Branches",
+      "unassignedBranch": "Unassigned",
+      "branchLabel": "Branch",
+      "branchesUnavailable": "Branch master data could not be loaded."
     },
     "cards": {
       "effectiveness": {
@@ -5266,9 +5495,11 @@
         "realScore": "Real Effectiveness Score",
         "inherentRiskLabel": "Inherent Risk (Beginning Year Priority Risk):",
         "riskCount": "{count} Risks",
-        "residualRiskLabel": "Residual Risk (Year-End Residual Risk):",
+        "residualRiskLabel": "Residual Risk (Current Quarter, {quarter}):",
+        "residualRiskLabelYearEnd": "Residual Risk (Year-End, {quarter}):",
         "cosoInterpretation": "COSO Result Interpretation ({rating}):",
-        "syncNote": "Inherent & Residual Risk data is automatically integrated directly from Corporate Risk Profile."
+        "mitigationCoverage": "{covered} of {total} residual risks have a mitigation plan",
+        "syncNote": "Inherent & Residual Risk data is automatically integrated from the Corporate Risk Profile (Q1 vs the current quarter) and its mitigation plans."
       },
       "coso": {
         "title": "COSO Average",
@@ -5365,6 +5596,12 @@
       "riskEventLabel": "Risk Event (Synchronized)",
       "controlSelectLabel": "Select Risk Control ID (Mitigation Plan & Control)",
       "controlSelectPlaceholder": "Select Risk Control ID...",
+      "noMitigationPlan": "No risk mitigation plan has been recorded for this risk yet. Add one in the Risk Mitigation Plan page to continue.",
+      "noMitigationPlanTitle": "No mitigation plan yet",
+      "noMitigationPlanHint": "Opens in a new tab so this form is kept. Refresh here once the plan is saved.",
+      "openMitigationPlan": "Open Risk Mitigation Plan",
+      "refreshMitigations": "Refresh",
+      "loadingMitigations": "Loading mitigation plans...",
       "controlCodeLabel": "Control Code (Synchronized)",
       "controlCodePlaceholder": "e.g. CTL-FIN-001",
       "controlOwnerLabel": "PIC / Control Owner (Synchronized)",
@@ -5373,6 +5610,7 @@
       "controlDescPlaceholder": "Explain operational control mechanism, review, verification, or systemic execution...",
       "evaluationTitle": "Evaluation of 5 Internal Control Dimensions (COSO)",
       "evaluationWeight": "Fixed Weight: 20% Each Dimension (Scale 1 - 5)",
+      "dimensionRequired": "Select a score for this dimension.",
       "totalWeightedScore": "Total Weighted Effectiveness Score:",
       "interpretation": "Interpretation:",
       "cancel": "Cancel",
@@ -5380,6 +5618,8 @@
     },
     "toasts": {
       "validationWarning": "Please select a risk and fill in the control description.",
+      "dimensionsRequired": "All 5 control dimensions must be scored before saving.",
+      "mitigationPlanRequired": "This risk has no mitigation plan yet. Add one in the Risk Mitigation Plan page before continuing.",
       "updateSuccess": "Risk Control Matrix updated successfully",
       "addSuccess": "Risk Control Matrix added successfully",
       "deleteSuccess": "Risk Control Matrix deleted successfully"

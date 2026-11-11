@@ -66,7 +66,7 @@
       "passwordRequired": "Password wajib diisi",
       "rememberMe": "Ingat saya",
       "forgotPassword": "Lupa Password?",
-      "encryptedConnection": "Koneksi terenkripsi - {device}",
+      "encryptedConnection": "Via {device}",
       "needAccount": "Butuh akun? Hubungi Administrator sistem.",
       "generalError": "Terjadi kesalahan saat login. Coba lagi.",
       "serverError": "Gagal menghubungi server. Pastikan koneksi internet Anda aktif dan server telah berjalan.",
@@ -77,6 +77,7 @@
         "serverError": "Terjadi kesalahan internal pada server (500). Coba lagi dalam beberapa saat.",
         "invalidCredentials": "Username atau password salah. Periksa kembali dan coba lagi.",
         "tooManyRequests": "Terlalu banyak percobaan login. Silakan tunggu beberapa saat sebelum mencoba kembali.",
+        "accountLocked": "Akun Anda dikunci karena terlalu banyak kode verifikasi salah. Coba lagi dalam {minutes} menit.",
         "networkError": "Gagal menghubungi server. Pastikan koneksi internet Anda aktif dan server telah berjalan.",
         "generic": "Terjadi kesalahan saat login. Coba lagi."
       }
@@ -128,7 +129,8 @@
       "sessionExpired": "Sesi verifikasi telah kedaluwarsa.",
       "retryLogin": "Ulangi Login",
       "invalidCode": "Kode verifikasi tidak valid",
-      "attemptsWarning": "Gagal memverifikasi: {attempts}/3 percobaan. Akun akan terkunci jika terlalu banyak kesalahan.",
+      "attemptsWarning": "Sisa {remaining} dari {max} percobaan. Setelah itu, akun Anda dikunci selama 15 menit.",
+      "accountLocked": "Terlalu banyak kode salah. Akun Anda dikunci. Coba lagi dalam {minutes} menit.",
       "verifyBtn": "Verifikasi & Masuk",
       "verifyingBtn": "Memverifikasi...",
       "backToLogin": "← Kembali ke halaman login",
@@ -137,6 +139,7 @@
   },
   "common": {
     "clearSearch": "Hapus pencarian",
+    "systemFlagged": "Ditandai sistem",
     "datePicker": {
       "clearDate": "Hapus tanggal",
       "openCalendar": "Buka kalender",
@@ -167,6 +170,16 @@
         "Jum",
         "Sab"
       ]
+    },
+    "signatureBox": {
+      "notSigned": "Belum ditandatangani",
+      "signHere": "Tanda tangan di sini",
+      "hint": "Gambar dengan mouse, jari, atau stylus. Tanda tangan tercatat saat pena diangkat.",
+      "name": "Nama penandatangan",
+      "namePlaceholder": "Nama lengkap",
+      "title": "Jabatan penandatangan",
+      "titlePlaceholder": "Contoh: Kepala SPI",
+      "timestamp": "Ditandatangani pada"
     },
     "signaturePad": {
       "draw": "Gambar",
@@ -257,12 +270,12 @@
       "predictiveDescription": "Proyeksi KPI masa depan dan deteksi anomali finansial maupun operasional.",
       "openAnalytics": "Buka Pusat Analitik Mendalam",
       "kpiForecasting": "Prakiraan Kinerja KPI",
-      "forecastPeriod": "Tren historis dibanding prakiraan Q3 2026–Q1 2027 (interval kepercayaan 95%)",
+      "forecastPeriod": "Tren historis dan prakiraan per KPI",
       "details": "Rincian",
-      "atRiskKpi": "Proyeksi KPI Berisiko dan Rekomendasi Audit",
+      "atRiskKpi": "KPI Berisiko dan Tindakan Audit",
       "projection": "Proyeksi",
-      "predictionInterval": "Interval prediksi ±4,8% MAPE",
-      "targetHorizon": "Horizon target: Q3 2026",
+      "predictionInterval": "Akurasi model: MAPE {mape}%",
+      "targetHorizon": "Horizon prakiraan: {range}",
       "transactionAnomalies": "Deteksi Anomali Transaksi",
       "transactionAnomaliesDescription": "Deteksi pencilan transaksi dan pola tidak wajar dengan pembelajaran mesin tanpa pengawasan",
       "criticalAnomalies": "Peringatan Anomali Kritis yang Perlu Diinvestigasi",
@@ -715,7 +728,8 @@
       "permissions": "Hak Akses & Izin",
       "dataSources": "Koneksi Data",
       "emailService": "Layanan Email",
-      "faq": "FAQ / Bantuan"
+      "faq": "FAQ / Bantuan",
+      "systemLogs": "Log Aktivitas"
     },
     "titles": {
       "profile": "My Profile",
@@ -725,7 +739,8 @@
       "permissions": "Permissions",
       "datasource": "Data Source Connections",
       "email": "Email Dispatcher (Resend API)",
-      "faq": "FAQ"
+      "faq": "FAQ",
+      "systemLogs": "Log Aktivitas"
     },
     "general": {
       "cardTitle": "Pengaturan Umum",
@@ -839,7 +854,20 @@
       "enabledToast": "MFA Diaktifkan",
       "enabledDesc": "Autentikasi Dua Faktor berhasil diaktifkan.",
       "disabledToast": "MFA Dinonaktifkan",
-      "disabledDesc": "Autentikasi dua faktor akun Anda telah dinonaktifkan."
+      "disabledDesc": "Autentikasi dua faktor akun Anda telah dinonaktifkan.",
+      "statusFailedTitle": "Gagal memuat status MFA",
+      "statusFailedDesc": "Status MFA Anda tidak dapat dimuat. Silakan coba lagi.",
+      "retry": "Coba lagi",
+      "verifyingCode": "Memverifikasi kode...",
+      "setupFailedTitle": "Gagal Memulai Pengaturan MFA",
+      "setupFailedDesc": "Pengaturan MFA tidak dapat dimulai. Silakan coba lagi.",
+      "verifyFailedTitle": "Verifikasi Gagal",
+      "verifyFailedDesc": "Kode verifikasi tidak valid atau sudah kedaluwarsa.",
+      "disableFailedTitle": "Gagal Menonaktifkan MFA",
+      "disableFailedDesc": "MFA tidak dapat dinonaktifkan. Periksa password Anda lalu coba lagi.",
+      "setupChangedTitle": "Kode QR ini sudah tidak berlaku",
+      "setupChangedDesc": "Pengaturan MFA dimulai ulang (misalnya di tab lain), sehingga kode QR ini sudah diganti. Buat kode QR baru, pindai dengan aplikasi autentikator Anda, lalu masukkan kode yang baru.",
+      "newQrButton": "Buat kode QR baru"
     },
     "activity": {
       "fingerprintLabel": "Sidik Perangkat:",
@@ -871,7 +899,38 @@
       "confirmRemove": "Hapus Akses",
       "cancelRemove": "Batalkan",
       "deviceRemovedToast": "Perangkat Dihapus",
-      "deviceRemovedDesc": "Akses terpercaya untuk perangkat \"{name}\" telah dihapus."
+      "deviceRemovedDesc": "Akses terpercaya untuk perangkat \"{name}\" telah dihapus.",
+      "devicesTitle": "Perangkat",
+      "devicesSubtitle": "Perangkat yang pernah masuk ke akun Anda. Perangkat terpercaya tidak perlu memasukkan kode MFA saat masuk.",
+      "refresh": "Muat ulang",
+      "retry": "Coba lagi",
+      "devicesErrorTitle": "Gagal memuat perangkat Anda",
+      "devicesErrorDesc": "Daftar perangkat terpercaya tidak dapat dimuat. Silakan coba lagi.",
+      "trusted": "Terpercaya",
+      "notTrusted": "Belum terpercaya",
+      "osLabel": "Sistem operasi",
+      "locationLabel": "Lokasi",
+      "lastActiveLabel": "Terakhir aktif",
+      "noTrustedDevices": "Belum ada perangkat terpercaya. Saat Anda memverifikasi login dengan MFA dan mencentang \"Percayai Perangkat Ini\", perangkat tersebut akan muncul di sini.",
+      "recentTitle": "Aktivitas terbaru",
+      "recentSubtitle": "Login terakhir Anda dan perubahan pada perangkat terpercaya.",
+      "openSystemLogs": "Buka Log Sistem",
+      "recentErrorTitle": "Gagal memuat aktivitas terbaru",
+      "recentErrorDesc": "Riwayat login Anda tidak dapat dimuat. Silakan coba lagi.",
+      "recentEmpty": "Belum ada aktivitas yang tercatat.",
+      "browserOnOs": "{browser} di {os}",
+      "unknownDevice": "Perangkat tidak dikenal",
+      "activeNow": "Aktif sekarang",
+      "lastSignIn": "Login terakhir {date}",
+      "trustedOn": "Dipercaya {date}",
+      "onThisDevice": "Di perangkat ini",
+      "eventLastSignIn": "Masuk",
+      "eventDeviceTrusted": "Perangkat terpercaya ditambahkan",
+      "removeFailedTitle": "Gagal Menghapus",
+      "removeFailedDesc": "Gagal menghapus perangkat terpercaya.",
+      "lastActive": "Terakhir aktif {date}",
+      "firstSeen": "Pertama terlihat {date}",
+      "eventNewDevice": "Perangkat baru masuk"
     },
     "permission": {
       "matrix": {
@@ -1080,6 +1139,90 @@
       "removeConfirm": "Apakah Anda yakin ingin menghapus perangkat terpercaya ini?",
       "removed": "Perangkat Dihapus",
       "removeFailed": "Gagal menghapus perangkat"
+    },
+    "systemLogs": {
+      "title": "Log aktivitas pengguna",
+      "subtitle": "Proses masuk, perubahan akun, dan tindakan pengguna lain yang dicatat sistem.",
+      "loading": "Memuat log aktivitas",
+      "systemActor": "Sistem",
+      "updatedAt": "diperbarui {time}",
+      "pause": "Jeda pembaruan langsung",
+      "resume": "Lanjutkan pembaruan langsung",
+      "refresh": "Muat ulang",
+      "retry": "Coba lagi",
+      "loadMore": "Muat aktivitas sebelumnya",
+      "endOfList": "Tidak ada aktivitas sebelumnya",
+      "errorTitle": "Log aktivitas gagal dimuat",
+      "forbiddenTitle": "Anda tidak memiliki akses ke log aktivitas",
+      "forbiddenDesc": "Melihat log aktivitas memerlukan izin Lihat log sistem. Hubungi administrator jika Anda memerlukan akses.",
+      "emptyTitle": "Belum ada aktivitas yang tercatat",
+      "emptyDesc": "Aktivitas akan muncul di sini begitu pengguna masuk atau mengubah data.",
+      "emptyFilteredTitle": "Tidak ada aktivitas yang sesuai filter",
+      "emptyFilteredDesc": "Perluas rentang tanggal atau hapus filter.",
+      "live": {
+        "live": "Langsung",
+        "paused": "Dijeda",
+        "hidden": "Dijeda saat tab tersembunyi",
+        "retrying": "Menyambungkan ulang"
+      },
+      "columns": {
+        "time": "Waktu",
+        "user": "Pengguna",
+        "action": "Tindakan",
+        "entity": "Entitas",
+        "result": "Hasil",
+        "ip": "Alamat IP",
+        "summary": "Ringkasan"
+      },
+      "result": {
+        "success": "Berhasil",
+        "failure": "Gagal"
+      },
+      "filters": {
+        "search": "Cari",
+        "searchPlaceholder": "Nama pengguna atau ringkasan",
+        "action": "Tindakan",
+        "allActions": "Semua tindakan",
+        "result": "Hasil",
+        "allResults": "Semua hasil",
+        "from": "Dari",
+        "to": "Sampai",
+        "clear": "Hapus filter",
+        "invalidRange": "Tanggal mulai harus sama dengan atau sebelum tanggal akhir."
+      },
+      "detail": {
+        "time": "Waktu",
+        "action": "Kode tindakan",
+        "entity": "Entitas",
+        "userId": "ID pengguna",
+        "ip": "Alamat IP",
+        "userAgent": "User agent",
+        "summary": "Ringkasan",
+        "details": "Detail",
+        "noDetails": "Tidak ada detail tambahan"
+      },
+      "actions": {
+        "user_login": "Masuk",
+        "user_logout": "Keluar",
+        "user_login_failed": "Gagal masuk",
+        "user_password_changed": "Kata sandi diubah",
+        "user_password_reset_by_admin": "Kata sandi direset oleh admin",
+        "mfa_enabled": "MFA diaktifkan",
+        "mfa_disabled": "MFA dinonaktifkan",
+        "mfa_verified": "MFA terverifikasi",
+        "mfa_failed": "Verifikasi MFA gagal",
+        "role_created": "Peran dibuat",
+        "role_deleted": "Peran dihapus",
+        "role_permissions_assigned": "Izin ditambahkan ke peran",
+        "role_permissions_revoked": "Izin dicabut dari peran",
+        "role_assigned": "Peran diberikan ke pengguna",
+        "role_revoked": "Peran dicabut dari pengguna",
+        "device_trusted_added": "Perangkat tepercaya ditambahkan",
+        "device_trusted_removed": "Perangkat tepercaya dihapus",
+        "permission_denied": "Akses ditolak",
+        "security_step_up": "Identitas dikonfirmasi ulang",
+        "system_logs_viewed": "Log aktivitas dilihat"
+      }
     }
   },
   "strategicPlan": {
@@ -1151,8 +1294,7 @@
       "yearly": "Tahunan",
       "quartal": "Kuartal",
       "allYears": "Semua Tahun",
-      "allQuarters": "Semua Kuartal",
-      "allObjectives": "Semua Strategic Objective"
+      "allQuarters": "Semua Kuartal"
     },
     "columns": {
       "code": "ID Strategic Objective",
@@ -1190,6 +1332,16 @@
       "kpiPlaceholder": "Contoh: Biaya Operasional Pendapatan",
       "unit": "Satuan",
       "selectUnit": "Pilih Satuan",
+      "units": {
+        "percentage": "Persentase (%)",
+        "rupiah": "Rupiah (Rp)",
+        "usd": "Dolar AS ($)",
+        "gbp": "Poundsterling Inggris (£)",
+        "quantity": "Kuantitas",
+        "score": "Skor",
+        "hour": "Jam",
+        "day": "Hari"
+      },
       "hibHig": "HIB/HIG",
       "higLabel": "HIG (Tinggi Lebih Baik)",
       "hibLabel": "HIB (Tinggi Kurang Baik)",
@@ -1353,7 +1505,7 @@
       "title": "Prioritas Audit ({year})",
       "subtitle": "Prioritas Rencana Audit Tahunan berdasarkan tingkat risiko yang dihitung.",
       "prioritizedCount": "{count} Diprioritaskan",
-      "priorityRule": "Prioritas Audit = Tingkat Risiko Sedang ke Tinggi atau Tinggi",
+      "priorityRule": "Prioritas Audit = Tingkat Risiko Sedang, Sedang ke Tinggi atau Tinggi",
       "no": "No",
       "auditableEntity": "Entitas Auditee",
       "riskIndex": "Indeks Risiko",
@@ -1380,6 +1532,7 @@
       "scoresSaved": "Skor risiko berhasil disimpan dan prioritas telah dihitung.",
       "scoresSaveFailed": "Gagal menyimpan skor risiko.",
       "weightSumMustBe100": "Total bobot harus tepat 100%. Jumlah saat ini: {total}%",
+      "zeroWeightFactorsRemoved": "Faktor dengan bobot 0% dihapus: {names}",
       "weightsUpdated": "Bobot faktor risiko korporat berhasil diperbarui.",
       "weightsUpdateFailed": "Gagal menyimpan bobot faktor risiko korporat.",
       "factorCreated": "Faktor risiko standar berhasil dibuat.",
@@ -1511,7 +1664,7 @@
     "onlyPrioritized": "Hanya Diprioritaskan",
     "onlyNonPrioritized": "Tidak Diprioritaskan",
     "refresh": "Segarkan",
-    "ruleInfo": "Prioritas Audit = Tingkat Risiko Sedang ke Tinggi atau Tinggi"
+    "ruleInfo": "Prioritas Audit = Tingkat Risiko Sedang, Sedang ke Tinggi atau Tinggi"
   },
   "auditFieldwork": {
     "extra": {
@@ -1740,7 +1893,7 @@
   },
   "riskProfile": {
     "title": "Corporate Risk Profile",
-    "subtitle": "Profil Risiko Perusahaan Tahun Anggaran {year} - {period}",
+    "subtitle": "Profil Risiko Perusahaan Tahun Anggaran {year} untuk {period}",
     "total": "Total",
     "priority": "Prioritas",
     "addRisk": "Tambah Risiko",
@@ -1752,6 +1905,17 @@
     "impactLevel": "Tingkat Dampak",
     "allBranches": "Semua Cabang",
     "unassignedBranch": "Belum Ditentukan",
+    "filterCategory": "Filter Kategori Risiko",
+    "allCategories": "Semua Kategori",
+    "categories": {
+      "financial": "Keuangan",
+      "technology": "Teknologi Informasi",
+      "compliance": "Kepatuhan",
+      "governance": "Tata Kelola",
+      "operations": "Operasional",
+      "humanResources": "Sumber Daya Manusia",
+      "strategic": "Strategis"
+    },
     "selectBranch": "Pilih cabang",
     "branchesLoadError": "Gagal memuat data cabang dari master Lokasi.",
     "noBranches": "Belum ada cabang aktif di master Lokasi.",
@@ -1786,6 +1950,9 @@
       "priority": "Prioritas ({count})",
       "all": "Semua Risiko ({count})",
       "progress": "Kemajuan Kuartalan"
+    },
+    "pagination": {
+      "showing": "Menampilkan {from} - {to} dari {total} risiko"
     },
     "emptyTitle": "Belum ada data risiko untuk tahun {year}",
     "emptyDesc": "Data risiko 3 tahun ke depan dikosongkan dan harus diinput oleh user.",
@@ -2109,7 +2276,7 @@
     "statusActive": "4 Model Terlatih Aktif & Tersinkronisasi",
     "statusOffline": "Offline - Menampilkan Data Real Tersimpan",
     "statusDisconnected": "AI Backend Terputus",
-    "warningTitleCached": "Peringatan: Service AI Backend Tidak Terhubung (Menampilkan Data Real Terakhir)",
+    "warningTitleCached": "Server Error, menampilkan data real sebelumnya",
     "warningTitleDisconnected": "Peringatan: Fitur AI Analytics Belum Berjalan / Tersambung ke Backend",
     "warningDescCached": "Fitur AI Analytics saat ini menampilkan data real terakhir yang berhasil disinkronkan pada {time} sebelum koneksi terputus. Mohon pastikan Service Python AI (Port 8000) atau Go Analytics (Port 8084) telah dinyalakan di backend.",
     "warningDescDisconnected": "Fitur AI Analytics saat ini belum tersambung ke backend. Mohon pastikan Service Python AI (Port 8000) atau Go Analytics (Port 8084) telah dinyalakan di backend.",
@@ -2186,14 +2353,14 @@
       "viewInTable": "Lihat di Tabel",
       "clearSelection": "Reset Pilihan",
       "anomalyTypes": {
-        "fundingXAxis": "Nominal Simpanan / Deposito (Rp Juta)",
-        "fundingUnit": "Rp Juta",
-        "lendingXAxis": "Plafon / Nilai Fasilitas Kredit (Rp Juta)",
-        "lendingUnit": "Rp Juta",
-        "treasuryXAxis": "Volume Transaksi Pasar Uang / Valas (Rp Juta)",
-        "treasuryUnit": "Rp Juta",
-        "paymentXAxis": "Nominal Transaksi Sistem Pembayaran (Rp Juta)",
-        "paymentUnit": "Rp Juta",
+        "fundingXAxis": "Nominal transaksi rekening simpanan (setoran/penarikan)",
+        "fundingUnit": "Rp",
+        "lendingXAxis": "Plafon / nilai fasilitas kredit",
+        "lendingUnit": "Rp",
+        "treasuryXAxis": "Volume transaksi pasar uang / valas",
+        "treasuryUnit": "Rp",
+        "paymentXAxis": "Nominal transaksi sistem pembayaran",
+        "paymentUnit": "Rp",
         "kycXAxis": "Deviasi terhadap Profil Historis Nasabah (%)",
         "kycUnit": "%",
         "itControlXAxis": "Jumlah Percobaan Gagal Login / Akses Tidak Sah",
@@ -2204,17 +2371,19 @@
         "accessPatternUnit": "Jam",
         "dataAccessXAxis": "Volume Export Data (MB)",
         "dataAccessUnit": "MB",
-        "inventoryXAxis": "Nilai Penyesuaian Stok (Rp Juta)",
-        "inventoryUnit": "Rp Juta",
-        "expenseReportXAxis": "Nominal Klaim Pengeluaran (Rp Juta)",
-        "expenseReportUnit": "Rp Juta",
-        "travelExpenseXAxis": "Nominal Biaya Perjalanan (Rp Juta)",
-        "travelExpenseUnit": "Rp Juta",
-        "procurementXAxis": "Nilai Pengadaan / Vendor (Rp Juta)",
-        "procurementUnit": "Rp Juta",
-        "transactionXAxis": "Nominal Transaksi (Rp Juta)",
-        "transactionUnit": "Rp Juta"
-      }
+        "inventoryXAxis": "Nilai penyesuaian stok",
+        "inventoryUnit": "Rp",
+        "expenseReportXAxis": "Nominal klaim pengeluaran",
+        "expenseReportUnit": "Rp",
+        "travelExpenseXAxis": "Nominal biaya perjalanan",
+        "travelExpenseUnit": "Rp",
+        "procurementXAxis": "Nilai pengadaan / vendor",
+        "procurementUnit": "Rp",
+        "transactionXAxis": "Nominal transaksi",
+        "transactionUnit": "Rp"
+      },
+      "axisHour": "Jam transaksi (0–23)",
+      "hourValue": "pukul {hour}:00"
     },
     "nlp": {
       "alertTitle": "Model Analisis Dokumen & Catatan Multi-Source IndoBERT NLP + OCR",
@@ -2274,8 +2443,8 @@
       "colRiskLevel": "Level Risiko",
       "colSyncFreq": "Frekuensi Sinkronisasi",
       "colRecommendedAction": "Tindakan yang Direkomendasikan",
-      "labelActualKPI": "KPI Aktual (%)",
-      "labelForecast": "Prediksi PyTorch LSTM",
+      "labelActualKPI": "Nilai aktual",
+      "labelForecast": "Prakiraan model (LSTM)",
       "labelUpperBound": "Batas Atas",
       "labelLowerBound": "Batas Bawah",
       "axisKPIScore": "Skor KPI (%)",
@@ -3032,6 +3201,7 @@
       },
       "guideline": {
         "loadFailed": "Gagal mengambil data Pedoman Audit.",
+        "openFailed": "Gagal membuka berkas pedoman.",
         "uploadFailed": "Gagal mengunggah file dokumen.",
         "added": "Pedoman Audit berhasil ditambahkan!",
         "addFailed": "Gagal menambahkan Pedoman Audit.",
@@ -3042,6 +3212,7 @@
       },
       "sop": {
         "loadFailed": "Gagal mengambil data Petunjuk Teknis/SOP.",
+        "openFailed": "Gagal membuka berkas SOP.",
         "uploadFailed": "Gagal mengunggah file dokumen.",
         "added": "Petunjuk Teknis/SOP berhasil ditambahkan!",
         "addFailed": "Gagal menambahkan Petunjuk Teknis/SOP.",
@@ -3058,6 +3229,21 @@
     }
   },
   "executiveSummaryForm": {
+    "approval": {
+      "title": "Persetujuan Executive Summary",
+      "description": "Tanda tangani Executive Summary {report} untuk menyetujuinya.",
+      "lockNotice": "Setelah disetujui, Executive Summary dikunci dan tanda tangan serta catatan persetujuannya tidak dapat diubah.",
+      "confirm": "Setujui dengan tanda tangan",
+      "confirmDescription": "Setujui Executive Summary ini?",
+      "confirmBody": "Setelah disetujui, dokumen dikunci dan tanda tangan tidak dapat diubah.",
+      "incomplete": "Lengkapi tempat, tanggal, tanda tangan, dan nama penandatangan.",
+      "success": "Executive Summary berhasil disetujui dan ditandatangani.",
+      "errors": {
+        "saveFirst": "Simpan Executive Summary ke server sebelum menyetujuinya.",
+        "signatureRequired": "Persetujuan wajib disertai tanda tangan. Gunakan tombol Setujui.",
+        "failed": "Gagal menyetujui Executive Summary."
+      }
+    },
     "stepper": {
       "previous": "Sebelumnya",
       "next": "Selanjutnya"
@@ -3077,7 +3263,7 @@
       "lowRisk": "Risiko Rendah",
       "lowRiskHint": "Dihitung otomatis dari tingkat risiko Rendah–Sedang dan Rendah",
       "followUpSection": "Bagian III: Status Tindak Lanjut",
-      "topFindingsSection": "Bagian IV: Lima Temuan Signifikan Utama",
+      "topFindingsSection": "Bagian IV: Temuan Signifikan Teratas",
       "analysisSection": "Bagian V dan VII: Analisis Temuan Berulang dan Kesimpulan",
       "recurringThemes": "Bagian V: Tema Berulang (Akar Masalah dan Usulan Revisi Kebijakan)",
       "managementConclusion": "Bagian VII: Kesimpulan dan Rekomendasi Manajemen",
@@ -3175,7 +3361,44 @@
     "followUp": {
       "title": "Status Tindak Lanjut",
       "description": "Kalkulasi persentase dan rekap status penyelesaian temuan audit.",
-      "notePlaceholder": "Keterangan tindak lanjut..."
+      "notePlaceholder": "Keterangan tindak lanjut...",
+      "statuses": {
+        "closed": "Selesai",
+        "inProgress": "Dalam Proses",
+        "overdue": "Terlambat",
+        "noAction": "Belum Ditindaklanjuti"
+      },
+      "noActionReasons": {
+        "noPic": "Belum ada PIC",
+        "noPlan14d": "Belum ada rencana aksi > 14 hari",
+        "noPlan": "Belum ada rencana aksi"
+      },
+      "statusAsOf": "Status per {date}",
+      "frozenHint": "Dibekukan saat ringkasan disetujui. Pembaruan ATR setelahnya tidak mengubah angka ini.",
+      "dataAsOf": "Data ATR per {time}",
+      "readOnlyHint": "Jumlah berasal dari Action Taken Report dan tidak dapat diubah. ATR yang dibatalkan tidak dihitung.",
+      "refresh": "Perbarui status",
+      "loading": "Memuat status tindak lanjut dari Action Taken Report...",
+      "error": "Gagal memuat status tindak lanjut: {message}",
+      "errorToast": "Status tindak lanjut gagal dimuat",
+      "retry": "Coba lagi",
+      "selectLha": "Pilih LHA untuk memuat status tindak lanjut.",
+      "empty": "Belum ada temuan dengan tindak lanjut untuk laporan ini.",
+      "atrLinked": "Mengikuti ATR temuan ini",
+      "overdueDays": "Terlambat {days} hari",
+      "current": {
+        "title": "Status terkini",
+        "description": "Status langsung dari Action Taken Report, hanya sebagai pembanding. Angka yang disetujui tidak berubah.",
+        "restricted": "Rincian per temuan tidak tersedia untuk peran Anda.",
+        "columns": {
+          "finding": "Temuan",
+          "report": "LHA",
+          "pic": "PIC",
+          "dueDate": "Batas Waktu",
+          "progress": "Progres",
+          "status": "Status"
+        }
+      }
     },
     "table": {
       "status": "Status",
@@ -3192,11 +3415,14 @@
       "actions": "Aksi"
     },
     "topFindings": {
-      "title": "Top 5 Temuan Signifikan",
+      "title": "Temuan Signifikan Teratas",
       "description": "Matriks temuan kritikal terpenting yang butuh eskalasi/tindakan jajaran direksi.",
       "add": "Tambah Temuan",
       "empty": "Belum ada temuan signifikan teratas yang ditambahkan.",
-      "emptyAction": "Klik di sini untuk menambahkan."
+      "emptyAction": "Klik di sini untuk menambahkan.",
+      "cardTitle": "Temuan {number}",
+      "untitled": "Temuan tanpa judul",
+      "remove": "Hapus temuan"
     },
     "sync": {
       "findings": "Sinkronkan Temuan dari LHA",
@@ -3338,7 +3564,7 @@
       "narrative": "Ringkasan Narasi",
       "stats": "Statistik Kompilasi",
       "followUp": "Status Tindak Lanjut",
-      "topFindings": "Top 5 Signifikan",
+      "topFindings": "Signifikan Teratas",
       "analysis": "Akar Masalah & Kesimpulan",
       "matrix": "Matriks Kompilasi LHA",
       "notes": "Catatan"
@@ -3394,6 +3620,9 @@
       "title": "Matriks Kompilasi Temuan LHA Individual",
       "description": "Daftar LHA Individual yang dikompilasi ke dalam laporan eksekutif ini.",
       "total": "Total: {count} LHA",
+      "totalFindings": "Total: {count} temuan",
+      "restricted": "Matriks per temuan tidak tersedia untuk peran Anda.",
+      "noFollowUp": "Matriks diisi dari status tindak lanjut. Perbarui setelah status termuat.",
       "empty": "Belum ada matriks kompilasi yang disinkronkan.",
       "emptyAction": "Klik untuk menyinkronkan data dari LHA Individual.",
       "columns": {
@@ -3402,7 +3631,11 @@
         "title": "Judul / Objek Audit",
         "risk": "Tingkat Risiko",
         "recommendation": "Rekomendasi Utama",
-        "followUpStatus": "Status TL"
+        "followUpStatus": "Status TL",
+        "dueDate": "Batas Waktu",
+        "pic": "PIC",
+        "progress": "Progres",
+        "evidence": "Bukti TL"
       }
     },
     "defaults": {
@@ -5137,8 +5370,11 @@
     },
     "filters": {
       "yearOption": "Tahun {year}",
-      "allDepartments": "Semua Branch",
-      "allBranches": "Semua Branch / Departemen"
+      "allDepartments": "Semua Departemen",
+      "allBranches": "Semua Cabang",
+      "unassignedBranch": "Belum Ditentukan",
+      "branchLabel": "Cabang",
+      "branchesUnavailable": "Data master cabang gagal dimuat."
     },
     "cards": {
       "effectiveness": {
@@ -5148,9 +5384,11 @@
         "realScore": "Skor Efektivitas Riil",
         "inherentRiskLabel": "Inherent Risk (Risiko Prioritas Awal Tahun):",
         "riskCount": "{count} Risiko",
-        "residualRiskLabel": "Residual Risk (Sisa Risiko Tutup Buku):",
+        "residualRiskLabel": "Residual Risk (Kuartal Berjalan, {quarter}):",
+        "residualRiskLabelYearEnd": "Residual Risk (Tutup Buku, {quarter}):",
         "cosoInterpretation": "Interpretasi Hasil COSO ({rating}):",
-        "syncNote": "Data Inherent & Residual Risk terintegrasi langsung secara otomatis dari Corporate Risk Profile."
+        "mitigationCoverage": "{covered} dari {total} risiko residual memiliki rencana mitigasi",
+        "syncNote": "Data Inherent & Residual Risk terintegrasi otomatis dari Corporate Risk Profile (Q1 dibanding kuartal berjalan) beserta rencana mitigasinya."
       },
       "coso": {
         "title": "Rata-Rata COSO",
@@ -5247,6 +5485,12 @@
       "riskEventLabel": "Kejadian Risiko / Risk Event (Sinkron)",
       "controlSelectLabel": "Pilih Risk Control ID (Rencana Mitigasi & Kontrol)",
       "controlSelectPlaceholder": "Pilih Risk Control ID...",
+      "noMitigationPlan": "Belum ada rencana mitigasi risiko untuk risiko ini. Tambahkan di halaman Rencana Mitigasi Risiko untuk melanjutkan.",
+      "noMitigationPlanTitle": "Belum ada rencana mitigasi",
+      "noMitigationPlanHint": "Halaman dibuka di tab baru agar isian formulir ini tetap tersimpan. Muat ulang di sini setelah rencana disimpan.",
+      "openMitigationPlan": "Buka Rencana Mitigasi Risiko",
+      "refreshMitigations": "Muat Ulang",
+      "loadingMitigations": "Memuat rencana mitigasi...",
       "controlCodeLabel": "Kode Kontrol (Sinkron)",
       "controlCodePlaceholder": "misal: CTL-FIN-001",
       "controlOwnerLabel": "PIC / Owner Kontrol (Sinkron)",
@@ -5255,6 +5499,7 @@
       "controlDescPlaceholder": "Jelaskan mekanisme kontrol operasional, review, verifikasi, atau sistemik yang dijalankan...",
       "evaluationTitle": "Evaluasi 5 Dimensi Internal Control (COSO)",
       "evaluationWeight": "Bobot Tetap: 20% Tiap Dimensi (Skala 1 - 5)",
+      "dimensionRequired": "Pilih nilai untuk dimensi ini.",
       "totalWeightedScore": "Total Skor Efektivitas Tertimbang:",
       "interpretation": "Interpretasi:",
       "cancel": "Batal",
@@ -5262,6 +5507,8 @@
     },
     "toasts": {
       "validationWarning": "Mohon pilih risiko dan lengkapi deskripsi kontrol.",
+      "dimensionsRequired": "Kelima dimensi pengendalian wajib dinilai sebelum menyimpan.",
+      "mitigationPlanRequired": "Risiko ini belum memiliki rencana mitigasi. Tambahkan di halaman Rencana Mitigasi Risiko sebelum melanjutkan.",
       "updateSuccess": "Risk Control Matrix berhasil diperbarui",
       "addSuccess": "Risk Control Matrix berhasil ditambahkan",
       "deleteSuccess": "Risk Control Matrix berhasil dihapus"

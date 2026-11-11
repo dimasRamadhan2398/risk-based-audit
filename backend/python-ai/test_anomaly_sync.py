@@ -26,7 +26,7 @@ def run_tests():
     print("[PASS] predict_anomaly (Legacy Operational):")
     print(f"       type: {leg_data.get('type')}, anomaly_score: {leg_data.get('anomaly_score')}, is_anomaly: {leg_data.get('is_anomaly')}, severity: {leg_data.get('severity')}")
     
-    required_keys = ['id', 'entity', 'type', 'anomaly_score', 'description', 'severity', 'amount', 'is_anomaly', 'predicted_impact', 'predicted_likelihood', 'risk_level', 'xMetric']
+    required_keys = ['id', 'entity', 'type', 'anomaly_score', 'description', 'severity', 'amount', 'is_anomaly', 'predicted_impact', 'predicted_likelihood', 'risk_level', 'xMetric', 'hour', 'hour_of_day']
     for k in required_keys:
         assert k in leg_data, f"Missing key in response: {k}"
 
@@ -89,6 +89,15 @@ def run_tests():
     print(f"       Categories detected in batch: {detected_cats}")
     for cat in ['Funding', 'Lending', 'Treasury', 'Payment', 'KYC', 'IT Control']:
         assert cat in detected_cats, f"Expected bank category {cat} in batch anomalies, got {detected_cats}"
+
+    # Verify Y coordinates are in bounds (0.0 - 24.0) and no synthetic 25+ clipping values
+    for pt in scatter:
+        assert 0.0 <= pt['y'] <= 24.0, f"Scatter point y value out of bounds (0-24): {pt}"
+
+    # Verify each anomaly has a valid hour
+    for anom in anomalies:
+        assert 'hour' in anom and anom['hour'] is not None, f"Anomaly missing hour: {anom['id']}"
+        assert 0 <= anom['hour'] <= 23, f"Anomaly hour out of bounds (0-23): {anom['hour']}"
 
     print("=" * 60)
     print("ALL 4 VERIFICATION TESTS PASSED SUCCESSFULLY!")

@@ -2,6 +2,7 @@ package services
 
 import (
 	"auth-service/models"
+	"auth-service/pkg/activitylog"
 	baseService "auth-service/pkg/base"
 	"auth-service/pkg/config"
 	"auth-service/pkg/errors"
@@ -16,6 +17,7 @@ import (
 	"crypto/subtle"
 	"encoding/base32"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -30,6 +32,15 @@ type AuthServiceInterface interface {
 	ValidateToken(token string) (*utils.Claims, error)
 	ResolveEmployeeLink(ctx context.Context, userID uuid.UUID, authHeader string) (models.EmployeeLink, error)
 	ChangePassword(ctx context.Context, userID uuid.UUID, req *models.ChangePasswordRequest, ipAddress string) error
+	// PermissionNames returns the sorted, deduped permission names of roles
+	// (matched case-insensitively), or nil when the lookup failed.
+	PermissionNames(roles []string) *[]string
+}
+
+// PermissionNameLister is the slice of the permission repository AuthService
+// needs: one DISTINCT join over roles/role_permissions/permissions.
+type PermissionNameLister interface {
+	NamesForRoles(roleNames []string) ([]string, error)
 }
 
 // AuthService handles authentication logic
@@ -43,6 +54,10 @@ type AuthService struct {
 	kafkaProducer *kafka.Producer
 	// employeeClient resolves users.employee_id to the master-data employee.
 	employeeClient *masterclient.EmployeeClient
+	// activity receives login, logout and password events (may be nil).
+	activity activitylog.Recorder
+	// permRepo resolves role names to permission names for login and /auth/me (may be nil).
+	permRepo PermissionNameLister
 }
 
 // NewAuthService creates a new auth service
@@ -50,9 +65,11 @@ func NewAuthService(
 	userRepo repositories.UserRepositoryInterface,
 	mfaRepo repositories.MFASetupRepositoryInterface,
 	trustedRepo repositories.ITrustedDeviceRepository,
+	permRepo PermissionNameLister,
 	rdb *redis.Client,
 	cfg *config.Config,
 	kafkaProducer *kafka.Producer,
+	activity activitylog.Recorder,
 ) AuthServiceInterface {
 	var employeeClient *masterclient.EmployeeClient
 	if cfg != nil {
@@ -71,7 +88,34 @@ func NewAuthService(
 		config:         cfg,
 		kafkaProducer:  kafkaProducer,
 		employeeClient: employeeClient,
+		activity:       activity,
+		permRepo:       permRepo,
 	}
+}
+
+// PermissionNames implements AuthServiceInterface. A user with no roles, or
+// roles that grant nothing, gets an empty (non-nil) list. nil means the lookup
+// failed; callers then omit the field rather than claim "no permissions".
+func (s *AuthService) PermissionNames(roles []string) *[]string {
+	if s.permRepo == nil {
+		return nil
+	}
+	names, err := s.permRepo.NamesForRoles(roles)
+	if err != nil {
+		s.LogWarning("Failed to load permissions for roles", utils.LogField("error", err))
+		return nil
+	}
+	seen := make(map[string]struct{}, len(names))
+	out := make([]string, 0, len(names))
+	for _, n := range names {
+		if _, dup := seen[n]; dup {
+			continue
+		}
+		seen[n] = struct{}{}
+		out = append(out, n)
+	}
+	sort.Strings(out)
+	return &out
 }
 
 // Login authenticates a user and returns a token
@@ -81,6 +125,7 @@ func (s *AuthService) Login(ctx context.Context, req *models.LoginRequest, ipAdd
 	if err != nil {
 		if errors.Is(err, errors.ErrNotFound) {
 			s.LogInfo("Login attempt with non-existent username", utils.LogField("username", req.Username))
+			s.recordLoginFailed(ctx, "", req.Username, ipAddress, userAgent, loginFailUnknownUser)
 			return nil, errors.ErrInvalidCredentials
 		}
 		s.LogError("Failed to find user during login", utils.LogField("error", err))
@@ -90,12 +135,14 @@ func (s *AuthService) Login(ctx context.Context, req *models.LoginRequest, ipAdd
 	// Check if user is active
 	if !user.IsActive {
 		s.LogInfo("Login attempt for inactive user", utils.LogField("user_id", user.ID))
+		s.recordLoginFailed(ctx, user.ID.String(), user.Username, ipAddress, userAgent, loginFailInactive)
 		return nil, errors.ErrUnauthorized
 	}
 
 	// Verify password
 	if !utils.CheckPassword(req.Password, user.PasswordHash) {
 		s.LogInfo("Login attempt with invalid password", utils.LogField("user_id", user.ID))
+		s.recordLoginFailed(ctx, user.ID.String(), user.Username, ipAddress, userAgent, loginFailInvalidPassword)
 		return nil, errors.ErrInvalidCredentials
 	}
 
@@ -104,15 +151,33 @@ func (s *AuthService) Login(ctx context.Context, req *models.LoginRequest, ipAdd
 		isNewDevice = true
 	}
 
-	// Check for MFA
+	// Check for MFA. Only "no MFA row" means no MFA: any other error (database,
+	// or a secret that cannot be decrypted) must fail closed, never skip the step.
 	mfa, err := s.mfaRepo.FindByUserID(user.ID)
+	if err != nil && !errors.Is(err, errors.ErrNotFound) {
+		s.LogError("MFA lookup failed during login", utils.LogField("user_id", user.ID), utils.LogField("error", err.Error()))
+		return nil, errors.ErrInternalServer
+	}
 	if err == nil && mfa != nil && mfa.IsEnabled {
+		// An account locked by too many wrong MFA codes cannot sign in at all
+		// until the lock expires, trusted device or not. Checked after the
+		// password so the lock state is only disclosed to someone who knows it.
+		if err := s.checkMFALock(ctx, user.ID); err != nil {
+			if !errors.Is(err, errors.ErrInternalServer) {
+				s.recordLoginFailed(ctx, user.ID.String(), user.Username, ipAddress, userAgent, loginFailAccountLocked)
+			}
+			return nil, err
+		}
+
 		// Check if device is trusted
 		isTrusted := false
 		if req.DeviceFingerprint != "" {
 			device, _ := s.trustedRepo.FindByFingerprint(user.ID, req.DeviceFingerprint)
-			if device != nil && !s.trustedRepo.IsExpired(device) {
+			// Session-only devices (recorded without "trust this device") are
+			// listed on the Activity page but still need the MFA step.
+			if s.trustedRepo.IsTrusted(device) {
 				isTrusted = true
+				s.recordDevice(user.ID, req.DeviceFingerprint, req.DeviceName, req.DeviceType, ipAddress, userAgent, false)
 			}
 		}
 
@@ -190,6 +255,18 @@ func (s *AuthService) completeLogin(ctx context.Context, user *models.User, fing
 	}
 
 	s.LogInfo("User logged in successfully", utils.LogField("user_id", user.ID))
+	s.record(ctx, activitylog.Entry{
+		ActorUserID:   user.ID.String(),
+		ActorUsername: user.Username,
+		Action:        activitylog.ActionLogin,
+		EntityType:    "user",
+		EntityID:      user.ID.String(),
+		Result:        activitylog.ResultSuccess,
+		IPAddress:     ipAddress,
+		UserAgent:     userAgent,
+		Summary:       user.Username + " signed in",
+		Details:       map[string]interface{}{"new_device": isNewDevice},
+	})
 
 	// Send to Kafka for centralized logging
 	if s.kafkaProducer != nil && s.kafkaProducer.IsEnabled() {
@@ -217,6 +294,7 @@ func (s *AuthService) completeLogin(ctx context.Context, user *models.User, fing
 			EmployeeCode: link.EmployeeCode,
 			EmployeeID:   link.EmployeeID,
 			DepartmentID: link.DepartmentID,
+			Permissions:  s.PermissionNames(roles),
 		},
 		IsNewDevice: isNewDevice,
 	}, nil
@@ -281,11 +359,26 @@ func (s *AuthService) VerifyMFALogin(ctx context.Context, req *models.VerifyMFAL
 	key := "mfa_login:" + req.MFAToken
 	userIDStr, err := s.redis.Get(ctx, key).Result()
 	if err != nil {
+		s.recordLoginFailed(ctx, "", "", ipAddress, userAgent, loginFailInvalidMFAToken)
 		return nil, errors.Wrap("INVALID_MFA_TOKEN", "Invalid or expired MFA login token", 400, nil)
 	}
 
 	userID, _ := uuid.Parse(userIDStr)
+
+	// A lock set from another MFA login token also covers this one.
+	if err := s.checkMFALock(ctx, userID); err != nil {
+		if !errors.Is(err, errors.ErrInternalServer) {
+			s.redis.Del(ctx, key)
+			s.recordLoginFailed(ctx, userID.String(), "", ipAddress, userAgent, loginFailAccountLocked)
+		}
+		return nil, err
+	}
+
 	mfa, err := s.mfaRepo.FindByUserID(userID)
+	if err != nil && !errors.Is(err, errors.ErrNotFound) {
+		s.LogError("MFA lookup failed during MFA login", utils.LogField("user_id", userID), utils.LogField("error", err.Error()))
+		return nil, errors.ErrInternalServer
+	}
 	if err != nil || !mfa.IsEnabled {
 		return nil, errors.Wrap("MFA_NOT_ENABLED", "MFA is not enabled for this user", 400, nil)
 	}
@@ -303,29 +396,29 @@ func (s *AuthService) VerifyMFALogin(ctx context.Context, req *models.VerifyMFAL
 
 	// Let's implement verifyTOTP logic here as well for now or use utils if available.
 	if !s.verifyTOTP(mfa.SecretKey, req.Code) {
-		return nil, errors.Wrap("INVALID_CODE", "Invalid MFA code", 400, nil)
+		username := ""
+		if u, uerr := s.userRepo.FindByID(userID); uerr == nil && u != nil {
+			username = u.Username
+		}
+		s.recordLoginFailed(ctx, userID.String(), username, ipAddress, userAgent, loginFailInvalidMFACode)
+		failErr := s.registerMFAFailure(ctx, userID)
+		if appErr, ok := failErr.(*errors.AppError); ok && appErr.Code == ErrCodeAccountLocked {
+			// The token is spent: after the lock the user must sign in again.
+			s.redis.Del(ctx, key)
+			s.recordLoginFailed(ctx, userID.String(), username, ipAddress, userAgent, loginFailAccountLocked)
+		}
+		return nil, failErr
 	}
+	s.clearMFAFailures(ctx, userID)
 
 	user, err := s.userRepo.FindByID(userID)
 	if err != nil {
 		return nil, errors.ErrNotFound
 	}
 
-	if req.TrustDevice && req.DeviceFingerprint != "" {
-		expiresAt := time.Now().Add(90 * 24 * time.Hour)
-		device := &models.TrustedDevice{
-			ID:                uuid.New(),
-			UserID:            userID,
-			DeviceFingerprint: req.DeviceFingerprint,
-			DeviceName:        req.DeviceName,
-			DeviceType:        req.DeviceType,
-			UserAgent:         userAgent,
-			IPAddress:         ipAddress,
-			ExpiresAt:         &expiresAt,
-			CreatedAt:         time.Now(),
-		}
-		s.trustedRepo.Create(device)
-	}
+	// Every MFA-verified sign-in is listed on the Activity page; "trust this
+	// device" additionally lets it skip MFA. One row per (user, fingerprint).
+	s.recordDevice(userID, req.DeviceFingerprint, req.DeviceName, req.DeviceType, ipAddress, userAgent, req.TrustDevice)
 
 	s.redis.Del(ctx, key)
 
@@ -335,6 +428,26 @@ func (s *AuthService) VerifyMFALogin(ctx context.Context, req *models.VerifyMFAL
 	}
 
 	return s.completeLogin(ctx, user, req.DeviceFingerprint, ipAddress, userAgent, isNewDevice)
+}
+
+// recordDevice registers or refreshes the sign-in device. A sign-in without a
+// fingerprint cannot be matched to a device and is skipped. Failures are logged
+// only: they must not fail the sign-in.
+func (s *AuthService) recordDevice(userID uuid.UUID, fingerprint, name, deviceType, ipAddress, userAgent string, trust bool) {
+	if s.trustedRepo == nil || strings.TrimSpace(fingerprint) == "" {
+		return
+	}
+	if _, err := s.trustedRepo.RecordSeen(repositories.DeviceSighting{
+		UserID:      userID,
+		Fingerprint: fingerprint,
+		Name:        name,
+		Type:        deviceType,
+		UserAgent:   userAgent,
+		IPAddress:   ipAddress,
+		Trust:       trust,
+	}); err != nil {
+		s.LogWarning("Failed to record sign-in device", utils.LogField("user_id", userID), utils.LogField("error", err))
+	}
 }
 
 // verifyTOTP is a helper to verify TOTP code
@@ -396,6 +509,17 @@ func (s *AuthService) Logout(ctx context.Context, token, userID, username, ipAdd
 		return errors.ErrInternalServer
 	}
 	s.LogInfo("User logged out successfully")
+	s.record(ctx, activitylog.Entry{
+		ActorUserID:   userID,
+		ActorUsername: username,
+		Action:        activitylog.ActionLogout,
+		EntityType:    "user",
+		EntityID:      userID,
+		Result:        activitylog.ResultSuccess,
+		IPAddress:     ipAddress,
+		UserAgent:     userAgent,
+		Summary:       username + " signed out",
+	})
 
 	// Send to Kafka for centralized logging
 	if s.kafkaProducer != nil && s.kafkaProducer.IsEnabled() {
@@ -438,6 +562,13 @@ func (s *AuthService) ChangePassword(ctx context.Context, userID uuid.UUID, req 
 
 	// Verify old password
 	if !utils.CheckPassword(req.OldPassword, user.PasswordHash) {
+		s.record(ctx, activitylog.Entry{
+			ActorUserID: user.ID.String(), ActorUsername: user.Username,
+			Action: activitylog.ActionPasswordChanged, EntityType: "user", EntityID: user.ID.String(),
+			Result: activitylog.ResultFailure, IPAddress: ipAddress,
+			Summary: user.Username + " failed to change their password",
+			Details: map[string]interface{}{"reason": "invalid_current_password"},
+		})
 		return errors.ErrInvalidCredentials
 	}
 
@@ -461,6 +592,12 @@ func (s *AuthService) ChangePassword(ctx context.Context, userID uuid.UUID, req 
 	}
 
 	s.LogInfo("Password changed successfully", utils.LogField("user_id", user.ID))
+	s.record(ctx, activitylog.Entry{
+		ActorUserID: user.ID.String(), ActorUsername: user.Username,
+		Action: activitylog.ActionPasswordChanged, EntityType: "user", EntityID: user.ID.String(),
+		Result: activitylog.ResultSuccess, IPAddress: ipAddress,
+		Summary: user.Username + " changed their password",
+	})
 
 	// Send to Kafka for centralized logging
 	if s.kafkaProducer != nil && s.kafkaProducer.IsEnabled() {
@@ -472,4 +609,49 @@ func (s *AuthService) ChangePassword(ctx context.Context, userID uuid.UUID, req 
 	}
 
 	return nil
+}
+
+// Login failure reasons recorded in details.reason. They describe the cause to
+// an admin; the API response to the client stays generic.
+const (
+	loginFailUnknownUser     = "unknown_username"
+	loginFailInactive        = "inactive_account"
+	loginFailInvalidPassword = "invalid_password"
+	loginFailInvalidMFACode  = "invalid_mfa_code"
+	loginFailInvalidMFAToken = "invalid_mfa_token"
+	loginFailAccountLocked   = "account_locked_mfa"
+)
+
+// record sends an activity event; a service built without a recorder drops it.
+func (s *AuthService) record(ctx context.Context, e activitylog.Entry) {
+	if s.activity == nil {
+		return
+	}
+	s.activity.Record(ctx, e)
+}
+
+// recordLoginFailed logs a failed sign-in. username is what was typed (never
+// the password); userID is set only when the account exists.
+func (s *AuthService) recordLoginFailed(ctx context.Context, userID, username, ip, userAgent, reason string) {
+	who := username
+	if who == "" {
+		who = "unknown user"
+	}
+	e := activitylog.Entry{
+		ActorUserID:   userID,
+		ActorUsername: username,
+		Action:        activitylog.ActionLoginFailed,
+		EntityType:    "user",
+		EntityID:      userID,
+		Result:        activitylog.ResultFailure,
+		IPAddress:     ip,
+		UserAgent:     userAgent,
+		Summary:       "Failed sign-in for " + who,
+		Details:       map[string]interface{}{"reason": reason},
+	}
+	if userID == "" && username == "" {
+		// No actor at all: keep Enrich from attributing it to a caller in ctx.
+		e.ActorUsername = "unknown"
+	}
+	s.record(ctx, e)
 }

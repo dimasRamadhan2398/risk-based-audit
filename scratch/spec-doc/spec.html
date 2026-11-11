@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Spesifikasi Teknis AuditSphere</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 9.5pt; color: #1f2937; line-height: 1.45; margin: 0; }
+  .cover { border: 2px solid #1e3a5f; padding: 28px 30px; margin-bottom: 22px; }
+  .cover .brand { font-size: 9pt; letter-spacing: 3px; color: #2563eb; font-weight: 700; }
+  .cover h1 { font-size: 22pt; color: #1e3a5f; margin: 6px 0 4px; }
+  .cover .sub { font-size: 11pt; color: #475569; margin: 0; }
+  .meta { width: 100%; margin-top: 18px; border-collapse: collapse; }
+  .meta td { border: 1px solid #cbd5e1; padding: 6px 10px; font-size: 9pt; }
+  .meta td:first-child { width: 30%; background: #f1f5f9; font-weight: 600; }
+  h2 { font-size: 13pt; color: #fff; background: #1e3a5f; padding: 7px 12px; margin: 22px 0 10px; break-after: avoid; }
+  h3 { font-size: 11pt; color: #1e3a5f; border-bottom: 2px solid #2563eb; padding-bottom: 3px; margin: 18px 0 8px; break-after: avoid; }
+  p { margin: 4px 0 8px; }
+  .cap { border: 1px solid #cbd5e1; border-left: 4px solid #2563eb; background: #f8fafc; padding: 8px 12px; margin: 6px 0 10px; break-inside: avoid; }
+  .cap b { color: #1e3a5f; }
+  .cap ul { margin: 4px 0 0 18px; padding: 0; }
+  table.spec { width: 100%; border-collapse: collapse; margin: 6px 0 14px; break-inside: auto; }
+  table.spec th, table.spec td { border: 1px solid #94a3b8; padding: 6px 9px; vertical-align: top; text-align: left; }
+  table.spec thead th { background: #1e3a5f; color: #fff; font-weight: 600; }
+  table.spec tbody tr:nth-child(even) td { background: #f8fafc; }
+  table.spec td.k { background: #e2e8f0 !important; font-weight: 600; width: 19%; }
+  table.spec tr { break-inside: avoid; }
+  tr.price td { background: #eff6ff !important; font-weight: 700; color: #1e3a5f; }
+  .option { break-before: page; }
+  .option:first-of-type { break-before: auto; }
+  .note { font-size: 8.5pt; color: #64748b; font-style: italic; }
+  .diagram { border: 1px solid #94a3b8; padding: 10px; font-family: Menlo, Consolas, monospace; font-size: 8pt; white-space: pre; background: #f8fafc; line-height: 1.35; break-inside: avoid; }
+  footer { margin-top: 24px; border-top: 1px solid #cbd5e1; padding-top: 6px; font-size: 8pt; color: #64748b; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="brand">AUDITSPHERE</div>
+  <h1>Spesifikasi Teknis &amp; Infrastruktur</h1>
+  <p class="sub">Risk-Based Internal Audit Platform</p>
+  <table class="meta">
+    <tr><td>Dokumen</td><td>Spesifikasi Tech Stack &amp; Opsi Server On-Premise</td></tr>
+    <tr><td>Versi</td><td>1.0</td></tr>
+    <tr><td>Tanggal</td><td>29 Oktober 2026</td></tr>
+    <tr><td>Isi</td><td>Bagian A — Tech Stack Aplikasi<br>Bagian B — Opsi Spesifikasi Server (Opsi 1–4)</td></tr>
+  </table>
+</div>
+
+<!-- ===================== BAGIAN A ===================== -->
+<h2>BAGIAN A — TECH STACK APLIKASI</h2>
+
+<h3>A.1 Gambaran Arsitektur</h3>
+<p>AuditSphere dibangun dengan arsitektur <b>microservices</b>. Antarmuka web (Nuxt) berkomunikasi melalui satu pintu, yaitu <b>API Gateway (Kong)</b>, yang meneruskan permintaan ke layanan backend berbasis Go. Setiap layanan memiliki basis data PostgreSQL sendiri, berbagi cache Redis, dan saling bertukar event melalui Apache Kafka. Fitur analitik dan prediksi risiko dijalankan oleh layanan AI terpisah berbasis Python.</p>
+<div class="diagram">  Pengguna (Browser)
+        │  HTTPS
+        ▼
+  ┌──────────────┐      ┌──────────────────────────────┐
+  │ Nginx (TLS)  │ ───▶ │ Frontend — Nuxt 4 (SSR)      │
+  └──────────────┘      └──────────────────────────────┘
+        │  /api
+        ▼
+  ┌──────────────────────┐
+  │ Kong API Gateway     │  autentikasi JWT, routing, CORS
+  └──────────────────────┘
+        │
+        ├──▶ auth-service       (login, MFA, role & akses)
+        ├──▶ master-service     (perusahaan, departemen, karyawan)
+        ├──▶ risk-service       (risk universe, risk profile)
+        ├──▶ audit-service      (perencanaan, fieldwork, laporan, ATR)
+        ├──▶ analytics-service  (dashboard & KPI)
+        └──▶ python-ai          (prediksi & analitik AI)
+
+  Data &amp; Messaging : PostgreSQL 16 · Redis 7 · Apache Kafka
+  Monitoring        : Prometheus · Grafana · Loki · Promtail</div>
+
+<h3>A.2 Frontend</h3>
+<table class="spec">
+  <thead><tr><th style="width:24%">Komponen</th><th style="width:30%">Teknologi</th><th>Fungsi</th></tr></thead>
+  <tbody>
+    <tr><td class="k">Framework</td><td>Nuxt 4 (Vue 3.5, TypeScript 5)</td><td>Aplikasi web dengan Server-Side Rendering</td></tr>
+    <tr><td class="k">UI &amp; Styling</td><td>Nuxt UI v4, Tailwind CSS</td><td>Komponen antarmuka dan desain responsif</td></tr>
+    <tr><td class="k">State Management</td><td>Pinia 3</td><td>Pengelolaan data antar halaman</td></tr>
+    <tr><td class="k">Visualisasi Data</td><td>Chart.js 4, vue-chartjs, nuxt-charts</td><td>Grafik dashboard, heatmap risiko, KPI</td></tr>
+    <tr><td class="k">Multi-bahasa</td><td>vue-i18n 11</td><td>Bahasa Indonesia &amp; Inggris</td></tr>
+    <tr><td class="k">Validasi Form</td><td>Zod</td><td>Validasi input pada sisi pengguna</td></tr>
+    <tr><td class="k">Utilitas</td><td>VueUse, date-fns, QRCode</td><td>Fungsi bantu, format tanggal, kode QR</td></tr>
+    <tr><td class="k">Pengujian</td><td>Vitest, Playwright</td><td>Unit test dan end-to-end test</td></tr>
+  </tbody>
+</table>
+
+<h3>A.3 Backend</h3>
+<table class="spec">
+  <thead><tr><th style="width:24%">Komponen</th><th style="width:30%">Teknologi</th><th>Fungsi</th></tr></thead>
+  <tbody>
+    <tr><td class="k">Bahasa</td><td>Go (Golang) 1.25</td><td>Bahasa utama seluruh layanan backend</td></tr>
+    <tr><td class="k">Web Framework</td><td>Gin</td><td>REST API berkinerja tinggi</td></tr>
+    <tr><td class="k">ORM</td><td>GORM + driver PostgreSQL</td><td>Akses basis data dan migrasi skema</td></tr>
+    <tr><td class="k">Layanan</td><td>auth, master, risk, audit, analytics</td><td>Lima microservice terpisah sesuai domain bisnis</td></tr>
+    <tr><td class="k">Event Streaming</td><td>Apache Kafka (IBM Sarama)</td><td>Sinkronisasi data dan event antar layanan</td></tr>
+    <tr><td class="k">Cache</td><td>Redis (go-redis v9)</td><td>Cache dashboard, sesi, kode OTP, pembatasan login</td></tr>
+    <tr><td class="k">Konfigurasi &amp; CLI</td><td>Viper, Cobra</td><td>Konfigurasi per lingkungan; perintah serve/migrate/seed</td></tr>
+    <tr><td class="k">Logging</td><td>Zap, Logrus</td><td>Log terstruktur untuk penelusuran masalah</td></tr>
+    <tr><td class="k">Dokumentasi API</td><td>Swagger (swaggo)</td><td>Dokumentasi endpoint otomatis</td></tr>
+  </tbody>
+</table>
+
+<h3>A.4 Layanan AI</h3>
+<table class="spec">
+  <thead><tr><th style="width:24%">Komponen</th><th style="width:30%">Teknologi</th><th>Fungsi</th></tr></thead>
+  <tbody>
+    <tr><td class="k">Runtime &amp; API</td><td>Python, FastAPI, Uvicorn</td><td>Layanan AI yang dipanggil oleh backend</td></tr>
+    <tr><td class="k">Machine Learning</td><td>XGBoost, scikit-learn</td><td>Penilaian dan prioritas risiko</td></tr>
+    <tr><td class="k">Deep Learning</td><td>TensorFlow (LSTM)</td><td>Prediksi tren dan deteksi anomali</td></tr>
+    <tr><td class="k">NLP</td><td>Hugging Face Transformers</td><td>Pemrosesan teks dokumen audit</td></tr>
+    <tr><td class="k">Data</td><td>pandas, NumPy</td><td>Pengolahan data untuk model</td></tr>
+  </tbody>
+</table>
+
+<h3>A.5 Database, Infrastruktur &amp; Keamanan</h3>
+<table class="spec">
+  <thead><tr><th style="width:24%">Komponen</th><th style="width:30%">Teknologi</th><th>Fungsi</th></tr></thead>
+  <tbody>
+    <tr><td class="k">Basis Data</td><td>PostgreSQL 16</td><td>Basis data terpisah per layanan dan per tenant</td></tr>
+    <tr><td class="k">Message Broker</td><td>Apache Kafka 7.6 (Confluent) + Zookeeper</td><td>Antrian event antar layanan</td></tr>
+    <tr><td class="k">Cache</td><td>Redis 7</td><td>Penyimpanan sementara berkecepatan tinggi</td></tr>
+    <tr><td class="k">API Gateway</td><td>Kong 3.x</td><td>Satu pintu akses API, validasi JWT, CORS</td></tr>
+    <tr><td class="k">Reverse Proxy</td><td>Nginx</td><td>Terminasi HTTPS/TLS</td></tr>
+    <tr><td class="k">Kontainer</td><td>Docker, Docker Compose</td><td>Paket dan orkestrasi seluruh layanan</td></tr>
+    <tr><td class="k">CI/CD</td><td>GitHub Actions</td><td>Build dan deployment otomatis</td></tr>
+    <tr><td class="k">Monitoring</td><td>Prometheus, Grafana, Node Exporter</td><td>Metrik server/aplikasi, dashboard, dan alert</td></tr>
+    <tr><td class="k">Log Terpusat</td><td>Loki, Promtail</td><td>Pengumpulan dan pencarian log semua layanan</td></tr>
+    <tr><td class="k">Autentikasi</td><td>JWT, bcrypt</td><td>Token akses dan penyimpanan password terenkripsi</td></tr>
+    <tr><td class="k">MFA</td><td>OTP email &amp; Authenticator (TOTP)</td><td>Verifikasi dua langkah saat login</td></tr>
+    <tr><td class="k">Hak Akses</td><td>Role-Based Access Control (RBAC)</td><td>Pembatasan menu dan data sesuai peran</td></tr>
+    <tr><td class="k">Multi-Tenant</td><td>Stack &amp; basis data terisolasi per klien</td><td>Data setiap perusahaan terpisah sepenuhnya</td></tr>
+  </tbody>
+</table>
+
+<h3>A.6 Integrasi Pihak Ketiga</h3>
+<table class="spec">
+  <thead><tr><th style="width:24%">Layanan</th><th style="width:30%">Penyedia</th><th>Fungsi</th></tr></thead>
+  <tbody>
+    <tr><td class="k">Email Transaksional</td><td>Resend (cadangan: SMTP)</td><td>Kode OTP, notifikasi, dan undangan pengguna</td></tr>
+    <tr><td class="k">AI Generatif</td><td>OpenAI API</td><td>Asisten AI dan pembuatan draf teks</td></tr>
+    <tr><td class="k">Repositori &amp; CI/CD</td><td>GitHub</td><td>Pengelolaan kode sumber dan deployment</td></tr>
+  </tbody>
+</table>
+<p class="note">Integrasi pihak ketiga memerlukan koneksi internet keluar. Pada instalasi on-premise tanpa internet, fitur AI generatif dapat diganti dengan LLM lokal pada Server 2 (AI).</p>
+
+<!-- ===================== BAGIAN B ===================== -->
+<h2 style="break-before: page;">BAGIAN B — OPSI SPESIFIKASI SERVER</h2>
+
+<section class="option">
+<h3>Opsi 1</h3>
+<div class="cap">
+  <b>Kapasitas Pengguna:</b> 5 – 15 user<br>
+  <b>Kapasitas Data:</b>
+  <ul>
+    <li>Database tabular: 1–3 juta record (terbatas pada NVMe 240 GB)</li>
+    <li>Dokumen (PDF/scan): 100 GB (cukup untuk ±10.000 file PDF berukuran 10 MB)</li>
+  </ul>
+</div>
+<table class="spec">
+  <thead><tr><th>Komponen</th><th>Server 1 — Core App + Primary DB</th><th>Server 2 — AI + Secondary DB</th></tr></thead>
+  <tbody>
+    <tr><td class="k">Peran</td><td>VM Application 1, VM Application 2, VM Redis, VM RabbitMQ, VM Monitoring, VM Postgres</td><td>LLM, PostgreSQL Replica</td></tr>
+    <tr><td class="k">CPU</td><td>Intel Xeon Silver 4309Y — 8 Core / 16 Thread</td><td>Intel Xeon Silver 4310 — 12 Core / 24 Thread</td></tr>
+    <tr><td class="k">RAM</td><td>16 GB ECC DDR4</td><td>16 GB ECC DDR4</td></tr>
+    <tr><td class="k">GPU</td><td>–</td><td>Nvidia P4 8 GB</td></tr>
+    <tr><td class="k">Storage Data</td><td>1 × 240 GB NVMe, RAID 1</td><td>1 × 240 GB NVMe, RAID 1</td></tr>
+    <tr><td class="k">Network</td><td>2 × 1 GbE</td><td>2 × 1 GbE</td></tr>
+    <tr><td class="k">PSU</td><td>Single PSU</td><td>Single PSU</td></tr>
+    <tr><td class="k">RAID/HBA</td><td>Software RAID / ZFS Mirror</td><td>Software RAID / ZFS Mirror</td></tr>
+    <tr><td class="k">Hypervisor</td><td>Proxmox VE / VMware / Hyper-V</td><td>Proxmox VE / VMware / Hyper-V</td></tr>
+    <tr><td class="k">HA</td><td>–</td><td>Postgres / Recovery Node</td></tr>
+    <tr><td class="k">ECC Memory</td><td>Wajib</td><td>Wajib</td></tr>
+    <tr class="price"><td class="k">Perkiraan Harga</td><td>Rp 50 – 70 juta</td><td>Rp 70 – 90 juta</td></tr>
+  </tbody>
+</table>
+</section>
+
+<section class="option">
+<h3>Opsi 2</h3>
+<div class="cap">
+  <b>Kapasitas Pengguna:</b> 15 – 30 user<br>
+  <b>Kapasitas Data:</b>
+  <ul>
+    <li>Database tabular: 5–10 juta record (NVMe 480 GB menyisakan ±250 GB bersih khusus untuk PostgreSQL)</li>
+    <li>Dokumen (PDF/scan): 30.000 – 50.000 dokumen</li>
+  </ul>
+</div>
+<table class="spec">
+  <thead><tr><th>Komponen</th><th>Server 1 — Core App + Primary DB</th><th>Server 2 — AI + Secondary DB</th></tr></thead>
+  <tbody>
+    <tr><td class="k">Peran</td><td>VM Application 1, VM Application 2, VM Redis, VM RabbitMQ, VM Monitoring, VM Postgres</td><td>LLM, PostgreSQL Replica</td></tr>
+    <tr><td class="k">CPU</td><td>Intel Xeon Silver 4408U — 8 Core / 16 Thread</td><td>Intel Xeon Silver 4410Y — 12 Core / 24 Thread</td></tr>
+    <tr><td class="k">RAM</td><td>32 GB</td><td>32 GB</td></tr>
+    <tr><td class="k">GPU</td><td>–</td><td>Nvidia P4 8 GB</td></tr>
+    <tr><td class="k">Storage Data</td><td>1 × 480 GB NVMe, RAID 1</td><td>1 × 480 GB NVMe, RAID 1</td></tr>
+    <tr><td class="k">Network</td><td>1 × 10 GbE</td><td>1 × 10 GbE</td></tr>
+    <tr><td class="k">PSU</td><td>Dual PSU</td><td>Dual PSU</td></tr>
+    <tr><td class="k">RAID/HBA</td><td>Hardware RAID/HBA enterprise</td><td>–</td></tr>
+    <tr><td class="k">Hypervisor</td><td>Proxmox VE / VMware / Hyper-V</td><td>Proxmox VE / VMware / Hyper-V</td></tr>
+    <tr><td class="k">HA</td><td>–</td><td>Postgres / Recovery Node</td></tr>
+    <tr><td class="k">ECC Memory</td><td>Wajib</td><td>Wajib</td></tr>
+    <tr class="price"><td class="k">Perkiraan Harga</td><td>Rp 50 – 70 juta</td><td>Rp 60 – 80 juta</td></tr>
+  </tbody>
+</table>
+</section>
+
+<section class="option">
+<h3>Opsi 3</h3>
+<div class="cap">
+  <b>Kapasitas Pengguna:</b> 30 – 100 user<br>
+  <b>Kapasitas Data:</b>
+  <ul>
+    <li>Database tabular: 20–60 juta record (NVMe 960 GB + RAM 64 GB memungkinkan query join jutaan record &lt; 100 ms)</li>
+    <li>Dokumen (PDF/scan): 500 – 700 GB</li>
+  </ul>
+</div>
+<table class="spec">
+  <thead><tr><th>Komponen</th><th>Server 1 — Primary Database</th><th>Server 2 — Application + Secondary DB</th></tr></thead>
+  <tbody>
+    <tr><td class="k">Peran</td><td>VM Application 1, VM Application 2, VM Redis, VM RabbitMQ, VM Monitoring, VM Postgres</td><td>LLM, PostgreSQL Replica</td></tr>
+    <tr><td class="k">CPU</td><td>Intel Xeon Gold 5412U — 24 Core / 48 Thread</td><td>Intel Xeon Silver 4416+ — 20 Core / 40 Thread</td></tr>
+    <tr><td class="k">RAM</td><td>64 GB ECC</td><td>64 GB ECC</td></tr>
+    <tr><td class="k">GPU</td><td>–</td><td>–</td></tr>
+    <tr><td class="k">Storage Data</td><td>1 × 480 GB NVMe, RAID 1</td><td>1 × 960 GB NVMe, RAID 1</td></tr>
+    <tr><td class="k">Network</td><td>1 × 10 GbE</td><td>1 × 10 GbE</td></tr>
+    <tr><td class="k">PSU</td><td>Dual PSU</td><td>Dual PSU</td></tr>
+    <tr><td class="k">RAID/HBA</td><td>Hardware RAID/HBA enterprise</td><td>–</td></tr>
+    <tr><td class="k">Hypervisor</td><td>Proxmox VE / VMware / Hyper-V</td><td>Proxmox VE / VMware / Hyper-V</td></tr>
+    <tr><td class="k">HA</td><td>–</td><td>Postgres / Recovery Node</td></tr>
+    <tr><td class="k">ECC Memory</td><td>Wajib</td><td>Wajib</td></tr>
+    <tr class="price"><td class="k">Perkiraan Harga</td><td>Rp 95 – 125 juta</td><td>Rp 100 – 140 juta</td></tr>
+  </tbody>
+</table>
+</section>
+
+<section class="option">
+<h3>Opsi 4</h3>
+<table class="spec">
+  <thead><tr><th>Komponen</th><th>Server 1 — Primary Database</th><th>Server 2 — Application + Secondary DB</th><th>Server 3 — AI/ML + Storage</th></tr></thead>
+  <tbody>
+    <tr><td class="k">Peran</td><td>Primary Database</td><td>VM Application 1, VM Application 2, VM Redis, VM RabbitMQ, VM Monitoring, PostgreSQL Replica</td><td>AI/ML + Object Storage</td></tr>
+    <tr><td class="k">CPU</td><td>AMD EPYC 9354P/9454P atau Intel Xeon Scalable setara, 32–48 physical cores</td><td>24–32 core</td><td>24 core</td></tr>
+    <tr><td class="k">RAM</td><td>256 GB DDR5 ECC RDIMM</td><td>128 GB ECC</td><td>128 GB ECC</td></tr>
+    <tr><td class="k">GPU</td><td>–</td><td>–</td><td>Min: NVIDIA T4 16 GB<br>Rek: NVIDIA L4 24 GB</td></tr>
+    <tr><td class="k">Storage Data</td><td>2 × 1.92 TB Enterprise NVMe, RAID 1</td><td>2 × 1.92 TB NVMe Enterprise, RAID 1</td><td>2 × 960 GB NVMe RAID 1 (OS/app) + 4 × 3.84 TB Enterprise SSD/NVMe (data/object storage)</td></tr>
+    <tr><td class="k">Storage OS</td><td>2 × SSD kecil RAID 1 atau boot mirror</td><td>(termasuk di atas)</td><td>(termasuk di atas)</td></tr>
+    <tr><td class="k">Network</td><td>2 × 10 GbE minimum</td><td>2 × 10 GbE</td><td>10 GbE</td></tr>
+    <tr><td class="k">PSU</td><td>2 × redundant PSU</td><td>Dual PSU</td><td>Dual PSU</td></tr>
+    <tr><td class="k">RAID/HBA</td><td>Hardware RAID/HBA enterprise</td><td>–</td><td>–</td></tr>
+    <tr><td class="k">Hypervisor</td><td>–</td><td>Proxmox VE / VMware / Hyper-V</td><td>–</td></tr>
+    <tr><td class="k">Catatan HA</td><td>–</td><td>Jika Server 1 gagal, PostgreSQL replica di sini menjadi recovery/HA node</td><td>–</td></tr>
+    <tr><td class="k">ECC Memory</td><td>Wajib</td><td>Wajib</td><td>Wajib</td></tr>
+    <tr class="price"><td class="k">Perkiraan Harga</td><td>Rp 260 – 350 juta</td><td>Rp 150 – 230 juta</td><td>Rp 200 – 350 juta</td></tr>
+  </tbody>
+</table>
+<p class="note">Seluruh harga merupakan perkiraan dan dapat berubah mengikuti ketersediaan serta harga vendor saat pengadaan.</p>
+</section>
+
+<footer>AuditSphere — Spesifikasi Teknis &amp; Infrastruktur · v1.0 · Oktober 2026</footer>
+</body>
+</html>

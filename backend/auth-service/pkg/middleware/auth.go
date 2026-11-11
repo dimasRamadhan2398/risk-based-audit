@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	"auth-service/pkg/activitylog"
 	"auth-service/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -94,6 +95,12 @@ func (m *AuthMiddleware) Authenticate() gin.HandlerFunc {
 			c.Set("user_id", claims.UserID)
 			c.Set("username", claims.Username)
 			c.Set("roles", claims.Roles)
+			// Services read the caller from the request context to attribute
+			// activity log events (pkg/activitylog).
+			c.Request = c.Request.WithContext(activitylog.WithActor(c.Request.Context(), activitylog.Actor{
+				UserID:   claims.UserID,
+				Username: claims.Username,
+			}))
 		} else {
 			response.Unauthorized(c, "Invalid token claims")
 			c.Abort()

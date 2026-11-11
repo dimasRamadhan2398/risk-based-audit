@@ -173,7 +173,7 @@ const dqChartOptions = computed(() => ({
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.dataQuality.averageCompleteness') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ dqState.summary.avgCompleteness }}%
               </h4>
             </div>
@@ -196,7 +196,7 @@ const dqChartOptions = computed(() => ({
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.dataQuality.averageAccuracy') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ dqState.summary.avgAccuracy }}%
               </h4>
             </div>
@@ -219,7 +219,7 @@ const dqChartOptions = computed(() => ({
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.dataQuality.averageDelay') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ dqState.summary.avgTimelinessDays }}
               </h4>
             </div>
@@ -242,7 +242,7 @@ const dqChartOptions = computed(() => ({
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.dataQuality.profiledTables') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ dqState.summary.tablesProfiled }}
               </h4>
             </div>
@@ -312,11 +312,11 @@ const dqChartOptions = computed(() => ({
                       {{ r.zone }}
                     </UBadge>
                   </td>
-                  <td class="text-right py-3 px-3 font-mono">{{ Number(r.totalRows).toLocaleString('id-ID') }}</td>
-                  <td class="text-right py-3 px-3 font-mono font-bold text-emerald-500">{{ r.completenessPct }}%</td>
-                  <td class="text-right py-3 px-3 font-mono font-bold text-indigo-500">{{ r.accuracyPct }}%</td>
-                  <td class="text-right py-3 px-3 font-mono text-gray-500">{{ r.timelinessDays }} h</td>
-                  <td class="text-right py-3 px-3 font-mono" :class="r.duplicateCount > 0 ? 'text-rose-500 font-bold' : 'text-gray-400'">
+                  <td class="text-right py-3 px-3 tabular-nums">{{ Number(r.totalRows).toLocaleString('id-ID') }}</td>
+                  <td class="text-right py-3 px-3 tabular-nums font-bold text-emerald-500">{{ r.completenessPct }}%</td>
+                  <td class="text-right py-3 px-3 tabular-nums font-bold text-indigo-500">{{ r.accuracyPct }}%</td>
+                  <td class="text-right py-3 px-3 tabular-nums text-gray-500">{{ r.timelinessDays }} h</td>
+                  <td class="text-right py-3 px-3 tabular-nums" :class="r.duplicateCount > 0 ? 'text-rose-500 font-bold' : 'text-gray-400'">
                     {{ r.duplicateCount }}
                   </td>
                   <td class="text-center py-3 px-3">

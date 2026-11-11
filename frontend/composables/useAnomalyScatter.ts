@@ -7,6 +7,8 @@
  * one set of coordinates.
  */
 
+import { formatRupiahFromMillions, type AppLocale } from '~/utils/analyticsFormat'
+
 export interface AnomalyTypeConfig {
   xAxisTitle: string
   unit: string
@@ -17,95 +19,108 @@ export interface AnomalyTypeConfig {
 type Translate = (key: string, params?: any) => string
 
 /**
+ * Anomalies are always drawn in red, whatever the category: green reads as
+ * "safe", which contradicts the red alert cards next to the chart. Categories
+ * keep their own point shape so they stay distinguishable.
+ */
+export const ANOMALY_POINT_COLORS = { bg: 'rgba(220,38,38,0.85)', border: 'rgba(185,28,28,1)' }
+
+const anomalyColors = (style: string) => ({ ...ANOMALY_POINT_COLORS, style })
+
+/**
  * Per-category axis titles, units and point styling. Takes `t` so both pages
  * render the same labels in the active locale.
  */
-export const createAnomalyTypeConfigs = (t: Translate): Record<string, AnomalyTypeConfig> => ({
-  'Funding': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.fundingXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.fundingUnit'),
-    formatX: (val) => `Rp ${val}M`,
-    colors: { bg: 'rgba(16,185,129,0.85)', border: 'rgba(16,185,129,1)', style: 'circle' }
-  },
-  'Lending': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.lendingXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.lendingUnit'),
-    formatX: (val) => `Rp ${val}M`,
-    colors: { bg: 'rgba(239,68,68,0.85)', border: 'rgba(239,68,68,1)', style: 'triangle' }
-  },
-  'Treasury': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.treasuryXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.treasuryUnit'),
-    formatX: (val) => `Rp ${val}M`,
-    colors: { bg: 'rgba(99,102,241,0.85)', border: 'rgba(99,102,241,1)', style: 'rectRot' }
-  },
-  'Payment': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.paymentXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.paymentUnit'),
-    formatX: (val) => `Rp ${val}M`,
-    colors: { bg: 'rgba(245,158,11,0.85)', border: 'rgba(245,158,11,1)', style: 'rect' }
-  },
-  'KYC': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.kycXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.kycUnit'),
-    formatX: (val) => `${val}%`,
-    colors: { bg: 'rgba(236,72,153,0.85)', border: 'rgba(236,72,153,1)', style: 'star' }
-  },
-  'IT Control': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.itControlXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.itControlUnit'),
-    formatX: (val) => `${val} ${t('analytics.isolation.anomalyTypes.itControlUnit')}`,
-    colors: { bg: 'rgba(20,184,166,0.85)', border: 'rgba(20,184,166,1)', style: 'crossRot' }
-  },
-  'Fieldwork': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.fieldworkXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.fieldworkUnit'),
-    formatX: (val) => `${val} ${t('analytics.isolation.anomalyTypes.fieldworkUnit')}`,
-    colors: { bg: 'rgba(139,92,246,0.85)', border: 'rgba(139,92,246,1)', style: 'star' }
-  },
-  'Access Pattern': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.accessPatternXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.accessPatternUnit'),
-    formatX: (val) => `${t('analytics.isolation.anomalyTypes.accessPatternUnit')} ${val}:00`,
-    colors: { bg: 'rgba(249,115,22,0.85)', border: 'rgba(249,115,22,1)', style: 'rectRot' }
-  },
-  'Data Access': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.dataAccessXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.dataAccessUnit'),
-    formatX: (val) => `${val} ${t('analytics.isolation.anomalyTypes.dataAccessUnit')}`,
-    colors: { bg: 'rgba(59,130,246,0.85)', border: 'rgba(59,130,246,1)', style: 'rect' }
-  },
-  'Inventory': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.inventoryXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.inventoryUnit'),
-    formatX: (val) => `Rp ${val}M`,
-    colors: { bg: 'rgba(107,114,128,0.85)', border: 'rgba(107,114,128,1)', style: 'star' }
-  },
-  'Expense Report': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.expenseReportXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.expenseReportUnit'),
-    formatX: (val) => `Rp ${val}M`,
-    colors: { bg: 'rgba(234,179,8,0.85)', border: 'rgba(234,179,8,1)', style: 'rect' }
-  },
-  'Travel Expense': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.travelExpenseXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.travelExpenseUnit'),
-    formatX: (val) => `Rp ${val}M`,
-    colors: { bg: 'rgba(16,185,129,0.85)', border: 'rgba(16,185,129,1)', style: 'rectRot' }
-  },
-  'Procurement': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.procurementXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.procurementUnit'),
-    formatX: (val) => `Rp ${val}M`,
-    colors: { bg: 'rgba(236,72,153,0.85)', border: 'rgba(236,72,153,1)', style: 'triangle' }
-  },
-  'Transaction': {
-    xAxisTitle: t('analytics.isolation.anomalyTypes.transactionXAxis'),
-    unit: t('analytics.isolation.anomalyTypes.transactionUnit'),
-    formatX: (val) => `Rp ${val}M`,
-    colors: { bg: 'rgba(239,68,68,0.85)', border: 'rgba(239,68,68,1)', style: 'triangle' }
+export const createAnomalyTypeConfigs = (t: Translate, locale: AppLocale = 'id'): Record<string, AnomalyTypeConfig> => {
+  // X values of the rupiah categories are in millions of rupiah.
+  const rupiah = (val: number) => formatRupiahFromMillions(val, locale)
+  return {
+    'Funding': {
+      xAxisTitle: t('analytics.isolation.anomalyTypes.fundingXAxis'),
+      unit: t('analytics.isolation.anomalyTypes.fundingUnit'),
+      formatX: rupiah,
+      colors: anomalyColors('circle')
+    },
+    'Lending': {
+      xAxisTitle: t('analytics.isolation.anomalyTypes.lendingXAxis'),
+      unit: t('analytics.isolation.anomalyTypes.lendingUnit'),
+      formatX: rupiah,
+      colors: anomalyColors('triangle')
+    },
+    'Treasury': {
+      xAxisTitle: t('analytics.isolation.anomalyTypes.treasuryXAxis'),
+      unit: t('analytics.isolation.anomalyTypes.treasuryUnit'),
+      formatX: rupiah,
+      colors: anomalyColors('rectRot')
+    },
+    'Payment': {
+      xAxisTitle: t('analytics.isolation.anomalyTypes.paymentXAxis'),
+      unit: t('analytics.isolation.anomalyTypes.paymentUnit'),
+      formatX: rupiah,
+      colors: anomalyColors('rect')
+    },
+    'KYC': {
+      xAxisTitle: t('analytics.isolation.anomalyTypes.kycXAxis'),
+      unit: t('analytics.isolation.anomalyTypes.kycUnit'),
+      formatX: (val) => `${val}%`,
+      colors: anomalyColors('star')
+    },
+    'IT Control': {
+      xAxisTitle: t('analytics.isolation.anomalyTypes.itControlXAxis'),
+      unit: t('analytics.isolation.anomalyTypes.itControlUnit'),
+      formatX: (val) => `${val} ${t('analytics.isolation.anomalyTypes.itControlUnit')}`,
+      colors: anomalyColors('crossRot')
+    },
+    'Fieldwork': {
+      xAxisTitle: t('analytics.isolation.anomalyTypes.fieldworkXAxis'),
+      unit: t('analytics.isolation.anomalyTypes.fieldworkUnit'),
+      formatX: (val) => `${val} ${t('analytics.isolation.anomalyTypes.fieldworkUnit')}`,
+      colors: anomalyColors('star')
+    },
+    'Access Pattern': {
+      xAxisTitle: t('analytics.isolation.anomalyTypes.accessPatternXAxis'),
+      unit: t('analytics.isolation.anomalyTypes.accessPatternUnit'),
+      formatX: (val) => `${t('analytics.isolation.anomalyTypes.accessPatternUnit')} ${val}:00`,
+      colors: anomalyColors('rectRot')
+    },
+    'Data Access': {
+      xAxisTitle: t('analytics.isolation.anomalyTypes.dataAccessXAxis'),
+      unit: t('analytics.isolation.anomalyTypes.dataAccessUnit'),
+      formatX: (val) => `${val} ${t('analytics.isolation.anomalyTypes.dataAccessUnit')}`,
+      colors: anomalyColors('rect')
+    },
+    'Inventory': {
+      xAxisTitle: t('analytics.isolation.anomalyTypes.inventoryXAxis'),
+      unit: t('analytics.isolation.anomalyTypes.inventoryUnit'),
+      formatX: rupiah,
+      colors: anomalyColors('star')
+    },
+    'Expense Report': {
+      xAxisTitle: t('analytics.isolation.anomalyTypes.expenseReportXAxis'),
+      unit: t('analytics.isolation.anomalyTypes.expenseReportUnit'),
+      formatX: rupiah,
+      colors: anomalyColors('rect')
+    },
+    'Travel Expense': {
+      xAxisTitle: t('analytics.isolation.anomalyTypes.travelExpenseXAxis'),
+      unit: t('analytics.isolation.anomalyTypes.travelExpenseUnit'),
+      formatX: rupiah,
+      colors: anomalyColors('rectRot')
+    },
+    'Procurement': {
+      xAxisTitle: t('analytics.isolation.anomalyTypes.procurementXAxis'),
+      unit: t('analytics.isolation.anomalyTypes.procurementUnit'),
+      formatX: rupiah,
+      colors: anomalyColors('triangle')
+    },
+    'Transaction': {
+      xAxisTitle: t('analytics.isolation.anomalyTypes.transactionXAxis'),
+      unit: t('analytics.isolation.anomalyTypes.transactionUnit'),
+      formatX: rupiah,
+      colors: anomalyColors('triangle')
+    }
   }
-})
+}
 
 const PALETTE_COLORS = [
   { bg: 'rgba(59,130,246,0.85)', border: 'rgba(59,130,246,1)', style: 'circle' },
@@ -127,29 +142,29 @@ export const getDeterministicCategoryStyle = (categoryName: string) => {
 }
 
 /** Used when a category has no entry of its own (and as the typed fallback). */
-export const getAnomalyTypeConfig = (tOrType: Translate | string, typeOrConfigs?: any): AnomalyTypeConfig => {
+export const getAnomalyTypeConfig = (tOrType: Translate | string, typeOrConfigs?: any, locale: AppLocale = 'id'): AnomalyTypeConfig => {
   if (typeof tOrType === 'function') {
     const t = tOrType
     const type = typeof typeOrConfigs === 'string' ? typeOrConfigs : 'Funding'
-    const configs = createAnomalyTypeConfigs(t)
+    const configs = createAnomalyTypeConfigs(t, locale)
     if (configs[type]) return configs[type]
-    const customStyle = getDeterministicCategoryStyle(type)
+    const customShape = getDeterministicCategoryStyle(type).style
     return {
       xAxisTitle: `${type} Metric`,
       unit: 'Rp M',
       formatX: (val: number) => `Rp ${val}M`,
-      colors: customStyle
+      colors: anomalyColors(customShape)
     }
   } else {
     const type = String(tOrType || 'Funding')
     const configs = (typeOrConfigs && typeof typeOrConfigs === 'object') ? typeOrConfigs : {}
     if (configs[type]) return configs[type]
-    const customStyle = getDeterministicCategoryStyle(type)
+    const customShape = getDeterministicCategoryStyle(type).style
     return {
       xAxisTitle: `${type} Metric`,
       unit: 'Rp M',
       formatX: (val: number) => `Rp ${val}M`,
-      colors: customStyle
+      colors: anomalyColors(customShape)
     }
   }
 }
@@ -171,9 +186,6 @@ export interface AnomalyScatterSeries {
   normalPoints: AnomalyScatterPoint[]
   anomalyPoints: AnomalyScatterPoint[]
 }
-
-/** Y coordinate used when an anomaly has no matching scatter point. */
-const DEFAULT_FREQUENCY = 20
 
 /** X fallbacks for categories whose metric is not a rupiah amount. */
 const X_FALLBACK_BY_TYPE: Record<string, number> = {
@@ -238,12 +250,12 @@ export const listAnomalyTypes = (
   validTypes?: string[]
 ): string[] => {
   const types = new Set<string>()
-  ;(anomalies || []).forEach((a: any) => {
-    if (a?.type) types.add(getCanonicalCategory(a.type))
-  })
-  ;(scatterData || []).forEach((s: any) => {
-    if (s?.type) types.add(getCanonicalCategory(s.type))
-  })
+    ; (anomalies || []).forEach((a: any) => {
+      if (a?.type) types.add(getCanonicalCategory(a.type))
+    })
+    ; (scatterData || []).forEach((s: any) => {
+      if (s?.type) types.add(getCanonicalCategory(s.type))
+    })
 
   if (types.size === 0) {
     return [...DEFAULT_ANOMALY_TYPES]
@@ -283,9 +295,11 @@ export const resolveAnomalyType = (
 /**
  * Chart coordinates for one category.
  *
- * X is the category's real metric (rupiah in millions, hour of day, deviation %,
- * …) and Y is its observed frequency — never the anomaly score and never the
- * record's position in the array.
+ * X is the category's real metric (rupiah in millions, failed logins,
+ * deviation %, …) and Y is the transaction hour (0-23) — never the anomaly
+ * score and never the record's position in the array. An anomaly whose hour is
+ * unknown is left off the chart (it is still listed in the alerts) rather than
+ * plotted at an invented position.
  */
 export const isCategoryMatching = (typeVal: any, filterVal: string) => {
   const t = getCanonicalCategory(typeVal).toLowerCase()
@@ -311,7 +325,7 @@ export const buildAnomalyScatterPoints = (
 
   const anomalyPoints: AnomalyScatterPoint[] = allAnomalies
     .filter((a: any) => isCategoryMatching(a.type, targetType))
-    .map((a: any) => {
+    .flatMap((a: any) => {
       const matchedScatter = allScatter.find((s: any) => s.label === a.id)
       let xVal = matchedScatter?.x ?? a.xMetric
       if (xVal === undefined || xVal === null) {
@@ -320,10 +334,9 @@ export const buildAnomalyScatterPoints = (
         xVal = X_FALLBACK_BY_TYPE[typeFilter]
           ?? (a.amount ? a.amount / 1000000 : X_FALLBACK_DEFAULT)
       }
-      return {
-        x: xVal,
-        y: matchedScatter?.y ?? DEFAULT_FREQUENCY
-      }
+      const yVal = matchedScatter?.y ?? a.hour ?? a.hour_of_day ?? a.y
+      if (yVal === undefined || yVal === null) return []
+      return [{ x: xVal, y: yVal }]
     })
 
   // Rule: Only real normal points from the dataset are displayed.

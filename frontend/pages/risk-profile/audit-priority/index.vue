@@ -96,7 +96,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('auditPriority.totalEntities') !== 'auditPriority.totalEntities' ? t('auditPriority.totalEntities') : 'Established Entities' }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ yearlyUniverse.length }}
             </h4>
           </div>
@@ -113,7 +113,7 @@
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('auditPriority.prioritizedEntities') !== 'auditPriority.prioritizedEntities' ? t('auditPriority.prioritizedEntities') : 'Prioritized' }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ prioritizedCount }}
               <span
                 v-if="yearlyUniverse.length > 0"
@@ -181,12 +181,12 @@
       <!-- Table Content -->
       <TableEntities
         :columns="priorityColumns"
-        :data="filteredYearlyUniverse"
+        :data="priorityPage.items"
         :loading="loading"
         :show-pagination="false"
       >
         <template #no-cell="{ row }">
-          <span class="text-slate-500 font-medium">{{ row.index + 1 }}</span>
+          <span class="text-slate-500 font-medium">{{ pageFrom + row.index }}</span>
         </template>
 
         <template #name-cell="{ row }">
@@ -274,10 +274,27 @@
         </template>
       </TableEntities>
 
+      <div
+        v-if="priorityPage.totalPages > 1"
+        class="flex justify-center sm:justify-end px-2 sm:px-3 pt-3 overflow-x-auto max-w-full"
+      >
+        <UPagination
+          :page="priorityPage.page"
+          :items-per-page="priorityPage.pageSize"
+          :total="priorityPage.total"
+          size="sm"
+          active-color="primary"
+          color="neutral"
+          variant="outline"
+          class="max-w-full overflow-x-auto"
+          @update:page="(p: number) => { tablePage = p }"
+        />
+      </div>
+
       <template #footer>
         <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
           <span>{{ t('riskFactors.priority.sortedNote') }}</span>
-          <span>{{ t('executiveSummaryIndividual.filters.showingPrefix') }} {{ filteredYearlyUniverse.length }} {{ t('auditPriority.ofEntities', { total: yearlyUniverse.length }) }}</span>
+          <span>{{ t('executiveSummaryIndividual.filters.showingPrefix') }} {{ pageFrom }}–{{ pageTo }} {{ t('auditPriority.ofEntities', { total: priorityPage.total }) }}</span>
         </div>
       </template>
     </UCard>
@@ -346,6 +363,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
 import { useI18n } from '~/composables/useI18n'
 import { useFiscalYear } from '~/composables/useFiscalYear'
+import { usePagedList } from '~/composables/usePagedList'
 import {
   formatRiskLevelRange,
   getRiskLevelBadgeClass,
@@ -412,6 +430,14 @@ const filteredYearlyUniverse = computed(() => {
     return true
   })
 })
+
+// 10 rows per page, applied after filtering and sorting; search, status filter, year and reset go back to page 1.
+const {
+  page: tablePage,
+  pageData: priorityPage,
+  from: pageFrom,
+  to: pageTo
+} = usePagedList(filteredYearlyUniverse, [searchQuery, statusFilter, selectedYear], 10)
 
 const loadData = async () => {
   try {

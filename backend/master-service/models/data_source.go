@@ -22,15 +22,30 @@ type SchemaTable struct {
 	Description string        `json:"description,omitempty"`
 }
 
+type CustomAnomalyRule struct {
+	ID           string  `json:"id"`
+	Name         string  `json:"name"`
+	Field        string  `json:"field"`
+	Operator     string  `json:"operator"` // ">", "<", ">=", "<=", "==", "!=", "outside"
+	Threshold    float64 `json:"threshold"`
+	ThresholdStr string  `json:"thresholdStr,omitempty"`
+	Severity     string  `json:"severity"` // "Critical", "High", "Medium", "Low"
+	Category     string  `json:"category"`
+	Description  string  `json:"description,omitempty"`
+	IsActive     bool    `json:"isActive"`
+}
+
 type TableDataMapping struct {
-	TableName       string   `json:"tableName"`
-	TargetScope     string   `json:"targetScope"` // risk_management, audit_features, qar_features
-	TargetModule    string   `json:"targetModule"` // e.g. "Risk Profile / Heatmap", "Working Paper Evidence", "Compliance Monitoring"
-	AuditField      string   `json:"auditField"`   // mapped field (e.g. "transaction_amount", "user_id")
-	SyncInterval    string   `json:"syncInterval"` // "Hourly", "Real-time", "Daily"
-	AnomalyRules    []string `json:"anomalyRules,omitempty"` // e.g. ["Threshold Breach (>100M)", "Weekend Transaction"]
-	SoftDeleteColumn string   `json:"softDeleteColumn,omitempty"`
-	IsActive         bool     `json:"isActive"`
+	TableName        string              `json:"tableName"`
+	TargetScope      string              `json:"targetScope"`            // risk_management, audit_features, qar_features, data_analytics
+	TargetModule     string              `json:"targetModule"`           // e.g. "Risk Profile / Heatmap", "AI: Anomaly Detection"
+	AuditField       string              `json:"auditField"`             // mapped field (e.g. "transaction_amount", "user_id")
+	SyncInterval     string              `json:"syncInterval"`           // "Hourly", "Real-time", "Daily"
+	AnomalyRules     []string            `json:"anomalyRules,omitempty"` // e.g. ["Threshold Breach (>100M)", "Weekend Transaction"]
+	CustomRules      []CustomAnomalyRule `json:"customRules,omitempty"`  // User-defined anomaly rules for AI model training
+	IsActive         bool                `json:"isActive"`
+	// Column that marks a source row as deleted (sent by the Data Source settings page); "" = none.
+	SoftDeleteColumn string              `json:"softDeleteColumn,omitempty"`
 }
 
 type DataSourceConnection struct {

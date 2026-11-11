@@ -105,7 +105,7 @@ describe('Account Settings tab filtering', () => {
 
   it('settings page uses the filtered list for sidebar, mobile bar and has no email tab', () => {
     const src = read('pages/settings/index.vue')
-    expect(src).toContain('getSettingsTabs(isViewer.value)')
+    expect(src).toContain('getSettingsTabs(isViewer.value, tabOptions.value)')
     expect(src).toContain('allLinks.value.filter')
     expect(src).not.toContain('\'email\'')
     expect(src).not.toContain('SettingsEmail')

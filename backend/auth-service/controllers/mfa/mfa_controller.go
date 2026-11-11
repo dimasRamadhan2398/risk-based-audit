@@ -294,13 +294,19 @@ func (m *MfaController) VerifyMFA(ctx *gin.Context) {
 
 	ipAddress := getClientIP(ctx)
 
-	if err := m.mfaService.EnableMFA(ctx.Request.Context(), id, req.Code, ipAddress); err != nil {
+	result, err := m.mfaService.EnableMFA(ctx.Request.Context(), id, req, ipAddress, ctx.GetHeader("User-Agent"))
+	if err != nil {
 		respondError(ctx, err)
 		return
 	}
 
+	message := "MFA enabled successfully"
+	if result.AlreadyEnabled {
+		message = "MFA is already enabled"
+	}
 	response.Success(ctx, http.StatusOK, "Success", gin.H{
-		"message": "MFA enabled successfully",
+		"message":         message,
+		"already_enabled": result.AlreadyEnabled,
 	})
 }
 

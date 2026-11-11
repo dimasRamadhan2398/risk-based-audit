@@ -5,9 +5,13 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
+	"time"
 
 	"auth-service/docs"
+	"auth-service/pkg/activitylog"
 	"auth-service/pkg/database"
 	kafkapkg "auth-service/pkg/kafka"
 	"auth-service/pkg/logger"
@@ -52,6 +56,11 @@ func runServe(cmd *cobra.Command, args []string) error {
 	if err := cfg.ValidateJWT(); err != nil {
 		logger.Fatal("Refusing to start: invalid JWT_SECRET", logger.LogField("error", err.Error()))
 	}
+	if mfaCipher, err := cfg.MFACipher(); err != nil {
+		logger.Fatal("Refusing to start: invalid MFA encryption settings", logger.LogField("error", err.Error()))
+	} else if !mfaCipher.Enabled() {
+		logger.Warn("MFA_ENCRYPTION_KEY is not set: new MFA secrets are stored in plaintext. Set it (openssl rand -base64 32) and run 'auth migrate encrypt-mfa-secrets'.")
+	}
 
 	// Set Gin mode
 	if cfg.Server.Mode == "release" {
@@ -88,10 +97,52 @@ func runServe(cmd *cobra.Command, args []string) error {
 		logger.Warn("Failed to initialize Kafka producer", logger.LogField("error", err))
 	}
 
-	// Initialize event publisher
+	// Admin user activity log: publish to this stack's activity topic, fall
+	// back to a direct write when Kafka is unavailable.
+	sysLogRepo := repositories.NewSysAlertLogRepository(db)
+	activitySource := activitylog.ResolveSource(cfg.Kafka.ServiceName)
+	activityTopic := activitylog.ResolveTopic(cfg.ActivityLog.Topic, activitylog.EnvTopicPrefix(), activitySource)
+	var activityPublisher activitylog.Publisher
+	if kafkaProducer != nil && kafkaProducer.IsEnabled() {
+		activityPublisher = kafkaProducer
+	}
+	activityRecorder := activitylog.NewKafkaRecorder(activitylog.RecorderConfig{
+		Topic:  activityTopic,
+		Source: activitySource,
+	}, activityPublisher, sysLogRepo, logger.GetLogger())
+	defer activityRecorder.Close(5 * time.Second)
+	logger.Info("Activity log configured",
+		logger.LogField("topic", activityTopic),
+		logger.LogField("source", activitySource),
+		logger.LogField("kafka_publish", activityPublisher != nil),
+	)
+
+	// The consumer stores this stack's activity events. It starts in the
+	// background and retries with backoff, so a broker that is down at boot
+	// neither delays nor crashes the server.
+	if cfg.Kafka.Enabled && cfg.ActivityLog.ConsumerEnabled {
+		activityConsumer := activitylog.StartConsumer(activitylog.ConsumerConfig{
+			Brokers: cfg.Kafka.Brokers,
+			Topic:   activityTopic,
+			GroupID: activitylog.ResolveGroupID(cfg.ActivityLog.ConsumerGroupID, activitySource),
+			Version: cfg.KafkaConsumer.Version,
+		}, activitylog.NewMessageProcessor(sysLogRepo, activitySource, logger.GetLogger()), logger.GetLogger())
+		defer activityConsumer.Stop()
+	} else {
+		logger.Info("Activity log consumer disabled; events are written directly when Kafka publish is off")
+	}
+
+	if cfg.ActivityLog.PurgeEnabled {
+		retention := activitylog.StartRetention(sysLogRepo, cfg.ActivityLog.EffectiveRetentionDays(), 24*time.Hour, logger.GetLogger())
+		defer retention.Stop()
+	}
+
+	// Initialize event publisher. The tap feeds every published auth event
+	// (MFA, roles, trusted devices, permission.denied, step-up) to the activity log.
 	eventPublisher := kafkapkg.NewEventPublisher(kafkapkg.EventPublisherConfig{
 		Producer: kafkaProducer,
 		Enabled:  cfg.Kafka.Enabled,
+		Tap:      activitylog.Tap(activityRecorder),
 	})
 
 	// Initialize cache repository
@@ -106,6 +157,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 		eventPublisher,
 		cacheRepo,
 		cfg,
+		activityRecorder,
 	)
 
 	// Initialize validator
@@ -127,6 +179,7 @@ func runServe(cmd *cobra.Command, args []string) error {
 	engine.Use(gin.Recovery())
 	engine.Use(middleware.CORSMiddleware())
 	engine.Use(middleware.LoggerMiddleware())
+	engine.Use(activitylog.ContextMiddleware())
 
 	// Health check endpoint
 	engine.GET("/health", func(c *gin.Context) {
@@ -185,9 +238,27 @@ func runServe(cmd *cobra.Command, args []string) error {
 	addr := fmt.Sprintf(":%d", cfg.Server.Port)
 	logger.Info("Starting Auth Service HTTP server", logger.LogField("address", addr))
 
-	if err := engine.Run(addr); err != nil {
-		logger.Fatal("Failed to start server", logger.LogField("error", err))
-		return err
+	// Graceful shutdown on SIGINT/SIGTERM so queued activity events are
+	// flushed (the deferred Close/Stop above) before the process exits.
+	srv := &http.Server{Addr: addr, Handler: engine}
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	serveErr := make(chan error, 1)
+	go func() { serveErr <- srv.ListenAndServe() }()
+
+	select {
+	case err := <-serveErr:
+		if err != nil && err != http.ErrServerClosed {
+			logger.Fatal("Failed to start server", logger.LogField("error", err))
+			return err
+		}
+	case <-ctx.Done():
+		logger.Info("Shutting down Auth Service")
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := srv.Shutdown(shutdownCtx); err != nil {
+			logger.Warn("HTTP server shutdown", logger.LogField("error", err))
+		}
 	}
 
 	return nil

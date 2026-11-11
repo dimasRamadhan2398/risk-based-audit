@@ -1469,13 +1469,15 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			q.Find(&connections)
 
 			type MappedResult struct {
-				ConnectionID   string                   `json:"connection_id"`
-				ConnectionName string                   `json:"connection_name"`
-				TableName      string                   `json:"table_name"`
-				TargetScope    string                   `json:"target_scope"`
-				TargetModule   string                   `json:"target_module"`
-				AuditField     string                   `json:"audit_field"`
-				SampleRecords  []map[string]interface{} `json:"sample_records"`
+				ConnectionID   string                     `json:"connection_id"`
+				ConnectionName string                     `json:"connection_name"`
+				TableName      string                     `json:"table_name"`
+				TargetScope    string                     `json:"target_scope"`
+				TargetModule   string                     `json:"target_module"`
+				AuditField     string                     `json:"audit_field"`
+				SampleRecords  []map[string]interface{}   `json:"sample_records"`
+				AnomalyRules   []string                   `json:"anomaly_rules,omitempty"`
+				CustomRules    []models.CustomAnomalyRule `json:"custom_rules,omitempty"`
 			}
 
 			var results []MappedResult
@@ -1529,6 +1531,8 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 						TargetModule:   m.TargetModule,
 						AuditField:     m.AuditField,
 						SampleRecords:  sampleRows,
+						AnomalyRules:   m.AnomalyRules,
+						CustomRules:    m.CustomRules,
 					})
 				}
 			}

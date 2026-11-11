@@ -156,7 +156,7 @@
                 <UButton
                   color="primary"
                   variant="soft"
-                  icon="i-heroicons-sparkles"
+                  icon="i-lucide-refresh-cw"
                   size="sm"
                   :label="t('auditResultReport.dashboard.actions.sync')"
                   @click="syncReportFindings(row.original as any)"
@@ -201,9 +201,6 @@
       </div>
 
       <div v-else class="text-center py-16 bg-secondary-50/40 dark:bg-secondary-950/30 rounded-xl border-2 border-dashed border-secondary-200 dark:border-secondary-900/50">
-        <div class="p-4 bg-secondary-100 dark:bg-secondary-900/40 rounded-full w-fit mx-auto mb-4 text-secondary-600 dark:text-secondary-400">
-          <UIcon name="i-heroicons-sparkles" class="size-12" />
-        </div>
         <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">{{ t('auditResultReport.dashboard.empty.title') }}</h3>
         <p class="text-gray-500 dark:text-gray-400 mt-2 max-w-md mx-auto mb-6 text-sm">
           {{ t('auditResultReport.dashboard.empty.description') }}
@@ -211,7 +208,7 @@
         <div class="flex justify-center gap-3">
           <UButton v-if="canWrite"
             color="secondary"
-            icon="i-heroicons-sparkles"
+            icon="i-lucide-plus"
             :label="t('auditResultReport.dashboard.empty.create')"
             size="lg"
             class="font-bold shadow"

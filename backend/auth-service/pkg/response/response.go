@@ -29,14 +29,24 @@ func Success(c *gin.Context, statusCode int, message string, data interface{}) {
 
 // Error sends an error response
 func Error(c *gin.Context, statusCode int, code string, message string, details string) {
-	c.JSON(statusCode, Response{
+	ErrorWithData(c, statusCode, code, message, details, nil)
+}
+
+// ErrorWithData sends an error response that also carries machine-readable
+// context in "data" (omitted when data is nil).
+func ErrorWithData(c *gin.Context, statusCode int, code string, message string, details string, data map[string]interface{}) {
+	resp := Response{
 		Success: false,
 		Error: &ErrorDetail{
 			Code:    code,
 			Message: message,
 			Details: details,
 		},
-	})
+	}
+	if len(data) > 0 {
+		resp.Data = data
+	}
+	c.JSON(statusCode, resp)
 }
 
 // OK sends a 200 OK response

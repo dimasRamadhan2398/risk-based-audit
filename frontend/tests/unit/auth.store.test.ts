@@ -43,7 +43,8 @@ describe('Auth Store', () => {
 
     await store.login({ email: 'test@example.com', password: 'password' })
 
-    expect(store.user).toEqual(mockResponse.user)
+    // The session user is normalised: the API fields plus defaults for avatarUrl and mustChangePassword.
+    expect(store.user).toEqual({ ...mockResponse.user, avatarUrl: '', mustChangePassword: false })
     expect(store.token).toBe(mockResponse.token)
     expect(store.isAuthenticated).toBe(true)
   })

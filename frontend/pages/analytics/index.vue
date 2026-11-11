@@ -60,7 +60,7 @@ const aiModules = computed(() => [
   {
     title: t('navigation.kpiForecast'),
     description: t('analytics.hub.descriptions.kpiForecast'),
-    icon: 'i-lucide-trending-up',
+    icon: 'i-lucide-chart-line',
     badge: 'PyTorch LSTM',
     badgeColor: 'info' as const,
     to: '/analytics/ai/kpi-forecast'

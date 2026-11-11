@@ -89,7 +89,7 @@ const {
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('analytics.summary.entitiesScored') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ xgboostState.predictions.length }}
             </h4>
           </div>
@@ -111,7 +111,7 @@ const {
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('analytics.summary.anomaliesDetected') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ isolationState.summary?.anomaliesFound || summary.anomaliesDetected || 150 }}
             </h4>
           </div>
@@ -133,7 +133,7 @@ const {
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('analytics.summary.docsAnalyzed') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ nlpState.documents.length }}
             </h4>
           </div>
@@ -155,12 +155,12 @@ const {
             <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
               {{ t('analytics.summary.kpiForecasts') }}
             </span>
-            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
               {{ timeseriesState.kpiForecasts.length }}
             </h4>
           </div>
           <div class="shrink-0 rounded-xl bg-violet-50 p-2.5 flex items-center justify-center dark:bg-violet-500/10">
-            <UIcon name="i-heroicons-bell-alert" class="text-violet-600 size-5 dark:text-violet-400" />
+            <UIcon name="i-lucide-chart-line" class="text-violet-600 size-5 dark:text-violet-400" />
           </div>
         </div>
       </div>

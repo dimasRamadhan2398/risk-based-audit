@@ -70,7 +70,8 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       // Approve button strictly in View mode (under v-else of !store.isViewing)
       expect(content).toContain('v-if="isDraft && canApprove"')
       expect(content).toContain("t('executiveSummaryForm.actions.approve')")
-      expect(content).toContain('@click="approveReportDirectly"')
+      expect(content).toContain('@click="openApproveSignature"')
+      expect(content).toContain('<ExecutiveSummaryApproveModal')
 
       // Role check defines permissions from useRbac
       expect(content).toContain('canReviewExecutiveSummary')
@@ -89,7 +90,8 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       // Approve button strictly in View mode
       expect(content).toContain('v-if="isDraft && canApprove"')
       expect(content).toContain("t('executiveSummaryForm.actions.approve')")
-      expect(content).toContain('@click="approveReportDirectly"')
+      expect(content).toContain('@click="openApproveSignature"')
+      expect(content).toContain('<ExecutiveSummaryApproveModal')
 
       // Role check defines permissions from useRbac
       expect(content).toContain('canReviewExecutiveSummary')
@@ -117,9 +119,16 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
   })
 
   describe('Executive Summary Store Functions', () => {
+    const SIGNED_PAYLOAD = {
+      signaturePlace: 'Jakarta',
+      signatureDate: '2026-11-04',
+      signatureImage: 'data:image/png;base64,iVBORw0KGgo=',
+      signerName: 'Budi Santoso',
+      signerRole: 'Head of SPI'
+    }
     const testItems = [
       {
-        id: 'ES-LHA-021-2026',
+        id: '6f1c2d3e-4b5a-4c7d-8e9f-0a1b2c3d4e5f',
         assignmentLetterId: 'ST-001/SKAI/2026',
         quarter: 1,
         periodeBulan: 'Januari - Maret',
@@ -165,8 +174,13 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       expect(store.currentSummary?.executiveNote).toBe('New Executive Note for Auditor')
       expect(store.summaryList.find(s => s.id === item!.id)?.executiveNote).toBe('New Executive Note for Auditor')
 
-      // Test approve
+      // A plain status change to Approved is refused (approval needs a signature)
       await store.updateStatus(item!.id, 'Approved')
+      expect(store.summaryList.find(s => s.id === item!.id)?.status).toBe('Draft')
+
+      // Signed approval moves the summary to Approved
+      const ok = await store.approveWithSignature(SIGNED_PAYLOAD)
+      expect(ok).toBe(true)
       expect(store.currentSummary?.status).toBe('Approved')
       expect(store.form.status).toBe('Approved')
       expect(store.summaryList.find(s => s.id === item!.id)?.status).toBe('Approved')
@@ -183,7 +197,7 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       store.openView(item021!)
       store.form.executiveNote = 'Catatan penting untuk auditor keuangan terkait rekonsiliasi kas.'
       await store.saveExecutiveNote()
-      await store.updateStatus(item021!.id, 'Approved')
+      await store.approveWithSignature(SIGNED_PAYLOAD)
 
       expect(store.currentSummary?.status).toBe('Approved')
       expect(store.currentSummary?.executiveNote).toBe('Catatan penting untuk auditor keuangan terkait rekonsiliasi kas.')
@@ -223,6 +237,93 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       const afterCount = store.summaryList.filter(s => s.nomorDokumen === 'LHA-021/SKAI/2026').length
       expect(afterCount).toBe(1)
       expect(store.summaryList.find(s => s.nomorDokumen === 'LHA-021/SKAI/2026')?.narrative).toBe('Updated narrative for 021')
+    })
+  })
+
+  // Approval is signed: POST /executive-summaries/:id/approve with the signature payload. A PUT that sets
+  // status Approved is refused by the backend (APPROVE_REQUIRES_SIGNATURE), so it must never be sent.
+  describe('Signed executive summary approval', () => {
+    const REAL_ID = '6f1c2d3e-4b5a-4c7d-8e9f-0a1b2c3d4e5f'
+    const SIGNED_PAYLOAD = {
+      signaturePlace: 'Jakarta',
+      signatureDate: '2026-11-04',
+      signatureImage: 'data:image/png;base64,iVBORw0KGgo=',
+      signerName: 'Budi Santoso',
+      signerRole: 'Head of SPI'
+    }
+    const baseItem = {
+      quarter: 1, periodeBulan: 'Januari', tahun: 2026, dokumenPath: '', status: 'Draft', executiveNote: '',
+      narrative: 'n', jumlahLaporan: 1, risikoHigh: 0, risikoModerateHigh: 0, risikoModerate: 0,
+      risikoLowModerate: 0, risikoLow: 0, jumlahRekomendasi: 0, followUpTable: [], topFindings: [], matriksKompilasi: []
+    }
+    let calls: Array<{ url: string, method?: string, body?: any }>
+    let approveError: any
+
+    beforeEach(() => {
+      // fetchSummaries overlays persisted status overrides, so an earlier approval must not leak into this test
+      localStorage.clear()
+      calls = []
+      approveError = null
+      global.$fetch = (async (url: string, opts?: any) => {
+        if (!opts?.method || opts.method === 'GET') {
+          return { data: { items: [{ ...baseItem, id: REAL_ID, nomorDokumen: 'LHA-010/SKAI/2026' }] } }
+        }
+        calls.push({ url, method: opts.method, body: opts.body })
+        if (url.endsWith('/approve') && approveError) throw approveError
+        return { success: true }
+      }) as any
+    })
+
+    it('POSTs the signature payload to the approve endpoint and marks the summary Approved', async () => {
+      const store = useExecutiveSummaryStore()
+      await store.fetchSummaries()
+      store.openView(store.summaryList[0]!)
+
+      const ok = await store.approveWithSignature(SIGNED_PAYLOAD)
+
+      expect(ok).toBe(true)
+      expect(calls).toHaveLength(1)
+      expect(calls[0]!.method).toBe('POST')
+      expect(calls[0]!.url).toMatch(new RegExp(`/executive-summaries/${REAL_ID}/approve$`))
+      expect(calls[0]!.body).toEqual(SIGNED_PAYLOAD)
+      expect(store.currentSummary?.status).toBe('Approved')
+      expect(store.summaryList.find(s => s.id === REAL_ID)?.status).toBe('Approved')
+    })
+
+    it('never sends a PUT with status Approved', async () => {
+      const store = useExecutiveSummaryStore()
+      await store.fetchSummaries()
+      store.openView(store.summaryList[0]!)
+
+      await store.updateStatus(REAL_ID, 'Approved')
+      await store.approveWithSignature(SIGNED_PAYLOAD)
+
+      expect(calls.some(c => c.method === 'PUT')).toBe(false)
+    })
+
+    it('keeps the summary Draft when the backend refuses the approval', async () => {
+      approveError = { statusCode: 400, data: { success: false, error: { code: 'INVALID_SIGNATURE', message: 'signatureImage must be a PNG or JPEG image' } } }
+      const store = useExecutiveSummaryStore()
+      await store.fetchSummaries()
+      store.openView(store.summaryList[0]!)
+
+      const ok = await store.approveWithSignature(SIGNED_PAYLOAD)
+
+      expect(ok).toBe(false)
+      expect(store.currentSummary?.status).toBe('Draft')
+      expect(store.form.status).toBe('Draft')
+      expect(store.summaryList.find(s => s.id === REAL_ID)?.status).toBe('Draft')
+      expect(store.errorMsg).toBe('signatureImage must be a PNG or JPEG image')
+    })
+
+    it('does not call the backend for a summary that has no server id yet', async () => {
+      const store = useExecutiveSummaryStore()
+      store.currentSummary = { ...baseItem, id: 'ES-LOCAL-1', nomorDokumen: 'ESC-009/2026' } as any
+
+      const ok = await store.approveWithSignature(SIGNED_PAYLOAD)
+
+      expect(ok).toBe(false)
+      expect(calls).toHaveLength(0)
     })
   })
 

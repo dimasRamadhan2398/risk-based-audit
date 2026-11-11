@@ -112,6 +112,11 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
         to: '/risk-appetite'
       },
       {
+        label: t('navigation.riskControlMatrix'),
+        icon: 'i-lucide-grid',
+        to: '/risk-profile/risk-control-matrix'
+      },
+      {
         label: t('navigation.riskFactors'),
         icon: 'i-lucide-activity',
         to: '/risk-profile/risk-factors'
@@ -126,11 +131,6 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
         icon: 'i-lucide-list-ordered',
         to: '/risk-profile/audit-priority'
       },
-      {
-        label: t('navigation.riskControlMatrix'),
-        icon: 'i-lucide-grid',
-        to: '/risk-profile/risk-control-matrix'
-      }
     ]
   },
 
@@ -408,7 +408,7 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
           },
           {
             label: t('navigation.kpiForecast'),
-            icon: 'i-lucide-trending-up',
+            icon: 'i-lucide-chart-line',
             to: '/analytics/ai/kpi-forecast'
           },
         ]

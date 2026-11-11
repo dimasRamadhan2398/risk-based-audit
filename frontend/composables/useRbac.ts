@@ -220,6 +220,19 @@ export const useRbac = () => {
   const canAccessMasterData = computed(() => !isViewer.value)
 
   /**
+   * Permission names the server sent for this user (`permissions` on the login or /auth/me user),
+   * or null when it sent none. Today auth-service only sends roles, so callers must handle null.
+   */
+  const getUserPermissions = (): string[] | null => {
+    const perms = getCurrentUser()?.permissions
+    if (!Array.isArray(perms)) return null
+    return perms.map((p: unknown) => String(typeof p === 'object' && p ? (p as { name?: unknown }).name : p))
+  }
+  /** True when the server-sent permission list contains `name`. VIEWER-only users never pass. */
+  const hasPermission = (name: string): boolean =>
+    !isViewer.value && (getUserPermissions()?.includes(name) ?? false)
+
+  /**
    * Get the user's primary display role (highest privilege).
    */
   const primaryRole = computed((): string => {
@@ -265,6 +278,19 @@ export const useRbac = () => {
   // VIEWER keeps its existing ATR list scope (view only; every ATR write action stays hidden by the checks below).
   const canViewAllAtr = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE, UserRole.AUDITOR, UserRole.VIEWER]))
   const canAssignAtr = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.AUDITOR]))
+  /**
+   * Holders of view_all_action_taken_report as the follow-up-status endpoint checks it
+   * (ADMIN, EXECUTIVE/CAE, AUDIT_MANAGER, AUDITOR). Unlike canViewAllAtr this leaves out VIEWER.
+   * Used for the live "current status" of an approved executive summary; the endpoint also restricts
+   * the per-finding detail on its side (findingsRestricted).
+   */
+  const canViewLiveFollowUpStatus = computed(() => hasAnyRole([
+    UserRole.ADMIN,
+    UserRole.EXECUTIVE,
+    UserRole.CHIEF_AUDIT_EXECUTIVE,
+    UserRole.AUDIT_MANAGER,
+    UserRole.AUDITOR
+  ]))
   const canReviewAtr = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE, UserRole.AUDITOR]))
   const canCancelAtr = computed(() => hasAnyRole([UserRole.ADMIN, UserRole.EXECUTIVE]))
   /** True when the item is assigned to the logged-in user. */
@@ -360,11 +386,15 @@ export const useRbac = () => {
     canAccessFiles,
     canExport,
     canAccessMasterData,
+    getUserPermissions,
+    hasPermission,
     canWriteMasterData,
     canWriteQaConsulting,
     canWriteAuditUniverse,
     canWriteAuditUniverseFor,
     isAuditor,
+    isAuditee,
+    isExecutive,
     isPureAuditor,
     isAuditorView,
     isPureAuditee,
@@ -386,6 +416,7 @@ export const useRbac = () => {
     canImportPlanDocs,
     canReviewExecutiveSummary,
     canViewAllAtr,
+    canViewLiveFollowUpStatus,
     canAssignAtr,
     canReviewAtr,
     canCancelAtr,

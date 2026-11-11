@@ -47,54 +47,6 @@
       <!-- Tab 1: Corporate Weighting -->
       <template #weighting>
         <div class="space-y-6 mt-6">
-          <!-- Validation Status Banner -->
-          <UCard 
-            class="shadow-sm transition-all duration-300 rounded-xl"
-            :class="isValidWeightSum 
-              ? 'bg-emerald-600 dark:bg-emerald-600 text-white border-0' 
-              : 'bg-rose-600 dark:bg-rose-600 text-white border-0'"
-            :ui="{ body: 'p-4 sm:p-4' }"
-          >
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div class="flex items-center gap-3">
-                <UIcon 
-                  :name="isValidWeightSum ? 'i-lucide-check-circle-2' : 'i-lucide-alert-triangle'" 
-                  class="w-6 h-6 text-white shrink-0"
-                />
-                <div>
-                  <p class="text-sm font-semibold text-white">
-                    <span class="font-bold text-base text-white">{{ t('riskFactors.weighting.totalWeight', { total: totalWeight }) }}</span>
-                  </p>
-                  <p class="text-sm text-white!">
-                    {{ isValidWeightSum ? t('riskFactors.weighting.validSum') : t('riskFactors.weighting.invalidSum') }}
-                  </p>
-                </div>
-              </div>
-              <div class="flex items-center gap-3 shrink-0">
-                <UBadge 
-                  :color="isValidWeightSum ? 'success' : 'error'" 
-                  size="md" 
-                  variant="solid"
-                  class="bg-white/20 text-white border border-white/30 backdrop-blur-sm"
-                >
-                  {{ isValidWeightSum ? t('riskFactors.weighting.badgeValid') : t('riskFactors.weighting.badgeInvalid') }}
-                </UBadge>
-                <UButton
-                  v-if="canEditRiskFactors"
-                  icon="i-lucide-save"
-                  color="neutral"
-                  variant="solid"
-                  class="bg-white text-slate-900 hover:bg-slate-100 dark:bg-primary-600/90 dark:text-slate-100 dark:hover:bg-slate-100 font-semibold shadow-sm"
-                  :loading="store.loading"
-                  :disabled="!isValidWeightSum"
-                  @click="saveChanges"
-                >
-                  {{ t('riskFactors.weighting.saveWeights') }}
-                </UButton>
-              </div>
-            </div>
-          </UCard>
-
           <div class="flex flex-col gap-8">
             <!-- Catalog Explorer -->
             <div class="space-y-6">
@@ -184,8 +136,52 @@
                 </div>
               </UCard>
             </div>
-
-            <!-- Corporate Weights Table -->
+            <UCard 
+            class="shadow-sm transition-all duration-300 rounded-xl"
+            :class="isValidWeightSum 
+              ? 'bg-emerald-600 dark:bg-emerald-600 text-white border-0' 
+              : 'bg-rose-600 dark:bg-rose-600 text-white border-0'"
+            :ui="{ body: 'p-4 sm:p-4' }"
+          >
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div class="flex items-center gap-3">
+                <UIcon 
+                  :name="isValidWeightSum ? 'i-lucide-check-circle-2' : 'i-lucide-alert-triangle'" 
+                  class="w-6 h-6 text-white shrink-0"
+                />
+                <div>
+                  <p class="text-sm font-semibold text-white">
+                    <span class="font-bold text-base text-white">{{ t('riskFactors.weighting.totalWeight', { total: totalWeight }) }}</span>
+                  </p>
+                  <p class="text-sm text-white!">
+                    {{ isValidWeightSum ? t('riskFactors.weighting.validSum') : t('riskFactors.weighting.invalidSum') }}
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3 shrink-0">
+                <UBadge 
+                  :color="isValidWeightSum ? 'success' : 'error'" 
+                  size="md" 
+                  variant="solid"
+                  class="bg-white/20 text-white border border-white/30 backdrop-blur-sm"
+                >
+                  {{ isValidWeightSum ? t('riskFactors.weighting.badgeValid') : t('riskFactors.weighting.badgeInvalid') }}
+                </UBadge>
+                <UButton
+                  v-if="canEditRiskFactors"
+                  icon="i-lucide-save"
+                  color="neutral"
+                  variant="solid"
+                  class="!bg-white !text-slate-900 hover:!bg-slate-100 active:!bg-slate-100 focus-visible:!bg-slate-100 dark:!bg-primary-600/90 dark:!text-slate-100 dark:hover:!bg-primary-600/90 dark:active:!bg-primary-600/90 dark:focus-visible:!bg-primary-600/90 font-semibold shadow-sm"
+                  :loading="store.loading"
+                  :disabled="!isValidWeightSum"
+                  @click="saveChanges"
+                >
+                  {{ t('riskFactors.weighting.saveWeights') }}
+                </UButton>
+              </div>
+            </div>
+          </UCard>
             <div>
               <UCard :ui="{ root: 'bg-transparent!' }" class="rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 divide-gray-200 dark:divide-gray-800">
                 <template #header>
@@ -233,7 +229,7 @@
                           <UInput
                             v-model.number="item.weight"
                             type="number"
-                            step="0.01"
+                            step="0.5"
                             min="0"
                             size="sm"
                             placeholder="0"
@@ -688,7 +684,7 @@ import {
   buildScoringRows,
   computeRiskIndexPreview,
   isUniverseYearScored,
-  isValidWeightTotal,
+  isWeightSumExactly100,
   normalizeWeightPercent,
   sumWeightPercents,
   weightFractionToPercent,
@@ -815,10 +811,12 @@ const parsedGuidelines = computed(() => {
   }
 })
 
-// Weights are percentages with up to 2 decimals; the backend accepts a total of 99.9–100.1.
+// Weights are percentages with up to 2 decimals; the total must be exactly 100 (compared in integer hundredths).
+// The arrows step by 0.5 but typed values like 33.33 are kept — the input is not inside a <form>, so the
+// native step constraint never blocks anything.
 const totalWeight = computed(() => sumWeightPercents(selectedCorporateList.value.map(item => item.weight)))
 
-const isValidWeightSum = computed(() => isValidWeightTotal(totalWeight.value))
+const isValidWeightSum = computed(() => isWeightSumExactly100(selectedCorporateList.value.map(item => item.weight)))
 
 const dropdownEntities = computed(() => {
   return auditStore.yearlyUniverse.map(item => ({
@@ -977,6 +975,12 @@ const saveChanges = async () => {
     return
   }
 
+  // A 0% factor contributes nothing to the score, so drop it instead of blocking the save.
+  const zeroWeight = selectedCorporateList.value.filter(item => normalizeWeightPercent(item.weight) <= 0)
+  if (zeroWeight.length > 0) {
+    selectedCorporateList.value = selectedCorporateList.value.filter(item => normalizeWeightPercent(item.weight) > 0)
+  }
+
   const payload = selectedCorporateList.value.map(item => ({
     standard_risk_factor_id: item.standard_risk_factor_id,
     weight: normalizeWeightPercent(item.weight)
@@ -985,6 +989,10 @@ const saveChanges = async () => {
   const success = await store.saveCorporateFactors(payload)
   if (success) {
     toast.showSuccess(t('riskFactors.messages.weightsUpdated'))
+    if (zeroWeight.length > 0) {
+      const names = zeroWeight.map(item => item.standard_risk_factor?.name || item.standard_risk_factor_id).join(', ')
+      toast.showInfo(t('riskFactors.messages.zeroWeightFactorsRemoved', { names }))
+    }
     // The backend recomputes every entity's risk index after a weight change.
     await fetchYearlyUniverse()
   } else {

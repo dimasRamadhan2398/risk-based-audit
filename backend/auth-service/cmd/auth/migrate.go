@@ -6,8 +6,10 @@ import (
 	"auth-service/models"
 	"auth-service/pkg/database"
 	"auth-service/pkg/logger"
+	"auth-service/repositories"
 
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -62,9 +64,25 @@ Examples:
   auth migrate up           # Run all migrations
   auth migrate up --dry-run # Show what would be migrated
   auth migrate down         # Drop all tables
-  auth migrate status       # Show current status`,
+  auth migrate status       # Show current status
+  auth migrate encrypt-mfa-secrets [--dry-run]  # Encrypt plaintext MFA secrets`,
 	}
-	migrateCmd.AddCommand(upCmd, downCmd, statusCmd)
+	// migrate encrypt-mfa-secrets - data migration, no schema change, no seeders
+	encryptMFACmd := &cobra.Command{
+		Use:   "encrypt-mfa-secrets",
+		Short: "Encrypt plaintext MFA secrets in mfa_setups (idempotent)",
+		Long: `Encrypts every legacy plaintext mfa_setups.secret_key with MFA_ENCRYPTION_KEY
+(AES-256-GCM, stored as enc:v1:...). Values that only MFA_ENCRYPTION_KEY_OLD
+opens are re-encrypted with the new key, so the same command finishes a key
+rotation. Runs in one transaction; a second run changes nothing. Does not run
+seeders and does not touch any other table.
+
+Usage: auth migrate encrypt-mfa-secrets [--dry-run]`,
+		RunE: runMigrateEncryptMFASecrets,
+	}
+	encryptMFACmd.Flags().BoolVar(&migrateDryRun, "dry-run", false, "Count rows that would change without writing")
+
+	migrateCmd.AddCommand(upCmd, downCmd, statusCmd, encryptMFACmd)
 
 	rootCmd.AddCommand(migrateCmd)
 }
@@ -163,6 +181,50 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 	}
 
 	logger.Info("Database migration completed successfully!")
+	return nil
+}
+
+func runMigrateEncryptMFASecrets(cmd *cobra.Command, args []string) error {
+	initLogger()
+	defer logger.Sync()
+
+	cipher, err := cfg.MFACipher()
+	if err != nil {
+		return fmt.Errorf("MFA encryption key: %w", err)
+	}
+	if !cipher.Enabled() {
+		return fmt.Errorf("MFA_ENCRYPTION_KEY is not set: nothing to encrypt with")
+	}
+
+	db, err := database.NewPostgresConnection(&cfg.Database)
+	if err != nil {
+		return fmt.Errorf("connect to database: %w", err)
+	}
+	if !db.Migrator().HasTable(&models.MFASetup{}) {
+		logger.Info("mfa_setups does not exist yet; run 'auth migrate up' first. Nothing to do.")
+		return nil
+	}
+
+	res, err := repositories.EncryptMFASecrets(db, cipher, migrateDryRun)
+	fields := []zap.Field{
+		logger.LogField("database", cfg.Database.Name),
+		logger.LogField("dry_run", migrateDryRun),
+		logger.LogField("total", res.Total),
+		logger.LogField("empty", res.Empty),
+		logger.LogField("already_encrypted", res.Current),
+		logger.LogField("legacy_encrypted", res.Legacy),
+		logger.LogField("rotated", res.Rotated),
+		logger.LogField("unreadable", res.Unreadable),
+	}
+	if err != nil {
+		logger.Error("MFA secret encryption failed, transaction rolled back", append(fields, logger.LogField("error", err.Error()))...)
+		return err
+	}
+	verb := "changed"
+	if migrateDryRun {
+		verb = "would change"
+	}
+	logger.Info(fmt.Sprintf("MFA secret encryption done: %d row(s) %s", res.Changed(), verb), fields...)
 	return nil
 }
 

@@ -27,37 +27,39 @@ export const useRiskAppetiteStore = defineStore('risk-appetite', () => {
       accessorKey: 'id',
       id: 'id',
       header: t('riskAppetite.compliance.columns.id'),
-      class: 'w-[120px] min-w-[100px] whitespace-nowrap'
+      // Fixed compact width from md up; natural width when stacked on small screens.
+      class: 'w-auto md:w-[100px] md:min-w-[100px] whitespace-nowrap'
     },
     {
       accessorKey: 'name',
       id: 'name',
       header: t('riskAppetite.compliance.columns.name'),
-      class: 'min-w-[260px] max-w-[380px]'
+      // No fixed width: takes the remaining table width on md+ and wraps the text.
+      class: 'w-auto md:min-w-[220px] whitespace-normal break-words'
     },
     {
       accessorKey: 'level',
       id: 'level',
       header: t('riskAppetite.compliance.columns.level'),
-      class: 'w-[130px] min-w-[130px] text-center whitespace-nowrap'
+      class: 'w-auto md:w-[110px] md:min-w-[110px] text-center whitespace-nowrap'
     },
     {
       accessorKey: 'appetite',
       id: 'appetite',
       header: t('riskAppetite.compliance.columns.appetite'),
-      class: 'w-[150px] min-w-[150px] text-center whitespace-nowrap'
+      class: 'w-auto md:w-[130px] md:min-w-[130px] text-center whitespace-normal'
     },
     {
       accessorKey: 'mitigationStatus',
       id: 'mitigationStatus',
       header: t('riskAppetite.compliance.columns.status'),
-      class: 'w-[180px] min-w-[180px] whitespace-nowrap'
+      class: 'w-auto md:w-[170px] md:min-w-[170px] whitespace-normal'
     },
     {
       accessorKey: 'actions',
       id: 'actions',
       header: t('common.columns.actions'),
-      class: 'w-[140px] min-w-[140px] text-center whitespace-nowrap'
+      class: 'w-auto md:w-[160px] md:min-w-[160px] text-center whitespace-nowrap'
     }
   ])
 

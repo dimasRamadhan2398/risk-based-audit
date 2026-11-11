@@ -16,7 +16,7 @@ const (
 // rounds the index to one decimal first and classifies the rounded value, so
 // the index that is stored and shown always agrees with its level: 59.95 is
 // stored as 60.0 and is therefore "Medium to High", never "Medium".
-// Priority is true for "High" and "Medium to High".
+// Priority is true for "High", "Medium to High" and "Medium".
 func ClassifyRiskIndex(index float64) (rounded float64, level string, priority bool) {
 	rounded = math.Round(index*10) / 10
 	switch {
@@ -25,7 +25,7 @@ func ClassifyRiskIndex(index float64) (rounded float64, level string, priority b
 	case rounded >= 60:
 		return rounded, RiskLevelMediumToHigh, true
 	case rounded >= 40:
-		return rounded, RiskLevelMedium, false
+		return rounded, RiskLevelMedium, true
 	case rounded >= 20:
 		return rounded, RiskLevelLowToMedium, false
 	default:

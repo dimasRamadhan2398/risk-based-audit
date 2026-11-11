@@ -90,6 +90,18 @@
         </template>
 
         <!-- Category: translated label of the raw value, "-" when not set -->
+        <template #unit-cell="{ row }">
+          <span class="whitespace-nowrap text-gray-900 dark:text-white">{{ unitLabel(row.original.unit) }}</span>
+        </template>
+
+        <template #target-cell="{ row }">
+          <span class="whitespace-nowrap tabular-nums text-gray-900 dark:text-white">{{ formatUnitValue(row.original.target, row.original.unit, locale) }}</span>
+        </template>
+
+        <template #actual-cell="{ row }">
+          <span class="whitespace-nowrap tabular-nums text-gray-900 dark:text-white">{{ formatUnitValue(row.original.actual, row.original.unit, locale) }}</span>
+        </template>
+
         <template #category-cell="{ row }">
           <span class="whitespace-nowrap text-gray-900 dark:text-white">{{ categoryLabel(row.original.category) }}</span>
         </template>
@@ -107,7 +119,10 @@
                 @click="store.openViewModal(row.original)"
               />
             </UTooltip>
-            <UTooltip v-if="canWrite" :text="t('strategicPlan.actions.edit')">
+            <UTooltip
+              v-if="canWrite"
+              :text="t('strategicPlan.actions.edit')"
+            >
               <UButton
                 icon="i-lucide-edit"
                 color="warning"
@@ -116,7 +131,10 @@
                 @click="store.handleEdit(row.original)"
               />
             </UTooltip>
-            <UTooltip v-if="canWrite" :text="t('strategicPlan.actions.delete')">
+            <UTooltip
+              v-if="canWrite"
+              :text="t('strategicPlan.actions.delete')"
+            >
               <UButton
                 icon="i-lucide-trash-2"
                 color="error"
@@ -150,9 +168,10 @@ import { ref, computed, watch } from 'vue'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import { useI18n } from '~/composables/useI18n'
 import type { StrategicAuditPlan } from '~/types/audit'
+import { formatUnitValue } from '~/utils/numberInput'
 import { kpiValueLabel } from '~/utils/kpiPerformanceLabels'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const store = useStrategicPlanStore()
 
 const searchQuery = ref('')
@@ -212,6 +231,12 @@ const resetFilters = () => {
   selectedPeriodType.value = 'ALL'
   selectedYear.value = 'ALL'
   selectedQuartal.value = 'ALL'
+}
+
+const unitLabel = (unit?: string) => {
+  if (!unit) return '-'
+  // Short form for the narrow column: the symbol/code, with "Amount" shown as Quantity.
+  return unit === 'Amount' ? t('strategicPlan.form.units.quantity') : unit
 }
 
 const categoryLabel = (value?: string) => kpiValueLabel(t, 'categories', value) || '-'

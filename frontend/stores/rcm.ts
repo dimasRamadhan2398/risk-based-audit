@@ -3,11 +3,13 @@ import { ref, computed, watch } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import { useRiskProfileStore, riskLevelConfig } from '~/stores/risk-profile'
 import { useMitigationStore } from '~/stores/mitigation-risk'
-import { RiskLevel } from '~/types/risk'
 import { extractErrorMessage } from '~/utils/error'
 import { getRiskServiceBaseUrl } from '~/composables/useApiUrl'
 import { useFiscalYear } from '~/composables/useFiscalYear'
 import { useI18n } from '~/composables/useI18n'
+import { RCM_ALL_BRANCHES, resolveRcmItemLocationId, filterRcmItemsByBranch } from '~/utils/rcmBranch'
+import { currentQuarter, type Quarter } from '~/utils/fiscalPeriod'
+import { computeRcmRiskCounts, computeMitigationCoverage } from '~/utils/rcmRiskCounts'
 
 export interface RCMItem {
   id: string
@@ -58,7 +60,8 @@ const roundScore = (val: number) => Math.round(val * 10) / 10
  * Risk Profile.
  *
  * Inherent is the start-of-year (Q1) assessment and residual the end-of-year
- * (Q4) one — the same definitions the RCM summary uses for its risk counts.
+ * (Q4) one. (The RCM summary risk counts read residual from the current
+ * quarter instead; see utils/rcmRiskCounts.)
  * Both are `impact × likelihood` averaged over the department's risks, and a
  * risk with no assessment for the year contributes its base score to both
  * series (nothing mitigated yet). Takes raw CRP risks, so the result does not
@@ -169,10 +172,13 @@ export const getEffectivenessInterpretation = (scorePercent: number) => {
 export const useRCMStore = defineStore('rcm', () => {
   const config = useRuntimeConfig()
   const riskProfileStore = useRiskProfileStore()
+  const mitigationStore = useMitigationStore()
   const rcmList = ref<RCMItem[]>([])
   const { selectedFiscalYear } = useFiscalYear()
   const selectedYear = selectedFiscalYear
   const selectedDepartment = ref('All Departments')
+  // RCM_ALL_BRANCHES, RCM_UNASSIGNED_BRANCH or a Location master ID. Independent of the CRP page's branch filter.
+  const selectedBranch = ref<string>(RCM_ALL_BRANCHES)
   const loading = ref(false)
   const errorMsg = ref('')
 
@@ -219,8 +225,14 @@ export const useRCMStore = defineStore('rcm', () => {
     return Math.round(des + op + cov + time + auto)
   }
 
-  // Filtered RCM list by selected year & department
-  const filteredRCMList = computed(() => {
+  // An item's branch = the Location master branch of its linked CRP risk (null = unassigned).
+  const findRawRisk = (riskId: string) =>
+    (riskProfileStore.rawRisks || []).find((r: any) => String(r.id) === riskId)
+  const itemLocationId = (item: RCMItem): string | null =>
+    resolveRcmItemLocationId(item, findRawRisk, risk => riskProfileStore.riskLocationId(risk))
+
+  // RCM list by selected year & department (before the branch filter)
+  const yearDepartmentRCMList = computed(() => {
     const currentYear = new Date().getFullYear()
     const isFutureYear = selectedYear.value > currentYear
 
@@ -232,47 +244,62 @@ export const useRCMStore = defineStore('rcm', () => {
     })
   })
 
-  // Synchronized Inherent Risk & Residual Risk from Corporate Risk Profile
-  const synchronizedRiskCounts = computed(() => {
-    const risks = riskProfileStore.risks || []
-    
-    // Filter risks by branch/department if selected
-    const filteredRisks = risks.filter(r => {
-      if (selectedDepartment.value === 'All Departments') return true
-      return r.branch === selectedDepartment.value || r.category === selectedDepartment.value
-    })
+  /** True when an item of the selected year/department has no branch (drives the "Unassigned" option). */
+  const hasUnassignedBranchItems = computed(() =>
+    yearDepartmentRCMList.value.some(item => !itemLocationId(item))
+  )
 
-    if (filteredRisks.length === 0) {
-      return {
-        inherent: 0,
-        residual: 0
-      }
+  // Filtered RCM list by selected year, department & branch
+  const filteredRCMList = computed(() =>
+    filterRcmItemsByBranch(yearDepartmentRCMList.value, selectedBranch.value, itemLocationId)
+  )
+
+  // Quarter residual risk is read from: the current calendar quarter for the
+  // current (or a future) year, Q4 (year end) for a past year. `now` is a ref so
+  // a tab left open across a quarter or year boundary catches up on focus.
+  const now = ref(new Date())
+  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+    window.addEventListener('focus', () => { now.value = new Date() })
+  }
+  const residualIsYearEnd = computed(() => Number(selectedYear.value) < now.value.getFullYear())
+  const residualQuarter = computed<Quarter>(() =>
+    residualIsYearEnd.value ? 'Q4' : currentQuarter(now.value)
+  )
+
+  // Inherent (Q1 priority) & residual (still priority on the current quarter)
+  // risk counts, from the raw CRP rows so they do not follow the period the CRP
+  // page has selected. Reactive on rawRisks/assessments; see utils/rcmRiskCounts.
+  const riskCountDetail = computed(() =>
+    computeRcmRiskCounts(riskProfileStore.rawRisks, {
+      year: selectedYear.value,
+      quarter: residualQuarter.value,
+      branch: selectedBranch.value,
+      department: selectedDepartment.value,
+      getRiskLevel: riskProfileStore.getRiskLevel,
+      riskLocationId: risk => riskProfileStore.riskLocationId(risk),
+      locationName: id => riskProfileStore.locationName(id)
+    })
+  )
+
+  const synchronizedRiskCounts = computed(() => ({
+    inherent: riskCountDetail.value.inherent,
+    residual: riskCountDetail.value.residual
+  }))
+
+  // "X of Y residual risks have a mitigation plan" — reactive on the store's
+  // list of all plans, which follows every add/edit/delete.
+  const mitigationCoverage = computed(() =>
+    computeMitigationCoverage(riskCountDetail.value.residualRiskIds, mitigationStore.allMitigations)
+  )
+
+  /** Load the CRP risks and all mitigation plans the summary needs, unless already loaded. */
+  const ensureRiskSummaryData = async () => {
+    const tasks: Promise<unknown>[] = [mitigationStore.fetchAllMitigations()]
+    if (!riskProfileStore.rawRisks.length && !riskProfileStore.loading) {
+      tasks.push(riskProfileStore.fetchRisks())
     }
-
-    // Inherent Risks: Priority risks (Moderate, Moderate to High, High)
-    const priorityRisks = filteredRisks.filter(r => {
-      const lvl = riskProfileStore.getRiskLevel(r.likelihood, r.impact)
-      return lvl === RiskLevel.MODERATE || lvl === RiskLevel.MODERATE_HIGH || lvl === RiskLevel.HIGH
-    })
-
-    const inherentCount = priorityRisks.length || filteredRisks.length
-
-    // Residual Risks: Remaining high/moderate risks after mitigation
-    const residualRisks = priorityRisks.filter(r => {
-      const assessment = r.assessments?.find((a: any) => a.year === selectedYear.value)
-      const q4Impact = assessment?.impact_q4 ?? r.impact
-      const q4Likelihood = assessment?.likelihood_q4 ?? r.likelihood
-      const q4Level = riskProfileStore.getRiskLevel(q4Likelihood, q4Impact)
-      return q4Level === RiskLevel.MODERATE || q4Level === RiskLevel.MODERATE_HIGH || q4Level === RiskLevel.HIGH
-    })
-
-    const residualCount = residualRisks.length
-
-    return {
-      inherent: inherentCount,
-      residual: residualCount
-    }
-  })
+    await Promise.allSettled(tasks)
+  }
 
   const totalInherentRisk = computed(() => synchronizedRiskCounts.value.inherent)
   const totalResidualRisk = computed(() => synchronizedRiskCounts.value.residual)
@@ -458,10 +485,17 @@ export const useRCMStore = defineStore('rcm', () => {
     filteredRCMList,
     selectedYear,
     selectedDepartment,
+    selectedBranch,
+    hasUnassignedBranchItems,
+    itemLocationId,
     columns,
     totalInherentRisk,
     totalResidualRisk,
     synchronizedRiskCounts,
+    residualQuarter,
+    residualIsYearEnd,
+    mitigationCoverage,
+    ensureRiskSummaryData,
     inherentVsResidualByDepartment,
     internalControlEffectiveness,
     effectivenessRating,

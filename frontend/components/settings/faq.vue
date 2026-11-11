@@ -1,5 +1,5 @@
 <template>
-    <UCard :ui="{ header: 'flex flex-col gap-4', body: 'p-0' }">
+    <UCard class="dark:bg-slate-900 dark:ring-slate-800" :ui="{ header: 'flex flex-col gap-4', body: 'p-0' }">
       <template #header>
         <div class="justify-start text-left">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('settings.faq.title') }}</h3>

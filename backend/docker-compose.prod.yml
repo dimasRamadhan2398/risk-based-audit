@@ -91,7 +91,7 @@ services:
       kafka:
         condition: service_healthy
     ports:
-      - "8001:8001"
+      - "127.0.0.1:8001:8001"
     environment:
       - JWT_SECRET=${JWT_SECRET:?JWT_SECRET missing - every service in the stack must share one signing secret; set it in the deploy env}
       - RESEND_API_KEY=${RESEND_API_KEY:-}
@@ -134,7 +134,7 @@ services:
       python-ai:
         condition: service_started
     ports:
-      - "8084:8084"
+      - "127.0.0.1:8084:8084"
     networks:
       - rb_audit_network
     restart: unless-stopped
@@ -166,7 +166,7 @@ services:
       kafka:
         condition: service_healthy
     ports:
-      - "8002:8001"
+      - "127.0.0.1:8002:8001"
     environment:
       - JWT_SECRET=${JWT_SECRET:?JWT_SECRET missing - every service in the stack must share one signing secret; set it in the deploy env}
       - IMAGEKIT_PUBLIC_KEY=${IMAGEKIT_PUBLIC_KEY:-}
@@ -201,7 +201,7 @@ services:
       kafka:
         condition: service_healthy
     ports:
-      - "8003:8002"
+      - "127.0.0.1:8003:8002"
     command: sh -c "./master seed && ./master serve"
     networks:
       - rb_audit_network
@@ -226,7 +226,7 @@ services:
       kafka:
         condition: service_healthy
     ports:
-      - "8004:8002"
+      - "127.0.0.1:8004:8002"
     command: sh -c "./risk up && ./risk serve"
     networks:
       - rb_audit_network
@@ -238,7 +238,7 @@ services:
       dockerfile: Dockerfile
     container_name: rb_audit_python_ai
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     environment:
       - PYTHONUNBUFFERED=1
     volumes:
@@ -269,10 +269,10 @@ services:
     tmpfs:
       - /usr/local/kong/sockets
     ports:
-      - "8080:8080"
-      - "8443:8443"
-      - "8009:8001"
-      - "8444:8444"
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8443:8443"
+      - "127.0.0.1:8009:8001"
+      - "127.0.0.1:8444:8444"
     healthcheck:
       test: [ "CMD", "kong", "health" ]
       interval: 10s

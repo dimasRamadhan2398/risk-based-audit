@@ -110,6 +110,7 @@ services:
           - /api/v1/mfa
           - /api/v1/devices
           - /api/v1/confidentiality
+          - /api/v1/system-logs
         strip_path: false
 
   # ---------------------------------------------------------------------------

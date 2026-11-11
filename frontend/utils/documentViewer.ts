@@ -148,3 +148,25 @@ export async function viewDocumentInNewTab(
     throw err;
   }
 }
+
+/**
+ * Opens an uploaded file. Our own /uploads files sit behind the token check and a plain
+ * window.open() cannot send an Authorization header, so they are fetched as a blob
+ * (the global $fetch adds the token) and shown in a new tab. External URLs open directly.
+ */
+export async function openUploadedFile(
+  fileUrl: string,
+  apiBaseUrl: string,
+  documentName?: string
+): Promise<void> {
+  if (!fileUrl || fileUrl === '#') return
+  const origin = apiBaseUrl.replace(/\/api\/v1\/?$/, '')
+  const isAbsolute = fileUrl.startsWith('http://') || fileUrl.startsWith('https://')
+  if (isAbsolute && !fileUrl.startsWith(`${origin}/`)) {
+    window.open(fileUrl, '_blank')
+    return
+  }
+  const finalUrl = isAbsolute ? fileUrl : fileUrl.startsWith('/') ? `${origin}${fileUrl}` : `${apiBaseUrl}/${fileUrl}`
+  const fileName = fileUrl.split('/').pop()?.split('?')[0] || undefined
+  await viewDocumentInNewTab(() => $fetch(finalUrl, { responseType: 'blob' }), documentName || fileName || 'document', fileName)
+}

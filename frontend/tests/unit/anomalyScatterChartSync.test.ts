@@ -48,6 +48,7 @@ const anomalyPayload = {
       date: '2026-06-02',
       amount: 500,
       xMetric: 500,
+      hour: 3,
       is_anomaly: true,
       risk_level: 'HIGH'
     },
@@ -66,11 +67,11 @@ const anomalyPayload = {
     }
   ],
   scatter_data: [
-    { x: 120, y: 30.0, type: 'Transaction', is_anomaly: false, label: 'TRX-1001' },
-    { x: 95, y: 22.5, type: 'Transaction', is_anomaly: false, label: 'TRX-1002' },
-    { x: 850, y: 47.5, type: 'Transaction', is_anomaly: true, label: 'TRX-0001' },
-    { x: 60, y: 12.5, type: 'Funding', is_anomaly: false, label: 'FND-1003' },
-    { x: 21465, y: 52.0, type: 'Funding', is_anomaly: true, label: 'FND-0003' }
+    { x: 120, y: 10, type: 'Transaction', is_anomaly: false, label: 'TRX-1001' },
+    { x: 95, y: 14, type: 'Transaction', is_anomaly: false, label: 'TRX-1002' },
+    { x: 850, y: 23, type: 'Transaction', is_anomaly: true, label: 'TRX-0001' },
+    { x: 60, y: 11, type: 'Funding', is_anomaly: false, label: 'FND-1003' },
+    { x: 21465, y: 21, type: 'Funding', is_anomaly: true, label: 'FND-0003' }
   ],
   summary: {
     totalScanned: 80,
@@ -83,45 +84,52 @@ const anomalyPayload = {
 describe('buildAnomalyScatterPoints', () => {
   const anomalies = [
     { id: 'TRX-0001', type: 'Transaction', xMetric: 850, amount: 850 },
-    { id: 'TRX-0002', type: 'Transaction', xMetric: 500, amount: 500 },
-    { id: 'TRX-0003', type: 'Transaction', amount: 42_000_000 },
+    { id: 'TRX-0002', type: 'Transaction', xMetric: 500, amount: 500, hour: 3 },
+    { id: 'TRX-0003', type: 'Transaction', amount: 42_000_000, hour: 22 },
+    { id: 'TRX-0004', type: 'Transaction', xMetric: 70 },
     { id: 'FND-0009', type: 'Funding', xMetric: 21465 }
   ]
   const scatterData = [
-    { x: 120, y: 30, type: 'Transaction', isAnomaly: false, label: 'TRX-1001' },
-    { x: 95, y: 22.5, type: 'Transaction', isAnomaly: false, label: 'TRX-1002' },
-    { x: 850, y: 47.5, type: 'Transaction', isAnomaly: true, label: 'TRX-0001' },
-    { x: 60, y: 12.5, type: 'Funding', isAnomaly: false, label: 'FND-1003' }
+    { x: 120, y: 10, type: 'Transaction', isAnomaly: false, label: 'TRX-1001' },
+    { x: 95, y: 14, type: 'Transaction', isAnomaly: false, label: 'TRX-1002' },
+    { x: 850, y: 23, type: 'Transaction', isAnomaly: true, label: 'TRX-0001' },
+    { x: 60, y: 11, type: 'Funding', isAnomaly: false, label: 'FND-1003' }
   ]
 
   it('plots only the normal points of the requested type', () => {
     const { normalPoints } = buildAnomalyScatterPoints(anomalies, scatterData, 'Transaction')
     expect(normalPoints).toEqual([
-      { x: 120, y: 30 },
-      { x: 95, y: 22.5 }
+      { x: 120, y: 10 },
+      { x: 95, y: 14 }
     ])
   })
 
   it('takes anomaly coordinates from the matching scatter point when present', () => {
     const { anomalyPoints } = buildAnomalyScatterPoints(anomalies, scatterData, 'Transaction')
-    expect(anomalyPoints[0]).toEqual({ x: 850, y: 47.5 })
+    expect(anomalyPoints[0]).toEqual({ x: 850, y: 23 })
   })
 
-  it('falls back to xMetric, then to amount in millions, with y defaulting to 20', () => {
+  it('falls back to xMetric, then to amount in millions, with y = the anomaly\'s transaction hour', () => {
     const { anomalyPoints } = buildAnomalyScatterPoints(anomalies, scatterData, 'Transaction')
-    // TRX-0002 has no scatter point → xMetric
-    expect(anomalyPoints[1]).toEqual({ x: 500, y: 20 })
+    // TRX-0002 has no scatter point → xMetric, hour from the record
+    expect(anomalyPoints[1]).toEqual({ x: 500, y: 3 })
     // TRX-0003 has neither scatter point nor xMetric → amount / 1_000_000
-    expect(anomalyPoints[2]).toEqual({ x: 42, y: 20 })
+    expect(anomalyPoints[2]).toEqual({ x: 42, y: 22 })
+  })
+
+  it('leaves an anomaly off the chart when its hour is unknown instead of inventing a Y', () => {
+    const { anomalyPoints } = buildAnomalyScatterPoints(anomalies, scatterData, 'Transaction')
+    // TRX-0004 has no scatter point and no hour
+    expect(anomalyPoints).toHaveLength(3)
   })
 
   it('never derives coordinates from the anomaly score or the array index', () => {
     const { anomalyPoints } = buildAnomalyScatterPoints(
-      [{ id: 'A', type: 'Transaction', xMetric: 10, anomalyScore: -0.9 }],
+      [{ id: 'A', type: 'Transaction', xMetric: 10, anomalyScore: -0.9, hour: 2 }],
       [],
       'Transaction'
     )
-    expect(anomalyPoints).toEqual([{ x: 10, y: 20 }])
+    expect(anomalyPoints).toEqual([{ x: 10, y: 2 }])
   })
 
   it('returns empty series for a type that has no data', () => {
@@ -131,14 +139,14 @@ describe('buildAnomalyScatterPoints', () => {
   })
 
   it('does not generate synthetic normal baseline points when scatterData lacks normal points (leaves it empty)', () => {
-    const customAnomalies = [{ id: 'TXN-01', type: 'Transaction', xMetric: 450, amount: 450_000_000 }]
+    const customAnomalies = [{ id: 'TXN-01', type: 'Transaction', xMetric: 450, amount: 450_000_000, hour: 14 }]
     const { normalPoints, anomalyPoints } = buildAnomalyScatterPoints(customAnomalies, [], 'Transaction')
     expect(anomalyPoints.length).toBe(1)
     expect(normalPoints).toEqual([])
   })
 
   it('supports case-insensitive type matching (e.g. transaction vs Transaction)', () => {
-    const customAnomalies = [{ id: 'TXN-01', type: 'Transaction', xMetric: 200 }]
+    const customAnomalies = [{ id: 'TXN-01', type: 'Transaction', xMetric: 200, hour: 10 }]
     const customScatter = [{ x: 50, y: 15, type: 'transaction', isAnomaly: false }]
     const { normalPoints, anomalyPoints } = buildAnomalyScatterPoints(customAnomalies, customScatter, 'transaction')
     expect(anomalyPoints.length).toBe(1)
@@ -200,12 +208,12 @@ describe('Transaction Anomaly Detection — dashboard vs AI Insights tab', () =>
     // Backend data reached the shared state, and both pages map it through the
     // same builder, so the dashboard card and the tab's Transaction view agree.
     expect(points.anomalyPoints).toEqual([
-      { x: 850, y: 47.5 }, // TRX-0001, matched by label
-      { x: 500, y: 20 } // TRX-0002, no scatter point → xMetric
+      { x: 850, y: 23 }, // TRX-0001, matched by label
+      { x: 500, y: 3 } // TRX-0002, no scatter point → xMetric + its hour
     ])
     expect(points.normalPoints).toEqual([
-      { x: 120, y: 30 },
-      { x: 95, y: 22.5 }
+      { x: 120, y: 10 },
+      { x: 95, y: 14 }
     ])
   })
 

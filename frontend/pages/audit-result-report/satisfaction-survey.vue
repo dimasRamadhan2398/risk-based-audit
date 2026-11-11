@@ -32,7 +32,7 @@
                   {{ t('satisfactionSurvey.cards.avgCsat.title') }}
                 </span>
               </div>
-              <h3 class="text-4xl font-bold !text-white mt-2 tracking-tight">
+              <h3 class="text-4xl font-bold !text-white mt-2 tracking-tight tabular-nums">
                 {{ averageCsat.toFixed(1) }} <span class="text-lg font-medium text-white">/ 5.0</span>
               </h3>
             </div>
@@ -43,7 +43,6 @@
 
           <div class="mt-4 pt-3 border-t border-white/20 flex flex-wrap items-center justify-between gap-2">
             <span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white">
-              <UIcon name="i-heroicons-sparkles" class="size-3.5 text-white" />
               {{ t('satisfactionSurvey.cards.avgCsat.target') }}
             </span>
             <span class="text-xs text-white font-medium">
@@ -72,7 +71,7 @@
                   {{ t('satisfactionSurvey.cards.totalSurveys.title') }}
                 </span>
               </div>
-              <h3 class="text-4xl font-bold !text-white mt-2 tracking-tight">
+              <h3 class="text-4xl font-bold !text-white mt-2 tracking-tight tabular-nums">
                 {{ surveysStore.surveys.length }}
                 <span class="text-lg font-normal text-white">{{ t('satisfactionSurvey.cards.totalSurveys.unit') }}</span>
               </h3>
@@ -113,7 +112,7 @@
                   {{ t('satisfactionSurvey.cards.responseRate.title') }}
                 </span>
               </div>
-              <h3 class="text-4xl font-bold !text-white mt-2 tracking-tight">
+              <h3 class="text-4xl font-bold !text-white mt-2 tracking-tight tabular-nums">
                 {{ responseRate }}%
               </h3>
             </div>
@@ -524,7 +523,7 @@
                   <span class="text-xs text-white/90 mt-0.5 block">{{ t('satisfactionSurvey.formModal.estimatedScoreFormula') }}</span>
                 </div>
                 <div class="text-right">
-                  <span class="text-2xl font-extrabold text-white">
+                  <span class="text-2xl font-extrabold text-white tabular-nums">
                     {{ computedOverallScore.toFixed(2) }}
                   </span>
                   <span class="text-sm text-white/90 font-medium"> / 5.0</span>
@@ -619,7 +618,7 @@
                   <span class="text-md text-gray-600 dark:text-gray-400 font-medium">{{ t('satisfactionSurvey.viewModal.clarity') }}</span>
                   <div class="flex items-center gap-1">
                     <UIcon v-for="star in 5" :key="star" name="i-heroicons-star-solid" :class="star <= (viewSurveyDetail?.rating_clarity || 0) ? 'text-amber-500 w-4 h-4' : 'text-gray-250 dark:text-gray-700 w-4 h-4'" />
-                    <span class="ml-2 font-mono font-bold text-gray-800 dark:text-gray-200">({{ viewSurveyDetail?.rating_clarity }}/5)</span>
+                    <span class="ml-2 tabular-nums font-bold text-gray-800 dark:text-gray-200">({{ viewSurveyDetail?.rating_clarity }}/5)</span>
                   </div>
                 </div>
 
@@ -627,7 +626,7 @@
                   <span class="text-md text-gray-600 dark:text-gray-400 font-medium">{{ t('satisfactionSurvey.viewModal.professionalism') }}</span>
                   <div class="flex items-center gap-1">
                     <UIcon v-for="star in 5" :key="star" name="i-heroicons-star-solid" :class="star <= (viewSurveyDetail?.rating_professionalism || 0) ? 'text-amber-500 w-4 h-4' : 'text-gray-250 dark:text-gray-700 w-4 h-4'" />
-                    <span class="ml-2 font-mono font-bold text-gray-800 dark:text-gray-200">({{ viewSurveyDetail?.rating_professionalism }}/5)</span>
+                    <span class="ml-2 tabular-nums font-bold text-gray-800 dark:text-gray-200">({{ viewSurveyDetail?.rating_professionalism }}/5)</span>
                   </div>
                 </div>
 
@@ -635,7 +634,7 @@
                   <span class="text-md text-gray-600 dark:text-gray-400 font-medium">{{ t('satisfactionSurvey.viewModal.timeliness') }}</span>
                   <div class="flex items-center gap-1">
                     <UIcon v-for="star in 5" :key="star" name="i-heroicons-star-solid" :class="star <= (viewSurveyDetail?.rating_timeliness || 0) ? 'text-amber-500 w-4 h-4' : 'text-gray-250 dark:text-gray-700 w-4 h-4'" />
-                    <span class="ml-2 font-mono font-bold text-gray-800 dark:text-gray-200">({{ viewSurveyDetail?.rating_timeliness }}/5)</span>
+                    <span class="ml-2 tabular-nums font-bold text-gray-800 dark:text-gray-200">({{ viewSurveyDetail?.rating_timeliness }}/5)</span>
                   </div>
                 </div>
               </div>
@@ -647,7 +646,7 @@
                   <span class="text-md text-gray-500 mt-0.5">{{ t('satisfactionSurvey.viewModal.overallScoreSubtitle') }}</span>
                 </div>
                 <div class="text-right">
-                  <span class="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
+                  <span class="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums">
                     {{ viewSurveyDetail?.overall_score?.toFixed(2) }}
                   </span>
                   <span class="text-sm text-gray-500">/ 5.0</span>

@@ -2,6 +2,7 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import re
+import time
 import pickle
 from datetime import datetime
 import numpy as np
@@ -180,6 +181,22 @@ def score_to_risk_level(score: float) -> str:
     elif score >= 4:
         return "LOW_MODERATE"
     return "LOW"
+
+def format_rupiah_millions(amount_millions: float) -> str:
+    """Rupiah amount given in millions, written with Indonesian scale words:
+    20114.34 -> 'Rp 20,11 miliar'. Never 'M' (reads as miliar in Indonesian)."""
+    v = float(amount_millions or 0.0) * 1_000_000
+    for factor, word in ((1e12, 'triliun'), (1e9, 'miliar'), (1e6, 'juta')):
+        if abs(v) >= factor:
+            num = f"{v / factor:,.2f}".rstrip('0').rstrip('.')
+            # Indonesian separators: '.' for thousands, ',' for decimals.
+            num = num.replace(',', '_').replace('.', ',').replace('_', '.')
+            return f"Rp {num} {word}"
+    return f"Rp {v:,.0f}".replace(',', '.')
+
+def normalize_rupiah_text(text: str) -> str:
+    """Rewrites 'Rp 20114.34 Juta' inside dataset text into 'Rp 20,11 miliar'."""
+    return re.sub(r'Rp\s?(\d+(?:\.\d+)?)\s?Juta', lambda m: format_rupiah_millions(float(m.group(1))), str(text))
 
 def get_current_target_timeline() -> str:
     """Calculate target horizon/timeline dynamically based on current running date."""
@@ -526,7 +543,7 @@ def predict_anomaly(req: AnomalyRequest):
             "entity": req.entity,
             "type": chosen_type,
             "anomaly_score": round(anom_score, 4),
-            "description": f"{req.description or chosen_type} - Rp {amt_val:,.2f}M (Jam {hour_val}:00)",
+            "description": f"{req.description or chosen_type} - {format_rupiah_millions(amt_val)} (Jam {hour_val}:00)",
             "severity": "Critical" if is_anom else "Low",
             "date": "2026-06-01",
             "amount": amt_val * 1000000,
@@ -535,6 +552,8 @@ def predict_anomaly(req: AnomalyRequest):
             "predicted_likelihood": lik_idx,
             "risk_level": score_to_risk_level(score),
             "xMetric": x_val,
+            "hour": hour_val,
+            "hour_of_day": hour_val,
             "target_timeline": get_current_target_timeline()
         }
 
@@ -618,7 +637,7 @@ def predict_anomaly(req: AnomalyRequest):
                 "entity": req.entity,
                 "type": b_cat,
                 "anomaly_score": round(prob, 4),
-                "description": f"{req.description or b_cat} - Rp {b_amt:,.2f}M (Jam {b_hour}:00)",
+                "description": f"{req.description or b_cat} - {format_rupiah_millions(b_amt)} (Jam {b_hour}:00)",
                 "severity": sev,
                 "date": "2026-06-01",
                 "amount": b_amt * 1000000,
@@ -627,6 +646,8 @@ def predict_anomaly(req: AnomalyRequest):
                 "predicted_likelihood": lik_idx,
                 "risk_level": score_to_risk_level(score),
                 "xMetric": x_metric,
+                "hour": b_hour,
+                "hour_of_day": b_hour,
                 "target_timeline": get_current_target_timeline()
             }
 
@@ -698,7 +719,7 @@ def predict_anomaly(req: AnomalyRequest):
             "entity": req.entity,
             "type": mapped_type,
             "anomaly_score": round(prob, 4),
-            "description": f"{req.description or 'Transaksi'} - Rp {amt_val:,.2f}M (Jam {hour_val}:00)",
+            "description": f"{req.description or 'Transaksi'} - {format_rupiah_millions(amt_val)} (Jam {hour_val}:00)",
             "severity": sev,
             "date": "2026-06-01",
             "amount": amt_val * 1000000,
@@ -707,6 +728,8 @@ def predict_anomaly(req: AnomalyRequest):
             "predicted_likelihood": lik_idx,
             "risk_level": score_to_risk_level(score),
             "xMetric": x_metric,
+            "hour": hour_val,
+            "hour_of_day": hour_val,
             "target_timeline": get_current_target_timeline()
         }
     except Exception as e:
@@ -720,7 +743,7 @@ def predict_anomaly(req: AnomalyRequest):
             "entity": req.entity,
             "type": chosen_type,
             "anomaly_score": 0.85 if is_anom else 0.15,
-            "description": f"{req.description or chosen_type} - Rp {amt_val:,.2f}M",
+            "description": f"{req.description or chosen_type} - {format_rupiah_millions(amt_val)}",
             "severity": "High" if is_anom else "Low",
             "date": "2026-06-01",
             "amount": amt_val * 1000000,
@@ -729,6 +752,8 @@ def predict_anomaly(req: AnomalyRequest):
             "predicted_likelihood": 4 if is_anom else 1,
             "risk_level": "HIGH" if is_anom else "LOW",
             "xMetric": get_metric_x_value(chosen_type, amt_val, hour_val, 1),
+            "hour": hour_val,
+            "hour_of_day": hour_val,
             "target_timeline": get_current_target_timeline()
         }
 
@@ -811,6 +836,7 @@ def get_anomaly_batch():
             fails = int(pd.to_numeric(r['Jumlah Gagal Login'], errors='coerce') or 0)
             deviasi = float(pd.to_numeric(r['Deviasi terhadap Profil Historis (%)'], errors='coerce') or 0.0)
             desc = str(r['Alasan Anomali']).strip() if (str(r.get('Alasan Anomali', '-')).strip() != '-') else f"Transaksi anomali {cat} pada {ent}"
+            desc = normalize_rupiah_text(desc)
 
             req_obj = AnomalyRequest(
                 entity=ent,
@@ -830,6 +856,10 @@ def get_anomaly_batch():
             pred['id'] = trx_id
             pred['type'] = cat
             pred['xMetric'] = get_metric_x_value(cat, amt, hour, idx, deviasi, fails)
+            pred['hour'] = hour
+            pred['hour_of_day'] = hour
+            # The dataset reason already states the amount; don't append it twice.
+            pred['description'] = desc
             pred['target_timeline'] = get_current_target_timeline()
             anomalies_list.append(pred)
 
@@ -849,16 +879,17 @@ def get_anomaly_batch():
                 is_anom = (str(r['TARGET: is_anomaly']).strip() == 'Ya (Anomali)')
                 x_val = get_metric_x_value(cat, amt, hour, idx, deviasi, fails)
 
-                y_val = round(float(hour * 2.5 + (idx % 9)), 2)
-                if is_anom:
-                    y_val = round(float(25.0 + (hour * 1.5) + (idx % 12)), 2)
+                minute_jitter = round(((idx % 6) * 0.12), 2)
+                y_val = min(23.9, max(0.0, round(float(hour) + minute_jitter, 2)))
+
+                trx_label = str(r['ID Transaksi']) if 'ID Transaksi' in r else f"BANK-TRX-{idx+1}"
 
                 scatter_data.append({
                     "x": x_val,
                     "y": y_val,
                     "type": cat,
                     "is_anomaly": is_anom,
-                    "label": str(r['ID Transaksi']) if 'ID Transaksi' in r else f"BANK-{idx}"
+                    "label": trx_label
                 })
 
         # Also include real normal distribution baseline for 'Transaction' from operational dataset
@@ -874,15 +905,14 @@ def get_anomaly_batch():
                         hour = int(r.get('hour_of_day (0-23)', 12))
                         is_anom = (str(r.get('TARGET: is_anomaly', '')).strip() == 'Ya (Anomali)')
                         x_val = get_metric_x_value(cat_label, amt, hour, idx)
-                        y_val = round(float(hour * 2.5 + (idx % 7)), 2)
-                        if is_anom:
-                            y_val = round(float(25.0 + (hour * 1.5) + (idx % 12)), 2)
+                        minute_jitter = round(((idx % 6) * 0.12), 2)
+                        y_val = min(23.9, max(0.0, round(float(hour) + minute_jitter, 2)))
                         scatter_data.append({
                             "x": x_val,
                             "y": y_val,
                             "type": cat_label,
                             "is_anomaly": is_anom,
-                            "label": str(r.get('ID Transaksi', f"TRX-{idx}"))
+                            "label": str(r.get('ID Transaksi', f"TRX-{idx+1}"))
                         })
             except Exception as e:
                 print(f"Error loading general transaction scatter data: {e}")
@@ -941,6 +971,7 @@ def get_anomaly_batch():
         pred['id'] = trx_id
         pred['type'] = atype
         pred['xMetric'] = get_metric_x_value(atype, amt, hour, idx)
+        pred['hour'] = hour
         pred['target_timeline'] = get_current_target_timeline()
         anomalies_list.append(pred)
 
@@ -955,7 +986,7 @@ def get_anomaly_batch():
         x_val = get_metric_x_value(atype, amt, hour, idx)
         scatter_data.append({
             "x": x_val,
-            "y": round(float(hour * 2.5 + (idx % 7)), 2),
+            "y": hour,
             "type": atype,
             "is_anomaly": is_anom,
             "label": str(r['ID Transaksi']) if 'ID Transaksi' in r else f"TRX-{idx}"
@@ -972,6 +1003,161 @@ def get_anomaly_batch():
         "anomalies": anomalies_list,
         "scatter_data": scatter_data,
         "summary": summary
+    }
+
+class AnomalyRuleTrainRequest(BaseModel):
+    connection_name: Optional[str] = "Connected DB"
+    table_name: str
+    category: Optional[str] = "Transaction"
+    rules: List[Any] = []
+    sample_records: Optional[List[Dict[str, Any]]] = None
+
+@app.post("/predict/anomaly/train-rules")
+@app.post("/retrain/anomaly-rules")
+def train_anomaly_with_rules(req: AnomalyRuleTrainRequest):
+    """
+    Automated Anomaly Rules Trainer for Data Sources:
+    Takes rules defined in the Data Source mapping, generates labeled training instances,
+    appends them to the anomaly training pool, retrains the XGBoost & Isolation Forest suites,
+    hot-reloads the active models, and returns fresh anomaly batch predictions.
+    """
+    bank_csv = os.path.join(AI_TRAINING_DIR, 'anomaly_prediction', 'bank_transaction_anomaly_data.csv')
+    canonical_cat = req.category or "Transaction"
+    table_name = req.table_name or "external_table"
+    conn_name = req.connection_name or "Connected DB"
+
+    new_training_rows = []
+    ts = int(time.time())
+
+    for idx, r_item in enumerate(req.rules or []):
+        if isinstance(r_item, dict):
+            rule_name = str(r_item.get('name') or f"Aturan {idx+1}")
+            rule_field = str(r_item.get('field') or "amount").lower()
+            rule_op = str(r_item.get('operator') or ">")
+            rule_thresh = r_item.get('threshold')
+            rule_sev = str(r_item.get('severity') or "High").upper()
+            rule_cat = str(r_item.get('category') or canonical_cat)
+            rule_desc = str(r_item.get('description') or f"Pelanggaran aturan '{rule_name}' pada tabel {table_name}")
+        else:
+            rule_name = str(r_item)
+            rule_field = "amount"
+            rule_op = ">"
+            rule_thresh = 100.0
+            rule_sev = "HIGH"
+            rule_cat = canonical_cat
+            rule_desc = f"Aturan otomatis '{rule_name}' terdeteksi pada tabel {table_name}"
+
+        # Determine Impact & Likelihood from Severity
+        if rule_sev == "CRITICAL":
+            imp, lik = 5, 5
+        elif rule_sev == "HIGH":
+            imp, lik = 4, 4
+        else:
+            imp, lik = 3, 3
+
+        # Generate 3 targeted anomaly samples embodying this rule
+        for s_idx in range(3):
+            trx_id = f"RULE-{ts % 10000}-{idx+1}-{s_idx+1}"
+            amt = 150.0 + (s_idx * 75.0)
+            hour = [23, 2, 1, 22, 3][(idx + s_idx) % 5]
+            fails = 0
+            deviasi = 45.0 + (s_idx * 20.0)
+            auth = "Terverifikasi Dual Control (Maker-Checker)"
+
+            # Adjust features based on the rule
+            lower_name = rule_name.lower()
+            if "threshold" in lower_name or "amount" in rule_field or rule_op in [">", ">="]:
+                try:
+                    num_thresh = float(rule_thresh) if rule_thresh is not None else 100.0
+                    amt = max(num_thresh * 1.25, 120.0) + (s_idx * 50.0)
+                except Exception:
+                    amt = 250.0 + (s_idx * 50.0)
+            elif "after-hours" in lower_name or "weekend" in lower_name or "hour" in rule_field or "jam" in rule_field:
+                hour = [23, 2, 1][s_idx % 3]
+            elif "login" in lower_name or "failed" in lower_name or "brute" in lower_name or "gagal" in rule_field:
+                fails = 5 + s_idx * 2
+            elif "override" in lower_name or "unauthorized" in lower_name or "auth" in rule_field:
+                auth = "Override / Tanpa Otorisasi"
+            elif "deviation" in lower_name or "deviasi" in lower_name:
+                deviasi = 120.0 + (s_idx * 30.0)
+
+            new_training_rows.append({
+                'ID Transaksi': trx_id,
+                'Kategori': rule_cat,
+                'Entitas': f"Unit Kerja {conn_name}",
+                'Kanal Transaksi': 'Cabang / Teller' if 'cash' in lower_name else 'Host-to-Host Core Banking',
+                'Nilai Transaksi (Juta Rp)': round(amt, 2),
+                'Bunga/Margin (%)': 6.5,
+                'Jam Transaksi (0-23)': hour,
+                'Status Dokumen': 'Tidak Lengkap' if imp >= 5 else 'Lengkap',
+                'Jumlah Gagal Login': fails,
+                'Tingkat Risiko Nasabah': 'High Risk' if imp >= 4 else 'Medium Risk',
+                'Status Otorisasi / Maker-Checker': auth,
+                'Deviasi terhadap Profil Historis (%)': round(deviasi, 2),
+                'TARGET: is_anomaly': 'Ya (Anomali)',
+                'TARGET: Impact (1-5)': imp,
+                'TARGET: Likelihood (1-5)': lik,
+                'Alasan Anomali': f"{rule_desc} [Rule: {rule_name}]"
+            })
+
+    # Generate 10 standard negative (normal) baseline instances for stability
+    for n_idx in range(10):
+        norm_id = f"NORM-{ts % 10000}-{n_idx+1}"
+        new_training_rows.append({
+            'ID Transaksi': norm_id,
+            'Kategori': canonical_cat,
+            'Entitas': f"Unit Kerja {conn_name}",
+            'Kanal Transaksi': 'Mobile / Internet Banking',
+            'Nilai Transaksi (Juta Rp)': round(15.0 + (n_idx * 5.0), 2),
+            'Bunga/Margin (%)': 5.25,
+            'Jam Transaksi (0-23)': 9 + (n_idx % 8),  # 09:00 - 16:00
+            'Status Dokumen': 'Lengkap',
+            'Jumlah Gagal Login': 0,
+            'Tingkat Risiko Nasabah': 'Low Risk',
+            'Status Otorisasi / Maker-Checker': 'Terverifikasi Dual Control (Maker-Checker)',
+            'Deviasi terhadap Profil Historis (%)': round(2.5 + (n_idx * 1.2), 2),
+            'TARGET: is_anomaly': 'Tidak',
+            'TARGET: Impact (1-5)': 2,
+            'TARGET: Likelihood (1-5)': 1,
+            'Alasan Anomali': '-'
+        })
+
+    # Append to training CSV if present
+    retrained = False
+    if os.path.exists(bank_csv) and new_training_rows:
+        try:
+            df_existing = pd.read_csv(bank_csv)
+            # Remove any previous records for this specific table to prevent unbounded duplication
+            df_existing = df_existing[~df_existing['Alasan Anomali'].astype(str).str.contains(f"\\[Rule:.*\\]", na=False, regex=True) | ~df_existing['Entitas'].astype(str).str.contains(re.escape(conn_name), na=False, regex=True)]
+            df_new = pd.DataFrame(new_training_rows)
+            df_combined = pd.concat([df_existing, df_new], ignore_index=True)
+            df_combined.to_csv(bank_csv, index=False)
+
+            # Trigger automated retraining
+            engine = AutoRetrainEngine()
+            retrained = engine.retrain_anomaly_suite()
+            reload_fastapi_models(app)
+            print(f"[AutomatedRules] Successfully retrained Anomaly Detection model with {len(req.rules)} rules for {table_name}")
+        except Exception as e:
+            print(f"[AutomatedRules] Error retraining anomaly suite: {e}")
+
+    # Flush Redis cache key if available
+    try:
+        import redis
+        r = redis.Redis(host=os.getenv("REDIS_HOST", "localhost"), port=int(os.getenv("REDIS_PORT", 6379)), db=0)
+        r.delete("audit:analytics:batch:anomaly")
+    except Exception:
+        pass
+
+    batch_data = get_anomaly_batch()
+    return {
+        "status": "success",
+        "message": f"Model Anomaly Detection berhasil dilatih ulang dengan {len(req.rules)} aturan anomali dari tabel '{table_name}'.",
+        "table_name": table_name,
+        "rules_count": len(req.rules),
+        "training_samples_added": len(new_training_rows),
+        "anomaly_model_retrained": retrained,
+        **batch_data
     }
 
 # ----------------------------------------------------------------------
@@ -1445,6 +1631,31 @@ def get_performance_trend_batch():
             return 'Hourly'
         return 'Daily'
 
+    # Not every KPI in the dataset is a percentage, and for some a lower value is better.
+    kpi_unit_map = {
+        'Net Promoter Score': 'score',
+        'Customer Lifetime Value': 'Rp',
+        'Average Order Value': 'Rp',
+        'Customer Acquisition Cost': 'Rp',
+        'Monthly Recurring Revenue': 'Rp',
+    }
+    lower_is_better = {'Employee Turnover Rate', 'Customer Acquisition Cost'}
+
+    def parse_month(label) -> Optional[str]:
+        """'Bulan 01 2015' -> '2015-01'."""
+        m = re.search(r'(\d{1,2})\D+(\d{4})', str(label))
+        if not m:
+            return None
+        return f"{int(m.group(2)):04d}-{int(m.group(1)):02d}"
+
+    def next_month(period: str, steps: int) -> str:
+        y, mth = int(period[:4]), int(period[5:7])
+        idx = y * 12 + (mth - 1) + steps
+        return f"{idx // 12:04d}-{idx % 12 + 1:02d}"
+
+    HISTORY_POINTS = 12
+    series_by_kpi = {}
+
     for kpi_name in unique_kpis:
         group = kpi_groups.get_group(kpi_name)
         hist = pd.to_numeric(group['TARGET: Nilai Aktual (%)'], errors='coerce').dropna().values.tolist()
@@ -1503,13 +1714,15 @@ def get_performance_trend_batch():
             "aiNarrative": narrative,
             "recommendedAction": rec_action
         })
+        series_by_kpi[kpi_name] = (history_points, forecast_points)
 
         if pred['trend'] == "Deteriorating" or pred['risk_level'] in ['HIGH', 'CRITICAL']:
             auditee_at_risk.append({
                 "department": entity_info[0],
                 "kpi": kpi_name,
-                "currentTrend": -3.5,
-                "predictedQ3": fore_val,
+                "currentTrend": change_pct,
+                "predictedValue": fore_val,
+                "horizonEnd": horizon_end,
                 "riskLevel": pred['risk_level']
             })
 

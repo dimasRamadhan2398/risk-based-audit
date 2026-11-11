@@ -49,7 +49,7 @@ onMounted(() => {
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.duplicateGap.duplicates') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ dupGapState.summary.totalDuplicates }}
               </h4>
             </div>
@@ -72,7 +72,7 @@ onMounted(() => {
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.duplicateGap.gaps') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ dupGapState.summary.totalGaps }}
               </h4>
             </div>
@@ -95,7 +95,7 @@ onMounted(() => {
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.common.affectedBranches') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ dupGapState.summary.branchesAffected }}
               </h4>
             </div>
@@ -148,9 +148,9 @@ onMounted(() => {
                 <td class="py-3 px-3 font-semibold">{{ r.branchName }}</td>
                 <td class="py-3 px-3 font-mono font-bold">{{ r.referenceNo }}</td>
                 <td class="py-3 px-3 font-mono text-xs text-gray-500">{{ r.accountId }}</td>
-                <td class="py-3 px-3 text-right font-mono font-bold">{{ r.amount > 0 ? formatIDR(r.amount) : '-' }}</td>
+                <td class="py-3 px-3 num-currency font-bold">{{ r.amount > 0 ? formatIDR(r.amount) : '-' }}</td>
                 <td class="py-3 px-3 text-gray-600 dark:text-gray-300 leading-relaxed">{{ r.description }}</td>
-                <td class="text-center py-3 px-3 font-mono font-bold">{{ r.occurrences }}x</td>
+                <td class="text-center py-3 px-3 tabular-nums font-bold">{{ r.occurrences }}x</td>
                 <td class="text-center py-3 px-3">
                   <UBadge :color="r.status === 'OPEN' ? 'error' : r.status === 'INVESTIGATING' ? 'warning' : 'success'" variant="subtle" size="sm">
                     {{ r.status }}

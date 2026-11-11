@@ -377,12 +377,6 @@
                   v-if="!store.reportForm.findings || store.reportForm.findings.length === 0"
                   class="text-center py-8 bg-secondary-50/40 dark:bg-secondary-950/30 rounded-xl border border-dashed border-secondary-200 dark:border-secondary-900/50 space-y-2"
                 >
-                  <div class="p-3 bg-secondary-100 dark:bg-secondary-900/40 rounded-full w-fit mx-auto text-secondary-600 dark:text-secondary-400">
-                    <UIcon
-                      name="i-heroicons-sparkles"
-                      class="size-6"
-                    />
-                  </div>
                   <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">
                     {{ t('auditResultReport.editor.form.empty') }}
                   </p>
@@ -394,7 +388,7 @@
                       :label="t('auditResultReport.editor.form.sync')"
                       size="sm"
                       color="secondary"
-                      icon="i-heroicons-sparkles"
+                      icon="i-lucide-refresh-cw"
                       :loading="store.isAutoDetecting"
                       @click="store.runAutoDetectFindings('replace')"
                     />

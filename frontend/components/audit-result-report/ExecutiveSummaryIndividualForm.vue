@@ -2,8 +2,12 @@
   <div class="flex flex-col h-full bg-gray-50 dark:bg-gray-950">
     <!-- Stepper header (clickable) -->
     <div class="flex items-center gap-3 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3 sm:px-6 sm:py-4 shrink-0">
-      <div class="flex-1 min-w-0 overflow-x-auto scrollbar-thin">
-        <div class="flex min-w-max items-center justify-center gap-3 px-1 sm:gap-4">
+      <!-- Horizontal scroll only: the header never grows or scrolls vertically -->
+      <div
+        ref="stepScrollRef"
+        class="flex-1 min-w-0 overflow-x-auto overflow-y-hidden scrollbar-thin"
+      >
+        <div class="flex min-w-max items-center justify-center gap-3 px-1 py-1 sm:gap-4">
           <template
             v-for="(sec, idx) in sections"
             :key="sec.id"
@@ -194,54 +198,24 @@
             <p class="text-sm text-gray-400">{{ t('executiveSummaryForm.followUp.description') }}</p>
           </div>
 
-          <div class="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
-              <thead class="bg-gray-50 dark:bg-gray-800/80">
-                <tr>
-                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryForm.table.status') }}</th>
-                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">{{ t('executiveSummaryForm.table.count') }}</th>
-                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">{{ t('executiveSummaryForm.table.percent') }}</th>
-                  <th class="px-6 py-3.5 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryForm.table.notes') }}</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800 font-medium">
-                <tr v-for="(row, idx) in store.form.followUpTable" :key="row.status">
-                  <td class="px-6 py-4 text-sm font-bold">
-                    <span :class="getStatusBadgeClass(row.status)">{{ row.status }}</span>
-                  </td>
-                  <td class="px-6 py-2">
-                    <UInput
-                      type="number"
-                      v-model.number="row.jumlah"
-                      placeholder="0"
-                      class="font-semibold"
-                      :disabled="isLocked"
-                      min="0"
-                      @input="recalculatePercentages"
-                    />
-                  </td>
-                  <td class="px-6 py-4 text-sm font-semibold text-gray-600 dark:text-white">
-                    {{ formatPercent(row.persentase) }}%
-                  </td>
-                  <td class="px-6 py-2">
-                    <UTextarea
-                      v-model="row.keterangan"
-                      :placeholder="t('executiveSummaryForm.followUp.notePlaceholder')"
-                      class="w-full"
-                      :disabled="isLocked"
-                    />
-                  </td>
-                </tr>
-                <!-- Total Row -->
-                <tr class="bg-gray-50 dark:bg-gray-800/40 font-bold border-t-2">
-                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryForm.table.total') }}</td>
-                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white font-mono font-extrabold">{{ totalFollowUpCount }}</td>
-                  <td class="px-6 py-4 text-sm text-gray-900 dark:text-white font-mono font-extrabold">100.0%</td>
-                  <td class="px-6 py-4 text-md text-gray-400 italic">{{ t('executiveSummaryForm.table.autoCalculated') }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <!-- Counts from the ATR buckets of the linked LHA's findings (read-only); frozen once approved -->
+          <ExecutiveSummaryFollowUpTable
+            :rows="store.form.followUpTable"
+            :locked="isLocked"
+            :loading="followUp.loading.value"
+            :error="followUp.error.value"
+            :approved-date-label="approvedDateLabel"
+            :as-of-label="followUpAsOfLabel"
+            :refreshable="!isLocked && !!followUpQuery"
+            :empty-hint="followUpEmptyHint"
+            @refresh="refreshFollowUp"
+          />
+
+          <!-- Live status next to the frozen snapshot, only for users who may view every ATR -->
+          <ExecutiveSummaryCurrentFollowUp
+            v-if="isLocked && canViewLiveFollowUpStatus && followUpQuery"
+            :query="followUpQuery"
+          />
         </section>
 
         <!-- 5. Section Top 5 Significant Findings -->
@@ -277,89 +251,17 @@
             </div>
           </div>
 
-          <div v-if="store.form.topFindings.length > 0" class="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
-              <thead class="bg-gray-50 dark:bg-gray-800/80">
-                <tr>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">{{ t('executiveSummaryForm.table.unitDivision') }}</th>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryForm.table.findingTitle') }}</th>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-32">{{ t('executiveSummaryForm.table.riskValue') }}</th>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-36">{{ t('executiveSummaryForm.table.followUpStatus') }}</th>
-                  <th class="px-4 py-3 text-left text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider">{{ t('executiveSummaryForm.table.proposedAction') }}</th>
-                  <th v-if="!isLocked" class="px-4 py-3 text-center text-md font-bold text-gray-500 dark:text-white uppercase tracking-wider w-16">{{ t('executiveSummaryForm.table.actions') }}</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
-                <tr v-for="(finding, idx) in store.form.topFindings" :key="idx">
-                  <td class="px-3 py-2">
-                    <USelectMenu
-                      v-model="finding.unitDivision"
-                      :items="store.unitDivisionOptions"
-                      :loading="store.departmentsLoading"
-                      :placeholder="t('executiveSummaryForm.placeholders.division')"
-                      :disabled="isLocked"
-                      class="w-full"
-                      create-item
-                      @create="(val: string) => { finding.unitDivision = val.trim() }"
-                    >
-                      <template #empty>
-                        {{ store.departmentsLoading ? t('common.loading') : (store.departmentsError || t('masterData.department.empty')) }}
-                      </template>
-                    </USelectMenu>
-                  </td>
-                  <td class="px-3 py-2">
-                    <UInput
-                      v-model="finding.judulTemuan"
-                      :placeholder="t('executiveSummaryForm.placeholders.findingTitle')"
-                      :disabled="isLocked"
-                      maxlength="100"
-                      @invalid="($event.target as any)?.setCustomValidity(t('executiveSummaryForm.validation.findingTitle'))"
-                      @input="($event.target as any)?.setCustomValidity('')"
-                    />
-                    <div class="text-xs text-gray-500 mt-1 text-right">
-                      {{ finding.judulTemuan ? finding.judulTemuan.length : 0 }}/100
-                    </div>
-                  </td>
-                  <td class="px-3 py-2">
-                    <USelectMenu
-                      v-model="finding.risiko"
-                      :items="significanceLevelOptions"
-                      value-key="value"
-                      :placeholder="t('executiveSummaryForm.placeholders.risk')"
-                      :disabled="isLocked"
-                      class="w-full"
-                    />
-                  </td>
-                  <td class="px-3 py-2">
-                    <USelectMenu
-                      v-model="finding.statusTL"
-                      :items="['Closed', 'In Progress', 'Overdue']"
-                      :placeholder="t('executiveSummaryForm.table.followUpStatus')"
-                      :disabled="isLocked"
-                    />
-                  </td>
-                  <td class="px-3 py-2">
-                    <UTextarea
-                      v-model="finding.usulan"
-                      :placeholder="t('executiveSummaryForm.placeholders.proposedAction')"
-                      :disabled="isLocked"
-                    />
-                  </td>
-                  <td v-if="!isLocked" class="px-3 py-2 text-center">
-                    <UButton
-                      color="error"
-                      variant="ghost"
-                      icon="i-lucide-trash"
-                      size="sm"
-                      @click="removeTopFinding(idx)"
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <div v-else class="text-center py-8 bg-gray-50 dark:bg-gray-800/30 rounded-lg text-sm text-gray-400 border border-dashed">
+          <SignificantFindingCards
+            ref="findingCardsRef"
+            :findings="store.form.topFindings"
+            :disabled="isLocked"
+            :unit-options="store.unitDivisionOptions"
+            :unit-loading="store.departmentsLoading"
+            :unit-error="store.departmentsError"
+            :risk-options="significanceLevelOptions"
+            @remove="removeTopFinding"
+          />
+          <div v-if="store.form.topFindings.length === 0" class="text-center py-8 bg-gray-50 dark:bg-gray-800/30 rounded-lg text-sm text-gray-400 border border-dashed">
             {{ t('executiveSummaryForm.topFindings.empty') }}
             <button v-if="!isLocked" type="button" @click="addTopFinding" class="text-primary-500 font-bold ml-1 hover:underline">
               {{ t('executiveSummaryForm.topFindings.emptyAction') }}
@@ -558,19 +460,41 @@
             :label="t('executiveSummaryForm.actions.approve')"
             class="font-bold px-6"
             :loading="store.loading"
-            @click="approveReportDirectly"
+            @click="openApproveSignature"
           />
         </template>
       </div>
     </div>
+
+    <ExecutiveSummaryApproveModal
+      v-model:open="showApproveModal"
+      :report-number="store.form.nomorDokumen"
+      :initial-place="store.form.signatureTempat"
+      :initial-date="store.form.signatureTanggal"
+      :initial-signer-name="store.form.signatureNamaKepala"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useExecutiveSummaryStore } from '~/stores/executive-summary'
+import { ref, computed, watch } from 'vue'
+import { useExecutiveSummaryStore, isValidUuid, type SignificantFinding } from '~/stores/executive-summary'
 import { useAuthStore } from '~/stores/auth'
 import { useRbac } from '~/composables/useRbac'
+import { useExecutiveSummaryFollowUp } from '~/composables/useExecutiveSummaryFollowUp'
+import ExecutiveSummaryApproveModal from './ExecutiveSummaryApproveModal.vue'
+import ExecutiveSummaryCurrentFollowUp from './ExecutiveSummaryCurrentFollowUp.vue'
+import ExecutiveSummaryFollowUpTable from './ExecutiveSummaryFollowUpTable.vue'
+import SignificantFindingCards from './SignificantFindingCards.vue'
+import { followUpRowsFromStats, formatSyncedAt } from '~/utils/executiveSummaryCompilation'
+import {
+  BUCKET_STATUS,
+  applyFollowUpToTopFindings,
+  formatFollowUpDate,
+  type FollowUpStatusQuery,
+  type FollowUpStatusResult
+} from '~/utils/executiveSummaryFollowUp'
+import { scrollStepIntoView } from '~/utils/stepperScroll'
 import { UserRole } from '~/types/auth'
 import { useI18n } from '~/composables/useI18n'
 import { useAppToast } from '~/composables/useAppToast'
@@ -582,9 +506,9 @@ import {
 } from '~/utils/executiveSummaryNarrative'
 const store = useExecutiveSummaryStore()
 const authStore = useAuthStore()
-const { canReviewExecutiveSummary } = useRbac()
-const { t } = useI18n()
-const { warning } = useAppToast()
+const { canReviewExecutiveSummary, canViewLiveFollowUpStatus } = useRbac()
+const { t, locale } = useI18n()
+const { warning, error: errorToast } = useAppToast()
 
 const fileInput = ref<HTMLInputElement | null>(null)
 const activeSection = ref('sec-upload')
@@ -621,24 +545,6 @@ const isLocked = computed(() => {
   return store.form.status === 'Approved'
 })
 
-// Section III computed auto-sums
-const totalFollowUpCount = computed(() => {
-  return store.form.followUpTable.reduce((acc, row) => acc + (row.jumlah || 0), 0)
-})
-
-// Force recalculate Section III percentages
-const recalculatePercentages = () => {
-  const total = totalFollowUpCount.value
-  store.form.followUpTable.forEach(row => {
-    row.persentase = total > 0 ? (row.jumlah / total) * 100 : 0
-  })
-}
-
-// Helper formatting percentage
-const formatPercent = (val: number) => {
-  return val ? val.toFixed(1) : '0.0'
-}
-
 const resetNarrativeToDefault = () => {
   store.form.narrative = store.defaultNarrativeTemplate(narrativePeriod.value)
 }
@@ -673,6 +579,8 @@ const handleFileUpload = (e: Event) => {
 }
 
 // Section IV: Top 5 dynamic list methods
+// Only the card of a newly added finding opens; existing cards keep their state
+const findingCardsRef = ref<InstanceType<typeof SignificantFindingCards> | null>(null)
 const addTopFinding = () => {
   if (store.form.topFindings.length >= 5) return
   const defaultDiv: string = store.unitDivisionOptions[0] || ''
@@ -683,19 +591,11 @@ const addTopFinding = () => {
     statusTL: 'In Progress',
     usulan: ''
   })
+  findingCardsRef.value?.expand(store.form.topFindings[store.form.topFindings.length - 1])
 }
 
 const removeTopFinding = (idx: number) => {
   store.form.topFindings.splice(idx, 1)
-}
-
-const getStatusBadgeClass = (status: 'Closed' | 'In Progress' | 'Overdue') => {
-  const colors = {
-    Closed: 'bg-success-100 text-success-800 dark:bg-success-950 dark:text-success-300 px-2.5 py-0.5 rounded text-md font-bold uppercase',
-    'In Progress': 'bg-info-100 text-info-800 dark:bg-info-950 dark:text-info-300 px-2.5 py-0.5 rounded text-md font-bold uppercase',
-    Overdue: 'bg-error-100 text-error-800 dark:bg-error-950 dark:text-error-300 px-2.5 py-0.5 rounded text-md font-bold uppercase'
-  }
-  return colors[status]
 }
 
 // Form submission & workflow helpers
@@ -722,14 +622,25 @@ const saveReportDraft = async () => {
   await store.saveForm()
 }
 
-const approveReportDirectly = async () => {
+// Approval is signed: the signature box in ExecutiveSummaryApproveModal is required before the backend accepts it
+const showApproveModal = ref(false)
+const openApproveSignature = () => {
   if (store.currentSummary) {
-    await store.updateStatus(store.currentSummary.id, 'Approved')
+    showApproveModal.value = true
   }
 }
 
 // Stepper navigation: one section is visible at a time
 const currentStepIndex = computed(() => Math.max(0, sections.value.findIndex(sec => sec.id === activeSection.value)))
+
+// Keeps the active step visible in the horizontal stepper strip (the header itself never scrolls vertically)
+const stepScrollRef = ref<HTMLElement | null>(null)
+const scrollActiveStepIntoView = () => {
+  const container = stepScrollRef.value
+  const step = container?.querySelectorAll<HTMLElement>('[data-testid="form-step"]')[currentStepIndex.value]
+  if (container && step) scrollStepIntoView(container, step)
+}
+watch(currentStepIndex, () => scrollActiveStepIntoView(), { flush: 'post' })
 
 const goToStep = (idx: number) => {
   const target = sections.value[idx]
@@ -886,6 +797,74 @@ const selectedLhaId = ref<{ label: string; value: string; report: any } | undefi
   lhaDropdownOptions.value.find(o => o.value === store.form.nomorDokumen)
 )
 
+// Section III & Top 5 status: follow-up status of the linked LHA from the Action Taken Reports.
+// Drafts load it when the LHA is selected or the form is opened, and on Refresh. Approved summaries keep
+// the snapshot frozen at approval; their live status is shown read-only in ExecutiveSummaryCurrentFollowUp.
+const followUp = useExecutiveSummaryFollowUp()
+// Query key of the response in followUp.data, so a response is never applied to another LHA
+const followUpLoadedKey = ref('')
+
+const followUpQuery = computed<FollowUpStatusQuery | null>(() => {
+  const report = linkedLhaReport.value as { id?: string, reportNumber?: string } | null
+  if (report?.id && isValidUuid(report.id)) return { auditResultReportId: report.id }
+  const reportNumber = report?.reportNumber || store.form.nomorDokumen
+  return reportNumber ? { reportNumber } : null
+})
+const followUpQueryKey = computed(() => (followUpQuery.value ? JSON.stringify(followUpQuery.value) : ''))
+
+const currentFollowUp = computed<FollowUpStatusResult | null>(() =>
+  followUpLoadedKey.value && followUpLoadedKey.value === followUpQueryKey.value ? followUp.data.value : null
+)
+
+/** Follow-up findings by id for an LHA, when the loaded status belongs to it and is not restricted; null otherwise. */
+function followUpFindingsFor(item: { id?: string, reportNumber?: string }) {
+  const data = currentFollowUp.value
+  if (!data || data.findingsRestricted) return null
+  const belongs = data.findings.length === 0 || data.findings.some(f =>
+    (item.id && f.auditResultReportId === item.id) || (item.reportNumber && f.reportNumber === item.reportNumber)
+  )
+  return belongs ? new Map(data.findings.map(f => [f.findingId, f])) : null
+}
+
+const applyFollowUpToForm = (data: FollowUpStatusResult) => {
+  store.form.followUpTable = followUpRowsFromStats(data.buckets, store.form.followUpTable)
+  if (data.findingsRestricted) return
+  applyFollowUpToTopFindings(store.form.topFindings, data.findings)
+  // A finding taken from the LHA whose ATR was cancelled is not counted, so it leaves the Top 5
+  const ids = new Set(data.findings.map(f => f.findingId))
+  store.form.topFindings = store.form.topFindings.filter(f => !f.findingId || ids.has(f.findingId))
+}
+
+const refreshFollowUp = async () => {
+  if (isLocked.value) return
+  const query = followUpQuery.value
+  const key = followUpQueryKey.value
+  if (!query) return
+  const data = await followUp.load(query)
+  if (data) {
+    followUpLoadedKey.value = key
+    // The LHA may have changed while the request was running
+    if (key === followUpQueryKey.value && !isLocked.value) applyFollowUpToForm(data)
+  } else if (followUp.error.value) {
+    errorToast(t('executiveSummaryForm.followUp.errorToast'), followUp.error.value)
+  }
+}
+
+watch(followUpQueryKey, (key) => {
+  if (key && !isLocked.value) refreshFollowUp()
+}, { immediate: true })
+
+const followUpAsOfLabel = computed(() => formatSyncedAt(currentFollowUp.value?.asOf, locale.value))
+const approvedDateLabel = computed(() =>
+  isLocked.value ? formatFollowUpDate(store.form.approvedAt || store.form.signatureTanggal, locale.value) : ''
+)
+const followUpEmptyHint = computed(() => {
+  if (isLocked.value) return ''
+  if (!followUpQuery.value) return t('executiveSummaryForm.followUp.selectLha')
+  if (currentFollowUp.value && currentFollowUp.value.total === 0) return t('executiveSummaryForm.followUp.empty')
+  return ''
+})
+
 // A new audit period updates the generated period prefix; free text written by the user is kept.
 // Registered after selectedLhaId: the watcher reads it (via linkedLhaReport) as soon as it is created.
 watch(narrativePeriod, (period) => {
@@ -931,8 +910,11 @@ const syncFindingsFromLha = (lhaItem?: any) => {
   }
 
   const findings = item.findings || []
+  // Findings whose ATR was cancelled are not in the follow-up status, so they are left out of the Top 5
+  const followUpById = followUpFindingsFor(item)
+  const candidates = followUpById ? findings.filter((f: any) => !f.id || followUpById.has(f.id)) : findings
   if (findings.length > 0) {
-    store.form.topFindings = findings.slice(0, 5).map((f: any) => {
+    store.form.topFindings = candidates.slice(0, 5).map((f: any): SignificantFinding => {
       let rawDiv = f.unitDivision || f.unit_division || f.department || item.department || ''
       if (!rawDiv) {
         if (item.reportTitle?.includes('Keuangan')) rawDiv = 'FIN'
@@ -949,12 +931,17 @@ const syncFindingsFromLha = (lhaItem?: any) => {
       else if (sigLevel === 'Sedang') sigLevel = 'Quite Significant'
       else if (sigLevel === 'Rendah') sigLevel = 'Not Significant'
 
+      const atr = f.id ? followUpById?.get(f.id) : undefined
       return {
         unitDivision: div,
         judulTemuan: f.title || f.finding || '',
         risiko: sigLevel,
-        statusTL: 'In Progress',
-        usulan: f.action || f.recommendation || 'Perbaikan SOP dan Kontrol Pengendalian Internal'
+        // Status of the finding's ATR; until the follow-up status has loaded, the finding counts as not yet followed up
+        statusTL: atr ? BUCKET_STATUS[atr.bucket] : 'No Action',
+        usulan: f.action || f.recommendation || 'Perbaikan SOP dan Kontrol Pengendalian Internal',
+        findingId: f.id || undefined,
+        atrId: atr?.atrId ?? null,
+        noActionReason: atr?.noActionReason ?? null
       }
     })
 

@@ -49,7 +49,7 @@ onMounted(() => {
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.fullPopulation.tested') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ Number(fptState.summary.totalTested).toLocaleString('id-ID') }}
               </h4>
             </div>
@@ -72,7 +72,7 @@ onMounted(() => {
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.common.violationCount') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ fptState.summary.totalViolations }}
               </h4>
             </div>
@@ -95,7 +95,7 @@ onMounted(() => {
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.fullPopulation.violationRatio') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ fptState.summary.avgViolationRate }}%
               </h4>
             </div>
@@ -118,7 +118,7 @@ onMounted(() => {
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.fullPopulation.branchesTested') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ fptState.summary.branchesTested }}
               </h4>
             </div>
@@ -141,7 +141,7 @@ onMounted(() => {
               <span class="text-sm font-semibold text-slate-500 dark:text-slate-200 block leading-tight">
                 {{ t('analytics.caattUi.fullPopulation.categoriesTested') }}
               </span>
-              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5">
+              <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
                 {{ fptState.summary.categoriesTested }}
               </h4>
             </div>
@@ -189,16 +189,16 @@ onMounted(() => {
             <tbody>
               <tr v-for="r in fptState.records" :key="r.id" class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                 <td class="py-3 px-3 font-mono font-bold">{{ r.id }}</td>
-                <td class="py-3 px-3 text-gray-500 font-mono text-xs">{{ r.testDate }}</td>
+                <td class="py-3 px-3 text-gray-500 tabular-nums text-xs">{{ r.testDate }}</td>
                 <td class="py-3 px-3 font-semibold">{{ r.branchName }}</td>
                 <td class="py-3 px-3 font-mono text-xs text-gray-500">{{ r.accountId }}</td>
                 <td class="py-3 px-3 font-semibold">{{ r.customerName }}</td>
                 <td class="py-3 px-3">
                   <UBadge color="neutral" variant="subtle" size="sm">{{ r.category }}</UBadge>
                 </td>
-                <td class="py-3 px-3 text-right font-mono font-bold">{{ formatIDR(r.transactionAmount) }}</td>
-                <td class="py-3 px-3 text-right font-mono text-gray-400">{{ formatIDR(r.thresholdLimit) }}</td>
-                <td class="py-3 px-3 text-right font-mono font-bold text-rose-500">+{{ formatIDR(r.excessAmount) }}</td>
+                <td class="py-3 px-3 num-currency font-bold">{{ formatIDR(r.transactionAmount) }}</td>
+                <td class="py-3 px-3 num-currency text-gray-400">{{ formatIDR(r.thresholdLimit) }}</td>
+                <td class="py-3 px-3 num-currency font-bold text-rose-500">+{{ formatIDR(r.excessAmount) }}</td>
                 <td class="py-3 px-3 text-gray-600 dark:text-gray-300">{{ r.violationType }}</td>
                 <td class="text-center py-3 px-3">
                   <UBadge :color="r.status === 'FLAGGED' ? 'error' : 'warning'" variant="solid" size="sm">

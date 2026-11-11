@@ -65,7 +65,82 @@ describe('Audit Priority Feature Restructuring', () => {
   it('keeps the reference ranges of the shared thresholds', async () => {
     const { RISK_LEVEL_THRESHOLDS, formatRiskLevelRange } = await import('~/utils/riskLevelBadge')
     expect(RISK_LEVEL_THRESHOLDS.map(formatRiskLevelRange)).toEqual(['80 - 100%', '60 - 79%', '40 - 59%', '20 - 39%', '0 - 19%'])
-    expect(RISK_LEVEL_THRESHOLDS.filter(th => th.prioritized).map(th => th.level)).toEqual(['High', 'Medium to High'])
+    expect(RISK_LEVEL_THRESHOLDS.filter(th => th.prioritized).map(th => th.level)).toEqual(['High', 'Medium to High', 'Medium'])
+  })
+
+  describe('pagination', () => {
+    const rows = Array.from({ length: 32 }, (_, i) => ({ id: i + 1 }))
+
+    it('slices the filtered list into pages of 10', async () => {
+      const { ref } = await import('vue')
+      const { usePagedList } = await import('~/composables/usePagedList')
+      const list = ref(rows)
+      const { page, pageData, from, to, pageSize } = usePagedList(list)
+
+      expect(pageSize).toBe(10)
+      expect(pageData.value.items).toHaveLength(10)
+      expect(pageData.value.items.map(r => r.id)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+      expect(pageData.value.totalPages).toBe(4)
+      expect([from.value, to.value]).toEqual([1, 10])
+
+      page.value = 2
+      expect(pageData.value.items).toHaveLength(10)
+      expect(pageData.value.items[0]?.id).toBe(11)
+
+      page.value = 4
+      expect(pageData.value.items.map(r => r.id)).toEqual([31, 32])
+      expect([from.value, to.value]).toEqual([31, 32])
+
+      // A list that shrank below the current page is clamped to its last page
+      list.value = rows.slice(0, 15)
+      expect(pageData.value.page).toBe(2)
+      expect(pageData.value.items.map(r => r.id)).toEqual([11, 12, 13, 14, 15])
+
+      list.value = []
+      expect([from.value, to.value]).toEqual([0, 0])
+    })
+
+    it('goes back to page 1 when search, status filter or year changes', async () => {
+      const { ref, nextTick } = await import('vue')
+      const { usePagedList } = await import('~/composables/usePagedList')
+      const search = ref('')
+      const status = ref('all')
+      const year = ref(2026)
+      const { page, pageData } = usePagedList(() => rows, [search, status, year])
+
+      const changes = [
+        () => {
+          search.value = 'x'
+        },
+        () => {
+          status.value = 'prioritized'
+        },
+        () => {
+          year.value = 2025
+        },
+        // Reset button
+        () => {
+          search.value = ''
+          status.value = 'all'
+        }
+      ]
+      for (const change of changes) {
+        page.value = 3
+        await nextTick()
+        change()
+        await nextTick()
+        expect(page.value).toBe(1)
+        expect(pageData.value.items[0]?.id).toBe(1)
+      }
+    })
+
+    it('renders a pager over the paged rows in the page', () => {
+      const content = fs.readFileSync(path.join(rootDir, 'pages/risk-profile/audit-priority/index.vue'), 'utf8')
+      expect(content).toContain('<UPagination')
+      expect(content).toContain(':data="priorityPage.items"')
+      // Fixed page size of 10
+      expect(content).toContain('usePagedList(filteredYearlyUniverse, [searchQuery, statusFilter, selectedYear], 10)')
+    })
   })
 
   it('verifies localization keys for auditPriority exist in en and id locales', () => {

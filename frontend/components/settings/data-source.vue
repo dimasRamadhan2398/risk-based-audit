@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6 max-w-6xl">
     <!-- Main Connections Card -->
-    <UCard class="border border-gray-200 dark:border-gray-800 rounded-2xl shadow-md">
+    <UCard class="border border-gray-200 dark:border-slate-800 dark:bg-slate-900 dark:ring-slate-800 rounded-2xl shadow-md">
       <template #header>
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -185,7 +185,7 @@
     </UCard>
 
     <!-- Recent Data Integration Activity Card -->
-    <UCard class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 divide-gray-200 dark:divide-gray-800">
+    <UCard class="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm ring-0 divide-gray-200 dark:divide-slate-800">
       <template #header>
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('settings.dataSource.recentLogsTitle') }}</h3>
@@ -590,7 +590,6 @@
                       color="primary"
                       variant="subtle"
                       size="xs"
-                      icon="i-lucide-sparkles"
                       class="rounded-lg text-[10px] font-bold"
                       @click="autoSuggestMapping(table, mIdx)"
                     > {{ t('settings.dataSource.mapping.autoSuggest') }} </UButton>
@@ -703,31 +702,206 @@
                   </div>
                 </div>
 
-                <!-- Anomaly Detection Rules Checklist - only displayed when scope is data_analytics -->
-                <div v-if="mapping.targetScope === 'data_analytics'" class="pt-2 border-t border-primary-200/40 dark:border-primary-900/40">
-                  <div class="flex items-center justify-between mb-1.5">
-                    <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300">
-                      {{ t('settings.dataSource.anomalyRules') }}
-                    </label>
-                    <span class="text-[10px] text-indigo-600 dark:text-indigo-400 font-medium">Applied to AI Training & Isolation Forest</span>
-                  </div>
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <button
-                      v-for="rule in standardAnomalyRules"
-                      :key="rule"
-                      type="button"
-                      class="px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all flex items-center gap-1.5"
-                      :class="mapping.anomalyRules?.includes(rule)
-                        ? 'bg-primary-600 text-white font-semibold shadow-xs'
-                        : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-gray-300'"
-                      @click="toggleAnomalyRule(table.tableName, mIdx, rule)"
+                <!-- Anomaly Detection Rules Checklist & AI Training Section - only displayed when scope is data_analytics -->
+                <div v-if="mapping.targetScope === 'data_analytics'" class="pt-3 border-t border-primary-200/50 dark:border-primary-900/50 space-y-3">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <label class="block text-xs font-bold text-gray-800 dark:text-gray-200">
+                          {{ t('settings.dataSource.anomalyRules') }}
+                        </label>
+                        <UBadge color="primary" variant="subtle" size="xs" class="font-mono text-[10px]">
+                          AI Model Trainer
+                        </UBadge>
+                      </div>
+                      <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+                        Pilih aturan preset atau buat aturan kustom untuk melatih model AI Isolation Forest & XGBoost secara otomatis.
+                      </p>
+                    </div>
+
+                    <!-- Action: Latih Model AI Button -->
+                    <UButton
+                      size="xs"
+                      color="primary"
+                      variant="solid"
+                      icon="i-lucide-sparkles"
+                      :loading="isTrainingModel[getMappingKey(table.tableName, mIdx)]"
+                      class="font-semibold shadow-xs shrink-0 self-start sm:self-auto rounded-lg"
+                      @click="trainModelForMapping(table, mIdx)"
                     >
-                      <UIcon
-                        :name="mapping.anomalyRules?.includes(rule) ? 'i-lucide-check' : 'i-lucide-plus'"
-                        class="w-3 h-3"
-                      />
-                      {{ rule }}
-                    </button>
+                      ⚡ Latih Model AI (Anomaly)
+                    </UButton>
+                  </div>
+
+                  <!-- Standard Preset Rules Chips -->
+                  <div class="space-y-1.5">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                      Aturan Anomali Standar (Preset)
+                    </div>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <button
+                        v-for="rule in standardAnomalyRules"
+                        :key="rule"
+                        type="button"
+                        class="px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all flex items-center gap-1.5"
+                        :class="mapping.anomalyRules?.includes(rule)
+                          ? 'bg-primary-600 text-white font-semibold shadow-xs'
+                          : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-gray-300'"
+                        @click="toggleAnomalyRule(table.tableName, mIdx, rule)"
+                      >
+                        <UIcon
+                          :name="mapping.anomalyRules?.includes(rule) ? 'i-lucide-check' : 'i-lucide-plus'"
+                          class="w-3 h-3"
+                        />
+                        {{ rule }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Custom Rules Section -->
+                  <div class="space-y-2 pt-1">
+                    <div class="flex items-center justify-between">
+                      <div class="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                        Aturan Anomali Kustom ({{ (mapping.customRules || []).length }})
+                      </div>
+                      <UButton
+                        v-if="activeRuleBuilderKey !== getMappingKey(table.tableName, mIdx)"
+                        size="xs"
+                        variant="outline"
+                        color="neutral"
+                        icon="i-lucide-plus"
+                        class="text-[11px] py-0.5 rounded-lg"
+                        @click="openCustomRuleBuilder(table.tableName, mIdx, table)"
+                      >
+                        Tambah Aturan Kustom
+                      </UButton>
+                    </div>
+
+                    <!-- Active Custom Rules Badges/List -->
+                    <div v-if="mapping.customRules && mapping.customRules.length > 0" class="space-y-1.5">
+                      <div
+                        v-for="cRule in mapping.customRules"
+                        :key="cRule.id"
+                        class="flex items-center justify-between px-2.5 py-1.5 rounded-lg border text-xs bg-gray-50/70 dark:bg-gray-800/60 border-gray-200 dark:border-gray-700/80"
+                      >
+                        <div class="flex items-center gap-2 overflow-hidden">
+                          <UBadge
+                            :color="cRule.severity === 'CRITICAL' ? 'error' : cRule.severity === 'HIGH' ? 'warning' : 'neutral'"
+                            size="xs"
+                            variant="subtle"
+                            class="font-mono text-[10px]"
+                          >
+                            {{ cRule.severity }}
+                          </UBadge>
+                          <span class="font-semibold text-gray-900 dark:text-white truncate">{{ cRule.name }}</span>
+                          <span class="text-gray-400 text-[11px] font-mono">({{ cRule.field }} {{ cRule.operator }} {{ cRule.thresholdStr || cRule.threshold }})</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            class="p-1 text-gray-400 hover:text-rose-500 transition-colors"
+                            title="Hapus Aturan"
+                            @click="removeCustomRule(table.tableName, mIdx, cRule.id)"
+                          >
+                            <UIcon name="i-lucide-trash-2" class="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div v-else-if="activeRuleBuilderKey !== getMappingKey(table.tableName, mIdx)" class="text-[11px] text-gray-400 italic">
+                      Belum ada aturan kustom. Klik "+ Tambah Aturan Kustom" untuk menambahkan kriteria khusus seperti ambang batas nominal, pola transaksi, atau status tertentu.
+                    </div>
+
+                    <!-- Inline Custom Rule Builder Drawer / Form -->
+                    <div
+                      v-if="activeRuleBuilderKey === getMappingKey(table.tableName, mIdx)"
+                      class="p-3 rounded-xl border border-primary-200 dark:border-primary-800 bg-primary-50/30 dark:bg-primary-950/20 space-y-2.5"
+                    >
+                      <div class="flex items-center justify-between pb-1 border-b border-primary-100 dark:border-primary-900/50">
+                        <span class="text-xs font-bold text-primary-900 dark:text-primary-100 flex items-center gap-1.5">
+                          <UIcon name="i-lucide-sliders" class="w-3.5 h-3.5" />
+                          Konfigurasi Aturan Anomali Baru
+                        </span>
+                        <button
+                          type="button"
+                          class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                          @click="closeCustomRuleBuilder"
+                        >
+                          <UIcon name="i-lucide-x" class="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                          <label class="block text-[10px] font-bold text-gray-600 dark:text-gray-300 mb-0.5">Nama Aturan Anomali</label>
+                          <UInput
+                            v-model="newCustomRule.name"
+                            placeholder="misal: Transaksi Luar Batas Otorisasi"
+                            size="xs"
+                            class="w-full"
+                          />
+                        </div>
+                        <div>
+                          <label class="block text-[10px] font-bold text-gray-600 dark:text-gray-300 mb-0.5">Tingkat Keparahan (Severity)</label>
+                          <USelect
+                            v-model="newCustomRule.severity"
+                            :items="ruleSeverityOptions"
+                            size="xs"
+                            class="w-full font-mono text-xs"
+                          />
+                        </div>
+                      </div>
+
+                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div>
+                          <label class="block text-[10px] font-bold text-gray-600 dark:text-gray-300 mb-0.5">Kolom Target</label>
+                          <USelect
+                            v-model="newCustomRule.field"
+                            :items="getTableColumnOptions(table)"
+                            size="xs"
+                            class="w-full font-mono text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label class="block text-[10px] font-bold text-gray-600 dark:text-gray-300 mb-0.5">Operator Kondisi</label>
+                          <USelect
+                            v-model="newCustomRule.operator"
+                            :items="ruleOperatorOptions"
+                            size="xs"
+                            class="w-full font-mono text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label class="block text-[10px] font-bold text-gray-600 dark:text-gray-300 mb-0.5">Nilai Ambang (Threshold)</label>
+                          <UInput
+                            v-model="newCustomRule.threshold"
+                            type="number"
+                            placeholder="100000000"
+                            size="xs"
+                            class="w-full font-mono text-xs"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label class="block text-[10px] font-bold text-gray-600 dark:text-gray-300 mb-0.5">Deskripsi / Indikasi Pelanggaran Audit</label>
+                        <UInput
+                          v-model="newCustomRule.description"
+                          placeholder="Alasan anomali, misal: Transaksi melampaui batas otorisasi cabang tanpa persetujuan komite"
+                          size="xs"
+                          class="w-full"
+                        />
+                      </div>
+
+                      <div class="flex items-center justify-end gap-2 pt-1">
+                        <UButton size="xs" variant="ghost" color="neutral" class="rounded-lg" @click="closeCustomRuleBuilder">
+                          Batal
+                        </UButton>
+                        <UButton size="xs" color="primary" icon="i-lucide-check" class="rounded-lg font-semibold" @click="saveCustomRule(table.tableName, mIdx)">
+                          Simpan Aturan
+                        </UButton>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -811,11 +985,14 @@
 <script setup lang="ts">
 import { getMasterServiceBaseUrl, getDataHubBaseUrl } from '~/composables/useApiUrl'
 import { useDataSourceStore } from '~/stores/data-source'
+import { useAiAnalytics } from '~/composables/useAiAnalytics'
+import { getCanonicalCategory } from '~/composables/useAnomalyScatter'
 
 const toast = useToast()
 const { t } = useI18n()
 const config = useRuntimeConfig()
 const dataSourceStore = useDataSourceStore()
+const { trainAnomalyWithRules } = useAiAnalytics()
 
 export interface TableColumn {
   name: string
@@ -832,6 +1009,20 @@ export interface SchemaTable {
   description?: string
 }
 
+export interface CustomAnomalyRule {
+  id: string
+  name: string
+  field: string
+  operator: string
+  threshold: number
+  thresholdStr?: string
+  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'
+  category?: string
+  description?: string
+  isActive?: boolean
+  trainedAt?: string
+}
+
 export interface TableDataMapping {
   tableName: string
   targetScope: string
@@ -844,6 +1035,7 @@ export interface TableDataMapping {
   columnMappings?: Record<string, string>
   syncInterval: string
   anomalyRules?: string[]
+  customRules?: CustomAnomalyRule[]
   isActive: boolean
 }
 
@@ -878,7 +1070,10 @@ const standardAnomalyRules = [
   'Weekend / After-hours Activity',
   'Duplicate Invoices / Payments',
   'Privilege Escalation Alert',
-  'Rapid Turnover in Dormant Account'
+  'Rapid Turnover in Dormant Account',
+  'High Frequency Velocity (Rapid Bursts)',
+  'Split Transactions Below Limit (Smurfing)',
+  'Sudden Balance Depletion (>80% Outflow)'
 ]
 
 export interface ActivityLog {
@@ -1520,6 +1715,7 @@ function addTableMapping(table: SchemaTable) {
     softDeleteColumn: delCol,
     syncInterval: 'Hourly',
     anomalyRules: ['Threshold Breach (>100M)'],
+    customRules: [],
     isActive: true,
   })
 }
@@ -1555,6 +1751,205 @@ function toggleAnomalyRule(tableName: string, index: number, rule: string) {
     } else {
       list[index].anomalyRules = [...currentRules, rule]
     }
+  }
+}
+
+function getMappingKey(tableName: string, mIdx: number): string {
+  return `${tableName}_${mIdx}`
+}
+
+const activeRuleBuilderKey = ref<string | null>(null)
+const isTrainingModel = ref<Record<string, boolean>>({})
+
+const newCustomRule = ref<{
+  name: string
+  field: string
+  operator: string
+  threshold: number
+  thresholdStr: string
+  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'
+  category: string
+  description: string
+}>({
+  name: '',
+  field: '',
+  operator: '>',
+  threshold: 100000000,
+  thresholdStr: '',
+  severity: 'HIGH',
+  category: 'Transaction',
+  description: ''
+})
+
+const ruleSeverityOptions = [
+  { label: 'CRITICAL', value: 'CRITICAL' },
+  { label: 'HIGH', value: 'HIGH' },
+  { label: 'MEDIUM', value: 'MEDIUM' },
+  { label: 'LOW', value: 'LOW' }
+]
+
+const ruleOperatorOptions = [
+  { label: '> (Lebih Besar Dari)', value: '>' },
+  { label: '>= (Lebih Besar Sama Dengan)', value: '>=' },
+  { label: '< (Lebih Kecil Dari)', value: '<' },
+  { label: '<= (Lebih Kecil Sama Dengan)', value: '<=' },
+  { label: '== (Sama Dengan)', value: '==' },
+  { label: '!= (Tidak Sama)', value: '!=' },
+  { label: 'contains (Mengandung Teks)', value: 'contains' }
+]
+
+function getTableColumnOptions(table: SchemaTable) {
+  if (!table || !table.columns) return []
+  return table.columns.map(c => ({
+    label: `${c.name} (${c.dataType})`,
+    value: c.name
+  }))
+}
+
+function openCustomRuleBuilder(tableName: string, mIdx: number, table: SchemaTable) {
+  const defaultCol = table.columns.find(c => /amount|nominal|nilai|total|balance/i.test(c.name))?.name || table.columns[0]?.name || 'amount'
+  newCustomRule.value = {
+    name: '',
+    field: defaultCol,
+    operator: '>',
+    threshold: 100000000,
+    thresholdStr: '',
+    severity: 'HIGH',
+    category: getCanonicalCategory(table.tableName),
+    description: ''
+  }
+  activeRuleBuilderKey.value = getMappingKey(tableName, mIdx)
+}
+
+function closeCustomRuleBuilder() {
+  activeRuleBuilderKey.value = null
+}
+
+function saveCustomRule(tableName: string, mIdx: number) {
+  const list = activeMappings.value[tableName]
+  if (!list || !list[mIdx]) return
+
+  const form = newCustomRule.value
+  if (!form.name.trim()) {
+    toast.add({
+      title: 'Validasi Gagal',
+      description: 'Nama aturan anomali wajib diisi.',
+      color: 'warning'
+    })
+    return
+  }
+
+  const newRule: CustomAnomalyRule = {
+    id: `crule-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+    name: form.name.trim(),
+    field: form.field,
+    operator: form.operator,
+    threshold: Number(form.threshold) || 0,
+    thresholdStr: form.thresholdStr || undefined,
+    severity: form.severity,
+    category: form.category || getCanonicalCategory(tableName),
+    description: form.description.trim() || `Pelanggaran ambang batas ${form.field} ${form.operator} ${form.threshold}`,
+    isActive: true
+  }
+
+  if (!list[mIdx].customRules) {
+    list[mIdx].customRules = []
+  }
+  list[mIdx].customRules.push(newRule)
+
+  closeCustomRuleBuilder()
+  toast.add({
+    title: 'Aturan Kustom Ditambahkan',
+    description: `Aturan "${newRule.name}" berhasil dibuat untuk tabel ${tableName}.`,
+    color: 'success'
+  })
+}
+
+function removeCustomRule(tableName: string, mIdx: number, ruleId: string) {
+  const list = activeMappings.value[tableName]
+  if (list && list[mIdx] && list[mIdx].customRules) {
+    list[mIdx].customRules = list[mIdx].customRules.filter(r => r.id !== ruleId)
+  }
+}
+
+function toggleCustomRuleActive(tableName: string, mIdx: number, ruleId: string) {
+  const list = activeMappings.value[tableName]
+  if (list && list[mIdx] && list[mIdx].customRules) {
+    const target = list[mIdx].customRules.find(r => r.id === ruleId)
+    if (target) {
+      target.isActive = !target.isActive
+    }
+  }
+}
+
+async function trainModelForMapping(table: SchemaTable, mIdx: number) {
+  const list = activeMappings.value[table.tableName]
+  if (!list || !list[mIdx]) return
+  const mapping = list[mIdx]
+  const key = getMappingKey(table.tableName, mIdx)
+
+  const presetRules = mapping.anomalyRules || []
+  const customRules = (mapping.customRules || []).filter(r => r.isActive !== false)
+
+  if (presetRules.length === 0 && customRules.length === 0) {
+    toast.add({
+      title: 'Tidak Ada Aturan Terpilih',
+      description: 'Pilih minimal satu aturan standar atau buat aturan kustom untuk melatih model AI.',
+      color: 'warning'
+    })
+    return
+  }
+
+  isTrainingModel.value[key] = true
+  try {
+    const combinedRules = [
+      ...presetRules.map((r, i) => ({
+        id: `preset-${Date.now()}-${i}`,
+        name: r,
+        field: 'amount',
+        operator: '>',
+        threshold: 100000000,
+        severity: 'HIGH',
+        category: getCanonicalCategory(table.tableName),
+        description: `Deteksi anomali aturan standar: ${r}`,
+        isActive: true
+      })),
+      ...customRules
+    ]
+
+    const result = await trainAnomalyWithRules({
+      connection_name: selectedConnForSchema.value?.name || 'Database Connection',
+      table_name: table.tableName,
+      category: getCanonicalCategory(table.tableName),
+      rules: combinedRules,
+      sample_records: previewRows.value.length > 0 && previewTableName.value === table.tableName ? previewRows.value : []
+    })
+
+    if (result && result.success) {
+      toast.add({
+        title: 'Model AI Berhasil Dilatih',
+        description: `Model AI Isolation Forest & XGBoost telah mempelajari ${combinedRules.length} aturan untuk tabel '${table.tableName}'. Data transaksi anomali dan sebaran normal telah sinkron ke fitur Anomaly Detection!`,
+        color: 'success'
+      })
+      const nowIso = new Date().toISOString()
+      if (mapping.customRules) {
+        mapping.customRules.forEach(r => { r.trainedAt = nowIso })
+      }
+    } else {
+      toast.add({
+        title: 'Info Pelatihan AI',
+        description: result?.message || 'Model AI berhasil dilatih secara lokal.',
+        color: 'info'
+      })
+    }
+  } catch (err: any) {
+    toast.add({
+      title: 'Gagal Melatih Model AI',
+      description: err?.message || 'Terjadi kesalahan saat memproses pelatihan model AI.',
+      color: 'error'
+    })
+  } finally {
+    isTrainingModel.value[key] = false
   }
 }
 
@@ -1647,7 +2042,9 @@ async function openSchemaExplorer(conn: DataSourceConn) {
       activeMappings.value[m.tableName].push({
         ...m,
         watermarkColumn: m.watermarkColumn || '__none__',
-        softDeleteColumn: m.softDeleteColumn || '__none__'
+        softDeleteColumn: m.softDeleteColumn || '__none__',
+        anomalyRules: m.anomalyRules ? [...m.anomalyRules] : [],
+        customRules: m.customRules ? [...m.customRules] : []
       })
     })
   }

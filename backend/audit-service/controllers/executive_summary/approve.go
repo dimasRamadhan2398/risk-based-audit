@@ -10,11 +10,13 @@ import (
 
 	"audit-service/models"
 	apperrors "audit-service/pkg/errors"
+	"audit-service/pkg/logger"
 	"audit-service/pkg/response"
 	atrsvc "audit-service/services/action_taken_report"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -116,7 +118,8 @@ func parseSignatureDate(raw string, now time.Time) (string, *apperrors.AppError)
 }
 
 // ApproveHandler handles POST /executive-summaries/:id/approve. It moves a
-// Draft summary to Approved and stores the signature and approval record.
+// Draft summary to Approved and stores the signature and approval record,
+// and freezes the follow-up status as of approved_at (see FreezeFollowUp).
 //
 //   - 403 unless the caller holds an approver role (ADMIN or EXECUTIVE)
 //   - 404 when the summary does not exist
@@ -195,21 +198,37 @@ func ApproveHandler(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
+		// Freeze the follow-up status as of the approval time (approved_at) into
+		// the JSON columns, written in the same UPDATE as the approval
+		frozen, err := FreezeFollowUp(db.WithContext(ctx), &existing, now)
+		if err != nil {
+			if logger.Log != nil {
+				logger.Error("failed to compute executive summary follow-up snapshot", zap.Error(err))
+			}
+			response.InternalServerError(c, "Failed to compute the follow-up status")
+			return
+		}
+
 		approvedBy := callerName(c)
+		updates := map[string]interface{}{
+			"status":              StatusApproved,
+			"signature_tempat":    place,
+			"signature_tanggal":   date,
+			"signature_image":     image,
+			"signature_name":      signerName,
+			"signature_role":      signerRole,
+			"approved_by":         approvedBy,
+			"approved_by_user_id": callerUserID(c),
+			"approved_by_role":    approverRole,
+			"approved_at":         now,
+			"updated_at":          now,
+		}
+		for col, v := range frozen {
+			updates[col] = v
+		}
 		res := db.WithContext(ctx).Model(&models.ExecutiveSummary{}).
 			Where("id = ? AND status = ?", id, StatusDraft).
-			Updates(map[string]interface{}{
-				"status":            StatusApproved,
-				"signature_tempat":  place,
-				"signature_tanggal": date,
-				"signature_image":   image,
-				"signature_name":    signerName,
-				"signature_role":    signerRole,
-				"approved_by":       approvedBy,
-				"approved_by_role":  approverRole,
-				"approved_at":       now,
-				"updated_at":        now,
-			})
+			Updates(updates)
 		if res.Error != nil {
 			response.InternalServerError(c, "Failed to approve ExecutiveSummary")
 			return
@@ -228,6 +247,13 @@ func ApproveHandler(db *gorm.DB) gin.HandlerFunc {
 		}
 		response.OK(c, "Executive summary approved successfully", approved)
 	}
+}
+
+// callerUserID is the authenticated user's id (business key, survives username changes)
+func callerUserID(c *gin.Context) string {
+	userID, _ := c.Get("user_id")
+	s, _ := userID.(string)
+	return strings.TrimSpace(s)
 }
 
 // callerName is the authenticated user's username, falling back to the user id

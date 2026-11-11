@@ -109,7 +109,7 @@ services:
       kafka:
         condition: service_started
     ports:
-      - "8086:8080"
+      - "127.0.0.1:8086:8080"
     environment:
       TZ: Asia/Jakarta
       KAFKA_CLUSTERS_0_NAME: rb_audit_dev
@@ -132,7 +132,7 @@ services:
       kafka:
         condition: service_healthy
     ports:
-      - "8101:8001"
+      - "127.0.0.1:8101:8001"
     environment:
       - JWT_SECRET=${JWT_SECRET:-6958c455ba7378688fac7200001d6bca8048fa66a28447ecc69f3b74b7ded4fa}
       # Resend API key for outbound transactional email and domain provisioning
@@ -171,7 +171,7 @@ services:
       python-ai:
         condition: service_started
     ports:
-      - "8184:8084"
+      - "127.0.0.1:8184:8084"
     networks:
       - rb_audit_network_dev
     restart: unless-stopped
@@ -191,7 +191,7 @@ services:
       kafka:
         condition: service_healthy
     ports:
-      - "8102:8001"
+      - "127.0.0.1:8102:8001"
     command: sh -c "./audit serve"
     volumes:
       - audit_dev_uploads:/root/uploads
@@ -216,7 +216,7 @@ services:
       kafka:
         condition: service_healthy
     ports:
-      - "8103:8002"
+      - "127.0.0.1:8103:8002"
     command: sh -c "./master serve"
     networks:
       - rb_audit_network_dev
@@ -237,7 +237,7 @@ services:
       kafka:
         condition: service_healthy
     ports:
-      - "8104:8002"
+      - "127.0.0.1:8104:8002"
     command: sh -c "./risk up && ./risk serve"
     networks:
       - rb_audit_network_dev
@@ -249,7 +249,7 @@ services:
       dockerfile: Dockerfile
     container_name: rb_audit_python_ai_dev
     ports:
-      - "8100:8000"
+      - "127.0.0.1:8100:8000"
     environment:
       - PYTHONUNBUFFERED=1
     volumes:
@@ -275,10 +275,10 @@ services:
       KONG_CLIENT_MAX_BODY_SIZE: 100m
       KONG_NGINX_PROXY_CLIENT_MAX_BODY_SIZE: 100m
     ports:
-      - "8081:8080"
-      - "8445:8443"
-      - "8010:8001"
-      - "8446:8444"
+      - "127.0.0.1:8081:8080"
+      - "127.0.0.1:8445:8443"
+      - "127.0.0.1:8010:8001"
+      - "127.0.0.1:8446:8444"
     healthcheck:
       test: [ "CMD", "kong", "health" ]
       interval: 10s

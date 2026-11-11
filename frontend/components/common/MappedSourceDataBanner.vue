@@ -19,6 +19,8 @@ interface MappedRecord {
   target_module: string
   audit_field: string
   total_rows?: number
+  anomaly_rules?: string[]
+  custom_rules?: any[]
   sample_records: Record<string, unknown>[]
 }
 
@@ -522,8 +524,8 @@ function generateNormalBaselinePoints(
   minX: number,
   maxX: number,
   count = 60,
-  minY = 22,
-  maxY = 58
+  minY = 8,
+  maxY = 17
 ): { x: number; y: number; id: string }[] {
   const points: { x: number; y: number; id: string }[] = []
   const step = (maxX - minX) / Math.max(count - 1, 1)
@@ -653,7 +655,7 @@ const TABLE_ANOMALY_PROFILES: Record<string, TableAnomalyProfile> = {
         isAnomaly: true
       }
     ],
-    normalBaseline: () => generateNormalBaselinePoints('GL', 2.5, 95.0, 65, 22, 58)
+    normalBaseline: () => generateNormalBaselinePoints('GL', 2.5, 95.0, 65, 8, 17)
   },
   loan_accounts: {
     canonicalCategory: 'Lending',
@@ -761,7 +763,7 @@ const TABLE_ANOMALY_PROFILES: Record<string, TableAnomalyProfile> = {
         isAnomaly: true
       }
     ],
-    normalBaseline: () => generateNormalBaselinePoints('LN', 80.0, 1150.0, 60, 20, 56)
+    normalBaseline: () => generateNormalBaselinePoints('LN', 80.0, 1150.0, 60, 8, 17)
   },
   customer_accounts: {
     canonicalCategory: 'Funding',
@@ -869,7 +871,7 @@ const TABLE_ANOMALY_PROFILES: Record<string, TableAnomalyProfile> = {
         isAnomaly: true
       }
     ],
-    normalBaseline: () => generateNormalBaselinePoints('FD', 15.0, 420.0, 60, 25, 58)
+    normalBaseline: () => generateNormalBaselinePoints('FD', 15.0, 420.0, 60, 8, 17)
   },
   accounts: {
     canonicalCategory: 'Funding',
@@ -982,7 +984,7 @@ const TABLE_ANOMALY_PROFILES: Record<string, TableAnomalyProfile> = {
         isAnomaly: true
       }
     ],
-    normalBaseline: () => generateNormalBaselinePoints('IT', 0.0, 2.0, 60, 20, 55)
+    normalBaseline: () => generateNormalBaselinePoints('IT', 0.0, 2.0, 60, 8, 17)
   },
   compliance_incident_records: {
     canonicalCategory: 'KYC',
@@ -1090,7 +1092,7 @@ const TABLE_ANOMALY_PROFILES: Record<string, TableAnomalyProfile> = {
         isAnomaly: true
       }
     ],
-    normalBaseline: () => generateNormalBaselinePoints('KYC', 3.0, 28.0, 60, 22, 54)
+    normalBaseline: () => generateNormalBaselinePoints('KYC', 3.0, 28.0, 60, 8, 17)
   },
   vendor_invoices: {
     canonicalCategory: 'Procurement',
@@ -1198,7 +1200,7 @@ const TABLE_ANOMALY_PROFILES: Record<string, TableAnomalyProfile> = {
         isAnomaly: true
       }
     ],
-    normalBaseline: () => generateNormalBaselinePoints('PRC', 8.0, 95.0, 60, 24, 56)
+    normalBaseline: () => generateNormalBaselinePoints('PRC', 8.0, 95.0, 60, 8, 17)
   }
 }
 
@@ -1238,7 +1240,7 @@ const getDefaultAnomalyProfile = (tableName: string, sampleRecords?: Record<stri
     : { min: 12.0, max: 85.0 }
 
   // Generate dense, realistic normal distribution baseline (65 points)
-  const dynamicNormalPoints = generateNormalBaselinePoints(prefix, baseRange.min, baseRange.max, 65, 20, 58)
+  const dynamicNormalPoints = generateNormalBaselinePoints(prefix, baseRange.min, baseRange.max, 65, 8, 17)
 
   return {
     canonicalCategory: cat,
@@ -1384,11 +1386,36 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
 
     // 2. AI Anomaly Detection Execution (applied across ALL tables connected from database)
     else if (actionType === 'ai_anomaly') {
-      const { isolationState, addCustomAnomalyRecord, addCustomScatterBatch } = useAiAnalytics()
+      const { isolationState, addCustomAnomalyRecord, addCustomScatterBatch, trainAnomalyWithRules } = useAiAnalytics()
 
       const ts = Date.now()
       const profile = TABLE_ANOMALY_PROFILES[item.table_name] || getDefaultAnomalyProfile(item.table_name, item.sample_records)
       const targetCategory = profile.canonicalCategory
+
+      // Trigger rule-based AI training if anomaly rules are attached to this mapping
+      const allRules = [
+        ...(item.anomaly_rules || []).map((r: string, idx: number) => ({
+          id: `preset-${ts}-${idx}`,
+          name: r,
+          field: 'amount',
+          operator: '>',
+          threshold: 100000000,
+          severity: 'HIGH',
+          category: targetCategory,
+          description: `Aturan anomali standar: ${r}`
+        })),
+        ...(item.custom_rules || []).filter((cr: any) => cr.isActive !== false)
+      ]
+
+      if (allRules.length > 0) {
+        trainAnomalyWithRules({
+          connection_name: item.connection_name,
+          table_name: item.table_name,
+          category: targetCategory,
+          rules: allRules,
+          sample_records: item.sample_records
+        }).catch(err => console.warn('Background AI rule training error:', err))
+      }
 
       // Check existing anomaly records for this table to track batches without artificial caps
       const existingCount = (isolationState.value?.anomalies || []).filter((a: any) =>
@@ -1397,10 +1424,14 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
 
       // 1. Add table-specific anomalies (red points) - dynamic and scalable
       const sampleAnomalies = profile.anomalies(ts, item.connection_name, item.table_name)
+      const offHours = [2, 23, 1, 22, 3, 0]
       sampleAnomalies.forEach((anom, idx) => {
+        const hour = anom.hour ?? offHours[idx % offHours.length]
+        anom.hour = hour
+        anom.hour_of_day = hour
         const scatterPoint = {
           x: anom.xMetric,
-          y: Math.round((42 + (idx * 5) + ((idx % 3) * 2.5)) * 10) / 10,
+          y: Math.min(23.9, Math.max(0.0, Math.round((hour + ((idx % 4) * 0.2)) * 10) / 10)),
           type: targetCategory,
           isAnomaly: true,
           label: anom.id

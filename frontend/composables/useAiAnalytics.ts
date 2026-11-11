@@ -18,6 +18,26 @@ const CUSTOM_ANOMALIES_KEY = 'auditsphere_custom_anomaly_records_v1'
 const CUSTOM_SCATTER_KEY = 'auditsphere_custom_scatter_records_v1'
 const CUSTOM_NLP_DOCS_KEY = 'auditsphere_custom_nlp_docs_v3'
 const CUSTOM_NLP_TAXONOMY_KEY = 'auditsphere_custom_nlp_taxonomy_v2'
+const AUTOMATED_ANOMALY_RULES_KEY = 'auditsphere_automated_anomaly_rules_v1'
+
+export const getPersistedAutomatedRules = (): any[] => {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = localStorage.getItem(AUTOMATED_ANOMALY_RULES_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
+
+export const savePersistedAutomatedRules = (rules: any[]) => {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.setItem(AUTOMATED_ANOMALY_RULES_KEY, JSON.stringify(rules))
+  } catch (e) {
+    console.warn('Failed to save persisted automated anomaly rules', e)
+  }
+}
 
 export const getPersistedCustomAnomalies = (): any[] => {
   if (typeof window === 'undefined') return []
@@ -236,6 +256,8 @@ const initialCustomAnoms = typeof window !== 'undefined' ? getPersistedCustomAno
 const initialCustomScatter = typeof window !== 'undefined' ? getPersistedCustomScatter() : []
 const initialCustomDocs = typeof window !== 'undefined' ? getPersistedCustomNlpDocs() : []
 const initialCustomTax = typeof window !== 'undefined' ? getPersistedCustomNlpTaxonomy() : { risk_categories: [], control_indicators: [] }
+const initialAutomatedRules = typeof window !== 'undefined' ? getPersistedAutomatedRules() : []
+const automatedAnomalyRules = ref<any[]>(initialAutomatedRules)
 
 const mergedInitialDocs = mergeNlpDocuments(initialNLP.documents, initialCustomDocs)
 const mergedInitialTax = mergeNlpTaxonomy((initialNLP as any).taxonomy || { risk_categories: [], control_indicators: [] }, initialCustomTax)
@@ -613,7 +635,7 @@ export const useAiAnalytics = () => {
       loading.value = true
 
       // Silent background auto-retrain trigger
-      safeApiFetch('/retrain/auto', { method: 'POST' }).catch(() => {})
+      safeApiFetch('/retrain/auto', { method: 'POST' }).catch(() => { })
 
       const [resRiskBatch, resAnomalyBatch, resTextBatch, resPerfBatch]: any[] = await Promise.all([
         safeApiFetch('/risk-score/batch'),
@@ -661,6 +683,7 @@ export const useAiAnalytics = () => {
               date: a.date || a.timestamp?.slice(0, 10) || '2026-06-01',
               amount: a.amount ?? 0,
               xMetric: a.xMetric ?? (a.amount ? a.amount / 1000000 : 0),
+              hour: a.hour ?? a.hour_of_day ?? null,
               isAnomaly: a.is_anomaly !== undefined ? a.is_anomaly : true,
               riskLevel: a.risk_level || a.riskLevel || 'HIGH'
             }))
@@ -806,7 +829,7 @@ export const useAiAnalytics = () => {
                 const targetVal = parseFloat(item.target) || 100.0
                 const actualVal = parseFloat(item.actual) || targetVal
                 const pol = (item.hibHig || 'HIG').toUpperCase()
-                
+
                 let currRatio = 100.0
                 if (pol === 'HIG') {
                   currRatio = targetVal > 0 ? (actualVal / targetVal) * 100.0 : 100.0
@@ -814,11 +837,11 @@ export const useAiAnalytics = () => {
                   currRatio = actualVal <= 0 ? 100.0 : (targetVal / actualVal) * 100.0
                 }
 
-                const deltaMomentum = pol === 'HIG' 
-                  ? (actualVal >= targetVal ? 1.02 : 0.97) 
+                const deltaMomentum = pol === 'HIG'
+                  ? (actualVal >= targetVal ? 1.02 : 0.97)
                   : (actualVal <= targetVal ? 0.98 : 1.05)
                 const forecastedVal = Math.round((actualVal * deltaMomentum) * 10) / 10
-                
+
                 let foreRatio = 100.0
                 if (pol === 'HIG') {
                   foreRatio = targetVal > 0 ? (forecastedVal / targetVal) * 100.0 : 100.0
@@ -1389,6 +1412,113 @@ export const useAiAnalytics = () => {
     saveRealCache()
   }
 
+  const trainAnomalyWithRules = async (payload: {
+    connection_name?: string
+    table_name: string
+    category?: string
+    rules: any[]
+    sample_records?: any[]
+  }) => {
+    loading.value = true
+    try {
+      // 1. Persist rules locally and update reactive state
+      const existingRules = getPersistedAutomatedRules()
+      const newRulesList = (payload.rules || []).map((r: any, idx: number) => ({
+        ...(typeof r === 'string' ? { id: `rule-${Date.now()}-${idx}`, name: r, severity: 'HIGH' } : r),
+        table_name: payload.table_name,
+        connection_name: payload.connection_name,
+        category: payload.category || 'Transaction',
+        trained_at: new Date().toISOString()
+      }))
+
+      // Filter out duplicate rules by name & table
+      const filteredExisting = existingRules.filter(
+        (er: any) => !(er.table_name === payload.table_name && newRulesList.some(nr => nr.name === er.name))
+      )
+      const mergedRules = [...newRulesList, ...filteredExisting]
+      automatedAnomalyRules.value = mergedRules
+      savePersistedAutomatedRules(mergedRules)
+
+      // 2. Call backend AI service to retrain with rules
+      const res = await safeApiFetch('/predict/anomaly/train-rules', {
+        method: 'POST',
+        body: payload
+      })
+
+      // 3. If response returns fresh anomalies and scatter points, merge them
+      const bData = res?.data || res
+      if (bData?.anomalies && bData.anomalies.length > 0) {
+        const fetchedAnomalies = bData.anomalies.map((a: any) => ({
+          id: a.id || 'ANM-001',
+          entity: a.entity || 'Kantor Operasional / Core Banking',
+          refNumber: a.id || 'TRX-001',
+          accountNumber: a.accountNumber || a.id || 'ACC-881923',
+          amount: a.amount || 0,
+          type: getCanonicalCategory(a.type),
+          category: getCanonicalCategory(a.category || a.type),
+          anomalyScore: a.anomaly_score || 0.85,
+          description: a.description || 'Transaksi anomali terdeteksi',
+          reason: a.reason || a.description || 'Penyimpangan aturan operasional',
+          date: a.date || new Date().toISOString().slice(0, 10),
+          riskLevel: normalizeRiskLevel(a.risk_level || a.severity),
+          xMetric: a.xMetric ?? (a.amount ? a.amount / 1000000 : 25.0),
+          hour: a.hour ?? a.hour_of_day ?? 12,
+          hour_of_day: a.hour ?? a.hour_of_day ?? 12,
+          isAnomaly: true
+        }))
+
+        // Save generated rule anomalies to persistent state
+        fetchedAnomalies
+          .filter((fa: any) => fa.id && fa.id.startsWith('RULE-'))
+          .forEach((ra: any) => {
+            savePersistedCustomAnomaly(ra)
+          })
+
+        const customAnoms = getPersistedCustomAnomalies()
+        const customIds = new Set(customAnoms.map((ca: any) => ca.id))
+        const filteredFetched = fetchedAnomalies.filter((fa: any) => !customIds.has(fa.id))
+        isolationState.value.anomalies = [...customAnoms, ...filteredFetched]
+      }
+
+      if (bData?.scatter_data && bData.scatter_data.length > 0) {
+        const fetchedScatter = bData.scatter_data.map((s: any) => ({
+          x: s.x ?? 0,
+          y: s.y ?? 0,
+          type: getCanonicalCategory(s.type),
+          isAnomaly: s.is_anomaly || false,
+          label: s.label || `SCATTER-${s.x}_${s.y}`
+        }))
+        const customScatter = getPersistedCustomScatter()
+        const customLabels = new Set(customScatter.map((cs: any) => cs.label || `${cs.x}_${cs.y}`))
+        const filteredFetchedScatter = fetchedScatter.filter((fs: any) => !customLabels.has(fs.label || `${fs.x}_${fs.y}`))
+        isolationState.value.scatterData = [...customScatter, ...filteredFetchedScatter]
+      }
+
+      if (bData?.summary) {
+        isolationState.value.summary = {
+          ...isolationState.value.summary,
+          ...bData.summary,
+          anomaliesFound: isolationState.value.anomalies.length
+        }
+      }
+
+      saveRealCache()
+      return {
+        success: true,
+        message: bData?.message || `Berhasil melatih model AI dengan ${payload.rules.length} aturan anomali.`,
+        data: bData
+      }
+    } catch (err: any) {
+      console.error('Failed to train anomaly with rules:', err)
+      return {
+        success: false,
+        message: err.message || 'Gagal melatih model AI dengan aturan anomali.'
+      }
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     loading,
     error,
@@ -1400,6 +1530,10 @@ export const useAiAnalytics = () => {
     isolationState,
     nlpState,
     timeseriesState,
+    automatedAnomalyRules,
+    trainAnomalyWithRules,
+    getPersistedAutomatedRules,
+    savePersistedAutomatedRules,
     formatNum,
     getRiskConfig,
     sentimentColor,

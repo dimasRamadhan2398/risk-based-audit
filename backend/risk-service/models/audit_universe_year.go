@@ -13,7 +13,7 @@ type AuditUniverseYear struct {
 	Year                     int                      `gorm:"not null" json:"year"`                          // e.g. 2026
 	RiskIndex                float64                  `gorm:"type:decimal(5,2);default:0" json:"risk_index"` // e.g. 83.6
 	RiskLevel                string                   `gorm:"type:varchar(50);default:''" json:"risk_level"` // High, Medium to High, Medium, Low to Medium, Low
-	AuditPriority            bool                     `gorm:"default:false" json:"audit_priority"`           // true if High or Medium to High
+	AuditPriority            bool                     `gorm:"default:false" json:"audit_priority"`           // true if High, Medium to High or Medium
 	RiskScores               []AuditUniverseRiskScore `gorm:"foreignKey:AuditUniverseYearID;constraint:OnDelete:CASCADE" json:"risk_scores,omitempty"`
 	// ScoredAt is when the entity was last scored for this year. nil means
 	// never scored: risk_index is 0, risk_level is "" and audit_priority is
