@@ -2,6 +2,7 @@ import { ref, computed } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 import { UserRole } from '~/types/auth'
 import { isViewerOnly, MASTER_DATA_WRITE_ROLES, QA_CONSULTING_WRITE_ROLES, AUDIT_UNIVERSE_WRITE_ROLES, AUDIT_UNIVERSE_OWN_DEPT_ROLES, isOwnDepartment } from '~/utils/viewerPolicy'
+import { icRoleCaps } from '~/utils/icAssessment'
 
 // Module-level singleton to share active preview role across all components and pages
 const activeRoleView = ref<string | null>(null)
@@ -233,6 +234,17 @@ export const useRbac = () => {
     !isViewer.value && (getUserPermissions()?.includes(name) ?? false)
 
   /**
+   * Internal Control Assessment (COSO 2013), plan section 7.2. Strict: canonical roles from the actual
+   * role list (audit-service aliases), the role preview mode is ignored. The backend enforces the same.
+   * Read: every audit role and VIEWER; DEPARTMENT_HEAD / AUDITEE only their own department's approved ones.
+   * Assess: AUDITOR, AUDIT_MANAGER, CAE, ADMIN. Approve, return, reopen, period lock: CAE and ADMIN.
+   */
+  const internalControlCaps = computed(() => icRoleCaps(getUserRoles()))
+  const canReadInternalControl = computed(() => internalControlCaps.value.canRead)
+  const canAssessInternalControl = computed(() => internalControlCaps.value.canAssess)
+  const canApproveInternalControl = computed(() => internalControlCaps.value.canApproveRole)
+
+  /**
    * Get the user's primary display role (highest privilege).
    */
   const primaryRole = computed((): string => {
@@ -415,6 +427,10 @@ export const useRbac = () => {
     canManageAssignmentLetter,
     canImportPlanDocs,
     canReviewExecutiveSummary,
+    internalControlCaps,
+    canReadInternalControl,
+    canAssessInternalControl,
+    canApproveInternalControl,
     canViewAllAtr,
     canViewLiveFollowUpStatus,
     canAssignAtr,

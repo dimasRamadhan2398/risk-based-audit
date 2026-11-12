@@ -185,7 +185,13 @@ func (r *Registry) users() {
 		{
 			adminOnly.GET("", r.controller.GetUser().ListUsers)
 			adminOnly.POST("", r.controller.GetUser().CreateUser)
+			// ?hard=true deletes permanently (role links, MFA, devices too)
 			adminOnly.DELETE("/:id", r.controller.GetUser().DeleteUser)
+
+			// Full-seat limit (services/user.MaxFullSeats) and last-admin guard
+			adminOnly.GET("/seats", r.controller.GetUser().GetSeats)
+			adminOnly.PATCH("/:id/status", r.controller.GetUser().UpdateUserStatus)
+			adminOnly.PUT("/:id/roles", r.controller.GetUser().ReplaceUserRoles)
 
 			// Used by the Employee master page to reset a linked account's password
 			adminOnly.GET("/lookup", r.controller.GetUser().LookupByEmployee)
@@ -214,7 +220,22 @@ func (r *Registry) confidentiality() {
 	{
 		confidentiality.GET("/status", r.controller.GetConfidentiality().GetStatus)
 		confidentiality.POST("/accept", r.controller.GetConfidentiality().Accept)
+		// Per-employee acceptance flags for the COSO integrity pact signal
+		// (audit-service ic-assessments); no agreement content
+		confidentiality.GET("/acceptance-summary", r.authMiddleware.RequireRoles(AcceptanceSummaryRoles...), r.controller.GetConfidentiality().AcceptanceSummary)
 	}
+}
+
+// AcceptanceSummaryRoles may call GET /confidentiality/acceptance-summary: the
+// internal audit roles that assess internal control (ADMIN, AUDIT_MANAGER,
+// AUDITOR, CAE; EXECUTIVE is the seeded CAE role). DEPARTMENT_HEAD, AUDITEE and
+// VIEWER are refused. RequireRoles compares case-insensitively but literally,
+// so the admin-created spellings are listed as in AssignableUserRoles.
+var AcceptanceSummaryRoles = []string{
+	"ADMIN", "ADMINISTRATOR", "SUPERADMIN", "SUPER_ADMIN",
+	"AUDIT_MANAGER", "AUDIT MANAGER", "MANAGER_AUDIT",
+	"AUDITOR", "AUDIT_STAFF", "LEAD_AUDITOR", "STAFF_AUDIT",
+	"CHIEF_AUDIT_EXECUTIVE", "CHIEF AUDIT EXECUTIVE", "CAE", "EXECUTIVE",
 }
 
 // resend registers the Resend webhook route. Tenant sending keys are created by scripts/provision-tenant-email.sh, not by an API.

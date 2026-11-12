@@ -1,6 +1,6 @@
 import type { RCMItem } from '~/stores/rcm'
 
-// The five COSO dimension scores captured in step 3 of the RCM wizard.
+// The five control effectiveness criteria scores captured in step 3 of the RCM wizard.
 export const RCM_RATING_KEYS = [
   'design_effectiveness_rating',
   'operating_effectiveness_rating',
@@ -11,7 +11,7 @@ export const RCM_RATING_KEYS = [
 
 export type RCMRatingKey = typeof RCM_RATING_KEYS[number]
 
-// Form state: same shape as an RCM item, except a dimension score may be
+// Form state: same shape as an RCM item, except a criterion score may be
 // null until the user picks it (null renders as "no scale button selected").
 export type RCMFormData = Omit<Partial<RCMItem>, RCMRatingKey> & {
   [K in RCMRatingKey]: number | null
@@ -30,6 +30,9 @@ export const createEmptyRcmForm = (year: number, overrides: Partial<RCMFormData>
   control_type: 'Preventive',
   control_owner: '',
   department: 'Head Office',
+  department_id: null,
+  coso_component_code: null,
+  coso_principle_codes: [],
   year,
   design_effectiveness_weight: 20,
   operating_effectiveness_weight: 20,
@@ -48,7 +51,13 @@ export const createEmptyRcmForm = (year: number, overrides: Partial<RCMFormData>
 /** Form for editing an existing item: a deep copy that keeps its saved scores. */
 export const rcmFormFromItem = (item: RCMItem): RCMFormData => {
   const copy = JSON.parse(JSON.stringify(item)) as RCMItem
-  const form = { ...copy, control_type: copy.control_type || 'Preventive' } as RCMFormData
+  const form = {
+    ...copy,
+    control_type: copy.control_type || 'Preventive',
+    department_id: copy.department_id || null,
+    coso_component_code: copy.coso_component_code || null,
+    coso_principle_codes: Array.isArray(copy.coso_principle_codes) ? copy.coso_principle_codes : []
+  } as RCMFormData
   for (const key of RCM_RATING_KEYS) {
     form[key] = isValidRating(copy[key]) ? copy[key] : null
   }

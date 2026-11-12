@@ -3,6 +3,7 @@ package services
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -48,9 +49,47 @@ func (c *DataHubClient) SuggestMapping(payload map[string]interface{}) (map[stri
 	return c.postWithResponse("/api/v1/mapping/suggest", payload)
 }
 
-// RegisterSource registers or updates connection config in Data Hub
+// SSLModeNotAppliedError means the Data Hub accepted a registration but did not echo the
+// ssl_mode that was sent (old Data Hub that ignores the field) or echoed a different one.
+// The source must not be treated as Connected: the Hub may be connecting with a weaker mode.
+type SSLModeNotAppliedError struct {
+	Sent string
+	Got  string // empty when the Data Hub response carried no ssl_mode
+}
+
+func (e *SSLModeNotAppliedError) Error() string {
+	if e.Got == "" {
+		return fmt.Sprintf("Data Hub does not support or did not apply ssl_mode=%s; update the Data Hub first", e.Sent)
+	}
+	return fmt.Sprintf("Data Hub does not support or did not apply ssl_mode=%s (it stored ssl_mode=%s); update the Data Hub first", e.Sent, e.Got)
+}
+
+// IsSSLModeNotApplied reports whether err is (or wraps) an SSLModeNotAppliedError.
+func IsSSLModeNotApplied(err error) bool {
+	var e *SSLModeNotAppliedError
+	return errors.As(err, &e)
+}
+
+// RegisterSource registers or updates connection config in Data Hub. When the payload
+// ssl_mode is not "disable", the response must echo the same ssl_mode (it is what the Hub
+// actually stored); otherwise an *SSLModeNotAppliedError is returned. For "disable" (or an
+// absent mode) no echo is required so older Data Hubs keep working.
 func (c *DataHubClient) RegisterSource(payload map[string]interface{}) error {
-	return c.post("/api/v1/sources/register", payload)
+	raw, err := c.postRaw("/api/v1/sources/register", payload)
+	if err != nil {
+		return err
+	}
+	sent, _ := payload["ssl_mode"].(string)
+	if sent == "" || sent == "disable" {
+		return nil
+	}
+	var res map[string]interface{}
+	_ = json.Unmarshal(raw, &res) // unparsable body == no echo
+	got, _ := res["ssl_mode"].(string)
+	if got != sent {
+		return &SSLModeNotAppliedError{Sent: sent, Got: got}
+	}
+	return nil
 }
 
 // TriggerIngest triggers ingestion for specified source IDs
@@ -163,27 +202,27 @@ func (c *DataHubClient) PreviewSourceTable(sourceID string, tableName string) (m
 	return result, nil
 }
 
-func (c *DataHubClient) post(path string, body interface{}) error {
+func (c *DataHubClient) postRaw(path string, body interface{}) ([]byte, error) {
 	data, err := json.Marshal(body)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	req, err := http.NewRequest("POST", c.BaseURL+path, bytes.NewReader(data))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-API-Key", c.APIKey)
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer resp.Body.Close()
+	b, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode >= 400 {
-		b, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("DataHub API error %d: %s", resp.StatusCode, string(b))
+		return nil, fmt.Errorf("DataHub API error %d: %s", resp.StatusCode, string(b))
 	}
-	return nil
+	return b, nil
 }
 
 func (c *DataHubClient) postWithResponse(path string, body interface{}) (map[string]interface{}, error) {

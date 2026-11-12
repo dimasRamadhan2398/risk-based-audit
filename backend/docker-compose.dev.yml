@@ -183,6 +183,10 @@ services:
     container_name: rb_audit_audit_service_dev
     environment:
       - JWT_SECRET=${JWT_SECRET:-6958c455ba7378688fac7200001d6bca8048fa66a28447ecc69f3b74b7ded4fa}
+      # Internal control assessment thresholds (days). Seeded into the settings
+      # table at migrate time only if missing; ADMIN edits them in the app.
+      - IC_LHA_DUE_DAYS=${IC_LHA_DUE_DAYS:-30}
+      - IC_MGMT_RESPONSE_DUE_DAYS=${IC_MGMT_RESPONSE_DUE_DAYS:-14}
     depends_on:
       postgres:
         condition: service_started

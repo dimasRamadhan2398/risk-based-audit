@@ -93,6 +93,35 @@ type CreateUserResponse struct {
 	ID                string `json:"id"`
 	Username          string `json:"username"`
 	TemporaryPassword string `json:"temporary_password,omitempty"`
+	// SeatDowngraded is true when every full seat was taken, so the account was
+	// created with VIEWER only instead of RequestedRoles.
+	SeatDowngraded bool `json:"seat_downgraded"`
+	// RequestedRoles are the role names of the request (trimmed, blanks dropped).
+	RequestedRoles []string `json:"requested_roles"`
+	// AssignedRoles are the roles the account actually holds.
+	AssignedRoles []string `json:"assigned_roles"`
+}
+
+// SeatUsage is the body of GET /users/seats. A seat is an active, non-deleted
+// user holding at least one role other than VIEWER.
+type SeatUsage struct {
+	Limit     int   `json:"limit"`
+	Used      int64 `json:"used"`
+	Remaining int64 `json:"remaining"`
+	// OverLimit is true when used > limit (tenants that had more users before
+	// the limit keep them).
+	OverLimit bool `json:"over_limit"`
+}
+
+// UpdateUserStatusRequest is the body of PATCH /users/:id/status.
+type UpdateUserStatusRequest struct {
+	IsActive *bool `json:"is_active" binding:"required"`
+}
+
+// ReplaceUserRolesRequest is the body of PUT /users/:id/roles. The roles
+// replace all of the user's current roles.
+type ReplaceUserRolesRequest struct {
+	Roles []string `json:"roles" binding:"required"`
 }
 
 // LinkEmployeeRequest links an existing account to a master-data employee.

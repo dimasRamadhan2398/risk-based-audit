@@ -3,15 +3,19 @@ package employee
 import (
 	"io"
 	"strconv"
+	"strings"
 
 	"master-service/models"
 	"master-service/pkg/authclient"
 	"master-service/pkg/base"
+	apperrors "master-service/pkg/errors"
 	"master-service/pkg/response"
 	"master-service/pkg/validations"
+	employeeRepo "master-service/repositories/employee"
 	employeeSvc "master-service/services/employee"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type EmployeeControllerInterface interface {
@@ -37,9 +41,12 @@ func NewEmployeeController(employeeSvc employeeSvc.EmployeeServiceInterface, val
 }
 
 // FindAll returns one page of employees (GET /employees). Query params: page
-// (default 1), page_size (default 10, max 100) and search (employee_code,
-// full_name or email, case-insensitive). The envelope matches the department
-// list: {"employees": [...], "pagination": {page, page_size, total, total_pages}}.
+// (default 1), page_size (default 10, max 100), search (employee_code,
+// full_name or email, case-insensitive), department_id (uuid) and is_active
+// (true/false). Omitted or empty filters do not narrow the list; a malformed
+// department_id or is_active is a 400 VALIDATION_FAILED. The envelope matches
+// the department list: {"employees": [...], "pagination": {page, page_size,
+// total, total_pages}}.
 func (d *EmployeeController) FindAll(ctx *gin.Context) {
 	baseService := base.NewBaseService().WithContext(ctx.Request.Context())
 
@@ -48,7 +55,13 @@ func (d *EmployeeController) FindAll(ctx *gin.Context) {
 	page, _ := strconv.Atoi(ctx.Query("page"))
 	pageSize, _ := strconv.Atoi(ctx.Query("page_size"))
 
-	result, err := d.employeeSvc.FindPage(baseService, page, pageSize, ctx.Query("search"))
+	filter, err := parseEmployeeListFilter(ctx)
+	if err != nil {
+		d.RespondError(ctx, err)
+		return
+	}
+
+	result, err := d.employeeSvc.FindPage(baseService, page, pageSize, filter)
 	if err != nil {
 		d.RespondError(ctx, err)
 		return
@@ -64,6 +77,33 @@ func (d *EmployeeController) FindAll(ctx *gin.Context) {
 		},
 	})
 }
+
+// parseEmployeeListFilter reads the typed list filters of GET /employees.
+func parseEmployeeListFilter(ctx *gin.Context) (employeeRepo.EmployeeListFilter, error) {
+	filter := employeeRepo.EmployeeListFilter{Search: ctx.Query("search")}
+	fields := map[string]string{}
+	if raw := strings.TrimSpace(ctx.Query("department_id")); raw != "" {
+		id, err := uuid.Parse(raw)
+		if err != nil {
+			fields["department_id"] = apperrors.FieldInvalidFormat
+		} else {
+			filter.DepartmentID = &id
+		}
+	}
+	if raw := strings.TrimSpace(ctx.Query("is_active")); raw != "" {
+		active, err := strconv.ParseBool(raw)
+		if err != nil {
+			fields["is_active"] = apperrors.FieldInvalidFormat
+		} else {
+			filter.IsActive = &active
+		}
+	}
+	if len(fields) > 0 {
+		return filter, apperrors.ValidationFailed("", fields)
+	}
+	return filter, nil
+}
+
 func (d *EmployeeController) FindById(ctx *gin.Context) {
 	baseService := base.NewBaseService().WithContext(ctx.Request.Context())
 	id := ctx.Param("id")
@@ -115,12 +155,17 @@ func (d *EmployeeController) NextCode(ctx *gin.Context) {
 	}
 	response.OK(ctx, "Next employee code fetched successfully", gin.H{"employee_code": code})
 }
+// Update edits an employee (PUT /employees/:id). An is_active change is applied
+// to the linked login account as well (Authorization is forwarded); if
+// auth-service refuses (409 SEAT_LIMIT_REACHED or LAST_ADMIN) the employee is
+// left unchanged and that 409 is returned with its data.
 func (d *EmployeeController) Update(ctx *gin.Context) {
 	var req models.Employee
 	if !d.ValidateRequest(ctx, &req) {
 		return
 	}
-	baseService := base.NewBaseService().WithContext(ctx.Request.Context())
+	reqCtx := authclient.WithAuthorization(ctx.Request.Context(), ctx.GetHeader("Authorization"))
+	baseService := base.NewBaseService().WithContext(reqCtx)
 	id := ctx.Param("id")
 	employee, err := d.employeeSvc.Update(baseService, id, &req)
 	if err != nil {
@@ -129,14 +174,33 @@ func (d *EmployeeController) Update(ctx *gin.Context) {
 	}
 	response.OK(ctx, "Employee updated successfully", employee)
 }
+
+// Delete removes an employee (DELETE /employees/:id). By default it is a soft
+// delete that also deactivates the login account. ?hard=true deletes the
+// employee and its login account permanently; 409 EMPLOYEE_IN_USE when other
+// records still reference the employee. 409 LAST_ADMIN blocks both kinds.
 func (d *EmployeeController) Delete(ctx *gin.Context) {
-	baseService := base.NewBaseService().WithContext(ctx.Request.Context())
-	id := ctx.Param("id")
-	if err := d.employeeSvc.Delete(baseService, id); err != nil {
+	hard := false
+	if raw := strings.TrimSpace(ctx.Query("hard")); raw != "" {
+		parsed, err := strconv.ParseBool(raw)
+		if err != nil {
+			d.RespondError(ctx, apperrors.ValidationFailed("hard must be true or false.",
+				map[string]string{"hard": apperrors.FieldInvalidFormat}))
+			return
+		}
+		hard = parsed
+	}
+	reqCtx := authclient.WithAuthorization(ctx.Request.Context(), ctx.GetHeader("Authorization"))
+	baseService := base.NewBaseService().WithContext(reqCtx)
+	if err := d.employeeSvc.Delete(baseService, ctx.Param("id"), hard); err != nil {
 		d.RespondError(ctx, err)
 		return
 	}
-	response.OK(ctx, "Employee deleted successfully", nil)
+	message := "Employee deleted successfully"
+	if hard {
+		message = "Employee deleted permanently"
+	}
+	response.OK(ctx, message, nil)
 }
 
 // ProvisionLoginAccount creates or links the login account of an existing

@@ -109,7 +109,7 @@ func RespondError(ctx *gin.Context, err error) {
 	}
 
 	logError(ctx, status, appErr)
-	response.ErrorWithFields(ctx, status, appErr.Code, appErr.Message, "", appErr.Fields)
+	response.ErrorWithFieldsAndData(ctx, status, appErr.Code, appErr.Message, "", appErr.Fields, appErr.Data)
 }
 
 func logError(ctx *gin.Context, status int, appErr *apperrors.AppError) {

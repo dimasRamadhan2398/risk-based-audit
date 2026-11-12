@@ -5142,6 +5142,7 @@
     "auditUniverse": "Audit Universe",
     "auditPriority": "Audit Priority",
     "riskControlMatrix": "Risk Control Matrix",
+    "internalControlAssessment": "Penilaian Pengendalian Internal (COSO 2013)",
     "auditPlanning": "Audit Planning & Fieldwork",
     "strategicAuditPlan": "Strategic Audit Plan",
     "importStrategicAuditPlan": "Import Strategic Audit Plan",
@@ -5351,7 +5352,7 @@
     },
     "header": {
       "title": "Risk Control Matrix (RCM)",
-      "subtitle": "Pengukuran efektivitas internal control berbasis 5 dimensi COSO & evaluasi risiko terintegrasi.",
+      "subtitle": "Pengukuran efektivitas pengendalian berdasarkan lima kriteria & evaluasi risiko terintegrasi.",
       "addControlMatrix": "Tambah Control Matrix"
     },
     "filters": {
@@ -5360,7 +5361,13 @@
       "allBranches": "Semua Cabang",
       "unassignedBranch": "Belum Ditentukan",
       "branchLabel": "Cabang",
-      "branchesUnavailable": "Data master cabang gagal dimuat."
+      "branchesUnavailable": "Data master cabang gagal dimuat.",
+      "departmentLabel": "Departemen",
+      "componentLabel": "Komponen COSO",
+      "principleLabel": "Prinsip COSO",
+      "allComponents": "Semua Komponen COSO",
+      "allPrinciples": "Semua Prinsip COSO",
+      "unassignedDepartment": "Belum ditetapkan"
     },
     "cards": {
       "effectiveness": {
@@ -5372,12 +5379,16 @@
         "riskCount": "{count} Risiko",
         "residualRiskLabel": "Residual Risk (Kuartal Berjalan, {quarter}):",
         "residualRiskLabelYearEnd": "Residual Risk (Tutup Buku, {quarter}):",
-        "cosoInterpretation": "Interpretasi Hasil COSO ({rating}):",
+        "cosoInterpretation": "Interpretasi Hasil ({rating}):",
         "mitigationCoverage": "{covered} dari {total} risiko residual memiliki rencana mitigasi",
-        "syncNote": "Data Inherent & Residual Risk terintegrasi otomatis dari Corporate Risk Profile (Q1 dibanding kuartal berjalan) beserta rencana mitigasinya."
+        "syncNote": "Data Inherent & Residual Risk terintegrasi otomatis dari Corporate Risk Profile (Q1 dibanding kuartal berjalan) beserta rencana mitigasinya.",
+        "rcmTitle": "Efektivitas kontrol (RCM)",
+        "noData": "Belum ada data",
+        "statusLabel": "Status: {rating}",
+        "criteriaNote": "Kriteria RCM"
       },
       "coso": {
-        "title": "Rata-Rata COSO",
+        "title": "Rata-Rata Kriteria Efektivitas Kontrol",
         "totalControls": "Total Kontrol Dievaluasi:",
         "itemsCount": "{count} Item"
       }
@@ -5423,7 +5434,7 @@
     },
     "table": {
       "title": "Daftar Risk Control Matrix",
-      "subtitle": "Hasil evaluasi 5 Dimensi COSO (Rating 1 - 5 mewakili 4% - 20% per dimensi)",
+      "subtitle": "Hasil evaluasi 5 kriteria efektivitas kontrol (Rating 1 - 5 mewakili 4% - 20% per kriteria)",
       "searchPlaceholder": "Cari risiko / kontrol...",
       "empty": {
         "label": "Tidak ada data Risk Control Matrix",
@@ -5440,10 +5451,13 @@
         "automation": "Otomasi",
         "totalScore": "Skor Total",
         "rating": "Rating Efektivitas",
-        "actions": "Aksi"
+        "actions": "Aksi",
+        "coso": "COSO 2013"
       },
       "cells": {
-        "pic": "PIC:"
+        "pic": "PIC:",
+        "departmentUnlinked": "Belum ditautkan ke departemen master",
+        "cosoNone": "Belum dipetakan"
       },
       "actions": {
         "edit": "Edit Control",
@@ -5457,7 +5471,7 @@
       "steps": {
         "riskProfile": "Profil Risiko Korporat",
         "controlMitigation": "Rencana Mitigasi & Kontrol",
-        "cosoEvaluation": "Evaluasi 5 Dimensi COSO"
+        "controlEvaluation": "Pemetaan COSO & Kriteria Efektivitas"
       },
       "previous": "Sebelumnya",
       "next": "Langkah Berikutnya",
@@ -5467,7 +5481,7 @@
       "riskSelectLabel": "Pilih Nama Risiko (Corporate Risk Profile)",
       "riskSelectPlaceholder": "Pilih Nama Risiko...",
       "riskCodeLabel": "Kode Risiko (Sinkron)",
-      "departmentLabel": "Branch (Sinkron)",
+      "departmentLabel": "Departemen",
       "riskEventLabel": "Kejadian Risiko / Risk Event (Sinkron)",
       "controlSelectLabel": "Pilih Risk Control ID (Rencana Mitigasi & Kontrol)",
       "controlSelectPlaceholder": "Pilih Risk Control ID...",
@@ -5483,17 +5497,34 @@
       "controlOwnerPlaceholder": "Finance Manager",
       "controlDescLabel": "Deskripsi Aktivitas Pengendalian Internal (Sinkron)",
       "controlDescPlaceholder": "Jelaskan mekanisme kontrol operasional, review, verifikasi, atau sistemik yang dijalankan...",
-      "evaluationTitle": "Evaluasi 5 Dimensi Internal Control (COSO)",
-      "evaluationWeight": "Bobot Tetap: 20% Tiap Dimensi (Skala 1 - 5)",
-      "dimensionRequired": "Pilih nilai untuk dimensi ini.",
+      "evaluationTitle": "Kriteria Efektivitas Kontrol (5 kriteria)",
+      "evaluationWeight": "Bobot Tetap: 20% Tiap Kriteria (Skala 1 - 5)",
+      "dimensionRequired": "Pilih nilai untuk kriteria ini.",
       "totalWeightedScore": "Total Skor Efektivitas Tertimbang:",
       "interpretation": "Interpretasi:",
       "cancel": "Batal",
-      "save": "Simpan Kontrol Matrix"
+      "save": "Simpan Kontrol Matrix",
+      "departmentPlaceholder": "Pilih departemen...",
+      "departmentRequired": "Pilih departemen.",
+      "departmentLegacyHint": "Saat ini: \"{name}\" (belum ditautkan ke departemen master)",
+      "departmentsUnavailable": "Data master departemen tidak dapat dimuat; departemen tidak dapat diubah saat ini.",
+      "cosoMappingTitle": "Pemetaan COSO 2013",
+      "cosoMappingHelp": "Opsional. Tandai prinsip COSO 2013 yang didukung kontrol ini. Kontrol tanpa pemetaan tetap valid.",
+      "cosoCatalogueUnavailable": "Daftar COSO 2013 tidak dapat dimuat. Muat ulang halaman untuk memetakan kontrol ini.",
+      "cosoComponentLabel": "Komponen COSO utama",
+      "cosoComponentHelp": "Harus merupakan komponen dari minimal satu prinsip yang dipilih. Memilih komponen mempersempit daftar prinsip.",
+      "cosoNoComponent": "Tanpa komponen utama",
+      "cosoPrinciplesLabel": "Prinsip COSO",
+      "cosoPrinciplesHelp": "Prinsip P01 - P17 dari COSO 2013.",
+      "cosoPrinciplesPlaceholder": "Pilih prinsip...",
+      "cosoErrors": {
+        "componentWithoutPrinciples": "Pilih terlebih dahulu minimal satu prinsip dari komponen ini.",
+        "componentMismatch": "Komponen utama harus merupakan komponen dari minimal satu prinsip yang dipilih."
+      }
     },
     "toasts": {
       "validationWarning": "Mohon pilih risiko dan lengkapi deskripsi kontrol.",
-      "dimensionsRequired": "Kelima dimensi pengendalian wajib dinilai sebelum menyimpan.",
+      "dimensionsRequired": "Kelima kriteria efektivitas kontrol wajib dinilai sebelum menyimpan.",
       "mitigationPlanRequired": "Risiko ini belum memiliki rencana mitigasi. Tambahkan di halaman Rencana Mitigasi Risiko sebelum melanjutkan.",
       "updateSuccess": "Risk Control Matrix berhasil diperbarui",
       "addSuccess": "Risk Control Matrix berhasil ditambahkan",
@@ -5551,7 +5582,10 @@
       "INVALID_ID": "Referensi data tidak valid. Muat ulang halaman, lalu coba lagi.",
       "VALUE_TOO_LONG": "Salah satu isian melebihi panjang maksimum yang diizinkan.",
       "REFERENCE_NOT_FOUND": "Data terkait yang dipilih sudah tidak tersedia. Muat ulang halaman, lalu pilih kembali.",
-      "FOREIGN_KEY_VIOLATION": "Data ini tidak dapat dihapus karena masih digunakan oleh data lain."
+      "FOREIGN_KEY_VIOLATION": "Data ini tidak dapat dihapus karena masih digunakan oleh data lain.",
+      "SEAT_LIMIT_REACHED": "Batas kuota pengguna telah tercapai. Kosongkan satu kuota dengan menonaktifkan pengguna lain, atau gunakan peran Viewer.",
+      "LAST_ADMIN": "Administrator aktif terakhir tidak dapat dinonaktifkan, dihapus, atau kehilangan peran administrator.",
+      "EMPLOYEE_IN_USE": "Karyawan ini masih digunakan oleh data lain dan tidak dapat dihapus permanen."
     }
   },
   "masterData": {
@@ -5720,23 +5754,60 @@
         "continueReset": "Lanjutkan ke atur ulang kata sandi"
       },
       "createdWithCode": "Employee berhasil dibuat! Kode employee: {code}",
-      "level": "Level {level}",
       "active": "Aktif",
       "inactive": "Tidak Aktif",
       "resetPassword": "Atur Ulang Kata Sandi",
-      "deleteConfirm": "Apakah Anda yakin ingin menghapus karyawan \"{name}\"?",
+      "statusHelp": "Karyawan tidak aktif tidak dapat masuk: status akun login mengikuti status ini.",
+      "softDeleteConfirm": "Nonaktifkan dan hapus karyawan \"{name}\"?",
+      "softDeleteConfirmBody": "Karyawan akan dihapus dari daftar dan akun loginnya dinonaktifkan. Data ini dapat dipulihkan nanti.",
+      "hardDeleteConfirm": "Hapus permanen karyawan \"{name}\"?",
+      "hardDeleteConfirmBody": "Data karyawan akan dihapus selamanya. Tindakan ini tidak dapat dibatalkan.",
+      "hardDeleteConfirmNote": "Untuk menyimpan riwayatnya, gunakan \"Nonaktifkan dan hapus\".",
+      "deactivateConfirm": "Nonaktifkan karyawan \"{name}\"?",
+      "deactivateConfirmBody": "Akun loginnya juga akan dinonaktifkan, sehingga karyawan tidak dapat masuk sampai diaktifkan kembali.",
+      "reactivateConfirm": "Aktifkan kembali karyawan \"{name}\"?",
+      "reactivateConfirmBody": "Akun loginnya akan dapat digunakan kembali. Jika perannya bukan Viewer, tindakan ini memakai satu kuota pengguna.",
+      "actions": {
+        "deactivate": "Nonaktifkan",
+        "reactivate": "Aktifkan kembali",
+        "softDelete": "Nonaktifkan dan hapus",
+        "softDeleteHint": "Nonaktifkan dan hapus (login dinonaktifkan, dapat dipulihkan)",
+        "hardDelete": "Hapus permanen"
+      },
+      "seats": {
+        "indicator": "Kuota pengguna: {used} / {limit}",
+        "overLimit": "Melebihi batas",
+        "hint": "Kuota dihitung untuk setiap pengguna aktif dengan peran selain Viewer. Viewer tidak dibatasi.",
+        "fullAlertTitle": "Batas kuota pengguna tercapai",
+        "fullAlert": "Tidak dapat menambah pengguna dengan peran ini. Batas kuota ({limit}) telah tercapai, sehingga peran akan otomatis diatur menjadi Viewer.",
+        "downgradedTitle": "Akun dibuat sebagai Viewer",
+        "downgradedToast": "Batas kuota pengguna telah tercapai, sehingga akun login {username} dibuat dengan peran Viewer.",
+        "downgradedToastNoUsername": "Batas kuota pengguna telah tercapai, sehingga akun login dibuat dengan peran Viewer."
+      },
+      "errors": {
+        "seatLimitReactivate": "Batas kuota pengguna ({limit}) telah tercapai, sehingga karyawan ini tidak dapat diaktifkan kembali. Kosongkan satu kuota dengan menonaktifkan pengguna lain, atau ubah peran karyawan ini menjadi Viewer.",
+        "seatLimitUpdate": "Batas kuota pengguna ({limit}) telah tercapai, sehingga perubahan ini tidak dapat disimpan. Kosongkan satu kuota dengan menonaktifkan pengguna lain, atau ubah peran karyawan ini menjadi Viewer.",
+        "lastAdminDeactivate": "Ini adalah administrator aktif terakhir dan tidak dapat dinonaktifkan. Jadikan pengguna lain sebagai administrator terlebih dahulu.",
+        "lastAdminUpdate": "Ini adalah administrator aktif terakhir, sehingga tidak dapat dinonaktifkan atau kehilangan peran administrator. Jadikan pengguna lain sebagai administrator terlebih dahulu.",
+        "lastAdminDelete": "Ini adalah administrator aktif terakhir dan tidak dapat dihapus. Jadikan pengguna lain sebagai administrator terlebih dahulu.",
+        "inUse": "Karyawan ini tidak dapat dihapus permanen karena masih digunakan di data lain. Gunakan \"Nonaktifkan dan hapus\".",
+        "usedIn": "Digunakan di: {list}",
+        "statusChangeFailed": "Status karyawan tidak dapat diubah. Silakan coba lagi."
+      },
       "columns": {
         "code": "Kode",
         "fullName": "Nama Lengkap",
         "email": "Email",
         "phone": "Telepon",
-        "level": "Level",
         "status": "Status"
       },
       "messages": {
         "created": "Karyawan berhasil dibuat!",
         "updated": "Karyawan berhasil diperbarui!",
-        "deleted": "Karyawan berhasil dihapus!"
+        "softDeleted": "Karyawan dinonaktifkan dan dihapus dari daftar. Akun login telah dinonaktifkan.",
+        "hardDeleted": "Karyawan berhasil dihapus permanen.",
+        "deactivated": "Karyawan dinonaktifkan. Akun login telah dinonaktifkan.",
+        "reactivated": "Karyawan diaktifkan kembali. Akun login dapat digunakan lagi."
       }
     },
     "location": {
@@ -6241,7 +6312,14 @@
       "apiEndpoint": "Endpoint Kong API Gateway",
       "proxyPort": "Port Proxy: {port}",
       "brandColor": "Warna Utama Merek",
-      "brandColorTooltip": "Digunakan sebagai aksen pada tema kustom klien"
+      "brandColorTooltip": "Digunakan sebagai aksen pada tema kustom klien",
+      "icThresholds": "Ambang Batas Penilaian Pengendalian Internal",
+      "icThresholdsHint": "Pengaturan awal tenant. ADMIN dapat mengubahnya nanti di Pengaturan.",
+      "lhaDueDays": "Batas Laporan Audit (LHA) (hari)",
+      "lhaDueDaysTooltip": "Jumlah hari setelah tanggal selesai surat tugas untuk menerbitkan laporan audit (LHA). Bawaan 30.",
+      "mgmtResponseDueDays": "Batas Tanggapan Manajemen (hari)",
+      "mgmtResponseDueDaysTooltip": "Jumlah hari bagi manajemen untuk menanggapi temuan. Bawaan 14.",
+      "dueDaysRange": "Bilangan bulat antara {min} dan {max}"
     },
     "administrator": {
       "info": "Akun administrator awal akan memiliki hak Chief Audit Executive (CAE) / Super Admin pada instance tenant baru dengan penyemaian RBAC otomatis.",
@@ -6305,6 +6383,8 @@
       "evidenceStorage": "Penyedia Penyimpanan Bukti",
       "chiefAuditExecutive": "Kepala Eksekutif Audit",
       "complianceStandard": "Standar Kepatuhan",
+      "icThresholds": "Ambang Batas PI",
+      "icThresholdsValue": "LHA: {lha} hari | Tanggapan manajemen: {mgmt} hari",
       "onboardingCommand": "Perintah Onboarding Otomatis (CLI)",
       "copyCommand": "Salin Perintah",
       "provisioning": "Menyiapkan {domain}..."
@@ -6405,5 +6485,443 @@
       "save": "Simpan Mitigasi"
     },
     "deleteConfirm": "Apakah Anda yakin ingin menghapus rencana mitigasi ini?"
+  },
+  "coso": {
+    "components": {
+      "CE": "Lingkungan Pengendalian",
+      "RA": "Penilaian Risiko",
+      "CA": "Aktivitas Pengendalian",
+      "IC": "Informasi dan Komunikasi",
+      "MA": "Aktivitas Pemantauan"
+    },
+    "principles": {
+      "P01": {
+        "title": "Komitmen terhadap integritas dan nilai etika",
+        "description": "Organisasi menunjukkan komitmen terhadap integritas dan nilai-nilai etika."
+      },
+      "P02": {
+        "title": "Dewan melaksanakan pengawasan",
+        "description": "Dewan menunjukkan independensi dari manajemen dan mengawasi pengembangan serta kinerja pengendalian internal."
+      },
+      "P03": {
+        "title": "Struktur, wewenang dan tanggung jawab",
+        "description": "Manajemen, dengan pengawasan dewan, menetapkan struktur, jalur pelaporan, serta wewenang dan tanggung jawab yang sesuai untuk mencapai tujuan."
+      },
+      "P04": {
+        "title": "Komitmen terhadap kompetensi",
+        "description": "Organisasi menunjukkan komitmen untuk menarik, mengembangkan dan mempertahankan individu yang kompeten sesuai tujuan."
+      },
+      "P05": {
+        "title": "Menegakkan akuntabilitas",
+        "description": "Organisasi meminta pertanggungjawaban individu atas tanggung jawab pengendalian internal mereka dalam mencapai tujuan."
+      },
+      "P06": {
+        "title": "Menetapkan tujuan yang sesuai",
+        "description": "Organisasi menetapkan tujuan dengan cukup jelas sehingga risiko terkait tujuan dapat diidentifikasi dan dinilai."
+      },
+      "P07": {
+        "title": "Mengidentifikasi dan menganalisis risiko",
+        "description": "Organisasi mengidentifikasi risiko terhadap pencapaian tujuan di seluruh entitas dan menganalisisnya sebagai dasar pengelolaan risiko."
+      },
+      "P08": {
+        "title": "Menilai risiko kecurangan",
+        "description": "Organisasi mempertimbangkan potensi kecurangan dalam menilai risiko terhadap pencapaian tujuan."
+      },
+      "P09": {
+        "title": "Mengidentifikasi dan menganalisis perubahan signifikan",
+        "description": "Organisasi mengidentifikasi dan menilai perubahan yang dapat berdampak signifikan pada sistem pengendalian internal."
+      },
+      "P10": {
+        "title": "Memilih dan mengembangkan aktivitas pengendalian",
+        "description": "Organisasi memilih dan mengembangkan aktivitas pengendalian yang menurunkan risiko ke tingkat yang dapat diterima."
+      },
+      "P11": {
+        "title": "Pengendalian umum atas teknologi",
+        "description": "Organisasi memilih dan mengembangkan aktivitas pengendalian umum atas teknologi untuk mendukung pencapaian tujuan."
+      },
+      "P12": {
+        "title": "Menerapkan melalui kebijakan dan prosedur",
+        "description": "Organisasi menerapkan aktivitas pengendalian melalui kebijakan yang menetapkan harapan dan prosedur yang menjalankan kebijakan tersebut."
+      },
+      "P13": {
+        "title": "Menggunakan informasi yang relevan",
+        "description": "Organisasi memperoleh atau menghasilkan dan menggunakan informasi yang relevan dan berkualitas untuk mendukung berfungsinya pengendalian internal."
+      },
+      "P14": {
+        "title": "Berkomunikasi secara internal",
+        "description": "Organisasi mengomunikasikan informasi secara internal, termasuk tujuan dan tanggung jawab pengendalian internal, yang diperlukan agar pengendalian internal berfungsi."
+      },
+      "P15": {
+        "title": "Berkomunikasi secara eksternal",
+        "description": "Organisasi berkomunikasi dengan pihak eksternal mengenai hal-hal yang memengaruhi berfungsinya pengendalian internal."
+      },
+      "P16": {
+        "title": "Evaluasi berkelanjutan dan/atau terpisah",
+        "description": "Organisasi memilih, mengembangkan dan melaksanakan evaluasi berkelanjutan dan/atau terpisah untuk memastikan komponen pengendalian internal ada dan berfungsi."
+      },
+      "P17": {
+        "title": "Mengevaluasi dan mengomunikasikan kelemahan",
+        "description": "Organisasi mengevaluasi dan mengomunikasikan kelemahan pengendalian internal secara tepat waktu kepada pihak yang bertanggung jawab melakukan tindakan perbaikan."
+      }
+    }
+  },
+  "icAssessment": {
+    "page": {
+      "title": "Penilaian Pengendalian Internal (COSO 2013)",
+      "description": "Per departemen dan periode: apakah lima komponen COSO 2013 ada dan berfungsi?",
+      "detailTitle": "Penilaian pengendalian internal"
+    },
+    "filters": {
+      "year": "Tahun",
+      "quarter": "Periode",
+      "annual": "Tahunan",
+      "quarterN": "TW{n}",
+      "department": "Departemen",
+      "allDepartments": "Semua departemen",
+      "branch": "Cabang",
+      "allBranches": "Seluruh departemen (tanpa cabang)",
+      "status": "Status",
+      "allStatuses": "Semua status",
+      "notStarted": "Belum dimulai"
+    },
+    "grid": {
+      "department": "Departemen",
+      "overall": "Kesimpulan keseluruhan",
+      "actions": "Aksi",
+      "notStarted": "Belum dimulai",
+      "create": "Mulai penilaian",
+      "open": "Buka",
+      "rating": "Peringkat {rating}",
+      "noRating": "Tanpa peringkat",
+      "empty": "Belum ada penilaian untuk periode ini.",
+      "emptyScoped": "Belum ada penilaian yang disetujui untuk departemen Anda pada periode ini.",
+      "loadError": "Penilaian tidak dapat dimuat.",
+      "scopedNote": "Anda hanya melihat penilaian departemen Anda yang telah disetujui.",
+      "departmentsUnavailable": "Daftar departemen tidak dapat dimuat; hanya penilaian yang ada yang ditampilkan."
+    },
+    "period": {
+      "annual": "Tahunan {year}",
+      "quarter": "TW{quarter} {year}",
+      "lockedBanner": "Periode ini dikunci. Penilaian di dalamnya tidak dapat dibuat, diubah, diajukan atau dibuka kembali.",
+      "lockedBy": "Dikunci oleh {name} pada {date}",
+      "lock": "Kunci periode",
+      "unlock": "Buka kunci periode",
+      "lockTitle": "Kunci {period}",
+      "lockDescription": "Penguncian memblokir semua perubahan penilaian pada periode ini. Mengunci tahun juga mengunci triwulannya.",
+      "lockNote": "Catatan (opsional)",
+      "unlockTitle": "Buka kunci {period}",
+      "unlockReason": "Alasan membuka kunci",
+      "locked": "Periode dikunci",
+      "unlocked": "Kunci periode dibuka"
+    },
+    "status": {
+      "DRAFT": "Draf",
+      "SUBMITTED": "Diajukan",
+      "APPROVED": "Disetujui",
+      "REOPENED": "Dibuka kembali"
+    },
+    "componentStatus": {
+      "YES": "Ada dan berfungsi",
+      "PARTIAL": "Sebagian ada dan berfungsi",
+      "NO": "Tidak ada dan tidak berfungsi",
+      "NOT_ASSESSED": "Belum dinilai"
+    },
+    "componentStatusShort": {
+      "YES": "Ya",
+      "PARTIAL": "Sebagian",
+      "NO": "Tidak",
+      "NOT_ASSESSED": "Belum dinilai"
+    },
+    "principleStatus": {
+      "NOT_ASSESSED": "Belum dinilai",
+      "YES": "Ada dan berfungsi",
+      "PARTIAL": "Sebagian",
+      "NO": "Tidak ada / tidak berfungsi",
+      "NOT_APPLICABLE": "Tidak berlaku"
+    },
+    "severity": {
+      "NONE": "Tidak ada",
+      "DEFICIENCY": "Kelemahan",
+      "SIGNIFICANT": "Kelemahan signifikan",
+      "MAJOR": "Kelemahan material"
+    },
+    "conclusion": {
+      "EFFECTIVE": "Efektif",
+      "NOT_EFFECTIVE": "Tidak efektif",
+      "REQUIRES_JUDGMENT": "Memerlukan pertimbangan",
+      "INCOMPLETE": "Belum lengkap",
+      "none": "Belum ada kesimpulan"
+    },
+    "rating": {
+      "1": "1 - Tidak efektif",
+      "2": "2 - Lemah",
+      "3": "3 - Cukup efektif",
+      "4": "4 - Efektif",
+      "5": "5 - Sangat efektif"
+    },
+    "evidenceState": {
+      "OK": "Nilai tersedia",
+      "NO_DATA": "Tidak ada data",
+      "NOT_APPLICABLE": "Tidak berlaku",
+      "SOURCE_UNAVAILABLE": "Sumber tidak tersedia"
+    },
+    "signals": {
+      "ce_integrity_pact": "Pakta integritas diterima oleh pegawai departemen",
+      "ce_unit_accountability": "Departemen aktif dan memiliki penanggung jawab",
+      "ce_audit_charter": "Piagam audit aktif (tingkat entitas)",
+      "ra_quarterly_coverage": "Penilaian risiko triwulanan terisi",
+      "ra_above_appetite_mitigated": "Risiko di atas selera risiko yang memiliki mitigasi",
+      "ca_rcm_effectiveness": "Rata-rata efektivitas kontrol RCM",
+      "ic_lha_timeliness": "Laporan hasil audit (LHA) terbit tepat waktu",
+      "ic_management_response": "Tanggapan manajemen atas temuan",
+      "ma_atr_completed_on_time": "Tindak lanjut selesai tepat waktu",
+      "ma_atr_not_overdue": "Tindak lanjut terbuka yang tidak terlambat",
+      "unknown": "Sinyal {key}"
+    },
+    "detail": {
+      "department": "Departemen",
+      "branch": "Cabang",
+      "departmentWide": "Seluruh departemen",
+      "period": "Periode",
+      "version": "Versi {version}",
+      "createdBy": "Dibuat oleh {name}",
+      "submittedBy": "Diajukan oleh {name} pada {date}",
+      "approvedBy": "Disetujui oleh {name} pada {date}",
+      "reopened": "Dibuka kembali {count} kali. Alasan terakhir: {reason}",
+      "back": "Kembali ke daftar",
+      "notFound": "Penilaian ini tidak ada atau Anda tidak berhak melihatnya.",
+      "loadError": "Penilaian tidak dapat dimuat.",
+      "unsaved": "Perubahan belum disimpan",
+      "readOnlyApproved": "Penilaian yang disetujui hanya dapat dibaca. Penyetuju dapat membukanya kembali.",
+      "readOnlySubmitted": "Diajukan: menunggu persetujuan. Penyetuju dapat mengembalikannya ke draf.",
+      "readOnlyViewer": "Anda hanya memiliki akses baca untuk penilaian ini.",
+      "asOf": "Data per {date}"
+    },
+    "stepper": {
+      "DRAFT": "Draf",
+      "SUBMITTED": "Diajukan",
+      "APPROVED": "Disetujui"
+    },
+    "tabs": {
+      "assessment": "Penilaian",
+      "history": "Riwayat"
+    },
+    "actions": {
+      "propose": "Usulkan skor",
+      "repropose": "Usulkan ulang skor",
+      "save": "Simpan",
+      "submit": "Ajukan persetujuan",
+      "return": "Kembalikan ke draf",
+      "approve": "Setujui",
+      "reopen": "Buka kembali",
+      "delete": "Hapus draf",
+      "evidence": "Bukti",
+      "discard": "Buang perubahan",
+      "reload": "Muat ulang",
+      "cancel": "Batal"
+    },
+    "component": {
+      "proposed": "Usulan sistem",
+      "final": "Penilaian akhir",
+      "notProposed": "Belum ada usulan. Jalankan \"Usulkan skor\" untuk mengumpulkan bukti.",
+      "insufficientData": "Data tidak memadai",
+      "insufficientHelp": "Kurang dari separuh bobot sinyal memiliki data, sehingga tidak ada skor yang diusulkan.",
+      "insufficientReasons": "Sinyal tanpa nilai",
+      "coverage": "Cakupan data {pct}",
+      "partialProposal": "Beberapa sinyal tidak memiliki nilai; skor memakai sisanya.",
+      "finalRating": "Peringkat akhir",
+      "finalStatus": "Ada dan berfungsi?",
+      "finalSeverity": "Tingkat kelemahan",
+      "derived": "Dari prinsip",
+      "derivedIncomplete": "Beberapa prinsip belum dinilai",
+      "overrideReason": "Alasan penyesuaian",
+      "overrideRequired": "Wajib karena peringkat akhir berbeda dari usulan (minimal {min} karakter).",
+      "overrideRequiredNoProposal": "Wajib karena tidak ada usulan sebagai pembanding (minimal {min} karakter).",
+      "overrideCount": "{count} / {min} karakter",
+      "conclusion": "Kesimpulan komponen",
+      "select": "Pilih",
+      "override": "Penyesuaian"
+    },
+    "principles": {
+      "title": "Prinsip",
+      "code": "Prinsip",
+      "status": "Status",
+      "severity": "Tingkat kelemahan",
+      "rationale": "Alasan",
+      "rationalePlaceholder": "Jelaskan penilaian",
+      "rationaleRequired": "Alasan wajib diisi untuk status atau tingkat kelemahan ini.",
+      "notApplicableRequired": "Tidak berlaku memerlukan alasan.",
+      "severityNotAllowed": "Tingkat kelemahan ini tidak sesuai dengan status.",
+      "taggedControls": "{count} kontrol ditandai",
+      "taggedAvg": "rata-rata {pct}",
+      "noTaggedControls": "Tidak ada kontrol yang ditandai",
+      "openRcm": "Buka di RCM"
+    },
+    "evidence": {
+      "title": "Bukti: {component}",
+      "description": "Nilai dibekukan saat usulan dijalankan. Perubahan data sumber setelahnya tidak mengubahnya.",
+      "run": "Putaran usulan",
+      "runN": "Putaran {run}",
+      "latest": "terbaru",
+      "signal": "Sinyal",
+      "value": "Nilai",
+      "ratio": "{num} dari {den}",
+      "weight": "Bobot {weight}",
+      "state": "Keadaan",
+      "scope": "Cakupan",
+      "collectedAt": "Dikumpulkan {date}",
+      "principleHint": "Prinsip {code}",
+      "thresholdsUsed": "Ambang batas yang dipakai",
+      "lhaDueDays": "LHA terbit dalam {days} hari setelah tanggal selesai penugasan",
+      "mrDueDays": "Tanggapan manajemen dalam {days} hari",
+      "noThresholds": "Ambang batas yang dipakai tidak tercatat untuk putaran ini.",
+      "empty": "Tidak ada bukti untuk komponen ini pada putaran ini.",
+      "openSource": "Buka sumber",
+      "details": "Rincian",
+      "loadError": "Bukti tidak dapat dimuat."
+    },
+    "conclusionSection": {
+      "title": "Kesimpulan keseluruhan",
+      "derived": "Turunan dari komponen",
+      "final": "Kesimpulan akhir",
+      "finalPlaceholder": "Pilih kesimpulan",
+      "text": "Kesimpulan",
+      "textPlaceholder": "Ringkasan penilaian",
+      "justification": "Justifikasi",
+      "justificationPlaceholder": "Mengapa kesimpulan akhir berbeda dari, atau memutuskan, kesimpulan turunan",
+      "justificationRequired": "Wajib bila kesimpulan akhir berbeda dari kesimpulan turunan atau kesimpulan turunan memerlukan pertimbangan.",
+      "effectiveNotAllowed": "Efektif tidak diizinkan selama ada komponen yang tidak ada dan berfungsi atau ada kelemahan material.",
+      "operateTogether": "Komponen beroperasi bersama",
+      "operateTogetherYes": "Dikonfirmasi oleh penyetuju",
+      "operateTogetherNo": "Tidak dikonfirmasi oleh penyetuju",
+      "operateTogetherPending": "Dikonfirmasi oleh penyetuju saat persetujuan"
+    },
+    "drift": {
+      "changed": "Data sumber berubah sejak persetujuan",
+      "changedHelp": "Menjalankan ulang pengumpulan data sekarang memberi nilai berbeda. Bukti yang disetujui tidak berubah.",
+      "unchanged": "Data sumber tidak berubah sejak persetujuan",
+      "unavailable": "Pemeriksaan data sumber tidak tersedia",
+      "check": "Periksa lagi",
+      "checkedAt": "Diperiksa {date}",
+      "signal": "{signal}: {from} saat persetujuan, {to} sekarang"
+    },
+    "history": {
+      "title": "Riwayat",
+      "empty": "Belum ada kejadian.",
+      "loadError": "Riwayat tidak dapat dimuat.",
+      "by": "oleh {name}",
+      "transition": "{from} ke {to}",
+      "reason": "Alasan",
+      "changes": "Perubahan",
+      "action": {
+        "CREATE": "Dibuat",
+        "PROPOSE": "Usulan dijalankan",
+        "UPDATE": "Diperbarui",
+        "OVERRIDE": "Penyesuaian",
+        "SUBMIT": "Diajukan",
+        "RETURN": "Dikembalikan ke draf",
+        "APPROVE": "Disetujui",
+        "REOPEN": "Dibuka kembali",
+        "DELETE": "Dihapus",
+        "PERIOD_LOCK": "Periode dikunci",
+        "PERIOD_UNLOCK": "Kunci periode dibuka"
+      }
+    },
+    "approve": {
+      "title": "Setujui penilaian",
+      "description": "{department}, {period}",
+      "lockNotice": "Setelah disetujui, penilaian hanya dapat dibaca. Hanya pembukaan kembali dengan alasan yang dapat mengubahnya.",
+      "operateTogether": "Apakah kelima komponen beroperasi bersama secara terpadu?",
+      "yes": "Ya",
+      "no": "Tidak",
+      "operateTogetherRequired": "Jawab pertanyaan ini untuk menyetujui.",
+      "falseForcesNotEffective": "Menjawab Tidak membuat kesimpulan keseluruhan menjadi Tidak efektif.",
+      "operateTogetherNote": "Catatan tentang komponen yang beroperasi bersama",
+      "note": "Catatan persetujuan (opsional)",
+      "signature": "Tanda tangan (opsional)",
+      "addSignature": "Tambahkan tanda tangan",
+      "removeSignature": "Hapus tanda tangan",
+      "confirm": "Setujui",
+      "sod": "Anda yang mengajukan penilaian ini. Penyetuju lain harus menyetujuinya."
+    },
+    "reason": {
+      "returnTitle": "Kembalikan ke draf",
+      "returnDescription": "Penilai menerima kembali penilaian beserta alasan Anda.",
+      "reopenTitle": "Buka kembali penilaian yang disetujui",
+      "reopenDescription": "Status disetujui tetap tercatat di riwayat. Penilaian kembali ke penilai.",
+      "label": "Alasan",
+      "placeholder": "Tulis alasannya",
+      "required": "Alasan wajib diisi.",
+      "confirm": "Konfirmasi"
+    },
+    "blockers": {
+      "title": "Sebelum mengajukan",
+      "noProposal": "Jalankan usulan setidaknya sekali.",
+      "principlesNotAssessed": "{count} prinsip belum dinilai.",
+      "principleIssues": "{count} prinsip memerlukan alasan atau tingkat kelemahan lain.",
+      "component": {
+        "finalMissing": "{component}: peringkat, status dan tingkat kelemahan akhir wajib diisi.",
+        "overrideReasonRequired": "{component}: alasan penyesuaian wajib diisi.",
+        "severityBelowDerived": "{component}: tingkat kelemahan tidak boleh lebih rendah dari hasil prinsip.",
+        "statusYesWhenDerivedNo": "{component}: tidak dapat dinyatakan ada dan berfungsi bila ada prinsip yang tidak.",
+        "majorNeedsLowRating": "{component}: kelemahan material memerlukan peringkat 2 atau lebih rendah.",
+        "yesNeedsHighRating": "{component}: ada dan berfungsi memerlukan peringkat 3 atau lebih tinggi."
+      },
+      "conclusion": {
+        "conclusionMissing": "Pilih kesimpulan akhir.",
+        "effectiveNotAllowed": "Efektif tidak diizinkan bila ada kelemahan material atau komponen yang tidak ada dan berfungsi.",
+        "justificationRequired": "Tulis justifikasi kesimpulan."
+      }
+    },
+    "confirm": {
+      "propose": "Kumpulkan bukti dan usulkan skor sekarang?",
+      "proposeBody": "Nilai akhir yang Anda isi tetap disimpan. Putaran usulan baru ditambahkan ke riwayat.",
+      "submit": "Ajukan penilaian ini untuk disetujui?",
+      "submitBody": "Penilai tidak dapat mengubahnya selama menunggu persetujuan.",
+      "delete": "Hapus draf penilaian ini?",
+      "discard": "Buang perubahan yang belum disimpan?",
+      "leave": "Tinggalkan halaman ini? Perubahan yang belum disimpan akan hilang.",
+      "leaveConfirm": "Tinggalkan halaman",
+      "saveFirst": "Simpan perubahan Anda terlebih dahulu?",
+      "saveFirstBody": "Ada perubahan yang belum disimpan. Perubahan disimpan sebelum langkah berikutnya."
+    },
+    "toast": {
+      "created": "Penilaian dimulai",
+      "saved": "Penilaian disimpan",
+      "proposed": "Skor diusulkan",
+      "submitted": "Penilaian diajukan",
+      "returned": "Penilaian dikembalikan ke draf",
+      "approved": "Penilaian disetujui",
+      "reopened": "Penilaian dibuka kembali",
+      "deleted": "Draf dihapus",
+      "nothingChanged": "Tidak ada yang perlu disimpan",
+      "actionFailed": "Aksi gagal",
+      "conflictTitle": "Penilaian ini telah diubah oleh pengguna lain",
+      "conflictBody": "Muat ulang untuk melihat versi terbaru. Perubahan Anda yang belum disimpan akan hilang.",
+      "fixFirst": "Perbaiki isian yang ditandai terlebih dahulu"
+    },
+    "settings": {
+      "title": "Ambang batas penilaian pengendalian internal",
+      "description": "Dipakai saat sistem mengusulkan skor komponen COSO untuk tenant ini. Perubahan hanya berlaku untuk usulan baru; usulan sebelumnya tetap memakai nilai yang digunakannya.",
+      "lhaDueDays": "Batas hari LHA",
+      "lhaHelp": "Laporan hasil audit dianggap tepat waktu bila terbit dalam jumlah hari ini setelah tanggal selesai penugasan (bawaan 30).",
+      "mrDueDays": "Batas hari tanggapan manajemen",
+      "mrHelp": "Tanggapan manajemen dianggap tepat waktu bila diisi dalam jumlah hari ini (bawaan 14).",
+      "range": "Bilangan bulat dari {min} sampai {max}.",
+      "save": "Simpan ambang batas",
+      "saved": "Ambang batas disimpan",
+      "loadFailed": "Ambang batas tidak dapat dimuat.",
+      "days": "hari"
+    },
+    "dashboard": {
+      "title": "Pengendalian internal (COSO 2013)",
+      "subtitle": "Asesmen yang telah disetujui per komponen COSO, {period}",
+      "open": "Asesmen Pengendalian Internal",
+      "loading": "Memuat...",
+      "loadError": "Ringkasan asesmen pengendalian internal tidak dapat dimuat.",
+      "empty": "Belum ada asesmen yang disetujui untuk periode ini",
+      "emptyLink": "Buka daftar asesmen",
+      "departments": "{count} departemen dinilai"
+    }
   }
 }

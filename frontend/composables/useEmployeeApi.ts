@@ -6,9 +6,10 @@ import type {
   CreateEmployeeRequest,
   UpdateEmployeeRequest,
   ListEmployeesResponse,
-  NextEmployeeCodeResponse
+  NextEmployeeCodeResponse,
+  UserSeats
 } from '~/types/master'
-import { getMasterServiceBaseUrl } from '~/composables/useApiUrl'
+import { getAuthServiceBaseUrl, getMasterServiceBaseUrl } from '~/composables/useApiUrl'
 
 export const useEmployeeApi = () => {
   const getBaseUrl = () => getMasterServiceBaseUrl()
@@ -133,12 +134,26 @@ export const useEmployeeApi = () => {
 
   /**
    * Delete employee
-   * DELETE /api/v1/employees/:id
+   * DELETE /api/v1/employees/:id (soft delete; also deactivates the login)
+   * DELETE /api/v1/employees/:id?hard=true (permanent)
    */
-  const deleteEmployee = async (id: string): Promise<void> => {
+  const deleteEmployee = async (id: string, options?: { hard?: boolean }): Promise<void> => {
     await $fetch(`${getBaseUrl()}/employees/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      query: options?.hard ? { hard: 'true' } : undefined
     })
+  }
+
+  /**
+   * User seat usage (ADMIN only, auth-service)
+   * GET /api/v1/users/seats
+   */
+  const getUserSeats = async (): Promise<UserSeats> => {
+    const response = await $fetch<any>(`${getAuthServiceBaseUrl()}/users/seats`, {
+      method: 'GET'
+    })
+
+    return response?.data || response
   }
 
   /**
@@ -183,6 +198,7 @@ export const useEmployeeApi = () => {
     createLoginAccount,
     updateEmployee,
     deleteEmployee,
+    getUserSeats,
     getAllEmployees
   }
 }

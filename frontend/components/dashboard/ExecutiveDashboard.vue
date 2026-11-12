@@ -115,15 +115,16 @@
         </div>
       </div>
 
-      <!-- Card 4: Efektivitas Pengendalian COSO 2013 -->
+      <!-- Card 4: Control effectiveness (RCM) -->
       <div class="p-5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 shadow-xs flex flex-col justify-between hover:border-sky-500/40 transition-all">
         <div class="flex items-start justify-between">
           <div>
             <p class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-              Skor Efektivitas Kontrol
+              {{ t('rcm.cards.effectiveness.rcmTitle') }}
             </p>
             <h3 class="text-2xl sm:text-3xl font-extrabold text-sky-600 dark:text-sky-400 mt-1 tabular-nums">
-              {{ cosoEffectivenessScore }}%
+              <template v-if="controlEffectivenessScore !== null">{{ controlEffectivenessScore }}%</template>
+              <span v-else class="text-base font-semibold text-gray-500 dark:text-gray-400">{{ t('rcm.cards.effectiveness.noData') }}</span>
             </h3>
           </div>
           <div class="p-2.5 rounded-xl bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400">
@@ -132,9 +133,9 @@
         </div>
         <div class="mt-3 flex items-center justify-between text-xs border-t border-gray-100 dark:border-gray-800/80 pt-2.5">
           <span class="text-sky-600 dark:text-sky-400 font-semibold">
-            Status: {{ cosoRatingLabel }}
+            <template v-if="controlRatingLabel">{{ t('rcm.cards.effectiveness.statusLabel', { rating: controlRatingLabel }) }}</template>
           </span>
-          <span class="text-gray-400">Standar COSO</span>
+          <span class="text-gray-400">{{ t('rcm.cards.effectiveness.criteriaNote') }}</span>
         </div>
       </div>
     </div>
@@ -274,42 +275,8 @@
       </div>
     </div>
 
-    <!-- 4. Section 3: Ringkasan Pengendalian Internal COSO 2013 -->
-    <div class="p-5 sm:p-6 bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xs space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h2 class="text-base sm:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <UIcon name="i-lucide-shield-check" class="size-5 text-sky-500" />
-            3. Ringkasan Pengendalian Internal Berbasis COSO
-          </h2>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-            Evaluasi kesehatan sistem pengendalian internal korporasi pada 5 pilar utama COSO Framework.
-          </p>
-        </div>
-
-        <NuxtLink
-          to="/risk-profile/risk-control-matrix"
-          class="text-xs font-bold text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-1 self-start sm:self-auto"
-        >
-          <span>Risk Control Matrix Penuh</span>
-          <span>&rarr;</span>
-        </NuxtLink>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
-        <div
-          v-for="dim in cosoDimensionList"
-          :key="dim.key"
-          class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 text-center space-y-1.5"
-        >
-          <span class="text-xs font-semibold text-gray-500 block truncate">{{ dim.name }}</span>
-          <h4 class="text-xl font-extrabold text-sky-600 dark:text-sky-400 tabular-nums">{{ dim.score }}%</h4>
-          <div class="w-full bg-gray-200 dark:bg-gray-700 h-1 rounded-full overflow-hidden">
-            <div class="bg-sky-500 h-full rounded-full" :style="{ width: `${dim.score}%` }" />
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- 4. Section 3: Internal control (COSO 2013), approved assessments -->
+    <IcSummarySection />
   </div>
 </template>
 
@@ -321,9 +288,12 @@ import { useAnnualPlanStore } from '~/stores/annual-audit'
 import { useActionTakenReportStore } from '~/stores/action-taken-report'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import { useRiskProfileStore } from '~/stores/risk-profile'
-import { useRCMStore } from '~/stores/rcm'
+import { useRCMStore, getEffectivenessKey } from '~/stores/rcm'
+import { useI18n } from '~/composables/useI18n'
+import IcSummarySection from '~/components/dashboard/IcSummarySection.vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
+const { t } = useI18n()
 const authStore = useAuthStore()
 const toast = useToastNotification()
 const { isAdmin, canManageAudits } = useRbac()
@@ -410,22 +380,17 @@ const publishedReports = computed(() => {
   })
 })
 
-// --- COSO 2013 CONTROLS ---
-const cosoEffectivenessScore = computed(() => {
-  return rcmStore.internalControlEffectiveness || rcmStore.cosoAverages?.totalWeighted || 78
-})
+// --- CONTROL EFFECTIVENESS (RCM) ---
+// null (no inherent risk to measure against) renders "No data" instead of a made-up score.
+const controlEffectivenessScore = computed<number | null>(() =>
+  rcmStore.totalInherentRisk > 0 ? rcmStore.internalControlEffectiveness : null
+)
 
-const cosoRatingLabel = computed(() => {
-  return rcmStore.effectivenessRating?.rating || 'Effective'
-})
-
-const cosoDimensionList = computed(() => [
-  { key: 'dim1', name: 'Control Environment', score: rcmStore.cosoAverages?.design || 80 },
-  { key: 'dim2', name: 'Risk Assessment', score: rcmStore.cosoAverages?.operating || 75 },
-  { key: 'dim3', name: 'Control Activities', score: rcmStore.cosoAverages?.coverage || 82 },
-  { key: 'dim4', name: 'Info & Communication', score: rcmStore.cosoAverages?.timeliness || 76 },
-  { key: 'dim5', name: 'Monitoring Activities', score: rcmStore.cosoAverages?.automation || 74 },
-])
+const controlRatingLabel = computed(() =>
+  controlEffectivenessScore.value === null
+    ? ''
+    : t(`rcm.interpretationTable.ratings.${getEffectivenessKey(controlEffectivenessScore.value)}`)
+)
 
 const loadInitialExecutiveData = async () => {
   try {

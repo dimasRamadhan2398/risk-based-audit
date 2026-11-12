@@ -95,22 +95,22 @@ func TestFindPage_OrdersByCodeAndSlicesPages(t *testing.T) {
 		insertEmployee(t, db, fmt.Sprintf("EMP-%04d", i), fmt.Sprintf("Person %d", i), fmt.Sprintf("p%d@example.com", i))
 	}
 
-	page1, err := repo.FindPage(0, 4, "")
+	page1, err := repo.FindPage(0, 4, EmployeeListFilter{Search: ""})
 	if err != nil {
 		t.Fatalf("FindPage page 1: %v", err)
 	}
 	if got := codesOf(page1); fmt.Sprint(got) != "[EMP-0001 EMP-0002 EMP-0003 EMP-0004]" {
 		t.Fatalf("page 1 = %v", got)
 	}
-	page2, _ := repo.FindPage(4, 4, "")
+	page2, _ := repo.FindPage(4, 4, EmployeeListFilter{Search: ""})
 	if got := codesOf(page2); fmt.Sprint(got) != "[EMP-0005 EMP-0006 EMP-0007 EMP-0008]" {
 		t.Fatalf("page 2 = %v", got)
 	}
-	last, _ := repo.FindPage(8, 4, "")
+	last, _ := repo.FindPage(8, 4, EmployeeListFilter{Search: ""})
 	if got := codesOf(last); fmt.Sprint(got) != "[EMP-0009]" {
 		t.Fatalf("last page = %v", got)
 	}
-	past, _ := repo.FindPage(12, 4, "")
+	past, _ := repo.FindPage(12, 4, EmployeeListFilter{Search: ""})
 	if len(past) != 0 {
 		t.Fatalf("page past end returned %d rows", len(past))
 	}
@@ -120,12 +120,12 @@ func TestCount_MatchesFindPageTotal(t *testing.T) {
 	repo, db := newTestRepo(t)
 	seedPaging(t, db, 12)
 
-	total, err := repo.Count("")
+	total, err := repo.Count(EmployeeListFilter{Search: ""})
 	if err != nil || total != 12 {
 		t.Fatalf("Count(\"\") = %d, %v; want 12", total, err)
 	}
 	// EMP-0010, EMP-0011, EMP-0012 contain "EMP-001".
-	filtered, err := repo.Count("EMP-001")
+	filtered, err := repo.Count(EmployeeListFilter{Search: "EMP-001"})
 	if err != nil || filtered != 3 {
 		t.Fatalf("Count(EMP-001) = %d, %v; want 3", filtered, err)
 	}
@@ -145,14 +145,14 @@ func TestFindPage_SearchIsCaseInsensitiveAcrossCodeNameEmail(t *testing.T) {
 		"no-such-value": {},
 	}
 	for search, want := range cases {
-		rows, err := repo.FindPage(0, 10, search)
+		rows, err := repo.FindPage(0, 10, EmployeeListFilter{Search: search})
 		if err != nil {
 			t.Fatalf("FindPage(%q): %v", search, err)
 		}
 		if got := codesOf(rows); fmt.Sprint(got) != fmt.Sprint(want) {
 			t.Errorf("FindPage(%q) = %v, want %v", search, got, want)
 		}
-		total, err := repo.Count(search)
+		total, err := repo.Count(EmployeeListFilter{Search: search})
 		if err != nil || int(total) != len(want) {
 			t.Errorf("Count(%q) = %d, %v; want %d", search, total, err, len(want))
 		}
@@ -167,13 +167,13 @@ func TestFindPage_SearchTreatsWildcardsLiterally(t *testing.T) {
 
 	// Unescaped "%" would match every row and "_" would match any single
 	// character. Both must match only the literal text.
-	if total, _ := repo.Count("%"); total != 1 {
+	if total, _ := repo.Count(EmployeeListFilter{Search: "%"}); total != 1 {
 		t.Fatalf("Count(%%) = %d, want 1 (only the literal %% name)", total)
 	}
-	if total, _ := repo.Count("_"); total != 1 {
+	if total, _ := repo.Count(EmployeeListFilter{Search: "_"}); total != 1 {
 		t.Fatalf("Count(_) = %d, want 1 (only the literal _ name)", total)
 	}
-	if total, _ := repo.Count("!"); total != 0 {
+	if total, _ := repo.Count(EmployeeListFilter{Search: "!"}); total != 0 {
 		t.Fatalf("Count(!) = %d, want 0 (the escape character itself is literal)", total)
 	}
 }
@@ -185,11 +185,11 @@ func TestFindPage_SoftDeletedRowsAreExcluded(t *testing.T) {
 		t.Fatalf("soft delete: %v", err)
 	}
 
-	total, _ := repo.Count("")
+	total, _ := repo.Count(EmployeeListFilter{Search: ""})
 	if total != 2 {
 		t.Fatalf("Count after soft delete = %d, want 2", total)
 	}
-	rows, _ := repo.FindPage(0, 10, "")
+	rows, _ := repo.FindPage(0, 10, EmployeeListFilter{Search: ""})
 	if got := codesOf(rows); fmt.Sprint(got) != "[EMP-0001 EMP-0003]" {
 		t.Fatalf("FindPage after soft delete = %v", got)
 	}

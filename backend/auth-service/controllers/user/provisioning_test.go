@@ -285,3 +285,9 @@ func TestLinkEmployeeRules(t *testing.T) {
 		t.Fatalf("blank code: status = %d, want 400", status)
 	}
 }
+
+// Seat methods: the fake has no seats in use and no lock.
+func (f *provisionRepo) WithSeatLock(fn func(repositories.UserRepositoryInterface) error) error {
+	return fn(f)
+}
+func (f *provisionRepo) CountSeats() (int64, error) { return 0, nil }

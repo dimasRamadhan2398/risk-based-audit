@@ -4,7 +4,7 @@ Manages registered external data sources, multi-source ingestion queue, and real
 """
 from typing import Optional, List, Any, Dict
 from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 from sqlalchemy import text, create_engine
 import json
 import os
@@ -12,7 +12,7 @@ import urllib.request
 
 from main import engine
 from core.identifiers import validate_identifier, quote_identifier
-from core.db import build_client_conn_string, get_read_only_client_conn
+from core.db import build_client_conn_string, get_read_only_client_conn, resolve_ssl_mode, validate_ssl_config, SSLConfigError
 from ingestion.introspect import introspect_schema
 from jobs.queue import enqueue_job, get_job_status
 
@@ -28,10 +28,24 @@ class SourceRegistration(BaseModel):
     database_name: str
     username: Optional[str] = None
     password: Optional[str] = None
-    ssl_enabled: bool = True
+    ssl_enabled: Optional[bool] = None  # legacy flag: kept for compatibility (None/True -> require, False -> disable)
+    ssl_mode: Optional[str] = None      # disable | require | verify-ca | verify-full (authoritative when set)
+    ssl_root_cert: Optional[str] = None # PEM CA for verify-ca/verify-full; empty = system CA pool
     sync_schedule: str = "Manual Only"
     scopes: List[str] = []              # ["risk_management","audit_features","qar_features","data_analytics"]
     data_mappings: list = []
+
+    @model_validator(mode="after")
+    def _check_ssl(self):
+        try:
+            mode = resolve_ssl_mode(self.ssl_mode, self.ssl_enabled)
+            validate_ssl_config(mode, self.ssl_root_cert)
+        except SSLConfigError as e:
+            raise ValueError(str(e))  # surfaces as HTTP 422
+        self.ssl_mode = mode
+        self.ssl_enabled = mode != "disable"
+        self.ssl_root_cert = (self.ssl_root_cert or "").strip() or None
+        return self
 
 class IngestRequest(BaseModel):
     source_ids: Optional[List[str]] = [] # Can be empty if mode is "all"
@@ -47,9 +61,9 @@ def register_source(req: SourceRegistration):
         conn.execute(text("""
             INSERT INTO bronze.registered_sources
                 (source_id, name, source_type, host, port, database_name,
-                 username, password_encrypted, ssl_enabled, sync_schedule, scopes, data_mappings, updated_at)
+                 username, password_encrypted, ssl_enabled, ssl_mode, ssl_root_cert, sync_schedule, scopes, data_mappings, updated_at)
             VALUES (:sid, :name, :stype, :host, :port, :db,
-                    :user, :pass, :ssl, :schedule, :scopes::jsonb, :mappings::jsonb, NOW())
+                    :user, :pass, :ssl, :ssl_mode, :ssl_root_cert, :schedule, CAST(:scopes AS jsonb), CAST(:mappings AS jsonb), NOW())
             ON CONFLICT (source_id) DO UPDATE SET
                 name = EXCLUDED.name,
                 source_type = EXCLUDED.source_type,
@@ -59,6 +73,8 @@ def register_source(req: SourceRegistration):
                 username = EXCLUDED.username,
                 password_encrypted = EXCLUDED.password_encrypted,
                 ssl_enabled = EXCLUDED.ssl_enabled,
+                ssl_mode = EXCLUDED.ssl_mode,
+                ssl_root_cert = EXCLUDED.ssl_root_cert,
                 sync_schedule = EXCLUDED.sync_schedule,
                 scopes = EXCLUDED.scopes,
                 data_mappings = EXCLUDED.data_mappings,
@@ -73,6 +89,8 @@ def register_source(req: SourceRegistration):
             "user": req.username,
             "pass": req.password,
             "ssl": req.ssl_enabled,
+            "ssl_mode": req.ssl_mode,
+            "ssl_root_cert": req.ssl_root_cert,
             "schedule": req.sync_schedule,
             "scopes": json.dumps(req.scopes),
             "mappings": json.dumps(req.data_mappings)
@@ -86,6 +104,9 @@ def list_sources():
     with engine.connect() as conn:
         result = conn.execute(text("SELECT * FROM bronze.registered_sources ORDER BY created_at DESC;"))
         sources = [dict(r._mapping) for r in result]
+    for s in sources:  # never return secrets (DB password, CA PEM) to callers
+        s.pop("password_encrypted", None)
+        s["has_ssl_root_cert"] = bool(s.pop("ssl_root_cert", None))
     return {"status": "success", "data": sources}
 
 @router.delete("/{source_id}")

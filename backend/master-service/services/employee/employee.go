@@ -4,8 +4,10 @@ import (
 	stderrors "errors"
 	"fmt"
 	"master-service/models"
+	"master-service/pkg/authclient"
 	"master-service/pkg/base"
 	apperrors "master-service/pkg/errors"
+	"master-service/pkg/logger"
 	repo "master-service/repositories/employee"
 	"net/http"
 	"strconv"
@@ -13,17 +15,18 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
+	"go.uber.org/zap"
 )
 
 type EmployeeServiceInterface interface {
 	FindAll(ctx *base.BaseService) (*[]models.Employee, error)
-	FindPage(ctx *base.BaseService, page, pageSize int, search string) (*EmployeePage, error)
+	FindPage(ctx *base.BaseService, page, pageSize int, filter repo.EmployeeListFilter) (*EmployeePage, error)
 	FindById(ctx *base.BaseService, id string) (*models.Employee, error)
 	FindByCode(ctx *base.BaseService, code string) (*models.Employee, error)
 	Create(ctx *base.BaseService, employee *models.Employee) (*models.Employee, error)
 	NextEmployeeCode(ctx *base.BaseService) (string, error)
 	Update(ctx *base.BaseService, id string, employee *models.Employee) (*models.Employee, error)
-	Delete(ctx *base.BaseService, id string) error
+	Delete(ctx *base.BaseService, id string, hard bool) error
 	ProvisionLoginAccount(ctx *base.BaseService, id, accessRole string) (*models.EmployeeAccount, error)
 }
 
@@ -283,23 +286,101 @@ func (s *EmployeeService) NextEmployeeCode(ctx *base.BaseService) (string, error
 	return nextEmployeeCode(codes), nil
 }
 
-func (s *EmployeeService) Delete(ctx *base.BaseService, id string) error {
+// Delete removes an employee. hard=false soft-deletes the row and deactivates
+// its login account (the account row is kept, so both can be restored).
+// hard=true deletes the row for good and hard-deletes the account; it is
+// refused with 409 EMPLOYEE_IN_USE while other master-service rows reference
+// the employee.
+//
+// Auth-service is called first because it can refuse (409 LAST_ADMIN); the
+// database is written only after it agreed.
+func (s *EmployeeService) Delete(ctx *base.BaseService, id string, hard bool) error {
 	employeeID, err := uuid.Parse(id)
 	if err != nil {
 		return apperrors.InvalidID(err)
 	}
+	if hard {
+		return s.hardDelete(ctx, employeeID)
+	}
 
-	if _, err := s.employeeRepo.FindByID(employeeID); err != nil {
+	emp, err := s.employeeRepo.FindByID(employeeID)
+	if err != nil {
 		if err == apperrors.ErrNotFound {
 			return apperrors.ErrEmployeeNotFound
 		}
 		return apperrors.DB(err, apperrors.OpRead, "Failed to load the employee.")
 	}
 
-	if err := s.employeeRepo.Delete(employeeID); err != nil {
-		return apperrors.DB(err, apperrors.OpDelete, "Failed to delete the employee.")
+	user, appErr := s.linkedUser(ctx, emp)
+	if appErr != nil {
+		return appErr
+	}
+	if user != nil {
+		if appErr := s.setUserActive(ctx, user, false); appErr != nil {
+			return appErr
+		}
 	}
 
+	if err := s.employeeRepo.Delete(employeeID); err != nil {
+		if user != nil && user.IsActive {
+			// Undo the deactivation so the login matches the employee that is still there.
+			if undo := s.setUserActive(ctx, user, true); undo != nil {
+				logger.Error("Employee delete failed and its login account could not be reactivated; reactivate it by hand",
+					zap.String("employee_code", emp.EmployeeCode), zap.String("username", user.Username),
+					zap.String("reason", undo.Code), zap.Error(err))
+			}
+		}
+		return apperrors.DB(err, apperrors.OpDelete, "Failed to delete the employee.")
+	}
+	return nil
+}
+
+// hardDelete permanently deletes the employee (soft-deleted ones included) and
+// its login account. Order: references are checked first (nothing changes on
+// 409), then the account is deleted (auth may refuse with LAST_ADMIN), then the
+// row. If the row delete fails after the account is gone, the error says so;
+// repeating the request finishes it (no account is found the second time).
+// The reverse order would be worse: a failed account delete would leave a
+// working login for an employee that no longer exists.
+func (s *EmployeeService) hardDelete(ctx *base.BaseService, employeeID uuid.UUID) error {
+	emp, err := s.employeeRepo.FindByIDUnscoped(employeeID)
+	if err != nil {
+		if err == apperrors.ErrNotFound {
+			return apperrors.ErrEmployeeNotFound
+		}
+		return apperrors.DB(err, apperrors.OpRead, "Failed to load the employee.")
+	}
+
+	refs, err := s.employeeRepo.FindReferences(employeeID)
+	if err != nil {
+		return apperrors.DB(err, apperrors.OpRead, "Failed to check where the employee is used.")
+	}
+	if len(refs) > 0 {
+		return employeeInUse(refs)
+	}
+
+	user, appErr := s.linkedUser(ctx, emp)
+	if appErr != nil {
+		return appErr
+	}
+	if user != nil {
+		if appErr := s.deleteUser(ctx, user); appErr != nil {
+			return appErr
+		}
+	}
+
+	if err := s.employeeRepo.HardDelete(employeeID); err != nil {
+		if user != nil {
+			logger.Error("Login account was deleted but the employee row could not be; repeat the hard delete",
+				zap.String("employee_code", emp.EmployeeCode), zap.String("username", user.Username), zap.Error(err))
+			return apperrors.Wrap(apperrors.CodeEmployeeDeleteIncomplete,
+				"The login account was deleted but employee "+emp.EmployeeCode+" could not be. Repeat the permanent delete to finish.",
+				http.StatusInternalServerError, err)
+		}
+		return apperrors.DB(err, apperrors.OpDelete, "Failed to delete the employee.")
+	}
+	logger.Info("Employee deleted permanently",
+		zap.String("employee_code", emp.EmployeeCode), zap.Bool("login_account_deleted", user != nil))
 	return nil
 }
 
@@ -322,7 +403,7 @@ func (s *EmployeeService) FindAll(ctx *base.BaseService) (*[]models.Employee, er
 // FindPage returns one page of employees matching search. A page below 1 becomes
 // 1, a page_size below 1 becomes the default (10) and above 100 becomes 100.
 // TotalPages is computed from the filtered total, so it is 0 when nothing matches.
-func (s *EmployeeService) FindPage(ctx *base.BaseService, page, pageSize int, search string) (*EmployeePage, error) {
+func (s *EmployeeService) FindPage(ctx *base.BaseService, page, pageSize int, filter repo.EmployeeListFilter) (*EmployeePage, error) {
 	if s.employeeRepo == nil {
 		return nil, apperrors.Internal("", nil)
 	}
@@ -335,13 +416,13 @@ func (s *EmployeeService) FindPage(ctx *base.BaseService, page, pageSize int, se
 	if pageSize > maxEmployeePageSize {
 		pageSize = maxEmployeePageSize
 	}
-	search = strings.TrimSpace(search)
+	filter.Search = strings.TrimSpace(filter.Search)
 
-	total, err := s.employeeRepo.Count(search)
+	total, err := s.employeeRepo.Count(filter)
 	if err != nil {
 		return nil, apperrors.DB(err, apperrors.OpRead, "Failed to load employees.")
 	}
-	rows, err := s.employeeRepo.FindPage((page-1)*pageSize, pageSize, search)
+	rows, err := s.employeeRepo.FindPage((page-1)*pageSize, pageSize, filter)
 	if err != nil {
 		return nil, apperrors.DB(err, apperrors.OpRead, "Failed to load employees.")
 	}
@@ -426,6 +507,10 @@ func (s *EmployeeService) Update(ctx *base.BaseService, id string, employee *mod
 		return nil, err
 	}
 
+	// original is the stored row, restored if auth-service refuses the login
+	// status change that goes with an is_active change.
+	original := *existingEmployee
+
 	if existingEmployee.EmployeeCode != employee.EmployeeCode {
 		if _, err := s.employeeRepo.FindByCode(employee.EmployeeCode); err == nil {
 			return nil, errEmployeeCodeExists
@@ -475,8 +560,40 @@ func (s *EmployeeService) Update(ctx *base.BaseService, id string, employee *mod
 		existingEmployee.JoinDate = employee.JoinDate // omitted join_date keeps the stored value
 	}
 
+	// An is_active change is applied to the linked login account too. The
+	// account is looked up before anything is written (an unreachable
+	// auth-service changes nothing).
+	statusChanged := original.IsActive != existingEmployee.IsActive
+	var user *authclient.User
+	if statusChanged {
+		var appErr *apperrors.AppError
+		if user, appErr = s.linkedUser(ctx, &original); appErr != nil {
+			return nil, appErr
+		}
+	}
+
 	if err := s.employeeRepo.Update(existingEmployee); err != nil {
 		return nil, apperrors.DB(err, apperrors.OpUpdate, "Failed to update the employee.")
+	}
+
+	// The row is written first and put back if auth-service refuses (409
+	// SEAT_LIMIT_REACHED / LAST_ADMIN or any failure): undoing a local write is
+	// more reliable than undoing a remote status change after a failed update.
+	if user != nil {
+		if appErr := s.setUserActive(ctx, user, existingEmployee.IsActive); appErr != nil {
+			if err := s.employeeRepo.Update(&original); err != nil {
+				logger.Error("Login status change was refused and the employee change could not be undone",
+					zap.String("employee_code", original.EmployeeCode), zap.String("reason", appErr.Code), zap.Error(err))
+				return nil, apperrors.Wrap(apperrors.CodeEmployeeRollbackFailed,
+					"The login account was not changed ("+appErr.Code+") but the employee change could not be undone. Check employee "+original.EmployeeCode+" and set is_active back by hand.",
+					http.StatusInternalServerError, err)
+			}
+			logger.Warn("Employee status change rolled back: login account change refused",
+				zap.String("employee_code", original.EmployeeCode), zap.String("reason", appErr.Code))
+			return nil, appErr
+		}
+		logger.Info("Login account status follows employee",
+			zap.String("employee_code", existingEmployee.EmployeeCode), zap.Bool("is_active", existingEmployee.IsActive))
 	}
 
 	return existingEmployee, nil

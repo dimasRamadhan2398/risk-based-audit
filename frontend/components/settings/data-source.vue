@@ -1010,20 +1010,27 @@ async function testConnection(conn: DataSourceConn) {
       if (idx !== -1) connections.value[idx] = res.data
       dataSourceStore.upsertSource(res.data)
     }
-  } catch (err) {
-    // Local fallback
-    if (conn.status === 'Error') {
-      conn.status = 'Connected'
-      conn.lastError = undefined
-      conn.lastSync = 'Just now'
+    if (res?.success === true) {
+      toast.add({
+        title: t('settings.dataSource.testSuccessToast'),
+        description: res.message || `Successfully reached ${conn.name} at ${conn.host}:${conn.port}.`,
+        color: 'success',
+      })
+    } else {
+      toast.add({
+        title: 'Connection test failed',
+        description: res?.message || `Could not reach ${conn.name} at ${conn.host}:${conn.port}.`,
+        color: 'error',
+      })
     }
+  } catch (err: any) {
+    toast.add({
+      title: 'Connection test failed',
+      description: err?.data?.message || err?.message || `Could not reach ${conn.name} at ${conn.host}:${conn.port}.`,
+      color: 'error',
+    })
   } finally {
     testingId.value = null
-    toast.add({
-      title: t('settings.dataSource.testSuccessToast'),
-      description: `Successfully reached ${conn.name} at ${conn.host}:${conn.port}.`,
-      color: 'success',
-    })
   }
 }
 
@@ -1266,16 +1273,16 @@ async function testModalConnection() {
   try {
     const res: any = await $fetch(`${getMasterServiceBaseUrl()}/data-sources/test`, {
       method: 'POST',
-      body: { host: form.value.host, port: form.value.port }
+      body: { host: form.value.host, port: form.value.port, ssl: form.value.ssl }
     })
     modalTestResult.value = {
-      success: res.success !== false,
-      message: res.message || `Connection handshake to ${form.value.host}:${form.value.port} succeeded.`
+      success: res.success === true,
+      message: res.message || `Connection test to ${form.value.host}:${form.value.port} returned no result.`
     }
-  } catch (err) {
+  } catch (err: any) {
     modalTestResult.value = {
-      success: true,
-      message: `Connection handshake to ${form.value.host}:${form.value.port} succeeded (latency 11ms).`
+      success: false,
+      message: err?.data?.message || err?.message || `Connection test to ${form.value.host}:${form.value.port} failed.`
     }
   } finally {
     isModalTesting.value = false
@@ -1293,6 +1300,7 @@ async function saveConnection() {
   }
 
   isSaving.value = true
+  let hubError: string | null = null
 
   if (isEditMode.value && editingConnId.value) {
     try {
@@ -1305,6 +1313,7 @@ async function saveConnection() {
         if (idx !== -1) connections.value[idx] = res.data
         dataSourceStore.upsertSource(res.data)
       }
+      hubError = res?.dataHubRegistered === false ? (res.dataHubError || 'unknown error') : null
     } catch (err) {
       // Fallback local update
       const idx = connections.value.findIndex(c => c.id === editingConnId.value)
@@ -1327,11 +1336,19 @@ async function saveConnection() {
         }
       }
     }
-    toast.add({
-      title: t('settings.dataSource.connUpdatedToast'),
-      description: `${form.value.name} connection settings saved successfully.`,
-      color: 'success',
-    })
+    if (hubError) {
+      toast.add({
+        title: t('settings.dataSource.connUpdatedToast'),
+        description: `${form.value.name} saved, but Data Hub registration failed: ${hubError}`,
+        color: 'warning',
+      })
+    } else {
+      toast.add({
+        title: t('settings.dataSource.connUpdatedToast'),
+        description: `${form.value.name} connection settings saved successfully.`,
+        color: 'success',
+      })
+    }
   } else {
     try {
       const res: any = await $fetch(`${getMasterServiceBaseUrl()}/data-sources`, {
@@ -1343,6 +1360,7 @@ async function saveConnection() {
         dataSourceStore.upsertSource(res.data)
         fetchLogsFromApi()
       }
+      hubError = res?.dataHubRegistered === false ? (res.dataHubError || 'unknown error') : null
     } catch (err) {
       // Local fallback create
       const newConn: DataSourceConn = {
@@ -1364,11 +1382,19 @@ async function saveConnection() {
       connections.value.unshift(newConn)
       dataSourceStore.upsertSource(newConn as any)
     }
-    toast.add({
-      title: t('settings.dataSource.connCreatedToast'),
-      description: `New data source ${form.value.name} added successfully.`,
-      color: 'success',
-    })
+    if (hubError) {
+      toast.add({
+        title: t('settings.dataSource.connCreatedToast'),
+        description: `${form.value.name} saved, but Data Hub registration failed: ${hubError}`,
+        color: 'warning',
+      })
+    } else {
+      toast.add({
+        title: t('settings.dataSource.connCreatedToast'),
+        description: `New data source ${form.value.name} added successfully.`,
+        color: 'success',
+      })
+    }
   }
 
   isSaving.value = false

@@ -94,6 +94,8 @@ services:
       - "127.0.0.1:8001:8001"
     environment:
       - JWT_SECRET=${JWT_SECRET:?JWT_SECRET missing - every service in the stack must share one signing secret; set it in the deploy env}
+      - DATABASE_SSLMODE=${DATABASE_SSLMODE:-disable}
+      - DATABASE_SSLROOTCERT=${DATABASE_SSLROOTCERT:-}
       - RESEND_API_KEY=${RESEND_API_KEY:-}
       - RESEND_MASTER_API_KEY=${RESEND_MASTER_API_KEY:-}
       - RESEND_FROM=${RESEND_FROM:-AuditSphere <no-reply@mail.auditsphere.app>}
@@ -103,6 +105,8 @@ services:
       - SMTP_USERNAME=${SMTP_USERNAME:-}
       - SMTP_PASSWORD=${SMTP_PASSWORD:-}
       - SMTP_FROM=${SMTP_FROM:-}
+    volumes:
+      - ${PG_CA_DIR:-./pg-ca}:/etc/rb-audit/pg-ca:ro
     command: sh -c "./auth --config ./pkg/config/config.yaml seed && ./auth --config ./pkg/config/config.yaml serve"
     networks:
       - rb_audit_network
@@ -169,14 +173,21 @@ services:
       - "127.0.0.1:8002:8001"
     environment:
       - JWT_SECRET=${JWT_SECRET:?JWT_SECRET missing - every service in the stack must share one signing secret; set it in the deploy env}
+      - DATABASE_SSLMODE=${DATABASE_SSLMODE:-disable}
+      - DATABASE_SSLROOTCERT=${DATABASE_SSLROOTCERT:-}
       - IMAGEKIT_PUBLIC_KEY=${IMAGEKIT_PUBLIC_KEY:-}
       - IMAGEKIT_PRIVATE_KEY=${IMAGEKIT_PRIVATE_KEY:-}
       - IMAGEKIT_URL_ENDPOINT=${IMAGEKIT_URL_ENDPOINT:-}
       - CLAMAV_ADDRESS=clamav:3310
       - CLAMAV_MODE=required
+      # Internal control assessment thresholds (days). Seeded into the settings
+      # table at migrate time only if missing; ADMIN edits them in the app.
+      - IC_LHA_DUE_DAYS=${IC_LHA_DUE_DAYS:-30}
+      - IC_MGMT_RESPONSE_DUE_DAYS=${IC_MGMT_RESPONSE_DUE_DAYS:-14}
     volumes:
       - ./audit-service/pkg/config:/root/pkg/config
       - audit_uploads:/root/uploads
+      - ${PG_CA_DIR:-./pg-ca}:/etc/rb-audit/pg-ca:ro
     command: sh -c "./audit seed && ./audit serve"
     networks:
       - rb_audit_network
@@ -192,7 +203,11 @@ services:
       - DATA_HUB_URL=${DATA_HUB_URL:-http://10.0.0.1:8100}
       - DATA_HUB_API_KEY=${DATA_HUB_API_KEY:-auditsphere_dh_key_2026_x87a9b}
       - CLAMAV_ADDRESS=clamav:3310
+      - DATABASE_SSLMODE=${DATABASE_SSLMODE:-disable}
+      - DATABASE_SSLROOTCERT=${DATABASE_SSLROOTCERT:-}
       - CLAMAV_MODE=required
+    volumes:
+      - ${PG_CA_DIR:-./pg-ca}:/etc/rb-audit/pg-ca:ro
     depends_on:
       postgres:
         condition: service_started
@@ -218,6 +233,10 @@ services:
       # false (unset means true). Prod data must never be seeded over, with or
       # without the external no-seed override.
       - SEED_ON_BOOT=false
+      - DATABASE_SSLMODE=${DATABASE_SSLMODE:-disable}
+      - DATABASE_SSLROOTCERT=${DATABASE_SSLROOTCERT:-}
+    volumes:
+      - ${PG_CA_DIR:-./pg-ca}:/etc/rb-audit/pg-ca:ro
     depends_on:
       postgres:
         condition: service_started

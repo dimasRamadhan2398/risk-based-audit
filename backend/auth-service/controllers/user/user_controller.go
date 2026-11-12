@@ -28,6 +28,9 @@ type UserControllerInterface interface {
 	LinkEmployee(c *gin.Context)
 	ListAssignableUsers(c *gin.Context)
 	ListUserContacts(c *gin.Context)
+	GetSeats(c *gin.Context)
+	UpdateUserStatus(c *gin.Context)
+	ReplaceUserRoles(c *gin.Context)
 }
 
 // ListAssignableUsers lists active users that can be assigned as the PIC of
@@ -158,12 +161,7 @@ func (ctrl *UserController) CreateUser(c *gin.Context) {
 
 	result, err := ctrl.userService.CreateUser(c.Request.Context(), &req)
 	if err != nil {
-		appErr, ok := err.(*apperrors.AppError)
-		if ok {
-			response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
-		} else {
-			response.InternalServerError(c, err.Error())
-		}
+		respondError(c, err)
 		return
 	}
 
@@ -195,12 +193,7 @@ func (ctrl *UserController) LinkEmployee(c *gin.Context) {
 
 	user, err := ctrl.userService.LinkEmployee(c.Request.Context(), id, req.EmployeeCode)
 	if err != nil {
-		appErr, ok := err.(*apperrors.AppError)
-		if ok {
-			response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
-		} else {
-			response.InternalServerError(c, err.Error())
-		}
+		respondError(c, err)
 		return
 	}
 
@@ -239,12 +232,7 @@ func (ctrl *UserController) UpdateUser(c *gin.Context) {
 
 	updated, err := ctrl.userService.UpdateUser(c.Request.Context(), id, &req)
 	if err != nil {
-		appErr, ok := err.(*apperrors.AppError)
-		if ok {
-			response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
-		} else {
-			response.InternalServerError(c, err.Error())
-		}
+		respondError(c, err)
 		return
 	}
 
@@ -268,17 +256,111 @@ func (ctrl *UserController) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	if err := ctrl.userService.DeleteUser(c.Request.Context(), id); err != nil {
-		appErr, ok := err.(*apperrors.AppError)
-		if ok {
-			response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
-		} else {
-			response.InternalServerError(c, err.Error())
+	hard := false
+	if raw := c.Query("hard"); raw != "" {
+		v, err := strconv.ParseBool(raw)
+		if err != nil {
+			response.BadRequest(c, "hard must be true or false")
+			return
 		}
+		hard = v
+	}
+
+	if err := ctrl.userService.DeleteUser(c.Request.Context(), id, hard); err != nil {
+		respondError(c, err)
 		return
 	}
 
+	if hard {
+		response.OK(c, "User permanently deleted", nil)
+		return
+	}
 	response.OK(c, "User deleted successfully", nil)
+}
+
+// respondError writes err in the standard error envelope. AppError data (for
+// example the seat counts of SEAT_LIMIT_REACHED) is returned in "data".
+func respondError(c *gin.Context, err error) {
+	if appErr, ok := err.(*apperrors.AppError); ok {
+		response.ErrorWithData(c, appErr.StatusCode, appErr.Code, appErr.Message, "", appErr.Data)
+		return
+	}
+	response.InternalServerError(c, err.Error())
+}
+
+// GetSeats reports the full user seats in use (ADMIN only)
+// @Summary Get User Seats
+// @Description Full seats (active users holding any role other than VIEWER) against the fixed limit of 50
+// @Tags users
+// @Produce json
+// @Security Bearer
+// @Success 200 {object} response.Response{data=models.SeatUsage}
+// @Router /api/v1/users/seats [get]
+func (ctrl *UserController) GetSeats(c *gin.Context) {
+	usage, err := ctrl.userService.GetSeatUsage(c.Request.Context())
+	if err != nil {
+		respondError(c, err)
+		return
+	}
+	response.OK(c, "Seat usage retrieved successfully", usage)
+}
+
+// UpdateUserStatus activates or deactivates a user (ADMIN only)
+// @Summary Update User Status
+// @Description Set is_active. Reactivating a user holding a full-seat role needs a free seat (409 SEAT_LIMIT_REACHED); deactivating the last active admin is refused (409 LAST_ADMIN).
+// @Tags users
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path string true "User ID"
+// @Param request body models.UpdateUserStatusRequest true "New status"
+// @Success 200 {object} response.Response{data=models.UserResponse}
+// @Router /api/v1/users/{id}/status [patch]
+func (ctrl *UserController) UpdateUserStatus(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		response.BadRequest(c, "Invalid user ID")
+		return
+	}
+	var req models.UpdateUserStatusRequest
+	if !ctrl.ValidateRequest(c, &req) {
+		return
+	}
+	user, err := ctrl.userService.SetUserStatus(c.Request.Context(), id, *req.IsActive)
+	if err != nil {
+		respondError(c, err)
+		return
+	}
+	response.OK(c, "User status updated successfully", user)
+}
+
+// ReplaceUserRoles replaces all roles of a user (ADMIN only)
+// @Summary Replace User Roles
+// @Description Replace the user's roles. Moving an active user from no full-seat role to one needs a free seat (409 SEAT_LIMIT_REACHED); removing ADMIN from the last active admin is refused (409 LAST_ADMIN).
+// @Tags users
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path string true "User ID"
+// @Param request body models.ReplaceUserRolesRequest true "Roles"
+// @Success 200 {object} response.Response{data=models.UserResponse}
+// @Router /api/v1/users/{id}/roles [put]
+func (ctrl *UserController) ReplaceUserRoles(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		response.BadRequest(c, "Invalid user ID")
+		return
+	}
+	var req models.ReplaceUserRolesRequest
+	if !ctrl.ValidateRequest(c, &req) {
+		return
+	}
+	user, err := ctrl.userService.ReplaceUserRoles(c.Request.Context(), id, req.Roles)
+	if err != nil {
+		respondError(c, err)
+		return
+	}
+	response.OK(c, "User roles updated successfully", user)
 }
 
 // GetUser retrieves a user by ID
@@ -300,12 +382,7 @@ func (ctrl *UserController) GetUser(c *gin.Context) {
 
 	user, err := ctrl.userService.GetUser(c.Request.Context(), id)
 	if err != nil {
-		appErr, ok := err.(*apperrors.AppError)
-		if ok {
-			response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
-		} else {
-			response.InternalServerError(c, err.Error())
-		}
+		respondError(c, err)
 		return
 	}
 
@@ -338,12 +415,7 @@ func (ctrl *UserController) ListUsers(c *gin.Context) {
 
 	users, pagination, err := ctrl.userService.ListUsers(c.Request.Context(), req)
 	if err != nil {
-		appErr, ok := err.(*apperrors.AppError)
-		if ok {
-			response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
-		} else {
-			response.InternalServerError(c, err.Error())
-		}
+		respondError(c, err)
 		return
 	}
 
@@ -373,12 +445,7 @@ func (ctrl *UserController) LookupByEmployee(c *gin.Context) {
 
 	user, err := ctrl.userService.FindUserByEmployee(c.Request.Context(), employeeCode, email)
 	if err != nil {
-		appErr, ok := err.(*apperrors.AppError)
-		if ok {
-			response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
-		} else {
-			response.InternalServerError(c, err.Error())
-		}
+		respondError(c, err)
 		return
 	}
 
@@ -410,12 +477,7 @@ func (ctrl *UserController) ResetPassword(c *gin.Context) {
 
 	result, err := ctrl.userService.AdminResetPassword(c.Request.Context(), actorID, targetID, c.ClientIP())
 	if err != nil {
-		appErr, ok := err.(*apperrors.AppError)
-		if ok {
-			response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, "")
-		} else {
-			response.InternalServerError(c, err.Error())
-		}
+		respondError(c, err)
 		return
 	}
 

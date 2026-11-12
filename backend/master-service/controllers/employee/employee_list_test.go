@@ -11,6 +11,7 @@ import (
 
 	"master-service/models"
 	apperrors "master-service/pkg/errors"
+	employeeRepo "master-service/repositories/employee"
 	employeeSvc "master-service/services/employee"
 
 	"github.com/gin-gonic/gin"
@@ -18,10 +19,16 @@ import (
 
 // Count and FindPage on memRepo filter and sort like the SQL does, so the
 // controller tests see the same rows the service would get from Postgres.
-func (m *memRepo) matching(search string) []*models.Employee {
-	q := strings.ToLower(search)
+func (m *memRepo) matching(filter employeeRepo.EmployeeListFilter) []*models.Employee {
+	q := strings.ToLower(filter.Search)
 	var out []*models.Employee
 	for _, e := range m.employees {
+		if filter.DepartmentID != nil && e.DepartmentID != *filter.DepartmentID {
+			continue
+		}
+		if filter.IsActive != nil && e.IsActive != *filter.IsActive {
+			continue
+		}
 		if q == "" || strings.Contains(strings.ToLower(e.EmployeeCode), q) ||
 			strings.Contains(strings.ToLower(e.FullName), q) || strings.Contains(strings.ToLower(e.Email), q) {
 			out = append(out, e)
@@ -31,12 +38,12 @@ func (m *memRepo) matching(search string) []*models.Employee {
 	return out
 }
 
-func (m *memRepo) Count(search string) (int64, error) {
-	return int64(len(m.matching(search))), nil
+func (m *memRepo) Count(filter employeeRepo.EmployeeListFilter) (int64, error) {
+	return int64(len(m.matching(filter))), nil
 }
 
-func (m *memRepo) FindPage(offset, limit int, search string) ([]*models.Employee, error) {
-	all := m.matching(search)
+func (m *memRepo) FindPage(offset, limit int, filter employeeRepo.EmployeeListFilter) ([]*models.Employee, error) {
+	all := m.matching(filter)
 	if offset >= len(all) {
 		return []*models.Employee{}, nil
 	}
@@ -155,4 +162,6 @@ func TestListEmployees_RepoErrorIsNotOK(t *testing.T) {
 // failingListRepo makes Count fail, to check that a DB error surfaces as a 5xx.
 type failingListRepo struct{ *memRepo }
 
-func (failingListRepo) Count(string) (int64, error) { return 0, fmt.Errorf("db down") }
+func (failingListRepo) Count(employeeRepo.EmployeeListFilter) (int64, error) {
+	return 0, fmt.Errorf("db down")
+}

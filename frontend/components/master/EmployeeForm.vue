@@ -39,6 +39,16 @@
               class="mb-4"
             />
 
+            <!-- Seats full (or tenant already over the limit): saving still works, the login becomes VIEWER -->
+            <UAlert
+              v-if="showSeatsFullAlert"
+              color="warning"
+              variant="soft"
+              icon="i-heroicons-exclamation-triangle"
+              :title="t('masterData.employee.seats.fullAlertTitle')"
+              :description="t('masterData.employee.seats.fullAlert', { limit: store.seats?.limit ?? 50 })"
+            />
+
             <!-- Basic Info -->
             <div class="space-y-4">
               <h4 class="text-sm tracking-widertext-primary-500 font-bold border-b border-[var(--border-main)] pb-2"> {{ t('auditActivityPlan.view.basicInfo') }} </h4>
@@ -93,7 +103,7 @@
                 </UFormField>
               </div>
 
-              <UFormField :label="t('masterData.employee.columns.status')" size="lg">
+              <UFormField :label="t('masterData.employee.columns.status')" :help="t('masterData.employee.statusHelp')" size="lg">
                 <div class="flex items-center gap-4">
                   <label class="flex items-center gap-2 cursor-pointer">
                     <input
@@ -254,10 +264,14 @@
 import { useEmployeeStore } from '~/stores/employee'
 import { useMasterOptionsStore } from '~/stores/master-options'
 import { useI18n } from '~/composables/useI18n'
+import { shouldShowSeatsFullAlert } from '~/utils/employeeSeats'
 
 const store = useEmployeeStore()
 const options = useMasterOptionsStore()
 const { t } = useI18n()
+
+// Seats are only loaded for admins, so others never see this alert
+const showSeatsFullAlert = computed(() => shouldShowSeatsFullAlert(store.seats, store.isEditing))
 
 // Strip anything that is not a digit as the user types or pastes.
 const phoneInputRef = ref<{ inputRef?: HTMLInputElement | null } | null>(null)

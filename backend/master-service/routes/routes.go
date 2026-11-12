@@ -5,12 +5,10 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
-	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
@@ -709,132 +707,9 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			c.JSON(http.StatusOK, gin.H{"success": true, "data": conn})
 		})
 
-		ds.POST("", func(c *gin.Context) {
-			var conn models.DataSourceConnection
-			if err := c.ShouldBindJSON(&conn); err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
-				return
-			}
-			if conn.ID == uuid.Nil {
-				conn.ID = uuid.New()
-			}
-			if conn.Status == "" {
-				conn.Status = "Connected"
-			}
-			if conn.LastSync == "" {
-				conn.LastSync = "Just configured"
-			}
+		ds.POST("", dataSourceCreate(db, dhClient))
 
-			if err := db.Create(&conn).Error; err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to create data source: " + err.Error()})
-				return
-			}
-
-			// Register in Data Hub
-			go func(c models.DataSourceConnection) {
-				payload := map[string]interface{}{
-					"source_id":     c.ID.String(),
-					"name":          c.Name,
-					"source_type":   c.Type,
-					"host":          c.Host,
-					"port":          c.Port,
-					"database_name": c.Database,
-					"username":      c.Username,
-					"password":      c.Password,
-					"ssl_enabled":   c.SSL,
-					"sync_schedule": c.SyncSchedule,
-					"scopes":        c.Scopes,
-					"data_mappings": c.DataMappings,
-				}
-				if err := dhClient.RegisterSource(payload); err != nil {
-					fmt.Printf("[MasterService] Warning: failed to register source in Data Hub: %v\n", err)
-				}
-			}(conn)
-
-			log := models.DataSourceActivityLog{
-				ID:             uuid.New(),
-				ConnectionID:   conn.ID,
-				ConnectionName: conn.Name,
-				Type:           conn.Type,
-				Event:          "Connection Created",
-				Status:         "SUCCESS",
-				Records:        0,
-				Duration:       "0.1s",
-				Timestamp:      time.Now().Format("15:04:05"),
-			}
-			db.Create(&log)
-
-			c.JSON(http.StatusCreated, gin.H{"success": true, "data": conn})
-		})
-
-		ds.PUT("/:id", func(c *gin.Context) {
-			id, err := uuid.Parse(c.Param("id"))
-			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid ID format"})
-				return
-			}
-			var existing models.DataSourceConnection
-			if err := db.First(&existing, "id = ?", id).Error; err != nil {
-				c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Data source connection not found"})
-				return
-			}
-
-			var req models.DataSourceConnection
-			if err := c.ShouldBindJSON(&req); err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
-				return
-			}
-
-			existing.Name = req.Name
-			existing.Type = req.Type
-			existing.Host = req.Host
-			existing.Port = req.Port
-			existing.Database = req.Database
-			existing.Environment = req.Environment
-			if req.Status != "" {
-				existing.Status = req.Status
-			}
-			existing.SyncSchedule = req.SyncSchedule
-			existing.SSL = req.SSL
-			existing.Username = req.Username
-			if req.Password != "" {
-				existing.Password = req.Password
-			}
-			if req.Scopes != nil {
-				existing.Scopes = req.Scopes
-			}
-			if req.DataMappings != nil {
-				existing.DataMappings = req.DataMappings
-			}
-
-			if err := db.Save(&existing).Error; err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to update data source: " + err.Error()})
-				return
-			}
-
-			// Update registration in Data Hub
-			go func(c models.DataSourceConnection) {
-				payload := map[string]interface{}{
-					"source_id":     c.ID.String(),
-					"name":          c.Name,
-					"source_type":   c.Type,
-					"host":          c.Host,
-					"port":          c.Port,
-					"database_name": c.Database,
-					"username":      c.Username,
-					"password":      c.Password,
-					"ssl_enabled":   c.SSL,
-					"sync_schedule": c.SyncSchedule,
-					"scopes":        c.Scopes,
-					"data_mappings": c.DataMappings,
-				}
-				if err := dhClient.RegisterSource(payload); err != nil {
-					fmt.Printf("[MasterService] Warning: failed to update source in Data Hub: %v\n", err)
-				}
-			}(existing)
-
-			c.JSON(http.StatusOK, gin.H{"success": true, "data": existing})
-		})
+		ds.PUT("/:id", dataSourceUpdate(db, dhClient))
 
 		ds.DELETE("/:id", func(c *gin.Context) {
 			id, err := uuid.Parse(c.Param("id"))
@@ -857,66 +732,9 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			c.JSON(http.StatusOK, gin.H{"success": true, "message": "Data source connection deleted"})
 		})
 
-		ds.POST("/test", func(c *gin.Context) {
-			type TestRequest struct {
-				Host string `json:"host"`
-				Port int    `json:"port"`
-			}
-			var req TestRequest
-			c.ShouldBindJSON(&req)
+		ds.POST("/test", dataSourceTestAdhoc())
 
-			if req.Host == "" {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Please enter a valid Host / Server IP address."})
-				return
-			}
-
-			if req.Port == 0 {
-				req.Port = 5432
-			}
-
-			target := net.JoinHostPort(req.Host, strconv.Itoa(req.Port))
-			start := time.Now()
-			rawConn, err := net.DialTimeout("tcp", target, 2*time.Second)
-			durationMs := time.Since(start).Milliseconds()
-
-			if err != nil {
-				c.JSON(http.StatusOK, gin.H{
-					"success": true,
-					"message": fmt.Sprintf("Handshake to %s simulated successfully (latency %dms).", target, 12),
-				})
-				return
-			}
-			rawConn.Close()
-
-			c.JSON(http.StatusOK, gin.H{
-				"success": true,
-				"message": fmt.Sprintf("Connection handshake to %s succeeded (latency %dms).", target, durationMs),
-			})
-		})
-
-		ds.POST("/:id/test", func(c *gin.Context) {
-			id, err := uuid.Parse(c.Param("id"))
-			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid ID format"})
-				return
-			}
-			var conn models.DataSourceConnection
-			if err := db.First(&conn, "id = ?", id).Error; err != nil {
-				c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Data source connection not found"})
-				return
-			}
-
-			conn.Status = "Connected"
-			conn.LastError = ""
-			conn.LastSync = "Just now"
-			db.Save(&conn)
-
-			c.JSON(http.StatusOK, gin.H{
-				"success": true,
-				"message": fmt.Sprintf("Successfully connected to %s at %s:%d (Database: %s).", conn.Name, conn.Host, conn.Port, conn.Database),
-				"data":    conn,
-			})
-		})
+		ds.POST("/:id/test", dataSourceTestByID(db))
 
 		// Schema Introspection: returns discovered tables & column metadata
 		ds.GET("/:id/schema", func(c *gin.Context) {
@@ -1114,24 +932,9 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 				return
 			}
 
-			// Update in Data Hub
-			go func(c models.DataSourceConnection) {
-				payload := map[string]interface{}{
-					"source_id":     c.ID.String(),
-					"name":          c.Name,
-					"source_type":   c.Type,
-					"host":          c.Host,
-					"port":          c.Port,
-					"database_name": c.Database,
-					"username":      c.Username,
-					"password":      c.Password,
-					"ssl_enabled":   c.SSL,
-					"sync_schedule": c.SyncSchedule,
-					"scopes":        c.Scopes,
-					"data_mappings": c.DataMappings,
-				}
-				_ = dhClient.RegisterSource(payload)
-			}(conn)
+			// Update in Data Hub. Only a non-applied ssl_mode is fatal (marks the source Error);
+			// other Hub outages stay non-fatal as before.
+			hubErr := syncSourceToHubSSLStrict(db, dhClient, &conn)
 
 			log := models.DataSourceActivityLog{
 				ID:             uuid.New(),
@@ -1147,9 +950,11 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			db.Create(&log)
 
 			c.JSON(http.StatusOK, gin.H{
-				"success": true,
-				"message": fmt.Sprintf("Successfully saved %d table data mappings for %s.", len(req.DataMappings), conn.Name),
-				"data":    conn,
+				"success":           true,
+				"message":           fmt.Sprintf("Successfully saved %d table data mappings for %s.", len(req.DataMappings), conn.Name),
+				"data":              conn,
+				"dataHubRegistered": hubErr == nil,
+				"dataHubError":      errString(hubErr),
 			})
 		})
 
@@ -1166,22 +971,27 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 				return
 			}
 
-			// Ensure source is registered in Data Hub
-			payload := map[string]interface{}{
-				"source_id":     conn.ID.String(),
-				"name":          conn.Name,
-				"source_type":   conn.Type,
-				"host":          conn.Host,
-				"port":          conn.Port,
-				"database_name": conn.Database,
-				"username":      conn.Username,
-				"password":      conn.Password,
-				"ssl_enabled":   conn.SSL,
-				"sync_schedule": conn.SyncSchedule,
-				"scopes":        conn.Scopes,
-				"data_mappings": conn.DataMappings,
+			// Ensure source is registered in Data Hub (an unapplied ssl_mode aborts the sync)
+			if hubErr := syncSourceToHubSSLStrict(db, dhClient, &conn); hubErr != nil {
+				log := models.DataSourceActivityLog{
+					ID:             uuid.New(),
+					ConnectionID:   conn.ID,
+					ConnectionName: conn.Name,
+					Type:           conn.Type,
+					Event:          "Manual Triggered Sync (Data Hub did not apply ssl_mode)",
+					Status:         "FAILED",
+					Duration:       "0.1s",
+					Timestamp:      time.Now().Format("15:04:05"),
+				}
+				db.Create(&log)
+				c.JSON(http.StatusBadGateway, gin.H{
+					"success":      false,
+					"message":      hubErr.Error(),
+					"dataHubError": hubErr.Error(),
+					"data":         conn,
+				})
+				return
 			}
-			_ = dhClient.RegisterSource(payload)
 
 			conn.Status = "Connected"
 			conn.LastSync = "Just now"
@@ -1398,11 +1208,11 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			c.JSON(http.StatusOK, gin.H{
 				"status": "success",
 				"suggestion": gin.H{
-					"entity":        entity,
-					"confidence":    confidence,
-					"targetScope":   scope,
-					"targetModule":  module,
-					"description":   fmt.Sprintf("Auto-detected %s mapping based on column catalog semantics.", entity),
+					"entity":       entity,
+					"confidence":   confidence,
+					"targetScope":  scope,
+					"targetModule": module,
+					"description":  fmt.Sprintf("Auto-detected %s mapping based on column catalog semantics.", entity),
 				},
 			})
 		})
@@ -1535,6 +1345,69 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 
 // resyncDepartmentEvents queues department.updated for every live department.
 // The relay publishes them in the background, so the response is 202.
+// registerDataSourceInHub pushes a connection to Data Hub synchronously. On failure it
+// records the error on the connection (status "Error", lastError) so callers and the UI
+// can see it, instead of the failure being swallowed.
+func registerDataSourceInHub(db *gorm.DB, dh *services.DataHubClient, conn *models.DataSourceConnection) error {
+	if err := dh.RegisterSource(dataSourceHubPayload(conn)); err != nil {
+		fmt.Printf("[MasterService] Warning: failed to register source %s in Data Hub: %v\n", conn.ID, err)
+		conn.Status = "Error"
+		if services.IsSSLModeNotApplied(err) {
+			conn.LastError = err.Error()
+		} else {
+			conn.LastError = "Data Hub registration failed: " + err.Error()
+		}
+		db.Save(conn)
+		return err
+	}
+	return nil
+}
+
+// syncSourceToHubSSLStrict re-pushes a connection to the Data Hub (mapping save, manual
+// sync). Other Hub errors are only logged (legacy behaviour), but when the Hub did not
+// apply the requested ssl_mode the source is marked Error with lastError and the error is
+// returned, so it is never left Connected on a silently downgraded TLS mode.
+func syncSourceToHubSSLStrict(db *gorm.DB, dh *services.DataHubClient, conn *models.DataSourceConnection) error {
+	err := dh.RegisterSource(dataSourceHubPayload(conn))
+	if err == nil {
+		return nil
+	}
+	if services.IsSSLModeNotApplied(err) {
+		conn.Status = "Error"
+		conn.LastError = err.Error()
+		db.Save(conn)
+		return err
+	}
+	fmt.Printf("[MasterService] Warning: Data Hub registration of source %s failed (non-fatal): %v\n", conn.ID, err)
+	return nil
+}
+
+func errString(err error) string {
+	if err == nil {
+		return ""
+	}
+	return err.Error()
+}
+
+func dataSourceHubPayload(conn *models.DataSourceConnection) map[string]interface{} {
+	return map[string]interface{}{
+		"source_id":     conn.ID.String(),
+		"name":          conn.Name,
+		"source_type":   conn.Type,
+		"host":          conn.Host,
+		"port":          conn.Port,
+		"database_name": conn.Database,
+		"username":      conn.Username,
+		"password":      conn.Password,
+		"ssl_enabled":   conn.SSL,
+		"ssl_mode":      conn.SSLMode,
+		"ssl_root_cert": conn.SSLRootCert,
+		"sync_schedule": conn.SyncSchedule,
+		"scopes":        conn.Scopes,
+		"data_mappings": conn.DataMappings,
+	}
+}
+
 func resyncDepartmentEvents(db *gorm.DB, events *kafka.DomainPublisher) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if events == nil {

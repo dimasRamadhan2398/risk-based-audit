@@ -52,6 +52,8 @@ type AccountClient interface {
 	FindUser(ctx context.Context, employeeCode, email, authHeader string) (*authclient.User, error)
 	CreateUser(ctx context.Context, in authclient.CreateUserInput, authHeader string) (*authclient.CreatedUser, error)
 	LinkEmployee(ctx context.Context, userID, employeeCode, authHeader string) error
+	SetUserStatus(ctx context.Context, userID string, active bool, authHeader string) error
+	DeleteUser(ctx context.Context, userID string, hard bool, authHeader string) error
 }
 
 // checkLoginAccountPreflight runs before anything is written, so a create that
@@ -119,11 +121,22 @@ func (s *EmployeeService) ensureLoginAccount(ctx *base.BaseService, emp *models.
 
 	// The temporary password goes back to the caller once. It is never logged.
 	logger.Info("Login account created for employee",
-		zap.String("employee_code", emp.EmployeeCode), zap.String("username", created.Username))
+		zap.String("employee_code", emp.EmployeeCode), zap.String("username", created.Username),
+		zap.Bool("seat_downgraded", created.SeatDowngraded))
+	if created.SeatDowngraded {
+		// Not an error: every full seat is taken, so auth-service gave VIEWER only.
+		logger.Warn("Login account created with reduced roles: seat limit reached",
+			zap.String("employee_code", emp.EmployeeCode),
+			zap.Strings("requested_roles", created.RequestedRoles),
+			zap.Strings("assigned_roles", created.AssignedRoles))
+	}
 	return &models.EmployeeAccount{
 		Status:            "created",
 		Username:          created.Username,
 		TemporaryPassword: created.TemporaryPassword,
+		SeatDowngraded:    created.SeatDowngraded,
+		RequestedRoles:    created.RequestedRoles,
+		AssignedRoles:     created.AssignedRoles,
 	}, nil
 }
 
