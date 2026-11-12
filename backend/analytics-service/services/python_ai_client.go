@@ -180,6 +180,10 @@ func (c *PythonAIClient) GetRiskScoreBatch() ([]byte, error) {
 	return c.getJSON("/predict/risk-score/batch")
 }
 
+func (c *PythonAIClient) SyncEntityPredictionProfile(reqData interface{}) ([]byte, error) {
+	return c.postJSON("/predict/risk-score/sync-profile", reqData)
+}
+
 func (c *PythonAIClient) PredictAnomaly(reqData AnomalyRequest) (*AnomalyResponse, error) {
 	respData, err := c.postJSON("/predict/anomaly", reqData)
 	if err != nil {

@@ -45,6 +45,16 @@ function resolveModuleInfo(path: string) {
       actionLabel: '+ Jalankan AI Anomaly Detection'
     }
   }
+  if (p.includes('/analytics/ai/risk-scoring') || p.includes('/analytics/ai/entity-prediction')) {
+    return {
+      scope: 'data_analytics',
+      module: 'AI: Entity Prediction',
+      slug: 'entity_prediction',
+      label: 'AI Entity Prediction (XGBoost)',
+      actionType: 'ai_entity_prediction',
+      actionLabel: '+ Prediksi Entitas AI'
+    }
+  }
   return null
 }
 
@@ -136,6 +146,22 @@ describe('MappedSourceDataBanner Logic', () => {
       targetModule: 'AI: Anomaly Detection'
     }
     const isMatched = matchMappingToModule(glMapping, info)
+    expect(isMatched).toBe(true)
+  })
+
+  it('should resolve AI Entity Prediction route and match external mapped table', () => {
+    const info = resolveModuleInfo('/analytics/ai/risk-scoring')
+    expect(info).not.toBeNull()
+    expect(info?.module).toBe('AI: Entity Prediction')
+    expect(info?.scope).toBe('data_analytics')
+    expect(info?.actionType).toBe('ai_entity_prediction')
+
+    const entityMapping = {
+      tableName: 'gl_transactions',
+      targetScope: 'data_analytics',
+      targetModule: 'AI: Entity Prediction'
+    }
+    const isMatched = matchMappingToModule(entityMapping, info)
     expect(isMatched).toBe(true)
   })
 

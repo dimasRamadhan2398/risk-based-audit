@@ -1447,7 +1447,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 				if (strings.Contains(s1, "benford") && strings.Contains(s2, "benford")) ||
 					(strings.Contains(s1, "duplicate") && strings.Contains(s2, "duplicate")) ||
 					(strings.Contains(s1, "reconciliation") && strings.Contains(s2, "reconciliation")) ||
-					(strings.Contains(s1, "scoring") && strings.Contains(s2, "scoring")) {
+					((strings.Contains(s1, "scoring") || strings.Contains(s1, "entity")) && (strings.Contains(s2, "scoring") || strings.Contains(s2, "entity"))) {
 					return true
 				}
 				return false

@@ -10,9 +10,11 @@ import { BANK_ANOMALIES_SEED, BANK_SCATTER_SEED } from './bankAnomalyDataset'
 
 export interface RiskScorePrediction {
   entity: string
-  type: 'Branch' | 'Department'
+  type: 'Branch' | 'Auditable Entity' | 'Department' | string
   riskCategory: string
   targetTimeline: string
+  currentLikelihood?: number
+  currentImpact?: number
   predictedLikelihood: number
   predictedImpact: number
   predictedScore: number
@@ -22,6 +24,8 @@ export interface RiskScorePrediction {
   predictedRiskLevel: RiskLevel
   actualRiskLevel: RiskLevel
 }
+
+export type EntityRiskPrediction = RiskScorePrediction
 
 export interface FeatureImportance {
   feature: string
@@ -162,18 +166,7 @@ export interface AuditorAtRiskPillar {
 // ─── Data Generators ────────────────────────────────────────────────────────
 
 export function useXGBoostData() {
-  const predictions: RiskScorePrediction[] = [
-    { entity: 'Head Office', type: 'Branch', riskCategory: 'Financial', targetTimeline: 'Q3 2026', predictedLikelihood: 4.2, predictedImpact: 4.6, predictedScore: 19.3, actualScore: 20, delta: -0.7, trend: 'up', predictedRiskLevel: RiskLevel.HIGH, actualRiskLevel: RiskLevel.HIGH },
-    { entity: 'Jakarta Branch', type: 'Branch', riskCategory: 'Operational', targetTimeline: 'Q3 2026', predictedLikelihood: 3.8, predictedImpact: 4.1, predictedScore: 15.6, actualScore: 16, delta: -0.4, trend: 'up', predictedRiskLevel: RiskLevel.MODERATE_HIGH, actualRiskLevel: RiskLevel.MODERATE_HIGH },
-    { entity: 'Surabaya Branch', type: 'Branch', riskCategory: 'Technology', targetTimeline: 'Q3 2026', predictedLikelihood: 3.5, predictedImpact: 3.9, predictedScore: 13.7, actualScore: 14, delta: -0.3, trend: 'stable', predictedRiskLevel: RiskLevel.MODERATE_HIGH, actualRiskLevel: RiskLevel.MODERATE_HIGH },
-    { entity: 'Bandung Branch', type: 'Branch', riskCategory: 'Compliance', targetTimeline: 'Q3 2026', predictedLikelihood: 3.1, predictedImpact: 3.4, predictedScore: 10.5, actualScore: 11, delta: -0.5, trend: 'down', predictedRiskLevel: RiskLevel.MODERATE, actualRiskLevel: RiskLevel.MODERATE },
-    { entity: 'Bali Branch', type: 'Branch', riskCategory: 'Strategic', targetTimeline: 'Q3 2026', predictedLikelihood: 3.3, predictedImpact: 4.0, predictedScore: 13.2, actualScore: 13, delta: 0.2, trend: 'stable', predictedRiskLevel: RiskLevel.MODERATE_HIGH, actualRiskLevel: RiskLevel.MODERATE_HIGH },
-    { entity: 'Finance Dept', type: 'Department', riskCategory: 'Financial', targetTimeline: 'Q3 2026', predictedLikelihood: 4.5, predictedImpact: 4.8, predictedScore: 21.6, actualScore: 22, delta: -0.4, trend: 'up', predictedRiskLevel: RiskLevel.HIGH, actualRiskLevel: RiskLevel.HIGH },
-    { entity: 'IT Dept', type: 'Department', riskCategory: 'Technology', targetTimeline: 'Q3 2026', predictedLikelihood: 4.0, predictedImpact: 4.3, predictedScore: 17.2, actualScore: 18, delta: -0.8, trend: 'up', predictedRiskLevel: RiskLevel.MODERATE_HIGH, actualRiskLevel: RiskLevel.MODERATE_HIGH },
-    { entity: 'HR Dept', type: 'Department', riskCategory: 'Reputational', targetTimeline: 'Q3 2026', predictedLikelihood: 2.8, predictedImpact: 3.0, predictedScore: 8.4, actualScore: 9, delta: -0.6, trend: 'down', predictedRiskLevel: RiskLevel.MODERATE, actualRiskLevel: RiskLevel.MODERATE },
-    { entity: 'Operations Dept', type: 'Department', riskCategory: 'Operational', targetTimeline: 'Q3 2026', predictedLikelihood: 3.6, predictedImpact: 3.7, predictedScore: 13.3, actualScore: 13, delta: 0.3, trend: 'stable', predictedRiskLevel: RiskLevel.MODERATE_HIGH, actualRiskLevel: RiskLevel.MODERATE_HIGH },
-    { entity: 'Legal & Compliance', type: 'Department', riskCategory: 'Legal', targetTimeline: 'Q3 2026', predictedLikelihood: 3.2, predictedImpact: 4.2, predictedScore: 13.4, actualScore: 14, delta: -0.6, trend: 'stable', predictedRiskLevel: RiskLevel.MODERATE_HIGH, actualRiskLevel: RiskLevel.MODERATE_HIGH },
-  ]
+  const predictions: RiskScorePrediction[] = []
 
   const featureImportance: FeatureImportance[] = [
     { feature: 'Prior Audit Findings Count', importance: 0.36 },
@@ -191,9 +184,9 @@ export function useXGBoostData() {
     auc: 0.947,
   }
 
-  const chartLabels = predictions.map(p => p.entity)
-  const predictedScores = predictions.map(p => p.predictedScore)
-  const actualScores = predictions.map(p => p.actualScore)
+  const chartLabels: string[] = []
+  const predictedScores: number[] = []
+  const actualScores: number[] = []
 
   return { predictions, featureImportance, modelMetrics, chartLabels, predictedScores, actualScores }
 }

@@ -32,6 +32,8 @@ func SetupRoutes(r *gin.Engine, authMiddleware *middleware.AuthMiddleware) {
 		api.GET("/risk-score", analyticsController.GetRiskScore)
 		api.POST("/risk-score", analyticsController.GetRiskScore)
 		api.GET("/risk-score/batch", analyticsController.GetRiskScoreBatch)
+		api.POST("/risk-score/sync-profile", analyticsController.SyncEntityPredictionProfile)
+		api.POST("/entity-prediction/sync", analyticsController.SyncEntityPredictionProfile)
 
 		api.GET("/anomaly", analyticsController.GetAnomaly)
 		api.POST("/anomaly", analyticsController.GetAnomaly)

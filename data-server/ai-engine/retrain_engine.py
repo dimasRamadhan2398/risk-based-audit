@@ -29,7 +29,9 @@ from ai_training_storage import (
     upsert_auditee_kpi_pool,
     upsert_auditor_kpi_pool,
     load_auditee_training_dataframe,
-    load_auditor_training_dataframe
+    load_auditor_training_dataframe,
+    upsert_entity_prediction_pool,
+    load_entity_prediction_training_dataframe
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -103,38 +105,83 @@ class AutoRetrainEngine:
         """
         synced_counts = {"risk": 0, "audit": 0, "master": 0, "auditor_kpi": 0, "auditee_kpi": 0}
 
-        # 1. Sync from Risk Service (Risk Profile & Inherent/Residual Impact & Likelihood)
+        # 1. Sync from Risk Service (Risk Profile & Inherent/Residual Impact & Likelihood - Zero CSV Dependency)
         try:
-            r = requests.get(f"{self.risk_service_url}/api/v1/risk-registers", timeout=3)
+            r = requests.get(f"{self.risk_service_url}/api/v1/risks", timeout=3)
+            if r.status_code != 200:
+                r = requests.get(f"{self.risk_service_url}/api/v1/risk-registers", timeout=3)
             if r.status_code == 200:
                 data = r.json()
                 items = data.get("data", []) if isinstance(data, dict) else data
                 if isinstance(items, list) and len(items) > 0:
-                    dept_csv = os.path.join(self.ai_training_dir, 'department_prediction', 'department_dataset.csv')
-                    if os.path.exists(dept_csv):
-                        df_existing = pd.read_csv(dept_csv)
-                        new_rows = []
-                        for item in items:
-                            new_rows.append({
-                                'Entitas': item.get('entity_name', item.get('department', 'Surabaya Branch')),
-                                'Kategori Risiko': item.get('category', 'Financial'),
-                                'Inherent Likelihood': item.get('inherent_likelihood', 4),
-                                'Inherent Impact': item.get('inherent_impact', 4),
-                                'Jml Temuan Audit': item.get('findings_count', 3),
-                                'Jml KPI di Bawah Target': item.get('kpi_below_target', 1),
-                                'Volatilitas KPI': item.get('kpi_volatility', 0.2),
-                                'Skor Risiko Periode Lalu': item.get('previous_score', 15),
-                                'Bulan Penilaian': item.get('assessment_month', 6),
-                                'TARGET: Likelihood': item.get('residual_likelihood', 3),
-                                'TARGET: Impact': item.get('residual_impact', 3)
-                            })
-                        if new_rows:
-                            df_new = pd.DataFrame(new_rows)
-                            df_updated = pd.concat([df_existing, df_new], ignore_index=True).drop_duplicates(subset=['Entitas', 'Kategori Risiko'], keep='last')
-                            df_updated.to_csv(dept_csv, index=False)
-                            synced_counts["risk"] = len(new_rows)
+                    new_rows = []
+                    for item in items:
+                        ent = item.get('branch') or item.get('location_name') or item.get('entity_name') or 'Kantor Pusat'
+                        cat = item.get('category') or 'Operational'
+                        lik = float(item.get('likelihood') or item.get('inherent_likelihood') or 3.0)
+                        imp = float(item.get('impact') or item.get('inherent_impact') or 3.0)
+                        new_rows.append({
+                            'entity': ent,
+                            'entity_type': 'Branch' if any(w in str(ent).lower() for w in ['cabang', 'kcp', 'regional', 'kc', 'outlet', 'branch']) else 'Auditable Entity',
+                            'risk_category': cat,
+                            'inherent_likelihood': lik,
+                            'inherent_impact': imp,
+                            'audit_findings_count': float(item.get('findings_count') or 0.0),
+                            'kpi_below_target_count': float(item.get('kpi_below_target') or 0.0),
+                            'kpi_volatility': float(item.get('kpi_volatility') or 0.1),
+                            'previous_risk_score': float(item.get('previous_score') or (lik * imp)),
+                            'assessment_month': int(item.get('assessment_month') or 1),
+                            'target_likelihood': float(item.get('residual_likelihood') or lik),
+                            'target_impact': float(item.get('residual_impact') or imp),
+                            'source_id': 'risk_profile',
+                            'current_risk_level': item.get('risk_level', 'MODERATE')
+                        })
+                    if new_rows:
+                        upsert_entity_prediction_pool(new_rows)
+                        synced_counts["risk"] = len(new_rows)
         except Exception as e:
             print(f"Risk service sync skipped (offline or not reachable): {e}")
+
+        # 1b. Sync Audit Universe (Auditable Entities with risk levels from Audit Priority)
+        try:
+            curr_year = datetime.now().year
+            ru = requests.get(f"{self.risk_service_url}/audit-universe/year/{curr_year}", timeout=3)
+            if ru.status_code == 200:
+                u_data = ru.json()
+                u_items = u_data.get("data", []) if isinstance(u_data, dict) else u_data
+                if isinstance(u_items, list) and len(u_items) > 0:
+                    u_rows = []
+                    for u in u_items:
+                        corp_u = u.get("corporate_audit_universe") or {}
+                        u_name = corp_u.get("name") or u.get("name")
+                        if not u_name or "legal & compliance" in str(u_name).lower():
+                            continue
+                        u_lvl = str(u.get("risk_level") or "MODERATE").upper().replace(" ", "_")
+                        u_idx = float(u.get("risk_index") or 50.0)
+                        lik = max(1.0, min(5.0, round((u_idx / 20.0) * 0.9, 1))) if u_idx > 0 else 3.0
+                        imp = max(1.0, min(5.0, round((u_idx / 20.0) * 1.1, 1))) if u_idx > 0 else 3.0
+                        is_br = any(w in str(u_name).lower() for w in ['cabang', 'kcp', 'regional', 'kc', 'outlet', 'branch'])
+                        u_rows.append({
+                            'entity': str(u_name).strip(),
+                            'entity_type': 'Branch' if is_br else 'Auditable Entity',
+                            'risk_category': 'Operational',
+                            'inherent_likelihood': lik,
+                            'inherent_impact': imp,
+                            'audit_findings_count': 2.0 if u.get("audit_priority") else 0.0,
+                            'kpi_below_target_count': 1.0 if u.get("audit_priority") else 0.0,
+                            'kpi_volatility': 0.1,
+                            'previous_risk_score': round(lik * imp, 1),
+                            'assessment_month': 1,
+                            'target_likelihood': lik,
+                            'target_impact': imp,
+                            'source_id': f"audit_universe:{u.get('id', u_name)}",
+                            'current_risk_level': u_lvl
+                        })
+                    if u_rows:
+                        upsert_entity_prediction_pool(u_rows)
+                        synced_counts["audit_universe"] = len(u_rows)
+        except Exception as e:
+            print(f"Audit universe sync skipped: {e}")
 
         # 2. Sync Multi-Source NLP Data (Imported Documents + Internal Notes + External DB Records)
         try:
@@ -221,7 +268,7 @@ class AutoRetrainEngine:
                             'source_id': str(item.get('source_id', 'cbs_simulator')),
                             'kpi_name': kpi_name,
                             'entity': entity_name,
-                            'entity_type': 'Branch' if 'Cabang' in entity_name else 'Department',
+                            'entity_type': 'Branch' if 'Cabang' in entity_name else 'Auditable Entity',
                             'period_date': '2026-03-01',
                             'period_label': period_str,
                             'actual_value': act_val,
@@ -442,46 +489,109 @@ class AutoRetrainEngine:
             return False
 
     def retrain_department_suite(self) -> bool:
-        """Automated Re-training of Department Risk Scoring Model Suite"""
+        """Automated Re-training of Entity Prediction Model Suite directly from storage pool (Zero Runtime CSV)"""
         try:
-            csv_path = os.path.join(self.ai_training_dir, 'department_prediction', 'department_dataset.csv')
-            if not os.path.exists(csv_path):
+            df = load_entity_prediction_training_dataframe()
+            if df.empty:
                 return False
 
-            df = pd.read_csv(csv_path)
-            for col in ['Entitas', 'Kategori Risiko']:
+            if 'source_id' in df.columns:
+                df = df[df['source_id'] != 'baseline_dataset']
+            if 'entity' in df.columns:
+                df = df[~df['entity'].astype(str).str.contains('Legal & Compliance', case=False, na=False)]
+
+            if df.empty:
+                return False
+
+            # Ensure column names are standardized
+            col_map = {
+                "Entitas": "entity",
+                "Kategori Risiko": "risk_category",
+                "Inherent Likelihood": "inherent_likelihood",
+                "Inherent Impact": "inherent_impact",
+                "Jml Temuan Audit": "audit_findings_count",
+                "Jml KPI di Bawah Target": "kpi_below_target_count",
+                "Volatilitas KPI": "kpi_volatility",
+                "Skor Risiko Periode Lalu": "previous_risk_score",
+                "Bulan Penilaian": "assessment_month",
+                "TARGET: Likelihood": "target_likelihood",
+                "TARGET: Impact": "target_impact",
+            }
+            for k, v in col_map.items():
+                if k in df.columns:
+                    df.rename(columns={k: v}, inplace=True)
+
+            df['entity'] = df['entity'].astype(str).str.strip()
+            df['risk_category'] = df['risk_category'].astype(str).str.strip()
+
+            num_cols = [
+                "inherent_likelihood", "inherent_impact", "audit_findings_count",
+                "kpi_below_target_count", "kpi_volatility", "previous_risk_score",
+                "assessment_month", "target_likelihood", "target_impact"
+            ]
+            for col in num_cols:
                 if col in df.columns:
-                    df[col] = df[col].astype(str).str.strip()
+                    df[col] = pd.to_numeric(df[col], errors="coerce")
+            df = df.dropna(subset=["inherent_likelihood", "inherent_impact", "target_likelihood", "target_impact"]).reset_index(drop=True)
+
+            df["month_sin"] = np.sin(2 * np.pi * (df["assessment_month"] - 1) / 12)
+            df["month_cos"] = np.cos(2 * np.pi * (df["assessment_month"] - 1) / 12)
+            df['inherent_risk_score'] = df['inherent_likelihood'] * df['inherent_impact']
+            df['kpi_volatility_log'] = np.log1p(df['kpi_volatility'])
+            df['findings_kpi_ratio'] = (df['audit_findings_count'] + 1) / (df['kpi_below_target_count'] + 1)
+            df['risk_score_diff'] = df['inherent_risk_score'] - df['previous_risk_score']
 
             feature_cols = [
-                'Entitas', 'Kategori Risiko', 'Inherent Likelihood', 
-                'Inherent Impact', 'Jml Temuan Audit', 
-                'Jml KPI di Bawah Target', 'Volatilitas KPI', 
-                'Skor Risiko Periode Lalu', 'Bulan Penilaian'
+                'entity', 'risk_category', 'inherent_likelihood', 'inherent_impact',
+                'audit_findings_count', 'kpi_below_target_count', 'kpi_volatility',
+                'previous_risk_score', 'assessment_month', 'inherent_risk_score',
+                'kpi_volatility_log', 'findings_kpi_ratio', 'risk_score_diff',
+                'month_sin', 'month_cos'
             ]
 
             X_raw = df[feature_cols].values
-            ct = ColumnTransformer(transformers=[('encoder', OneHotEncoder(handle_unknown='ignore', sparse_output=False), [0, 1])], remainder='passthrough')
+            ct = ColumnTransformer(
+                transformers=[('encoder', OneHotEncoder(handle_unknown='ignore', sparse_output=False), [0, 1])],
+                remainder='passthrough'
+            )
             X_encoded = ct.fit_transform(X_raw)
 
             sc = StandardScaler()
             X_scaled = sc.fit_transform(X_encoded)
 
-            y_imp = df['TARGET: Impact'].values.astype(int) - 1
-            y_lik = df['TARGET: Likelihood'].values.astype(int) - 1
+            le_imp = LabelEncoder()
+            y_imp = le_imp.fit_transform(df['target_impact'].round().astype(int))
 
-            imp_model = GradientBoostingClassifier(n_estimators=100, learning_rate=0.05, max_depth=3, random_state=42)
-            imp_model.fit(X_scaled, y_imp)
+            le_lik = LabelEncoder()
+            y_lik = le_lik.fit_transform(df['target_likelihood'].round().astype(int))
 
-            lik_model = GradientBoostingClassifier(n_estimators=100, learning_rate=0.05, max_depth=3, random_state=42)
-            lik_model.fit(X_scaled, y_lik)
+            # Train XGBoost or GradientBoosting with exact compatible bundle keys
+            try:
+                imp_clf = XGBClassifier(n_estimators=150, max_depth=4, learning_rate=0.05, eval_metric='mlogloss', random_state=42)
+                imp_clf.fit(X_scaled, y_imp)
+                lik_clf = XGBClassifier(n_estimators=150, max_depth=4, learning_rate=0.05, eval_metric='mlogloss', random_state=42)
+                lik_clf.fit(X_scaled, y_lik)
+            except Exception:
+                imp_clf = GradientBoostingClassifier(n_estimators=100, learning_rate=0.05, max_depth=3, random_state=42)
+                imp_clf.fit(X_scaled, y_imp)
+                lik_clf = GradientBoostingClassifier(n_estimators=100, learning_rate=0.05, max_depth=3, random_state=42)
+                lik_clf.fit(X_scaled, y_lik)
+
+            entity_type_map = {}
+            for ent in df['entity'].unique():
+                entity_type_map[ent] = 'Branch' if any(w in str(ent).lower() for w in ['cabang', 'kcp', 'regional', 'kc', 'outlet', 'branch']) else 'Auditable Entity'
 
             bundle = {
+                'impact_classifier': imp_clf,
+                'likelihood_classifier': lik_clf,
+                'label_encoder_impact': le_imp,
+                'label_encoder_likelihood': le_lik,
                 'column_transformer': ct,
                 'scaler': sc,
-                'impact_model': imp_model,
-                'likelihood_model': lik_model,
                 'feature_cols': feature_cols,
+                'known_entities': sorted(df['entity'].unique().tolist()),
+                'known_categories': sorted(df['risk_category'].unique().tolist()),
+                'entity_type_map': entity_type_map,
                 'data_samples': len(df)
             }
 
@@ -489,9 +599,10 @@ class AutoRetrainEngine:
             with open(out_path, 'wb') as f:
                 pickle.dump(bundle, f)
 
+            print(f"[RetrainEngine] Successfully retrained Entity Prediction model suite: {out_path} ({len(df)} samples)")
             return True
         except Exception as e:
-            print(f"Error retraining department suite: {e}")
+            print(f"Error retraining entity prediction suite: {e}")
             return False
 
     def sync_multi_source_nlp_corpus(self) -> dict:

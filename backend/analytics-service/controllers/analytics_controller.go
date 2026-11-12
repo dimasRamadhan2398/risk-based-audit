@@ -69,6 +69,23 @@ func (c *AnalyticsController) GetRiskScoreBatch(ctx *gin.Context) {
 	})
 }
 
+func (c *AnalyticsController) SyncEntityPredictionProfile(ctx *gin.Context) {
+	var req interface{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+		return
+	}
+	res, err := c.service.SyncEntityPredictionProfile(req)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   res,
+	})
+}
+
 // GetAnomaly handles POST & GET /api/analytics/anomaly
 func (c *AnalyticsController) GetAnomaly(ctx *gin.Context) {
 	var req services.AnomalyRequest

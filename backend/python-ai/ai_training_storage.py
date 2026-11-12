@@ -25,6 +25,7 @@ os.makedirs(PARQUET_DIR, exist_ok=True)
 
 AUDITEE_PARQUET_FILE = os.path.join(PARQUET_DIR, 'auditee_kpi_pool.parquet')
 AUDITOR_PARQUET_FILE = os.path.join(PARQUET_DIR, 'auditor_kpi_pool.parquet')
+ENTITY_PREDICTION_PARQUET_FILE = os.path.join(PARQUET_DIR, 'entity_prediction_pool.parquet')
 
 # Database connection URL for Datalake (PostgreSQL / TimescaleDB)
 DATALAKE_DB_URL = os.getenv(
@@ -333,4 +334,172 @@ def load_auditor_training_dataframe() -> pd.DataFrame:
         return pd.read_csv(legacy_csv)
 
     return pd.DataFrame()
+
+def upsert_entity_prediction_pool(new_records: list) -> int:
+    """
+    Upserts new Entity Prediction records (from Risk Profile or External DB) directly into:
+    1. PostgreSQL gold.ai_entity_prediction_training_pool (if DB online)
+    2. Atomic memory-mapped Parquet columnar cache (never touches CSV during runtime)
+    """
+    if not new_records:
+        return 0
+
+    # 1. Database UPSERT (PostgreSQL Set-Based SQL)
+    engine = _get_sqlalchemy_engine()
+    if engine:
+        try:
+            from sqlalchemy import text
+            with engine.begin() as conn:
+                for r in new_records:
+                    conn.execute(text("""
+                        INSERT INTO gold.ai_entity_prediction_training_pool (
+                            source_id, entity, entity_type, risk_category,
+                            inherent_likelihood, inherent_impact, audit_findings_count,
+                            kpi_below_target_count, kpi_volatility, previous_risk_score,
+                            assessment_month, target_likelihood, target_impact,
+                            current_risk_level, updated_at
+                        ) VALUES (
+                            :source_id, :entity, :entity_type, :risk_category,
+                            :inherent_likelihood, :inherent_impact, :audit_findings_count,
+                            :kpi_below_target_count, :kpi_volatility, :previous_risk_score,
+                            :assessment_month, :target_likelihood, :target_impact,
+                            :current_risk_level, NOW()
+                        )
+                        ON CONFLICT (entity, risk_category, assessment_month, source_id)
+                        DO UPDATE SET
+                            inherent_likelihood = EXCLUDED.inherent_likelihood,
+                            inherent_impact = EXCLUDED.inherent_impact,
+                            audit_findings_count = EXCLUDED.audit_findings_count,
+                            kpi_below_target_count = EXCLUDED.kpi_below_target_count,
+                            kpi_volatility = EXCLUDED.kpi_volatility,
+                            previous_risk_score = EXCLUDED.previous_risk_score,
+                            target_likelihood = EXCLUDED.target_likelihood,
+                            target_impact = EXCLUDED.target_impact,
+                            current_risk_level = EXCLUDED.current_risk_level,
+                            entity_type = EXCLUDED.entity_type,
+                            updated_at = NOW();
+                    """), r)
+        except Exception as e:
+            print(f"[AI-Storage] Notice: Entity Prediction DB pool upsert skipped: {e}")
+
+    # 2. Binary Columnar Parquet Store (Atomic File Swap)
+    try:
+        initialize_parquet_from_sources()
+        if os.path.exists(ENTITY_PREDICTION_PARQUET_FILE) and pa and pq:
+            df_current = pq.read_table(ENTITY_PREDICTION_PARQUET_FILE, memory_map=True).to_pandas()
+            if not df_current.empty and 'source_id' in df_current.columns:
+                df_current = df_current[df_current['source_id'] != 'baseline_dataset']
+            if not df_current.empty and 'entity' in df_current.columns:
+                df_current = df_current[~df_current['entity'].astype(str).str.contains('Legal & Compliance', case=False, na=False)]
+        else:
+            df_current = pd.DataFrame()
+
+        converted = []
+        for r in new_records:
+            ent = str(r.get('entity') or r.get('Entitas') or 'Kantor Pusat')
+            etype = str(r.get('entity_type') or ('Branch' if any(w in ent.lower() for w in ['cabang', 'kcp', 'regional', 'kc', 'outlet']) else 'Department'))
+            cat = str(r.get('risk_category') or r.get('category') or r.get('Kategori Risiko') or 'Operational')
+            lik = float(r.get('inherent_likelihood') or r.get('likelihood') or 3.0)
+            imp = float(r.get('inherent_impact') or r.get('impact') or 3.0)
+            t_lik = float(r.get('target_likelihood') or lik)
+            t_imp = float(r.get('target_impact') or imp)
+            m = int(r.get('assessment_month') or r.get('month') or 1)
+            src = str(r.get('source_id') or 'risk_profile')
+            lvl = str(r.get('current_risk_level') or r.get('risk_level') or 'MODERATE')
+            
+            converted.append({
+                'entity': ent,
+                'entity_type': etype,
+                'risk_category': cat,
+                'target_timeline': str(r.get('target_timeline') or f"FY {pd.Timestamp.now().year}"),
+                'inherent_likelihood': lik,
+                'inherent_impact': imp,
+                'audit_findings_count': float(r.get('audit_findings_count') or r.get('findings_count') or 0.0),
+                'kpi_below_target_count': float(r.get('kpi_below_target_count') or 0.0),
+                'kpi_volatility': float(r.get('kpi_volatility') or 0.1),
+                'previous_risk_score': float(r.get('previous_risk_score') or (lik * imp)),
+                'assessment_month': m,
+                'target_likelihood': t_lik,
+                'target_impact': t_imp,
+                'source_id': src,
+                'current_risk_level': lvl
+            })
+
+        df_new = pd.DataFrame(converted)
+        if not df_current.empty:
+            df_updated = pd.concat([df_current, df_new], ignore_index=True).drop_duplicates(
+                subset=['entity', 'risk_category', 'assessment_month', 'source_id'], keep='last'
+            )
+        else:
+            df_updated = df_new
+
+        if pa and pq:
+            tmp_file = ENTITY_PREDICTION_PARQUET_FILE + '.tmp'
+            table = pa.Table.from_pandas(df_updated)
+            pq.write_table(table, tmp_file, compression='SNAPPY')
+            if os.path.exists(ENTITY_PREDICTION_PARQUET_FILE):
+                os.replace(tmp_file, ENTITY_PREDICTION_PARQUET_FILE)
+            else:
+                os.rename(tmp_file, ENTITY_PREDICTION_PARQUET_FILE)
+
+        return len(new_records)
+    except Exception as e:
+        print(f"[AI-Storage] Entity Prediction Parquet buffer upsert error: {e}")
+        return 0
+
+def load_entity_prediction_training_dataframe() -> pd.DataFrame:
+    """
+    Loads Entity Prediction training dataframe from PostgreSQL or binary Parquet.
+    Zero CSV text parsing during runtime — sub-50ms latency with low RAM footprint.
+    """
+    initialize_parquet_from_sources()
+
+    # Try PostgreSQL first if configured
+    engine = _get_sqlalchemy_engine()
+    if engine:
+        try:
+            query = """
+                SELECT 
+                    entity,
+                    entity_type,
+                    risk_category,
+                    inherent_likelihood::float AS inherent_likelihood,
+                    inherent_impact::float AS inherent_impact,
+                    audit_findings_count::float AS audit_findings_count,
+                    kpi_below_target_count::float AS kpi_below_target_count,
+                    kpi_volatility::float AS kpi_volatility,
+                    previous_risk_score::float AS previous_risk_score,
+                    assessment_month::int AS assessment_month,
+                    target_likelihood::float AS target_likelihood,
+                    target_impact::float AS target_impact,
+                    current_risk_level,
+                    source_id
+                FROM gold.ai_entity_prediction_training_pool
+                ORDER BY entity ASC, risk_category ASC, assessment_month ASC;
+            """
+            df = pd.read_sql(query, con=engine)
+            if not df.empty:
+                if 'source_id' in df.columns:
+                    df = df[df['source_id'] != 'baseline_dataset']
+                if 'entity' in df.columns:
+                    df = df[~df['entity'].astype(str).str.contains('Legal & Compliance', case=False, na=False)]
+                return df
+        except Exception:
+            pass
+
+    # High-speed Parquet Memory-Mapped Fallback (Only Real Synced Records, Zero CSV Runtime Dependency)
+    if os.path.exists(ENTITY_PREDICTION_PARQUET_FILE) and pa and pq:
+        try:
+            df = pq.read_table(ENTITY_PREDICTION_PARQUET_FILE, memory_map=True).to_pandas()
+            if not df.empty:
+                if 'source_id' in df.columns:
+                    df = df[df['source_id'] != 'baseline_dataset']
+                if 'entity' in df.columns:
+                    df = df[~df['entity'].astype(str).str.contains('Legal & Compliance', case=False, na=False)]
+                return df
+        except Exception as e:
+            print(f"[AI-Storage] Parquet read error: {e}")
+
+    return pd.DataFrame()
+
 

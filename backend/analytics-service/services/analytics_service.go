@@ -76,6 +76,17 @@ func (s *AnalyticsService) GetRiskScoreBatch() (interface{}, error) {
 	return res, nil
 }
 
+func (s *AnalyticsService) SyncEntityPredictionProfile(req interface{}) (interface{}, error) {
+	raw, err := s.aiClient.SyncEntityPredictionProfile(req)
+	if err != nil {
+		return nil, err
+	}
+	var res interface{}
+	_ = json.Unmarshal(raw, &res)
+	s.cache.Invalidate(cacheKeyPrefix + "batch:risk-score")
+	return res, nil
+}
+
 // GetAnomaly gets anomaly prediction from the Python AI service
 func (s *AnalyticsService) GetAnomaly(req AnomalyRequest) (*AnomalyResponse, error) {
 	if req.Entity == "" {

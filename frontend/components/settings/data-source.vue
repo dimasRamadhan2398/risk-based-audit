@@ -1614,7 +1614,8 @@ const scopeModulesMap: Record<string, { label: string; value: string }[]> = {
     { label: 'Consulting Service', value: 'Consulting Service' },
   ],
   data_analytics: [
-    { label: 'AI: Risk Scoring Prediction', value: 'AI: Risk Scoring Prediction' },
+    { label: 'AI: Entity Prediction', value: 'AI: Entity Prediction' },
+    { label: 'AI: Risk Scoring Prediction (Legacy)', value: 'AI: Risk Scoring Prediction' },
     { label: 'AI: Anomaly Detection', value: 'AI: Anomaly Detection' },
     { label: 'AI: NLP Document Analysis', value: 'AI: NLP Document Analysis' },
     { label: 'AI: KPI & Loss Forecast', value: 'AI: KPI & Loss Forecast' },

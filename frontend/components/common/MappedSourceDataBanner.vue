@@ -205,14 +205,14 @@ const currentModuleInfo = computed(() => {
       actionLabel: '+ Jalankan AI Anomaly Detection'
     }
   }
-  if (path.includes('/analytics/ai/risk-scoring')) {
+  if (path.includes('/analytics/ai/risk-scoring') || path.includes('/analytics/ai/entity-prediction')) {
     return {
       scope: 'data_analytics',
-      module: 'AI: Risk Scoring Prediction',
-      slug: 'risk_scoring',
-      label: 'AI Risk Scoring (XGBoost)',
-      actionType: 'generic',
-      actionLabel: '+ Jalankan Scoring AI'
+      module: 'AI: Entity Prediction',
+      slug: 'entity_prediction',
+      label: 'AI Entity Prediction (XGBoost)',
+      actionType: 'ai_entity_prediction',
+      actionLabel: '+ Prediksi Entitas AI'
     }
   }
   if (path.includes('/analytics/ai/nlp')) {
@@ -1378,13 +1378,140 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
         riskStore.rawRisks.push(optimisticRisk)
       }
 
+      // Sync updated Risk Profile data directly into AI Entity Prediction training pool
+      try {
+        const { syncEntityPredictionWithRiskProfile } = useAiAnalytics()
+        syncEntityPredictionWithRiskProfile().catch(() => {})
+      } catch (_) {}
+
       toast.success(
         'Data Berhasil Ditambahkan ke Profil Risiko',
         `Risiko dari pipeline '${item.table_name}' (${item.connection_name}) berhasil ditambahkan ke Corporate Risk Profile!`
       )
     }
 
-    // 2. AI Anomaly Detection Execution (applied across ALL tables connected from database)
+    // 2. AI Entity Prediction Execution (sync external DB table with Risk Profile and train AI model)
+    else if (actionType === 'ai_entity_prediction') {
+      const riskStore = useRiskProfileStore()
+      const { syncEntityPredictionWithRiskProfile } = useAiAnalytics()
+
+      // Map external database table to an entity format aligned with Corporate Risk Profile
+      let entityName = `Divisi / Unit ${item.table_name}`
+      let entityType: 'Branch' | 'Department' = 'Department'
+      let riskCategory = 'Operational'
+      let likelihood = 3
+      let impact = 3
+
+      if (item.table_name === 'gl_transactions') {
+        entityName = 'Finance & Accounting'
+        entityType = 'Department'
+        riskCategory = 'Financial'
+        likelihood = 3
+        impact = 4
+      } else if (item.table_name === 'loan_accounts' || item.table_name === 'accounts' || item.table_name === 'customer_accounts') {
+        entityName = 'Kredit Komersial & Cabang Utama'
+        entityType = 'Branch'
+        riskCategory = 'Financial'
+        likelihood = 3
+        impact = 4
+      } else if (item.table_name === 'user_access_audit_logs') {
+        entityName = 'Information Technology & Cyber Security'
+        entityType = 'Department'
+        riskCategory = 'Technology'
+        likelihood = 4
+        impact = 4
+      } else if (item.table_name === 'vendor_invoices') {
+        entityName = 'Procurement & General Affairs'
+        entityType = 'Department'
+        riskCategory = 'Operations'
+        likelihood = 2
+        impact = 3
+      } else if (item.table_name === 'compliance_incident_records') {
+        entityName = 'Unit Kepatuhan Regulasi'
+        entityType = 'Department'
+        riskCategory = 'Compliance'
+        likelihood = 3
+        impact = 5
+      }
+
+      const calculatedRiskLevel = riskStore.getRiskLevel ? riskStore.getRiskLevel(likelihood, impact) : 'MODERATE_HIGH'
+
+      // Ensure this external entity is registered in Corporate Risk Profile store
+      const existingRisk = riskStore.rawRisks?.find(r => r.name?.includes(item.table_name) || r.name?.includes(entityName))
+      if (!existingRisk && riskStore.addRisk) {
+        const totalPop = item.total_rows || getTotalRowCountForTable(item.table_name)
+        const popStr = totalPop.toLocaleString('id-ID')
+        const riskPayload = {
+          name: `Risiko Terintegrasi: ${entityName} (${item.table_name})`,
+          description: `Risiko entitas teridentifikasi dari external database '${item.connection_name}' (tabel ${item.table_name}) dengan populasi ${popStr} rekaman. Diselaraskan untuk prediksi AI.`,
+          category: riskCategory,
+          likelihood,
+          impact,
+          risk_level: calculatedRiskLevel,
+          source: `${item.connection_name} / ${item.table_name}`,
+          status: 'Active'
+        }
+        riskStore.addRisk(riskPayload).catch(() => {
+          if (Array.isArray(riskStore.rawRisks)) {
+            riskStore.rawRisks.push({
+              id: `risk-ext-${Date.now()}`,
+              ...riskPayload,
+              displayId: (riskStore.rawRisks?.length || 0) + 1,
+              created_at: new Date().toISOString()
+            })
+          }
+        })
+      }
+
+      // Prepare payload to train AI model directly from source without CSV
+      const customItems: any[] = [{
+        entity: entityName,
+        entity_type: entityType,
+        risk_category: riskCategory,
+        inherent_likelihood: likelihood,
+        inherent_impact: impact,
+        audit_findings_count: item.sample_records?.length || 2,
+        kpi_below_target_count: 1,
+        kpi_volatility: 0.15,
+        previous_risk_score: likelihood * impact,
+        assessment_month: new Date().getMonth() + 1,
+        current_risk_level: calculatedRiskLevel,
+        source_id: `external_db:${item.connection_name}:${item.table_name}`
+      }]
+
+      // If sample records contain branch/unit fields, add granular entity items
+      if (Array.isArray(item.sample_records)) {
+        item.sample_records.forEach((row: any, idx: number) => {
+          const rowEntity = row.branch_code ? `Cabang ${row.branch_code}` : (row.reporting_unit || row.channel || null)
+          if (rowEntity && !customItems.some(c => c.entity === rowEntity)) {
+            const isBr = String(rowEntity).toLowerCase().includes('cabang') || String(rowEntity).toLowerCase().includes('branch')
+            customItems.push({
+              entity: rowEntity,
+              entity_type: isBr ? 'Branch' : 'Department',
+              risk_category: riskCategory,
+              inherent_likelihood: likelihood,
+              inherent_impact: impact,
+              audit_findings_count: idx + 1,
+              kpi_below_target_count: 0,
+              kpi_volatility: 0.1,
+              previous_risk_score: likelihood * impact,
+              assessment_month: new Date().getMonth() + 1,
+              current_risk_level: calculatedRiskLevel,
+              source_id: `external_db:${item.connection_name}:${item.table_name}`
+            })
+          }
+        })
+      }
+
+      await syncEntityPredictionWithRiskProfile(customItems, true)
+
+      toast.success(
+        'Prediksi Entitas AI Berhasil Disinkronkan',
+        `Data pipeline '${item.table_name}' (${item.connection_name}) berhasil disinkronkan dengan Corporate Risk Profile dan dilatih ulang langsung oleh model AI!`
+      )
+    }
+
+    // 3. AI Anomaly Detection Execution (applied across ALL tables connected from database)
     else if (actionType === 'ai_anomaly') {
       const { isolationState, addCustomAnomalyRecord, addCustomScatterBatch, trainAnomalyWithRules } = useAiAnalytics()
 
