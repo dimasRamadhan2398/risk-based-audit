@@ -32,7 +32,7 @@ func NewPythonAIClient() *PythonAIClient {
 		baseURL: baseURL,
 		apiKey:  apiKey,
 		client: &http.Client{
-			Timeout: 10 * time.Second,
+			Timeout: 30 * time.Second,
 		},
 	}
 }
@@ -69,7 +69,16 @@ type AnomalyRequest struct {
 }
 
 type TextRequest struct {
-	Text string `json:"text"`
+	Text              string `json:"text,omitempty"`
+	DocID             string `json:"docId,omitempty"`
+	Title             string `json:"title,omitempty"`
+	Source            string `json:"source,omitempty"`
+	SourceType        string `json:"sourceType,omitempty"`
+	FileName          string `json:"fileName,omitempty"`
+	FileType          string `json:"fileType,omitempty"`
+	FileContentBase64 string `json:"fileContentBase64,omitempty"`
+	RiskCategory      string `json:"riskCategory,omitempty"`
+	Persist           *bool  `json:"persist,omitempty"`
 }
 
 type PerformanceTrendRequest struct {
@@ -114,17 +123,29 @@ type AnomalyResponse struct {
 }
 
 type IndoBERTResponse struct {
-	DocID          string  `json:"docId"`
-	Title          string  `json:"title"`
-	Source         string  `json:"source"`
-	RiskCategory   string  `json:"risk_category"`
-	Sentiment      string  `json:"sentiment"`
-	Impact         int     `json:"impact"`
-	Likelihood     int     `json:"likelihood"`
-	SeverityScore  int     `json:"severityScore"`
-	Confidence     float64 `json:"confidence"`
-	Excerpt        string  `json:"excerpt"`
-	RiskLevel      string  `json:"risk_level"`
+	DocID                   string  `json:"docId"`
+	Title                   string  `json:"title"`
+	Source                  string  `json:"source"`
+	SourceType              string  `json:"sourceType,omitempty"`
+	FileName                string  `json:"fileName,omitempty"`
+	FileType                string  `json:"fileType,omitempty"`
+	ExtractionMethod        string  `json:"extractionMethod,omitempty"`
+	RiskCategory            string  `json:"risk_category"`
+	AutoCategory            string  `json:"autoCategory,omitempty"`
+	Sentiment               string  `json:"sentiment"`
+	Impact                  int     `json:"impact"`
+	Likelihood              int     `json:"likelihood"`
+	SeverityScore           int     `json:"severityScore"`
+	ControlIndicator        string  `json:"controlIndicator,omitempty"`
+	ControlIndicatorSnake   string  `json:"control_indicator,omitempty"`
+	ExtractedFinding        string  `json:"extractedFinding,omitempty"`
+	ExtractedFindingSnake   string  `json:"extracted_finding,omitempty"`
+	ExtractedRecommendation string  `json:"extractedRecommendation,omitempty"`
+	ExtractedRecSnake       string  `json:"extracted_recommendation,omitempty"`
+	Confidence              float64 `json:"confidence"`
+	Date                    string  `json:"date,omitempty"`
+	Excerpt                 string  `json:"excerpt"`
+	RiskLevel               string  `json:"risk_level"`
 }
 
 type LSTMResponse struct {
@@ -191,6 +212,26 @@ func (c *PythonAIClient) GetTextAnalysisBatch() ([]byte, error) {
 	return c.getJSON("/predict/text-analysis/batch")
 }
 
+func (c *PythonAIClient) GetNLPTaxonomy() ([]byte, error) {
+	return c.getJSON("/taxonomy/nlp")
+}
+
+func (c *PythonAIClient) UpdateNLPTaxonomy(payload map[string]interface{}) ([]byte, error) {
+	return c.postJSON("/taxonomy/nlp", payload)
+}
+
+func (c *PythonAIClient) SyncNLPMultiSources() ([]byte, error) {
+	return c.postJSON("/predict/text-analysis/sync-sources", map[string]string{})
+}
+
+func (c *PythonAIClient) DeleteNLPAnalyzeDocument(docID string) ([]byte, error) {
+	return c.deleteJSON("/predict/text-analysis/document/" + docID)
+}
+
+func (c *PythonAIClient) ResetNLPAnalyzeDocuments() ([]byte, error) {
+	return c.postJSON("/predict/text-analysis/reset", map[string]string{})
+}
+
 func (c *PythonAIClient) PredictPerformanceTrend(reqData PerformanceTrendRequest) (*LSTMResponse, error) {
 	respData, err := c.postJSON("/predict/performance-trend", reqData)
 	if err != nil {
@@ -244,6 +285,9 @@ func (c *PythonAIClient) postJSON(endpoint string, body interface{}) ([]byte, er
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-API-Key", c.apiKey)
+	if internalToken := os.Getenv("INTERNAL_RETRAIN_TOKEN"); internalToken != "" {
+		req.Header.Set("X-Internal-Token", internalToken)
+	}
 	req.Header.Set("Accept", "application/json")
 
 	resp, err := c.client.Do(req)
@@ -255,6 +299,23 @@ func (c *PythonAIClient) postJSON(endpoint string, body interface{}) ([]byte, er
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
+
+	return io.ReadAll(resp.Body)
+}
+
+func (c *PythonAIClient) deleteJSON(endpoint string) ([]byte, error) {
+	req, err := http.NewRequest("DELETE", c.baseURL+endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("X-API-Key", c.apiKey)
+	req.Header.Set("Accept", "application/json")
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
 
 	return io.ReadAll(resp.Body)
 }

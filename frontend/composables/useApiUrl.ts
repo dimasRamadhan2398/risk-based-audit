@@ -13,6 +13,9 @@ const getDynamicApiUrl = (fallbackConfigKey: string, fallbackPath: string) => {
     if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
       return fallbackPath;
     } else {
+      if (fallbackPath.includes('python-ai')) {
+        return 'http://localhost:8000';
+      }
       const port = fallbackPath.includes('analytics') ? '8084' : '8080';
       return `http://localhost:${port}${fallbackPath}`;
     }

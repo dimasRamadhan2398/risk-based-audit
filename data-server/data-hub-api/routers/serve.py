@@ -287,6 +287,25 @@ def get_loan_aging_mart(source_id: Optional[str] = Query(None)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.get("/kpi-series")
+def get_kpi_series_mart(source_id: Optional[str] = Query(None)):
+    """Precomputed and live aggregated KPI Series from gold.mart_kpi_series aligned with Sync Frequency."""
+    where = "WHERE source_id = :sid" if source_id and source_id != "all" else ""
+    params = {"sid": source_id} if source_id and source_id != "all" else {}
+
+    try:
+        with engine.connect() as conn:
+            res = conn.execute(text(f"""
+                SELECT source_id, kpi_name, period, actual_value, target_value, updated_at
+                FROM gold.mart_kpi_series
+                {where}
+                ORDER BY period DESC, kpi_name ASC;
+            """), params)
+            return {"status": "success", "data": [dict(r._mapping) for r in res]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get("/data-quality")
 def get_data_quality_mart(source_id: Optional[str] = Query(None)):
     """Precomputed data quality & source deletion monitoring from gold.mart_data_quality."""
@@ -380,3 +399,101 @@ def get_gold_branches(source_id: Optional[str] = Query(None)):
             return {"status": "success", "data": [dict(r._mapping) for r in result]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ─── 6. AI KPI Training Pool (Outside CSV) ────────────────────────────────────
+@router.get("/ai-training-pool/auditee")
+def get_ai_auditee_training_pool(limit: int = Query(500, le=5000)):
+    """Fetch live Auditee KPI features from gold.ai_auditee_kpi_training_pool for model retraining."""
+    try:
+        with engine.connect() as conn:
+            res = conn.execute(text("""
+                SELECT id, source_id, kpi_name, entity, entity_type, period_date, period_label,
+                       actual_value, target_value, impact, likelihood, risk_level, sync_frequency, updated_at
+                FROM gold.ai_auditee_kpi_training_pool
+                ORDER BY period_date DESC, kpi_name ASC
+                LIMIT :limit;
+            """), {"limit": limit})
+            return {"status": "success", "data": [dict(r._mapping) for r in res]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/ai-training-pool/auditee")
+def upsert_ai_auditee_training_pool(records: List[dict]):
+    """Bulk-upsert live Auditee KPI features into PostgreSQL training pool."""
+    if not records:
+        return {"status": "success", "upserted": 0}
+    try:
+        with engine.begin() as conn:
+            for r in records:
+                conn.execute(text("""
+                    INSERT INTO gold.ai_auditee_kpi_training_pool (
+                        source_id, kpi_name, entity, entity_type, period_date, period_label,
+                        actual_value, target_value, impact, likelihood, risk_level, sync_frequency, updated_at
+                    ) VALUES (
+                        :source_id, :kpi_name, :entity, :entity_type, :period_date::date, :period_label,
+                        :actual_value, :target_value, :impact, :likelihood, :risk_level, :sync_frequency, NOW()
+                    )
+                    ON CONFLICT (kpi_name, period_date, entity)
+                    DO UPDATE SET
+                        actual_value = EXCLUDED.actual_value,
+                        target_value = EXCLUDED.target_value,
+                        impact = EXCLUDED.impact,
+                        likelihood = EXCLUDED.likelihood,
+                        risk_level = EXCLUDED.risk_level,
+                        sync_frequency = EXCLUDED.sync_frequency,
+                        updated_at = NOW();
+                """), r)
+        return {"status": "success", "upserted": len(records)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/ai-training-pool/auditor")
+def get_ai_auditor_training_pool(limit: int = Query(500, le=5000)):
+    """Fetch live Auditor Strategic Plan features from gold.ai_auditor_kpi_training_pool for model retraining."""
+    try:
+        with engine.connect() as conn:
+            res = conn.execute(text("""
+                SELECT id, code, kpi_name, category, strategic_objective, period_date, period_label,
+                       target_value, actual_value, achievement_rate, hib_hig, unit, status, updated_at
+                FROM gold.ai_auditor_kpi_training_pool
+                ORDER BY period_date DESC, code ASC
+                LIMIT :limit;
+            """), {"limit": limit})
+            return {"status": "success", "data": [dict(r._mapping) for r in res]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/ai-training-pool/auditor")
+def upsert_ai_auditor_training_pool(records: List[dict]):
+    """Bulk-upsert live Auditor Strategic Plan features into PostgreSQL training pool."""
+    if not records:
+        return {"status": "success", "upserted": 0}
+    try:
+        with engine.begin() as conn:
+            for r in records:
+                conn.execute(text("""
+                    INSERT INTO gold.ai_auditor_kpi_training_pool (
+                        code, kpi_name, category, strategic_objective, period_date, period_label,
+                        target_value, actual_value, achievement_rate, hib_hig, unit, status, updated_at
+                    ) VALUES (
+                        :code, :kpi_name, :category, :strategic_objective, :period_date::date, :period_label,
+                        :target_value, :actual_value, :achievement_rate, :hib_hig, :unit, :status, NOW()
+                    )
+                    ON CONFLICT (code, period_date)
+                    DO UPDATE SET
+                        kpi_name = EXCLUDED.kpi_name,
+                        category = EXCLUDED.category,
+                        target_value = EXCLUDED.target_value,
+                        actual_value = EXCLUDED.actual_value,
+                        achievement_rate = EXCLUDED.achievement_rate,
+                        status = EXCLUDED.status,
+                        updated_at = NOW();
+                """), r)
+        return {"status": "success", "upserted": len(records)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+

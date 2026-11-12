@@ -190,6 +190,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to create QA report"})
 				return
 			}
+			dispatchMasterDocumentToNLP(report.ID.String(), report.ReportName, report.Result, "Quality Assurance", "Imported Document", "", "", report.FileContent)
 			c.JSON(http.StatusCreated, report)
 		})
 
@@ -312,6 +313,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 				return
 			}
 
+			dispatchMasterDocumentToNLP(report.ID.String(), report.ReportName, report.Result, "Quality Assurance", "Imported Document", "", "", report.FileContent)
 			c.JSON(http.StatusCreated, report)
 		})
 
@@ -474,6 +476,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to create consulting service"})
 				return
 			}
+			dispatchMasterDocumentToNLP(service.ID.String(), service.Title, service.Notes, "Consulting Service", "Imported Document", "", service.Category, service.FileContent)
 			c.JSON(http.StatusCreated, service)
 		})
 
@@ -602,6 +605,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 				return
 			}
 
+			dispatchMasterDocumentToNLP(service.ID.String(), service.Title, service.Notes, "Consulting Service", "Imported Document", "", service.Category, service.FileContent)
 			c.JSON(http.StatusCreated, service)
 		})
 
@@ -1069,6 +1073,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 		// Sync All Sources
 		ds.POST("/sync-all", func(c *gin.Context) {
 			res, err := dhClient.TriggerBatchIngest()
+			triggerExternalDBNLPSync("All Data Sources")
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to trigger sync all: " + err.Error()})
 				return
@@ -1274,13 +1279,15 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			q.Find(&connections)
 
 			type MappedResult struct {
-				ConnectionID   string                   `json:"connection_id"`
-				ConnectionName string                   `json:"connection_name"`
-				TableName      string                   `json:"table_name"`
-				TargetScope    string                   `json:"target_scope"`
-				TargetModule   string                   `json:"target_module"`
-				AuditField     string                   `json:"audit_field"`
-				SampleRecords  []map[string]interface{} `json:"sample_records"`
+				ConnectionID   string                     `json:"connection_id"`
+				ConnectionName string                     `json:"connection_name"`
+				TableName      string                     `json:"table_name"`
+				TargetScope    string                     `json:"target_scope"`
+				TargetModule   string                     `json:"target_module"`
+				AuditField     string                     `json:"audit_field"`
+				SampleRecords  []map[string]interface{}   `json:"sample_records"`
+				AnomalyRules   []string                   `json:"anomaly_rules,omitempty"`
+				CustomRules    []models.CustomAnomalyRule `json:"custom_rules,omitempty"`
 			}
 
 			var results []MappedResult
@@ -1334,6 +1341,8 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 						TargetModule:   m.TargetModule,
 						AuditField:     m.AuditField,
 						SampleRecords:  sampleRows,
+						AnomalyRules:   m.AnomalyRules,
+						CustomRules:    m.CustomRules,
 					})
 				}
 			}

@@ -28,7 +28,7 @@ func SetupRoutes(r *gin.Engine, authMiddleware *middleware.AuthMiddleware) {
 	{
 		api.GET("/report", analyticsController.GetReport)
 		api.GET("/predict", analyticsController.GetPredictiveTrends)
-		
+
 		api.GET("/risk-score", analyticsController.GetRiskScore)
 		api.POST("/risk-score", analyticsController.GetRiskScore)
 		api.GET("/risk-score/batch", analyticsController.GetRiskScoreBatch)
@@ -40,13 +40,18 @@ func SetupRoutes(r *gin.Engine, authMiddleware *middleware.AuthMiddleware) {
 		api.GET("/text-analysis", analyticsController.GetTextAnalysis)
 		api.POST("/text-analysis", analyticsController.GetTextAnalysis)
 		api.GET("/text-analysis/batch", analyticsController.GetTextAnalysisBatch)
+		api.GET("/text-analysis/taxonomy", analyticsController.GetNLPTaxonomy)
+		api.POST("/text-analysis/taxonomy", analyticsController.UpdateNLPTaxonomy)
+		api.POST("/text-analysis/sync-sources", analyticsController.SyncNLPMultiSources)
+		api.DELETE("/text-analysis/document/:docId", analyticsController.DeleteNLPAnalyzeDocument)
+		api.POST("/text-analysis/reset", analyticsController.ResetNLPAnalyzeDocuments)
 
 		api.GET("/performance-trend", analyticsController.GetPerformanceTrend)
 		api.POST("/performance-trend", analyticsController.GetPerformanceTrend)
 		api.GET("/performance-trend/batch", analyticsController.GetPerformanceTrendBatch)
 
 		api.POST("/retrain/auto", analyticsController.TriggerAutoRetrain)
-		
+
 		// CAATT Analytics routes
 		caatt := api.Group("/caatt")
 		{

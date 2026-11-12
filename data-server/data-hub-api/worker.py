@@ -185,6 +185,58 @@ def execute_ingest_job(job: dict):
         "sources": results_summary
     })
 
+def check_and_enqueue_scheduled_sources():
+    """
+    Checks registered sources and enqueues ingestion jobs based on sync_schedule:
+    - 'Real-time (CDC)': interval >= 30 seconds
+    - 'Every 15 mins': interval >= 15 minutes (900s)
+    - 'Hourly': interval >= 1 hour (3600s)
+    - 'Daily': interval >= 24 hours (86400s)
+    - 'Manual Only': never auto-enqueued
+    """
+    try:
+        with engine.connect() as conn:
+            rows = conn.execute(text("""
+                SELECT s.source_id, s.name, s.sync_schedule, s.last_sync_at,
+                       EXTRACT(EPOCH FROM (NOW() - COALESCE(s.last_sync_at, '1970-01-01'::timestamptz))) AS elapsed_seconds
+                FROM bronze.registered_sources s
+                WHERE s.sync_schedule IS NOT NULL AND s.sync_schedule != 'Manual Only';
+            """)).fetchall()
+
+            for r in rows:
+                sched = (r.sync_schedule or "").strip()
+                elapsed = r.elapsed_seconds if r.elapsed_seconds is not None else 999999
+                
+                is_due = False
+                if sched == 'Real-time (CDC)' and elapsed >= 30:
+                    is_due = True
+                elif sched == 'Every 15 mins' and elapsed >= 900:
+                    is_due = True
+                elif sched == 'Hourly' and elapsed >= 3600:
+                    is_due = True
+                elif sched == 'Daily' and elapsed >= 86400:
+                    is_due = True
+
+                if is_due:
+                    active = conn.execute(text("""
+                        SELECT 1 FROM ops.jobs 
+                        WHERE (source_id = :sid OR payload->'source_ids' ? :sid) AND status IN ('queued', 'running')
+                        LIMIT 1;
+                    """), {"sid": r.source_id}).fetchone()
+
+                    if not active:
+                        from jobs.queue import enqueue_job
+                        enqueue_job(
+                            job_type="ingest",
+                            source_id=r.source_id,
+                            source_name=r.name,
+                            payload={"source_ids": [r.source_id], "run_transform": True},
+                            priority=5 if sched == 'Real-time (CDC)' else 10
+                        )
+                        print(f"[Worker:Scheduler] Auto-enqueued ingest job for source '{r.name}' (Schedule: {sched})")
+    except Exception:
+        pass
+
 def main_loop():
     worker_id = f"{socket.gethostname()}_{os.getpid()}"
     print(f"[Worker] Starting Data Hub Worker (ID: {worker_id})...")
@@ -198,8 +250,16 @@ def main_loop():
     hw = get_hardware_profile()
     print(f"[Worker] Active Hardware Profile: {hw['profile']} (Chunk Size: {hw['chunk_size']:,} rows)")
 
+    last_sched_check = 0.0
+
     while RUNNING:
         try:
+            # Check scheduled sources every 10 seconds
+            now = time.time()
+            if now - last_sched_check >= 10.0:
+                check_and_enqueue_scheduled_sources()
+                last_sched_check = now
+
             job = pop_next_job(worker_id)
             if not job:
                 time.sleep(1)

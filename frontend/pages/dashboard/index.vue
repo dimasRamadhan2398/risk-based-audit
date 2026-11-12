@@ -1259,17 +1259,17 @@ const anomalyScatterOptions = computed(() => {
         grid: { color: "rgba(226, 232, 240, 0.6)" },
         ticks: { font: { size: 11 }, maxTicksLimit: 5, callback: (v: any) => config.formatX(Number(v)) },
       },
-      // Y = transaction hour from the data (0-23).
+      // Y = transaction hour from the data (0-24).
       y: {
-        min: 0,
-        max: 23,
+        suggestedMin: 0,
+        suggestedMax: 24,
         title: {
           display: true,
           text: t("analytics.isolation.axisHour"),
           font: { size: 11, weight: "bold" as const },
         },
         grid: { display: false },
-        ticks: { font: { size: 11 }, stepSize: 6 },
+        ticks: { font: { size: 11 }, stepSize: 4 },
       },
     },
   };

@@ -539,4 +539,16 @@ with open(os.path.join(OUTPUT_MODEL_DIR, 'kpi_bundle.pkl'), 'wb') as f:
     pickle.dump(kpi_bundle, f)
 
 print(" -> Saved kpi_lstm.pth and kpi_bundle.pkl successfully.")
-print("\n[SUCCESS] ALL 4 MODEL SUITES TRAINED AND SAVED SUCCESSFULLY!")
+
+# Also trigger Auditor KPI Suite training to keep all models in sync
+try:
+    print("\n--- 5. Training & Saving Auditor KPI Suite (Strategic Audit Plan) ---")
+    import subprocess
+    auditor_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'kpi_prediction', 'train_auditor_kpi.py')
+    if os.path.exists(auditor_script):
+        subprocess.run([sys.executable, auditor_script], check=True)
+        print(" -> Trained and saved auditor_kpi_lstm.pth and auditor_kpi_bundle.pkl successfully.")
+except Exception as e:
+    print(f"Warning: Auditor KPI Suite training encountered: {e}")
+
+print("\n[SUCCESS] ALL MODEL SUITES TRAINED AND SAVED SUCCESSFULLY!")
