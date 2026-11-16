@@ -15,6 +15,7 @@ import (
 
 var (
 	migrateDryRun bool
+	mfaApply      bool
 )
 
 func init() {
@@ -65,7 +66,7 @@ Examples:
   auth migrate up --dry-run # Show what would be migrated
   auth migrate down         # Drop all tables
   auth migrate status       # Show current status
-  auth migrate encrypt-mfa-secrets [--dry-run]  # Encrypt plaintext MFA secrets`,
+  auth migrate encrypt-mfa-secrets [--apply]  # (dry run unless --apply) Encrypt plaintext MFA secrets`,
 	}
 	// migrate encrypt-mfa-secrets - data migration, no schema change, no seeders
 	encryptMFACmd := &cobra.Command{
@@ -77,10 +78,16 @@ opens are re-encrypted with the new key, so the same command finishes a key
 rotation. Runs in one transaction; a second run changes nothing. Does not run
 seeders and does not touch any other table.
 
-Usage: auth migrate encrypt-mfa-secrets [--dry-run]`,
+Safe by default: without --apply it only prints counts (never secrets).
+Every rewritten row is read back, decrypted and compared before commit. The
+tenant is whichever database the DB_* env/config points at (one run per
+tenant); the database name is logged.
+
+Usage: auth migrate encrypt-mfa-secrets [--apply]`,
 		RunE: runMigrateEncryptMFASecrets,
 	}
-	encryptMFACmd.Flags().BoolVar(&migrateDryRun, "dry-run", false, "Count rows that would change without writing")
+	encryptMFACmd.Flags().BoolVar(&mfaApply, "apply", false, "Actually write; without it the command is a dry run")
+	encryptMFACmd.Flags().Bool("dry-run", true, "Count only (default; --apply overrides)")
 
 	migrateCmd.AddCommand(upCmd, downCmd, statusCmd, encryptMFACmd)
 
@@ -205,10 +212,11 @@ func runMigrateEncryptMFASecrets(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	res, err := repositories.EncryptMFASecrets(db, cipher, migrateDryRun)
+	dryRun := !mfaApply
+	res, err := repositories.EncryptMFASecrets(db, cipher, dryRun)
 	fields := []zap.Field{
 		logger.LogField("database", cfg.Database.Name),
-		logger.LogField("dry_run", migrateDryRun),
+		logger.LogField("dry_run", dryRun),
 		logger.LogField("total", res.Total),
 		logger.LogField("empty", res.Empty),
 		logger.LogField("already_encrypted", res.Current),
@@ -221,7 +229,7 @@ func runMigrateEncryptMFASecrets(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	verb := "changed"
-	if migrateDryRun {
+	if dryRun {
 		verb = "would change"
 	}
 	logger.Info(fmt.Sprintf("MFA secret encryption done: %d row(s) %s", res.Changed(), verb), fields...)
