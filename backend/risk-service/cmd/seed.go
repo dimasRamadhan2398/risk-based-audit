@@ -70,7 +70,9 @@ func runSeed(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return nil
+	// Demo only: COSO 2013-tagged RCM rows (decision Q12). Not part of
+	// --catalog-only, `risk up` or serve.
+	return seedDemoRCMCoso(db)
 }
 
 func seedInitialRisks(db *gorm.DB) error {

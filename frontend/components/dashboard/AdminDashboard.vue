@@ -362,31 +362,31 @@
       </div>
     </div>
 
-    <!-- Internal Control Effectiveness Section (COSO 2013) -->
+    <!-- Internal Control Effectiveness Section (RCM control effectiveness criteria) -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Card 1: Yearly Internal Control Effectiveness (2 Cols) -->
       <div class="lg:col-span-2 p-4 sm:p-6 flex flex-col justify-between dashboard-card">
         <div>
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div class="flex items-center gap-2 min-w-0">
-              <span class="text-sm font-semibold tracking-wider text-slate-400 dark:text-slate-400">Pengukuran Tutup Buku Akhir Tahun</span>
+              <span class="text-sm font-semibold tracking-wider text-slate-400 dark:text-slate-400">{{ t('rcm.cards.effectiveness.badge') }}</span>
             </div>
             <div class="flex flex-wrap items-center gap-2">
               <span class="text-sm font-medium text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md border border-transparent dark:border-slate-700">
-                Tahun: {{ rcmStore.selectedYear }} | {{ rcmStore.selectedDepartment }}
+                {{ t('rcm.cards.effectiveness.periodInfo', { year: rcmStore.selectedYear, department: t('rcm.filters.allDepartments') }) }}
               </span>
               <UButton to="/risk-profile/risk-control-matrix" variant="outline" color="neutral" size="sm" class="font-medium">
-                Risk Control Matrix &rarr;
+                {{ t('dashboard.overview.riskControlMatrix') }}
               </UButton>
             </div>
           </div>
-          <h2 class="text-xl font-bold text-slate-900 dark:text-white mt-1">Internal Control Effectiveness</h2>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white mt-1">{{ t('rcm.cards.effectiveness.title') }}</h2>
         </div>
 
         <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-4 border border-slate-100 dark:border-slate-700/60">
           <!-- Big Score % -->
           <div class="flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 pb-3 md:pb-0 md:pr-4">
-            <span class="text-sm text-slate-500 dark:text-slate-400 font-medium">Real Effectiveness Score</span>
+            <span class="text-sm text-slate-500 dark:text-slate-400 font-medium">{{ t('rcm.cards.effectiveness.realScore') }}</span>
             <div class="flex items-baseline gap-2 mt-1">
               <span class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white tabular-nums">
                 {{ rcmStore.internalControlEffectiveness }}%
@@ -402,23 +402,23 @@
           <!-- Synchronized Risk Counts & Interpretation -->
           <div class="md:col-span-2 flex flex-col justify-center space-y-2 min-w-0">
             <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm">
-              <span class="text-slate-600 dark:text-slate-300 font-medium">Inherent Risk (Risiko Prioritas Awal Tahun):</span>
+              <span class="text-slate-600 dark:text-slate-300 font-medium">{{ t('rcm.cards.effectiveness.inherentRiskLabel') }}</span>
               <span class="font-bold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 whitespace-nowrap">
-                {{ rcmStore.totalInherentRisk }} Risiko
+                {{ t('rcm.cards.effectiveness.riskCount', { count: rcmStore.totalInherentRisk }) }}
               </span>
             </div>
             <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm">
-              <span class="text-slate-600 dark:text-slate-300 font-medium">Residual Risk (Sisa Risiko Tutup Buku):</span>
+              <span class="text-slate-600 dark:text-slate-300 font-medium">{{ t(rcmStore.residualIsYearEnd ? 'rcm.cards.effectiveness.residualRiskLabelYearEnd' : 'rcm.cards.effectiveness.residualRiskLabel', { quarter: rcmStore.residualQuarter }) }}</span>
               <span class="font-bold text-red-600 dark:text-red-400 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 whitespace-nowrap">
-                {{ rcmStore.totalResidualRisk }} Risiko
+                {{ t('rcm.cards.effectiveness.riskCount', { count: rcmStore.totalResidualRisk }) }}
               </span>
             </div>
             <UAlert
               :color="(rcmStore.effectivenessRating.alertColor as any) || 'info'"
               variant="subtle"
               icon="i-lucide-info"
-              :title="'Interpretasi Hasil COSO (' + rcmStore.effectivenessRating.rating + '):'"
-              :description="rcmStore.effectivenessRating.interpretation"
+              :title="t('rcm.cards.effectiveness.cosoInterpretation', { rating: effectivenessRatingLabel })"
+              :description="effectivenessInterpretation"
               class="rounded-xl shadow-xs border-none! bg-transparent! border-transparent!"
             />
           </div>
@@ -426,24 +426,24 @@
 
         <div class="mt-3 text-sm text-slate-400 dark:text-slate-400 flex items-center gap-3 sm:gap-4">
           <UIcon name="i-lucide-check-circle-2" class="size-8 sm:size-10 shrink-0 text-emerald-500" />
-          <span>Data Inherent & Residual Risk terintegrasi langsung secara otomatis dari Corporate Risk Profile.</span>
+          <span>{{ t('rcm.cards.effectiveness.syncNote') }}</span>
         </div>
       </div>
 
-      <!-- Card 2: COSO 2013 5 Dimensions Summary (1 Col) -->
+      <!-- Card 2: Control effectiveness criteria summary (1 Col) -->
       <div class="p-4 sm:p-6 flex flex-col justify-between dashboard-card">
         <div>
           <div class="flex items-center justify-between gap-2">
-            <h3 class="text-base font-bold text-slate-900 dark:text-white">Rata-Rata COSO</h3>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">{{ t('rcm.cards.coso.title') }}</h3>
             <span class="text-md font-bold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/60 px-2.5 py-1 rounded-full border border-primary-100 dark:border-primary-800 whitespace-nowrap shrink-0">
-              {{ rcmStore.cosoAverages.totalWeighted }}%
+              {{ rcmStore.controlCriteriaAverages.totalWeighted }}%
             </span>
           </div>
 
           <div class="mt-4 space-y-3">
-            <div v-for="dim in cosoDimensions" :key="dim.key" class="space-y-1">
+            <div v-for="dim in controlCriteria" :key="dim.key" class="space-y-1">
               <div class="flex justify-between text-md">
-                <span class="font-medium text-slate-700 dark:text-slate-300">{{ dim.shortLabel }}</span>
+                <span class="font-medium text-slate-700 dark:text-slate-300">{{ t(`rcm.dimensions.${dim.i18nKey}`) }}</span>
                 <span class="font-bold text-slate-900 dark:text-white">{{ getDimAverage(dim.key) }}%</span>
               </div>
               <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
@@ -457,11 +457,14 @@
         </div>
 
         <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-md text-slate-500 dark:text-slate-400">
-          <span>Total Kontrol Dievaluasi:</span>
-          <span class="font-bold text-slate-900 dark:text-white">{{ rcmStore.filteredRCMList.length }} Item</span>
+          <span>{{ t('rcm.cards.coso.totalControls') }}</span>
+          <span class="font-bold text-slate-900 dark:text-white">{{ t('rcm.cards.coso.itemsCount', { count: rcmStore.filteredRCMList.length }) }}</span>
         </div>
       </div>
     </div>
+
+    <!-- Internal control (COSO 2013): approved assessments per component -->
+    <IcSummarySection />
 
     <!-- Charts Section (Third Row) -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -910,10 +913,11 @@ import { useAuditExecutionStore } from "~/stores/audit-execution";
 import { getProgressValue } from "~/utils/executionSources";
 import { useAuditResultReportStore } from "~/stores/audit-result-report";
 import { useAuthStore } from "~/stores/auth";
-import { useRCMStore, cosoDimensions } from "~/stores/rcm";
+import { useRCMStore, controlCriteria, getEffectivenessKey } from "~/stores/rcm";
 import { RiskLevel } from "~/types/risk";
 import { ATR_SLICE_HEX, atrStatusI18nKey, formatAtrDate, type AtrSliceKey } from "~/utils/actionTakenReport";
 import { UBadge } from "#components";
+import IcSummarySection from "~/components/dashboard/IcSummarySection.vue";
 import OverflowTooltip from "~/components/shared/OverflowTooltip.vue";
 
 ChartJS.register(
@@ -938,14 +942,18 @@ const authStore = useAuthStore();
 const rcmStore = useRCMStore();
 const { isAdmin, canManageAudits } = useRbac();
 
-// ─── Internal Control Effectiveness (COSO 2013) ─────────────
+// ─── Internal control effectiveness (RCM) ─────────────
+const effectivenessKey = computed(() => getEffectivenessKey(rcmStore.internalControlEffectiveness));
+const effectivenessRatingLabel = computed(() => t(`rcm.interpretationTable.ratings.${effectivenessKey.value}`));
+const effectivenessInterpretation = computed(() => t(`rcm.interpretationTable.descriptions.${effectivenessKey.value}`));
+
 const getDimAverage = (dimKey: string) => {
   const map: Record<string, number> = {
-    design_effectiveness: rcmStore.cosoAverages.design,
-    operating_effectiveness: rcmStore.cosoAverages.operating,
-    coverage_completeness: rcmStore.cosoAverages.coverage,
-    timeliness: rcmStore.cosoAverages.timeliness,
-    automation_monitoring: rcmStore.cosoAverages.automation,
+    design_effectiveness: rcmStore.controlCriteriaAverages.design,
+    operating_effectiveness: rcmStore.controlCriteriaAverages.operating,
+    coverage_completeness: rcmStore.controlCriteriaAverages.coverage,
+    timeliness: rcmStore.controlCriteriaAverages.timeliness,
+    automation_monitoring: rcmStore.controlCriteriaAverages.automation,
   };
   return map[dimKey] || 0;
 };

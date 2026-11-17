@@ -1056,6 +1056,7 @@
       "allStatuses": "All Statuses",
       "allProviders": "All Providers",
       "lastSynced": "Last Synced",
+      "nextSync": "Next Sync",
       "test": "Test",
       "syncNow": "Sync Now",
       "syncAll": "Sync All",
@@ -1102,7 +1103,7 @@
       "syncInitToast": "Sync Initialized",
       "syncCompletedToast": "Sync Completed",
       "bannerTitle": "PostgreSQL Data Source Connector:",
-      "bannerDesc": "Pre-configured standard PostgreSQL database connector for rapid 1-click evidence ingestion and real-time CDC.",
+      "bannerDesc": "Pre-configured standard PostgreSQL database connector for rapid 1-click evidence ingestion and scheduled incremental sync.",
       "connCreatedToast": "Connection Created",
       "connUpdatedToast": "Connection Updated",
       "connRemovedToast": "Connection Removed",
@@ -2124,7 +2125,17 @@
         "customerName": "Customer Name",
         "transactionCount": "Transaction Count",
         "violationCount": "Total Violations",
-        "affectedBranches": "Affected Branches"
+        "affectedBranches": "Affected Branches",
+        "sourceLabel": "Analyzed Database",
+        "autoLatestSource": "Auto (Latest Synced Database)",
+        "cbsSimulatorSource": "Core Banking Simulator (cbs_simulator)",
+        "showingDataFrom": "Live Data Source",
+        "refresh": "Refresh",
+        "rerunEngine": "Run CAATT Analysis",
+        "running": "Running...",
+        "manageSources": "Data Sources",
+        "dataHubOfflineTitle": "Data Hub Engine Unreachable",
+        "dataHubOfflineDesc": "Real database metrics cannot be loaded because Data Hub Engine is offline or unreachable. Start Data Hub Engine and click Refresh to inspect your synced databases."
       },
       "duplicateGap": {
         "subtitle": "Find repeated transactions with identical values and detect gaps in document or voucher numbers.",
@@ -2144,19 +2155,110 @@
         "frequency": "Frequency"
       },
       "benford": {
-        "subtitle": "Test first-digit frequencies across banking transactions for signs of data manipulation.",
-        "badge": "Benford Forensic Test",
-        "title": "CAATT: Benford's Law Analysis (First-Digit Frequency Distribution)",
-        "description": "Test first-digit frequencies across banking transactions. Significant deviations may indicate manipulated data or structured transactions below reporting thresholds.",
-        "comparison": "Digit Distribution: Actual vs Benford's Law",
-        "chiSquare": "Chi-Square Deviation by Digit (1–9)",
-        "digit": "Digit",
-        "actualPercent": "% Actual",
-        "benfordPercent": "% Benford",
-        "deviation": "Deviation",
-        "actualFrequency": "Actual Frequency (%)",
-        "benfordCurve": "Benford Curve (%)",
-        "frequencyDistribution": "Frequency Distribution (%)"
+        "subtitle": "Checks whether transaction leading digits follow natural financial patterns or show unusual clusters (like split amounts).",
+        "badge": "First-Digit Pattern Check",
+        "title": "CAATT: Benford's Law Analysis (First-Digit Pattern Check)",
+        "description": "Checks whether the first digit of transaction amounts looks natural. Unusual spikes can point to split transactions or repeated manual entry.",
+        "comparison": "Pattern Chart: Actual vs Natural Curve",
+        "chiSquare": "Leading Digit Summary (1–9)",
+        "digit": "Starting Digit",
+        "actualPercent": "Actual (%)",
+        "benfordPercent": "Expected (%)",
+        "deviation": "Difference vs Normal",
+        "actualFrequency": "Your Transactions (%)",
+        "benfordCurve": "Normal Pattern (%)",
+        "frequencyDistribution": "Share of Transactions (%)",
+        "activeSource": "Active Source",
+        "defaultSource": "Connected Database",
+        "runAnalysis": "Re-run Analysis",
+        "runningAnalysis": "Running Analysis...",
+        "dataHubOfflineTitle": "Data Hub Engine is Offline",
+        "dataHubOfflineDesc": "Cannot connect to Data Hub Engine. Please ensure the Data Hub service is running and your external database is synced.",
+        "noDataTitle": "No Real Transaction Data Analyzed Yet",
+        "noDataDesc": "Connect and sync an external database in Data Source settings, or re-run analysis on already synced data.",
+        "goToDataSource": "Open Data Source Settings",
+        "lowSampleWarning": "Small sample size ({count} transactions). Pattern testing is most reliable with at least 50 transactions.",
+        "normalTitle": "Normal Pattern",
+        "deviatedTitle": "Unusual Pattern Detected",
+        "kpiSampleSize": "Transactions Checked",
+        "kpiTotalChiSquare": "Overall Anomaly Score",
+        "kpiCriticalValue": "Normal Upper Limit",
+        "kpiSignificantDigits": "Digits Needing Review",
+        "formulaTitle": "How the Statistical Check Works",
+        "formulaDesc": "Benford's Law states that leading digit d naturally appears at rate P(d) = log10(1 + 1/d), expected count E_d = N × P(d), and digit anomaly score χ²_d = (O_d − E_d)² / E_d. Digits above 3.841 (or total score above 15.507) exceed normal statistical variation.",
+        "clickDigitHint": "Click any digit row below to inspect its matching real database transactions.",
+        "actualCount": "Actual Count",
+        "expectedCount": "Normal Expected",
+        "countDiff": "Difference",
+        "chiSquareValue": "Score",
+        "chiSquareShare": "Risk Share",
+        "status": "Verdict",
+        "statusAnomaly": "Needs Review",
+        "statusNormal": "Normal",
+        "originTableTitle": "Where Do Unusual Digits Come From? (Branch & Behavior)",
+        "originTableDesc": "Plain-language breakdown showing which branch, transaction type, and red-flag behaviors caused each digit to differ from normal expectations.",
+        "dominantBranch": "Main Branch",
+        "dominantCategory": "Transaction Type",
+        "anomalyIndicators": "Notable Signs",
+        "roundAmounts": "Round Amounts",
+        "afterHours": "After Hours",
+        "flagged": "System Flagged",
+        "totalAmount": "Total Value",
+        "avgAmount": "Average Amount",
+        "findingOrigin": "Plain Explanation",
+        "findingsTableTitle": "Real Database Transactions Behind These Numbers",
+        "findingsTableDesc": "Actual synced transaction records from your database. Click any digit (1–9) to view transactions starting with that number.",
+        "filterByDigit": "Filtered Digit",
+        "allDigits": "All (1–9)",
+        "clearFilter": "Show All",
+        "trxRef": "Transaction Ref",
+        "trxDate": "Date / Time",
+        "branch": "Branch",
+        "category": "Type",
+        "customerName": "Account / Customer",
+        "amount": "Amount",
+        "indicators": "Notable Signs",
+        "noFindingsForFilter": "No real transaction records matched this filter.",
+        "execVerdictTitle": "Plain-Language Summary",
+        "execVerdictNormal": "Transaction starting digits follow natural financial patterns with no sign of repeated manual edits or split amounts.",
+        "execVerdictMinor": "One starting digit appears more often than usual. Review the highlighted branch and transaction types below to verify.",
+        "execVerdictAnomaly": "{count} starting digits deviate strongly from natural expectations. This pattern often points to split transactions (structuring) or repeated manual entries.",
+        "execTopDigit": "Most Unusual Digit",
+        "execHotspot": "Top Contributing Branch",
+        "execRedFlags": "Supporting Warning Signs",
+        "execTotalExposure": "Money Volume in Flagged Digits",
+        "execPassThreshold": "Safe — below normal limit ({threshold})",
+        "execExceedsThreshold": "Unusual — exceeds normal limit ({threshold})",
+        "showMethodology": "Show Statistical Formula (Optional)",
+        "hideMethodology": "Hide Formula",
+        "originMissingWarning": "Expected counts or branch origins are incomplete for this dataset. Rebuild/restart Data Hub & Analytics containers if needed, then click \"Re-run Analysis\".",
+        "searchTransactionsPlaceholder": "Search ref, branch, customer, or type...",
+        "directionOver": "More than expected (+{pct}%)",
+        "directionUnder": "Fewer than expected ({pct}%)",
+        "directionBalanced": "Matches normal",
+        "filteredCountBadge": "{count} shown",
+        "shareOfRisk": "of anomaly",
+        "transactionsCountUnit": "trx",
+        "plainGuideTitle": "Quick Guide: What Are We Checking?",
+        "plainGuideText": "In natural financial data, leading digits do not appear equally. Amounts starting with 1 appear most often (~30%), tapering steadily down to 9 (~4.6%). When one leading digit spikes far above normal, it often happens because transactions were split below approval limits or typed manually.",
+        "plainGuideBarBlue": "Blue = Normal",
+        "plainGuideBarRed": "Red = Unusually high/low",
+        "plainGuideLineOrange": "Orange line = Natural pattern (Benford)",
+        "diffMore": "+{count} more",
+        "diffLess": "-{count} fewer",
+        "diffBalanced": "On target",
+        "noSpecialFlags": "No warning signs",
+        "normalTransaction": "Normal",
+        "shareRiskUnit": "risk share",
+        "avgPrefix": "Avg",
+        "trxUnit": "transactions",
+        "startsWithDigit": "Starts with {digit}",
+        "silverOnlyWarningTitle": "Database Synced ({silver} rows), No Positive Transaction Amounts Found",
+        "silverOnlyWarningDesc": "Records from your external database arrived in Silver zone, but no positive monetary transaction rows were available for leading-digit analysis yet.",
+        "noFindingsSyncHint": "No matching transaction rows found in Gold storage for this source. Make sure your synced tables contain monetary amount columns, then run Sync Now.",
+        "staleSchemaBanner": "Expected counts or origin details returned 0 from backend. Rebuild Data Hub & Analytics containers and click \"Re-run Analysis\".",
+        "branchAndCategory": "Branch & Type",
+        "leadingDigitAndRisk": "Digit & Risk Share"
       },
       "policy": {
         "subtitle": "Automatically test operational data against OJK/BI rules and internal procedures (LPS rates, BMPK, dual control).",
@@ -5268,6 +5370,7 @@
     "auditUniverse": "Audit Universe",
     "auditPriority": "Audit Priority",
     "riskControlMatrix": "Risk Control Matrix",
+    "internalControlAssessment": "Internal Control Assessment (COSO 2013)",
     "auditPlanning": "Audit Planning & Fieldwork",
     "strategicAuditPlan": "Strategic Audit Plan",
     "importStrategicAuditPlan": "Import Strategic Audit Plan",
@@ -5479,7 +5582,7 @@
     },
     "header": {
       "title": "Risk Control Matrix (RCM)",
-      "subtitle": "Internal control effectiveness measurement based on 5 COSO dimensions & integrated risk evaluation.",
+      "subtitle": "Control effectiveness measurement based on five criteria & integrated risk evaluation.",
       "addControlMatrix": "Add Control Matrix"
     },
     "filters": {
@@ -5488,7 +5591,13 @@
       "allBranches": "All Branches",
       "unassignedBranch": "Unassigned",
       "branchLabel": "Branch",
-      "branchesUnavailable": "Branch master data could not be loaded."
+      "branchesUnavailable": "Branch master data could not be loaded.",
+      "departmentLabel": "Department",
+      "componentLabel": "COSO component",
+      "principleLabel": "COSO principle",
+      "allComponents": "All COSO components",
+      "allPrinciples": "All COSO principles",
+      "unassignedDepartment": "Unassigned"
     },
     "cards": {
       "effectiveness": {
@@ -5500,12 +5609,16 @@
         "riskCount": "{count} Risks",
         "residualRiskLabel": "Residual Risk (Current Quarter, {quarter}):",
         "residualRiskLabelYearEnd": "Residual Risk (Year-End, {quarter}):",
-        "cosoInterpretation": "COSO Result Interpretation ({rating}):",
+        "cosoInterpretation": "Result Interpretation ({rating}):",
         "mitigationCoverage": "{covered} of {total} residual risks have a mitigation plan",
-        "syncNote": "Inherent & Residual Risk data is automatically integrated from the Corporate Risk Profile (Q1 vs the current quarter) and its mitigation plans."
+        "syncNote": "Inherent & Residual Risk data is automatically integrated from the Corporate Risk Profile (Q1 vs the current quarter) and its mitigation plans.",
+        "rcmTitle": "Control effectiveness (RCM)",
+        "noData": "No data",
+        "statusLabel": "Status: {rating}",
+        "criteriaNote": "RCM criteria"
       },
       "coso": {
-        "title": "COSO Average",
+        "title": "Control Effectiveness Criteria Average",
         "totalControls": "Total Controls Evaluated:",
         "itemsCount": "{count} Items"
       }
@@ -5551,7 +5664,7 @@
     },
     "table": {
       "title": "Risk Control Matrix List",
-      "subtitle": "Evaluation results of 5 COSO Dimensions (Rating 1 - 5 represents 4% - 20% per dimension)",
+      "subtitle": "Evaluation results of the 5 control effectiveness criteria (Rating 1 - 5 represents 4% - 20% per criterion)",
       "searchPlaceholder": "Search risk / control...",
       "empty": {
         "label": "No Risk Control Matrix Data",
@@ -5568,10 +5681,13 @@
         "automation": "Automation",
         "totalScore": "Total Score",
         "rating": "Effectiveness Rating",
-        "actions": "Actions"
+        "actions": "Actions",
+        "coso": "COSO 2013"
       },
       "cells": {
-        "pic": "PIC:"
+        "pic": "PIC:",
+        "departmentUnlinked": "Not linked to a master department",
+        "cosoNone": "Not mapped"
       },
       "actions": {
         "edit": "Edit Control",
@@ -5585,7 +5701,7 @@
       "steps": {
         "riskProfile": "Corporate Risk Profile",
         "controlMitigation": "Mitigation Plan & Control",
-        "cosoEvaluation": "COSO 5 Dimensions Evaluation"
+        "controlEvaluation": "COSO Mapping & Effectiveness Criteria"
       },
       "previous": "Previous",
       "next": "Next Step",
@@ -5595,7 +5711,7 @@
       "riskSelectLabel": "Select Risk Name (Corporate Risk Profile)",
       "riskSelectPlaceholder": "Select Risk Name...",
       "riskCodeLabel": "Risk Code (Synchronized)",
-      "departmentLabel": "Branch (Synchronized)",
+      "departmentLabel": "Department",
       "riskEventLabel": "Risk Event (Synchronized)",
       "controlSelectLabel": "Select Risk Control ID (Mitigation Plan & Control)",
       "controlSelectPlaceholder": "Select Risk Control ID...",
@@ -5611,17 +5727,34 @@
       "controlOwnerPlaceholder": "Finance Manager",
       "controlDescLabel": "Internal Control Activity Description (Synchronized)",
       "controlDescPlaceholder": "Explain operational control mechanism, review, verification, or systemic execution...",
-      "evaluationTitle": "Evaluation of 5 Internal Control Dimensions (COSO)",
-      "evaluationWeight": "Fixed Weight: 20% Each Dimension (Scale 1 - 5)",
-      "dimensionRequired": "Select a score for this dimension.",
+      "evaluationTitle": "Control Effectiveness Criteria (5 criteria)",
+      "evaluationWeight": "Fixed Weight: 20% Each Criterion (Scale 1 - 5)",
+      "dimensionRequired": "Select a score for this criterion.",
       "totalWeightedScore": "Total Weighted Effectiveness Score:",
       "interpretation": "Interpretation:",
       "cancel": "Cancel",
-      "save": "Save Control Matrix"
+      "save": "Save Control Matrix",
+      "departmentPlaceholder": "Select department...",
+      "departmentRequired": "Select a department.",
+      "departmentLegacyHint": "Currently: \"{name}\" (not linked to a master department)",
+      "departmentsUnavailable": "Department master data could not be loaded; the department cannot be changed now.",
+      "cosoMappingTitle": "COSO 2013 Mapping",
+      "cosoMappingHelp": "Optional. Tag the COSO 2013 principles this control supports. An unmapped control is still valid.",
+      "cosoCatalogueUnavailable": "The COSO 2013 list could not be loaded. Reload the page to map this control.",
+      "cosoComponentLabel": "Primary COSO component",
+      "cosoComponentHelp": "Must be the component of at least one selected principle. Choosing a component narrows the principle list.",
+      "cosoNoComponent": "No primary component",
+      "cosoPrinciplesLabel": "COSO principles",
+      "cosoPrinciplesHelp": "Principles P01 - P17 of COSO 2013.",
+      "cosoPrinciplesPlaceholder": "Select principles...",
+      "cosoErrors": {
+        "componentWithoutPrinciples": "Select at least one principle of this component first.",
+        "componentMismatch": "The primary component must be the component of at least one selected principle."
+      }
     },
     "toasts": {
       "validationWarning": "Please select a risk and fill in the control description.",
-      "dimensionsRequired": "All 5 control dimensions must be scored before saving.",
+      "dimensionsRequired": "All 5 control effectiveness criteria must be scored before saving.",
       "mitigationPlanRequired": "This risk has no mitigation plan yet. Add one in the Risk Mitigation Plan page before continuing.",
       "updateSuccess": "Risk Control Matrix updated successfully",
       "addSuccess": "Risk Control Matrix added successfully",
@@ -5679,7 +5812,10 @@
       "INVALID_ID": "The data reference is invalid. Please reload the page and try again.",
       "VALUE_TOO_LONG": "One of the values exceeds the maximum allowed length.",
       "REFERENCE_NOT_FOUND": "A selected related record no longer exists. Please reload the page and choose again.",
-      "FOREIGN_KEY_VIOLATION": "This data cannot be deleted because it is still used by other records."
+      "FOREIGN_KEY_VIOLATION": "This data cannot be deleted because it is still used by other records.",
+      "SEAT_LIMIT_REACHED": "The user seat limit has been reached. Free a seat by deactivating another user, or use the Viewer role.",
+      "LAST_ADMIN": "The last active administrator cannot be deactivated, deleted or lose the administrator role.",
+      "EMPLOYEE_IN_USE": "This employee is still referenced by other records and cannot be deleted permanently."
     }
   },
   "masterData": {
@@ -5848,23 +5984,60 @@
         "continueReset": "Continue to password reset"
       },
       "createdWithCode": "Employee created! Employee code: {code}",
-      "level": "Level {level}",
       "active": "Active",
       "inactive": "Inactive",
       "resetPassword": "Reset Password",
-      "deleteConfirm": "Are you sure you want to delete employee \"{name}\"?",
+      "statusHelp": "Inactive employees cannot sign in: the login account follows this status.",
+      "softDeleteConfirm": "Deactivate and remove employee \"{name}\"?",
+      "softDeleteConfirmBody": "The employee is removed from the list and their login account is disabled. This can be restored later.",
+      "hardDeleteConfirm": "Permanently delete employee \"{name}\"?",
+      "hardDeleteConfirmBody": "The employee record is deleted for good. This cannot be undone.",
+      "hardDeleteConfirmNote": "To keep the history, use \"Deactivate and remove\" instead.",
+      "deactivateConfirm": "Deactivate employee \"{name}\"?",
+      "deactivateConfirmBody": "Their login account will be disabled as well, so they will not be able to sign in until the employee is reactivated.",
+      "reactivateConfirm": "Reactivate employee \"{name}\"?",
+      "reactivateConfirmBody": "Their login account will be enabled again. If they hold a role other than Viewer, this uses a user seat.",
+      "actions": {
+        "deactivate": "Deactivate",
+        "reactivate": "Reactivate",
+        "softDelete": "Deactivate and remove",
+        "softDeleteHint": "Deactivate and remove (login disabled, can be restored)",
+        "hardDelete": "Delete permanently"
+      },
+      "seats": {
+        "indicator": "User seats: {used} / {limit}",
+        "overLimit": "Over limit",
+        "hint": "A seat is any active user with a role other than Viewer. Viewers are unlimited.",
+        "fullAlertTitle": "User seat limit reached",
+        "fullAlert": "Cannot add more users with this role. The seat limit ({limit}) has been reached, so the role will be set to Viewer automatically.",
+        "downgradedTitle": "Account created as Viewer",
+        "downgradedToast": "The user seat limit has been reached, so the login account {username} was created with the Viewer role.",
+        "downgradedToastNoUsername": "The user seat limit has been reached, so the login account was created with the Viewer role."
+      },
+      "errors": {
+        "seatLimitReactivate": "Seat limit reached ({limit}), so this employee cannot be reactivated. Free a seat by deactivating another user, or change this employee's role to Viewer.",
+        "seatLimitUpdate": "Seat limit reached ({limit}), so this change cannot be saved. Free a seat by deactivating another user, or change this employee's role to Viewer.",
+        "lastAdminDeactivate": "This is the last active administrator and cannot be deactivated. Make another user an administrator first.",
+        "lastAdminUpdate": "This is the last active administrator, so they cannot be deactivated or lose the administrator role. Make another user an administrator first.",
+        "lastAdminDelete": "This is the last active administrator and cannot be deleted. Make another user an administrator first.",
+        "inUse": "This employee cannot be deleted permanently because they are still referenced elsewhere. Use \"Deactivate and remove\" instead.",
+        "usedIn": "Used in: {list}",
+        "statusChangeFailed": "The employee status could not be changed. Please try again."
+      },
       "columns": {
         "code": "Code",
         "fullName": "Full Name",
         "email": "Email",
         "phone": "Phone",
-        "level": "Level",
         "status": "Status"
       },
       "messages": {
         "created": "Employee created successfully!",
         "updated": "Employee updated successfully!",
-        "deleted": "Employee deleted successfully!"
+        "softDeleted": "Employee deactivated and removed. The login account is disabled.",
+        "hardDeleted": "Employee permanently deleted.",
+        "deactivated": "Employee deactivated. The login account is disabled.",
+        "reactivated": "Employee reactivated. The login account is enabled again."
       }
     },
     "location": {
@@ -6370,7 +6543,14 @@
       "apiEndpoint": "Kong API Gateway Endpoint",
       "proxyPort": "Proxy Port: {port}",
       "brandColor": "Primary Brand Color",
-      "brandColorTooltip": "Used for accent highlights in the client custom theme"
+      "brandColorTooltip": "Used for accent highlights in the client custom theme",
+      "icThresholds": "Internal Control Assessment Thresholds",
+      "icThresholdsHint": "Initial tenant settings. ADMIN can change them later in Settings.",
+      "lhaDueDays": "Audit Report (LHA) Due (days)",
+      "lhaDueDaysTooltip": "Days after the engagement letter finish date within which the audit report (LHA) must be issued. Default 30.",
+      "mgmtResponseDueDays": "Management Response Due (days)",
+      "mgmtResponseDueDaysTooltip": "Days within which management must respond to a finding. Default 14.",
+      "dueDaysRange": "Whole number between {min} and {max}"
     },
     "administrator": {
       "info": "The initial administrator account will have Chief Audit Executive (CAE) / Super Admin privileges on the new tenant instance with automated RBAC seeding.",
@@ -6434,6 +6614,8 @@
       "evidenceStorage": "Evidence Storage Provider",
       "chiefAuditExecutive": "Chief Audit Executive",
       "complianceStandard": "Compliance Standard",
+      "icThresholds": "IC Thresholds",
+      "icThresholdsValue": "LHA: {lha} days | Management response: {mgmt} days",
       "onboardingCommand": "Automated Onboarding Command (CLI)",
       "copyCommand": "Copy Command",
       "provisioning": "Provisioning {domain}..."
@@ -6534,5 +6716,443 @@
       "save": "Save Mitigation"
     },
     "deleteConfirm": "Are you sure you want to delete this mitigation plan?"
+  },
+  "coso": {
+    "components": {
+      "CE": "Control Environment",
+      "RA": "Risk Assessment",
+      "CA": "Control Activities",
+      "IC": "Information & Communication",
+      "MA": "Monitoring Activities"
+    },
+    "principles": {
+      "P01": {
+        "title": "Commitment to integrity and ethical values",
+        "description": "The organization demonstrates a commitment to integrity and ethical values."
+      },
+      "P02": {
+        "title": "Board exercises oversight",
+        "description": "The board of directors demonstrates independence from management and exercises oversight of the development and performance of internal control."
+      },
+      "P03": {
+        "title": "Structure, authority and responsibility",
+        "description": "Management establishes, with board oversight, structures, reporting lines and appropriate authorities and responsibilities in the pursuit of objectives."
+      },
+      "P04": {
+        "title": "Commitment to competence",
+        "description": "The organization demonstrates a commitment to attract, develop and retain competent individuals in alignment with objectives."
+      },
+      "P05": {
+        "title": "Enforces accountability",
+        "description": "The organization holds individuals accountable for their internal control responsibilities in the pursuit of objectives."
+      },
+      "P06": {
+        "title": "Specifies suitable objectives",
+        "description": "The organization specifies objectives with sufficient clarity to enable the identification and assessment of risks relating to objectives."
+      },
+      "P07": {
+        "title": "Identifies and analyses risk",
+        "description": "The organization identifies risks to the achievement of its objectives across the entity and analyses risks as a basis for determining how the risks should be managed."
+      },
+      "P08": {
+        "title": "Assesses fraud risk",
+        "description": "The organization considers the potential for fraud in assessing risks to the achievement of objectives."
+      },
+      "P09": {
+        "title": "Identifies and analyses significant change",
+        "description": "The organization identifies and assesses changes that could significantly impact the system of internal control."
+      },
+      "P10": {
+        "title": "Selects and develops control activities",
+        "description": "The organization selects and develops control activities that contribute to the mitigation of risks to acceptable levels."
+      },
+      "P11": {
+        "title": "General controls over technology",
+        "description": "The organization selects and develops general control activities over technology to support the achievement of objectives."
+      },
+      "P12": {
+        "title": "Deploys through policies and procedures",
+        "description": "The organization deploys control activities through policies that establish what is expected and procedures that put policies into action."
+      },
+      "P13": {
+        "title": "Uses relevant information",
+        "description": "The organization obtains or generates and uses relevant, quality information to support the functioning of internal control."
+      },
+      "P14": {
+        "title": "Communicates internally",
+        "description": "The organization internally communicates information, including objectives and responsibilities for internal control, necessary to support the functioning of internal control."
+      },
+      "P15": {
+        "title": "Communicates externally",
+        "description": "The organization communicates with external parties regarding matters affecting the functioning of internal control."
+      },
+      "P16": {
+        "title": "Ongoing and/or separate evaluations",
+        "description": "The organization selects, develops and performs ongoing and/or separate evaluations to ascertain whether the components of internal control are present and functioning."
+      },
+      "P17": {
+        "title": "Evaluates and communicates deficiencies",
+        "description": "The organization evaluates and communicates internal control deficiencies in a timely manner to those parties responsible for taking corrective action."
+      }
+    }
+  },
+  "icAssessment": {
+    "page": {
+      "title": "Internal Control Assessment (COSO 2013)",
+      "description": "Per department and period: are the five COSO 2013 components present and functioning?",
+      "detailTitle": "Internal control assessment"
+    },
+    "filters": {
+      "year": "Year",
+      "quarter": "Period",
+      "annual": "Annual",
+      "quarterN": "Q{n}",
+      "department": "Department",
+      "allDepartments": "All departments",
+      "branch": "Branch",
+      "allBranches": "Department-wide (no branch)",
+      "status": "Status",
+      "allStatuses": "All statuses",
+      "notStarted": "Not started"
+    },
+    "grid": {
+      "department": "Department",
+      "overall": "Overall conclusion",
+      "actions": "Actions",
+      "notStarted": "Not started",
+      "create": "Start assessment",
+      "open": "Open",
+      "rating": "Rating {rating}",
+      "noRating": "No rating",
+      "empty": "No assessments for this period.",
+      "emptyScoped": "There is no approved assessment of your department for this period.",
+      "loadError": "The assessments could not be loaded.",
+      "scopedNote": "You see the approved assessments of your own department only.",
+      "departmentsUnavailable": "The department list could not be loaded; only existing assessments are shown."
+    },
+    "period": {
+      "annual": "Annual {year}",
+      "quarter": "Q{quarter} {year}",
+      "lockedBanner": "This period is locked. Assessments in it cannot be created, changed, submitted or reopened.",
+      "lockedBy": "Locked by {name} on {date}",
+      "lock": "Lock period",
+      "unlock": "Unlock period",
+      "lockTitle": "Lock {period}",
+      "lockDescription": "Locking blocks every change to assessments of this period. Locking a year also locks its quarters.",
+      "lockNote": "Note (optional)",
+      "unlockTitle": "Unlock {period}",
+      "unlockReason": "Reason for unlocking",
+      "locked": "Period locked",
+      "unlocked": "Period unlocked"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "Submitted",
+      "APPROVED": "Approved",
+      "REOPENED": "Reopened"
+    },
+    "componentStatus": {
+      "YES": "Present and functioning",
+      "PARTIAL": "Partially present and functioning",
+      "NO": "Not present and functioning",
+      "NOT_ASSESSED": "Not assessed"
+    },
+    "componentStatusShort": {
+      "YES": "Yes",
+      "PARTIAL": "Partial",
+      "NO": "No",
+      "NOT_ASSESSED": "Not assessed"
+    },
+    "principleStatus": {
+      "NOT_ASSESSED": "Not assessed",
+      "YES": "Present and functioning",
+      "PARTIAL": "Partially",
+      "NO": "Not present / functioning",
+      "NOT_APPLICABLE": "Not applicable"
+    },
+    "severity": {
+      "NONE": "None",
+      "DEFICIENCY": "Deficiency",
+      "SIGNIFICANT": "Significant deficiency",
+      "MAJOR": "Major deficiency"
+    },
+    "conclusion": {
+      "EFFECTIVE": "Effective",
+      "NOT_EFFECTIVE": "Not effective",
+      "REQUIRES_JUDGMENT": "Requires judgment",
+      "INCOMPLETE": "Incomplete",
+      "none": "No conclusion"
+    },
+    "rating": {
+      "1": "1 - Ineffective",
+      "2": "2 - Weak",
+      "3": "3 - Moderately effective",
+      "4": "4 - Effective",
+      "5": "5 - Highly effective"
+    },
+    "evidenceState": {
+      "OK": "Value available",
+      "NO_DATA": "No data",
+      "NOT_APPLICABLE": "Not applicable",
+      "SOURCE_UNAVAILABLE": "Source unavailable"
+    },
+    "signals": {
+      "ce_integrity_pact": "Integrity pact accepted by the department's employees",
+      "ce_unit_accountability": "Department is active and has a person in charge",
+      "ce_audit_charter": "Active audit charter (entity-level)",
+      "ra_quarterly_coverage": "Quarterly risk assessments filled",
+      "ra_above_appetite_mitigated": "Risks above appetite with a mitigation",
+      "ca_rcm_effectiveness": "Mean RCM control effectiveness",
+      "ic_lha_timeliness": "Audit result reports (LHA) issued on time",
+      "ic_management_response": "Management response to findings",
+      "ma_atr_completed_on_time": "Follow-up actions completed on time",
+      "ma_atr_not_overdue": "Open follow-up actions not overdue",
+      "unknown": "Signal {key}"
+    },
+    "detail": {
+      "department": "Department",
+      "branch": "Branch",
+      "departmentWide": "Department-wide",
+      "period": "Period",
+      "version": "Version {version}",
+      "createdBy": "Created by {name}",
+      "submittedBy": "Submitted by {name} on {date}",
+      "approvedBy": "Approved by {name} on {date}",
+      "reopened": "Reopened {count} time(s). Last reason: {reason}",
+      "back": "Back to the list",
+      "notFound": "This assessment does not exist or you may not see it.",
+      "loadError": "The assessment could not be loaded.",
+      "unsaved": "Unsaved changes",
+      "readOnlyApproved": "Approved assessments are read-only. An approver can reopen it.",
+      "readOnlySubmitted": "Submitted: waiting for approval. It can be returned to draft by an approver.",
+      "readOnlyViewer": "You have read-only access to this assessment.",
+      "asOf": "Data as of {date}"
+    },
+    "stepper": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "Submitted",
+      "APPROVED": "Approved"
+    },
+    "tabs": {
+      "assessment": "Assessment",
+      "history": "History"
+    },
+    "actions": {
+      "propose": "Propose scores",
+      "repropose": "Re-propose scores",
+      "save": "Save",
+      "submit": "Submit for approval",
+      "return": "Return to draft",
+      "approve": "Approve",
+      "reopen": "Reopen",
+      "delete": "Delete draft",
+      "evidence": "Evidence",
+      "discard": "Discard changes",
+      "reload": "Reload",
+      "cancel": "Cancel"
+    },
+    "component": {
+      "proposed": "System proposal",
+      "final": "Final assessment",
+      "notProposed": "No proposal yet. Run \"Propose scores\" to collect the evidence.",
+      "insufficientData": "Insufficient data",
+      "insufficientHelp": "Less than half of the signal weight had data, so no score is proposed.",
+      "insufficientReasons": "Signals without a value",
+      "coverage": "Data coverage {pct}",
+      "partialProposal": "Some signals had no value; the score uses the rest.",
+      "finalRating": "Final rating",
+      "finalStatus": "Present and functioning?",
+      "finalSeverity": "Severity",
+      "derived": "From principles",
+      "derivedIncomplete": "Some principles are not assessed yet",
+      "overrideReason": "Override reason",
+      "overrideRequired": "Required because the final rating differs from the proposal (at least {min} characters).",
+      "overrideRequiredNoProposal": "Required because there is no proposal to compare with (at least {min} characters).",
+      "overrideCount": "{count} / {min} characters",
+      "conclusion": "Component conclusion",
+      "select": "Select",
+      "override": "Override"
+    },
+    "principles": {
+      "title": "Principles",
+      "code": "Principle",
+      "status": "Status",
+      "severity": "Severity",
+      "rationale": "Rationale",
+      "rationalePlaceholder": "Explain the rating",
+      "rationaleRequired": "A rationale is required for this status or severity.",
+      "notApplicableRequired": "Not applicable needs a rationale.",
+      "severityNotAllowed": "This severity does not fit the status.",
+      "taggedControls": "{count} tagged controls",
+      "taggedAvg": "mean {pct}",
+      "noTaggedControls": "No tagged controls",
+      "openRcm": "Open in RCM"
+    },
+    "evidence": {
+      "title": "Evidence: {component}",
+      "description": "Values frozen when the proposal ran. Later changes to the source data do not change them.",
+      "run": "Proposal run",
+      "runN": "Run {run}",
+      "latest": "latest",
+      "signal": "Signal",
+      "value": "Value",
+      "ratio": "{num} of {den}",
+      "weight": "Weight {weight}",
+      "state": "State",
+      "scope": "Scope",
+      "collectedAt": "Collected {date}",
+      "principleHint": "Principle {code}",
+      "thresholdsUsed": "Thresholds used",
+      "lhaDueDays": "LHA due within {days} days of the assignment finish date",
+      "mrDueDays": "Management response due within {days} days",
+      "noThresholds": "The thresholds used were not recorded for this run.",
+      "empty": "No evidence for this component in this run.",
+      "openSource": "Open source",
+      "details": "Details",
+      "loadError": "The evidence could not be loaded."
+    },
+    "conclusionSection": {
+      "title": "Overall conclusion",
+      "derived": "Derived from the components",
+      "final": "Final conclusion",
+      "finalPlaceholder": "Select a conclusion",
+      "text": "Conclusion",
+      "textPlaceholder": "Summary of the assessment",
+      "justification": "Justification",
+      "justificationPlaceholder": "Why the final conclusion differs from, or decides, the derived one",
+      "justificationRequired": "Required when the final conclusion differs from the derived one or the derived one requires judgment.",
+      "effectiveNotAllowed": "Effective is not allowed while a component is not present and functioning or there is a major deficiency.",
+      "operateTogether": "Components operate together",
+      "operateTogetherYes": "Confirmed by the approver",
+      "operateTogetherNo": "Not confirmed by the approver",
+      "operateTogetherPending": "Confirmed by the approver at approval"
+    },
+    "drift": {
+      "changed": "Source data changed since approval",
+      "changedHelp": "Re-running the collectors now gives different values. The approved evidence is unchanged.",
+      "unchanged": "Source data unchanged since approval",
+      "unavailable": "The source data check is not available",
+      "check": "Check again",
+      "checkedAt": "Checked {date}",
+      "signal": "{signal}: {from} at approval, {to} now"
+    },
+    "history": {
+      "title": "History",
+      "empty": "No events yet.",
+      "loadError": "The history could not be loaded.",
+      "by": "by {name}",
+      "transition": "{from} to {to}",
+      "reason": "Reason",
+      "changes": "Changes",
+      "action": {
+        "CREATE": "Created",
+        "PROPOSE": "Proposal run",
+        "UPDATE": "Updated",
+        "OVERRIDE": "Override",
+        "SUBMIT": "Submitted",
+        "RETURN": "Returned to draft",
+        "APPROVE": "Approved",
+        "REOPEN": "Reopened",
+        "DELETE": "Deleted",
+        "PERIOD_LOCK": "Period locked",
+        "PERIOD_UNLOCK": "Period unlocked"
+      }
+    },
+    "approve": {
+      "title": "Approve assessment",
+      "description": "{department}, {period}",
+      "lockNotice": "After approval the assessment is read-only. Only a reopen with a reason can change it.",
+      "operateTogether": "Do the five components operate together in an integrated way?",
+      "yes": "Yes",
+      "no": "No",
+      "operateTogetherRequired": "Answer this question to approve.",
+      "falseForcesNotEffective": "Answering No makes the overall conclusion Not effective.",
+      "operateTogetherNote": "Note on the components operating together",
+      "note": "Approval note (optional)",
+      "signature": "Signature (optional)",
+      "addSignature": "Add a signature",
+      "removeSignature": "Remove signature",
+      "confirm": "Approve",
+      "sod": "You submitted this assessment. Another approver must approve it."
+    },
+    "reason": {
+      "returnTitle": "Return to draft",
+      "returnDescription": "The assessors get the assessment back with your reason.",
+      "reopenTitle": "Reopen approved assessment",
+      "reopenDescription": "The approved state stays in the history. The assessment goes back to the assessors.",
+      "label": "Reason",
+      "placeholder": "Write the reason",
+      "required": "A reason is required.",
+      "confirm": "Confirm"
+    },
+    "blockers": {
+      "title": "Before submitting",
+      "noProposal": "Run the proposal at least once.",
+      "principlesNotAssessed": "{count} principle(s) not assessed.",
+      "principleIssues": "{count} principle(s) need a rationale or a different severity.",
+      "component": {
+        "finalMissing": "{component}: final rating, status and severity are required.",
+        "overrideReasonRequired": "{component}: override reason required.",
+        "severityBelowDerived": "{component}: severity may not be lower than the principles give.",
+        "statusYesWhenDerivedNo": "{component}: cannot be present and functioning while a principle is not.",
+        "majorNeedsLowRating": "{component}: a major deficiency needs a rating of 2 or lower.",
+        "yesNeedsHighRating": "{component}: present and functioning needs a rating of 3 or higher."
+      },
+      "conclusion": {
+        "conclusionMissing": "Select the final conclusion.",
+        "effectiveNotAllowed": "Effective is not allowed with a major deficiency or a component that is not present and functioning.",
+        "justificationRequired": "Write the conclusion justification."
+      }
+    },
+    "confirm": {
+      "propose": "Collect the evidence and propose scores now?",
+      "proposeBody": "Final values you entered are kept. A new proposal run is added to the history.",
+      "submit": "Submit this assessment for approval?",
+      "submitBody": "Assessors cannot change it while it waits for approval.",
+      "delete": "Delete this draft assessment?",
+      "discard": "Discard your unsaved changes?",
+      "leave": "Leave this page? Your unsaved changes will be lost.",
+      "leaveConfirm": "Leave page",
+      "saveFirst": "Save your changes first?",
+      "saveFirstBody": "There are unsaved changes. They are saved before the next step."
+    },
+    "toast": {
+      "created": "Assessment started",
+      "saved": "Assessment saved",
+      "proposed": "Scores proposed",
+      "submitted": "Assessment submitted",
+      "returned": "Assessment returned to draft",
+      "approved": "Assessment approved",
+      "reopened": "Assessment reopened",
+      "deleted": "Draft deleted",
+      "nothingChanged": "Nothing to save",
+      "actionFailed": "The action failed",
+      "conflictTitle": "Someone else changed this assessment",
+      "conflictBody": "Reload it to see the latest version. Your unsaved changes will be lost.",
+      "fixFirst": "Fix the highlighted fields first"
+    },
+    "settings": {
+      "title": "Internal control assessment thresholds",
+      "description": "Used when the system proposes COSO component scores for this tenant. Changes apply to new proposals only; earlier proposals keep the values they used.",
+      "lhaDueDays": "LHA due days",
+      "lhaHelp": "An audit result report counts as on time when issued within this many days after the assignment finish date (default 30).",
+      "mrDueDays": "Management response due days",
+      "mrHelp": "A management response counts as on time when entered within this many days (default 14).",
+      "range": "Whole number from {min} to {max}.",
+      "save": "Save thresholds",
+      "saved": "Thresholds saved",
+      "loadFailed": "The thresholds could not be loaded.",
+      "days": "days"
+    },
+    "dashboard": {
+      "title": "Internal control (COSO 2013)",
+      "subtitle": "Approved assessments per COSO component, {period}",
+      "open": "Internal Control Assessment",
+      "loading": "Loading...",
+      "loadError": "The internal control assessment summary could not be loaded.",
+      "empty": "No approved assessment for this period",
+      "emptyLink": "Open the assessments",
+      "departments": "{count} department(s) assessed"
+    }
   }
 }

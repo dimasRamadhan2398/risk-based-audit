@@ -11,6 +11,7 @@ import (
 	"audit-service/pkg/logger"
 	"audit-service/pkg/servicetoken"
 	atrsvc "audit-service/services/action_taken_report"
+	icsvc "audit-service/services/ic_assessment"
 
 	"github.com/spf13/cobra"
 	"gorm.io/gorm"
@@ -201,6 +202,8 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 		&models.AuditeeSurvey{},
 		&models.AuditCompletionSnapshot{},
 	}
+	// COSO 2013 internal control assessment (new tables only)
+	auditModels = append(auditModels, models.ICAssessmentModels()...)
 
 	if migrateDryRun {
 		logger.Info("DRY RUN - Tables that would be created/updated:")
@@ -239,7 +242,37 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 
 	normalizeExecutiveSummaryRiskCounts(db)
 
+	if err := migrateICAssessment(db); err != nil {
+		logger.Fatal("Failed to finish the internal control assessment migration", logger.LogField("error", err))
+		return err
+	}
+
 	logger.Info("Database migration completed successfully!")
+	return nil
+}
+
+// migrateICAssessment runs after AutoMigrate of the ic_* tables: the partial
+// unique scope index (live rows only; IF NOT EXISTS, so a no-op when GORM
+// already created it) and the tenant threshold settings row, inserted once
+// from IC_LHA_DUE_DAYS / IC_MGMT_RESPONSE_DUE_DAYS (else 30 / 14) and never
+// overwritten. Idempotent.
+func migrateICAssessment(db *gorm.DB) error {
+	if err := db.Exec(`CREATE UNIQUE INDEX IF NOT EXISTS uq_ic_assessments_scope ON ic_assessments (department_id, location_key, year, quarter) WHERE deleted_at IS NULL`).Error; err != nil {
+		return fmt.Errorf("create ic_assessments scope index: %w", err)
+	}
+	inserted, warnings, err := icsvc.EnsureSettings(db, nil, time.Now().UTC())
+	for _, w := range warnings {
+		logger.Warn("Internal control assessment settings: " + w)
+	}
+	if err != nil {
+		return fmt.Errorf("insert internal control assessment settings: %w", err)
+	}
+	if inserted {
+		st, _ := icsvc.LoadSettings(db)
+		logger.Info("Internal control assessment settings created",
+			logger.LogField("lha_due_days", st.LHADueDays),
+			logger.LogField("management_response_due_days", st.ManagementResponseDueDays))
+	}
 	return nil
 }
 
@@ -387,6 +420,13 @@ func runMigrateDown(cmd *cobra.Command, args []string) error {
 
 	// Drop tables in reverse order of dependencies
 	tablesToDrop := []string{
+		"ic_assessment_settings",
+		"ic_assessment_periods",
+		"ic_assessment_events",
+		"ic_assessment_evidence",
+		"ic_assessment_principles",
+		"ic_assessment_components",
+		"ic_assessments",
 		"imported_working_papers",
 		"action_taken_report_evidences",
 		"action_taken_reports",
@@ -481,6 +521,13 @@ func runMigrateStatus(cmd *cobra.Command, args []string) error {
 		"work_plan_realizations",
 		"auditee_surveys",
 		"audit_completion_snapshots",
+		"ic_assessments",
+		"ic_assessment_components",
+		"ic_assessment_principles",
+		"ic_assessment_evidence",
+		"ic_assessment_events",
+		"ic_assessment_periods",
+		"ic_assessment_settings",
 	}
 
 	logger.Info(fmt.Sprintf("\nDatabase: %s", cfg.Database.Name))

@@ -47,16 +47,17 @@ def stream_extract_table(
     pk_idx = columns.index(pk_col) if pk_col and pk_col in columns else 0
 
     with get_read_only_client_conn(src) as conn:
-        with conn.cursor(name="auditsphere_stream_cursor") as cur:
-            cur.itersize = chunk_size
-            cur.execute(query, params)
+        with conn.transaction():
+            with conn.cursor(name="auditsphere_stream_cursor") as cur:
+                cur.itersize = chunk_size
+                cur.execute(query, params)
 
-            while True:
-                rows = cur.fetchmany(chunk_size)
-                if not rows:
-                    break
+                while True:
+                    rows = cur.fetchmany(chunk_size)
+                    if not rows:
+                        break
 
-                max_wm = str(rows[-1][wm_idx]) if wm_idx is not None and rows[-1][wm_idx] is not None else None
-                max_pk = str(rows[-1][pk_idx]) if pk_idx is not None and rows[-1][pk_idx] is not None else None
+                    max_wm = str(rows[-1][wm_idx]) if wm_idx is not None and rows[-1][wm_idx] is not None else None
+                    max_pk = str(rows[-1][pk_idx]) if pk_idx is not None and rows[-1][pk_idx] is not None else None
 
-                yield rows, max_wm, max_pk
+                    yield rows, max_wm, max_pk

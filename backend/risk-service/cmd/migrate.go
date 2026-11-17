@@ -87,6 +87,9 @@ func autoMigrate(db *gorm.DB) error {
 		&models.RiskAssessment{},
 		&models.RiskControl{},
 		&models.RiskControlMatrix{},
+		&models.CosoComponent{},
+		&models.CosoPrinciple{},
+		&models.RcmCosoPrinciple{},
 		&models.SOPDocument{},
 		&models.StrategicObjective{},
 		&models.RiskSOPMap{},
@@ -101,6 +104,11 @@ func autoMigrate(db *gorm.DB) error {
 		&models.AuditUniverseYear{},
 		&models.AuditUniverseRiskScore{},
 	); err != nil {
+		return err
+	}
+
+	// COSO 2013 catalogue: reference data, insert-if-missing, never updates.
+	if err := seedCosoCatalogue(db); err != nil {
 		return err
 	}
 
@@ -189,6 +197,9 @@ func backfillAssessmentSnapshots(db *gorm.DB) error {
 
 func dropAllTables(db *gorm.DB) error {
 	return db.Migrator().DropTable(
+		&models.RcmCosoPrinciple{},
+		&models.CosoPrinciple{},
+		&models.CosoComponent{},
 		&models.RiskControlMatrix{},
 		&models.AuditUniverseRiskScore{},
 		&models.AuditUniverseYear{},

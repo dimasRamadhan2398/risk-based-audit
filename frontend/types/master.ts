@@ -82,7 +82,6 @@ export interface Employee {
   company_id: string
   department_id: string
   job_role_id: string
-  level_grade: number
   work_location_id?: string
   residence_address?: string
   residence_city?: string
@@ -103,7 +102,6 @@ export interface EmployeeFormState {
   company_id: string
   department_id: string
   job_role_id: string
-  level_grade: number
   work_location_id?: string
   residence_address?: string
   residence_city?: string
@@ -127,8 +125,6 @@ export interface CreateEmployeeRequest {
   company_id: string
   department_id: string
   job_role_id: string
-  // Optional: the backend defaults level_grade when omitted
-  level_grade?: number
   work_location_id?: string
   residence_address?: string
   residence_city?: string
@@ -149,11 +145,25 @@ export interface EmployeeLoginAccount {
   username: string
   // Only present when status is 'created'; returned once and never stored
   temporary_password?: string
+  // True when the seats were full and the login was created as VIEWER instead
+  seat_downgraded?: boolean
+  requested_roles?: string[]
+  assigned_roles?: string[]
 }
 
 // POST /employees response data: the employee plus its login account result
 export interface CreatedEmployee extends Employee {
   account?: EmployeeLoginAccount
+  // Fallback location; the backend is expected to put it in account
+  seat_downgraded?: boolean
+}
+
+// GET /users/seats (ADMIN only). A seat is an active login with any role but VIEWER.
+export interface UserSeats {
+  limit: number
+  used: number
+  remaining: number
+  over_limit: boolean
 }
 
 // POST /employees/:id/login-account (ADMIN only)
@@ -170,7 +180,6 @@ export interface UpdateEmployeeRequest {
   phone?: string
   department_id?: string
   job_role_id?: string
-  level_grade?: number
   work_location_id?: string
   residence_address?: string
   residence_city?: string

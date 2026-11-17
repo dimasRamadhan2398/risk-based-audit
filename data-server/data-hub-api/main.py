@@ -3,6 +3,7 @@ AuditSphere Data Hub API — Main Application
 FastAPI REST gateway for Data Lake ingest, serve, sync, and pipeline management.
 """
 import os
+import threading
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Depends, HTTPException, Security
@@ -72,6 +73,33 @@ async def lifespan(app: FastAPI):
         print("[DataHub] ✓ CBS Simulator DB connected")
     except Exception as e:
         print(f"[DataHub] ✗ CBS Simulator DB connection failed: {e}")
+
+    # Background warm-up: if registered sources / CBS Simulator have transactions without CAATT results,
+    # compute real CAATT metrics on startup without delaying HTTP readiness.
+    def _bootstrap_caatt_if_empty():
+        try:
+            from services.caatt_engine import run_all_caatt_tests
+            with engine.connect() as conn:
+                missing_sources = [
+                    r[0]
+                    for r in conn.execute(text("""
+                        SELECT DISTINCT t.source_id
+                        FROM gold.fact_transactions t
+                        WHERE NOT EXISTS (
+                            SELECT 1 FROM gold.caatt_benford_results b
+                            WHERE b.source_id = t.source_id
+                              AND b.details IS NOT NULL
+                              AND b.details != '{}'::jsonb
+                        )
+                    """)).fetchall()
+                ]
+            for sid in missing_sources:
+                print(f"[DataHub:Startup] Generating missing CAATT analytics for source '{sid}'...")
+                run_all_caatt_tests(engine, source_id=sid)
+        except Exception as boot_err:
+            print(f"[DataHub:Startup] CAATT bootstrap notice: {boot_err}")
+
+    threading.Thread(target=_bootstrap_caatt_if_empty, daemon=True).start()
 
     yield
     # Shutdown

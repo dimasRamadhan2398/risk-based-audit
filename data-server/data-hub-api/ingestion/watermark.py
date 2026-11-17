@@ -21,7 +21,7 @@ def get_table_watermark(source_id: str, table_name: str) -> Tuple[Optional[str],
 
 def commit_table_watermark(source_id: str, table_name: str, wm_column: str,
                            new_wm_val: Optional[str], new_pk_val: Optional[str],
-                           synced_count: int):
+                           synced_count: int, replace_total: bool = False):
     """Atomically commit watermark checkpoint and update synced record count."""
     with engine.connect() as conn:
         conn.execute(text("""
@@ -35,7 +35,10 @@ def commit_table_watermark(source_id: str, table_name: str, wm_column: str,
                 last_watermark_value = COALESCE(EXCLUDED.last_watermark_value, ops.sync_watermarks.last_watermark_value),
                 last_pk_value = COALESCE(EXCLUDED.last_pk_value, ops.sync_watermarks.last_pk_value),
                 last_sync_records = EXCLUDED.last_sync_records,
-                total_records_synced = ops.sync_watermarks.total_records_synced + EXCLUDED.last_sync_records,
+                total_records_synced = CASE
+                    WHEN :replace_total THEN EXCLUDED.last_sync_records
+                    ELSE ops.sync_watermarks.total_records_synced + EXCLUDED.last_sync_records
+                END,
                 last_sync_at = NOW(),
                 status = 'active';
         """), {
@@ -44,6 +47,7 @@ def commit_table_watermark(source_id: str, table_name: str, wm_column: str,
             "wm_col": wm_column,
             "wm_val": str(new_wm_val) if new_wm_val is not None else None,
             "pk_val": str(new_pk_val) if new_pk_val is not None else None,
-            "count": synced_count
+            "count": synced_count,
+            "replace_total": bool(replace_total)
         })
         conn.commit()

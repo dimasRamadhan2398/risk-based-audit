@@ -41,7 +41,14 @@ func Error(c *gin.Context, statusCode int, code string, message string, details 
 // ErrorWithFields sends an error response including field-level codes.
 // details must never contain raw DB/driver output.
 func ErrorWithFields(c *gin.Context, statusCode int, code string, message string, details string, fields map[string]string) {
-	c.JSON(statusCode, Response{
+	ErrorWithFieldsAndData(c, statusCode, code, message, details, fields, nil)
+}
+
+// ErrorWithFieldsAndData is ErrorWithFields plus machine-readable context in
+// the top-level "data" field (omitted when empty), the same place auth-service
+// puts it.
+func ErrorWithFieldsAndData(c *gin.Context, statusCode int, code string, message string, details string, fields map[string]string, data map[string]any) {
+	resp := Response{
 		Success: false,
 		Code:    code,
 		Error: &ErrorDetail{
@@ -50,7 +57,11 @@ func ErrorWithFields(c *gin.Context, statusCode int, code string, message string
 			Details: details,
 			Fields:  fields,
 		},
-	})
+	}
+	if len(data) > 0 {
+		resp.Data = data
+	}
+	c.JSON(statusCode, resp)
 }
 
 // OK sends a 200 OK response

@@ -252,8 +252,41 @@ func (c *PythonAIClient) GetPerformanceTrendBatch() ([]byte, error) {
 	return c.getJSON("/predict/performance-trend/batch")
 }
 
+// PredictAuditorKPIForecast forwards live Strategic Audit Plan KPI items to the pre-trained Auditor LSTM endpoint.
+func (c *PythonAIClient) PredictAuditorKPIForecast(payload interface{}) ([]byte, error) {
+	return c.postJSON("/predict/auditor-kpi-forecast", payload)
+}
+
 func (c *PythonAIClient) TriggerAutoRetrain() ([]byte, error) {
-	return c.postJSON("/retrain/auto", map[string]string{})
+	return c.TriggerAutoRetrainWithOptions(false, map[string]string{})
+}
+
+// GetRetrainStatus queries Python AI's persistent & in-memory retrain status and hash state.
+func (c *PythonAIClient) GetRetrainStatus(rawQuery string) ([]byte, error) {
+	endpoint := "/retrain/status"
+	if rawQuery != "" {
+		endpoint += "?" + rawQuery
+	}
+	return c.getJSON(endpoint)
+}
+
+// TriggerAutoRetrainWithOptions forwards background or manual-force retrain requests with an appropriate timeout.
+func (c *PythonAIClient) TriggerAutoRetrainWithOptions(force bool, payload interface{}) ([]byte, error) {
+	if payload == nil {
+		payload = map[string]interface{}{}
+	}
+	if force {
+		return c.postJSONWithTimeout("/retrain/auto?force=true&wait=true", payload, 120*time.Second)
+	}
+	return c.postJSON("/retrain/auto", payload)
+}
+
+// TriggerModelRetrain forwards a per-model retrain request (`entity`, `anomaly`, `nlp`, `kpi`, `kpi_auditee`, `kpi_auditor`) to python-ai.
+func (c *PythonAIClient) TriggerModelRetrain(model string, payload interface{}) ([]byte, error) {
+	if payload == nil {
+		payload = map[string]interface{}{}
+	}
+	return c.postJSONWithTimeout("/retrain/model/"+model, payload, 60*time.Second)
 }
 
 func (c *PythonAIClient) getJSON(endpoint string) ([]byte, error) {
@@ -278,6 +311,10 @@ func (c *PythonAIClient) getJSON(endpoint string) ([]byte, error) {
 }
 
 func (c *PythonAIClient) postJSON(endpoint string, body interface{}) ([]byte, error) {
+	return c.postJSONWithTimeout(endpoint, body, 0)
+}
+
+func (c *PythonAIClient) postJSONWithTimeout(endpoint string, body interface{}, timeout time.Duration) ([]byte, error) {
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
@@ -289,12 +326,18 @@ func (c *PythonAIClient) postJSON(endpoint string, body interface{}) ([]byte, er
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-API-Key", c.apiKey)
-	if internalToken := os.Getenv("INTERNAL_RETRAIN_TOKEN"); internalToken != "" {
-		req.Header.Set("X-Internal-Token", internalToken)
+	internalToken := os.Getenv("INTERNAL_RETRAIN_TOKEN")
+	if internalToken == "" {
+		internalToken = "dev-internal-token"
 	}
+	req.Header.Set("X-Internal-Token", internalToken)
 	req.Header.Set("Accept", "application/json")
 
-	resp, err := c.client.Do(req)
+	httpClient := c.client
+	if timeout > 0 {
+		httpClient = &http.Client{Timeout: timeout}
+	}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

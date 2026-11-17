@@ -648,6 +648,10 @@ func (ctl *Controller) UpdateActionPlan(c *gin.Context) {
 		return
 	}
 	updates := map[string]interface{}{"action_plan": plan, "status": models.ATRStatusInProgress}
+	// First non-empty save only; later saves keep the original time
+	if r.ActionPlanSubmittedAt == nil {
+		updates["action_plan_submitted_at"] = gorm.Expr("COALESCE(action_plan_submitted_at, ?)", time.Now().UTC())
+	}
 	if req.Progress != nil {
 		if *req.Progress < 0 || *req.Progress > 100 {
 			invalid(c, "progress must be between 0 and 100")

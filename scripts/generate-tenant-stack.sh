@@ -24,6 +24,11 @@
 #   --kong-port <n>         Pin the Kong proxy host port (default: auto)
 #   --kong-admin-port <n>   Pin the Kong admin host port (default: auto)
 #   --base-domain <fqdn>    Parent domain for the tenant (default: auditsphere.app)
+#   --ic-lha-due-days <n>   Internal control: audit report (LHA) due days, 1-365
+#                           (default: the tenant's current .env value, else 30)
+#   --ic-mgmt-response-due-days <n>
+#                           Internal control: management response due days,
+#                           1-365 (default: current .env value, else 14)
 #   --force                 Overwrite an existing tenant's generated files
 #
 # Example:
@@ -71,6 +76,11 @@ FORCE=false
 FE_PORT=""
 KONG_PORT=""
 KONG_ADMIN_PORT=""
+IC_LHA_DUE_DAYS=""
+IC_MGMT_RESPONSE_DUE_DAYS=""
+
+DEFAULT_IC_LHA_DUE_DAYS=30
+DEFAULT_IC_MGMT_RESPONSE_DUE_DAYS=14
 
 while [ $# -gt 0 ]; do
     case $1 in
@@ -80,6 +90,10 @@ while [ $# -gt 0 ]; do
         --kong-port)        KONG_PORT=${2:?"--kong-port needs a value"}; shift ;;
         --kong-admin-port)  KONG_ADMIN_PORT=${2:?"--kong-admin-port needs a value"}; shift ;;
         --base-domain)      BASE_DOMAIN=${2:?"--base-domain needs a value"}; shift ;;
+        --ic-lha-due-days)  IC_LHA_DUE_DAYS=${2:?"--ic-lha-due-days needs a value"}; shift ;;
+        --ic-lha-due-days=*) IC_LHA_DUE_DAYS=${1#*=} ;;
+        --ic-mgmt-response-due-days) IC_MGMT_RESPONSE_DUE_DAYS=${2:?"--ic-mgmt-response-due-days needs a value"}; shift ;;
+        --ic-mgmt-response-due-days=*) IC_MGMT_RESPONSE_DUE_DAYS=${1#*=} ;;
         *) die "unknown option: $1" ;;
     esac
     shift
@@ -89,6 +103,14 @@ done
 # alias. Restricting it to [a-z0-9] keeps it legal in all three.
 [[ "$SLUG" =~ ^[a-z][a-z0-9]{1,30}$ ]] \
     || die "slug '$SLUG' is invalid — use 2-31 chars, lowercase letters and digits, starting with a letter"
+
+# Internal control thresholds are whole days, 1-365. No leading zeros: bash
+# arithmetic would read "030" as octal.
+valid_due_days() { [[ "$1" =~ ^[1-9][0-9]{0,2}$ ]] && [ "$1" -le 365 ]; }
+[ -z "$IC_LHA_DUE_DAYS" ] || valid_due_days "$IC_LHA_DUE_DAYS" \
+    || die "--ic-lha-due-days must be a whole number of days between 1 and 365 (got '$IC_LHA_DUE_DAYS')"
+[ -z "$IC_MGMT_RESPONSE_DUE_DAYS" ] || valid_due_days "$IC_MGMT_RESPONSE_DUE_DAYS" \
+    || die "--ic-mgmt-response-due-days must be a whole number of days between 1 and 365 (got '$IC_MGMT_RESPONSE_DUE_DAYS')"
 
 [ -d "$TEMPLATE_DIR" ] || die "template directory not found: $TEMPLATE_DIR"
 
@@ -203,6 +225,20 @@ else
 fi
 [ -n "$SIGNATURE_KEY" ] || SIGNATURE_KEY=$(openssl rand -hex 32)
 
+# Internal control thresholds: explicit flag > value already in .env > default.
+# Keeping the .env value makes a plain --force regeneration a no-op for them.
+# audit-service copies these into its settings table at migrate time only when
+# the row is missing, so on an existing tenant a new value here does not change
+# the live setting — ADMIN edits it in the app.
+IC_LHA_DUE_DAYS=${IC_LHA_DUE_DAYS:-$(read_env_value TENANT_IC_LHA_DUE_DAYS)}
+IC_LHA_DUE_DAYS=${IC_LHA_DUE_DAYS:-$DEFAULT_IC_LHA_DUE_DAYS}
+IC_MGMT_RESPONSE_DUE_DAYS=${IC_MGMT_RESPONSE_DUE_DAYS:-$(read_env_value TENANT_IC_MGMT_RESPONSE_DUE_DAYS)}
+IC_MGMT_RESPONSE_DUE_DAYS=${IC_MGMT_RESPONSE_DUE_DAYS:-$DEFAULT_IC_MGMT_RESPONSE_DUE_DAYS}
+valid_due_days "$IC_LHA_DUE_DAYS" \
+    || die "TENANT_IC_LHA_DUE_DAYS in $ENV_FILE is not 1-365 ('$IC_LHA_DUE_DAYS'); fix it or pass --ic-lha-due-days"
+valid_due_days "$IC_MGMT_RESPONSE_DUE_DAYS" \
+    || die "TENANT_IC_MGMT_RESPONSE_DUE_DAYS in $ENV_FILE is not 1-365 ('$IC_MGMT_RESPONSE_DUE_DAYS'); fix it or pass --ic-mgmt-response-due-days"
+
 # SMTP credentials are owned by provision-tenant-email.sh. Carry them over
 # verbatim, otherwise regenerating the stack would silently stop the tenant's
 # email.
@@ -220,6 +256,12 @@ cat > "$ENV_FILE" <<ENVEOF
 # =============================================================================
 TENANT_JWT_SECRET=$JWT_SECRET
 TENANT_SIGNATURE_KEY=$SIGNATURE_KEY
+
+# Internal control assessment thresholds (days). Not secrets. Passed to
+# audit-service as IC_LHA_DUE_DAYS / IC_MGMT_RESPONSE_DUE_DAYS and seeded into
+# its settings table at migrate time if missing; ADMIN edits them in the app.
+TENANT_IC_LHA_DUE_DAYS=$IC_LHA_DUE_DAYS
+TENANT_IC_MGMT_RESPONSE_DUE_DAYS=$IC_MGMT_RESPONSE_DUE_DAYS
 ENVEOF
 [ -n "$SMTP_LINES" ] && printf '%s\n' "$SMTP_LINES" >> "$ENV_FILE"
 chmod 600 "$ENV_FILE"
@@ -303,6 +345,7 @@ cat <<SUMMARY
  Redis DB      : $REDIS_DB
  Storage silo  : $STORAGE_DIR
  Databases     : rb_audit_{auth,audit,master,risk}_$SLUG
+ IC thresholds : LHA $IC_LHA_DUE_DAYS days, management response $IC_MGMT_RESPONSE_DUE_DAYS days
 
  Start it:
    docker compose --project-directory backend/tenants/$SLUG \\

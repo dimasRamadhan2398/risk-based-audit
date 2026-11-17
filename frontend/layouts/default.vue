@@ -6,7 +6,6 @@ import { useAuthStore } from '~/stores/auth'
 import { useI18n } from '~/composables/useI18n'
 import { triggerScrollReset } from '~/utils/scroll'
 import { isViewerBlockedPath, isQaConsultingWritePath } from '~/utils/viewerPolicy'
-import SourceSelectorDropdown from '~/components/common/SourceSelectorDropdown.vue'
 import MappedSourceDataBanner from '~/components/common/MappedSourceDataBanner.vue'
 
 const route = useRoute()
@@ -115,6 +114,11 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
         label: t('navigation.riskControlMatrix'),
         icon: 'i-lucide-grid',
         to: '/risk-profile/risk-control-matrix'
+      },
+      {
+        label: t('navigation.internalControlAssessment'),
+        icon: 'i-lucide-shield-check',
+        to: '/internal-control-assessment'
       },
       {
         label: t('navigation.riskFactors'),
@@ -518,7 +522,7 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
 ]])
 
 const searchQuery = ref('')
-const { isAdmin, canManageAudits, isAuditorView, isViewer, canWriteQaConsulting } = useRbac()
+const { isAdmin, canManageAudits, isAuditorView, isViewer, canWriteQaConsulting, canReadInternalControl } = useRbac()
 
 // Pre-collected set of all explicit menu paths to avoid prefix matching when navigating to a registered menu route
 // A nav item's `to` may be a path string or a route-location object; both must
@@ -609,6 +613,9 @@ const processMenuItem = (item: NavigationMenuItem, q: string): NavigationMenuIte
   if (isViewer.value && typeof item.to === 'string' && isViewerBlockedPath(item.to)) return null
   if (!canWriteQaConsulting.value && typeof item.to === 'string' && isQaConsultingWritePath(item.to)) return null
   if (isViewer.value && item.type === 'trigger' && item.label === t('navigation.masterData')) return null
+
+  // Internal Control Assessment: hidden for roles with no read access (plan 9.1)
+  if (item.to === '/internal-control-assessment' && !canReadInternalControl.value) return null
 
   // Master data permission check
   if (item.to === '/master/employee' && !isAdmin.value && !canManageAudits.value) {
@@ -826,9 +833,6 @@ const userDropdownItems = computed(() => [
             <Logo class="shrink-0" text-class="text-base sm:text-xl" />
           </div>
           <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
-            <!-- Data Source Universal Selector -->
-            <SourceSelectorDropdown />
-
             <!-- Language Switcher Toggle -->
             <div class="flex items-center gap-0.5 sm:gap-1 bg-[var(--bg-surface)] p-0.5 sm:p-1 rounded-xl border border-[var(--border-main)] shadow-xs">
               <button

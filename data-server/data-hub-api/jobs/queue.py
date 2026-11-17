@@ -18,7 +18,7 @@ def enqueue_job(job_type: str, source_id: Optional[str] = None, source_name: Opt
             INSERT INTO ops.jobs 
                 (job_id, job_type, source_id, source_name, priority, status, payload, progress, created_at, updated_at)
             VALUES 
-                (:jid, :jtype, :sid, :sname, :prio, 'queued', :payload::jsonb, '{}'::jsonb, NOW(), NOW());
+                (:jid, :jtype, :sid, :sname, :prio, 'queued', CAST(:payload AS jsonb), '{}'::jsonb, NOW(), NOW());
         """), {
             "jid": job_id,
             "jtype": job_type,
@@ -71,7 +71,7 @@ def update_job_progress(job_id: str, progress: Dict[str, Any]):
     with engine.connect() as conn:
         conn.execute(text("""
             UPDATE ops.jobs
-            SET progress = :prog::jsonb,
+            SET progress = CAST(:prog AS jsonb),
                 heartbeat_at = NOW(),
                 updated_at = NOW()
             WHERE job_id = :jid;
@@ -84,7 +84,7 @@ def complete_job(job_id: str, result_summary: Optional[Dict[str, Any]] = None):
         conn.execute(text("""
             UPDATE ops.jobs
             SET status = 'completed',
-                progress = COALESCE(:res::jsonb, progress),
+                progress = COALESCE(CAST(:res AS jsonb), progress),
                 completed_at = NOW(),
                 updated_at = NOW()
             WHERE job_id = :jid;

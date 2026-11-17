@@ -169,3 +169,8 @@ func TestValidateAvatarDataURLRoundTrip(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+// WithSeatLock runs fn on the fake itself (no transaction, no lock).
+func (f *fakeRepo) WithSeatLock(fn func(repositories.UserRepositoryInterface) error) error {
+	return fn(f)
+}

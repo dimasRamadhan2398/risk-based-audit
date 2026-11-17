@@ -20,6 +20,10 @@ type AppError struct {
 	StatusCode int
 	Err        error
 	Fields     map[string]string
+	// Data is optional machine-readable context sent to the client in the
+	// response "data" field (e.g. seat usage on SEAT_LIMIT_REACHED, the
+	// references on EMPLOYEE_IN_USE). Never put raw DB/driver output here.
+	Data map[string]any
 }
 
 // Error implements the error interface
@@ -76,6 +80,13 @@ func Wrap(code string, message string, statusCode int, err error) *AppError {
 func (e *AppError) WithFields(fields map[string]string) *AppError {
 	cp := *e
 	cp.Fields = fields
+	return &cp
+}
+
+// WithData returns a copy of e carrying data for the response body.
+func (e *AppError) WithData(data map[string]any) *AppError {
+	cp := *e
+	cp.Data = data
 	return &cp
 }
 

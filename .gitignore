@@ -60,3 +60,8 @@ logs/
 
 # Executables
 *.exe
+
+# Postgres CA / client certs mounted read-only into backend containers
+# (docker-compose.prod.yml -> /etc/rb-audit/pg-ca). Only .gitkeep is tracked.
+backend/pg-ca/*
+!backend/pg-ca/.gitkeep

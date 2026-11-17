@@ -171,7 +171,11 @@ func TestViewerEveryRegisteredRoute(t *testing.T) {
 		if wantDenied && c != http.StatusForbidden {
 			t.Errorf("viewer %s %s = %d, want 403", r.Method, r.Path, c)
 		}
-		if !wantDenied && c == http.StatusForbidden {
+		// Reads the handler itself restricts to ADMIN: the 403 comes from the
+		// handler's role check, not from the viewer guard, and denying a
+		// viewer there is the intended outcome.
+		adminOnlyRead := r.Method == "GET" && r.Path == "/api/v1/ic-assessments/settings"
+		if !wantDenied && !adminOnlyRead && c == http.StatusForbidden {
 			t.Errorf("viewer %s %s = 403, but it is a plain read", r.Method, r.Path)
 		}
 	}

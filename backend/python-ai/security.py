@@ -35,7 +35,7 @@ def install_api_key_middleware(app, get_api_key):
 
     @app.middleware("http")
     async def verify_api_key(request: Request, call_next):
-        if request.url.path in PUBLIC_PATHS:
+        if request.method == "OPTIONS" or request.url.path in PUBLIC_PATHS:
             return await call_next(request)
         if not token_matches(request.headers.get(API_KEY_HEADER), get_api_key()):
             return unauthorized()

@@ -16,6 +16,7 @@ import (
 	ctrlExecutiveSummary "audit-service/controllers/executive_summary"
 	ctrlFieldwork "audit-service/controllers/fieldwork"
 	ctrlFindings "audit-service/controllers/findings"
+	ctrlICAssessment "audit-service/controllers/ic_assessment"
 	ctrlStrategicPlan "audit-service/controllers/strategic_plan"
 	ctrlWorkingPaper "audit-service/controllers/working_paper"
 	"audit-service/models"
@@ -508,6 +509,11 @@ func (h *RouteHandler) RegisterRoutes() {
 	// the server (no generic create/update). Role checks live in the
 	// controller (services/action_taken_report.RolePermissions).
 	ctrlATR.NewController(h.db).Register(apiV1.Group("/action-taken-reports"))
+
+	// 19. COSO 2013 internal control component assessment (department / branch,
+	// year / quarter). Role checks, segregation of duties and period locks
+	// live in services/ic_assessment. Kong must route /api/v1/ic-assessments.
+	ctrlICAssessment.NewController(h.db).Register(apiV1.Group("/ic-assessments"))
 
 	// 19. Media routes
 	media := apiV1.Group("/media")

@@ -15,13 +15,111 @@ import { getAnalyticsServiceBaseUrl, getPythonAiBaseUrl, getAuditServiceBaseUrl 
 import { getCanonicalCategory } from '~/composables/useAnomalyScatter'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
 import { useRiskProfileStore } from '~/stores/risk-profile'
+import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import { buildAuditableEntityOptions } from '~/utils/auditableEntityOptions'
+import { isReadableHumanText } from '~/utils/documentTextExtractor'
+import {
+  buildAuditorAggregateTimeSeries,
+  buildAuditorLocalForecastsFromItems,
+  computeAuditeeCustomFingerprint,
+  computeAuditorFingerprint,
+  dedupAndBuildAuditorPayloadItems,
+  type AuditorPayloadItem
+} from '~/utils/auditorKpiSync'
 
 const CUSTOM_ANOMALIES_KEY = 'auditsphere_custom_anomaly_records_v1'
 const CUSTOM_SCATTER_KEY = 'auditsphere_custom_scatter_records_v1'
 const CUSTOM_NLP_DOCS_KEY = 'auditsphere_custom_nlp_docs_v3'
 const CUSTOM_NLP_TAXONOMY_KEY = 'auditsphere_custom_nlp_taxonomy_v2'
 const AUTOMATED_ANOMALY_RULES_KEY = 'auditsphere_automated_anomaly_rules_v1'
+const CUSTOM_ENTITY_PREDICTIONS_KEY = 'auditsphere_custom_entity_predictions_v1'
+const CUSTOM_AUDITEE_KPIS_KEY = 'auditsphere_custom_auditee_kpis_v1'
+
+export const getPersistedCustomEntityPredictions = (): any[] => {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = localStorage.getItem(CUSTOM_ENTITY_PREDICTIONS_KEY)
+    const list = raw ? JSON.parse(raw) : []
+    return Array.isArray(list) ? list : []
+  } catch {
+    return []
+  }
+}
+
+export const savePersistedCustomEntityPredictions = (items: any[]) => {
+  if (typeof window === 'undefined' || !Array.isArray(items)) return
+  try {
+    const existing = getPersistedCustomEntityPredictions()
+    const map = new Map<string, any>()
+    for (const it of items) {
+      if (it?.entity) map.set(`${String(it.entity).toLowerCase()}__${String(it.riskCategory || '').toLowerCase()}`, it)
+    }
+    for (const ex of existing) {
+      const k = `${String(ex?.entity || '').toLowerCase()}__${String(ex?.riskCategory || '').toLowerCase()}`
+      if (ex?.entity && !map.has(k)) map.set(k, ex)
+    }
+    localStorage.setItem(CUSTOM_ENTITY_PREDICTIONS_KEY, JSON.stringify(Array.from(map.values())))
+  } catch (e) {
+    console.warn('Failed to save persisted custom entity predictions', e)
+  }
+}
+
+const mergeEntityPredictions = (baseList: any[], customList: any[]): any[] => {
+  const seen = new Set<string>()
+  const merged: any[] = []
+  for (const item of [...(customList || []), ...(baseList || [])]) {
+    if (!item?.entity) continue
+    const key = `${String(item.entity).trim().toLowerCase()}__${String(item.riskCategory || '').trim().toLowerCase()}`
+    if (!seen.has(key)) {
+      seen.add(key)
+      merged.push(item)
+    }
+  }
+  return merged
+}
+
+export const getPersistedCustomAuditeeKpis = (): any[] => {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = localStorage.getItem(CUSTOM_AUDITEE_KPIS_KEY)
+    const list = raw ? JSON.parse(raw) : []
+    return Array.isArray(list) ? list : []
+  } catch {
+    return []
+  }
+}
+
+export const savePersistedCustomAuditeeKpis = (items: any[]) => {
+  if (typeof window === 'undefined' || !Array.isArray(items)) return
+  try {
+    const existing = getPersistedCustomAuditeeKpis()
+    const map = new Map<string, any>()
+    for (const it of items) {
+      if (it?.kpiName) map.set(`${String(it.code || '').toLowerCase()}__${String(it.kpiName).toLowerCase()}`, it)
+    }
+    for (const ex of existing) {
+      const k = `${String(ex?.code || '').toLowerCase()}__${String(ex?.kpiName || '').toLowerCase()}`
+      if (ex?.kpiName && !map.has(k)) map.set(k, ex)
+    }
+    localStorage.setItem(CUSTOM_AUDITEE_KPIS_KEY, JSON.stringify(Array.from(map.values())))
+  } catch (e) {
+    console.warn('Failed to save persisted custom auditee KPIs', e)
+  }
+}
+
+const mergeAuditeeKpiForecasts = (baseList: any[], customList: any[]): any[] => {
+  const seen = new Set<string>()
+  const merged: any[] = []
+  for (const item of [...(customList || []), ...(baseList || [])]) {
+    if (!item?.kpiName) continue
+    const key = `${String(item.code || '').trim().toLowerCase()}__${String(item.kpiName).trim().toLowerCase()}`
+    if (!seen.has(key)) {
+      seen.add(key)
+      merged.push(item)
+    }
+  }
+  return merged
+}
 
 export const getPersistedAutomatedRules = (): any[] => {
   if (typeof window === 'undefined') return []
@@ -265,8 +363,9 @@ const automatedAnomalyRules = ref<any[]>(initialAutomatedRules)
 const mergedInitialDocs = mergeNlpDocuments(initialNLP.documents, initialCustomDocs)
 const mergedInitialTax = mergeNlpTaxonomy((initialNLP as any).taxonomy || { risk_categories: [], control_indicators: [] }, initialCustomTax)
 
+const initialCustomEntityPredictions = getPersistedCustomEntityPredictions()
 const xgboostState = ref<any>({
-  predictions: [...initialXGB.predictions],
+  predictions: mergeEntityPredictions([...initialXGB.predictions], initialCustomEntityPredictions),
   featureImportance: [...initialXGB.featureImportance],
   modelMetrics: { ...initialXGB.modelMetrics }
 })
@@ -327,30 +426,91 @@ if (initialCustomDocs.length > 0 || initialCustomTax.risk_categories.length > 0 
   recalculateNlpDistributions()
 }
 
+const liveAuditorPayloadItems = ref<AuditorPayloadItem[]>([])
+const customAuditeeVersion = ref(0)
+const checkingRetrainStatus = ref(false)
+const lastRetrainScheduledAt = ref(0)
+const retrainStatus = ref({
+  status: 'idle' as 'idle' | 'running' | 'completed' | 'failed',
+  isRunning: false,
+  trigger: 'none',
+  startedAt: null as string | null,
+  finishedAt: null as string | null,
+  durationSeconds: null as number | null,
+  trainedAuditorHash: '',
+  trainedAuditeePoolHash: '',
+  trainedAuditeeCustomHash: '',
+  trainedAuditorCount: 0,
+  trainedAuditeeCount: 0,
+  hasUntrainedAuditeePoolData: false,
+  modelUpdatedAt: null as string | null,
+  message: '',
+  lastError: null as string | null,
+  statusFetchedOnce: false
+})
+
+const createDefaultModelEntry = (key: string, label: string) => ({
+  key,
+  label,
+  state: 'trained' as 'never_trained' | 'trained' | 'untrained_data' | 'queued' | 'training' | 'failed',
+  has_new_data: false,
+  new_rows: 0,
+  current_rows: 0,
+  trained_rows: 0,
+  trained_at: null as string | null,
+  duration_seconds: null as number | null,
+  samples: 0,
+  tier: 'T1' as string | null,
+  metrics: null as Record<string, any> | null,
+  last_result: 'promoted' as string | null,
+  message: `Model ${label} siap digunakan.`,
+  last_error: null as string | null,
+  progress: null as { phase?: string; batch?: number; total_batches?: number; percent?: number; tier?: string } | null,
+  queue_position: null as number | null,
+  job_id: null as string | null,
+  trigger: null as string | null,
+  waiting_reason: null as string | null,
+  peak_ram_mb: null as number | null,
+  version: 1
+})
+
+const modelStatuses = ref<Record<string, ReturnType<typeof createDefaultModelEntry>>>({
+  entity: createDefaultModelEntry('entity', 'Entity Prediction'),
+  anomaly: createDefaultModelEntry('anomaly', 'Anomaly Detection'),
+  nlp: createDefaultModelEntry('nlp', 'NLP Analysis'),
+  kpi_auditee: createDefaultModelEntry('kpi_auditee', 'KPI Forecast (Auditee)'),
+  kpi_auditor: createDefaultModelEntry('kpi_auditor', 'KPI Forecast (Auditor)')
+})
+const retrainQueue = ref<any[]>([])
+const retrainResource = ref<Record<string, any> | null>(null)
+
+const initialCustomAuditeeKpis = getPersistedCustomAuditeeKpis()
 const timeseriesState = ref<any>({
   historicalKPI: [...initialTS.historicalKPI],
-  kpiForecasts: [...initialTS.kpiForecasts],
+  kpiForecasts: mergeAuditeeKpiForecasts([...initialTS.kpiForecasts], initialCustomAuditeeKpis),
   atRiskDepartments: [...initialTS.atRiskDepartments],
   forecastAccuracy: { ...initialTS.forecastAccuracy },
   auditorForecast: {
-    kpiForecasts: [...initialTS.auditorKPIForecasts],
-    atRiskPillars: [...initialTS.auditorAtRiskPillars],
-    timeSeriesData: [...initialTS.auditorTimeSeries],
-    executiveSummary: 'Dengan kecepatan saat ini, diprediksi audit plan hanya selesai 82.4% di akhir tahun. Diperlukan akselerasi pada pilar Pelaksanaan Audit & PKAT dan Investigasi Khusus.'
+    kpiForecasts: [] as any[],
+    atRiskPillars: [] as any[],
+    timeSeriesData: [] as any[],
+    executiveSummary: 'Memuat proyeksi KPI Auditor dari fitur Strategic Audit Plan dan Internal Audit Performance...'
   },
   auditeeForecast: {
-    kpiForecasts: [...initialTS.kpiForecasts],
+    kpiForecasts: mergeAuditeeKpiForecasts([...initialTS.kpiForecasts], initialCustomAuditeeKpis),
     atRiskDepartments: [...initialTS.atRiskDepartments],
     timeSeriesData: [...initialTS.historicalKPI],
     executiveSummary: 'Diprediksi Cabang Surabaya akan mengalami lonjakan NPL dalam 2 kuartal ke depan akibat kenaikan rasio kredit berisiko. Diperlukan pemantauan kredit macet dan pengetatan threshold Continuous Auditing.'
   }
 })
 
-const CACHE_KEY = 'auditsphere_real_analytics_cache_v13'
+const CACHE_KEY = 'auditsphere_real_analytics_cache_v15'
 
 const clearLegacyAnalyticsCaches = () => {
   if (typeof window === 'undefined') return
   const legacyKeys = [
+    'auditsphere_real_analytics_cache_v14',
+    'auditsphere_real_analytics_cache_v13',
     'auditsphere_real_analytics_cache_v12',
     'auditsphere_real_analytics_cache_v11',
     'auditsphere_real_analytics_cache_v10',
@@ -467,14 +627,18 @@ const loadRealCache = (): boolean => {
     if (parsed.timeseries) {
       timeseriesState.value = {
         ...timeseriesState.value,
-        ...parsed.timeseries
-      }
-      if (!timeseriesState.value.auditorForecast?.kpiForecasts?.length) {
-        timeseriesState.value.auditorForecast = {
-          kpiForecasts: [...initialTS.auditorKPIForecasts],
-          atRiskPillars: [...initialTS.auditorAtRiskPillars],
-          timeSeriesData: [...initialTS.auditorTimeSeries],
-          executiveSummary: 'Dengan kecepatan saat ini, diprediksi audit plan hanya selesai 82.4% di akhir tahun. Diperlukan akselerasi pada pilar Pelaksanaan Audit & PKAT dan Investigasi Khusus.'
+        ...parsed.timeseries,
+        auditorForecast: {
+          kpiForecasts: Array.isArray(parsed.timeseries.auditorForecast?.kpiForecasts)
+            ? parsed.timeseries.auditorForecast.kpiForecasts
+            : [],
+          atRiskPillars: Array.isArray(parsed.timeseries.auditorForecast?.atRiskPillars)
+            ? parsed.timeseries.auditorForecast.atRiskPillars
+            : [],
+          timeSeriesData: Array.isArray(parsed.timeseries.auditorForecast?.timeSeriesData)
+            ? parsed.timeseries.auditorForecast.timeSeriesData
+            : [],
+          executiveSummary: parsed.timeseries.auditorForecast?.executiveSummary || ''
         }
       }
     }
@@ -508,8 +672,11 @@ export const useAiAnalytics = () => {
       else if (endpoint === '/text-analysis/batch') pyEndpoint = '/predict/text-analysis/batch'
       else if (endpoint === '/text-analysis/taxonomy') pyEndpoint = '/taxonomy/nlp'
       else if (endpoint === '/text-analysis/sync-sources') pyEndpoint = '/predict/text-analysis/sync-sources'
-      else if (endpoint === '/performance-trend/batch') pyEndpoint = '/predict/performance-trend/batch'
-      else if (endpoint === '/retrain/auto') pyEndpoint = '/retrain/auto'
+      else if (endpoint.startsWith('/performance-trend/batch')) pyEndpoint = '/predict/performance-trend/batch'
+      else if (endpoint === '/performance-trend/auditor-forecast') pyEndpoint = '/predict/auditor-kpi-forecast'
+      else if (endpoint.startsWith('/retrain/status')) pyEndpoint = endpoint
+      else if (endpoint.startsWith('/retrain/auto')) pyEndpoint = endpoint
+      else if (endpoint.startsWith('/retrain/model/')) pyEndpoint = endpoint
 
       try {
         const pyOptions = {
@@ -650,20 +817,189 @@ export const useAiAnalytics = () => {
     return 'text-gray-400'
   }
 
-  const fetchAiAnalytics = async (force = false) => {
-    if (hasFetchedOnce.value && !force && timeseriesState.value.auditorForecast?.kpiForecasts?.length > 0) return
+  const currentAuditorHash = computed(() => computeAuditorFingerprint(liveAuditorPayloadItems.value))
+  const currentAuditeeCustomHash = computed(() => {
+    void customAuditeeVersion.value
+    return computeAuditeeCustomFingerprint(getPersistedCustomAuditeeKpis())
+  })
+
+  const hasUntrainedAuditorData = computed(() => {
+    if (!retrainStatus.value.statusFetchedOnce) return false
+    if (liveAuditorPayloadItems.value.length === 0) return false
+    return Boolean(currentAuditorHash.value && currentAuditorHash.value !== retrainStatus.value.trainedAuditorHash)
+  })
+
+  const hasUntrainedAuditeeCustomData = computed(() => {
+    if (!retrainStatus.value.statusFetchedOnce) return false
+    return Boolean(currentAuditeeCustomHash.value && currentAuditeeCustomHash.value !== retrainStatus.value.trainedAuditeeCustomHash)
+  })
+
+  const hasUntrainedAuditeeData = computed(() =>
+    Boolean(retrainStatus.value.hasUntrainedAuditeePoolData || hasUntrainedAuditeeCustomData.value)
+  )
+
+  const hasUntrainedNewData = computed(() =>
+    Boolean(hasUntrainedAuditorData.value || hasUntrainedAuditeeData.value)
+  )
+
+  const untrainedDataReasons = computed<string[]>(() => {
+    const reasons: string[] = []
+    if (hasUntrainedAuditorData.value) {
+      reasons.push(`KPI Auditor (${liveAuditorPayloadItems.value.length} indikator Strategic Audit Plan / Performance)`)
+    }
+    if (hasUntrainedAuditeeCustomData.value) {
+      reasons.push(`KPI Auditee External DB (${getPersistedCustomAuditeeKpis().length} indikator)`)
+    }
+    if (retrainStatus.value.hasUntrainedAuditeePoolData) {
+      reasons.push('KPI Auditee Zona Gold / Datalake')
+    }
+    return reasons
+  })
+
+  const canManualRetrain = computed(() =>
+    retrainStatus.value.statusFetchedOnce && !retrainStatus.value.isRunning && hasUntrainedNewData.value
+  )
+
+  const applyRetrainPayload = (raw: any) => {
+    const d = raw?.data || raw
+    if (!d || typeof d !== 'object') return
+    const st = String(d.status || retrainStatus.value.status || 'idle')
+    const running = typeof d.is_running === 'boolean'
+      ? d.is_running
+      : (st === 'running' || st === 'scheduled' || st === 'already_running')
+
+    retrainStatus.value = {
+      status: running ? 'running' : (st === 'failed' ? 'failed' : (st === 'completed' ? 'completed' : retrainStatus.value.status)),
+      isRunning: running,
+      trigger: d.trigger || retrainStatus.value.trigger,
+      startedAt: d.started_at ?? retrainStatus.value.startedAt,
+      finishedAt: d.finished_at ?? retrainStatus.value.finishedAt,
+      durationSeconds: d.duration_seconds !== undefined ? Number(d.duration_seconds) : retrainStatus.value.durationSeconds,
+      trainedAuditorHash: d.trained_auditor_hash !== undefined ? String(d.trained_auditor_hash || '') : retrainStatus.value.trainedAuditorHash,
+      trainedAuditeePoolHash: d.trained_auditee_pool_hash !== undefined ? String(d.trained_auditee_pool_hash || '') : retrainStatus.value.trainedAuditeePoolHash,
+      trainedAuditeeCustomHash: d.trained_auditee_custom_hash !== undefined ? String(d.trained_auditee_custom_hash || '') : retrainStatus.value.trainedAuditeeCustomHash,
+      trainedAuditorCount: d.trained_auditor_count !== undefined ? Number(d.trained_auditor_count || 0) : retrainStatus.value.trainedAuditorCount,
+      trainedAuditeeCount: d.trained_auditee_count !== undefined ? Number(d.trained_auditee_count || 0) : retrainStatus.value.trainedAuditeeCount,
+      hasUntrainedAuditeePoolData: d.has_untrained_auditee_pool_data !== undefined
+        ? Boolean(d.has_untrained_auditee_pool_data)
+        : (running ? retrainStatus.value.hasUntrainedAuditeePoolData : false),
+      modelUpdatedAt: d.model_updated_at ?? retrainStatus.value.modelUpdatedAt,
+      message: d.message ?? retrainStatus.value.message,
+      lastError: d.last_error ?? null,
+      statusFetchedOnce: true
+    }
+
+    if (d.models && typeof d.models === 'object') {
+      const updated = { ...modelStatuses.value }
+      for (const [mk, mv] of Object.entries(d.models)) {
+        if (mv && typeof mv === 'object') {
+          updated[mk] = {
+            ...(updated[mk] || createDefaultModelEntry(mk, mk)),
+            ...(mv as any)
+          }
+        }
+      }
+      modelStatuses.value = updated
+    }
+    if (Array.isArray(d.queue)) {
+      retrainQueue.value = d.queue
+    }
+    if (d.resource && typeof d.resource === 'object') {
+      retrainResource.value = d.resource
+    }
+  }
+
+  const retrainModel = async (
+    modelKey: 'entity' | 'anomaly' | 'nlp' | 'kpi' | 'kpi_auditee' | 'kpi_auditor',
+    options: { force?: boolean; wait?: boolean; trigger?: string } = {}
+  ) => {
+    const customAuditee = getPersistedCustomAuditeeKpis()
+    const isKpi = modelKey === 'kpi' || modelKey === 'kpi_auditee' || modelKey === 'kpi_auditor'
+    const payload: Record<string, any> = {
+      force: options.force ?? true,
+      wait: options.wait ?? false,
+      trigger: options.trigger || `manual_${modelKey}`
+    }
+    if (isKpi) {
+      payload.auditor_items = liveAuditorPayloadItems.value
+      payload.auditee_items = customAuditee
+    }
+    const qs = new URLSearchParams()
+    if (payload.force) qs.set('force', 'true')
+    if (payload.wait) qs.set('wait', 'true')
+    const res: any = await safeApiFetch(`/retrain/model/${modelKey}?${qs.toString()}`, {
+      method: 'POST',
+      body: payload
+    })
+    const d = res?.data || res
+    if (d) {
+      applyRetrainPayload(d)
+    }
+    await fetchRetrainStatus().catch(() => null)
+    return d
+  }
+
+  const fetchRetrainStatus = async () => {
+    checkingRetrainStatus.value = true
+    try {
+      const qs = new URLSearchParams()
+      if (currentAuditorHash.value) qs.set('auditor_hash', currentAuditorHash.value)
+      if (currentAuditeeCustomHash.value) qs.set('auditee_custom_hash', currentAuditeeCustomHash.value)
+      qs.set('_ts', String(Date.now()))
+      const res: any = await safeApiFetch(`/retrain/status?${qs.toString()}`)
+      if (res) {
+        applyRetrainPayload(res)
+        return retrainStatus.value
+      }
+      retrainStatus.value.statusFetchedOnce = false
+      // Preserve recently scheduled background run flag within 15s to avoid race conditions during startup
+      if (!(retrainStatus.value.isRunning && Date.now() - lastRetrainScheduledAt.value < 15000)) {
+        retrainStatus.value.isRunning = false
+      }
+      return null
+    } catch {
+      retrainStatus.value.statusFetchedOnce = false
+      if (!(retrainStatus.value.isRunning && Date.now() - lastRetrainScheduledAt.value < 15000)) {
+        retrainStatus.value.isRunning = false
+      }
+      return null
+    } finally {
+      checkingRetrainStatus.value = false
+    }
+  }
+
+  const fetchAiAnalytics = async (force = false, options: { skipAutoRetrain?: boolean } = {}) => {
+    if (hasFetchedOnce.value && !force) return
 
     try {
       loading.value = true
 
-      // Silent background auto-retrain trigger
-      safeApiFetch('/retrain/auto', { method: 'POST' }).catch(() => { })
+      // Silent background auto-retrain trigger (unless skipped right after manual force sync)
+      if (!options.skipAutoRetrain) {
+        safeApiFetch('/retrain/auto', { method: 'POST' })
+          .then((res: any) => {
+            const d = res?.data || res
+            if (d?.status === 'scheduled' || d?.status === 'already_running' || d?.is_running === true) {
+              lastRetrainScheduledAt.value = Date.now()
+              retrainStatus.value = {
+                ...retrainStatus.value,
+                status: 'running',
+                isRunning: true,
+                trigger: d.trigger || 'auto_background',
+                startedAt: d.started_at || retrainStatus.value.startedAt || new Date().toISOString(),
+                message: d.message || 'Model AI sedang dilatih secara otomatis di belakang layar.'
+              }
+            }
+          })
+          .catch(() => { })
+      }
 
+      const perfEndpoint = force ? `/performance-trend/batch?_ts=${Date.now()}` : '/performance-trend/batch'
       const [resRiskBatch, resAnomalyBatch, resTextBatch, resPerfBatch]: any[] = await Promise.all([
         safeApiFetch('/risk-score/batch'),
         safeApiFetch('/anomaly/batch'),
         safeApiFetch('/text-analysis/batch'),
-        safeApiFetch('/performance-trend/batch')
+        safeApiFetch(perfEndpoint)
       ])
 
       const hasRealData = !!(resRiskBatch || resAnomalyBatch || resTextBatch || resPerfBatch)
@@ -679,29 +1015,32 @@ export const useAiAnalytics = () => {
             if (!xgboostState.value.predictions || xgboostState.value.predictions.length <= bData.predictions.length) {
               const now = new Date()
               const cy = now.getFullYear()
-              xgboostState.value.predictions = bData.predictions
-                .filter((p: any) => p.entity && !String(p.entity).toLowerCase().includes('legal & compliance') && p.risk_category !== 'Legal')
-                .map((p: any) => {
-                  const isBr = ['cabang', 'kcp', 'regional', 'kc', 'outlet', 'branch'].some(w => String(p.entity).toLowerCase().includes(w))
-                  const typ = (p.type && p.type !== 'Department') ? p.type : (isBr ? 'Branch' : 'Auditable Entity')
-                  const defTimeline = `FY ${cy}`
-                  return {
-                    entity: p.entity || 'Unknown Entity',
-                    type: typ,
-                    riskCategory: p.risk_category || p.riskCategory || 'Financial',
-                    targetTimeline: p.target_timeline && !p.target_timeline.startsWith('Q') ? p.target_timeline : (p.targetTimeline && !p.targetTimeline.startsWith('Q') ? p.targetTimeline : defTimeline),
-                    currentLikelihood: p.current_likelihood ?? p.actual_likelihood ?? p.inherent_likelihood ?? p.currentLikelihood ?? 3,
-                    currentImpact: p.current_impact ?? p.actual_impact ?? p.inherent_impact ?? p.currentImpact ?? 3,
-                    predictedLikelihood: p.predicted_likelihood ?? p.predictedLikelihood ?? 3,
-                    predictedImpact: p.predicted_impact ?? p.predictedImpact ?? 3,
-                    predictedScore: p.predicted_score ?? p.predictedScore ?? 9,
-                    actualScore: p.actual_score ?? p.actualScore ?? 9,
-                    delta: p.delta ?? 0,
-                    trend: p.trend || 'stable',
-                    predictedRiskLevel: p.risk_level || p.predictedRiskLevel || 'MODERATE_HIGH',
-                    actualRiskLevel: p.actual_risk_level || p.actualRiskLevel || 'MODERATE_HIGH'
-                  }
-                })
+              xgboostState.value.predictions = mergeEntityPredictions(
+                bData.predictions
+                  .filter((p: any) => p.entity && !String(p.entity).toLowerCase().includes('legal & compliance') && p.risk_category !== 'Legal')
+                  .map((p: any) => {
+                    const isBr = ['cabang', 'kcp', 'regional', 'kc', 'outlet', 'branch'].some(w => String(p.entity).toLowerCase().includes(w))
+                    const typ = (p.type && p.type !== 'Department') ? p.type : (isBr ? 'Branch' : 'Auditable Entity')
+                    const defTimeline = `FY ${cy}`
+                    return {
+                      entity: p.entity || 'Unknown Entity',
+                      type: typ,
+                      riskCategory: p.risk_category || p.riskCategory || 'Financial',
+                      targetTimeline: p.target_timeline && !p.target_timeline.startsWith('Q') ? p.target_timeline : (p.targetTimeline && !p.targetTimeline.startsWith('Q') ? p.targetTimeline : defTimeline),
+                      currentLikelihood: p.current_likelihood ?? p.actual_likelihood ?? p.inherent_likelihood ?? p.currentLikelihood ?? 3,
+                      currentImpact: p.current_impact ?? p.actual_impact ?? p.inherent_impact ?? p.currentImpact ?? 3,
+                      predictedLikelihood: p.predicted_likelihood ?? p.predictedLikelihood ?? 3,
+                      predictedImpact: p.predicted_impact ?? p.predictedImpact ?? 3,
+                      predictedScore: p.predicted_score ?? p.predictedScore ?? 9,
+                      actualScore: p.actual_score ?? p.actualScore ?? 9,
+                      delta: p.delta ?? 0,
+                      trend: p.trend || 'stable',
+                      predictedRiskLevel: p.risk_level || p.predictedRiskLevel || 'MODERATE_HIGH',
+                      actualRiskLevel: p.actual_risk_level || p.actualRiskLevel || 'MODERATE_HIGH'
+                    }
+                  }),
+                getPersistedCustomEntityPredictions()
+              )
             }
           }
         }
@@ -787,7 +1126,7 @@ export const useAiAnalytics = () => {
         if (resPerfBatch?.data || resPerfBatch?.kpi_forecasts || resPerfBatch?.auditor_forecast) {
           const bData = resPerfBatch.data || resPerfBatch
 
-          // Auditee perspective (Gold Zone / CAATT)
+          // Auditee perspective (Gold Zone / CAATT + External DB Mapped KPIs)
           const auditeeSource = bData.auditee_forecast || bData
           if (auditeeSource.kpi_forecasts && auditeeSource.kpi_forecasts.length > 0) {
             const mappedAuditee = auditeeSource.kpi_forecasts.map((f: any) => ({
@@ -813,15 +1152,28 @@ export const useAiAnalytics = () => {
               forecast: f.forecast || []
             }))
 
+            const customAuditee = getPersistedCustomAuditeeKpis()
+            const mergedAuditee = mergeAuditeeKpiForecasts(mappedAuditee, customAuditee)
+            const customAtRisk = customAuditee
+              .filter((k: any) => k.riskLevel === 'HIGH' || k.riskLevel === 'CRITICAL' || k.trend === 'Deteriorating')
+              .map((k: any) => ({
+                department: k.entity || ' Divisi Kredit',
+                kpi: k.kpiName,
+                predictedDrop: `${k.deltaPct >= 0 ? '+' : ''}${k.deltaPct}% (${k.forecastedValue}${k.unit === '%' ? '%' : ' ' + k.unit})`,
+                riskLevel: k.riskLevel || 'HIGH'
+              }))
+            const baseAtRisk = auditeeSource.at_risk_departments || []
+            const mergedAtRisk = [...customAtRisk, ...baseAtRisk.filter((b: any) => !customAtRisk.some((c: any) => c.kpi === b.kpi))]
+
             timeseriesState.value.auditeeForecast = {
-              kpiForecasts: mappedAuditee,
-              atRiskDepartments: auditeeSource.at_risk_departments || [],
+              kpiForecasts: mergedAuditee,
+              atRiskDepartments: mergedAtRisk,
               timeSeriesData: auditeeSource.time_series_data || auditeeSource.historical_kpi || [],
               executiveSummary: auditeeSource.executive_summary || ''
             }
             // backward compatibility
-            timeseriesState.value.kpiForecasts = mappedAuditee
-            timeseriesState.value.atRiskDepartments = auditeeSource.at_risk_departments || []
+            timeseriesState.value.kpiForecasts = mergedAuditee
+            timeseriesState.value.atRiskDepartments = mergedAtRisk
             timeseriesState.value.historicalKPI = auditeeSource.time_series_data || auditeeSource.historical_kpi || []
             if (auditeeSource.forecast_accuracy || bData.forecast_accuracy) {
               const acc = auditeeSource.forecast_accuracy || bData.forecast_accuracy
@@ -832,147 +1184,19 @@ export const useAiAnalytics = () => {
               }
             }
           }
-
-          // Auditor perspective (Strategic Audit Plan)
-          if (bData.auditor_forecast && bData.auditor_forecast.kpi_forecasts?.length > 0) {
-            const audSource = bData.auditor_forecast
-            timeseriesState.value.auditorForecast = {
-              kpiForecasts: (audSource.kpi_forecasts || []).map((f: any) => ({
-                code: f.code || 'SO-IA01',
-                kpiName: f.kpiName || f.kpi_name,
-                category: f.category || 'Tata Kelola Perusahaan & GCG',
-                strategicObjective: f.strategicObjective || f.strategic_objective || '',
-                hibHig: f.hibHig || f.hib_hig || 'HIG',
-                unit: f.unit || '%',
-                targetHorizon: f.targetHorizon || 'Akhir Tahun 2026',
-                targetValue: f.targetValue ?? f.target_value ?? 100,
-                currentValue: f.currentValue ?? f.current_value ?? 0,
-                forecastedValue: f.forecastedValue ?? f.forecasted_value ?? 0,
-                achievementRate: f.achievementRate ?? f.achievement_rate ?? 0,
-                forecastedAchievementRate: f.forecastedAchievementRate ?? f.forecasted_achievement_rate ?? 0,
-                currentStatus: f.currentStatus || 'Good',
-                predictedStatus: f.predictedStatus || 'Good',
-                trend: f.trend || 'Improving',
-                confidenceLower: f.confidenceLower ?? f.confidence_lower,
-                confidenceUpper: f.confidenceUpper ?? f.confidence_upper,
-                aiNarrative: f.aiNarrative || f.ai_narrative || '',
-                recommendedAction: f.recommendedAction || f.recommended_action || ''
-              })),
-              atRiskPillars: audSource.at_risk_pillars || [],
-              timeSeriesData: audSource.time_series_data || audSource.historical_kpi || [],
-              executiveSummary: audSource.executive_summary || ''
-            }
-          }
         }
 
-        // Live fallback to user's real Strategic Audit Plan data if auditor_forecast was not returned from AI batch
-        if (!timeseriesState.value.auditorForecast?.kpiForecasts?.length) {
-          try {
-            const auditBase = getAuditServiceBaseUrl()
-            const stratRes: any = await $fetch(`${auditBase}/strategic-plans?page=1&page_size=100&order=code ASC`).catch(() => null)
-            const items = stratRes?.data?.items || stratRes?.items || (Array.isArray(stratRes) ? stratRes : [])
-            if (items.length > 0) {
-              const mappedLiveAuditor = items.map((item: any, idx: number) => {
-                const targetVal = parseFloat(item.target) || 100.0
-                const actualVal = parseFloat(item.actual) || targetVal
-                const pol = (item.hibHig || 'HIG').toUpperCase()
-
-                let currRatio = 100.0
-                if (pol === 'HIG') {
-                  currRatio = targetVal > 0 ? (actualVal / targetVal) * 100.0 : 100.0
-                } else {
-                  currRatio = actualVal <= 0 ? 100.0 : (targetVal / actualVal) * 100.0
-                }
-
-                const deltaMomentum = pol === 'HIG'
-                  ? (actualVal >= targetVal ? 1.02 : 0.97)
-                  : (actualVal <= targetVal ? 0.98 : 1.05)
-                const forecastedVal = Math.round((actualVal * deltaMomentum) * 10) / 10
-
-                let foreRatio = 100.0
-                if (pol === 'HIG') {
-                  foreRatio = targetVal > 0 ? (forecastedVal / targetVal) * 100.0 : 100.0
-                } else {
-                  foreRatio = forecastedVal <= 0 ? 100.0 : (targetVal / forecastedVal) * 100.0
-                }
-
-                const currStatus = currRatio >= 100 ? 'Good' : (currRatio >= 70 ? 'Moderate' : 'Poor')
-                const predStatus = foreRatio >= 100 ? 'Good' : (foreRatio >= 70 ? 'Moderate' : 'Poor')
-                const trend = (pol === 'HIG' ? forecastedVal >= actualVal : forecastedVal <= actualVal) ? 'Improving' : 'Deteriorating'
-
-                let aiNarrative = `Dengan kecepatan saat ini, diprediksi target ${item.kpi || item.strategicObjective} tercapai ${foreRatio.toFixed(1)}% (${predStatus}) di akhir tahun.`
-                if (item.code === 'SO-IA01' || (item.kpi && item.kpi.toLowerCase().includes('pkat'))) {
-                  aiNarrative = `Dengan kecepatan saat ini, diprediksi audit plan hanya selesai ${foreRatio.toFixed(1)}% di akhir tahun.`
-                }
-
-                const recAction = predStatus === 'Poor'
-                  ? `Eskalasi kendala pencapaian target ${item.code || 'KPI'} ke Komite Audit dan susun corrective action plan segera.`
-                  : (predStatus === 'Moderate'
-                    ? 'Tingkatkan koordinasi antar-tim audit dan percepat reviu kertas kerja oleh pengendali mutu.'
-                    : 'Pertahankan kualitas fieldwork dan dokumentasikan metodologi sebagai best practice audit internal.')
-
-                return {
-                  code: item.code || `SO-IA${String(idx + 1).padStart(2, '0')}`,
-                  kpiName: item.kpi || item.strategicObjective || 'Indikator Audit',
-                  category: item.category || 'Pelaksanaan Audit & PKAT',
-                  strategicObjective: item.strategicObjective || item.kpi || '',
-                  hibHig: pol,
-                  unit: item.unit || '%',
-                  targetHorizon: 'Akhir Tahun 2026',
-                  targetValue: targetVal,
-                  currentValue: actualVal,
-                  forecastedValue: forecastedVal,
-                  achievementRate: Math.round(currRatio * 10) / 10,
-                  forecastedAchievementRate: Math.round(foreRatio * 10) / 10,
-                  currentStatus: currStatus,
-                  predictedStatus: predStatus,
-                  trend: trend,
-                  confidenceLower: Math.round(forecastedVal * 0.95 * 10) / 10,
-                  confidenceUpper: Math.round(forecastedVal * 1.05 * 10) / 10,
-                  aiNarrative,
-                  recommendedAction: recAction
-                }
-              })
-
-              const atRiskPillars = mappedLiveAuditor
-                .filter((k: any) => k.predictedStatus === 'Poor' || k.predictedStatus === 'Moderate' || k.trend === 'Deteriorating')
-                .map((k: any) => ({
-                  pillar: k.category,
-                  code: k.code,
-                  kpi: k.kpiName,
-                  target: k.targetValue,
-                  predicted: k.forecastedValue,
-                  achievementRate: k.forecastedAchievementRate,
-                  predictedStatus: k.predictedStatus
-                }))
-
-              timeseriesState.value.auditorForecast = {
-                kpiForecasts: mappedLiveAuditor,
-                atRiskPillars,
-                timeSeriesData: [...initialTS.auditorTimeSeries],
-                executiveSummary: 'Dengan kecepatan saat ini, diprediksi audit plan hanya selesai 82.4% di akhir tahun. Diperlukan akselerasi pada pilar Pelaksanaan Audit & PKAT dan Investigasi Khusus.'
-              }
-            }
-          } catch (liveErr) {
-            console.warn('Failed to fetch live strategic plans fallback', liveErr)
-          }
-        }
-
-        // Guarantee fallback is never empty
-        if (!timeseriesState.value.auditorForecast?.kpiForecasts?.length) {
-          timeseriesState.value.auditorForecast = {
-            kpiForecasts: [...initialTS.auditorKPIForecasts],
-            atRiskPillars: [...initialTS.auditorAtRiskPillars],
-            timeSeriesData: [...initialTS.auditorTimeSeries],
-            executiveSummary: 'Dengan kecepatan saat ini, diprediksi audit plan hanya selesai 82.4% di akhir tahun. Diperlukan akselerasi pada pilar Pelaksanaan Audit & PKAT dan Investigasi Khusus.'
-          }
-        }
+        // Always synchronize Auditor KPI perspective strictly with live Strategic Audit Plan & Internal Audit Performance
+        await syncAuditorKpiWithStrategicPlan()
+        await fetchRetrainStatus().catch(() => null)
 
         saveRealCache()
       } else {
         isAiConnected.value = false
         const loaded = loadRealCache()
         usingCachedRealData.value = loaded
+        await syncAuditorKpiWithStrategicPlan().catch(() => null)
+        await fetchRetrainStatus().catch(() => null)
       }
 
       hasFetchedOnce.value = true
@@ -1070,6 +1294,7 @@ export const useAiAnalytics = () => {
 
     const isBadFallbackFinding = (str?: string): boolean => {
       if (!str) return false
+      if (!isReadableHumanText(str)) return true
       const s = str.toLowerCase()
       return s.includes('kelemahan pengendalian internal pada otorisasi kas') ||
         s.includes('otorisasi kas') ||
@@ -1325,6 +1550,7 @@ export const useAiAnalytics = () => {
     } else {
       await fetchAiAnalytics(true)
     }
+    await fetchRetrainStatus().catch(() => null)
     return bData
   }
 
@@ -1550,6 +1776,7 @@ export const useAiAnalytics = () => {
       }
 
       saveRealCache()
+      await fetchRetrainStatus().catch(() => null)
       return {
         success: true,
         message: bData?.message || `Berhasil melatih model AI dengan ${payload.rules.length} aturan anomali.`,
@@ -1566,11 +1793,246 @@ export const useAiAnalytics = () => {
     }
   }
 
+  const fetchPaginatedAuditItems = async (baseEndpoint: string): Promise<{ items: any[]; ok: boolean }> => {
+    const extractItems = (res: any): any[] => {
+      if (Array.isArray(res?.data?.items)) return res.data.items
+      if (Array.isArray(res?.items)) return res.items
+      if (Array.isArray(res?.data)) return res.data
+      if (Array.isArray(res)) return res
+      return []
+    }
+    try {
+      const separator = baseEndpoint.includes('?') ? '&' : '?'
+      const page1: any = await $fetch(`${baseEndpoint}${separator}page=1&page_size=100`)
+      if (!page1) return { items: [], ok: false }
+      const collected = [...extractItems(page1)]
+      const totalPages = Math.min(20, Number(page1?.data?.pagination?.total_pages || page1?.pagination?.total_pages || 1))
+      if (totalPages > 1) {
+        const restPages = await Promise.all(
+          Array.from({ length: totalPages - 1 }, (_, i) =>
+            $fetch(`${baseEndpoint}${separator}page=${i + 2}&page_size=100`).catch(() => null)
+          )
+        )
+        for (const pRes of restPages) {
+          if (pRes) collected.push(...extractItems(pRes))
+        }
+      }
+      return { items: collected, ok: true }
+    } catch {
+      return { items: [], ok: false }
+    }
+  }
+
+  const syncAuditorKpiWithStrategicPlan = async () => {
+    try {
+      const auditBase = getAuditServiceBaseUrl()
+      const currentYear = new Date().getFullYear()
+
+      // Safely sync Pinia store if initialized (unit tests may invoke composable without Pinia)
+      let storePlans: any[] = []
+      try {
+        const strategicStore = useStrategicPlanStore()
+        if (!strategicStore.strategicObjectives?.length && typeof strategicStore.fetchStrategicPlans === 'function') {
+          await strategicStore.fetchStrategicPlans().catch(() => {})
+        }
+        if (Array.isArray(strategicStore.strategicObjectives)) {
+          storePlans = [...strategicStore.strategicObjectives]
+        }
+      } catch {
+        storePlans = []
+      }
+
+      const [plansResult, perfResult] = await Promise.all([
+        fetchPaginatedAuditItems(`${auditBase}/strategic-plans?order=code%20ASC`),
+        fetchPaginatedAuditItems(`${auditBase}/performance/kpi`)
+      ])
+
+      const rawPlans = plansResult.ok
+        ? (plansResult.items.length > 0 ? plansResult.items : (storePlans.length > 0 && storePlans.length <= 100 ? [] : storePlans))
+        : storePlans
+      const rawPerfAchievements = perfResult.ok ? perfResult.items : []
+
+      const payloadItems = dedupAndBuildAuditorPayloadItems(rawPlans, rawPerfAchievements, currentYear)
+      liveAuditorPayloadItems.value = payloadItems
+
+      if (payloadItems.length === 0) {
+        timeseriesState.value.auditorForecast = {
+          kpiForecasts: [],
+          atRiskPillars: [],
+          timeSeriesData: [],
+          executiveSummary: 'Belum ada data KPI (dengan kolom Target & Actual) dari fitur Strategic Audit Plan ataupun Internal Audit Performance untuk diproyeksikan.'
+        }
+        saveRealCache()
+        return timeseriesState.value.auditorForecast
+      }
+
+      // Evaluate live items through the pre-trained Auditor PyTorch LSTM model
+      const aiRes: any = await safeApiFetch('/performance-trend/auditor-forecast', {
+        method: 'POST',
+        body: { items: payloadItems }
+      }).catch(() => null)
+
+      const aiData = aiRes?.data || aiRes
+      if (aiData && Array.isArray(aiData.kpi_forecasts) && aiData.kpi_forecasts.length > 0) {
+        const sourceByCode = new Map(payloadItems.map(p => [p.code, p.source]))
+        const kpiForecasts = aiData.kpi_forecasts.map((k: any, idx: number) => ({
+          code: k.code || `SO-IA${String(idx + 1).padStart(2, '0')}`,
+          kpiName: k.kpiName || k.kpi_name || 'Indikator Audit',
+          category: k.category || 'Pelaksanaan Audit & PKAT',
+          strategicObjective: k.strategicObjective || k.strategic_objective || k.kpiName || '',
+          hibHig: String(k.hibHig || k.hib_hig || 'HIG').toUpperCase() === 'HIB' ? 'HIB' : 'HIG',
+          unit: k.unit || '%',
+          source: k.source || sourceByCode.get(k.code) || 'Strategic Audit Plan',
+          targetHorizon: k.targetHorizon || k.target_horizon || `Akhir Tahun ${currentYear}`,
+          targetValue: Number(k.targetValue ?? k.target_value ?? 100),
+          currentValue: Number(k.currentValue ?? k.current_value ?? 0),
+          forecastedValue: Number(k.forecastedValue ?? k.forecasted_value ?? 0),
+          achievementRate: Number(k.achievementRate ?? k.achievement_rate ?? 0),
+          forecastedAchievementRate: Number(k.forecastedAchievementRate ?? k.forecasted_achievement_rate ?? 0),
+          currentStatus: k.currentStatus || k.current_status || 'Moderate',
+          predictedStatus: k.predictedStatus || k.predicted_status || 'Moderate',
+          trend: k.trend || 'Improving',
+          confidenceLower: Number(k.confidenceLower ?? k.confidence_lower ?? 0),
+          confidenceUpper: Number(k.confidenceUpper ?? k.confidence_upper ?? 0),
+          history: Array.isArray(k.history) ? k.history : [],
+          forecast: Array.isArray(k.forecast) ? k.forecast : [],
+          aiNarrative: k.aiNarrative || k.ai_narrative || '',
+          recommendedAction: k.recommendedAction || k.recommended_action || ''
+        }))
+
+        const atRiskPillars = Array.isArray(aiData.at_risk_pillars)
+          ? aiData.at_risk_pillars
+          : kpiForecasts
+              .filter((k: any) => k.predictedStatus === 'Poor' || k.predictedStatus === 'Moderate' || k.trend === 'Deteriorating')
+              .map((k: any) => ({
+                pillar: k.category,
+                code: k.code,
+                kpi: k.kpiName,
+                target: k.targetValue,
+                predicted: k.forecastedValue,
+                achievementRate: k.forecastedAchievementRate,
+                predictedStatus: k.predictedStatus
+              }))
+
+        const timeSeriesData = Array.isArray(aiData.time_series_data) && aiData.time_series_data.length > 0
+          ? aiData.time_series_data
+          : buildAuditorAggregateTimeSeries(kpiForecasts)
+
+        timeseriesState.value.auditorForecast = {
+          kpiForecasts,
+          atRiskPillars,
+          timeSeriesData,
+          executiveSummary: aiData.executive_summary || ''
+        }
+        saveRealCache()
+        return timeseriesState.value.auditorForecast
+      }
+
+      // Pure live-data fallback when AI engine is offline (never static CSV/mock)
+      const localResult = buildAuditorLocalForecastsFromItems(payloadItems, currentYear)
+      timeseriesState.value.auditorForecast = {
+        kpiForecasts: localResult.kpiForecasts,
+        atRiskPillars: localResult.atRiskPillars,
+        timeSeriesData: localResult.timeSeriesData,
+        executiveSummary: localResult.executiveSummary
+      }
+      saveRealCache()
+      return timeseriesState.value.auditorForecast
+    } catch (err) {
+      console.warn('syncAuditorKpiWithStrategicPlan error:', err)
+      return null
+    }
+  }
+
+  const triggerManualForceRetrain = async () => {
+    if (retrainStatus.value.isRunning) {
+      return { ...retrainStatus.value, status: 'already_running' }
+    }
+    if (!hasUntrainedNewData.value && retrainStatus.value.statusFetchedOnce) {
+      return { ...retrainStatus.value, status: 'up_to_date' }
+    }
+
+    retrainStatus.value = {
+      ...retrainStatus.value,
+      status: 'running',
+      isRunning: true,
+      trigger: 'user_manual_force_sync',
+      message: 'Memulai Manual / Force Sync & melatih ulang model PyTorch LSTM dengan data terbaru...'
+    }
+
+    try {
+      const customAuditee = getPersistedCustomAuditeeKpis()
+      const res: any = await safeApiFetch('/retrain/auto?force=true&wait=true', {
+        method: 'POST',
+        body: {
+          force: true,
+          wait: true,
+          scope: 'kpi',
+          trigger: 'user_manual_force_sync',
+          auditor_items: liveAuditorPayloadItems.value,
+          auditee_items: customAuditee
+        }
+      })
+
+      if (!res) {
+        retrainStatus.value.isRunning = false
+        retrainStatus.value.status = 'failed'
+        retrainStatus.value.lastError = 'Layanan AI retrain tidak dapat dihubungi.'
+        return { ...retrainStatus.value, status: 'failed' }
+      }
+
+      applyRetrainPayload(res)
+      const d = res?.data || res
+      if (d?.status !== 'already_running') {
+        await fetchAiAnalytics(true, { skipAutoRetrain: true })
+      }
+      return { ...retrainStatus.value, status: d?.status || retrainStatus.value.status }
+    } catch (err: any) {
+      retrainStatus.value.isRunning = false
+      retrainStatus.value.status = 'failed'
+      retrainStatus.value.lastError = err?.message || 'Gagal melatih ulang model AI'
+      return { ...retrainStatus.value, status: 'failed' }
+    }
+  }
+
+  const addCustomAuditeeKpiForecasts = (newKpis: any[]) => {
+    if (!Array.isArray(newKpis) || newKpis.length === 0) return []
+    savePersistedCustomAuditeeKpis(newKpis)
+    customAuditeeVersion.value++
+    const allCustom = getPersistedCustomAuditeeKpis()
+    const currentBase = timeseriesState.value.auditeeForecast?.kpiForecasts || timeseriesState.value.kpiForecasts || []
+    const mergedKpis = mergeAuditeeKpiForecasts(currentBase, allCustom)
+
+    const customAtRisk = allCustom
+      .filter((k: any) => k.riskLevel === 'HIGH' || k.riskLevel === 'CRITICAL' || k.trend === 'Deteriorating')
+      .map((k: any) => ({
+        department: k.entity || 'Divisi Kredit & Portofolio',
+        kpi: k.kpiName,
+        predictedDrop: `${k.deltaPct >= 0 ? '+' : ''}${k.deltaPct}% (${k.forecastedValue}${k.unit === '%' ? '%' : ' ' + k.unit})`,
+        riskLevel: k.riskLevel || 'HIGH'
+      }))
+    const existingAtRisk = timeseriesState.value.auditeeForecast?.atRiskDepartments || timeseriesState.value.atRiskDepartments || []
+    const mergedAtRisk = [...customAtRisk, ...existingAtRisk.filter((b: any) => !customAtRisk.some((c: any) => c.kpi === b.kpi))]
+
+    timeseriesState.value.auditeeForecast = {
+      ...(timeseriesState.value.auditeeForecast || {}),
+      kpiForecasts: mergedKpis,
+      atRiskDepartments: mergedAtRisk,
+      executiveSummary: `Proyeksi KPI Auditee diperbarui dengan ${newKpis.length} indikator portofolio dari database eksternal (${newKpis[0]?.entity || 'Unit Operasional'}). Ditemukan ${mergedAtRisk.length} indikator/unit berisiko yang memerlukan pemantauan Continuous Auditing.`
+    }
+    timeseriesState.value.kpiForecasts = mergedKpis
+    timeseriesState.value.atRiskDepartments = mergedAtRisk
+    saveRealCache()
+    return mergedKpis
+  }
+
   const syncEntityPredictionWithRiskProfile = async (customItems?: any[], triggerRetrain: boolean = true) => {
+    const currentYear = new Date().getFullYear()
+    const isCustomExternalSync = Array.isArray(customItems) && customItems.length > 0
     let itemsToSync: any[] = []
 
-    if (Array.isArray(customItems) && customItems.length > 0) {
-      itemsToSync = customItems
+    if (isCustomExternalSync) {
+      itemsToSync = customItems!
         .filter((it: any) =>
           it.entity &&
           !String(it.entity).toLowerCase().includes('legal & compliance') &&
@@ -1583,7 +2045,6 @@ export const useAiAnalytics = () => {
     } else {
       try {
         const auditUniverseStore = useAuditUniverseStore()
-        const currentYear = new Date().getFullYear()
 
         if (!auditUniverseStore.yearlyUniverse || auditUniverseStore.yearlyUniverse.length === 0) {
           await auditUniverseStore.fetchYearlyUniverse(currentYear).catch(() => {})
@@ -1689,6 +2150,57 @@ export const useAiAnalytics = () => {
 
     if (itemsToSync.length === 0) return null
 
+    const matrixCalc = (lik: number, imp: number) => {
+      const m: Record<number, Record<number, string>> = {
+        5: { 1: 'LOW_MODERATE', 2: 'MODERATE', 3: 'MODERATE_HIGH', 4: 'HIGH', 5: 'HIGH' },
+        4: { 1: 'LOW', 2: 'LOW_MODERATE', 3: 'MODERATE', 4: 'MODERATE_HIGH', 5: 'HIGH' },
+        3: { 1: 'LOW', 2: 'LOW_MODERATE', 3: 'MODERATE', 4: 'MODERATE_HIGH', 5: 'HIGH' },
+        2: { 1: 'LOW', 2: 'LOW_MODERATE', 3: 'LOW_MODERATE', 4: 'MODERATE_HIGH', 5: 'HIGH' },
+        1: { 1: 'LOW', 2: 'LOW', 3: 'LOW_MODERATE', 4: 'MODERATE', 5: 'HIGH' }
+      }
+      return m[Math.min(5, Math.max(1, Math.round(lik)))]?.[Math.min(5, Math.max(1, Math.round(imp)))] || 'MODERATE'
+    }
+
+    const buildLocalPredictions = (list: any[]) => list.map((it: any) => {
+      const lik = Number(it.inherent_likelihood) || 3
+      const imp = Number(it.inherent_impact) || 3
+      const actualScore = +(lik * imp).toFixed(1)
+      const predLik = Math.min(5, Math.max(1, +(lik + ((it.audit_findings_count ?? 2) >= 2 ? 0.3 : -0.1)).toFixed(1)))
+      const predImp = Math.min(5, Math.max(1, +(imp + ((it.kpi_below_target_count ?? 1) >= 1 ? 0.3 : -0.1)).toFixed(1)))
+      const predScore = +(predLik * predImp).toFixed(1)
+      const predLvl = matrixCalc(predLik, predImp)
+      const isBr = ['cabang', 'kcp', 'regional', 'kc', 'outlet', 'branch'].some(w => String(it.entity).toLowerCase().includes(w))
+      const defTimeline = it.target_timeline && !String(it.target_timeline).startsWith('Q') ? it.target_timeline : `FY ${currentYear}`
+      return {
+        entity: it.entity,
+        type: it.entity_type === 'Department' ? (isBr ? 'Branch' : 'Auditable Entity') : (it.entity_type || (isBr ? 'Branch' : 'Auditable Entity')),
+        riskCategory: it.risk_category || 'Operational',
+        targetTimeline: defTimeline,
+        currentLikelihood: lik,
+        currentImpact: imp,
+        predictedLikelihood: predLik,
+        predictedImpact: predImp,
+        predictedScore: predScore,
+        actualScore: actualScore,
+        delta: +(predScore - actualScore).toFixed(1),
+        trend: predScore > actualScore ? 'up' : (predScore < actualScore ? 'down' : 'stable'),
+        predictedRiskLevel: predLvl,
+        actualRiskLevel: it.current_risk_level || matrixCalc(lik, imp),
+        source: it.source_id || 'external_db'
+      }
+    })
+
+    // If customItems were passed from Data Source Mapping ("Prediksi Entitas AI"), persist & merge them directly into Entity Prediction!
+    if (isCustomExternalSync) {
+      const customPreds = buildLocalPredictions(itemsToSync)
+      savePersistedCustomEntityPredictions(customPreds)
+      xgboostState.value.predictions = mergeEntityPredictions(
+        xgboostState.value.predictions || [],
+        getPersistedCustomEntityPredictions()
+      )
+      saveRealCache()
+    }
+
     try {
       const payload = {
         items: itemsToSync,
@@ -1709,7 +2221,7 @@ export const useAiAnalytics = () => {
 
       const resData = res?.data || res
       if (resData?.predictions && resData.predictions.length > 0) {
-        xgboostState.value.predictions = resData.predictions
+        const mappedApiPreds = resData.predictions
           .filter((p: any) => p.entity && !String(p.entity).toLowerCase().includes('legal & compliance') && p.risk_category !== 'Legal')
           .map((p: any) => {
             const isBr = ['cabang', 'kcp', 'regional', 'kc', 'outlet', 'branch'].some(w => String(p.entity).toLowerCase().includes(w))
@@ -1733,6 +2245,19 @@ export const useAiAnalytics = () => {
               actualRiskLevel: p.actual_risk_level || p.actualRiskLevel || 'MODERATE'
             }
           })
+
+        if (isCustomExternalSync) {
+          savePersistedCustomEntityPredictions(mappedApiPreds)
+          xgboostState.value.predictions = mergeEntityPredictions(
+            xgboostState.value.predictions || [],
+            getPersistedCustomEntityPredictions()
+          )
+        } else {
+          xgboostState.value.predictions = mergeEntityPredictions(
+            mappedApiPreds,
+            getPersistedCustomEntityPredictions()
+          )
+        }
         if (resData.feature_importance) {
           xgboostState.value.featureImportance = resData.feature_importance
         }
@@ -1740,54 +2265,31 @@ export const useAiAnalytics = () => {
           xgboostState.value.modelMetrics = resData.metrics
         }
         saveRealCache()
-        return resData
+        await fetchRetrainStatus().catch(() => null)
+        return { ...resData, predictions: xgboostState.value.predictions }
       }
 
-      // If AI server is cold or offline, build real predictions directly from live Audit Universe / Risk Profile without dummy records
       if (itemsToSync.length > 0) {
-        const matrixCalc = (lik: number, imp: number) => {
-          const m: Record<number, Record<number, string>> = {
-            5: { 1: 'LOW_MODERATE', 2: 'MODERATE', 3: 'MODERATE_HIGH', 4: 'HIGH', 5: 'HIGH' },
-            4: { 1: 'LOW', 2: 'LOW_MODERATE', 3: 'MODERATE', 4: 'MODERATE_HIGH', 5: 'HIGH' },
-            3: { 1: 'LOW', 2: 'LOW_MODERATE', 3: 'MODERATE', 4: 'MODERATE_HIGH', 5: 'HIGH' },
-            2: { 1: 'LOW', 2: 'LOW_MODERATE', 3: 'LOW_MODERATE', 4: 'MODERATE_HIGH', 5: 'HIGH' },
-            1: { 1: 'LOW', 2: 'LOW', 3: 'LOW_MODERATE', 4: 'MODERATE', 5: 'HIGH' }
-          }
-          return m[Math.round(lik)]?.[Math.round(imp)] || 'MODERATE'
+        const computedPreds = buildLocalPredictions(itemsToSync)
+        if (isCustomExternalSync) {
+          savePersistedCustomEntityPredictions(computedPreds)
+          xgboostState.value.predictions = mergeEntityPredictions(
+            xgboostState.value.predictions || [],
+            getPersistedCustomEntityPredictions()
+          )
+        } else {
+          xgboostState.value.predictions = mergeEntityPredictions(
+            computedPreds,
+            getPersistedCustomEntityPredictions()
+          )
         }
-        xgboostState.value.predictions = itemsToSync.map((it: any) => {
-          const lik = it.inherent_likelihood || 3
-          const imp = it.inherent_impact || 3
-          const actualScore = +(lik * imp).toFixed(1)
-          const predLik = Math.min(5, Math.max(1, +(lik + (it.audit_findings_count > 3 ? 0.3 : -0.2)).toFixed(1)))
-          const predImp = Math.min(5, Math.max(1, +(imp + (it.kpi_below_target_count > 1 ? 0.4 : -0.1)).toFixed(1)))
-          const predScore = +(predLik * predImp).toFixed(1)
-          const predLvl = matrixCalc(predLik, predImp)
-          const defTimeline = it.target_timeline && !it.target_timeline.startsWith('Q') ? it.target_timeline : `FY ${currentYear}`
-          return {
-            entity: it.entity,
-            type: it.entity_type === 'Department' ? 'Auditable Entity' : (it.entity_type || 'Auditable Entity'),
-            riskCategory: it.risk_category,
-            targetTimeline: defTimeline,
-            currentLikelihood: lik,
-            currentImpact: imp,
-            predictedLikelihood: predLik,
-            predictedImpact: predImp,
-            predictedScore: predScore,
-            actualScore: actualScore,
-            delta: +(predScore - actualScore).toFixed(1),
-            trend: predScore > actualScore ? 'up' : (predScore < actualScore ? 'down' : 'stable'),
-            predictedRiskLevel: predLvl,
-            actualRiskLevel: it.current_risk_level || matrixCalc(lik, imp)
-          }
-        })
         saveRealCache()
         return { predictions: xgboostState.value.predictions }
       }
     } catch (e) {
       console.warn('syncEntityPredictionWithRiskProfile failed:', e)
     }
-    return null
+    return { predictions: xgboostState.value.predictions }
   }
 
   return {
@@ -1800,9 +2302,24 @@ export const useAiAnalytics = () => {
     xgboostState,
     syncEntityPredictionWithRiskProfile,
     syncEntityPredictionWithAuditUniverse: syncEntityPredictionWithRiskProfile,
+    syncAuditorKpiWithStrategicPlan,
+    addCustomAuditeeKpiForecasts,
     isolationState,
     nlpState,
     timeseriesState,
+    retrainStatus,
+    modelStatuses,
+    retrainQueue,
+    retrainResource,
+    checkingRetrainStatus,
+    hasUntrainedAuditorData,
+    hasUntrainedAuditeeData,
+    hasUntrainedNewData,
+    untrainedDataReasons,
+    canManualRetrain,
+    fetchRetrainStatus,
+    retrainModel,
+    triggerManualForceRetrain,
     automatedAnomalyRules,
     trainAnomalyWithRules,
     getPersistedAutomatedRules,

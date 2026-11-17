@@ -103,15 +103,6 @@
         </a>
       </template>
 
-      <template #level_grade-cell="{ row }">
-        <UBadge
-          color="neutral"
-          variant="soft"
-        >
-          {{ t('masterData.employee.level', { level: row.original.level_grade }) }}
-        </UBadge>
-      </template>
-
       <template #is_active-cell="{ row }">
         <UBadge
           :color="row.original.is_active ? 'secondary' : 'error'"
@@ -139,12 +130,34 @@
             :title="t('masterData.employee.resetPassword')"
             @click="openResetPassword(row.original)"
           />
+          <!-- Status also enables/disables the login account -->
+          <UButton v-if="canWriteMasterData"
+            :icon="row.original.is_active ? 'i-heroicons-no-symbol' : 'i-heroicons-arrow-path'"
+            :color="row.original.is_active ? 'warning' : 'secondary'"
+            variant="ghost"
+            size="sm"
+            :title="row.original.is_active ? t('masterData.employee.actions.deactivate') : t('masterData.employee.actions.reactivate')"
+            :aria-label="row.original.is_active ? t('masterData.employee.actions.deactivate') : t('masterData.employee.actions.reactivate')"
+            @click="store.handleToggleActive(row.original)"
+          />
           <UButton v-if="canWriteMasterData"
             icon="i-heroicons-trash"
             color="error"
             variant="ghost"
             size="sm"
+            :title="t('masterData.employee.actions.softDeleteHint')"
+            :aria-label="t('masterData.employee.actions.softDeleteHint')"
             @click="store.handleDelete(row.original)"
+          />
+          <UButton
+            v-if="isAdmin"
+            icon="i-heroicons-x-circle"
+            color="error"
+            variant="ghost"
+            size="sm"
+            :title="t('masterData.employee.actions.hardDelete')"
+            :aria-label="t('masterData.employee.actions.hardDelete')"
+            @click="store.handleHardDelete(row.original)"
           />
         </div>
       </template>

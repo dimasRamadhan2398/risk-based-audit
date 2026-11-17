@@ -470,6 +470,58 @@
                 </div>
               </AppFormField>
 
+              <!-- Internal control assessment thresholds (tenant settings, seeded
+                   at migrate time from IC_LHA_DUE_DAYS / IC_MGMT_RESPONSE_DUE_DAYS) -->
+              <div class="space-y-2">
+                <div>
+                  <label class="text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                    <UIcon
+                      name="i-lucide-timer"
+                      class="w-3.5 h-3.5 text-primary"
+                    />
+                    {{ t('siteGenerator.organization.icThresholds') }}
+                  </label>
+                  <p class="text-[11px] text-gray-500 dark:text-neutral-400 mt-0.5">
+                    {{ t('siteGenerator.organization.icThresholdsHint') }}
+                  </p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <AppFormField
+                    :label="t('siteGenerator.organization.lhaDueDays')"
+                    :tooltip="t('siteGenerator.organization.lhaDueDaysTooltip')"
+                    :error="isDueDaysValid(form.lhaDueDays) ? undefined : dueDaysError"
+                    required
+                  >
+                    <UInput
+                      v-model.number="form.lhaDueDays"
+                      type="number"
+                      :min="DUE_DAYS_MIN"
+                      :max="DUE_DAYS_MAX"
+                      step="1"
+                      placeholder="30"
+                      class="w-full font-mono text-xs"
+                    />
+                  </AppFormField>
+
+                  <AppFormField
+                    :label="t('siteGenerator.organization.mgmtResponseDueDays')"
+                    :tooltip="t('siteGenerator.organization.mgmtResponseDueDaysTooltip')"
+                    :error="isDueDaysValid(form.mgmtResponseDueDays) ? undefined : dueDaysError"
+                    required
+                  >
+                    <UInput
+                      v-model.number="form.mgmtResponseDueDays"
+                      type="number"
+                      :min="DUE_DAYS_MIN"
+                      :max="DUE_DAYS_MAX"
+                      step="1"
+                      placeholder="14"
+                      class="w-full font-mono text-xs"
+                    />
+                  </AppFormField>
+                </div>
+              </div>
+
               <!-- <AppFormField
                 label="Compliance Framework"
                 tooltip="Pre-seeds audit charter guidelines and risk appetite templates"
@@ -856,6 +908,10 @@
                   <span class="text-gray-400 block">{{ t('siteGenerator.review.complianceStandard') }}</span>
                   <span class="text-gray-700 dark:text-gray-300">{{ form.complianceFramework }}</span>
                 </div>
+                <div>
+                  <span class="text-gray-400 block">{{ t('siteGenerator.review.icThresholds') }}</span>
+                  <span class="font-mono text-gray-700 dark:text-gray-300">{{ t('siteGenerator.review.icThresholdsValue', { lha: form.lhaDueDays, mgmt: form.mgmtResponseDueDays }) }}</span>
+                </div>
               </div>
             </div>
 
@@ -1044,6 +1100,17 @@ const frameworkOptions = [
   'NIST Cybersecurity Framework'
 ]
 
+// Same range and defaults as scripts/onboard-tenant.sh and generate-tenant-stack.sh.
+const DUE_DAYS_MIN = 1
+const DUE_DAYS_MAX = 365
+const DEFAULT_LHA_DUE_DAYS = 30
+const DEFAULT_MGMT_RESPONSE_DUE_DAYS = 14
+
+const isDueDaysValid = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isInteger(value) && value >= DUE_DAYS_MIN && value <= DUE_DAYS_MAX
+
+const dueDaysError = computed(() => t('siteGenerator.organization.dueDaysRange', { min: DUE_DAYS_MIN, max: DUE_DAYS_MAX }))
+
 const form = reactive({
   clientName: '',
   slug: '',
@@ -1058,7 +1125,12 @@ const form = reactive({
   vpsStorageDir: '',
   serverIp: '202.10.34.166',
   frontendPort: 3014,
-  kongPort: 8094
+  kongPort: 8094,
+  // Internal control assessment thresholds. Passed to onboard-tenant.sh as
+  // --ic-lha-due-days / --ic-mgmt-response-due-days, written to the tenant .env
+  // and seeded into audit-service's settings table at migrate time.
+  lhaDueDays: DEFAULT_LHA_DUE_DAYS,
+  mgmtResponseDueDays: DEFAULT_MGMT_RESPONSE_DUE_DAYS
 })
 
 const isSlugTouched = ref(false)
@@ -1106,12 +1178,19 @@ const generatedDatabases = computed(() => {
 
 const generatedCliCommand = computed(() => {
   const flags = envMode.value === 'local' ? ' --local --empty-data' : ' --empty-data'
-  return `./scripts/onboard-tenant.sh ${form.slug || 'slug'} "${form.clientName || 'Client'}" ${form.frontendPort} ${form.kongPort}${flags}`
+  const lha = isDueDaysValid(form.lhaDueDays) ? form.lhaDueDays : DEFAULT_LHA_DUE_DAYS
+  const mgmt = isDueDaysValid(form.mgmtResponseDueDays) ? form.mgmtResponseDueDays : DEFAULT_MGMT_RESPONSE_DUE_DAYS
+  const icFlags = ` --ic-lha-due-days ${lha} --ic-mgmt-response-due-days ${mgmt}`
+  return `./scripts/onboard-tenant.sh ${form.slug || 'slug'} "${form.clientName || 'Client'}" ${form.frontendPort} ${form.kongPort}${flags}${icFlags}`
 })
 
 const isCurrentStepValid = computed(() => {
   if (currentStep.value === 1) {
-    return form.clientName.trim().length >= 2 && form.slug.trim().length >= 2 && !!form.industry
+    return form.clientName.trim().length >= 2
+      && form.slug.trim().length >= 2
+      && !!form.industry
+      && isDueDaysValid(form.lhaDueDays)
+      && isDueDaysValid(form.mgmtResponseDueDays)
   }
   if (currentStep.value === 2) {
     return form.adminName.trim().length >= 2 && form.adminEmail.includes('@')
@@ -1206,6 +1285,8 @@ const resetForm = () => {
   form.enforceMfa = true
   form.autoConfigInfrastructure = true
   form.vpsStorageDir = ''
+  form.lhaDueDays = DEFAULT_LHA_DUE_DAYS
+  form.mgmtResponseDueDays = DEFAULT_MGMT_RESPONSE_DUE_DAYS
   form.frontendPort += 1
   form.kongPort += 1
   isSlugTouched.value = false

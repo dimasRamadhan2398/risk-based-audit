@@ -1,5 +1,11 @@
 // @ts-nocheck
 import { describe, it, expect } from 'vitest'
+import {
+  SYNC_FREQUENCY_OPTIONS,
+  normalizeSyncSchedule,
+  resolveAutoMappingMetadata,
+  shouldShowAnomalyRules,
+} from '~/utils/dataSourceConfig'
 
 interface DataSourceConn {
   id: string
@@ -368,6 +374,59 @@ describe('Settings DataSource Component Logic', () => {
     const isAnalytics = (m: TableDataMapping) => m.targetScope === 'data_analytics'
     expect(isAnalytics(multiMappings['gl_transactions'][0])).toBe(false)
     expect(isAnalytics(multiMappings['gl_transactions'][1])).toBe(true)
+  })
+
+  it('excludes Real-time (CDC) from Sync Frequency options and normalizes legacy values', () => {
+    expect(SYNC_FREQUENCY_OPTIONS).toEqual(['Every 15 mins', 'Hourly', 'Daily', 'Manual Only'])
+    expect(SYNC_FREQUENCY_OPTIONS).not.toContain('Real-time (CDC)')
+    expect(normalizeSyncSchedule('Real-time (CDC)')).toBe('Every 15 mins')
+    expect(normalizeSyncSchedule('Hourly')).toBe('Hourly')
+    expect(normalizeSyncSchedule('Daily')).toBe('Daily')
+    expect(normalizeSyncSchedule('Manual Only')).toBe('Manual Only')
+  })
+
+  it('shows Automated Anomaly Rules only when Target Module is AI: Anomaly Detection', () => {
+    expect(shouldShowAnomalyRules('data_analytics', 'AI: Anomaly Detection')).toBe(true)
+    expect(shouldShowAnomalyRules('data_analytics', 'AI: Entity Prediction')).toBe(false)
+    expect(shouldShowAnomalyRules('data_analytics', 'AI: NLP Document Analysis')).toBe(false)
+    expect(shouldShowAnomalyRules('data_analytics', 'AI: KPI & Loss Forecast')).toBe(false)
+    expect(shouldShowAnomalyRules('audit_features', 'AI: Anomaly Detection')).toBe(false)
+  })
+
+  it('automatically resolves PK, watermark, soft-delete column, and canonical entity for mappings', () => {
+    const table: SchemaTable = {
+      tableName: 'gl_transactions',
+      rowCount: 1000,
+      columnCount: 5,
+      columns: [
+        { name: 'trx_id', dataType: 'uuid', isNullable: false, isPrimary: true },
+        { name: 'amount', dataType: 'numeric', isNullable: false, isPrimary: false },
+        { name: 'created_at', dataType: 'timestamp', isNullable: false, isPrimary: false },
+        { name: 'is_deleted', dataType: 'boolean', isNullable: false, isPrimary: false },
+        { name: 'is_active', dataType: 'boolean', isNullable: false, isPrimary: false }
+      ]
+    }
+    const meta = resolveAutoMappingMetadata(table, 'AI: Anomaly Detection')
+    expect(meta.canonicalEntity).toBe('transactions')
+    expect(meta.auditField).toBe('trx_id')
+    expect(meta.watermarkColumn).toBe('created_at')
+    expect(meta.softDeleteColumn).toBe('is_deleted')
+
+    const genericTable: SchemaTable = {
+      tableName: 'compliance_incident_records',
+      rowCount: 320,
+      columnCount: 3,
+      columns: [
+        { name: 'incident_id', dataType: 'uuid', isNullable: false, isPrimary: true },
+        { name: 'reported_at', dataType: 'timestamp', isNullable: false, isPrimary: false },
+        { name: 'deleted_at', dataType: 'timestamp', isNullable: true, isPrimary: false }
+      ]
+    }
+    const aiPoolMeta = resolveAutoMappingMetadata(genericTable, 'AI: Anomaly Detection')
+    expect(aiPoolMeta.canonicalEntity).toBe('ai_training_pool')
+    expect(aiPoolMeta.auditField).toBe('incident_id')
+    expect(aiPoolMeta.watermarkColumn).toBe('reported_at')
+    expect(aiPoolMeta.softDeleteColumn).toBe('')
   })
 })
 

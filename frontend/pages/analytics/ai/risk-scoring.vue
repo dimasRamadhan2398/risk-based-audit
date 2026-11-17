@@ -14,6 +14,7 @@ import { useAiAnalytics } from '~/composables/useAiAnalytics'
 import { useI18n } from '~/composables/useI18n'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
 import AiInsightHeader from '~/components/analytics/AiInsightHeader.vue'
+import AiModelStatusBadge from '~/components/analytics/AiModelStatusBadge.vue'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
@@ -22,9 +23,12 @@ const toast = useToast()
 const {
   loading,
   xgboostState,
+  modelStatuses,
   formatNum,
   getRiskConfig,
   fetchAiAnalytics,
+  fetchRetrainStatus,
+  retrainModel,
   syncEntityPredictionWithRiskProfile,
   syncEntityPredictionWithAuditUniverse
 } = useAiAnalytics()
@@ -32,8 +36,13 @@ const {
 const isSyncing = ref(false)
 const searchQuery = ref('')
 const chartLimit = ref<'10' | '15' | 'ALL'>('10')
+const entityModelState = computed(() => modelStatuses.value.entity)
+const isEntityModelBusy = computed(() =>
+  entityModelState.value?.state === 'training' || entityModelState.value?.state === 'queued'
+)
 
 const handleSyncWithProfile = async () => {
+  if (isEntityModelBusy.value) return
   isSyncing.value = true
   try {
     const auditUniverseStore = useAuditUniverseStore()
@@ -45,13 +54,15 @@ const handleSyncWithProfile = async () => {
     ])
 
     const res = await (syncEntityPredictionWithAuditUniverse || syncEntityPredictionWithRiskProfile)()
+    await retrainModel('entity', { force: true, trigger: 'manual_entity_sync' }).catch(() => null)
+    await fetchRetrainStatus().catch(() => null)
     if (res && res.predictions) {
       toast.success(
-        'Sinkronisasi Berhasil',
-        `Model AI berhasil melatih ulang ${res.predictions.length} auditable entity langsung dari Audit Universe (Audit Priority) (Zero CSV, Tanpa Batas).`
+        'Sinkronisasi & Antrian Pelatihan AI',
+        `Model Entity Prediction dijadwalkan melatih ulang ${res.predictions.length} auditable entity dari Audit Universe secara spesifik (tanpa melatih model fitur lain).`
       )
     } else {
-      toast.info('Sinkronisasi Selesai', 'Data auditable entity telah diperbarui dan diselaraskan.')
+      toast.info('Sinkronisasi Selesai', 'Data auditable entity telah diperbarui dan masuk antrian pelatihan AI.')
     }
   } catch (err: any) {
     toast.error('Gagal Sinkronisasi', err?.message || String(err))
@@ -249,17 +260,22 @@ const featureBarOptions = computed(() => ({
         </div>
 
         <div class="flex items-center gap-2 self-start sm:self-center shrink-0">
+          <AiModelStatusBadge model-key="entity" compact />
           <UButton
             color="primary"
             variant="solid"
             icon="i-lucide-refresh-cw"
-            :loading="isSyncing"
+            :loading="isSyncing || isEntityModelBusy"
+            :disabled="isEntityModelBusy"
             @click="handleSyncWithProfile"
           >
-            Sinkronkan & Latih Ulang AI
+            {{ isEntityModelBusy ? 'Sedang Melatih Entity AI...' : 'Sinkronkan & Latih Ulang AI' }}
           </UButton>
         </div>
       </div>
+
+      <!-- Real-Time Per-Model Training Status Card -->
+      <AiModelStatusBadge model-key="entity" />
 
       <UAlert
         icon="i-heroicons-cpu-chip"

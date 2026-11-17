@@ -18,6 +18,8 @@ export interface DataSourceItem {
   sync_schedule?: string;
   records_synced?: number;
   last_sync_at?: string;
+  lastSyncedAt?: string;
+  nextSyncAt?: string;
   lastSync?: string;
   scopes?: string[];
   dataMappings?: any[];

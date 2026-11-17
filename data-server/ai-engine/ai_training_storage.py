@@ -18,14 +18,74 @@ except ImportError:
     pq = None
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, '..', '..'))
+_REPO_ROOT = os.path.abspath(os.path.join(BASE_DIR, '..', '..'))
+_MODEL_DIR = os.getenv("MODEL_DIR", os.path.join(BASE_DIR, "models"))
 
-PARQUET_DIR = os.getenv("PARQUET_DIR", os.path.join(PROJECT_ROOT, 'data-server', 'ai-training-data', 'parquet'))
+
+def resolve_ai_training_dir() -> str:
+    env_dir = os.getenv("AI_TRAINING_DIR")
+    if env_dir and os.path.exists(env_dir):
+        return env_dir
+    for cand in (
+        "/app/ai_model_training",
+        os.path.join(_REPO_ROOT, "ai_model_training"),
+        os.path.join(BASE_DIR, "..", "ai_model_training"),
+        os.path.join(BASE_DIR, "ai_model_training"),
+    ):
+        if os.path.exists(cand):
+            return cand
+    return "/app/ai_model_training"
+
+
+def _resolve_pool_dir() -> str:
+    env_dir = os.getenv("PARQUET_DIR")
+    if env_dir:
+        return env_dir
+    repo_ds = os.path.join(_REPO_ROOT, "data-server", "ai-training-data", "parquet")
+    if os.path.exists(os.path.join(_REPO_ROOT, "data-server")):
+        return repo_ds
+    # Inside Docker container (/app), persist training pool inside mounted /app/models/training_pool volume
+    return os.path.join(_MODEL_DIR, "training_pool")
+
+
+PARQUET_DIR = _resolve_pool_dir()
 os.makedirs(PARQUET_DIR, exist_ok=True)
 
 AUDITEE_PARQUET_FILE = os.path.join(PARQUET_DIR, 'auditee_kpi_pool.parquet')
 AUDITOR_PARQUET_FILE = os.path.join(PARQUET_DIR, 'auditor_kpi_pool.parquet')
 ENTITY_PREDICTION_PARQUET_FILE = os.path.join(PARQUET_DIR, 'entity_prediction_pool.parquet')
+
+
+def _read_pool_df(parquet_path: str) -> pd.DataFrame:
+    if pa and pq and os.path.exists(parquet_path):
+        try:
+            return pq.read_table(parquet_path, memory_map=True).to_pandas()
+        except Exception as e:
+            print(f"[AI-Storage] Parquet read warning ({parquet_path}): {e}")
+    pkl_path = parquet_path + ".pkl"
+    if os.path.exists(pkl_path):
+        try:
+            return pd.read_pickle(pkl_path)
+        except Exception as e:
+            print(f"[AI-Storage] Pickle pool read warning ({pkl_path}): {e}")
+    return pd.DataFrame()
+
+
+def _write_pool_df(df: pd.DataFrame, parquet_path: str):
+    if pa and pq:
+        tmp_file = parquet_path + '.tmp'
+        table = pa.Table.from_pandas(df, preserve_index=False)
+        pq.write_table(table, tmp_file, compression='SNAPPY')
+        os.replace(tmp_file, parquet_path)
+        return
+    pkl_path = parquet_path + ".pkl"
+    tmp_file = pkl_path + '.tmp'
+    df.to_pickle(tmp_file)
+    os.replace(tmp_file, pkl_path)
+
+
+def _pool_exists(parquet_path: str) -> bool:
+    return os.path.exists(parquet_path) or os.path.exists(parquet_path + ".pkl")
 
 # Database connection URL for Datalake (PostgreSQL / TimescaleDB)
 DATALAKE_DB_URL = os.getenv(
@@ -43,30 +103,27 @@ def _get_sqlalchemy_engine():
 
 def initialize_parquet_from_sources():
     """
-    Initializes high-performance binary Parquet feature stores from legacy CSV
-    if Parquet files do not yet exist, guaranteeing instantaneous bootstrap.
+    Initializes binary feature stores (Parquet when pyarrow is available, else persistent pickle)
+    from legacy CSV if not yet present, guaranteeing instantaneous bootstrap.
     """
-    legacy_dir = os.path.join(PROJECT_ROOT, 'ai_model_training', 'kpi_prediction')
-    
-    # 1. Auditee KPI Parquet
-    if not os.path.exists(AUDITEE_PARQUET_FILE):
+    legacy_dir = os.path.join(resolve_ai_training_dir(), 'kpi_prediction')
+
+    # 1. Auditee KPI Pool
+    if not _pool_exists(AUDITEE_PARQUET_FILE):
         legacy_csv = os.path.join(legacy_dir, 'kpi_data.csv')
         if os.path.exists(legacy_csv):
             df_auditee = pd.read_csv(legacy_csv)
-            # Standardize column types for columnar storage
             df_auditee['ID KPI'] = df_auditee['ID KPI'].astype(str)
             df_auditee['Nama KPI'] = df_auditee['Nama KPI'].astype(str)
             df_auditee['Periode'] = df_auditee['Periode'].astype(str)
             df_auditee['TARGET: Nilai Aktual (%)'] = df_auditee['TARGET: Nilai Aktual (%)'].astype(np.float32)
             df_auditee['TARGET: Impact (1-5)'] = df_auditee['TARGET: Impact (1-5)'].astype(np.int32)
             df_auditee['TARGET: Likelihood (1-5)'] = df_auditee['TARGET: Likelihood (1-5)'].astype(np.int32)
-            
-            table = pa.Table.from_pandas(df_auditee)
-            pq.write_table(table, AUDITEE_PARQUET_FILE, compression='SNAPPY')
-            print(f"[AI-Storage] Initialized Auditee Parquet store: {AUDITEE_PARQUET_FILE} ({len(df_auditee)} rows)")
+            _write_pool_df(df_auditee, AUDITEE_PARQUET_FILE)
+            print(f"[AI-Storage] Initialized Auditee pool store: {AUDITEE_PARQUET_FILE} ({len(df_auditee)} rows)")
 
-    # 2. Auditor KPI Parquet
-    if not os.path.exists(AUDITOR_PARQUET_FILE):
+    # 2. Auditor KPI Pool
+    if not _pool_exists(AUDITOR_PARQUET_FILE):
         legacy_csv = os.path.join(legacy_dir, 'auditor_kpi_data.csv')
         if os.path.exists(legacy_csv):
             df_auditor = pd.read_csv(legacy_csv)
@@ -81,10 +138,8 @@ def initialize_parquet_from_sources():
             df_auditor['TARGET: Nilai Aktual'] = df_auditor['TARGET: Nilai Aktual'].astype(np.float32)
             df_auditor['TARGET: Rasio Ketercapaian (%)'] = df_auditor['TARGET: Rasio Ketercapaian (%)'].astype(np.float32)
             df_auditor['TARGET: Status Achievement'] = df_auditor['TARGET: Status Achievement'].astype(str)
-            
-            table = pa.Table.from_pandas(df_auditor)
-            pq.write_table(table, AUDITOR_PARQUET_FILE, compression='SNAPPY')
-            print(f"[AI-Storage] Initialized Auditor Parquet store: {AUDITOR_PARQUET_FILE} ({len(df_auditor)} rows)")
+            _write_pool_df(df_auditor, AUDITOR_PARQUET_FILE)
+            print(f"[AI-Storage] Initialized Auditor pool store: {AUDITOR_PARQUET_FILE} ({len(df_auditor)} rows)")
 
 def upsert_auditee_kpi_pool(new_records: list) -> int:
     """
@@ -123,15 +178,12 @@ def upsert_auditee_kpi_pool(new_records: list) -> int:
         except Exception as e:
             print(f"[AI-Storage] Notice: DB pool upsert skipped: {e}")
 
-    # 2. Binary Columnar Parquet Store (Atomic File Swap)
+    # 2. Binary Pool Store (Atomic File Swap - Parquet or Pickle fallback)
     try:
         initialize_parquet_from_sources()
-        if os.path.exists(AUDITEE_PARQUET_FILE):
-            df_current = pq.read_table(AUDITEE_PARQUET_FILE, memory_map=True).to_pandas()
-        else:
-            df_current = pd.DataFrame()
+        df_current = _read_pool_df(AUDITEE_PARQUET_FILE)
 
-        # Format incoming records to parquet schema
+        # Format incoming records to pool schema
         converted = []
         for idx, r in enumerate(new_records):
             p_label = str(r.get('period_label') or r.get('period') or 'Bulan 01 2026')
@@ -154,18 +206,10 @@ def upsert_auditee_kpi_pool(new_records: list) -> int:
         else:
             df_updated = df_new
 
-        # Write to temp file then atomic rename to prevent file corruption
-        tmp_file = AUDITEE_PARQUET_FILE + '.tmp'
-        table = pa.Table.from_pandas(df_updated)
-        pq.write_table(table, tmp_file, compression='SNAPPY')
-        if os.path.exists(AUDITEE_PARQUET_FILE):
-            os.replace(tmp_file, AUDITEE_PARQUET_FILE)
-        else:
-            os.rename(tmp_file, AUDITEE_PARQUET_FILE)
-
+        _write_pool_df(df_updated, AUDITEE_PARQUET_FILE)
         return len(new_records)
     except Exception as e:
-        print(f"[AI-Storage] Parquet buffer upsert error: {e}")
+        print(f"[AI-Storage] Auditee pool buffer upsert error: {e}")
         return 0
 
 def upsert_auditor_kpi_pool(new_records: list) -> int:
@@ -205,13 +249,10 @@ def upsert_auditor_kpi_pool(new_records: list) -> int:
         except Exception as e:
             print(f"[AI-Storage] Notice: Auditor DB pool upsert skipped: {e}")
 
-    # 2. Binary Columnar Parquet Store (Atomic File Swap)
+    # 2. Binary Pool Store (Atomic File Swap - Parquet or Pickle fallback)
     try:
         initialize_parquet_from_sources()
-        if os.path.exists(AUDITOR_PARQUET_FILE):
-            df_current = pq.read_table(AUDITOR_PARQUET_FILE, memory_map=True).to_pandas()
-        else:
-            df_current = pd.DataFrame()
+        df_current = _read_pool_df(AUDITOR_PARQUET_FILE)
 
         converted = []
         for idx, r in enumerate(new_records):
@@ -240,17 +281,10 @@ def upsert_auditor_kpi_pool(new_records: list) -> int:
         else:
             df_updated = df_new
 
-        tmp_file = AUDITOR_PARQUET_FILE + '.tmp'
-        table = pa.Table.from_pandas(df_updated)
-        pq.write_table(table, tmp_file, compression='SNAPPY')
-        if os.path.exists(AUDITOR_PARQUET_FILE):
-            os.replace(tmp_file, AUDITOR_PARQUET_FILE)
-        else:
-            os.rename(tmp_file, AUDITOR_PARQUET_FILE)
-
+        _write_pool_df(df_updated, AUDITOR_PARQUET_FILE)
         return len(new_records)
     except Exception as e:
-        print(f"[AI-Storage] Auditor Parquet buffer upsert error: {e}")
+        print(f"[AI-Storage] Auditor pool buffer upsert error: {e}")
         return 0
 
 def load_auditee_training_dataframe() -> pd.DataFrame:
@@ -281,12 +315,13 @@ def load_auditee_training_dataframe() -> pd.DataFrame:
         except Exception:
             pass
 
-    # High-speed Parquet Memory-Mapped Fallback
-    if os.path.exists(AUDITEE_PARQUET_FILE):
-        return pq.read_table(AUDITEE_PARQUET_FILE, memory_map=True).to_pandas()
+    # High-speed Binary Pool Fallback
+    df_pool = _read_pool_df(AUDITEE_PARQUET_FILE)
+    if not df_pool.empty:
+        return df_pool
 
     # Legacy CSV bootstrap fallback
-    legacy_csv = os.path.join(PROJECT_ROOT, 'ai_model_training', 'kpi_prediction', 'kpi_data.csv')
+    legacy_csv = os.path.join(resolve_ai_training_dir(), 'kpi_prediction', 'kpi_data.csv')
     if os.path.exists(legacy_csv):
         return pd.read_csv(legacy_csv)
 
@@ -325,11 +360,12 @@ def load_auditor_training_dataframe() -> pd.DataFrame:
         except Exception:
             pass
 
-    # High-speed Parquet Memory-Mapped Fallback
-    if os.path.exists(AUDITOR_PARQUET_FILE):
-        return pq.read_table(AUDITOR_PARQUET_FILE, memory_map=True).to_pandas()
+    # High-speed Binary Pool Fallback
+    df_pool = _read_pool_df(AUDITOR_PARQUET_FILE)
+    if not df_pool.empty:
+        return df_pool
 
-    legacy_csv = os.path.join(PROJECT_ROOT, 'ai_model_training', 'kpi_prediction', 'auditor_kpi_data.csv')
+    legacy_csv = os.path.join(resolve_ai_training_dir(), 'kpi_prediction', 'auditor_kpi_data.csv')
     if os.path.exists(legacy_csv):
         return pd.read_csv(legacy_csv)
 
@@ -382,17 +418,14 @@ def upsert_entity_prediction_pool(new_records: list) -> int:
         except Exception as e:
             print(f"[AI-Storage] Notice: Entity Prediction DB pool upsert skipped: {e}")
 
-    # 2. Binary Columnar Parquet Store (Atomic File Swap)
+    # 2. Binary Pool Store (Atomic File Swap - Parquet or Pickle fallback)
     try:
         initialize_parquet_from_sources()
-        if os.path.exists(ENTITY_PREDICTION_PARQUET_FILE) and pa and pq:
-            df_current = pq.read_table(ENTITY_PREDICTION_PARQUET_FILE, memory_map=True).to_pandas()
-            if not df_current.empty and 'source_id' in df_current.columns:
-                df_current = df_current[df_current['source_id'] != 'baseline_dataset']
-            if not df_current.empty and 'entity' in df_current.columns:
-                df_current = df_current[~df_current['entity'].astype(str).str.contains('Legal & Compliance', case=False, na=False)]
-        else:
-            df_current = pd.DataFrame()
+        df_current = _read_pool_df(ENTITY_PREDICTION_PARQUET_FILE)
+        if not df_current.empty and 'source_id' in df_current.columns:
+            df_current = df_current[df_current['source_id'] != 'baseline_dataset']
+        if not df_current.empty and 'entity' in df_current.columns:
+            df_current = df_current[~df_current['entity'].astype(str).str.contains('Legal & Compliance', case=False, na=False)]
 
         converted = []
         for r in new_records:
@@ -433,18 +466,11 @@ def upsert_entity_prediction_pool(new_records: list) -> int:
         else:
             df_updated = df_new
 
-        if pa and pq:
-            tmp_file = ENTITY_PREDICTION_PARQUET_FILE + '.tmp'
-            table = pa.Table.from_pandas(df_updated)
-            pq.write_table(table, tmp_file, compression='SNAPPY')
-            if os.path.exists(ENTITY_PREDICTION_PARQUET_FILE):
-                os.replace(tmp_file, ENTITY_PREDICTION_PARQUET_FILE)
-            else:
-                os.rename(tmp_file, ENTITY_PREDICTION_PARQUET_FILE)
+        _write_pool_df(df_updated, ENTITY_PREDICTION_PARQUET_FILE)
 
         return len(new_records)
     except Exception as e:
-        print(f"[AI-Storage] Entity Prediction Parquet buffer upsert error: {e}")
+        print(f"[AI-Storage] Entity Prediction pool buffer upsert error: {e}")
         return 0
 
 def load_entity_prediction_training_dataframe() -> pd.DataFrame:
@@ -487,18 +513,17 @@ def load_entity_prediction_training_dataframe() -> pd.DataFrame:
         except Exception:
             pass
 
-    # High-speed Parquet Memory-Mapped Fallback (Only Real Synced Records, Zero CSV Runtime Dependency)
-    if os.path.exists(ENTITY_PREDICTION_PARQUET_FILE) and pa and pq:
-        try:
-            df = pq.read_table(ENTITY_PREDICTION_PARQUET_FILE, memory_map=True).to_pandas()
-            if not df.empty:
-                if 'source_id' in df.columns:
-                    df = df[df['source_id'] != 'baseline_dataset']
-                if 'entity' in df.columns:
-                    df = df[~df['entity'].astype(str).str.contains('Legal & Compliance', case=False, na=False)]
-                return df
-        except Exception as e:
-            print(f"[AI-Storage] Parquet read error: {e}")
+    # High-speed Binary Pool Fallback (Only Real Synced Records, Zero CSV Runtime Dependency)
+    try:
+        df = _read_pool_df(ENTITY_PREDICTION_PARQUET_FILE)
+        if not df.empty:
+            if 'source_id' in df.columns:
+                df = df[df['source_id'] != 'baseline_dataset']
+            if 'entity' in df.columns:
+                df = df[~df['entity'].astype(str).str.contains('Legal & Compliance', case=False, na=False)]
+            return df
+    except Exception as e:
+        print(f"[AI-Storage] Entity pool read error: {e}")
 
     return pd.DataFrame()
 

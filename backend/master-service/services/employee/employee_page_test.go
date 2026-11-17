@@ -9,6 +9,7 @@ import (
 
 	"master-service/models"
 	"master-service/pkg/base"
+	employeeRepo "master-service/repositories/employee"
 )
 
 // Count and FindPage on fakeRepo filter by search over code, name and email,
@@ -17,10 +18,16 @@ import (
 
 var errTestList = errors.New("list failed")
 
-func (f *fakeRepo) matching(search string) []*models.Employee {
-	q := strings.ToLower(search)
+func (f *fakeRepo) matching(filter employeeRepo.EmployeeListFilter) []*models.Employee {
+	q := strings.ToLower(filter.Search)
 	var out []*models.Employee
 	for _, e := range f.employees {
+		if filter.DepartmentID != nil && e.DepartmentID != *filter.DepartmentID {
+			continue
+		}
+		if filter.IsActive != nil && e.IsActive != *filter.IsActive {
+			continue
+		}
 		if q == "" ||
 			strings.Contains(strings.ToLower(e.EmployeeCode), q) ||
 			strings.Contains(strings.ToLower(e.FullName), q) ||
@@ -32,18 +39,18 @@ func (f *fakeRepo) matching(search string) []*models.Employee {
 	return out
 }
 
-func (f *fakeRepo) Count(search string) (int64, error) {
+func (f *fakeRepo) Count(filter employeeRepo.EmployeeListFilter) (int64, error) {
 	if f.listErr != nil {
 		return 0, f.listErr
 	}
-	return int64(len(f.matching(search))), nil
+	return int64(len(f.matching(filter))), nil
 }
 
-func (f *fakeRepo) FindPage(offset, limit int, search string) ([]*models.Employee, error) {
+func (f *fakeRepo) FindPage(offset, limit int, filter employeeRepo.EmployeeListFilter) ([]*models.Employee, error) {
 	if f.listErr != nil {
 		return nil, f.listErr
 	}
-	all := f.matching(search)
+	all := f.matching(filter)
 	if offset >= len(all) {
 		return []*models.Employee{}, nil
 	}
@@ -84,7 +91,7 @@ func TestFindPage_PageBoundariesAndTotals(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := svc.FindPage(base.NewBaseService(), tc.page, 10, "")
+			got, err := svc.FindPage(base.NewBaseService(), tc.page, 10, employeeRepo.EmployeeListFilter{Search: ""})
 			if err != nil {
 				t.Fatalf("FindPage returned error: %v", err)
 			}
@@ -113,7 +120,7 @@ func TestFindPage_DefaultsWhenParamsMissingOrInvalid(t *testing.T) {
 	svc := &EmployeeService{employeeRepo: repo}
 
 	for _, in := range [][2]int{{0, 0}, {-3, -1}} {
-		got, err := svc.FindPage(base.NewBaseService(), in[0], in[1], "")
+		got, err := svc.FindPage(base.NewBaseService(), in[0], in[1], employeeRepo.EmployeeListFilter{Search: ""})
 		if err != nil {
 			t.Fatalf("FindPage(%v) returned error: %v", in, err)
 		}
@@ -131,7 +138,7 @@ func TestFindPage_PageSizeIsCappedAt100(t *testing.T) {
 	repo.employees = seededEmployees(150)
 	svc := &EmployeeService{employeeRepo: repo}
 
-	got, err := svc.FindPage(base.NewBaseService(), 1, 1000, "")
+	got, err := svc.FindPage(base.NewBaseService(), 1, 1000, employeeRepo.EmployeeListFilter{Search: ""})
 	if err != nil {
 		t.Fatalf("FindPage returned error: %v", err)
 	}
@@ -149,7 +156,7 @@ func TestFindPage_SearchFiltersTotalAndPages(t *testing.T) {
 	svc := &EmployeeService{employeeRepo: repo}
 
 	// "  PERSON 1  " is trimmed and lowered: it matches Person 1 and Person 10..19.
-	got, err := svc.FindPage(base.NewBaseService(), 1, 5, "  PERSON 1  ")
+	got, err := svc.FindPage(base.NewBaseService(), 1, 5, employeeRepo.EmployeeListFilter{Search: "  PERSON 1  "})
 	if err != nil {
 		t.Fatalf("FindPage returned error: %v", err)
 	}
@@ -158,7 +165,7 @@ func TestFindPage_SearchFiltersTotalAndPages(t *testing.T) {
 	}
 
 	// EMP-001 matches EMP-0010..EMP-0019: 10 rows, page 2 of size 5 starts at EMP-0015.
-	got, err = svc.FindPage(base.NewBaseService(), 2, 5, "EMP-001")
+	got, err = svc.FindPage(base.NewBaseService(), 2, 5, employeeRepo.EmployeeListFilter{Search: "EMP-001"})
 	if err != nil {
 		t.Fatalf("FindPage returned error: %v", err)
 	}
@@ -169,7 +176,7 @@ func TestFindPage_SearchFiltersTotalAndPages(t *testing.T) {
 		t.Fatalf("page 2 first = %s, want EMP-0015", got.Employees[0].EmployeeCode)
 	}
 
-	got, err = svc.FindPage(base.NewBaseService(), 1, 10, "nothing-matches")
+	got, err = svc.FindPage(base.NewBaseService(), 1, 10, employeeRepo.EmployeeListFilter{Search: "nothing-matches"})
 	if err != nil {
 		t.Fatalf("FindPage returned error: %v", err)
 	}
@@ -184,14 +191,14 @@ func TestFindPage_RepoErrorIsReported(t *testing.T) {
 	repo.listErr = errTestList
 	svc := &EmployeeService{employeeRepo: repo}
 
-	if _, err := svc.FindPage(base.NewBaseService(), 1, 10, ""); err == nil {
+	if _, err := svc.FindPage(base.NewBaseService(), 1, 10, employeeRepo.EmployeeListFilter{Search: ""}); err == nil {
 		t.Fatal("FindPage returned nil error when the repository failed")
 	}
 }
 
 func TestFindPage_NilRepoIsInternal(t *testing.T) {
 	svc := &EmployeeService{}
-	if _, err := svc.FindPage(base.NewBaseService(), 1, 10, ""); err == nil {
+	if _, err := svc.FindPage(base.NewBaseService(), 1, 10, employeeRepo.EmployeeListFilter{Search: ""}); err == nil {
 		t.Fatal("FindPage with nil repo returned nil error")
 	}
 }

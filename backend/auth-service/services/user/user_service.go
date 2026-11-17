@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
@@ -23,7 +24,10 @@ type UserServiceInterface interface {
 	CreateUser(ctx context.Context, req *models.CreateUserRequest) (*models.CreateUserResponse, error)
 	LinkEmployee(ctx context.Context, id uuid.UUID, employeeCode string) (*models.UserResponse, error)
 	UpdateUser(ctx context.Context, id uuid.UUID, req *models.UpdateUserRequest) (*models.UserResponse, error)
-	DeleteUser(ctx context.Context, id uuid.UUID) error
+	DeleteUser(ctx context.Context, id uuid.UUID, hard bool) error
+	SetUserStatus(ctx context.Context, id uuid.UUID, active bool) (*models.UserResponse, error)
+	ReplaceUserRoles(ctx context.Context, id uuid.UUID, roles []string) (*models.UserResponse, error)
+	GetSeatUsage(ctx context.Context) (*models.SeatUsage, error)
 	GetUser(ctx context.Context, id uuid.UUID) (*models.UserResponse, error)
 	ListUsers(ctx context.Context, req *models.ListUsersRequest) ([]*models.UserResponse, *utils.PaginationResponse, error)
 	FindUserByEmployee(ctx context.Context, employeeCode, email string) (*models.UserResponse, error)
@@ -203,29 +207,64 @@ func (s *UserService) CreateUser(ctx context.Context, req *models.CreateUserRequ
 		user.EmployeeID = &employeeID
 	}
 
-	if err := s.userRepo.Create(user); err != nil {
-		s.LogError("Failed to create user", utils.LogField("error", err))
-		return nil, errors.ErrInternalServer
+	// The user, its roles and the seat check commit together under the seat
+	// lock, so two concurrent creates cannot both take the last seat, and a
+	// failure leaves no account behind.
+	var assigned *models.User
+	downgraded := false
+	err = s.userRepo.WithSeatLock(func(tx repositories.UserRepositoryInterface) error {
+		// Seats in use before this account exists.
+		used, err := tx.CountSeats()
+		if err != nil {
+			return s.internal("Failed to count seats", err)
+		}
+
+		if err := tx.Create(user); err != nil {
+			return s.internal("Failed to create user", err)
+		}
+		// Unknown role names are ignored; if none exist the create is refused.
+		if err := tx.AssignRoles(user.ID, roles); err != nil {
+			return s.internal("Failed to assign roles to new user", err)
+		}
+		found, err := tx.FindByID(user.ID)
+		if err != nil || found == nil || len(found.Roles) == 0 {
+			return errors.New("ROLE_NOT_FOUND", "None of the requested roles exist", http.StatusBadRequest)
+		}
+
+		// No free seat: the account is still created, as a VIEWER only.
+		if holdsSeatRole(found.Roles) && used >= MaxFullSeats {
+			if err := tx.AssignRoles(user.ID, []string{ViewerRole}); err != nil {
+				return s.internal("Failed to assign VIEWER to new user", err)
+			}
+			if found, err = tx.FindByID(user.ID); err != nil {
+				return s.internal("Failed to reload new user", err)
+			}
+			if len(found.Roles) == 0 || holdsSeatRole(found.Roles) {
+				// The VIEWER role is missing from the roles table.
+				return seatLimitError(used)
+			}
+			downgraded = true
+		}
+		assigned = found
+		return nil
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	// Roles are assigned straight after creation. If none of the requested names
-	// exist, the account is removed again so no active user is left without a role.
-	if err := s.userRepo.AssignRoles(user.ID, roles); err != nil {
-		s.LogError("Failed to assign roles to new user", utils.LogField("error", err))
-		_ = s.userRepo.Delete(user.ID)
-		return nil, errors.ErrInternalServer
+	s.LogInfo("User created successfully", utils.LogField("user_id", user.ID), utils.LogField("seat_downgraded", downgraded))
+	if downgraded {
+		s.record(ctx, activitylog.ActionUserSeatDowngraded, assigned,
+			fmt.Sprintf("%s created as VIEWER: all %d full seats in use", user.Username, MaxFullSeats),
+			map[string]interface{}{"target_username": user.Username, "requested_roles": roles})
 	}
-	assigned, err := s.userRepo.FindByID(user.ID)
-	if err != nil || assigned == nil || len(assigned.Roles) == 0 {
-		_ = s.userRepo.Delete(user.ID)
-		return nil, errors.New("ROLE_NOT_FOUND", "None of the requested roles exist", http.StatusBadRequest)
-	}
-
-	s.LogInfo("User created successfully", utils.LogField("user_id", user.ID))
 
 	result := &models.CreateUserResponse{
-		ID:       user.ID.String(),
-		Username: user.Username,
+		ID:             user.ID.String(),
+		Username:       user.Username,
+		SeatDowngraded: downgraded,
+		RequestedRoles: roles,
+		AssignedRoles:  roleNames(assigned.Roles),
 	}
 	if req.GeneratePassword {
 		// Returned to the caller once. It is never logged or stored in plain text.
@@ -316,11 +355,33 @@ func (s *UserService) UpdateUser(ctx context.Context, id uuid.UUID, req *models.
 		}
 	}
 
+	// A status change applies the seat and last-admin rules (as PATCH
+	// /users/:id/status does), so it runs under the seat lock.
+	if req.IsActive != nil {
+		var out *models.UserResponse
+		err := s.userRepo.WithSeatLock(func(tx repositories.UserRepositoryInterface) error {
+			user, err := s.findUser(tx, id)
+			if err != nil {
+				return err
+			}
+			if err := s.checkStatusChange(tx, user, *req.IsActive); err != nil {
+				return err
+			}
+			out, err = s.applyUserUpdate(tx, user, req)
+			return err
+		})
+		return out, err
+	}
+
 	user, err := s.userRepo.FindByID(id)
 	if err != nil {
 		return nil, err
 	}
+	return s.applyUserUpdate(s.userRepo, user, req)
+}
 
+// applyUserUpdate copies the fields present in req onto user and saves it in repo.
+func (s *UserService) applyUserUpdate(repo repositories.UserRepositoryInterface, user *models.User, req *models.UpdateUserRequest) (*models.UserResponse, error) {
 	if req.FullName != nil {
 		user.FullName = *req.FullName
 	}
@@ -345,24 +406,13 @@ func (s *UserService) UpdateUser(ctx context.Context, id uuid.UUID, req *models.
 		}
 	}
 
-	if err := s.userRepo.Update(user); err != nil {
+	if err := repo.Update(user); err != nil {
 		s.LogError("Failed to update user", utils.LogField("error", err))
 		return nil, errors.ErrInternalServer
 	}
 
 	s.LogInfo("User updated successfully", utils.LogField("user_id", user.ID))
 	return s.userToResponse(user), nil
-}
-
-// DeleteUser deletes a user
-func (s *UserService) DeleteUser(ctx context.Context, id uuid.UUID) error {
-	if err := s.userRepo.Delete(id); err != nil {
-		s.LogError("Failed to delete user", utils.LogField("error", err))
-		return errors.ErrInternalServer
-	}
-
-	s.LogInfo("User deleted successfully", utils.LogField("user_id", id))
-	return nil
 }
 
 // GetUser retrieves a user by ID

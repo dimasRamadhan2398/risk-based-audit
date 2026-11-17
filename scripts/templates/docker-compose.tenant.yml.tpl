@@ -121,6 +121,11 @@ services:
       # not cross tenants. If that stack is down, uploads here fail closed (503).
       CLAMAV_ADDRESS: clamav:3310
       CLAMAV_MODE: required
+      # Internal control assessment thresholds (days), from this tenant's .env
+      # (written by generate-tenant-stack.sh). Read at migrate time and inserted
+      # into the settings table only if missing; ADMIN edits them afterwards.
+      IC_LHA_DUE_DAYS: "${TENANT_IC_LHA_DUE_DAYS:-30}"
+      IC_MGMT_RESPONSE_DUE_DAYS: "${TENANT_IC_MGMT_RESPONSE_DUE_DAYS:-14}"
     volumes:
       # Dedicated evidence silo, always <TENANT_STORAGE_ROOT>/<slug> (rendered
       # by generate-tenant-stack.sh). audit-service writes to ./uploads relative

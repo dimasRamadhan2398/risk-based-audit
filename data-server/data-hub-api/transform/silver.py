@@ -7,6 +7,7 @@ Tombstones records if source delete was detected (_op = 'D').
 import re
 from sqlalchemy import text
 from core.identifiers import quote_identifier, sanitize_table_name
+from ingestion.bronze_ddl import get_bronze_table_name
 
 def run_bronze_to_silver_cbs(engine, batch_id: str = None) -> dict:
     """
@@ -197,7 +198,7 @@ def run_bronze_to_silver_cbs(engine, batch_id: str = None) -> dict:
                 b.disbursement_date,
                 b.maturity_date,
                 b.collateral_value,
-                CASE WHEN b.collateral_value > 0 THEN ROUND((b.outstanding / b.collateral_value * 100)::NUMERIC, 2) ELSE NULL END,
+                CASE WHEN b.collateral_value > 0 THEN LEAST(99999999.99, ROUND((b.outstanding / b.collateral_value * 100)::NUMERIC, 2)) ELSE NULL END,
                 b.collectability,
                 b.days_past_due,
                 b.status,
@@ -315,6 +316,18 @@ def run_bronze_to_silver_cbs(engine, batch_id: str = None) -> dict:
     return results
 
 
+def _bronze_candidate_names(source_name: str, table_name: str) -> list:
+    """Return ordered candidate Bronze table names (canonical first, legacy src_ fallback)."""
+    canonical = get_bronze_table_name(source_name, table_name)
+    sanitized = f"{sanitize_table_name(source_name)}_{sanitize_table_name(table_name)}"
+    legacy = f"src_{sanitized}"
+    seen = []
+    for name in (canonical, sanitized, legacy):
+        if name and name not in seen:
+            seen.append(name)
+    return seen
+
+
 def transform_source_bronze_to_silver_external(
     engine,
     source_id: str,
@@ -327,32 +340,37 @@ def transform_source_bronze_to_silver_external(
     Set-based SQL merge of an external bronze table into silver.external_source_data.
     Zero Python loop / iterrows(). Pure database engine set-operation.
     """
-    safe_sname = sanitize_table_name(source_name)
-    safe_tname = sanitize_table_name(table_name)
-    target_bronze_table = f"src_{safe_sname}_{safe_tname}"
+    candidates = _bronze_candidate_names(source_name, table_name)
+    target_bronze_table = candidates[0]
+    all_cols = []
+
+    with engine.connect() as conn:
+        for candidate in candidates:
+            cols_query = conn.execute(text("""
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_schema = 'bronze' AND table_name = :tname
+                ORDER BY ordinal_position;
+            """), {"tname": candidate})
+            found_cols = [r[0] for r in cols_query.fetchall()]
+            if found_cols:
+                target_bronze_table = candidate
+                all_cols = found_cols
+                break
+
+    if not all_cols:
+        print(f"[Transform:Silver] Bronze table not found in candidates {candidates}.")
+        return 0
 
     pk_field = mapping.get("auditField") or mapping.get("primaryKey")
     target_scope = mapping.get("targetScope", "audit_features")
-
-    # If pk_field not explicitly configured, try to inspect the bronze table primary key / first column
-    with engine.connect() as conn:
-        cols_query = conn.execute(text("""
-            SELECT column_name
-            FROM information_schema.columns
-            WHERE table_schema = 'bronze' AND table_name = :tname
-            ORDER BY ordinal_position;
-        """), {"tname": target_bronze_table})
-        all_cols = [r[0] for r in cols_query.fetchall()]
-
-    if not all_cols:
-        print(f"[Transform:Silver] Bronze table bronze.{target_bronze_table} has no columns or not found.")
-        return 0
 
     user_cols = [c for c in all_cols if not c.startswith("_")]
     if not pk_field or pk_field not in user_cols:
         pk_field = user_cols[0] if user_cols else all_cols[0]
 
     safe_pk_field = quote_identifier(pk_field)
+    source_filter = "AND (b._source_id = :sid OR b._source_id IS NULL)" if "_source_id" in all_cols else ""
     batch_filter = "AND b._batch_id = :bid" if batch_id else ""
     params = {
         "sid": source_id,
@@ -372,8 +390,8 @@ def transform_source_bronze_to_silver_external(
             :sid,
             :sname,
             :table,
-            to_jsonb(b) - '_load_id' - '_source' - '_loaded_at' - '_row_hash' - '_op' - '_batch_id',
-            COALESCE(b.{safe_pk_field}::TEXT, MD5(ROW(b.*)::TEXT)),
+            to_jsonb(b) - '_load_id' - '_source_id' - '_source' - '_loaded_at' - '_row_hash' - '_op' - '_batch_id',
+            COALESCE(NULLIF(b.{safe_pk_field}::TEXT, ''), COALESCE(b._row_hash, MD5(ROW(b.*)::TEXT))),
             :scope,
             COALESCE(b._row_hash, MD5(ROW(b.*)::TEXT)),
             b._batch_id,
@@ -381,7 +399,7 @@ def transform_source_bronze_to_silver_external(
             CASE WHEN b._op = 'D' THEN NOW() ELSE NULL END,
             NOW()
         FROM bronze.{quote_identifier(target_bronze_table)} b
-        WHERE b.{safe_pk_field} IS NOT NULL {batch_filter}
+        WHERE TRUE {source_filter} {batch_filter}
         ON CONFLICT (source_id, table_name, dedup_key)
         DO UPDATE SET
             record_data = EXCLUDED.record_data,

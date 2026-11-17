@@ -157,6 +157,22 @@ func (c *AnalyticsCache) Invalidate(name string) {
 	_ = c.store.Del(ctx, cacheKeyPrefix+"batch:"+name)
 }
 
+// InvalidateModelBatch deletes only the cached batch response corresponding to a specific AI model key.
+func (c *AnalyticsCache) InvalidateModelBatch(model string) {
+	switch model {
+	case "entity", "department", "risk-score":
+		c.Invalidate("risk-score")
+	case "anomaly":
+		c.Invalidate("anomaly")
+	case "nlp", "document", "text-analysis":
+		c.Invalidate("text-analysis")
+	case "kpi", "kpi_auditee", "kpi_auditor", "performance-trend":
+		c.Invalidate("performance-trend")
+	case "all":
+		c.InvalidateAll()
+	}
+}
+
 // InvalidateAll clears all cached batch responses and resets the auto-retrain throttle.
 func (c *AnalyticsCache) InvalidateAll() {
 	if c == nil || c.store == nil {

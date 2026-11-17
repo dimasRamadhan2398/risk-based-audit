@@ -109,6 +109,17 @@ func TestCreateUserRemovesAccountWhenNoRequestedRoleExists(t *testing.T) {
 		t.Fatalf("unknown role: got %d, want 400", code)
 	}
 	if !repo.deleted {
-		t.Fatal("an account left without any role must be removed")
+		t.Fatal("an account left without any role must be removed (rolled back)")
 	}
 }
+
+// Seat methods: the fake has no seats in use and no lock. An error from fn
+// stands for the transaction rollback, which removes the created account.
+func (f *createRepo) WithSeatLock(fn func(repositories.UserRepositoryInterface) error) error {
+	err := fn(f)
+	if err != nil && f.created != nil {
+		f.deleted = true
+	}
+	return err
+}
+func (f *createRepo) CountSeats() (int64, error) { return 0, nil }

@@ -143,6 +143,16 @@ train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
 
 lstm_model = AuditorLSTMRegressor(input_dim=1, hidden_dim=64, num_layers=2, output_dim=1, dropout=0.1).to(device)
+
+# Warm-start / Fine-tune from previously trained base model weights if available
+auditor_lstm_path = os.path.join(BACKEND_MODEL_DIR, 'auditor_kpi_lstm.pth')
+if os.path.exists(auditor_lstm_path):
+    try:
+        lstm_model.load_state_dict(torch.load(auditor_lstm_path, map_location=device))
+        print(f"[Fine-Tuning] Warm-starting from pre-trained base model weights: {auditor_lstm_path}")
+    except Exception as e:
+        print(f"[Fine-Tuning] Starting fresh training: {e}")
+
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(lstm_model.parameters(), lr=0.002, weight_decay=1e-5)
 scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5)

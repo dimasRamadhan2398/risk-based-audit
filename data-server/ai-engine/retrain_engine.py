@@ -1,8 +1,14 @@
 import os
 import sys
 import gc
+import re
+import time
+import json
 import pickle
 import random
+import hashlib
+import threading
+from datetime import datetime, timezone
 import numpy as np
 import pandas as pd
 import torch
@@ -37,7 +43,176 @@ from ai_training_storage import (
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.getenv("MODEL_DIR", os.path.join(BASE_DIR, "models"))
 AI_TRAINING_DIR = os.getenv("AI_TRAINING_DIR", "/app/ai_model_training" if os.path.exists("/app/ai_model_training") else os.path.abspath(os.path.join(BASE_DIR, "..", "..", "ai_model_training")))
+DATA_SERVER_MODEL_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "..", "data-server", "ai-engine", "models"))
+RETRAIN_STATUS_FILE = os.path.join(MODEL_DIR, "retrain_status.json")
 os.makedirs(MODEL_DIR, exist_ok=True)
+_STATUS_FILE_LOCK = threading.Lock()
+
+
+def _normalize_num_str(val) -> str:
+    if val is None or val == "":
+        return ""
+    try:
+        num = float(str(val).replace(",", "").replace("%", "").strip())
+        if np.isfinite(num):
+            return f"{round(num, 4):.4f}"
+    except Exception:
+        pass
+    return ""
+
+
+def compute_auditor_items_hash(items: list) -> str:
+    """Deterministic SHA-256[:16] fingerprint matching frontend `computeAuditorFingerprint`."""
+    if not items:
+        return ""
+    rows = []
+    for it in items:
+        if not isinstance(it, dict):
+            continue
+        code = str(it.get("code") or "").strip().upper()
+        kpi = str(it.get("kpi") or it.get("kpiName") or "").strip().lower()
+        pol = "HIB" if str(it.get("polarity") or it.get("hibHig") or "HIG").strip().upper() == "HIB" else "HIG"
+        target = _normalize_num_str(it.get("target") if it.get("target") is not None else it.get("targetValue"))
+        actual = _normalize_num_str(it.get("actual") if it.get("actual") is not None else it.get("currentValue"))
+        t_map = it.get("kpiTargets") or {}
+        a_map = it.get("kpiActuals") or {}
+        t_canon = json.dumps({str(k): str(t_map[k]) for k in sorted(t_map.keys())}, separators=(",", ":"), ensure_ascii=False) if isinstance(t_map, dict) else "{}"
+        a_canon = json.dumps({str(k): str(a_map[k]) for k in sorted(a_map.keys())}, separators=(",", ":"), ensure_ascii=False) if isinstance(a_map, dict) else "{}"
+        rows.append(f"{code}|{kpi}|{pol}|{target}|{actual}|{t_canon}|{a_canon}")
+    rows.sort()
+    payload = "\n".join(rows)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
+
+
+def compute_auditee_custom_items_hash(items: list) -> str:
+    """Deterministic SHA-256[:16] fingerprint matching frontend `computeAuditeeCustomFingerprint`."""
+    if not items:
+        return ""
+    rows = []
+    for it in items:
+        if not isinstance(it, dict):
+            continue
+        code = str(it.get("code") or "").strip().upper()
+        kpi = str(it.get("kpiName") or it.get("kpi_name") or it.get("kpi") or "").strip().lower()
+        ent = str(it.get("entity") or "").strip().lower()
+        cur = _normalize_num_str(it.get("currentValue") if it.get("currentValue") is not None else it.get("actual_value"))
+        fore = _normalize_num_str(it.get("forecastedValue") if it.get("forecastedValue") is not None else it.get("forecast_value"))
+        rows.append(f"{code}|{kpi}|{ent}|{cur}|{fore}")
+    rows.sort()
+    if not rows:
+        return ""
+    return hashlib.sha256("\n".join(rows).encode("utf-8")).hexdigest()[:16]
+
+
+def compute_auditee_pool_hash() -> tuple:
+    """Compute fingerprint of the active Auditee training pool (DB or Parquet) to detect new Datalake rows."""
+    try:
+        df = load_auditee_training_dataframe()
+        if df is None or df.empty or "Nama KPI" not in df.columns:
+            return ("", 0)
+        sub = df[["Nama KPI", "Periode", "TARGET: Nilai Aktual (%)"]].copy()
+        sub["Nama KPI"] = sub["Nama KPI"].astype(str).str.strip().str.lower()
+        sub["Periode"] = sub["Periode"].astype(str).str.strip()
+        sub["_val"] = pd.to_numeric(sub["TARGET: Nilai Aktual (%)"], errors="coerce").fillna(0.0).round(4)
+        sub = sub.sort_values(["Nama KPI", "Periode"])
+        lines = [f"{r[0]}|{r[1]}|{r[2]:.4f}" for r in zip(sub["Nama KPI"], sub["Periode"], sub["_val"])]
+        digest = hashlib.sha256("\n".join(lines).encode("utf-8")).hexdigest()[:16]
+        return (digest, int(len(df)))
+    except Exception:
+        return ("", 0)
+
+
+def _period_label_to_auditee_bulan(period_raw: str) -> str:
+    """Normalize '2026-Q2', '2026-06', or 'Bulan 06 2026' into 'Bulan MM YYYY' for uniform time sorting."""
+    s = str(period_raw or "").strip()
+    if s.lower().startswith("bulan "):
+        return s
+    m_q = re.match(r"^(\d{4})[-/\s]?Q([1-4])$", s, re.I)
+    if m_q:
+        month = int(m_q.group(2)) * 3
+        return f"Bulan {month:02d} {m_q.group(1)}"
+    m_ym = re.match(r"^(\d{4})[-/](\d{1,2})$", s)
+    if m_ym:
+        return f"Bulan {int(m_ym.group(2)):02d} {m_ym.group(1)}"
+    now = datetime.now()
+    return f"Bulan {now.month:02d} {now.year}"
+
+
+def _parse_period_sort_key(period_raw: str) -> tuple:
+    s = str(period_raw or "").strip()
+    m_b = re.search(r"(\d{1,2})\D+(\d{4})", s)
+    if m_b:
+        return (int(m_b.group(2)), int(m_b.group(1)), s)
+    m_ym = re.match(r"^(\d{4})[-/](\d{1,2})$", s)
+    if m_ym:
+        return (int(m_ym.group(1)), int(m_ym.group(2)), s)
+    m_qy = re.match(r"^Q([1-4])[-\s/]?(\d{4})$", s, re.I)
+    if m_qy:
+        return (int(m_qy.group(2)), int(m_qy.group(1)) * 3, s)
+    m_yq = re.match(r"^(\d{4})[-\s/]?Q([1-4])$", s, re.I)
+    if m_yq:
+        return (int(m_yq.group(1)), int(m_yq.group(2)) * 3, s)
+    m_y = re.match(r"^(\d{4})$", s)
+    if m_y:
+        return (int(m_y.group(1)), 12, s)
+    return (9999, 12, s)
+
+
+def default_retrain_status() -> dict:
+    return {
+        "status": "idle",
+        "is_running": False,
+        "trigger": "none",
+        "started_at": None,
+        "finished_at": None,
+        "duration_seconds": None,
+        "trained_auditor_hash": "",
+        "trained_auditee_pool_hash": "",
+        "trained_auditee_custom_hash": "",
+        "trained_auditor_count": 0,
+        "trained_auditee_count": 0,
+        "auditor_retrained": False,
+        "auditee_retrained": False,
+        "model_updated_at": None,
+        "message": "Model AI siap digunakan.",
+        "last_error": None,
+    }
+
+
+def read_retrain_status() -> dict:
+    base = default_retrain_status()
+    with _STATUS_FILE_LOCK:
+        try:
+            if os.path.exists(RETRAIN_STATUS_FILE):
+                with open(RETRAIN_STATUS_FILE, "r", encoding="utf-8") as f:
+                    saved = json.load(f)
+                if isinstance(saved, dict):
+                    base.update(saved)
+        except Exception:
+            pass
+    return base
+
+
+def write_retrain_status(patch: dict) -> dict:
+    with _STATUS_FILE_LOCK:
+        curr = default_retrain_status()
+        try:
+            if os.path.exists(RETRAIN_STATUS_FILE):
+                with open(RETRAIN_STATUS_FILE, "r", encoding="utf-8") as f:
+                    saved = json.load(f)
+                if isinstance(saved, dict):
+                    curr.update(saved)
+        except Exception:
+            pass
+        curr.update(patch)
+        try:
+            tmp = RETRAIN_STATUS_FILE + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(curr, f, ensure_ascii=False, indent=2)
+            os.replace(tmp, RETRAIN_STATUS_FILE)
+        except Exception as e:
+            print(f"[AutoRetrain] Warning: could not persist retrain_status.json: {e}")
+        return curr
 
 def set_seed(seed=42):
     random.seed(seed)
@@ -98,7 +273,7 @@ class AutoRetrainEngine:
         self.master_service_url = os.getenv("MASTER_SERVICE_URL", "http://master-service:8002" if os.path.exists("/.dockerenv") else "http://localhost:8083")
         self.data_hub_url = os.getenv("DATA_HUB_URL", "http://data-hub-api:8000" if os.path.exists("/.dockerenv") else "http://localhost:8000")
 
-    def sync_live_cross_service_data(self) -> dict:
+    def sync_live_cross_service_data(self, scope: str = "all") -> dict:
         """
         Synchronizes live operational data from risk-service, audit-service, 
         master-service, and data-hub Zona Gold into the AI datasets for real-time model re-training.
@@ -183,13 +358,14 @@ class AutoRetrainEngine:
         except Exception as e:
             print(f"Audit universe sync skipped: {e}")
 
-        # 2. Sync Multi-Source NLP Data (Imported Documents + Internal Notes + External DB Records)
-        try:
-            nlp_synced = self.sync_multi_source_nlp_corpus()
-            synced_counts["audit"] = nlp_synced.get("total_synced", 0)
-            synced_counts["nlp_sources"] = nlp_synced
-        except Exception as e:
-            print(f"Multi-source NLP sync skipped: {e}")
+        # 2. Sync Multi-Source NLP Data (skip when retraining KPI models only)
+        if str(scope).lower() != "kpi":
+            try:
+                nlp_synced = self.sync_multi_source_nlp_corpus()
+                synced_counts["audit"] = nlp_synced.get("total_synced", 0)
+                synced_counts["nlp_sources"] = nlp_synced
+            except Exception as e:
+                print(f"Multi-source NLP sync skipped: {e}")
 
         # 3. Sync from Audit Service: Strategic Audit Plan & Internal Audit Performance
         audit_urls = [self.audit_service_url, "http://localhost:8080", "http://localhost:8082"]
@@ -870,117 +1046,445 @@ class AutoRetrainEngine:
             print(f"Error retraining document suite: {e}")
             return False
 
-    def retrain_kpi_lstm_suite(self) -> bool:
-        """Automated Re-training of PyTorch LSTM Regressor for Time-Series KPI Forecasting (Outside CSV)"""
+    def _fine_tune_lstm_minibatch(self, model, X_np: np.ndarray, y_np: np.ndarray, warm_started: bool, base_lr: float = 0.003) -> float:
+        """Train PyTorch LSTM with mini-batches so CPU fine-tuning finishes in seconds without blocking."""
+        device = next(model.parameters()).device
+        X_t = torch.tensor(np.array(X_np, dtype=np.float32), device=device)
+        y_t = torch.tensor(np.array(y_np, dtype=np.float32), device=device)
+        epochs = 15 if warm_started else 60
+        batch_size = 512 if len(X_t) > 512 else max(1, len(X_t))
+        criterion = nn.MSELoss()
+        optimizer = torch.optim.Adam(model.parameters(), lr=base_lr * (0.75 if warm_started else 1.0))
+
+        model.train()
+        final_loss = 0.0
+        n_samples = len(X_t)
+        for _ in range(epochs):
+            perm = torch.randperm(n_samples, device=device)
+            for start in range(0, n_samples, batch_size):
+                idx = perm[start:start + batch_size]
+                optimizer.zero_grad()
+                out = model(X_t[idx])
+                loss = criterion(out, y_t[idx])
+                loss.backward()
+                optimizer.step()
+                final_loss = float(loss.item())
+        return final_loss
+
+    def _save_model_artifact(self, filename: str, payload, is_torch: bool = False):
+        """Persist trained artifact into MODEL_DIR and mirror to data-server when co-located."""
+        targets = [self.model_dir]
+        if os.path.isdir(os.path.dirname(DATA_SERVER_MODEL_DIR)):
+            os.makedirs(DATA_SERVER_MODEL_DIR, exist_ok=True)
+            targets.append(DATA_SERVER_MODEL_DIR)
+        for target_dir in targets:
+            out_path = os.path.join(target_dir, filename)
+            if is_torch:
+                torch.save(payload, out_path)
+            else:
+                with open(out_path, "wb") as f:
+                    pickle.dump(payload, f)
+
+    def _ingest_custom_auditee_items(self, auditee_items: list) -> str:
+        """Upsert live/external DB Auditee KPIs (including historical points) into Auditee training pool."""
+        if not auditee_items or not isinstance(auditee_items, list):
+            return ""
+        records = []
+        now_dt = datetime.now()
+        for idx, item in enumerate(auditee_items):
+            if not isinstance(item, dict):
+                continue
+            kpi_name = str(item.get("kpiName") or item.get("kpi_name") or item.get("kpi") or "").strip()
+            if not kpi_name:
+                continue
+            entity = str(item.get("entity") or "Unit Operasional").strip()
+            entity_type = str(item.get("entityType") or item.get("entity_type") or "Department")
+            imp = int(item.get("impactScore") or item.get("impact") or 3)
+            lik = int(item.get("likelihoodScore") or item.get("likelihood") or 3)
+            r_lvl = str(item.get("riskLevel") or item.get("risk_level") or "MODERATE")
+            sync_freq = str(item.get("syncFrequency") or item.get("sync_frequency") or "External DB")
+
+            hist_list = item.get("history") if isinstance(item.get("history"), list) else []
+            if not hist_list and item.get("currentValue") is not None:
+                hist_list = [{"period": item.get("lastActualPeriod") or f"{now_dt.year}-{now_dt.month:02d}", "value": item.get("currentValue")}]
+
+            for h in hist_list:
+                if not isinstance(h, dict) or h.get("value") is None:
+                    continue
+                p_label = _period_label_to_auditee_bulan(str(h.get("period") or f"{now_dt.year}-{now_dt.month:02d}"))
+                records.append({
+                    "id": str(item.get("code") or f"KPI-EXT-{idx+1:03d}"),
+                    "source_id": sync_freq,
+                    "kpi_name": kpi_name,
+                    "entity": entity,
+                    "entity_type": entity_type,
+                    "period_date": f"{_parse_period_sort_key(p_label)[0]:04d}-{_parse_period_sort_key(p_label)[1]:02d}-01",
+                    "period_label": p_label,
+                    "actual_value": float(h.get("value")),
+                    "target_value": float(item.get("targetValue") or h.get("value") or 0.0),
+                    "impact": max(1, min(5, imp)),
+                    "likelihood": max(1, min(5, lik)),
+                    "risk_level": r_lvl,
+                    "sync_frequency": sync_freq,
+                })
+
+        if records:
+            upsert_auditee_kpi_pool(records)
+        return compute_auditee_custom_items_hash(auditee_items)
+
+    def _ingest_live_auditor_items(self, auditor_items: list) -> str:
+        """Upsert live Strategic Audit Plan & Internal Audit Performance KPIs into Auditor training pool."""
+        if not auditor_items or not isinstance(auditor_items, list):
+            return ""
+        records = []
+        now_dt = datetime.now()
+        for idx, item in enumerate(auditor_items):
+            if not isinstance(item, dict):
+                continue
+            code = str(item.get("code") or f"SO-IA{idx+1:02d}").strip()
+            kpi_name = str(item.get("kpi") or item.get("kpiName") or "").strip()
+            if not kpi_name:
+                continue
+            pol = "HIB" if str(item.get("polarity") or item.get("hibHig") or "HIG").strip().upper() == "HIB" else "HIG"
+            cat = str(item.get("category") or "Pelaksanaan Audit & PKAT")
+            unit = str(item.get("unit") or "%")
+            so_obj = str(item.get("strategicObjective") or kpi_name)
+
+            raw_t = item.get("target") if item.get("target") is not None else item.get("targetValue")
+            base_t = float(_normalize_num_str(raw_t if raw_t is not None else 100.0) or 100.0)
+            t_map = item.get("kpiTargets") if isinstance(item.get("kpiTargets"), dict) else {}
+            a_map = item.get("kpiActuals") if isinstance(item.get("kpiActuals"), dict) else {}
+
+            paired_periods = []
+            for p_k, a_raw in a_map.items():
+                a_norm = _normalize_num_str(a_raw)
+                if not a_norm:
+                    continue
+                t_norm = _normalize_num_str(t_map.get(p_k))
+                paired_periods.append((str(p_k), float(t_norm) if t_norm else base_t, float(a_norm)))
+
+            if not paired_periods:
+                a_norm = _normalize_num_str(item.get("actual") if item.get("actual") is not None else item.get("currentValue"))
+                if a_norm:
+                    paired_periods.append((str(item.get("selectedPeriod") or now_dt.year), base_t, float(a_norm)))
+
+            for p_raw, t_v, a_v in paired_periods:
+                ratio = (a_v / t_v * 100.0) if (pol == "HIG" and t_v > 0) else (100.0 if a_v <= 0 else t_v / a_v * 100.0)
+                status = "Good" if ratio >= 100.0 else ("Moderate" if ratio >= 70.0 else "Poor")
+                p_year, p_month, _ = _parse_period_sort_key(p_raw)
+                if p_year == 9999:
+                    p_year, p_month = now_dt.year, now_dt.month
+                p_label = _period_label_to_auditee_bulan(f"{p_year:04d}-{p_month:02d}")
+                records.append({
+                    "id": f"AUD-LIVE-{code}-{p_raw}",
+                    "code": code,
+                    "kpi_name": kpi_name,
+                    "category": cat,
+                    "strategic_objective": so_obj,
+                    "period_date": f"{p_year:04d}-{p_month:02d}-01",
+                    "period_label": p_label,
+                    "hib_hig": pol,
+                    "unit": unit,
+                    "target_value": t_v,
+                    "actual_value": a_v,
+                    "achievement_rate": round(ratio, 2),
+                    "status": status,
+                })
+
+        if records:
+            upsert_auditor_kpi_pool(records)
+        return compute_auditor_items_hash(auditor_items)
+
+    def retrain_auditor_kpi_suite(self, auditor_items: list = None) -> dict:
+        """
+        Fine-tune PyTorch Auditor LSTM + Status Classifier directly into MODEL_DIR
+        using live Strategic Audit Plan / Internal Audit Performance items and persisted pool.
+        """
         try:
+            live_hash = self._ingest_live_auditor_items(auditor_items) if auditor_items else ""
+            df = load_auditor_training_dataframe()
+            if df is None or df.empty or "TARGET: Nilai Aktual" not in df.columns:
+                print("[AutoRetrain] Auditor KPI dataset empty. Skipping.")
+                return {"ok": False, "rows": 0, "kpis": 0, "hash": live_hash}
+
+            df = df.copy()
+            df["_sort_key"] = df["Periode"].astype(str).apply(_parse_period_sort_key)
+            df["_actual"] = pd.to_numeric(df["TARGET: Nilai Aktual"], errors="coerce")
+            df["_target"] = pd.to_numeric(df.get("Nilai Target", 100.0), errors="coerce").fillna(100.0)
+            df = df.dropna(subset=["Kode SO", "_actual"]).sort_values(["Kode SO", "_sort_key"]).reset_index(drop=True)
+            if df.empty:
+                return {"ok": False, "rows": 0, "kpis": 0, "hash": live_hash}
+
+            seq_len = 10
+            X_seqs, y_seqs = [], []
+            auditor_scalers = {}
+
+            for so_code, grp in df.groupby("Kode SO", sort=False):
+                vals = grp["_actual"].values.astype(np.float32).reshape(-1, 1)
+                lo, hi = float(vals.min()), float(vals.max())
+                pad = max(1.0, (hi - lo) * 0.25)
+                sc = MinMaxScaler(feature_range=(0, 1))
+                sc.fit(np.array([[lo - pad], [hi + pad]], dtype=np.float32))
+                auditor_scalers[str(so_code)] = sc
+                scaled = sc.transform(vals)
+
+                if len(scaled) > seq_len:
+                    for idx in range(seq_len, len(scaled)):
+                        X_seqs.append(scaled[idx - seq_len:idx])
+                        y_seqs.append(scaled[idx])
+                elif len(scaled) >= 2:
+                    hist_part = scaled[:-1]
+                    if len(hist_part) < seq_len:
+                        hist_part = np.vstack([np.repeat(hist_part[:1], seq_len - len(hist_part), axis=0), hist_part])
+                    X_seqs.append(hist_part)
+                    y_seqs.append(scaled[-1])
+                else:
+                    # Single-period live KPI anchor so new KPIs influence shared LSTM representation
+                    X_seqs.append(np.repeat(scaled[:1], seq_len, axis=0))
+                    y_seqs.append(scaled[0])
+
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            lstm_model = PyTorchLSTMRegressor(input_dim=1, hidden_dim=64, num_layers=2, output_dim=1).to(device)
+            lstm_path = os.path.join(self.model_dir, "auditor_kpi_lstm.pth")
+            warm_started = False
+            if os.path.exists(lstm_path):
+                try:
+                    lstm_model.load_state_dict(torch.load(lstm_path, map_location=device))
+                    warm_started = True
+                except Exception as e_warm:
+                    print(f"[AutoRetrain] Auditor LSTM fresh init fallback: {e_warm}")
+
+            final_loss = self._fine_tune_lstm_minibatch(lstm_model, X_seqs, y_seqs, warm_started=warm_started, base_lr=0.003)
+
+            self._save_model_artifact("auditor_kpi_lstm.pth", lstm_model.state_dict(), is_torch=True)
+
+            # Fine-tune Status Classifier (Good / Moderate / Poor) using HIG/HIB features + filled short lags
+            df_feat = df.copy()
+            df_feat["polarity_is_hig"] = (df_feat["Tipe Polaritas (HIG/HIB)"].astype(str).str.upper() == "HIG").astype(int)
+            df_feat["target_val"] = df_feat["_target"].astype(float)
+            df_feat["actual_val"] = df_feat["_actual"].astype(float)
+            df_feat["achievement_ratio"] = pd.to_numeric(df_feat.get("TARGET: Rasio Ketercapaian (%)", 100.0), errors="coerce").fillna(100.0)
+            df_feat["gap_ratio"] = np.where(
+                df_feat["polarity_is_hig"] == 1,
+                (df_feat["actual_val"] - df_feat["target_val"]) / (df_feat["target_val"].abs() + 1e-6),
+                (df_feat["target_val"] - df_feat["actual_val"]) / (df_feat["target_val"].abs() + 1e-6),
+            )
+            for lag in (1, 2, 3):
+                df_feat[f"lag_{lag}"] = df_feat.groupby("Kode SO")["actual_val"].shift(lag).fillna(df_feat["actual_val"])
+                df_feat[f"ratio_lag_{lag}"] = df_feat.groupby("Kode SO")["achievement_ratio"].shift(lag).fillna(df_feat["achievement_ratio"])
+
+            df_feat["rolling_mean_3"] = (
+                df_feat.groupby("Kode SO")["actual_val"].transform(lambda s: s.shift(1).rolling(3, min_periods=1).mean())
+                .fillna(df_feat["actual_val"])
+            )
+            df_feat["rolling_std_3"] = (
+                df_feat.groupby("Kode SO")["actual_val"].transform(lambda s: s.shift(1).rolling(3, min_periods=1).std())
+                .fillna(0.0)
+            )
+            df_feat["velocity_trend"] = df_feat["actual_val"] - df_feat["lag_3"]
+
+            feature_cols = [
+                "polarity_is_hig", "target_val", "actual_val", "achievement_ratio", "gap_ratio",
+                "lag_1", "lag_2", "lag_3", "ratio_lag_1", "ratio_lag_2", "ratio_lag_3",
+                "rolling_mean_3", "rolling_std_3", "velocity_trend",
+            ]
+            X_class = df_feat[feature_cols].values.astype(float)
+            y_labels = df_feat["TARGET: Status Achievement"].astype(str).values
+            le = LabelEncoder()
+            y_enc = le.fit_transform(y_labels)
+            sc_class = StandardScaler()
+            X_c_scaled = sc_class.fit_transform(X_class)
+
+            status_clf = GradientBoostingClassifier(n_estimators=100, learning_rate=0.08, max_depth=4, random_state=42)
+            if len(np.unique(y_enc)) >= 2:
+                status_clf.fit(X_c_scaled, y_enc)
+
+            bundle = {
+                "scalers": auditor_scalers,
+                "global_min_val": float(df["_actual"].min()),
+                "global_max_val": float(df["_actual"].max()),
+                "feature_cols": feature_cols,
+                "scaler_class": sc_class,
+                "status_classifier": status_clf,
+                "label_encoder": le,
+                "seq_length": seq_len,
+                "known_kpis": sorted(df["Kode SO"].astype(str).unique().tolist()),
+                "data_samples": int(len(df)),
+            }
+            self._save_model_artifact("auditor_kpi_bundle.pkl", bundle, is_torch=False)
+
+            del df, df_feat, X_class, X_c_scaled
+            gc.collect()
+            print(f"[AutoRetrain] Auditor KPI Suite retrained directly to {self.model_dir} (samples={len(X_seqs)}, loss={final_loss:.5f}).")
+            return {
+                "ok": True,
+                "rows": int(len(X_seqs)),
+                "kpis": len(auditor_scalers),
+                "hash": live_hash,
+                "final_loss": round(final_loss, 6),
+            }
+        except Exception as e:
+            print(f"Error retraining Auditor KPI suite: {e}")
+            return {"ok": False, "rows": 0, "kpis": 0, "hash": "", "error": str(e)}
+
+    def retrain_kpi_lstm_suite(self, auditee_items: list = None, auditor_items: list = None) -> bool:
+        """Automated Re-training of PyTorch LSTM Regressors for Auditee & Auditor KPI Forecasting."""
+        self.last_kpi_metrics = {}
+        auditee_custom_hash = ""
+        try:
+            if auditee_items:
+                auditee_custom_hash = self._ingest_custom_auditee_items(auditee_items)
+
             df = load_auditee_training_dataframe()
             if df.empty or 'TARGET: Nilai Aktual (%)' not in df.columns:
                 print("[AutoRetrain] Auditee training dataset empty. Skipping.")
                 return False
 
-            y_values = df['TARGET: Nilai Aktual (%)'].values.astype(float)
-            scaler = MinMaxScaler(feature_range=(0, 1))
-            series_scaled = scaler.fit_transform(y_values.reshape(-1, 1))
+            df = df.copy()
+            df['_val'] = pd.to_numeric(df['TARGET: Nilai Aktual (%)'], errors='coerce')
+            df = df.dropna(subset=['Nama KPI', '_val'])
+            df['_sort_key'] = df['Periode'].astype(str).apply(_parse_period_sort_key)
+            df = df.sort_values(['Nama KPI', '_sort_key']).reset_index(drop=True)
 
-            # Prepare sequences of 3 quarters to predict 4th quarter
+            y_values = df['_val'].values.astype(float)
+            global_scaler = MinMaxScaler(feature_range=(0, 1))
+            global_scaler.fit(y_values.reshape(-1, 1))
+
+            # Build sequences STRICTLY within each KPI series (never cross KPI boundaries)
             seq_length = 3
             X_list, y_list = [], []
-            for i in range(len(series_scaled) - seq_length):
-                X_list.append(series_scaled[i:i+seq_length])
-                y_list.append(series_scaled[i+seq_length])
+            per_kpi_scalers = {}
 
-            if len(X_list) == 0:
-                X_list = [series_scaled[:seq_length]]
-                y_list = [series_scaled[-1]]
-
-            X_seq = torch.tensor(np.array(X_list), dtype=torch.float32)
-            y_seq = torch.tensor(np.array(y_list), dtype=torch.float32)
+            for kpi_name, grp in df.groupby('Nama KPI', sort=False):
+                vals = grp['_val'].values.astype(np.float32).reshape(-1, 1)
+                lo, hi = float(vals.min()), float(vals.max())
+                pad = max(0.5, (hi - lo) * 0.2)
+                sc_kpi = MinMaxScaler(feature_range=(0, 1))
+                sc_kpi.fit(np.array([[lo - pad], [hi + pad]], dtype=np.float32))
+                per_kpi_scalers[str(kpi_name)] = sc_kpi
+                scaled = sc_kpi.transform(vals)
+                if len(scaled) > seq_length:
+                    for i in range(len(scaled) - seq_length):
+                        X_list.append(scaled[i:i + seq_length])
+                        y_list.append(scaled[i + seq_length])
+                elif len(scaled) >= 2:
+                    hist_part = np.vstack([np.repeat(scaled[:1], seq_length - (len(scaled) - 1), axis=0), scaled[:-1]])
+                    X_list.append(hist_part[-seq_length:])
+                    y_list.append(scaled[-1])
+                else:
+                    X_list.append(np.repeat(scaled[:1], seq_length, axis=0))
+                    y_list.append(scaled[0])
 
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             model = PyTorchLSTMRegressor().to(device)
-            criterion = nn.MSELoss()
-            optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 
-            model.train()
-            X_seq_dev = X_seq.to(device)
-            y_seq_dev = y_seq.to(device)
-
-            for epoch in range(100):
-                optimizer.zero_grad()
-                outputs = model(X_seq_dev)
-                loss = criterion(outputs, y_seq_dev)
-                loss.backward()
-                optimizer.step()
-
-            # Save PyTorch LSTM model weights
             lstm_path = os.path.join(self.model_dir, 'kpi_lstm.pth')
-            torch.save(model.state_dict(), lstm_path)
+            warm_started = False
+            if os.path.exists(lstm_path):
+                try:
+                    model.load_state_dict(torch.load(lstm_path, map_location=device))
+                    warm_started = True
+                    print(f"[AutoRetrain:Fine-Tuning] Warm-starting from pre-trained base model weights: {lstm_path}")
+                except Exception as e:
+                    print(f"[AutoRetrain:Fine-Tuning] Notice: Fresh training fallback: {e}")
 
-            # Tabular classifier bundle with robust LabelEncoder
+            auditee_loss = self._fine_tune_lstm_minibatch(model, X_list, y_list, warm_started=warm_started, base_lr=0.005)
+
+            self._save_model_artifact('kpi_lstm.pth', model.state_dict(), is_torch=True)
+
+            # Tabular classifier bundle with robust LabelEncoder & NaN-safe integer casting
+            imp_vals = pd.to_numeric(df.get('TARGET: Impact (1-5)', 3), errors='coerce').fillna(3).clip(1, 5).astype(int).values
+            lik_vals = pd.to_numeric(df.get('TARGET: Likelihood (1-5)', 3), errors='coerce').fillna(3).clip(1, 5).astype(int).values
             imp_le = LabelEncoder()
             lik_le = LabelEncoder()
-            y_imp_enc = imp_le.fit_transform(df['TARGET: Impact (1-5)'].values.astype(int))
-            y_lik_enc = lik_le.fit_transform(df['TARGET: Likelihood (1-5)'].values.astype(int))
+            y_imp_enc = imp_le.fit_transform(imp_vals)
+            y_lik_enc = lik_le.fit_transform(lik_vals)
 
             X_tab = y_values.reshape(-1, 1)
             sc_tab = StandardScaler()
             X_tab_scaled = sc_tab.fit_transform(X_tab)
 
             imp_clf = XGBClassifier(max_depth=3, learning_rate=0.05, n_estimators=50, random_state=42)
-            imp_clf.fit(X_tab_scaled, y_imp_enc)
+            if len(np.unique(y_imp_enc)) >= 2:
+                imp_clf.fit(X_tab_scaled, y_imp_enc)
 
             lik_clf = XGBClassifier(max_depth=3, learning_rate=0.05, n_estimators=50, random_state=42)
-            lik_clf.fit(X_tab_scaled, y_lik_enc)
+            if len(np.unique(y_lik_enc)) >= 2:
+                lik_clf.fit(X_tab_scaled, y_lik_enc)
 
             bundle = {
-                'scaler': scaler,
+                'scaler': global_scaler,
+                'scalers': per_kpi_scalers,
                 'tab_scaler': sc_tab,
                 'impact_classifier': imp_clf,
                 'likelihood_classifier': lik_clf,
                 'impact_le': imp_le,
                 'likelihood_le': lik_le,
-                'data_samples': len(df),
-                'known_kpis': list(df['Nama KPI'].unique()) if 'Nama KPI' in df.columns else []
+                'data_samples': int(len(df)),
+                'known_kpis': list(df['Nama KPI'].unique()),
             }
+            self._save_model_artifact('kpi_bundle.pkl', bundle, is_torch=False)
 
-            bundle_path = os.path.join(self.model_dir, 'kpi_bundle.pkl')
-            with open(bundle_path, 'wb') as f:
-                pickle.dump(bundle, f)
+            auditee_pool_hash, auditee_pool_count = compute_auditee_pool_hash()
 
-            # Memory cleanup to prevent RAM bloat
-            del df, X_seq, y_seq, X_tab, X_tab_scaled
+            # Memory cleanup
+            del df, X_list, y_list, X_tab, X_tab_scaled
             gc.collect()
 
-            # Also execute automated retraining of Auditor KPI Suite
-            try:
-                import subprocess
-                auditor_script = os.path.join(self.ai_training_dir, 'kpi_prediction', 'train_auditor_kpi.py')
-                if os.path.exists(auditor_script):
-                    subprocess.run([sys.executable, auditor_script], check=True, timeout=60)
-                    print("[AutoRetrain] Auditor KPI Suite retrained and saved successfully.")
-            except Exception as e_aud:
-                print(f"[AutoRetrain] Auditor KPI suite retrain warning: {e_aud}")
+            # Retrain Auditor KPI Suite directly into MODEL_DIR (fixes Docker path mismatch)
+            auditor_meta = self.retrain_auditor_kpi_suite(auditor_items=auditor_items)
 
+            self.last_kpi_metrics = {
+                "auditee_retrained": True,
+                "auditee_count": auditee_pool_count,
+                "auditee_kpis": len(per_kpi_scalers),
+                "auditee_pool_hash": auditee_pool_hash,
+                "auditee_custom_hash": auditee_custom_hash,
+                "auditee_loss": round(auditee_loss, 6),
+                "auditor_retrained": bool(auditor_meta.get("ok")),
+                "auditor_count": int(auditor_meta.get("rows", 0)),
+                "auditor_kpis": int(auditor_meta.get("kpis", 0)),
+                "auditor_hash": str(auditor_meta.get("hash") or ""),
+            }
             return True
         except Exception as e:
             print(f"Error retraining KPI PyTorch LSTM suite: {e}")
             return False
 
-    def auto_retrain_all(self) -> dict:
-        """Run continuous automated re-training across all AI suites and hot-reload model bundles"""
-        sync_res = self.sync_live_cross_service_data()
-        res_anom = self.retrain_anomaly_suite()
-        res_dept = self.retrain_department_suite()
-        res_doc = self.retrain_document_suite()
-        res_kpi = self.retrain_kpi_lstm_suite()
+    def auto_retrain_all(self, trigger: str = "auto", auditor_items: list = None, auditee_items: list = None, scope: str = "all") -> dict:
+        """Run continuous automated re-training across AI suites (`all` or `kpi`) and hot-reload model bundles."""
+        t0 = time.perf_counter()
+        sync_res = self.sync_live_cross_service_data(scope=scope)
+        if str(scope).lower() == "kpi":
+            res_anom = True
+            res_dept = True
+            res_doc = True
+        else:
+            res_anom = self.retrain_anomaly_suite()
+            res_dept = self.retrain_department_suite()
+            res_doc = self.retrain_document_suite()
+        res_kpi = self.retrain_kpi_lstm_suite(auditee_items=auditee_items, auditor_items=auditor_items)
+        elapsed = round(time.perf_counter() - t0, 2)
+        kpi_meta = getattr(self, "last_kpi_metrics", {})
 
         return {
             "status": "success" if (res_anom and res_dept and res_doc and res_kpi) else "partial_success",
+            "trigger": trigger,
+            "scope": scope,
+            "duration_seconds": elapsed,
             "cross_service_sync": sync_res,
             "anomaly_retrained": res_anom,
             "department_retrained": res_dept,
             "document_retrained": res_doc,
-            "kpi_lstm_retrained": res_kpi
+            "kpi_lstm_retrained": res_kpi,
+            "auditee_retrained": kpi_meta.get("auditee_retrained", res_kpi),
+            "auditor_retrained": kpi_meta.get("auditor_retrained", False),
+            "trained_auditee_count": kpi_meta.get("auditee_count", 0),
+            "trained_auditee_kpis": kpi_meta.get("auditee_kpis", 0),
+            "trained_auditee_pool_hash": kpi_meta.get("auditee_pool_hash", ""),
+            "trained_auditee_custom_hash": kpi_meta.get("auditee_custom_hash", ""),
+            "trained_auditor_count": len(auditor_items) if auditor_items else kpi_meta.get("auditor_kpis", 0),
+            "trained_auditor_hash": kpi_meta.get("auditor_hash", ""),
         }
 
 def reload_fastapi_models(fastapi_app=None):

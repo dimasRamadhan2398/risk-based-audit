@@ -6,7 +6,11 @@ from typing import Dict, Any, List
 from sqlalchemy import text
 from core.db import get_read_only_client_conn
 
-WATERMARK_CANDIDATES = ["updated_at", "modified_at", "last_update", "last_modified", "created_at", "trx_date", "gl_date", "id"]
+WATERMARK_CANDIDATES = [
+    "updated_at", "modified_at", "last_update", "last_modified",
+    "created_at", "reported_at", "signed_at", "disbursed_at",
+    "paid_at", "logged_at", "trx_timestamp", "trx_date", "gl_date", "id"
+]
 SOFT_DELETE_CANDIDATES = ["deleted_at", "is_deleted", "is_active", "deleted", "status"]
 
 def introspect_schema(src: dict) -> Dict[str, Any]:
@@ -37,34 +41,36 @@ def _introspect_postgres(conn, db_name: str) -> List[Dict[str, Any]]:
                 SELECT c.relname, GREATEST(0, c.reltuples::bigint)
                 FROM pg_class c
                 JOIN pg_namespace n ON n.oid = c.relnamespace
-                WHERE n.nspname = 'public' AND c.relkind = 'r';
+                WHERE n.nspname IN ('public', 'cbs') AND c.relkind = 'r';
             """)
             for row in cur.fetchall():
                 row_estimates[row[0]] = int(row[1])
     except Exception:
         pass
 
-    # 2. Fetch base tables
+    # 2. Fetch base tables (including 'cbs' schema when present)
     tables = []
     with conn.cursor() as cur:
         cur.execute("""
-            SELECT table_name FROM information_schema.tables 
-            WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+            SELECT DISTINCT table_name FROM information_schema.tables 
+            WHERE table_schema IN ('public', 'cbs') AND table_type = 'BASE TABLE'
             ORDER BY table_name;
         """)
         tbl_names = [r[0] for r in cur.fetchall()]
 
         for tbl_name in tbl_names:
             cur.execute("""
-                SELECT c.column_name, c.data_type, c.is_nullable,
-                       CASE WHEN tc.constraint_type = 'PRIMARY KEY' THEN TRUE ELSE FALSE END as is_primary
+                SELECT DISTINCT ON (c.ordinal_position, c.column_name)
+                       c.column_name, c.data_type, c.is_nullable,
+                       CASE WHEN tc.constraint_type = 'PRIMARY KEY' THEN TRUE ELSE FALSE END as is_primary,
+                       c.ordinal_position
                 FROM information_schema.columns c
                 LEFT JOIN information_schema.key_column_usage kcu 
-                    ON c.column_name = kcu.column_name AND c.table_name = kcu.table_name
+                    ON c.column_name = kcu.column_name AND c.table_name = kcu.table_name AND c.table_schema = kcu.table_schema
                 LEFT JOIN information_schema.table_constraints tc 
-                    ON kcu.constraint_name = tc.constraint_name AND tc.constraint_type = 'PRIMARY KEY'
-                WHERE c.table_name = %s AND c.table_schema = 'public'
-                ORDER BY c.ordinal_position;
+                    ON kcu.constraint_name = tc.constraint_name AND tc.table_schema = c.table_schema AND tc.constraint_type = 'PRIMARY KEY'
+                WHERE c.table_name = %s AND c.table_schema IN ('public', 'cbs')
+                ORDER BY c.ordinal_position, c.column_name, is_primary DESC;
             """, (tbl_name,))
 
             columns = []
@@ -91,6 +97,8 @@ def _introspect_postgres(conn, db_name: str) -> List[Dict[str, Any]]:
                     idx = col_names_lower.index(cand)
                     suggested_wm = columns[idx]["name"]
                     break
+            if not suggested_wm and pk_columns:
+                suggested_wm = pk_columns[0]
 
             # Suggest soft-delete column
             for cand in SOFT_DELETE_CANDIDATES:

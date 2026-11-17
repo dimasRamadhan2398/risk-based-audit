@@ -38,6 +38,10 @@ type ActionTakenReport struct {
 	DueDate    *time.Time `json:"due_date"`
 	Progress   int        `gorm:"not null;default:0" json:"progress"`
 	Status     string     `gorm:"type:varchar(50);default:'PLANNED';index" json:"status"`
+	// ActionPlanSubmittedAt is set once, the first time the PIC saves a
+	// non-empty action plan (PUT /action-taken-reports/:id/action-plan).
+	// NULL on history; the COSO management-response signal skips such rows.
+	ActionPlanSubmittedAt *time.Time `json:"action_plan_submitted_at"`
 
 	// Auditor review (also holds the reason of a cancellation)
 	ReviewNote string     `gorm:"type:text" json:"review_note"`

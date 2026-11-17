@@ -23,7 +23,10 @@ type Employee struct {
 	JobRoleID uuid.UUID `gorm:"type:uuid;not null;index" json:"job_role_id"`
 	JobRole   JobRole   `gorm:"foreignKey:JobRoleID" json:"job_role"`
 
-	LevelGrade int `gorm:"type:int;not null" json:"level_grade"`
+	// LevelGrade is no longer part of the API: never sent, and level_grade in a
+	// request body is ignored. The column stays (INT NOT NULL); the service
+	// stores 1 when it is unset, so inserts keep working.
+	LevelGrade int `gorm:"type:int;not null" json:"-"`
 
 	WorkLocationID *uuid.UUID `gorm:"type:uuid;index" json:"work_location_id"`
 	WorkLocation   *Location  `gorm:"foreignKey:WorkLocationID" json:"work_location,omitempty"`
@@ -55,8 +58,25 @@ type Employee struct {
 // EmployeeAccount is the login account linked to an employee at creation time.
 // Status is "created" (new account, TemporaryPassword set once) or "linked"
 // (an account with the same email already existed; its password is unchanged).
+//
+// SeatDowngraded is true when auth-service created the account with VIEWER
+// only because every full seat was taken; RequestedRoles and AssignedRoles
+// then differ. Both role lists are set only for status "created".
 type EmployeeAccount struct {
-	Status            string `json:"status"`
-	Username          string `json:"username"`
-	TemporaryPassword string `json:"temporary_password,omitempty"`
+	Status            string   `json:"status"`
+	Username          string   `json:"username"`
+	TemporaryPassword string   `json:"temporary_password,omitempty"`
+	SeatDowngraded    bool     `json:"seat_downgraded"`
+	RequestedRoles    []string `json:"requested_roles,omitempty"`
+	AssignedRoles     []string `json:"assigned_roles,omitempty"`
+}
+
+// EmployeeReference is one place that still points at an employee, returned in
+// data.references of a 409 EMPLOYEE_IN_USE. Count includes soft-deleted rows:
+// the foreign keys still hold them.
+type EmployeeReference struct {
+	Table  string `json:"table"`
+	Column string `json:"column"`
+	Label  string `json:"label"`
+	Count  int64  `json:"count"`
 }

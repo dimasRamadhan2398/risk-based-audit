@@ -10,7 +10,8 @@
               {{ t('settings.dataSource.subtitle') }}
             </p>
           </div>
-          <div class="flex items-center gap-2 self-start sm:self-auto shrink-0">
+          <div class="flex items-center gap-2 flex-wrap self-start sm:self-auto shrink-0">
+            <SourceSelectorDropdown />
             <UButton
               v-if="connections.length > 1"
               color="secondary"
@@ -18,9 +19,10 @@
               icon="i-lucide-refresh-cw"
               class="rounded-xl font-bold"
               :loading="isBatchSyncing"
+              :disabled="isBatchSyncing || getSyncCooldownRemaining('__all__') > 0"
               @click="syncAllSources"
             >
-              {{ t('settings.dataSource.syncAll') }}
+              {{ t('settings.dataSource.syncAll') }}<template v-if="getSyncCooldownRemaining('__all__') > 0"> ({{ getSyncCooldownRemaining('__all__') }}s)</template>
             </UButton>
             <UButton
               color="primary"
@@ -103,7 +105,14 @@
                   </span>
                   <span class="flex items-center gap-1">
                     <UIcon name="i-lucide-refresh-cw" class="w-3.5 h-3.5" />
-                    {{ conn.syncSchedule }}
+                    {{ normalizeSyncSchedule(conn.syncSchedule) }}
+                  </span>
+                  <span
+                    v-if="conn.nextSyncAt && normalizeSyncSchedule(conn.syncSchedule) !== 'Manual Only'"
+                    class="flex items-center gap-1 text-primary-600 dark:text-primary-400 font-medium"
+                  >
+                    <UIcon name="i-lucide-clock" class="w-3.5 h-3.5" />
+                    {{ t('settings.dataSource.nextSync') }}: {{ formatSyncDateTime(conn.nextSyncAt) }}
                   </span>
                 </div>
 
@@ -118,7 +127,7 @@
             <div class="flex items-center justify-between lg:justify-end gap-3 pt-3 lg:pt-0 border-t lg:border-t-0 border-gray-100 dark:border-gray-800">
               <div class="text-left lg:text-right text-md text-gray-500 dark:text-gray-400">
                 <p class="font-medium text-gray-700 dark:text-gray-300">{{ t('settings.dataSource.lastSynced') }}</p>
-                <p class="font-mono text-md">{{ conn.lastSync }}</p>
+                <p class="font-mono text-md">{{ formatConnLastSync(conn) }}</p>
               </div>
 
               <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
@@ -152,9 +161,10 @@
                   icon="i-lucide-refresh-cw"
                   class="rounded-xl font-semibold"
                   :loading="syncingId === conn.id"
+                  :disabled="syncingId === conn.id || getSyncCooldownRemaining(conn.id) > 0"
                   @click="triggerSync(conn)"
                 >
-                  {{ t('settings.dataSource.syncNow') }}
+                  {{ t('settings.dataSource.syncNow') }}<template v-if="getSyncCooldownRemaining(conn.id) > 0"> ({{ getSyncCooldownRemaining(conn.id) }}s)</template>
                 </UButton>
 
                 <UDropdownMenu :items="getConnMenuItems(conn)">
@@ -296,7 +306,7 @@
             </UFormField>
 
             <UFormField :label="t('settings.dataSource.host')" required>
-              <UInput v-model="form.host" placeholder="10.20.0.14 or db.internal.net" size="md" class="w-full font-mono text-md" />
+              <UInput v-model="form.host" placeholder="localhost, postgres-cbs-sim, or db.internal.net" size="md" class="w-full font-mono text-md" />
             </UFormField>
 
             <UFormField :label="t('settings.dataSource.port')" required>
@@ -304,13 +314,13 @@
             </UFormField>
 
             <UFormField :label="t('settings.dataSource.database')" required>
-              <UInput v-model="form.database" placeholder="core_banking" size="md" class="w-full font-mono text-md" />
+              <UInput v-model="form.database" placeholder="cbs_simulator or core_banking_db" size="md" class="w-full font-mono text-md" />
             </UFormField>
 
             <UFormField :label="t('settings.dataSource.syncFrequency')">
               <USelect
                 v-model="form.syncSchedule"
-                :items="['Real-time (CDC)', 'Every 15 mins', 'Hourly', 'Daily', 'Manual Only']"
+                :items="[...SYNC_FREQUENCY_OPTIONS]"
                 size="md"
                 class="w-full"
               />
@@ -586,13 +596,6 @@
                       <UIcon name="i-lucide-settings-2" class="w-3.5 h-3.5 text-primary-500" />
                       Mapping #{{ mIdx + 1 }} &mdash; {{ mapping.targetModule || getScopeLabel(mapping.targetScope) }}
                     </span>
-                    <UButton
-                      color="primary"
-                      variant="subtle"
-                      size="xs"
-                      class="rounded-lg text-[10px] font-bold"
-                      @click="autoSuggestMapping(table, mIdx)"
-                    > {{ t('settings.dataSource.mapping.autoSuggest') }} </UButton>
                   </div>
                   <div class="flex items-center gap-2">
                     <span class="text-[11px] font-mono text-primary-700 dark:text-primary-400 hidden sm:inline">{{ t('settings.dataSource.mapping.targetSchema') }} {{ selectedConnForSchema.database }}</span>
@@ -607,7 +610,7 @@
                   </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1">
                       {{ t('settings.dataSource.targetScope') }}
@@ -638,72 +641,10 @@
                       @update:model-value="(val) => updateMappingField(table.tableName, mIdx, 'targetModule', val)"
                     />
                   </div>
-
-                  <div>
-                    <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-1"> {{ t('settings.dataSource.mapping.canonicalEntity') }} </label>
-                    <USelect
-                      :model-value="mapping.canonicalEntity || 'generic'"
-                      :items="[
-                        { label: 'Generic Audit Data (external)', value: 'generic' },
-                        { label: 'Transactions (gold.fact_transactions)', value: 'transactions' },
-                        { label: 'Loans (gold.fact_loans)', value: 'loans' },
-                        { label: 'GL Entries (gold.fact_gl_entries)', value: 'gl_entries' },
-                        { label: 'Accounts (silver.acct_cleaned)', value: 'accounts' },
-                        { label: 'Customers (silver.cust_cleaned)', value: 'customers' }
-                      ]"
-                      size="sm"
-                      class="w-full"
-                      @update:model-value="(val) => updateMappingField(table.tableName, mIdx, 'canonicalEntity', val)"
-                    />
-                  </div>
-
-                  <div>
-                    <div class="flex items-center justify-between mb-1">
-                      <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300">
-                        {{ t('settings.dataSource.primaryAuditField') }} (PK)
-                      </label>
-                      <span class="text-[10px] text-gray-400">Dedup Key</span>
-                    </div>
-                    <USelect
-                      :model-value="mapping.auditField"
-                      :items="getAuditFieldOptions(table)"
-                      size="sm"
-                      class="w-full font-mono text-xs"
-                      @update:model-value="(val) => updateMappingField(table.tableName, mIdx, 'auditField', val)"
-                    />
-                  </div>
-
-                  <div>
-                    <div class="flex items-center justify-between mb-1">
-                      <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300"> {{ t('settings.dataSource.mapping.watermark') }} </label>
-                      <span class="text-[10px] text-gray-400">Incremental</span>
-                    </div>
-                    <USelect
-                      :model-value="mapping.watermarkColumn || '__none__'"
-                      :items="getWatermarkOptions(table)"
-                      size="sm"
-                      class="w-full font-mono text-xs"
-                      @update:model-value="(val) => updateMappingField(table.tableName, mIdx, 'watermarkColumn', val)"
-                    />
-                  </div>
-
-                  <div>
-                    <div class="flex items-center justify-between mb-1">
-                      <label class="block text-[11px] font-bold text-gray-700 dark:text-gray-300"> {{ t('settings.dataSource.mapping.softDelete') }} </label>
-                      <span class="text-[10px] text-gray-400">Reconciliation</span>
-                    </div>
-                    <USelect
-                      :model-value="mapping.softDeleteColumn || '__none__'"
-                      :items="getSoftDeleteOptions(table)"
-                      size="sm"
-                      class="w-full font-mono text-xs"
-                      @update:model-value="(val) => updateMappingField(table.tableName, mIdx, 'softDeleteColumn', val)"
-                    />
-                  </div>
                 </div>
 
-                <!-- Anomaly Detection Rules Checklist & AI Training Section - only displayed when scope is data_analytics -->
-                <div v-if="mapping.targetScope === 'data_analytics'" class="pt-3 border-t border-primary-200/50 dark:border-primary-900/50 space-y-3">
+                <!-- Anomaly Detection Rules Checklist & AI Training Section - only displayed when module is AI: Anomaly Detection -->
+                <div v-if="shouldShowAnomalyRules(mapping.targetScope, mapping.targetModule)" class="pt-3 border-t border-primary-200/50 dark:border-primary-900/50 space-y-3">
                   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
                       <div class="flex items-center gap-2">
@@ -720,17 +661,19 @@
                     </div>
 
                     <!-- Action: Latih Model AI Button -->
-                    <UButton
-                      size="xs"
-                      color="primary"
-                      variant="solid"
-                      icon="i-lucide-sparkles"
-                      :loading="isTrainingModel[getMappingKey(table.tableName, mIdx)]"
-                      class="font-semibold shadow-xs shrink-0 self-start sm:self-auto rounded-lg"
-                      @click="trainModelForMapping(table, mIdx)"
-                    >
-                      ⚡ Latih Model AI (Anomaly)
-                    </UButton>
+                    <div class="flex items-center gap-2 flex-wrap shrink-0 self-start sm:self-auto">
+                      <UButton
+                        size="xs"
+                        color="primary"
+                        variant="solid"
+                        icon="i-lucide-save"
+                        :loading="isTrainingModel[getMappingKey(table.tableName, mIdx)]"
+                        class="font-semibold shadow-xs rounded-lg"
+                        @click="trainModelForMapping(table, mIdx)"
+                      >
+                        Terapkan Aturan Anomaly
+                      </UButton>
+                    </div>
                   </div>
 
                   <!-- Standard Preset Rules Chips -->
@@ -987,6 +930,14 @@ import { getMasterServiceBaseUrl, getDataHubBaseUrl } from '~/composables/useApi
 import { useDataSourceStore } from '~/stores/data-source'
 import { useAiAnalytics } from '~/composables/useAiAnalytics'
 import { getCanonicalCategory } from '~/composables/useAnomalyScatter'
+import {
+  SYNC_FREQUENCY_OPTIONS,
+  type SyncFrequencyOption,
+  normalizeSyncSchedule,
+  resolveAutoMappingMetadata,
+  shouldShowAnomalyRules,
+} from '~/utils/dataSourceConfig'
+import SourceSelectorDropdown from '~/components/common/SourceSelectorDropdown.vue'
 
 const toast = useToast()
 const { t } = useI18n()
@@ -1050,6 +1001,8 @@ export interface DataSourceConn {
   status: 'Connected' | 'Syncing' | 'Error' | 'Inactive'
   syncSchedule: string
   lastSync: string
+  lastSyncedAt?: string
+  nextSyncAt?: string
   lastError?: string
   ssl: boolean
   username?: string
@@ -1093,19 +1046,59 @@ const connections = ref<DataSourceConn[]>([])
 // Activity Logs (empty by default)
 const activityLogs = ref<ActivityLog[]>([])
 
+function formatSyncDateTime(isoStr?: string): string {
+  if (!isoStr) return ''
+  const d = new Date(isoStr)
+  if (Number.isNaN(d.getTime())) return isoStr
+  return d.toLocaleString('id-ID', {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+function formatConnLastSync(conn: DataSourceConn): string {
+  if (conn.status === 'Syncing') return conn.lastSync
+  if (conn.lastSyncedAt) return formatSyncDateTime(conn.lastSyncedAt)
+  return conn.lastSync
+}
+
+function normalizeConnStatus(status?: string): DataSourceConn['status'] {
+  const s = (status || '').trim().toLowerCase()
+  if (s === 'connected' || s === 'synced' || s === 'registered') return 'Connected'
+  if (s === 'syncing' || s === 'running' || s === 'queued') return 'Syncing'
+  if (s === 'error' || s === 'failed') return 'Error'
+  if (s === 'inactive' || s === 'disconnected') return 'Inactive'
+  return 'Connected'
+}
+
 // Load connections & logs from backend API on mount
 async function fetchConnectionsFromApi() {
   try {
     const res: any = await $fetch(`${getMasterServiceBaseUrl()}/data-sources`)
     if (res && res.data && Array.isArray(res.data) && res.data.length > 0) {
-      connections.value = res.data
-      dataSourceStore.setSources(res.data)
+      const normalized = res.data.map((item: any) => ({
+        ...item,
+        status: normalizeConnStatus(item.status),
+        syncSchedule: normalizeSyncSchedule(item.syncSchedule),
+      }))
+      connections.value = normalized
+      dataSourceStore.setSources(normalized)
     } else if (dataSourceStore.sources.length > 0) {
-      connections.value = dataSourceStore.sources as any
+      connections.value = dataSourceStore.sources.map((item: any) => ({
+        ...item,
+        status: normalizeConnStatus(item.status),
+        syncSchedule: normalizeSyncSchedule(item.syncSchedule),
+      })) as any
     }
   } catch (err) {
     if (dataSourceStore.sources.length > 0) {
-      connections.value = dataSourceStore.sources as any
+      connections.value = dataSourceStore.sources.map((item: any) => ({
+        ...item,
+        status: normalizeConnStatus(item.status),
+        syncSchedule: normalizeSyncSchedule(item.syncSchedule),
+      })) as any
     }
     console.warn('Backend API connection unavailable, operating in local mode:', err)
   }
@@ -1122,28 +1115,109 @@ async function fetchLogsFromApi() {
   }
 }
 
+const SYNC_COOLDOWN_SEC = 60
+const COOLDOWN_STORAGE_PREFIX = 'ds_sync_cooldown_'
+const cooldownNow = ref(Date.now())
+const syncCooldownEnds = ref<Record<string, number>>({})
+let cooldownTimer: any = null
+let scheduledRefreshTimer: any = null
+
+function loadCooldownsFromStorage() {
+  if (typeof window === 'undefined') return
+  const loaded: Record<string, number> = {}
+  const now = Date.now()
+  for (let i = 0; i < window.localStorage.length; i++) {
+    const k = window.localStorage.key(i)
+    if (k && k.startsWith(COOLDOWN_STORAGE_PREFIX)) {
+      const targetKey = k.slice(COOLDOWN_STORAGE_PREFIX.length)
+      const expiresAt = Number(window.localStorage.getItem(k) || '0')
+      if (expiresAt > now) {
+        loaded[targetKey] = expiresAt
+      } else {
+        window.localStorage.removeItem(k)
+      }
+    }
+  }
+  syncCooldownEnds.value = loaded
+}
+
+function getSyncCooldownRemaining(key: string): number {
+  const expiresAt = syncCooldownEnds.value[key] || 0
+  if (!expiresAt) return 0
+  const rem = Math.ceil((expiresAt - cooldownNow.value) / 1000)
+  return rem > 0 ? rem : 0
+}
+
+function setSyncCooldown(key: string, seconds: number = SYNC_COOLDOWN_SEC) {
+  const sec = Math.max(1, Number(seconds) || SYNC_COOLDOWN_SEC)
+  const expiresAt = Date.now() + sec * 1000
+  syncCooldownEnds.value = { ...syncCooldownEnds.value, [key]: expiresAt }
+  if (typeof window !== 'undefined') {
+    window.localStorage.setItem(`${COOLDOWN_STORAGE_PREFIX}${key}`, String(expiresAt))
+  }
+}
+
 onMounted(() => {
+  loadCooldownsFromStorage()
+  cooldownTimer = setInterval(() => {
+    cooldownNow.value = Date.now()
+  }, 1000)
+  scheduledRefreshTimer = setInterval(() => {
+    if (!isBatchSyncing.value && !syncingId.value) {
+      fetchConnectionsFromApi()
+      fetchLogsFromApi()
+    }
+  }, 30000)
   fetchConnectionsFromApi()
   fetchLogsFromApi()
 })
 
+onBeforeUnmount(() => {
+  if (cooldownTimer) clearInterval(cooldownTimer)
+  if (scheduledRefreshTimer) clearInterval(scheduledRefreshTimer)
+  if (batchPollInterval) clearInterval(batchPollInterval)
+})
+
 // Filter state
 const searchQuery = ref('')
-const statusFilter = ref(t('settings.dataSource.allStatuses'))
-const typeFilter = ref(t('settings.dataSource.allProviders'))
+const statusFilter = ref('ALL')
+const typeFilter = ref('ALL')
 
-const statusOptions = computed(() => [t('settings.dataSource.allStatuses'), 'Connected', 'Syncing', 'Error', 'Inactive'])
-const typeOptions = computed(() => [t('settings.dataSource.allProviders'), 'PostgreSQL', 'MySQL', 'SAP HANA', 'AWS S3', 'REST API', 'Oracle'])
+// Synchronized dynamically with actual connection statuses
+const statusOptions = computed(() => {
+  const validStatuses = new Set<string>(['Connected', 'Syncing', 'Error'])
+  for (const c of connections.value) {
+    if (c.status) validStatuses.add(normalizeConnStatus(c.status))
+  }
+  return [
+    { label: t('settings.dataSource.allStatuses'), value: 'ALL' },
+    ...Array.from(validStatuses).map(st => ({ label: st, value: st })),
+  ]
+})
+
+// Synchronized dynamically with available providers (currently PostgreSQL, auto-expands as providers are added)
+const typeOptions = computed(() => {
+  const availableProviders = new Set<string>(providers.map(p => p.name))
+  for (const c of connections.value) {
+    if (c.type) availableProviders.add(getProviderName(c.type))
+  }
+  return [
+    { label: t('settings.dataSource.allProviders'), value: 'ALL' },
+    ...Array.from(availableProviders).map(name => ({ label: name, value: name })),
+  ]
+})
 
 // Filtered list
 const filteredConnections = computed(() => {
   return connections.value.filter(c => {
-    const matchesSearch = c.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                          c.host.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                          c.database.toLowerCase().includes(searchQuery.value.toLowerCase())
+    const q = searchQuery.value.toLowerCase()
+    const matchesSearch = (c.name || '').toLowerCase().includes(q) ||
+                          (c.host || '').toLowerCase().includes(q) ||
+                          (c.database || '').toLowerCase().includes(q)
 
-    const matchesStatus = statusFilter.value === t('settings.dataSource.allStatuses') || c.status === statusFilter.value
-    const matchesType = typeFilter.value === t('settings.dataSource.allProviders') || getProviderName(c.type) === typeFilter.value
+    const connStatus = normalizeConnStatus(c.status)
+    const matchesStatus = statusFilter.value === 'ALL' || connStatus === statusFilter.value
+    const matchesType = typeFilter.value === 'ALL' || getProviderName(c.type) === typeFilter.value
 
     return matchesSearch && matchesStatus && matchesType
   })
@@ -1151,8 +1225,8 @@ const filteredConnections = computed(() => {
 
 function resetFilters() {
   searchQuery.value = ''
-  statusFilter.value = t('settings.dataSource.allStatuses')
-  typeFilter.value = t('settings.dataSource.allProviders')
+  statusFilter.value = 'ALL'
+  typeFilter.value = 'ALL'
 }
 
 // Providers metadata (PostgreSQL Only)
@@ -1206,25 +1280,77 @@ async function testConnection(conn: DataSourceConn) {
       if (idx !== -1) connections.value[idx] = res.data
       dataSourceStore.upsertSource(res.data)
     }
-  } catch (err) {
-    // Local fallback
-    if (conn.status === 'Error') {
-      conn.status = 'Connected'
-      conn.lastError = undefined
-      conn.lastSync = 'Just now'
+    if (res?.success === true) {
+      toast.add({
+        title: t('settings.dataSource.testSuccessToast'),
+        description: res.message || `Successfully reached ${conn.name} at ${conn.host}:${conn.port}.`,
+        color: 'success',
+      })
+    } else {
+      toast.add({
+        title: 'Connection test failed',
+        description: res?.message || `Could not reach ${conn.name} at ${conn.host}:${conn.port}.`,
+        color: 'error',
+      })
     }
+  } catch (err: any) {
+    toast.add({
+      title: 'Connection test failed',
+      description: err?.data?.message || err?.message || `Could not reach ${conn.name} at ${conn.host}:${conn.port}.`,
+      color: 'error',
+    })
   } finally {
     testingId.value = null
-    toast.add({
-      title: t('settings.dataSource.testSuccessToast'),
-      description: `Successfully reached ${conn.name} at ${conn.host}:${conn.port}.`,
-      color: 'success',
-    })
   }
 }
 
+function pollSingleSyncStatus(conn: DataSourceConn, jobId: string, logId?: string) {
+  let attempts = 0
+  const timer = setInterval(async () => {
+    attempts++
+    try {
+      const q = logId ? `?log_id=${encodeURIComponent(logId)}` : ''
+      const res: any = await $fetch(`${getMasterServiceBaseUrl()}/data-sources/sync-status/${jobId}${q}`)
+      const st = res?.data?.status
+      if (st === 'completed' || st === 'failed' || attempts >= 20) {
+        clearInterval(timer)
+        await fetchConnectionsFromApi()
+        await fetchLogsFromApi()
+        if (st === 'completed') {
+          const processed = res?.data?.records_processed ?? 0
+          toast.add({
+            title: t('settings.dataSource.syncCompletedToast'),
+            description: `${conn.name}: ${Number(processed).toLocaleString('id-ID')} records ingested & CAATT Engine updated.`,
+            color: 'success',
+          })
+        } else if (st === 'failed') {
+          toast.add({
+            title: 'Sync Job Failed',
+            description: res?.data?.error_message || `Background ingestion failed for ${conn.name}.`,
+            color: 'error',
+          })
+        }
+      }
+    } catch {
+      if (attempts >= 12) clearInterval(timer)
+    }
+  }, 2000)
+}
+
 async function triggerSync(conn: DataSourceConn) {
+  const rem = getSyncCooldownRemaining(conn.id)
+  if (rem > 0) {
+    toast.add({
+      title: 'Sync Cooldown Active',
+      description: `Harap tunggu ${rem} detik sebelum melakukan sinkronisasi ulang pada ${conn.name}.`,
+      color: 'warning',
+    })
+    return
+  }
+
   syncingId.value = conn.id
+  const prevStatus = conn.status
+  const prevLastSync = conn.lastSync
   conn.status = 'Syncing'
   conn.lastSync = 'Syncing in progress...'
 
@@ -1236,33 +1362,47 @@ async function triggerSync(conn: DataSourceConn) {
 
   try {
     const res: any = await $fetch(`${getMasterServiceBaseUrl()}/data-sources/${conn.id}/sync`, { method: 'POST' })
+    setSyncCooldown(conn.id, res?.cooldown_seconds || SYNC_COOLDOWN_SEC)
     if (res && res.data) {
       const idx = connections.value.findIndex(c => c.id === conn.id)
       if (idx !== -1) connections.value[idx] = res.data
       dataSourceStore.upsertSource(res.data)
-      fetchLogsFromApi()
     }
-  } catch (err) {
-    // Local fallback
-    conn.status = 'Connected'
-    conn.lastSync = 'Just now'
-    activityLogs.value.unshift({
-      id: `l-${Date.now()}`,
-      connName: conn.name,
-      type: conn.type,
-      event: 'Manual Triggered Sync',
-      status: 'SUCCESS',
-      records: Math.floor(Math.random() * 2500) + 100,
-      duration: '1.8s',
-      timestamp: 'Just now',
-    })
+    await fetchLogsFromApi()
+    if (res?.job_id) {
+      pollSingleSyncStatus(conn, res.job_id, res.log_id)
+    } else {
+      toast.add({
+        title: t('settings.dataSource.syncCompletedToast'),
+        description: `Data ingestion finished for ${conn.name}.`,
+        color: 'success',
+      })
+    }
+  } catch (err: any) {
+    const status = err?.status || err?.statusCode || err?.response?.status
+    const retryAfter = err?.data?.retry_after
+    if (status === 429 && retryAfter) {
+      setSyncCooldown(conn.id, Number(retryAfter))
+      conn.status = prevStatus
+      conn.lastSync = prevLastSync
+      toast.add({
+        title: 'Sync Rate Limited (Anti-Spam)',
+        description: err?.data?.message || `Tunggu ${retryAfter} detik sebelum melakukan sync ulang.`,
+        color: 'warning',
+      })
+    } else {
+      conn.status = 'Error'
+      conn.lastSync = prevLastSync
+      conn.lastError = err?.data?.message || err?.message || 'Data Hub synchronization failed'
+      await fetchLogsFromApi()
+      toast.add({
+        title: 'Data Synchronization Failed',
+        description: conn.lastError,
+        color: 'error',
+      })
+    }
   } finally {
     syncingId.value = null
-    toast.add({
-      title: t('settings.dataSource.syncCompletedToast'),
-      description: `Data ingestion finished for ${conn.name}.`,
-      color: 'success',
-    })
   }
 }
 
@@ -1271,6 +1411,16 @@ let batchPollInterval: any = null
 
 async function syncAllSources() {
   if (connections.value.length === 0) return
+  const rem = getSyncCooldownRemaining('__all__')
+  if (rem > 0) {
+    toast.add({
+      title: 'Sync All Cooldown Active',
+      description: `Harap tunggu ${rem} detik sebelum melakukan sinkronisasi massal lagi.`,
+      color: 'warning',
+    })
+    return
+  }
+
   isBatchSyncing.value = true
 
   connections.value.forEach(c => {
@@ -1286,14 +1436,32 @@ async function syncAllSources() {
 
   try {
     const res: any = await $fetch(`${getMasterServiceBaseUrl()}/data-sources/sync-all`, { method: 'POST' })
+    setSyncCooldown('__all__', res?.cooldown_seconds || SYNC_COOLDOWN_SEC)
     if (res && res.job_id) {
       pollBatchStatus(res.job_id)
     } else {
       finishBatchSync()
     }
-  } catch (err) {
-    console.warn('Batch sync fallback:', err)
-    setTimeout(() => finishBatchSync(), 1500)
+  } catch (err: any) {
+    isBatchSyncing.value = false
+    const status = err?.status || err?.statusCode || err?.response?.status
+    const retryAfter = err?.data?.retry_after
+    await fetchConnectionsFromApi()
+    await fetchLogsFromApi()
+    if (status === 429 && retryAfter) {
+      setSyncCooldown('__all__', Number(retryAfter))
+      toast.add({
+        title: 'Sync All Cooldown Active',
+        description: err?.data?.message || `Harap tunggu ${retryAfter} detik sebelum Sync All lagi.`,
+        color: 'warning',
+      })
+    } else {
+      toast.add({
+        title: 'Batch Sync Failed',
+        description: err?.data?.message || err?.message || 'Gagal menjalankan batch sync ke Data Hub.',
+        color: 'error',
+      })
+    }
   }
 }
 
@@ -1306,9 +1474,9 @@ function pollBatchStatus(jobId: string) {
     try {
       const res: any = await $fetch(`${getMasterServiceBaseUrl()}/data-sources/sync-status/${jobId}`)
       if (res && res.data) {
-        if (res.data.status === 'completed' || attempts > 25) {
+        if (res.data.status === 'completed' || res.data.status === 'failed' || attempts > 25) {
           clearInterval(batchPollInterval)
-          finishBatchSync()
+          finishBatchSync(res.data.status === 'failed' ? res.data.error_message : undefined)
         }
       }
     } catch (e) {
@@ -1320,16 +1488,21 @@ function pollBatchStatus(jobId: string) {
   }, 2000)
 }
 
-function finishBatchSync() {
+async function finishBatchSync(errorMsg?: string) {
   isBatchSyncing.value = false
-  connections.value.forEach(c => {
-    c.status = 'Connected'
-    c.lastSync = 'Just now'
-  })
-  fetchLogsFromApi()
+  await fetchConnectionsFromApi()
+  await fetchLogsFromApi()
+  if (errorMsg) {
+    toast.add({
+      title: 'Batch Sync Failed',
+      description: errorMsg,
+      color: 'error',
+    })
+    return
+  }
   toast.add({
     title: t('settings.dataSource.batchSyncCompletedToast'),
-    description: `All registered data sources successfully ingested.`,
+    description: `All registered data sources successfully ingested & analyzed.`,
     color: 'success',
   })
 }
@@ -1395,7 +1568,7 @@ const defaultForm = () => ({
   port: 5432,
   database: '',
   environment: 'Production' as DataSourceConn['environment'],
-  syncSchedule: 'Hourly',
+  syncSchedule: 'Hourly' as SyncFrequencyOption,
   username: '',
   password: '',
   ssl: true,
@@ -1430,7 +1603,7 @@ function openEditModal(conn: DataSourceConn) {
     port: conn.port,
     database: conn.database,
     environment: conn.environment,
-    syncSchedule: conn.syncSchedule,
+    syncSchedule: normalizeSyncSchedule(conn.syncSchedule),
     username: conn.username || '',
     password: conn.password || '',
     ssl: conn.ssl,
@@ -1462,16 +1635,16 @@ async function testModalConnection() {
   try {
     const res: any = await $fetch(`${getMasterServiceBaseUrl()}/data-sources/test`, {
       method: 'POST',
-      body: { host: form.value.host, port: form.value.port }
+      body: { host: form.value.host, port: form.value.port, ssl: form.value.ssl }
     })
     modalTestResult.value = {
-      success: res.success !== false,
-      message: res.message || `Connection handshake to ${form.value.host}:${form.value.port} succeeded.`
+      success: res.success === true,
+      message: res.message || `Connection test to ${form.value.host}:${form.value.port} returned no result.`
     }
-  } catch (err) {
+  } catch (err: any) {
     modalTestResult.value = {
-      success: true,
-      message: `Connection handshake to ${form.value.host}:${form.value.port} succeeded (latency 11ms).`
+      success: false,
+      message: err?.data?.message || err?.message || `Connection test to ${form.value.host}:${form.value.port} failed.`
     }
   } finally {
     isModalTesting.value = false
@@ -1489,6 +1662,7 @@ async function saveConnection() {
   }
 
   isSaving.value = true
+  let hubError: string | null = null
 
   if (isEditMode.value && editingConnId.value) {
     try {
@@ -1501,6 +1675,7 @@ async function saveConnection() {
         if (idx !== -1) connections.value[idx] = res.data
         dataSourceStore.upsertSource(res.data)
       }
+      hubError = res?.dataHubRegistered === false ? (res.dataHubError || 'unknown error') : null
     } catch (err) {
       // Fallback local update
       const idx = connections.value.findIndex(c => c.id === editingConnId.value)
@@ -1523,11 +1698,19 @@ async function saveConnection() {
         }
       }
     }
-    toast.add({
-      title: t('settings.dataSource.connUpdatedToast'),
-      description: `${form.value.name} connection settings saved successfully.`,
-      color: 'success',
-    })
+    if (hubError) {
+      toast.add({
+        title: t('settings.dataSource.connUpdatedToast'),
+        description: `${form.value.name} saved, but Data Hub registration failed: ${hubError}`,
+        color: 'warning',
+      })
+    } else {
+      toast.add({
+        title: t('settings.dataSource.connUpdatedToast'),
+        description: `${form.value.name} connection settings saved successfully.`,
+        color: 'success',
+      })
+    }
   } else {
     try {
       const res: any = await $fetch(`${getMasterServiceBaseUrl()}/data-sources`, {
@@ -1539,6 +1722,7 @@ async function saveConnection() {
         dataSourceStore.upsertSource(res.data)
         fetchLogsFromApi()
       }
+      hubError = res?.dataHubRegistered === false ? (res.dataHubError || 'unknown error') : null
     } catch (err) {
       // Local fallback create
       const newConn: DataSourceConn = {
@@ -1560,11 +1744,19 @@ async function saveConnection() {
       connections.value.unshift(newConn)
       dataSourceStore.upsertSource(newConn as any)
     }
-    toast.add({
-      title: t('settings.dataSource.connCreatedToast'),
-      description: `New data source ${form.value.name} added successfully.`,
-      color: 'success',
-    })
+    if (hubError) {
+      toast.add({
+        title: t('settings.dataSource.connCreatedToast'),
+        description: `${form.value.name} saved, but Data Hub registration failed: ${hubError}`,
+        color: 'warning',
+      })
+    } else {
+      toast.add({
+        title: t('settings.dataSource.connCreatedToast'),
+        description: `New data source ${form.value.name} added successfully.`,
+        color: 'success',
+      })
+    }
   }
 
   isSaving.value = false
@@ -1615,43 +1807,14 @@ const scopeModulesMap: Record<string, { label: string; value: string }[]> = {
   ],
   data_analytics: [
     { label: 'AI: Entity Prediction', value: 'AI: Entity Prediction' },
-    { label: 'AI: Risk Scoring Prediction (Legacy)', value: 'AI: Risk Scoring Prediction' },
     { label: 'AI: Anomaly Detection', value: 'AI: Anomaly Detection' },
     { label: 'AI: NLP Document Analysis', value: 'AI: NLP Document Analysis' },
     { label: 'AI: KPI & Loss Forecast', value: 'AI: KPI & Loss Forecast' },
-    { label: 'CAATT: Full Population Testing', value: 'CAATT: Full Population Testing' },
-    { label: 'CAATT: Duplicate & Gap Detection', value: 'CAATT: Duplicate & Gap Detection' },
-    { label: 'CAATT: Benford\'s Law Analysis', value: 'CAATT: Benford\'s Law Analysis' },
-    { label: 'CAATT: Stratification & Aging', value: 'CAATT: Stratification & Aging' },
-    { label: 'CAATT: 3-Way Reconciliation', value: 'CAATT: 3-Way Reconciliation' },
-    { label: 'CAATT: Policy & Plafond Compliance', value: 'CAATT: Policy & Plafond Compliance' },
-    { label: 'CAATT: Data Quality & Integrity', value: 'CAATT: Data Quality & Integrity' },
   ],
 }
 
 function getModulesForScope(scope?: string) {
   return scopeModulesMap[scope || 'audit_features'] || scopeModulesMap.audit_features
-}
-
-function getWatermarkOptions(table: SchemaTable) {
-  return [
-    { label: 'None (Full Table Load)', value: '__none__' },
-    ...table.columns.map(c => ({ label: c.name, value: c.name }))
-  ]
-}
-
-function getSoftDeleteOptions(table: SchemaTable) {
-  return [
-    { label: 'None (Hard-Delete Bucket Reconcile)', value: '__none__' },
-    ...table.columns.map(c => ({ label: c.name, value: c.name }))
-  ]
-}
-
-function getAuditFieldOptions(table: SchemaTable) {
-  return table.columns.map(c => ({
-    label: c.isPrimary ? `${c.name} (PK)` : c.name,
-    value: c.name
-  }))
 }
 
 // Preview state
@@ -1699,23 +1862,18 @@ function getTableMappings(tableName: string): TableDataMapping[] {
 }
 
 function addTableMapping(table: SchemaTable) {
-  if (!activeMappings.value[table.tableName]) {
-    activeMappings.value[table.tableName] = []
-  }
-  const pkCol = table.columns.find(c => c.isPrimary)?.name || table.columns[0]?.name || 'id'
-  const wmCol = table.columns.find(c => /date|time|created|updated|posting/i.test(c.name))?.name || '__none__'
-  const delCol = table.columns.find(c => /del|status|aktif|active/i.test(c.name))?.name || '__none__'
+  const list = activeMappings.value[table.tableName] ?? (activeMappings.value[table.tableName] = [])
+  const defaultScope = 'audit_features'
+  const defaultModule = 'Working Paper Evidence'
+  const autoMeta = resolveAutoMappingMetadata(table, defaultModule)
 
-  activeMappings.value[table.tableName].push({
+  list.push({
     tableName: table.tableName,
-    targetScope: 'audit_features',
-    targetModule: 'Working Paper Evidence',
-    canonicalEntity: 'generic',
-    auditField: pkCol,
-    watermarkColumn: wmCol,
-    softDeleteColumn: delCol,
-    syncInterval: 'Hourly',
-    anomalyRules: ['Threshold Breach (>100M)'],
+    targetScope: defaultScope,
+    targetModule: defaultModule,
+    ...autoMeta,
+    syncInterval: normalizeSyncSchedule(selectedConnForSchema.value?.syncSchedule),
+    anomalyRules: [],
     customRules: [],
     isActive: true,
   })
@@ -1730,16 +1888,25 @@ function removeTableMapping(tableName: string, index: number) {
 function updateMappingField(tableName: string, index: number, field: keyof TableDataMapping, value: any) {
   const list = activeMappings.value[tableName]
   if (list && list[index]) {
-    list[index] = {
+    const nextItem: TableDataMapping = {
       ...list[index],
       [field]: value
     }
     if (field === 'targetScope') {
       const mods = scopeModulesMap[value] || []
-      if (mods.length > 0) {
-        list[index].targetModule = mods[0].value
+      if (mods.length > 0 && mods[0]) {
+        nextItem.targetModule = mods[0].value
       }
     }
+    if (field === 'targetScope' || field === 'targetModule') {
+      const table = discoveredTables.value.find(t => t.tableName === tableName)
+      const autoMeta = resolveAutoMappingMetadata(table, nextItem.targetModule)
+      nextItem.canonicalEntity = autoMeta.canonicalEntity
+      nextItem.auditField = autoMeta.auditField
+      nextItem.watermarkColumn = autoMeta.watermarkColumn
+      nextItem.softDeleteColumn = autoMeta.softDeleteColumn
+    }
+    list[index] = nextItem
   }
 }
 
@@ -1927,9 +2094,11 @@ async function trainModelForMapping(table: SchemaTable, mIdx: number) {
     })
 
     if (result && result.success) {
+      const qPos = result.data?.retrain?.queue_position
+      const qInfo = qPos ? ` (Antrian #${qPos})` : ''
       toast.add({
-        title: 'Model AI Berhasil Dilatih',
-        description: `Model AI Isolation Forest & XGBoost telah mempelajari ${combinedRules.length} aturan untuk tabel '${table.tableName}'. Data transaksi anomali dan sebaran normal telah sinkron ke fitur Anomaly Detection!`,
+        title: 'Model Anomaly Detection Masuk Antrian Pelatihan',
+        description: `Hanya model Anomaly Detection (Isolation Forest & XGBoost) yang dijadwalkan berbatch${qInfo} dengan ${combinedRules.length} aturan untuk tabel '${table.tableName}'.`,
         color: 'success'
       })
       const nowIso = new Date().toISOString()
@@ -1956,51 +2125,6 @@ async function trainModelForMapping(table: SchemaTable, mIdx: number) {
 
 const isReconcilingDeletes = ref(false)
 
-async function autoSuggestMapping(table: SchemaTable, mIdx: number) {
-  try {
-    const cols = table.columns.map(c => c.name)
-    const res: any = await $fetch(`${getMasterServiceBaseUrl()}/data-sources/mapping/suggest`, {
-      method: 'POST',
-      body: { columns: cols, table_name: table.tableName }
-    })
-    if (res && res.status === 'success' && res.suggestion) {
-      const s = res.suggestion
-      const list = activeMappings.value[table.tableName]
-      if (list && list[mIdx]) {
-        if (s.entity && s.entity !== 'generic') {
-          list[mIdx].canonicalEntity = s.entity
-        }
-        if (s.targetScope) {
-          list[mIdx].targetScope = s.targetScope
-        }
-        if (s.targetModule) {
-          list[mIdx].targetModule = s.targetModule
-        }
-        const wmCandidate = cols.find(c => /date|time|created|updated|posting/i.test(c))
-        if (wmCandidate) {
-          list[mIdx].watermarkColumn = wmCandidate
-        }
-        const delCandidate = cols.find(c => /del|status|aktif|active/i.test(c))
-        if (delCandidate) {
-          list[mIdx].softDeleteColumn = delCandidate
-        }
-
-        toast.add({
-          title: 'Auto-Mapping Berhasil',
-          description: `Tabel ${table.tableName} dipetakan ke ${s.targetModule || s.entity} (Confidence: ${Math.round((s.confidence || 0.85) * 100)}%).`,
-          color: 'success'
-        })
-      }
-    }
-  } catch (err) {
-    toast.add({
-      title: 'Auto-Mapping',
-      description: 'Auto-mapping menggunakan konfigurasi default.',
-      color: 'info'
-    })
-  }
-}
-
 async function triggerDeleteReconciliation() {
   if (!selectedConnForSchema.value) return
   isReconcilingDeletes.value = true
@@ -2016,10 +2140,11 @@ async function triggerDeleteReconciliation() {
     })
     fetchLogsFromApi()
   } catch (err: any) {
+    fetchLogsFromApi()
     toast.add({
-      title: 'Rekonsiliasi Deletion Selesai',
-      description: 'Rekonsiliasi selesai (0 record terhapus terdeteksi). Tombstone audit trail diperbarui.',
-      color: 'success'
+      title: 'Rekonsiliasi Deletion Gagal',
+      description: err?.data?.message || err?.message || 'Data Hub tidak dapat dijangkau untuk melakukan rekonsiliasi penghapusan.',
+      color: 'error'
     })
   } finally {
     isReconcilingDeletes.value = false
@@ -2037,13 +2162,11 @@ async function openSchemaExplorer(conn: DataSourceConn) {
   // Hydrate existing mappings if already present in connection
   if (conn.dataMappings && conn.dataMappings.length > 0) {
     conn.dataMappings.forEach(m => {
-      if (!activeMappings.value[m.tableName]) {
-        activeMappings.value[m.tableName] = []
-      }
-      activeMappings.value[m.tableName].push({
+      const list = activeMappings.value[m.tableName] ?? (activeMappings.value[m.tableName] = [])
+      list.push({
         ...m,
-        watermarkColumn: m.watermarkColumn || '__none__',
-        softDeleteColumn: m.softDeleteColumn || '__none__',
+        watermarkColumn: m.watermarkColumn === '__none__' ? '' : (m.watermarkColumn || ''),
+        softDeleteColumn: m.softDeleteColumn === '__none__' ? '' : (m.softDeleteColumn || ''),
         anomalyRules: m.anomalyRules ? [...m.anomalyRules] : [],
         customRules: m.customRules ? [...m.customRules] : []
       })
@@ -2147,11 +2270,18 @@ async function saveSchemaMappings() {
   if (!currentConn) return
   isSavingMappings.value = true
 
-  const mappingsArray = Object.values(activeMappings.value).flat().map(m => ({
-    ...m,
-    watermarkColumn: m.watermarkColumn === '__none__' ? '' : m.watermarkColumn,
-    softDeleteColumn: m.softDeleteColumn === '__none__' ? '' : m.softDeleteColumn
-  }))
+  const mappingsArray = Object.values(activeMappings.value).flat().map(m => {
+    const table = discoveredTables.value.find(t => t.tableName === m.tableName)
+    const autoMeta = resolveAutoMappingMetadata(table, m.targetModule)
+    return {
+      ...m,
+      canonicalEntity: autoMeta.canonicalEntity,
+      auditField: m.auditField || autoMeta.auditField,
+      watermarkColumn: m.watermarkColumn === '__none__' ? '' : (m.watermarkColumn || autoMeta.watermarkColumn),
+      softDeleteColumn: m.softDeleteColumn === '__none__' ? '' : (m.softDeleteColumn || autoMeta.softDeleteColumn),
+      syncInterval: normalizeSyncSchedule(currentConn.syncSchedule),
+    }
+  })
 
   try {
     const res: any = await $fetch(`${getMasterServiceBaseUrl()}/data-sources/${currentConn.id}/mappings`, {
@@ -2169,9 +2299,13 @@ async function saveSchemaMappings() {
     // Local fallback update
     const idx = connections.value.findIndex(c => c.id === currentConn.id)
     if (idx !== -1 && connections.value[idx]) {
-      connections.value[idx]!.dataMappings = mappingsArray
+      const updatedConn = connections.value[idx]!
+      updatedConn.dataMappings = mappingsArray
       currentConn.dataMappings = mappingsArray
-      dataSourceStore.upsertSource(connections.value[idx]!)
+      dataSourceStore.upsertSource({
+        ...updatedConn,
+        source_type: updatedConn.type,
+      })
     }
   } finally {
     isSavingMappings.value = false
@@ -2181,8 +2315,10 @@ async function saveSchemaMappings() {
       color: 'success',
     })
     closeSchemaModal()
-    // Auto-trigger sync pipeline so records are ingested immediately!
-    triggerSync(currentConn)
+    // Auto-trigger sync pipeline immediately when not in cooldown
+    if (getSyncCooldownRemaining(currentConn.id) === 0) {
+      triggerSync(currentConn)
+    }
   }
 }
 

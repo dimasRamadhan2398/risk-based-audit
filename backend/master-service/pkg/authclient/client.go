@@ -47,6 +47,10 @@ type APIError struct {
 	StatusCode int
 	Code       string
 	Message    string
+	// Data is auth-service's machine-readable error context, e.g.
+	// {limit, used, remaining} on SEAT_LIMIT_REACHED. Auth-service sends it in
+	// the top-level "data" field; an object in "error.details" is read too.
+	Data map[string]any
 }
 
 func (e *APIError) Error() string {
@@ -59,6 +63,7 @@ type User struct {
 	EmployeeID string `json:"employee_id"`
 	Username   string `json:"username"`
 	Email      string `json:"email"`
+	IsActive   bool   `json:"is_active"`
 }
 
 // CreateUserInput is the body of POST /api/v1/users.
@@ -73,10 +78,17 @@ type CreateUserInput struct {
 
 // CreatedUser is the answer to a successful account creation. TemporaryPassword
 // is set only when GeneratePassword was requested.
+//
+// When all full seats are taken, auth-service still creates the account but
+// with VIEWER only: SeatDowngraded is then true and AssignedRoles differs from
+// RequestedRoles.
 type CreatedUser struct {
-	ID                string `json:"id"`
-	Username          string `json:"username"`
-	TemporaryPassword string `json:"temporary_password"`
+	ID                string   `json:"id"`
+	Username          string   `json:"username"`
+	TemporaryPassword string   `json:"temporary_password"`
+	SeatDowngraded    bool     `json:"seat_downgraded"`
+	RequestedRoles    []string `json:"requested_roles"`
+	AssignedRoles     []string `json:"assigned_roles"`
 }
 
 // Client talks to auth-service over HTTP.
@@ -143,6 +155,26 @@ func (c *Client) LinkEmployee(ctx context.Context, userID, employeeCode, authHea
 	return c.do(ctx, http.MethodPost, "/api/v1/users/"+url.PathEscape(userID)+"/link-employee", authHeader, body, nil)
 }
 
+// SetUserStatus activates or deactivates an account
+// (PATCH /api/v1/users/:id/status). Auth-service answers 409
+// SEAT_LIMIT_REACHED (reactivating while every full seat is taken) or 409
+// LAST_ADMIN (deactivating the last active admin) as *APIError.
+func (c *Client) SetUserStatus(ctx context.Context, userID string, active bool, authHeader string) error {
+	body := map[string]bool{"is_active": active}
+	return c.do(ctx, http.MethodPatch, "/api/v1/users/"+url.PathEscape(userID)+"/status", authHeader, body, nil)
+}
+
+// DeleteUser removes an account (DELETE /api/v1/users/:id). hard=false lets
+// auth-service soft-delete or deactivate it; hard=true deletes it for good.
+// Auth-service answers 409 LAST_ADMIN for the last active admin.
+func (c *Client) DeleteUser(ctx context.Context, userID string, hard bool, authHeader string) error {
+	path := "/api/v1/users/" + url.PathEscape(userID)
+	if hard {
+		path += "?hard=true"
+	}
+	return c.do(ctx, http.MethodDelete, path, authHeader, nil, nil)
+}
+
 // do sends one request. A non-2xx answer becomes *APIError. A 2xx answer is
 // decoded into out when out is non-nil. Transport failures are returned as-is.
 func (c *Client) do(ctx context.Context, method, path, authHeader string, body any, out any) error {
@@ -180,18 +212,24 @@ func (c *Client) do(ctx context.Context, method, path, authHeader string, body a
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		apiErr := &APIError{StatusCode: resp.StatusCode}
 		var envelope struct {
-			Message string `json:"message"`
+			Message string          `json:"message"`
+			Data    json.RawMessage `json:"data"`
 			Error   *struct {
-				Code    string `json:"code"`
-				Message string `json:"message"`
+				Code    string          `json:"code"`
+				Message string          `json:"message"`
+				Details json.RawMessage `json:"details"`
 			} `json:"error"`
 		}
 		if json.Unmarshal(payload, &envelope) == nil {
 			apiErr.Message = envelope.Message
+			apiErr.Data = decodeObject(envelope.Data)
 			if envelope.Error != nil {
 				apiErr.Code = envelope.Error.Code
 				if envelope.Error.Message != "" {
 					apiErr.Message = envelope.Error.Message
+				}
+				if apiErr.Data == nil {
+					apiErr.Data = decodeObject(envelope.Error.Details)
 				}
 			}
 		}
@@ -204,4 +242,17 @@ func (c *Client) do(ctx context.Context, method, path, authHeader string, body a
 		}
 	}
 	return nil
+}
+
+// decodeObject returns raw as a JSON object, or nil when it is absent, null or
+// not an object (auth-service's "details" is usually a plain string).
+func decodeObject(raw json.RawMessage) map[string]any {
+	if len(raw) == 0 {
+		return nil
+	}
+	var obj map[string]any
+	if json.Unmarshal(raw, &obj) != nil || len(obj) == 0 {
+		return nil
+	}
+	return obj
 }

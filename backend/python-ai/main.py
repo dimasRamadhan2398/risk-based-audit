@@ -4,16 +4,26 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import re
 import time
 import pickle
-from datetime import datetime
+import threading
+from datetime import datetime, timezone
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
-from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request, Body
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Dict, Optional, Any
-from retrain_engine import AutoRetrainEngine, reload_fastapi_models
+from sklearn.preprocessing import MinMaxScaler
+from retrain_engine import (
+    AutoRetrainEngine,
+    reload_fastapi_models,
+    compute_auditee_pool_hash,
+    read_retrain_status,
+    write_retrain_status,
+)
+from model_registry import resolve_model_keys, MODEL_KEYS
+from retrain_scheduler import get_retrain_scheduler
 from security import install_api_key_middleware, internal_call_allowed, unauthorized
 from nlp_taxonomy import (
     load_taxonomy,
@@ -37,14 +47,6 @@ from ai_training_storage import (
 )
 
 app = FastAPI(title="Risk Audit AI Microservice", version="2.0.0")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.getenv("MODEL_DIR", os.path.join(BASE_DIR, "models"))
@@ -74,6 +76,14 @@ API_KEY = os.getenv("API_KEY", "dev-ai-api-key")
 INTERNAL_RETRAIN_TOKEN = os.getenv("INTERNAL_RETRAIN_TOKEN", "dev-internal-token")
 
 install_api_key_middleware(app, lambda: API_KEY)
+# Register CORSMiddleware AFTER verify_api_key so it wraps outermost and adds CORS headers even on 401/OPTIONS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # --- Load Model Bundles ---
 anomaly_bundle = None
@@ -363,6 +373,30 @@ class TaxonomyItemRequest(BaseModel):
 class PerformanceTrendRequest(BaseModel):
     kpi_name: Optional[str] = Field("NPL Ratio", description="KPI Name")
     historical_data: List[float] = Field(default_factory=lambda: [80.0, 82.0, 85.0, 81.0, 79.0])
+
+class AuditorKpiItemInput(BaseModel):
+    code: Optional[str] = "SO-IA01"
+    kpiName: Optional[str] = None
+    kpi: Optional[str] = None
+    category: Optional[str] = ""
+    strategicObjective: Optional[str] = ""
+    hibHig: Optional[str] = "HIG"
+    unit: Optional[str] = "%"
+    periodType: Optional[str] = "Yearly"
+    selectedPeriod: Optional[str] = ""
+    target: Optional[Any] = None
+    actual: Optional[Any] = None
+    targetValue: Optional[float] = None
+    currentValue: Optional[float] = None
+    kpiTargets: Optional[Dict[str, Any]] = Field(default_factory=dict)
+    kpiActuals: Optional[Dict[str, Any]] = Field(default_factory=dict)
+    sourceModule: Optional[str] = "Strategic Audit Plan"
+
+    class Config:
+        extra = "allow"
+
+class AuditorKpiForecastRequest(BaseModel):
+    items: List[AuditorKpiItemInput] = Field(default_factory=list)
 
 
 # --- API Routes ---
@@ -669,24 +703,26 @@ def sync_entity_prediction_with_sources(req: EntityRiskSyncRequest):
             })
         synced_count = upsert_entity_prediction_pool(dict_records)
 
-    # Trigger incremental retraining on the updated storage pool
+    # Enqueue per-model retraining on the updated Entity Prediction storage pool (non-blocking)
+    retrain_info = None
     if req.trigger_retrain:
         try:
-            engine = AutoRetrainEngine()
-            retrained = engine.retrain_department_suite()
-            if retrained:
-                reload_fastapi_models(app)
-                dept_path = os.path.join(MODEL_DIR, "department_bundle.pkl")
-                if os.path.exists(dept_path):
-                    with open(dept_path, "rb") as f:
-                        department_bundle = pickle.load(f)
+            scheduler = get_retrain_scheduler(app)
+            retrain_info = scheduler.enqueue_model(
+                "entity",
+                trigger="manual_entity_sync",
+                priority="manual",
+                force=True,
+            )
         except Exception as e:
-            print(f"[Entity-Sync] Background retrain warning: {e}")
+            print(f"[Entity-Sync] Background retrain enqueue warning: {e}")
 
-    # Return refreshed batch predictions
+    # Return refreshed batch predictions immediately
     batch_res = get_department_risk_batch()
     batch_res["synced_records"] = synced_count
     batch_res["status"] = "success"
+    if retrain_info:
+        batch_res["retrain"] = retrain_info
     return batch_res
 
 # ----------------------------------------------------------------------
@@ -1295,8 +1331,9 @@ def train_anomaly_with_rules(req: AnomalyRuleTrainRequest):
             'Alasan Anomali': '-'
         })
 
-    # Append to training CSV if present
+    # Append to training CSV if present and enqueue ONLY the anomaly model into the scheduler
     retrained = False
+    retrain_info = None
     if os.path.exists(bank_csv) and new_training_rows:
         try:
             df_existing = pd.read_csv(bank_csv)
@@ -1306,13 +1343,17 @@ def train_anomaly_with_rules(req: AnomalyRuleTrainRequest):
             df_combined = pd.concat([df_existing, df_new], ignore_index=True)
             df_combined.to_csv(bank_csv, index=False)
 
-            # Trigger automated retraining
-            engine = AutoRetrainEngine()
-            retrained = engine.retrain_anomaly_suite()
-            reload_fastapi_models(app)
-            print(f"[AutomatedRules] Successfully retrained Anomaly Detection model with {len(req.rules)} rules for {table_name}")
+            scheduler = get_retrain_scheduler(app)
+            retrain_info = scheduler.enqueue_model(
+                "anomaly",
+                trigger=f"manual_anomaly_rules:{table_name}",
+                priority="manual",
+                force=True,
+            )
+            retrained = retrain_info.get("status") in ("queued", "already_queued", "followup_queued")
+            print(f"[AutomatedRules] Enqueued Anomaly Detection model retrain with {len(req.rules)} rules for {table_name}: {retrain_info.get('status')}")
         except Exception as e:
-            print(f"[AutomatedRules] Error retraining anomaly suite: {e}")
+            print(f"[AutomatedRules] Error enqueueing anomaly suite: {e}")
 
     # Flush Redis cache key if available
     try:
@@ -1323,13 +1364,16 @@ def train_anomaly_with_rules(req: AnomalyRuleTrainRequest):
         pass
 
     batch_data = get_anomaly_batch()
+    q_pos = (retrain_info or {}).get("queue_position")
+    pos_text = f" (antrian #{q_pos})" if q_pos else ""
     return {
         "status": "success",
-        "message": f"Model Anomaly Detection berhasil dilatih ulang dengan {len(req.rules)} aturan anomali dari tabel '{table_name}'.",
+        "message": f"Model Anomaly Detection masuk antrian pelatihan ulang{pos_text} dengan {len(req.rules)} aturan anomali dari tabel '{table_name}'.",
         "table_name": table_name,
         "rules_count": len(req.rules),
         "training_samples_added": len(new_training_rows),
         "anomaly_model_retrained": retrained,
+        "retrain": retrain_info,
         **batch_data
     }
 
@@ -1352,11 +1396,22 @@ def create_or_update_nlp_taxonomy(req: TaxonomyItemRequest, background_tasks: Ba
         severity_boost=req.severity_boost if req.severity_boost is not None else 12,
         default_sentiment=req.default_sentiment or "Negative"
     )
-    background_tasks.add_task(background_self_learning_task)
+    retrain_info = None
+    try:
+        scheduler = get_retrain_scheduler(app)
+        retrain_info = scheduler.enqueue_model(
+            "nlp",
+            trigger="manual_taxonomy_update",
+            priority="manual",
+            force=True,
+        )
+    except Exception as e:
+        print(f"[NLP-Taxonomy] Enqueue warning: {e}")
     return {
         "status": "success",
         "message": f"Successfully registered '{req.name}' in NLP taxonomy.",
-        "taxonomy": updated_tax
+        "taxonomy": updated_tax,
+        "retrain": retrain_info,
     }
 
 
@@ -1364,13 +1419,19 @@ def create_or_update_nlp_taxonomy(req: TaxonomyItemRequest, background_tasks: Ba
 def sync_nlp_multi_sources():
     engine = AutoRetrainEngine()
     sync_counts = engine.sync_multi_source_nlp_corpus()
-    retrained = engine.retrain_document_suite()
-    reload_fastapi_models(app)
+    scheduler = get_retrain_scheduler(app)
+    retrain_info = scheduler.enqueue_model(
+        "nlp",
+        trigger="manual_nlp_sync",
+        priority="manual",
+        force=True,
+    )
     batch_res = get_text_analysis_batch()
     return {
         "status": "success",
         "synced_sources": sync_counts,
-        "document_model_retrained": retrained,
+        "document_model_retrained": retrain_info.get("status") in ("queued", "already_queued", "followup_queued"),
+        "retrain": retrain_info,
         **batch_res
     }
 
@@ -1666,61 +1727,88 @@ def predict_performance_trend(req: PerformanceTrendRequest):
         }
 
     try:
-        kpi_name = req.kpi_name if req.kpi_name in kpi_bundle['scalers'] else None
-        
-        if kpi_name and kpi_name in kpi_bundle['scalers']:
-            scaler = kpi_bundle['scalers'][kpi_name]
+        scalers_map = kpi_bundle.get('scalers') or {}
+        single_scaler = kpi_bundle.get('scaler')
+        kpi_name = req.kpi_name if req.kpi_name in scalers_map else None
+
+        if kpi_name and kpi_name in scalers_map:
+            scaler = scalers_map[kpi_name]
             arr = np.array(hist[-10:] if len(hist) >= 10 else hist).reshape(-1, 1)
             scaled_input = scaler.transform(arr)
-            
+
             if len(scaled_input) < 10:
                 pad = np.zeros((10 - len(scaled_input), 1))
                 scaled_input = np.vstack([pad, scaled_input])
-            
+
             seq_tensor = torch.tensor(scaled_input.reshape(1, 10, 1), dtype=torch.float32).to(device)
             with torch.no_grad():
-                pred_scaled = kpi_lstm_model(seq_tensor).cpu().numpy()[0][0]
-                
+                pred_scaled = float(kpi_lstm_model(seq_tensor).cpu().numpy()[0][0])
+
             pred_unscaled = float(scaler.inverse_transform([[pred_scaled]])[0][0])
+        elif single_scaler is not None:
+            arr = np.array(hist[-10:] if len(hist) >= 10 else hist).reshape(-1, 1)
+            scaled_input = single_scaler.transform(arr)
+            if len(scaled_input) < 10:
+                pad = np.repeat(scaled_input[:1], 10 - len(scaled_input), axis=0)
+                scaled_input = np.vstack([pad, scaled_input])
+
+            seq_tensor = torch.tensor(scaled_input.reshape(1, 10, 1), dtype=torch.float32).to(device)
+            with torch.no_grad():
+                pred_scaled = float(kpi_lstm_model(seq_tensor).cpu().numpy()[0][0])
+            raw_unscaled = float(single_scaler.inverse_transform([[pred_scaled]])[0][0])
+            # Clamp wide global scaler output smoothly near KPI's own local range
+            diff = hist[-1] - hist[-2] if len(hist) >= 2 else 0.0
+            local_trend = hist[-1] + diff * 0.25
+            lo_b, hi_b = min(hist) * 0.7, max(hist) * 1.3
+            pred_unscaled = raw_unscaled if (lo_b <= raw_unscaled <= hi_b) else (0.25 * max(lo_b, min(hi_b, raw_unscaled)) + 0.75 * local_trend)
         else:
-            g_min = kpi_bundle['global_min_val']
-            g_max = kpi_bundle['global_max_val']
+            g_min = float(kpi_bundle.get('global_min_val', min(hist)))
+            g_max = float(kpi_bundle.get('global_max_val', max(hist)))
             arr = np.array(hist[-10:] if len(hist) >= 10 else hist)
             scaled_input = (arr - g_min) / (g_max - g_min + 1e-8)
-            
+
             if len(scaled_input) < 10:
                 pad = np.zeros(10 - len(scaled_input))
                 scaled_input = np.hstack([pad, scaled_input])
-                
+
             seq_tensor = torch.tensor(scaled_input.reshape(1, 10, 1), dtype=torch.float32).to(device)
             with torch.no_grad():
-                pred_scaled = kpi_lstm_model(seq_tensor).cpu().numpy()[0][0]
-                
+                pred_scaled = float(kpi_lstm_model(seq_tensor).cpu().numpy()[0][0])
+
             pred_unscaled = float(pred_scaled * (g_max - g_min) + g_min)
 
         forecast_series = [
-            round(pred_unscaled, 2),
-            round(pred_unscaled + (pred_unscaled - hist[-1]) * 0.5, 2),
-            round(pred_unscaled + (pred_unscaled - hist[-1]) * 1.0, 2)
+            round(float(pred_unscaled), 2),
+            round(float(pred_unscaled + (pred_unscaled - hist[-1]) * 0.5), 2),
+            round(float(pred_unscaled + (pred_unscaled - hist[-1]) * 1.0), 2)
         ]
 
         trend_str = "Improving" if forecast_series[-1] >= hist[-1] else "Deteriorating"
 
-        ohe = kpi_bundle['ohe_kpi']
-        sc_tab = kpi_bundle['scaler_tab']
-        
         try:
-            if kpi_name:
-                kpi_enc = ohe.transform([[kpi_name]])
+            ohe = kpi_bundle.get('ohe_kpi')
+            sc_tab = kpi_bundle.get('scaler_tab')
+            tab_sc = kpi_bundle.get('tab_scaler')
+            if ohe is not None and sc_tab is not None:
+                if kpi_name:
+                    kpi_enc = ohe.transform([[kpi_name]])
+                else:
+                    kpi_enc = np.zeros((1, len(ohe.categories_[0])))
+                num_f = np.array([[hist[-1], hist[-2] if len(hist) > 1 else hist[-1], hist[-3] if len(hist) > 2 else hist[-1], hist[-4] if len(hist) > 3 else hist[-1], np.mean(hist[-3:])]])
+                X_tab = np.hstack([kpi_enc, num_f])
+                X_tab_scaled = sc_tab.transform(X_tab)
+                imp_val = int(kpi_bundle['impact_classifier'].predict(X_tab_scaled)[0]) + 1
+                lik_val = int(kpi_bundle['likelihood_classifier'].predict(X_tab_scaled)[0]) + 1
+            elif tab_sc is not None and 'impact_classifier' in kpi_bundle:
+                X_tab_scaled = tab_sc.transform(np.array([[float(pred_unscaled)]]))
+                raw_imp = kpi_bundle['impact_classifier'].predict(X_tab_scaled)[0]
+                raw_lik = kpi_bundle['likelihood_classifier'].predict(X_tab_scaled)[0]
+                imp_le = kpi_bundle.get('impact_le')
+                lik_le = kpi_bundle.get('likelihood_le')
+                imp_val = int(imp_le.inverse_transform([raw_imp])[0]) if imp_le is not None else (int(raw_imp) + 1)
+                lik_val = int(lik_le.inverse_transform([raw_lik])[0]) if lik_le is not None else (int(raw_lik) + 1)
             else:
-                kpi_enc = np.zeros((1, len(ohe.categories_[0])))
-                
-            num_f = np.array([[hist[-1], hist[-2] if len(hist)>1 else hist[-1], hist[-3] if len(hist)>2 else hist[-1], hist[-4] if len(hist)>3 else hist[-1], np.mean(hist[-3:])]])
-            X_tab = np.hstack([kpi_enc, num_f])
-            X_tab_scaled = sc_tab.transform(X_tab)
-            
-            imp_val = int(kpi_bundle['impact_classifier'].predict(X_tab_scaled)[0]) + 1
-            lik_val = int(kpi_bundle['likelihood_classifier'].predict(X_tab_scaled)[0]) + 1
+                imp_val, lik_val = 3, 3
         except Exception:
             imp_val = 3
             lik_val = 3
@@ -1750,6 +1838,389 @@ def predict_performance_trend(req: PerformanceTrendRequest):
             "risk_level": "MODERATE"
         }
 
+def _parse_numeric_kpi(val: Any) -> Optional[float]:
+    if val is None or val == "":
+        return None
+    if isinstance(val, (int, float)):
+        if np.isnan(val) or np.isinf(val):
+            return None
+        return float(val)
+    s = str(val).strip()
+    if not s:
+        return None
+    m = re.match(r'^[-+]?\d+(?:[.,]\d+)?', s.replace(',', ''))
+    if not m:
+        return None
+    try:
+        v = float(m.group(0))
+        return None if (np.isnan(v) or np.isinf(v)) else v
+    except Exception:
+        return None
+
+
+def _auditor_period_sort_key(label: str):
+    s = str(label).strip()
+    m_yr = re.match(r'^(\d{4})$', s)
+    if m_yr:
+        return (0, int(m_yr.group(1)), 0, s)
+    m_qy = re.match(r'^[Qq](\d)[-\s/]?(\d{4})$', s)
+    if m_qy:
+        return (1, int(m_qy.group(2)), int(m_qy.group(1)), s)
+    m_q = re.match(r'^[Qq](\d)$', s)
+    if m_q:
+        return (1, datetime.now().year, int(m_q.group(1)), s)
+    return (2, 0, 0, s)
+
+
+def _predict_single_auditor_kpi(item: AuditorKpiItemInput, idx: int) -> Optional[dict]:
+    """
+    Runs the pre-trained Auditor PyTorch LSTM Regressor + Status Classifier on a single real
+    AuditSphere KPI row (Strategic Audit Plan / Internal Audit Performance with target & actual columns).
+    Never synthesizes KPIs from auditor_kpi_data.csv.
+    """
+    so_code = (item.code or f"SO-IA{idx + 1:02d}").strip()
+    kpi_name = (item.kpiName or item.kpi or item.strategicObjective or "").strip()
+    if not kpi_name:
+        return None
+
+    pillar = (item.category or item.strategicObjective or "Strategic Audit Plan").strip()
+    polarity = (item.hibHig or "HIG").strip().upper()
+    if polarity not in ("HIG", "HIB"):
+        polarity = "HIG"
+    unit = (item.unit or "%").strip() or "%"
+    source_module = (item.sourceModule or "Strategic Audit Plan").strip()
+
+    raw_targets = item.kpiTargets or {}
+    raw_actuals = item.kpiActuals or {}
+
+    all_period_keys = sorted(set(list(raw_targets.keys()) + list(raw_actuals.keys())), key=_auditor_period_sort_key)
+
+    history_points: List[dict] = []
+    future_targets: List[dict] = []
+
+    for pkey in all_period_keys:
+        p_str = str(pkey).strip()
+        if item.periodType == "Quartal" and re.match(r'^\d{4}$', p_str):
+            continue
+        if item.periodType == "Yearly" and re.match(r'^[Qq]\d', p_str):
+            continue
+        t_v = _parse_numeric_kpi(raw_targets.get(pkey))
+        a_v = _parse_numeric_kpi(raw_actuals.get(pkey))
+        if a_v is not None:
+            history_points.append({
+                "period": p_str,
+                "value": round(a_v, 2),
+                "actual": round(a_v, 2),
+                "target": round(t_v, 2) if t_v is not None else None
+            })
+        elif t_v is not None:
+            future_targets.append({"period": p_str, "target": round(t_v, 2)})
+
+    base_target = _parse_numeric_kpi(item.targetValue if item.targetValue is not None else item.target)
+    base_actual = _parse_numeric_kpi(item.currentValue if item.currentValue is not None else item.actual)
+
+    # Strict KPI qualification: must have both actual and target columns/values defined
+    has_target = base_target is not None or len(future_targets) > 0 or any(h.get("target") is not None for h in history_points)
+    has_actual = base_actual is not None or len(history_points) > 0
+    if not has_target or not has_actual:
+        return None
+
+    target_val = float(
+        base_target
+        if base_target is not None
+        else (history_points[-1]["target"] if history_points and history_points[-1].get("target") is not None else future_targets[0]["target"])
+    )
+
+    if not history_points and base_actual is not None:
+        sel_p = (item.selectedPeriod or str(datetime.now().year)).strip()
+        history_points.append({
+            "period": sel_p,
+            "value": round(base_actual, 2),
+            "actual": round(base_actual, 2),
+            "target": round(target_val, 2)
+        })
+
+    # Prefer row's explicit actual when present and matching latest period; else last chronological history actual
+    curr_val = float(base_actual if base_actual is not None else history_points[-1]["actual"])
+    curr_val = round(curr_val, 2)
+    hist_vals = [float(h["actual"]) for h in history_points]
+
+    # Run pre-trained Auditor PyTorch LSTM Regressor with adaptive scaling
+    def _lstm_step(seq_vals: List[float]) -> float:
+        diff = (seq_vals[-1] - seq_vals[-2]) if len(seq_vals) >= 2 else 0.0
+        trend_est = seq_vals[-1] + diff * 0.25
+
+        if auditor_kpi_lstm_model is None:
+            return trend_est
+
+        try:
+            use_sc = None
+            if auditor_kpi_bundle is not None:
+                cand_sc = auditor_kpi_bundle.get("scalers", {}).get(so_code)
+                if cand_sc is not None:
+                    d_min = float(cand_sc.data_min_[0])
+                    d_max = float(cand_sc.data_max_[0])
+                    if d_min * 0.6 <= min(seq_vals) and max(seq_vals) <= d_max * 1.4 and abs(d_max - d_min) > 1e-6:
+                        use_sc = cand_sc
+
+            if use_sc is None:
+                lo = min(seq_vals + [target_val])
+                hi = max(seq_vals + [target_val])
+                pad = max(1.0, abs(target_val) * 0.15, (hi - lo) * 0.5)
+                use_sc = MinMaxScaler(feature_range=(0, 1))
+                use_sc.fit(np.array([[lo - pad], [hi + pad]], dtype=np.float32))
+
+            window = seq_vals[-10:] if len(seq_vals) >= 10 else seq_vals
+            arr = np.array(window, dtype=np.float32).reshape(-1, 1)
+            s_in = use_sc.transform(arr)
+            if len(s_in) < 10:
+                # Pad with first observation rather than zero to avoid artificial step shock on short plan histories
+                pad_rows = np.repeat(s_in[:1], 10 - len(s_in), axis=0)
+                s_in = np.vstack([pad_rows, s_in])
+
+            seq_t = torch.tensor(s_in.reshape(1, 10, 1), dtype=torch.float32).to(device)
+            with torch.no_grad():
+                p_scaled = float(auditor_kpi_lstm_model(seq_t).cpu().numpy()[0][0])
+            lstm_raw = float(use_sc.inverse_transform([[p_scaled]])[0][0])
+
+            # Blend LSTM output with local momentum when plan history has few recorded periods
+            weight_lstm = min(0.85, 0.35 + 0.1 * len(seq_vals))
+            pred_v = weight_lstm * lstm_raw + (1.0 - weight_lstm) * trend_est
+
+            if unit == "%" and max(seq_vals) <= 105:
+                pred_v = max(0.0, min(105.0, pred_v))
+            elif pred_v < 0 and min(seq_vals) >= 0:
+                pred_v = 0.0
+            return pred_v
+        except Exception:
+            return trend_est
+
+    # Determine forecast horizons directly from remaining target periods or next logical horizon
+    forecast_points: List[dict] = []
+    roll_seq = list(hist_vals)
+    mape_err = 0.0295
+
+    if future_targets:
+        for step_idx, ft in enumerate(future_targets[:3]):
+            next_val = round(_lstm_step(roll_seq), 2)
+            roll_seq.append(next_val)
+            spread = float(abs(next_val) * mape_err * float(np.sqrt(step_idx + 1)))
+            forecast_points.append({
+                "period": ft["period"],
+                "value": float(next_val),
+                "target": float(ft["target"]),
+                "lower": round(float(next_val - spread), 2),
+                "upper": round(float(next_val + spread), 2)
+            })
+        target_horizon = future_targets[0]["period"]
+    else:
+        last_p = history_points[-1]["period"]
+        if re.match(r'^\d{4}$', last_p):
+            next_p = str(int(last_p) + 1)
+        elif re.match(r'^[Qq]([1-4])$', last_p):
+            q_num = int(last_p[1])
+            next_p = f"Q{(q_num % 4) + 1}"
+        else:
+            next_p = f"Akhir Tahun {datetime.now().year}"
+        next_val = round(_lstm_step(roll_seq), 2)
+        spread = abs(next_val) * mape_err
+        forecast_points.append({
+            "period": next_p,
+            "value": next_val,
+            "target": round(target_val, 2),
+            "lower": round(next_val - spread, 2),
+            "upper": round(next_val + spread, 2)
+        })
+        target_horizon = next_p
+
+    pred_unscaled = round(float(forecast_points[0]["value"]), 2)
+    fore_target = float(forecast_points[0].get("target") or target_val)
+
+    if polarity == "HIG":
+        curr_ratio = round((curr_val / target_val) * 100.0, 1) if target_val > 0 else 100.0
+        fore_ratio = round((pred_unscaled / fore_target) * 100.0, 1) if fore_target > 0 else 100.0
+    else:
+        curr_ratio = 100.0 if curr_val <= 0 else round((target_val / curr_val) * 100.0, 1)
+        fore_ratio = 100.0 if pred_unscaled <= 0 else round((fore_target / pred_unscaled) * 100.0, 1)
+
+    curr_status = "Good" if curr_ratio >= 100.0 else ("Moderate" if curr_ratio >= 70.0 else "Poor")
+
+    pred_status = "Good" if fore_ratio >= 100.0 else ("Moderate" if fore_ratio >= 70.0 else "Poor")
+    if auditor_kpi_bundle is not None and "status_classifier" in auditor_kpi_bundle and target_val > 0:
+        try:
+            clf = auditor_kpi_bundle["status_classifier"]
+            sc_c = auditor_kpi_bundle["scaler_class"]
+            le_c = auditor_kpi_bundle["label_encoder"]
+            gap = (pred_unscaled - fore_target) / (fore_target + 1e-6) if polarity == "HIG" else (fore_target - pred_unscaled) / (fore_target + 1e-6)
+            lag1 = hist_vals[-1]
+            lag2 = hist_vals[-2] if len(hist_vals) >= 2 else lag1
+            lag3 = hist_vals[-3] if len(hist_vals) >= 3 else lag2
+            feat_v = np.array([[
+                1 if polarity == "HIG" else 0,
+                fore_target,
+                pred_unscaled,
+                fore_ratio,
+                gap,
+                lag1, lag2, lag3,
+                fore_ratio, curr_ratio, curr_ratio,
+                float(np.mean(hist_vals[-3:])),
+                float(np.std(hist_vals[-3:])) if len(hist_vals) >= 3 else 0.5,
+                curr_val - lag3
+            ]])
+            feat_scaled = sc_c.transform(feat_v)
+            cls_idx = clf.predict(feat_scaled)[0]
+            clf_status = str(le_c.inverse_transform([cls_idx])[0])
+            # Reconcile classifier output with explicit HIG/HIB rule boundaries
+            if clf_status in ("Good", "Moderate", "Poor"):
+                pred_status = clf_status
+        except Exception:
+            pass
+
+    if polarity == "HIG":
+        trend_str = "Improving" if pred_unscaled >= curr_val else "Deteriorating"
+    else:
+        trend_str = "Improving" if pred_unscaled <= curr_val else "Deteriorating"
+
+    unit_suffix = "%" if unit == "%" else f" {unit}"
+    if pred_status == "Poor":
+        ai_narrative = f"Dengan tren historis saat ini, capaian {kpi_name} diproyeksikan hanya mencapai {fore_ratio:.1f}% ({pred_unscaled}{unit_suffix} dari target {fore_target}{unit_suffix}) pada {target_horizon}."
+        rec_action = f"Eskalasi kendala pencapaian target {so_code} ke Komite Audit dan susun corrective action plan segera."
+    elif pred_status == "Moderate":
+        ai_narrative = f"Dengan kecepatan saat ini, diprediksi target {kpi_name} tercapai {fore_ratio:.1f}% ({pred_unscaled}{unit_suffix} vs target {fore_target}{unit_suffix}) pada {target_horizon}."
+        rec_action = f"Tingkatkan koordinasi tim audit pada pilar {pillar} agar target {fore_target}{unit_suffix} tercapai penuh."
+    else:
+        ai_narrative = f"Dengan tren saat ini, target {kpi_name} diproyeksikan tercapai optimal ({fore_ratio:.1f}%, {pred_unscaled}{unit_suffix} vs target {fore_target}{unit_suffix}) pada {target_horizon}."
+        rec_action = "Pertahankan efektivitas pelaksanaan audit dan dokumentasikan best practice."
+
+    return {
+        "code": so_code,
+        "kpiName": kpi_name,
+        "category": pillar,
+        "strategicObjective": item.strategicObjective or pillar,
+        "hibHig": polarity,
+        "unit": unit,
+        "sourceModule": source_module,
+        "targetHorizon": target_horizon,
+        "targetValue": round(target_val, 2),
+        "currentValue": curr_val,
+        "forecastedValue": pred_unscaled,
+        "achievementRate": curr_ratio,
+        "forecastedAchievementRate": fore_ratio,
+        "currentStatus": curr_status,
+        "predictedStatus": pred_status,
+        "trend": trend_str,
+        "confidenceLower": forecast_points[0]["lower"],
+        "confidenceUpper": forecast_points[0]["upper"],
+        "aiNarrative": ai_narrative,
+        "recommendedAction": rec_action,
+        "lastActualPeriod": history_points[-1]["period"] if history_points else "",
+        "history": history_points,
+        "forecast": forecast_points
+    }
+
+
+def _build_auditor_response_payload(auditor_forecasts: List[dict]) -> dict:
+    at_risk_pillars = [
+        {
+            "pillar": k["category"],
+            "code": k["code"],
+            "kpi": k["kpiName"],
+            "target": k["targetValue"],
+            "predicted": k["forecastedValue"],
+            "achievementRate": k["forecastedAchievementRate"],
+            "predictedStatus": k["predictedStatus"],
+            "unit": k["unit"]
+        }
+        for k in auditor_forecasts
+        if k["predictedStatus"] in ("Poor", "Moderate") or k["trend"] == "Deteriorating"
+    ]
+
+    # Normalized aggregate % achievement series derived 100% from the live KPIs above
+    time_series_data: List[dict] = []
+    if auditor_forecasts:
+        hist_by_period: Dict[str, List[float]] = {}
+        fore_by_period: Dict[str, List[float]] = {}
+        for k in auditor_forecasts:
+            pol = k.get("hibHig", "HIG")
+            fallback_t = float(k.get("targetValue") or 100.0)
+            for h in k.get("history", []):
+                t_val = float(h.get("target") or fallback_t)
+                a_val = float(h.get("actual") if h.get("actual") is not None else h.get("value", 0))
+                rate = (a_val / t_val * 100.0) if (pol == "HIG" and t_val > 0) else (100.0 if a_val <= 0 else (t_val / a_val * 100.0))
+                hist_by_period.setdefault(str(h["period"]), []).append(min(150.0, rate))
+            for f in k.get("forecast", []):
+                t_val = float(f.get("target") or fallback_t)
+                f_val = float(f.get("value", 0))
+                rate = (f_val / t_val * 100.0) if (pol == "HIG" and t_val > 0) else (100.0 if f_val <= 0 else (t_val / f_val * 100.0))
+                fore_by_period.setdefault(str(f["period"]), []).append(min(150.0, rate))
+
+        sorted_hist_p = sorted(hist_by_period.keys(), key=_auditor_period_sort_key)[-6:]
+        sorted_fore_p = sorted(fore_by_period.keys(), key=_auditor_period_sort_key)[:3]
+
+        for i, p in enumerate(sorted_hist_p):
+            avg_v = round(float(np.mean(hist_by_period[p])), 1)
+            is_anchor = (i == len(sorted_hist_p) - 1) and len(sorted_fore_p) > 0
+            time_series_data.append({
+                "period": p,
+                "actual": avg_v,
+                "forecast": avg_v if is_anchor else None,
+                "upperBound": avg_v if is_anchor else None,
+                "lowerBound": avg_v if is_anchor else None
+            })
+        for step_idx, p in enumerate(sorted_fore_p):
+            avg_f = round(float(np.mean(fore_by_period[p])), 1)
+            band = round(float(avg_f * 0.0295 * float(np.sqrt(step_idx + 1))), 1)
+            time_series_data.append({
+                "period": p,
+                "actual": None,
+                "forecast": float(avg_f),
+                "upperBound": round(float(avg_f + band), 1),
+                "lowerBound": round(float(max(0.0, avg_f - band)), 1)
+            })
+
+        avg_fore_rate = round(float(np.mean([k["forecastedAchievementRate"] for k in auditor_forecasts])), 1)
+        if at_risk_pillars:
+            top_names = ", ".join(f"{r['code']}" for r in at_risk_pillars[:3])
+            exec_summary = (
+                f"Berdasarkan {len(auditor_forecasts)} KPI aktif dari Strategic Audit Plan, rata-rata proyeksi capaian target berada di {avg_fore_rate}%. "
+                f"Ditemukan {len(at_risk_pillars)} KPI memerlukan perhatian khusus ({top_names})."
+            )
+        else:
+            exec_summary = (
+                f"Berdasarkan {len(auditor_forecasts)} KPI aktif dari Strategic Audit Plan, seluruh indikator diproyeksikan berstatus Good "
+                f"dengan rata-rata capaian {avg_fore_rate}%."
+            )
+    else:
+        exec_summary = "Belum ada data KPI (dengan kolom Target & Actual) dari Strategic Audit Plan untuk diproyeksikan."
+
+    return {
+        "kpi_forecasts": auditor_forecasts,
+        "at_risk_pillars": at_risk_pillars,
+        "time_series_data": time_series_data,
+        "executive_summary": exec_summary,
+        "forecast_accuracy": {
+            "mape": 2.95,
+            "rmse": 1.22,
+            "r2Score": 0.985
+        }
+    }
+
+
+@app.post("/predict/auditor-kpi-forecast")
+def predict_auditor_kpi_forecast(req: AuditorKpiForecastRequest):
+    """
+    Runs the pre-trained Auditor PyTorch LSTM model on live KPI items submitted from
+    AuditSphere's Strategic Audit Plan (and any feature carrying both 'target' and 'actual' columns).
+    """
+    auditor_forecasts = []
+    for idx, item in enumerate(req.items):
+        pred_row = _predict_single_auditor_kpi(item, idx)
+        if pred_row is not None:
+            auditor_forecasts.append(pred_row)
+
+    return _build_auditor_response_payload(auditor_forecasts)
+
+
 @app.get("/predict/performance-trend/batch")
 def get_performance_trend_batch():
     # ─── 1. AUDITEE KPI FORECAST (Kesehatan Unit Bisnis - Zona Gold / CAATT) ───
@@ -1760,12 +2231,12 @@ def get_performance_trend_batch():
 
     if df_auditee.empty:
         df_auditee = pd.DataFrame([
-            {"Nama KPI": "Rasio NPL Cabang Surabaya", "TARGET: Nilai Aktual (%)": 1.6},
-            {"Nama KPI": "Rasio NPL Cabang Jakarta", "TARGET: Nilai Aktual (%)": 4.8},
-            {"Nama KPI": "Rasio BOPO (Efisiensi Operasional)", "TARGET: Nilai Aktual (%)": 80.4},
-            {"Nama KPI": "Gross Profit Margin", "TARGET: Nilai Aktual (%)": 37.0},
-            {"Nama KPI": "Rasio Anomali Transaksi Cabang", "TARGET: Nilai Aktual (%)": 4.4},
-            {"Nama KPI": "Liquidity Coverage Ratio (LCR)", "TARGET: Nilai Aktual (%)": 147.3}
+            {"Nama KPI": "Rasio NPL Cabang Surabaya", "Periode": "Bulan 12 2025", "TARGET: Nilai Aktual (%)": 1.6},
+            {"Nama KPI": "Rasio NPL Cabang Jakarta", "Periode": "Bulan 12 2025", "TARGET: Nilai Aktual (%)": 4.8},
+            {"Nama KPI": "Rasio BOPO (Efisiensi Operasional)", "Periode": "Bulan 12 2025", "TARGET: Nilai Aktual (%)": 80.4},
+            {"Nama KPI": "Gross Profit Margin", "Periode": "Bulan 12 2025", "TARGET: Nilai Aktual (%)": 37.0},
+            {"Nama KPI": "Rasio Anomali Transaksi Cabang", "Periode": "Bulan 12 2025", "TARGET: Nilai Aktual (%)": 4.4},
+            {"Nama KPI": "Liquidity Coverage Ratio (LCR)", "Periode": "Bulan 12 2025", "TARGET: Nilai Aktual (%)": 147.3}
         ])
 
     kpi_groups = df_auditee.groupby('Nama KPI')
@@ -1804,7 +2275,6 @@ def get_performance_trend_batch():
             return 'Hourly'
         return 'Daily'
 
-    # Not every KPI in the dataset is a percentage, and for some a lower value is better.
     kpi_unit_map = {
         'Net Promoter Score': 'score',
         'Customer Lifetime Value': 'Rp',
@@ -1812,14 +2282,23 @@ def get_performance_trend_batch():
         'Customer Acquisition Cost': 'Rp',
         'Monthly Recurring Revenue': 'Rp',
     }
-    lower_is_better = {'Employee Turnover Rate', 'Customer Acquisition Cost'}
+    lower_is_better_exact = {'Employee Turnover Rate', 'Customer Acquisition Cost'}
+
+    def is_lower_better(name: str) -> bool:
+        if name in lower_is_better_exact:
+            return True
+        low = name.lower()
+        return any(kw in low for kw in ['npl', 'bopo', 'anomali', 'macet', 'latency', 'turnover', 'churn', 'fraud', 'pelanggaran', 'cost'])
 
     def parse_month(label) -> Optional[str]:
-        """'Bulan 01 2015' -> '2015-01'."""
-        m = re.search(r'(\d{1,2})\D+(\d{4})', str(label))
-        if not m:
-            return None
-        return f"{int(m.group(2)):04d}-{int(m.group(1)):02d}"
+        s = str(label).strip()
+        m_iso = re.search(r'(\d{4})[-/](\d{1,2})', s)
+        if m_iso:
+            return f"{int(m_iso.group(1)):04d}-{int(m_iso.group(2)):02d}"
+        m_id = re.search(r'(\d{1,2})\D+(\d{4})', s)
+        if m_id:
+            return f"{int(m_id.group(2)):04d}-{int(m_id.group(1)):02d}"
+        return None
 
     def next_month(period: str, steps: int) -> str:
         y, mth = int(period[:4]), int(period[5:7])
@@ -1830,21 +2309,63 @@ def get_performance_trend_batch():
     series_by_kpi = {}
 
     for kpi_name in unique_kpis:
-        group = kpi_groups.get_group(kpi_name)
-        hist = pd.to_numeric(group['TARGET: Nilai Aktual (%)'], errors='coerce').dropna().values.tolist()
+        group = kpi_groups.get_group(kpi_name).copy()
+        group['_val'] = pd.to_numeric(group['TARGET: Nilai Aktual (%)'], errors='coerce')
+        group = group.dropna(subset=['_val'])
+        if group.empty:
+            continue
+
+        if 'Periode' in group.columns:
+            group['_p'] = group['Periode'].apply(parse_month)
+            parsed_rows = group.dropna(subset=['_p']).sort_values('_p')
+            if not parsed_rows.empty:
+                periods = parsed_rows['_p'].tolist()
+                hist = parsed_rows['_val'].tolist()
+            else:
+                periods = []
+                hist = group['_val'].tolist()
+        else:
+            periods = []
+            hist = group['_val'].tolist()
+
         if not hist:
             continue
 
         pred = predict_performance_trend(PerformanceTrendRequest(kpi_name=kpi_name, historical_data=hist))
-        curr_val = round(hist[-1], 1)
-        fore_val = pred['predicted_performance']
+
+        last_period = periods[-1] if periods else pd.Timestamp.now().strftime("%Y-%m")
+        if periods:
+            tail = list(zip(periods, hist))[-HISTORY_POINTS:]
+            history_points = [{"period": p, "value": round(float(v), 2)} for p, v in tail]
+        else:
+            base_m = pd.Timestamp.now().strftime("%Y-%m")
+            history_points = [{"period": base_m, "value": round(float(hist[-1]), 2)}]
+            last_period = base_m
+
+        f_series = pred.get('forecast_series') or [pred['predicted_performance']]
+        forecast_points = [
+            {"period": next_month(last_period, i + 1), "value": round(float(v), 2)}
+            for i, v in enumerate(f_series)
+        ]
+
+        end_val = forecast_points[-1]['value'] if forecast_points else float(pred['predicted_performance'])
+        went_up = end_val >= hist[-1]
+        improving = (not went_up) if is_lower_better(kpi_name) else went_up
+        trend_key = 'Improving' if improving else 'Deteriorating'
+        pred['trend'] = trend_key
+        pred['alert_level'] = 'None' if improving else 'Watch'
+
+        curr_val = round(float(hist[-1]), 2)
+        fore_val = round(float(pred['predicted_performance']), 2)
+        change_pct = round(((end_val - hist[-1]) / abs(hist[-1])) * 100.0, 2) if hist[-1] else 0.0
+        horizon_start = forecast_points[0]['period'] if forecast_points else None
+        horizon_end = forecast_points[-1]['period'] if forecast_points else get_current_target_timeline()
         code_str = f"KPI-{len(auditee_forecasts)+1:03d}"
 
         entity_info = resolve_auditee_entity(kpi_name)
-        trend_key = pred['trend']
         sync_freq = resolve_auditee_sync(kpi_name)
+        unit_str = kpi_unit_map.get(kpi_name, "%")
 
-        # Narasi khusus Auditee (tanpa predictedStatus dan tanpa HIG/HIB)
         if 'Surabaya' in kpi_name and 'NPL' in kpi_name:
             narrative = "Diprediksi Cabang Surabaya akan mengalami lonjakan NPL dalam 2 kuartal ke depan akibat kenaikan rasio kredit berisiko."
             rec_action = "Lakukan audit kredit mendalam atas debitur komersial Cabang Surabaya dan tinjau agunan kredit macet."
@@ -1864,220 +2385,95 @@ def get_performance_trend_batch():
             narrative = f"Tren indikator permodalan dan margin bunga {kpi_name} bergerak dalam koridor risk appetite."
             rec_action = "Monitor simulasi stress testing modal dan evaluasi strategi pricing pembiayaan."
         else:
-            narrative = f"Tren indikator {kpi_name} pada {entity_info[0]} diproyeksikan {trend_key.lower()} pada 2 kuartal ke depan."
+            narrative = f"Tren indikator {kpi_name} pada {entity_info[0]} diproyeksikan {trend_key.lower()} pada horizon {horizon_start}..{horizon_end}."
             rec_action = "Lakukan audit investigasi atas deviasi performa KPI bisnis" if trend_key == 'Deteriorating' else "Monitoring berkala performa KPI bisnis sesuai toleransi risiko."
 
         auditee_forecasts.append({
             "kpiName": kpi_name,
             "code": code_str,
-            "unit": "%",
+            "unit": unit_str,
             "entity": entity_info[0],
             "entityType": entity_info[1],
             "syncFrequency": sync_freq,
             "lastSyncedAt": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M"),
-            "targetHorizon": get_current_target_timeline(),
+            "targetHorizon": f"{horizon_start}..{horizon_end}" if horizon_start else get_current_target_timeline(),
             "currentValue": curr_val,
             "forecastedValue": fore_val,
-            "deltaPct": round(((fore_val - curr_val) / (curr_val + 1e-6)) * 100, 1),
-            "trend": pred['trend'],
+            "deltaPct": round(((fore_val - curr_val) / (abs(curr_val) + 1e-6)) * 100, 1),
+            "trend": trend_key,
             "alertLevel": pred['alert_level'],
             "impactScore": pred.get('impact', 3),
             "likelihoodScore": pred.get('likelihood', 3),
             "riskLevel": pred['risk_level'],
             "aiNarrative": narrative,
-            "recommendedAction": rec_action
+            "recommendedAction": rec_action,
+            "lastActualPeriod": last_period,
+            "history": history_points,
+            "forecast": forecast_points
         })
         series_by_kpi[kpi_name] = (history_points, forecast_points)
 
-        if pred['trend'] == "Deteriorating" or pred['risk_level'] in ['HIGH', 'CRITICAL']:
+        if trend_key == "Deteriorating" or pred['risk_level'] in ['HIGH', 'CRITICAL']:
             auditee_at_risk.append({
                 "department": entity_info[0],
                 "kpi": kpi_name,
                 "currentTrend": change_pct,
-                "predictedValue": fore_val,
+                "predictedValue": end_val,
+                "predictedQ3": end_val,
                 "horizonEnd": horizon_end,
+                "unit": unit_str,
                 "riskLevel": pred['risk_level']
             })
 
-    auditee_historical_kpi = [
-        {"period": "Q1 2025", "actual": 85.2, "forecast": 85.2, "upperBound": 88.0, "lowerBound": 82.0},
-        {"period": "Q2 2025", "actual": 82.0, "forecast": 82.0, "upperBound": 85.0, "lowerBound": 79.0},
-        {"period": "Q3 2025", "actual": 79.5, "forecast": 79.5, "upperBound": 82.5, "lowerBound": 76.5},
-        {"period": "Q4 2025", "actual": 76.0, "forecast": 76.0, "upperBound": 79.0, "lowerBound": 73.0},
-        {"period": "Q1 2026 (Pred)", "actual": None, "forecast": 73.5, "upperBound": 77.0, "lowerBound": 70.0},
-        {"period": "Q2 2026 (Pred)", "actual": None, "forecast": 71.2, "upperBound": 75.0, "lowerBound": 67.5}
-    ]
+    # Build default chart time_series_data directly from the primary at-risk (or first) Auditee KPI in table (never hardcoded)
+    auditee_historical_kpi = []
+    primary_kpi = None
+    if auditee_at_risk:
+        primary_name = auditee_at_risk[0]["kpi"]
+        primary_kpi = next((k for k in auditee_forecasts if k["kpiName"] == primary_name), None)
+    if primary_kpi is None and auditee_forecasts:
+        primary_kpi = auditee_forecasts[0]
 
-    # ─── 2. AUDITOR KPI FORECAST (Efektivitas Audit Internal - Strategic Audit Plan) ───
-    auditor_forecasts = []
-    auditor_at_risk_pillars = []
-
-    try:
-        df_aud = load_auditor_training_dataframe()
-    except Exception:
-        df_aud = pd.DataFrame()
-
-    if not df_aud.empty:
-        aud_groups = df_aud.groupby('Kode SO')
-        for so_code, grp in aud_groups:
-            kpi_name = grp['Nama KPI'].iloc[0]
-            pillar = grp['Kategori Pilar'].iloc[0]
-            polarity = grp['Tipe Polaritas (HIG/HIB)'].iloc[0]
-            unit = grp['Satuan'].iloc[0]
-            target_val = float(grp['Nilai Target'].iloc[0])
-            hist_vals = pd.to_numeric(grp['TARGET: Nilai Aktual'], errors='coerce').dropna().values.tolist()
-            if not hist_vals:
-                continue
-
-            curr_val = round(hist_vals[-1], 1)
-
-            pred_unscaled = None
-            if auditor_kpi_lstm_model is not None and auditor_kpi_bundle is not None:
-                try:
-                    sc = auditor_kpi_bundle.get('scalers', {}).get(so_code)
-                    if sc:
-                        arr = np.array(hist_vals[-10:] if len(hist_vals) >= 10 else hist_vals).reshape(-1, 1)
-                        s_in = sc.transform(arr)
-                        if len(s_in) < 10:
-                            s_in = np.vstack([np.zeros((10 - len(s_in), 1)), s_in])
-                        seq_t = torch.tensor(s_in.reshape(1, 10, 1), dtype=torch.float32).to(device)
-                        with torch.no_grad():
-                            p_scaled = auditor_kpi_lstm_model(seq_t).cpu().numpy()[0][0]
-                        pred_unscaled = float(sc.inverse_transform([[p_scaled]])[0][0])
-                except Exception:
-                    pass
-
-            if pred_unscaled is None:
-                diff = (hist_vals[-1] - hist_vals[-3]) if len(hist_vals) >= 3 else 0.0
-                pred_unscaled = round(curr_val + diff * 0.15, 1)
-
-            pred_unscaled = round(pred_unscaled, 1)
-
-            # Achievement rate calculation via HIG/HIB formula
-            if polarity == 'HIG':
-                curr_ratio = round((curr_val / target_val) * 100.0, 1) if target_val > 0 else 100.0
-                fore_ratio = round((pred_unscaled / target_val) * 100.0, 1) if target_val > 0 else 100.0
-            else:
-                curr_ratio = 100.0 if curr_val <= 0 else round((target_val / curr_val) * 100.0, 1)
-                fore_ratio = 100.0 if pred_unscaled <= 0 else round((target_val / pred_unscaled) * 100.0, 1)
-
-            # Predict Status via AuditorStatusClassifier
-            pred_status = 'Moderate'
-            if auditor_kpi_bundle is not None and 'status_classifier' in auditor_kpi_bundle:
-                try:
-                    clf = auditor_kpi_bundle['status_classifier']
-                    sc_c = auditor_kpi_bundle['scaler_class']
-                    le_c = auditor_kpi_bundle['label_encoder']
-
-                    gap = (pred_unscaled - target_val) / (target_val + 1e-6) if polarity == 'HIG' else (target_val - pred_unscaled) / (target_val + 1e-6)
-                    lag1 = hist_vals[-1] if len(hist_vals) >= 1 else curr_val
-                    lag2 = hist_vals[-2] if len(hist_vals) >= 2 else lag1
-                    lag3 = hist_vals[-3] if len(hist_vals) >= 3 else lag2
-
-                    feat_v = np.array([[
-                        1 if polarity == 'HIG' else 0,
-                        target_val,
-                        pred_unscaled,
-                        fore_ratio,
-                        gap,
-                        lag1, lag2, lag3,
-                        fore_ratio, curr_ratio, curr_ratio,
-                        np.mean(hist_vals[-3:]),
-                        np.std(hist_vals[-3:]) if len(hist_vals) >= 3 else 0.5,
-                        curr_val - lag3
-                    ]])
-                    feat_scaled = sc_c.transform(feat_v)
-                    cls_idx = clf.predict(feat_scaled)[0]
-                    pred_status = le_c.inverse_transform([cls_idx])[0]
-                except Exception:
-                    pred_status = 'Good' if fore_ratio >= 100.0 else ('Moderate' if fore_ratio >= 70.0 else 'Poor')
-            else:
-                pred_status = 'Good' if fore_ratio >= 100.0 else ('Moderate' if fore_ratio >= 70.0 else 'Poor')
-
-            if polarity == 'HIG':
-                trend_str = "Improving" if pred_unscaled >= curr_val else "Deteriorating"
-            else:
-                trend_str = "Improving" if pred_unscaled <= curr_val else "Deteriorating"
-
-            # AI Narrative khusus Auditor (misal SO-IA05 PKAT)
-            if so_code == 'SO-IA05':
-                ai_narrative = f"Dengan kecepatan saat ini, diprediksi audit plan hanya selesai {fore_ratio:.1f}% di akhir tahun."
-                rec_action = "Akselerasi penerbitan surat tugas audit dan tingkatkan otomatisasi pengujian substantif dengan CAATT."
-            elif pred_status == 'Poor':
-                ai_narrative = f"Dengan kecepatan saat ini, diprediksi target {kpi_name} hanya tercapai {fore_ratio:.1f}% (Poor) di akhir tahun."
-                rec_action = f"Eskalasi kendala pencapaian target {so_code} ke Komite Audit dan susun corrective action plan segera."
-            elif pred_status == 'Moderate':
-                ai_narrative = f"Dengan kecepatan saat ini, diprediksi target {kpi_name} tercapai {fore_ratio:.1f}% (Moderate) di akhir tahun."
-                rec_action = "Tingkatkan koordinasi antar-tim audit dan percepat reviu kertas kerja oleh pengendali mutu."
-            else:
-                ai_narrative = f"Dengan kecepatan saat ini, target {kpi_name} diproyeksikan tercapai sangat baik ({fore_ratio:.1f}%, Good) di akhir tahun."
-                rec_action = "Pertahankan kualitas fieldwork dan dokumentasikan metodologi sebagai best practice audit internal."
-
-            curr_status = 'Good' if curr_ratio >= 100.0 else ('Moderate' if curr_ratio >= 70.0 else 'Poor')
-
-            auditor_forecasts.append({
-                "code": so_code,
-                "kpiName": kpi_name,
-                "category": pillar,
-                "strategicObjective": pillar,
-                "hibHig": polarity,
-                "unit": unit,
-                "targetHorizon": "Akhir Tahun 2026",
-                "targetValue": target_val,
-                "currentValue": curr_val,
-                "forecastedValue": pred_unscaled,
-                "achievementRate": curr_ratio,
-                "forecastedAchievementRate": fore_ratio,
-                "currentStatus": curr_status,
-                "predictedStatus": pred_status,
-                "trend": trend_str,
-                "confidenceLower": round(pred_unscaled * 0.95, 1),
-                "confidenceUpper": round(pred_unscaled * 1.05, 1),
-                "aiNarrative": ai_narrative,
-                "recommendedAction": rec_action
-                # TIDAK ADA riskLevel di dalam auditor_forecast!
+    if primary_kpi:
+        hist_pts = primary_kpi.get("history", [])
+        fore_pts = primary_kpi.get("forecast", [])
+        for i, h in enumerate(hist_pts):
+            is_last = (i == len(hist_pts) - 1) and len(fore_pts) > 0
+            auditee_historical_kpi.append({
+                "period": h["period"],
+                "actual": h["value"],
+                "forecast": h["value"] if is_last else None,
+                "upperBound": h["value"] if is_last else None,
+                "lowerBound": h["value"] if is_last else None
+            })
+        for step_i, f in enumerate(fore_pts):
+            band = round(float(abs(f["value"]) * 0.0382 * float(np.sqrt(step_i + 1))), 2)
+            auditee_historical_kpi.append({
+                "period": f["period"],
+                "actual": None,
+                "forecast": float(f["value"]),
+                "upperBound": round(float(f["value"] + band), 2),
+                "lowerBound": round(float(f["value"] - band), 2)
             })
 
-            if pred_status in ['Poor', 'Moderate'] or trend_str == 'Deteriorating':
-                auditor_at_risk_pillars.append({
-                    "pillar": pillar,
-                    "code": so_code,
-                    "kpi": kpi_name,
-                    "target": target_val,
-                    "predicted": pred_unscaled,
-                    "achievementRate": fore_ratio,
-                    "predictedStatus": pred_status
-                })
+    # ─── 2. AUDITOR KPI FORECAST ──────────────────────────────────────────────────
+    # Do NOT read or display static KPIs from auditor_kpi_data.csv here.
+    # Auditor KPIs must originate strictly from live AuditSphere features carrying
+    # 'actual' and 'target' columns (Strategic Audit Plan / Internal Audit Performance)
+    # and are evaluated via POST /predict/auditor-kpi-forecast.
+    auditor_data = _build_auditor_response_payload([])
 
-    auditor_historical_kpi = [
-        {"period": "Q1 2025", "actual": 88.5, "forecast": 88.5, "upperBound": 91.0, "lowerBound": 86.0},
-        {"period": "Q2 2025", "actual": 90.2, "forecast": 90.2, "upperBound": 93.0, "lowerBound": 87.5},
-        {"period": "Q3 2025", "actual": 89.0, "forecast": 89.0, "upperBound": 92.0, "lowerBound": 86.0},
-        {"period": "Q4 2025", "actual": 91.8, "forecast": 91.8, "upperBound": 94.5, "lowerBound": 89.0},
-        {"period": "Q1 2026 (Pred)", "actual": None, "forecast": 86.4, "upperBound": 89.5, "lowerBound": 83.0},
-        {"period": "Akhir Tahun 2026 (Pred)", "actual": None, "forecast": 82.4, "upperBound": 86.0, "lowerBound": 78.5}
-    ]
-
-    auditor_summary = "Dengan kecepatan saat ini, diprediksi audit plan hanya selesai 82.4% di akhir tahun. Diperlukan akselerasi pada pilar Pelaksanaan Audit & PKAT dan Kualitas LHA."
-    auditee_summary = "Diprediksi Cabang Surabaya akan mengalami lonjakan NPL dalam 2 kuartal ke depan. Diperlukan pemantauan kredit macet dan pengetatan threshold Continuous Auditing."
-
-    auditor_data = {
-        "kpi_forecasts": auditor_forecasts,
-        "at_risk_pillars": auditor_at_risk_pillars,
-        "time_series_data": auditor_historical_kpi,
-        "executive_summary": auditor_summary,
-        "forecast_accuracy": {
-            "mape": 2.95,
-            "rmse": 1.22,
-            "r2Score": 0.985
-        }
-    }
+    top_risk_summary = (
+        f"Diprediksi {auditee_at_risk[0]['department']} ({auditee_at_risk[0]['kpi']}) memerlukan pemantauan berisiko {auditee_at_risk[0]['riskLevel']} pada horizon mendatang."
+        if auditee_at_risk
+        else "Seluruh indikator kesehatan bisnis unit auditee berada dalam koridor toleransi risiko."
+    )
 
     auditee_data = {
         "kpi_forecasts": auditee_forecasts,
         "at_risk_departments": auditee_at_risk,
         "time_series_data": auditee_historical_kpi,
-        "executive_summary": auditee_summary,
+        "executive_summary": top_risk_summary,
         "forecast_accuracy": {
             "mape": 3.82,
             "rmse": 1.45,
@@ -2096,24 +2492,171 @@ def get_performance_trend_batch():
         "auditee_forecast": auditee_data
     }
 
-# --- Background Self-Learning & Auto Re-Training Endpoints ---
-def background_self_learning_task():
-    try:
-        engine = AutoRetrainEngine()
-        res = engine.auto_retrain_all()
-        reload_fastapi_models(app)
-        print(f"Background self-learning completed successfully: {res}")
-    except Exception as e:
-        print(f"Background self-learning failed: {e}")
+# --- Background Self-Learning, Per-Model Scheduler & Anti-Spam Retrain State ---
+_RETRAIN_STATE_LOCK = threading.Lock()
+_RETRAIN_ACTIVE = False
 
-@app.post("/retrain/auto")
-def trigger_auto_retrain(request: Request, background_tasks: BackgroundTasks):
-    # If INTERNAL_RETRAIN_TOKEN is configured, verify X-Internal-Token header.
-    # If unset (development / staging), allow authenticated calls.
+
+class RetrainAutoRequest(BaseModel):
+    force: bool = False
+    wait: bool = False
+    scope: str = "all"
+    trigger: Optional[str] = "auto_background"
+    auditor_items: Optional[List[Dict[str, Any]]] = None
+    auditee_items: Optional[List[Dict[str, Any]]] = None
+
+
+class RetrainSingleModelRequest(BaseModel):
+    force: bool = False
+    wait: bool = False
+    trigger: Optional[str] = "manual"
+    auditor_items: Optional[List[Dict[str, Any]]] = None
+    auditee_items: Optional[List[Dict[str, Any]]] = None
+
+
+def _execute_retrain_pipeline(
+    trigger: str = "auto_background",
+    auditor_items: Optional[List[Dict[str, Any]]] = None,
+    auditee_items: Optional[List[Dict[str, Any]]] = None,
+    claim_held: bool = False,
+    scope: str = "all",
+    wait: bool = True,
+) -> dict:
+    scheduler = get_retrain_scheduler(app)
+    res = scheduler.enqueue_scope(
+        scope=scope,
+        trigger=trigger,
+        priority="manual" if ("manual" in str(trigger).lower() or "force" in str(trigger).lower()) else "auto",
+        force=True,
+        auditor_items=auditor_items,
+        auditee_items=auditee_items,
+    )
+    if wait:
+        scheduler.drain_queue_sync()
+        return scheduler.get_status()
+    return res
+
+
+def background_self_learning_task(
+    trigger: str = "auto_background",
+    auditor_items: Optional[List[Dict[str, Any]]] = None,
+    auditee_items: Optional[List[Dict[str, Any]]] = None,
+    claim_held: bool = False,
+    scope: str = "all",
+):
+    scheduler = get_retrain_scheduler(app)
+    scheduler.enqueue_scope(
+        scope=scope,
+        trigger=trigger,
+        priority="auto",
+        force=False,
+        auditor_items=auditor_items,
+        auditee_items=auditee_items,
+    )
+
+
+@app.get("/retrain/status")
+def get_retrain_status(
+    auditor_hash: Optional[str] = None,
+    auditee_custom_hash: Optional[str] = None,
+):
+    scheduler = get_retrain_scheduler(app)
+    return scheduler.get_status(
+        auditor_hash=auditor_hash,
+        auditee_custom_hash=auditee_custom_hash,
+    )
+
+
+@app.post("/retrain/model/{model}")
+def trigger_model_retrain(
+    model: str,
+    request: Request,
+    force: bool = False,
+    wait: bool = False,
+    req: Optional[RetrainSingleModelRequest] = Body(default=None),
+):
+    """
+    Trigger retraining for a specific AI model (`entity`, `anomaly`, `nlp`, `kpi`, `kpi_auditee`, `kpi_auditor`).
+    Enqueues into that model's dedicated lane without retraining unrelated models.
+    """
     if INTERNAL_RETRAIN_TOKEN and not internal_call_allowed(request, lambda: INTERNAL_RETRAIN_TOKEN):
         return unauthorized("Internal token required")
-    background_tasks.add_task(background_self_learning_task)
-    return {"status": "scheduled", "message": "Self-learning auto-retrain task scheduled silently in background."}
+
+    target_keys = resolve_model_keys(model)
+    if not target_keys or model.strip().lower() == "all":
+        from fastapi.responses import JSONResponse
+        return JSONResponse(
+            status_code=400,
+            content={"status": "error", "message": f"Unknown model '{model}'. Valid models: entity, anomaly, nlp, kpi, kpi_auditee, kpi_auditor."},
+        )
+
+    is_force = bool(force or (req.force if req else False))
+    is_wait = bool(wait or (req.wait if req else False))
+    trigger = (req.trigger if req and req.trigger else None) or f"manual_{model}"
+    auditor_items = req.auditor_items if req else None
+    auditee_items = req.auditee_items if req else None
+
+    scheduler = get_retrain_scheduler(app)
+    enq = scheduler.enqueue_scope(
+        scope=model,
+        trigger=trigger,
+        priority="manual",
+        force=is_force,
+        auditor_items=auditor_items,
+        auditee_items=auditee_items,
+    )
+    if is_wait and enq.get("models_enqueued"):
+        scheduler.drain_queue_sync()
+        snap = scheduler.get_status()
+        return {
+            **enq,
+            "status": "completed",
+            "is_running": bool(snap.get("is_running")),
+            "models": snap.get("models"),
+            "queue": snap.get("queue"),
+        }
+    return enq
+
+
+@app.post("/retrain/auto")
+def trigger_auto_retrain(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    force: bool = False,
+    wait: bool = False,
+    req: Optional[RetrainAutoRequest] = Body(default=None),
+):
+    # If INTERNAL_RETRAIN_TOKEN is configured, verify X-Internal-Token header.
+    if INTERNAL_RETRAIN_TOKEN and not internal_call_allowed(request, lambda: INTERNAL_RETRAIN_TOKEN):
+        return unauthorized("Internal token required")
+
+    is_force = bool(force or (req.force if req else False))
+    is_wait = bool(wait or (req.wait if req else False))
+    retrain_scope = (req.scope if req and req.scope else None) or ("kpi" if is_force else "all")
+    trigger = (req.trigger if req and req.trigger else None) or ("manual_force_sync" if is_force else "auto_background")
+    auditor_items = req.auditor_items if req else None
+    auditee_items = req.auditee_items if req else None
+
+    scheduler = get_retrain_scheduler(app)
+    prio = "manual" if is_force or "manual" in str(trigger).lower() else "auto"
+    enq = scheduler.enqueue_scope(
+        scope=retrain_scope,
+        trigger=trigger,
+        priority=prio,
+        force=is_force,
+        auditor_items=auditor_items,
+        auditee_items=auditee_items,
+    )
+    if is_wait and enq.get("models_enqueued"):
+        scheduler.drain_queue_sync()
+        snap = scheduler.get_status()
+        return {
+            **snap,
+            "status": "completed",
+            "scope": retrain_scope,
+            "models_enqueued": enq.get("models_enqueued", []),
+        }
+    return enq
 
 if __name__ == "__main__":
     import uvicorn

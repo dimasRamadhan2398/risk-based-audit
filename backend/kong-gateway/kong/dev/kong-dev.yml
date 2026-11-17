@@ -42,6 +42,7 @@ plugins:
         - Cache-Control
         - Content-Type
         - Origin
+        - X-API-Key
         - X-Requested-With
         - X-CSRF-Token
         # Password step-up for sensitive actions (POST /api/v1/org-levels/changes/apply).
@@ -190,6 +191,9 @@ services:
           - /api/v1/auditee-surveys
           - /api/v1/executive-summaries
           - /api/v1/action-taken-reports
+
+          # Internal Control (COSO 2013 component assessment)
+          - /api/v1/ic-assessments
 
           # Documents
           - /api/v1/uploaded-plan-documents

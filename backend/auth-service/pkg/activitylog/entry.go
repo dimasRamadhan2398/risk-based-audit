@@ -54,6 +54,10 @@ const (
 	ActionPermissionDenied      = "permission.denied"
 	ActionStepUp                = "security.step_up"
 	ActionSystemLogsViewed      = "system_logs.viewed"
+	ActionUserStatusChanged     = "user.status_changed"
+	ActionUserRolesChanged      = "user.roles_changed"
+	ActionUserDeleted           = "user.deleted"
+	ActionUserSeatDowngraded    = "user.seat_downgraded"
 )
 
 // Column limits of sys_alert_logs (models.SysAlertLog).

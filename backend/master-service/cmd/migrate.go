@@ -11,6 +11,7 @@ import (
 	"master-service/pkg/database/orgstructure"
 	"master-service/pkg/database/seeders"
 	"master-service/pkg/logger"
+	"master-service/services"
 
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
@@ -281,7 +282,29 @@ func autoMigrate(db *gorm.DB) error {
 		return err
 	}
 
+	if err := backfillDataSourceSSLMode(db); err != nil {
+		return err
+	}
+	if err := services.EnsureDataSourceSyncColumns(db); err != nil {
+		return err
+	}
 	return normalizeAnnualPlanStatuses(db)
+}
+
+// backfillDataSourceSSLMode sets ssl_mode on data sources created before the column existed,
+// deriving it from the legacy ssl flag. Only empty rows are touched, so it is safe to re-run.
+// Soft-deleted rows are included so they stay consistent if restored.
+func backfillDataSourceSSLMode(db *gorm.DB) error {
+	res := db.Unscoped().Model(&models.DataSourceConnection{}).
+		Where("ssl_mode IS NULL OR ssl_mode = ''").
+		Update("ssl_mode", gorm.Expr("CASE WHEN ssl THEN 'require' ELSE 'disable' END"))
+	if res.Error != nil {
+		return fmt.Errorf("backfill data source ssl_mode: %w", res.Error)
+	}
+	if res.RowsAffected > 0 {
+		fmt.Printf("Backfilled ssl_mode for %d data source(s)\n", res.RowsAffected)
+	}
+	return nil
 }
 
 // seededAuditJobRoleCodes are the seeded audit-team job roles; their position
