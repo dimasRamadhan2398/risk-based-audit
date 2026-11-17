@@ -191,6 +191,9 @@ services:
           - /api/v1/executive-summaries
           - /api/v1/action-taken-reports
 
+          # Internal Control (COSO 2013 component assessment)
+          - /api/v1/ic-assessments
+
           # Documents
           - /api/v1/uploaded-plan-documents
           - /api/v1/uploaded-strategic-plan-documents

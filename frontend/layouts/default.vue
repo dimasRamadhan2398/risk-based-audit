@@ -117,6 +117,11 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
         to: '/risk-profile/risk-control-matrix'
       },
       {
+        label: t('navigation.internalControlAssessment'),
+        icon: 'i-lucide-shield-check',
+        to: '/internal-control-assessment'
+      },
+      {
         label: t('navigation.riskFactors'),
         icon: 'i-lucide-activity',
         to: '/risk-profile/risk-factors'
@@ -518,7 +523,7 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
 ]])
 
 const searchQuery = ref('')
-const { isAdmin, canManageAudits, isAuditorView, isViewer, canWriteQaConsulting } = useRbac()
+const { isAdmin, canManageAudits, isAuditorView, isViewer, canWriteQaConsulting, canReadInternalControl } = useRbac()
 
 // Pre-collected set of all explicit menu paths to avoid prefix matching when navigating to a registered menu route
 // A nav item's `to` may be a path string or a route-location object; both must
@@ -609,6 +614,9 @@ const processMenuItem = (item: NavigationMenuItem, q: string): NavigationMenuIte
   if (isViewer.value && typeof item.to === 'string' && isViewerBlockedPath(item.to)) return null
   if (!canWriteQaConsulting.value && typeof item.to === 'string' && isQaConsultingWritePath(item.to)) return null
   if (isViewer.value && item.type === 'trigger' && item.label === t('navigation.masterData')) return null
+
+  // Internal Control Assessment: hidden for roles with no read access (plan 9.1)
+  if (item.to === '/internal-control-assessment' && !canReadInternalControl.value) return null
 
   // Master data permission check
   if (item.to === '/master/employee' && !isAdmin.value && !canManageAudits.value) {

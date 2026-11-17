@@ -1,24 +1,34 @@
 package controllers
 
 import (
+	"errors"
 	"math"
 	"net/http"
-	"strconv"
 	"time"
 
 	"risk-service/models"
+	"risk-service/pkg/masterclient"
+	"risk-service/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type RCMController struct {
 	db *gorm.DB
+	// departments validates department_id on write (nil: department_id
+	// writes are refused as unavailable).
+	departments masterclient.DepartmentLookup
+	// locations narrows /rcm/coso-signals by branch (nil: legacy branch names
+	// cannot be matched; stored location ids still are).
+	locations masterclient.LocationSource
+	now       func() time.Time
 }
 
-func NewRCMController(db *gorm.DB) *RCMController {
-	return &RCMController{db: db}
+func NewRCMController(db *gorm.DB, departments masterclient.DepartmentLookup, locations masterclient.LocationSource) *RCMController {
+	return &RCMController{db: db, departments: departments, locations: locations, now: time.Now}
 }
 
 // Get Effectiveness Rating & Interpretation based on score percentage
@@ -38,30 +48,37 @@ func GetEffectivenessRating(score float64) (string, string) {
 }
 
 type RCMRequest struct {
-	ID                           *string  `json:"id,omitempty"`
-	RiskID                       *string  `json:"risk_id,omitempty"`
-	RiskCode                     string   `json:"risk_code"`
-	RiskEvent                    string   `json:"risk_event"`
-	ControlCode                  string   `json:"control_code"`
-	ControlDescription           string   `json:"control_description"`
-	ControlType                  string   `json:"control_type"`
-	ControlOwner                 string   `json:"control_owner"`
-	Department                   string   `json:"department"`
-	Year                         int      `json:"year"`
-	DesignEffectivenessWeight    float64  `json:"design_effectiveness_weight"`
-	DesignEffectivenessRating    int      `json:"design_effectiveness_rating"`
-	OperatingEffectivenessWeight float64  `json:"operating_effectiveness_weight"`
-	OperatingEffectivenessRating int      `json:"operating_effectiveness_rating"`
-	CoverageCompletenessWeight   float64  `json:"coverage_completeness_weight"`
-	CoverageCompletenessRating   int      `json:"coverage_completeness_rating"`
-	TimelinessWeight             float64  `json:"timeliness_weight"`
-	TimelinessRating             int      `json:"timeliness_rating"`
-	AutomationMonitoringWeight   float64  `json:"automation_monitoring_weight"`
-	AutomationMonitoringRating   int      `json:"automation_monitoring_rating"`
-	TotalWeightedScore           float64  `json:"total_weighted_score"`
-	InherentRisk                 int      `json:"inherent_risk"`
-	ResidualRisk                 int      `json:"residual_risk"`
-	Notes                        string   `json:"notes"`
+	ID                           *string `json:"id,omitempty"`
+	RiskID                       *string `json:"risk_id,omitempty"`
+	RiskCode                     string  `json:"risk_code"`
+	RiskEvent                    string  `json:"risk_event"`
+	ControlCode                  string  `json:"control_code"`
+	ControlDescription           string  `json:"control_description"`
+	ControlType                  string  `json:"control_type"`
+	ControlOwner                 string  `json:"control_owner"`
+	Department                   string  `json:"department"`
+	Year                         int     `json:"year"`
+	DesignEffectivenessWeight    float64 `json:"design_effectiveness_weight"`
+	DesignEffectivenessRating    int     `json:"design_effectiveness_rating"`
+	OperatingEffectivenessWeight float64 `json:"operating_effectiveness_weight"`
+	OperatingEffectivenessRating int     `json:"operating_effectiveness_rating"`
+	CoverageCompletenessWeight   float64 `json:"coverage_completeness_weight"`
+	CoverageCompletenessRating   int     `json:"coverage_completeness_rating"`
+	TimelinessWeight             float64 `json:"timeliness_weight"`
+	TimelinessRating             int     `json:"timeliness_rating"`
+	AutomationMonitoringWeight   float64 `json:"automation_monitoring_weight"`
+	AutomationMonitoringRating   int     `json:"automation_monitoring_rating"`
+	TotalWeightedScore           float64 `json:"total_weighted_score"`
+	InherentRisk                 int     `json:"inherent_risk"`
+	ResidualRisk                 int     `json:"residual_risk"`
+	Notes                        string  `json:"notes"`
+
+	// COSO 2013 mapping and master department. Omitted = unchanged on PUT;
+	// department_id / coso_component_code null = clear; coso_principle_codes
+	// [] = clear (null is treated as omitted).
+	DepartmentID       optionalString `json:"department_id"`
+	CosoComponentCode  optionalString `json:"coso_component_code"`
+	CosoPrincipleCodes *[]string      `json:"coso_principle_codes"`
 }
 
 func parseRCMRequest(req *RCMRequest, target *models.RiskControlMatrix) {
@@ -163,34 +180,28 @@ func parseRCMRequest(req *RCMRequest, target *models.RiskControlMatrix) {
 }
 
 func (ctrl *RCMController) ListRCM(c *gin.Context) {
-	yearStr := c.Query("year")
-	dept := c.Query("department")
-
-	query := ctrl.db.Model(&models.RiskControlMatrix{}).Order("created_at desc")
-
-	if yearStr != "" {
-		if y, err := strconv.Atoi(yearStr); err == nil {
-			query = query.Where("year = ?", y)
-		}
+	db := ctrl.db.WithContext(c.Request.Context())
+	query, fields, err := applyRCMFilters(c, db, db.Model(&models.RiskControlMatrix{}).Order("created_at desc"))
+	if err != nil {
+		respondDB(c, "Failed to list RCM items", err)
+		return
 	}
-	if dept != "" && dept != "All Departments" && dept != "All Branches" {
-		query = query.Where("department = ?", dept)
+	if fields != nil {
+		respondValidation(c, fields)
+		return
 	}
 
 	var list []models.RiskControlMatrix
 	if err := query.Find(&list).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "DB_ERROR",
-				"message": "Failed to list RCM items: " + err.Error(),
-			},
-		})
+		respondDB(c, "Failed to list RCM items", err)
 		return
 	}
-
 	if list == nil {
 		list = []models.RiskControlMatrix{}
+	}
+	if err := attachTags(db, list); err != nil {
+		respondDB(c, "Failed to list RCM items", err)
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -224,16 +235,23 @@ func (ctrl *RCMController) CreateRCM(c *gin.Context) {
 		item.ID = uuid.New()
 	}
 
-	parseRCMRequest(&req, &item)
+	ctx := masterclient.WithAuthorization(c.Request.Context(), c.GetHeader("Authorization"))
+	w, fields, err := ctrl.resolveCosoWrite(ctx, &req, &item, nil)
+	if !ctrl.handleCosoResolveError(c, fields, err) {
+		return
+	}
 
-	if err := ctrl.db.Create(&item).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "DB_ERROR",
-				"message": "Failed to create RCM item: " + err.Error(),
-			},
-		})
+	parseRCMRequest(&req, &item)
+	w.apply(&item, nil, "")
+
+	err = ctrl.db.WithContext(c.Request.Context()).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Omit(clause.Associations).Create(&item).Error; err != nil {
+			return err
+		}
+		return writeTags(tx, item.ID, w.principleIDs, false)
+	})
+	if err != nil {
+		respondDB(c, "Failed to create RCM item", err)
 		return
 	}
 
@@ -270,8 +288,9 @@ func (ctrl *RCMController) UpdateRCM(c *gin.Context) {
 		return
 	}
 
+	db := ctrl.db.WithContext(c.Request.Context())
 	var existing models.RiskControlMatrix
-	if err := ctrl.db.First(&existing, "id = ?", itemUUID).Error; err != nil {
+	if err := db.First(&existing, "id = ?", itemUUID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"success": false,
 			"error": gin.H{
@@ -281,17 +300,33 @@ func (ctrl *RCMController) UpdateRCM(c *gin.Context) {
 		})
 		return
 	}
+	tags, err := services.LoadRCMPrincipleCodes(db, []uuid.UUID{existing.ID})
+	if err != nil {
+		respondDB(c, "Failed to update RCM item", err)
+		return
+	}
 
+	ctx := masterclient.WithAuthorization(c.Request.Context(), c.GetHeader("Authorization"))
+	w, fields, err := ctrl.resolveCosoWrite(ctx, &req, &existing, tags[existing.ID])
+	if !ctrl.handleCosoResolveError(c, fields, err) {
+		return
+	}
+
+	prevDeptID, prevDept := existing.DepartmentID, existing.Department
 	parseRCMRequest(&req, &existing)
+	w.apply(&existing, prevDeptID, prevDept)
 
-	if err := ctrl.db.Save(&existing).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "DB_ERROR",
-				"message": "Failed to update RCM item: " + err.Error(),
-			},
-		})
+	err = db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Omit(clause.Associations).Save(&existing).Error; err != nil {
+			return err
+		}
+		if !w.tagsChanged {
+			return nil
+		}
+		return writeTags(tx, existing.ID, w.principleIDs, true)
+	})
+	if err != nil {
+		respondDB(c, "Failed to update RCM item", err)
 		return
 	}
 
@@ -300,6 +335,23 @@ func (ctrl *RCMController) UpdateRCM(c *gin.Context) {
 		"message": "RCM item updated successfully",
 		"data":    existing,
 	})
+}
+
+// handleCosoResolveError writes the response for a failed resolveCosoWrite and
+// reports whether the handler may continue.
+func (ctrl *RCMController) handleCosoResolveError(c *gin.Context, fields fieldErrors, err error) bool {
+	switch {
+	case errors.Is(err, errDepartmentsUnavailable):
+		respondDepartmentsUnavailable(c)
+		return false
+	case err != nil:
+		respondDB(c, "Failed to validate RCM item", err)
+		return false
+	case fields != nil:
+		respondValidation(c, fields)
+		return false
+	}
+	return true
 }
 
 func (ctrl *RCMController) DeleteRCM(c *gin.Context) {
@@ -333,50 +385,43 @@ func (ctrl *RCMController) DeleteRCM(c *gin.Context) {
 	})
 }
 
+// GetRCMSummary aggregates the filtered RCM rows. With no rows every score is
+// null (never a made-up value); internal_control_effectiveness, rating and
+// interpretation are also null when the rows carry no inherent risk.
 func (ctrl *RCMController) GetRCMSummary(c *gin.Context) {
-	yearStr := c.Query("year")
-	dept := c.Query("department")
-
-	query := ctrl.db.Model(&models.RiskControlMatrix{})
-	if yearStr != "" {
-		if y, err := strconv.Atoi(yearStr); err == nil {
-			query = query.Where("year = ?", y)
-		}
+	db := ctrl.db.WithContext(c.Request.Context())
+	query, fields, err := applyRCMFilters(c, db, db.Model(&models.RiskControlMatrix{}))
+	if err != nil {
+		respondDB(c, "Failed to query RCM summary", err)
+		return
 	}
-	if dept != "" && dept != "All Departments" && dept != "All Branches" {
-		query = query.Where("department = ?", dept)
+	if fields != nil {
+		respondValidation(c, fields)
+		return
 	}
 
 	var list []models.RiskControlMatrix
 	if err := query.Find(&list).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "DB_ERROR",
-				"message": "Failed to query RCM summary: " + err.Error(),
-			},
-		})
+		respondDB(c, "Failed to query RCM summary", err)
 		return
 	}
 
 	if len(list) == 0 {
-		// Return default fallback structure
-		rating, interpretation := GetEffectivenessRating(60.0)
 		c.JSON(http.StatusOK, gin.H{
 			"success": true,
 			"data": gin.H{
-				"total_controls":               0,
-				"avg_total_weighted_score":    0.0,
-				"avg_design_effectiveness":    0.0,
-				"avg_operating_effectiveness": 0.0,
-				"avg_coverage_completeness":   0.0,
-				"avg_timeliness":              0.0,
-				"avg_automation_monitoring":   0.0,
-				"total_inherent_risk":          20,
-				"total_residual_risk":          8,
-				"internal_control_effectiveness": 60.0,
-				"rating":                      rating,
-				"interpretation":              interpretation,
+				"total_controls":                 0,
+				"avg_total_weighted_score":       nil,
+				"avg_design_effectiveness":       nil,
+				"avg_operating_effectiveness":    nil,
+				"avg_coverage_completeness":      nil,
+				"avg_timeliness":                 nil,
+				"avg_automation_monitoring":      nil,
+				"total_inherent_risk":            0,
+				"total_residual_risk":            0,
+				"internal_control_effectiveness": nil,
+				"rating":                         nil,
+				"interpretation":                 nil,
 			},
 		})
 		return
@@ -408,29 +453,30 @@ func (ctrl *RCMController) GetRCMSummary(c *gin.Context) {
 
 	// Aggregate inherent and residual risk effectiveness
 	// Formula: (1 - Residual Risk / Inherent Risk) * 100%
-	var effectiveness float64 = 0.0
+	// Without inherent risk there is nothing to compute it from: null.
+	var effectiveness, rating, interpretation any
 	if totalInherent > 0 {
-		effectiveness = (1.0 - (float64(totalResidual) / float64(totalInherent))) * 100.0
+		eff := (1.0 - (float64(totalResidual) / float64(totalInherent))) * 100.0
+		eff = math.Round(eff*100) / 100
+		r, i := GetEffectivenessRating(eff)
+		effectiveness, rating, interpretation = eff, r, i
 	}
-	effectiveness = math.Round(effectiveness*100) / 100
-
-	rating, interpretation := GetEffectivenessRating(effectiveness)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data": gin.H{
 			"total_controls":                 len(list),
-			"avg_total_weighted_score":      avgTotalWeighted,
-			"avg_design_effectiveness":      avgDesign,
-			"avg_operating_effectiveness":   avgOperating,
-			"avg_coverage_completeness":     avgCoverage,
-			"avg_timeliness":                avgTimeliness,
-			"avg_automation_monitoring":     avgAutomation,
+			"avg_total_weighted_score":       avgTotalWeighted,
+			"avg_design_effectiveness":       avgDesign,
+			"avg_operating_effectiveness":    avgOperating,
+			"avg_coverage_completeness":      avgCoverage,
+			"avg_timeliness":                 avgTimeliness,
+			"avg_automation_monitoring":      avgAutomation,
 			"total_inherent_risk":            totalInherent,
 			"total_residual_risk":            totalResidual,
 			"internal_control_effectiveness": effectiveness,
-			"rating":                        rating,
-			"interpretation":                interpretation,
+			"rating":                         rating,
+			"interpretation":                 interpretation,
 		},
 	})
 }

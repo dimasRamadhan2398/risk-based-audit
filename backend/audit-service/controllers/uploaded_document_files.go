@@ -78,6 +78,18 @@ func saveDocument(c *gin.Context, dir, clientName string, data []byte) (name, fi
 		upload.RespondErr(c, err, "Failed to store the file")
 		return "", "", false
 	}
+
+	// Automatically extract text/OCR and dispatch to IndoBERT NLP (/predict/text-analysis)
+	title := c.PostForm("title")
+	desc := c.PostForm("description")
+	if desc == "" {
+		desc = c.PostForm("notes")
+	}
+	if desc == "" {
+		desc = c.PostForm("summary")
+	}
+	TriggerNLPDocumentAnalysis(title, desc, resolveFeatureSourceFromDir(dir), name, data)
+
 	return name, filePath, true
 }
 

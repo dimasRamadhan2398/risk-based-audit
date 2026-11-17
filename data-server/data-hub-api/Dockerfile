@@ -3,8 +3,11 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # System dependencies
+# ca-certificates: trust store for TLS to external Postgres (sslmode=verify-*
+# with a public CA). libpq-dev: libpq with OpenSSL for source builds; the
+# psycopg2/psycopg binary wheels bundle their own TLS-enabled libpq.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc libpq-dev && \
+    gcc libpq-dev ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 # Python dependencies

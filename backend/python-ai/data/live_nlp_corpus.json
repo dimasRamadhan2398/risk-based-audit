@@ -1,0 +1,130 @@
+[
+  {
+    "text": "Evaluasi kertas kerja audit mengonfirmasi adanya temuan Data Privacy & Leakage Breach pada proses operasional cabang.",
+    "risk_category": "Operational",
+    "sentiment": "Negative",
+    "impact": 4,
+    "likelihood": 4,
+    "control_indicator": "Data Privacy & Leakage Breach"
+  },
+  {
+    "text": "Hasil pengujian substantif menemukan indikasi Data Privacy & Leakage Breach: terdeteksi kelemahan terkait kebocoran data, nik nasabah, data pribadi, data privacy & leakage breach.",
+    "risk_category": "Operational",
+    "sentiment": "Negative",
+    "impact": 4,
+    "likelihood": 4,
+    "control_indicator": "Data Privacy & Leakage Breach"
+  },
+  {
+    "text": "Hasil audit operasional menunjukkan kelemahan implementasi ESG & Sustainability khususnya pada emisi karbon.",
+    "risk_category": "ESG & Sustainability",
+    "sentiment": "Negative",
+    "impact": 4,
+    "likelihood": 4,
+    "control_indicator": "Internal Control Weakness"
+  },
+  {
+    "text": "Pemeriksaan audit dan evaluasi kepatuhan pada domain ESG & Sustainability: ditemukan indikasi terkait emisi karbon, limbah b3, amdal, esg & sustainability.",
+    "risk_category": "ESG & Sustainability",
+    "sentiment": "Negative",
+    "impact": 4,
+    "likelihood": 3,
+    "control_indicator": "Internal Control Weakness"
+  },
+  {
+    "text": "Ditemukan selisih fisik kas pada brankas kasir sebesar Rp 45 Juta tanpa bukti transaksi dan rekonsiliasi harian belum pernah ditandatangani.",
+    "risk_category": "Financial",
+    "sentiment": "Negative",
+    "impact": 4,
+    "likelihood": 4,
+    "control_indicator": "Internal Control Weakness"
+  },
+  {
+    "text": "Terdapat 12 transaksi transfer valas mencurigakan yang dipecah (split transactions) untuk menghindari ambang batas pelaporan transaksi keuangan mencurigakan (STR).",
+    "risk_category": "Compliance",
+    "sentiment": "Negative",
+    "impact": 5,
+    "likelihood": 4,
+    "control_indicator": "Fraud Indication"
+  },
+  {
+    "text": "Pegawai bagian accounting merangkap sebagai otorisator pembayaran vendor pada modul e-banking (SoD violation) tanpa kontrol maker-checker independen.",
+    "risk_category": "Financial",
+    "sentiment": "Negative",
+    "impact": 4,
+    "likelihood": 4,
+    "control_indicator": "Segregation of Duties (SoD) Violation"
+  },
+  {
+    "text": "Server database produksi core banking masih menggunakan shared password administrator dan patch keamanan triwulanan tertunda 6 bulan.",
+    "risk_category": "Technology",
+    "sentiment": "Negative",
+    "impact": 4,
+    "likelihood": 4,
+    "control_indicator": "IT & Access Control Weakness"
+  },
+  {
+    "text": "Sebanyak 15 berkas kredit komersial belum dilengkapi dokumen jaminan fidusia dan sertifikat hak tanggungan yang telah dilegalisasi notaris.",
+    "risk_category": "Compliance",
+    "sentiment": "Negative",
+    "impact": 3,
+    "likelihood": 3,
+    "control_indicator": "Compliance Deviation"
+  },
+  {
+    "text": "Pengujian kepatuhan prosedur operasional penyaluran kredit mikro menunjukkan seluruh tahapan verifikasi lapangan telah memadai dan berjalan efektif.",
+    "risk_category": "Operational",
+    "sentiment": "Positive",
+    "impact": 1,
+    "likelihood": 2,
+    "control_indicator": "Adequate Control"
+  },
+  {
+    "text": "Keterlambatan pengiriman armada logistik pengadaan seragam cabang melewati batas toleransi kontrak kerja sebesar 24 hari kerja.",
+    "risk_category": "Operational",
+    "sentiment": "Negative",
+    "impact": 3,
+    "likelihood": 3,
+    "control_indicator": "Internal Control Weakness"
+  },
+  {
+    "text": "Pemeriksaan kas kecil dan penutupan rekening operasional cabang seluruhnya terdokumentasi rapi, diverifikasi dual control, serta saldo rekonsiliasi cocok.",
+    "risk_category": "Financial",
+    "sentiment": "Positive",
+    "impact": 1,
+    "likelihood": 1,
+    "control_indicator": "Adequate Control"
+  },
+  {
+    "text": "Ditemukan akun pengguna sistem ERP milik karyawan yang telah mutasi sejak November masih memiliki hak akses approving purchase order.",
+    "risk_category": "Technology",
+    "sentiment": "Negative",
+    "impact": 4,
+    "likelihood": 3,
+    "control_indicator": "IT & Access Control Weakness"
+  },
+  {
+    "text": "Hasil audit investigatif mengonfirmasi adanya mark-up biaya renovasi gedung kantor cabang sebesar Rp 380 Juta melibatkan oknum internal dan kontraktor fiktif.",
+    "risk_category": "Financial",
+    "sentiment": "Negative",
+    "impact": 5,
+    "likelihood": 4,
+    "control_indicator": "Fraud Indication"
+  },
+  {
+    "text": "Pemenuhan laporan profil risiko dan tingkat kesehatan bank ke OJK telah disampaikan tepat waktu sebelum batas akhir pelaporan.",
+    "risk_category": "Compliance",
+    "sentiment": "Positive",
+    "impact": 1,
+    "likelihood": 1,
+    "control_indicator": "Adequate Control"
+  },
+  {
+    "text": "Proses pencadangan data (backup) harian database transaksi berjalan otomatis dan pengujian disaster recovery center (DRC) sukses dilakukan.",
+    "risk_category": "Technology",
+    "sentiment": "Positive",
+    "impact": 1,
+    "likelihood": 1,
+    "control_indicator": "Adequate Control"
+  }
+]

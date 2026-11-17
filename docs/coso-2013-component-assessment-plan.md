@@ -1,6 +1,14 @@
 # COSO 2013 internal control component assessment: plan
 
-Status: DRAFT FOR DECISION (revision 1, 2026-11-04). Plan only: no application code, migration or tenant has been changed. Verified against the repo on branch `staging`, HEAD `b8ac7ba`, with uncommitted work in the tree (section 2.3). Re-check section 2 before relying on it. Open questions are in section 13; the defaults written in this spec apply until the user decides otherwise.
+Status: BACKEND IMPLEMENTED, NOT DEPLOYED (2026-11-08). Revision 1 of the plan (2026-11-04) is kept below as written.
+
+Implementation status, 2026-11-08:
+- Done (backend, tests green: `go build`, `go vet`, `go test` in risk-service and audit-service): B1 risk-service (catalogue of 5 components / 17 principles seeded insert-if-missing, RCM department and COSO tags, `GET /rcm/coso-principles`, `GET /rcm/coso-signals`, filters `department_id`/`component`/`principle`, empty `/rcm/summary` returns null scores, `backfill_rcm_department` command); B3 audit-service (`/api/v1/ic-assessments`: CRUD, propose, evidence, events, workflow, periods lock/unlock, `/summary`, `/:id/drift`, `/settings`, signature view; migration of the `ic_*` tables; `audit seed-ic-demo`); phase 1b `action_plan_submitted_at` on action taken reports.
+- Contract notes: `/:id/drift` and `/settings` exist and return the shapes in the service structs (`Drift` with `frozen`/`current` fingerprints per signal, `Settings` with `lha_due_days`, `management_response_due_days`, `source`). `GET /settings` and `PUT /settings` are ADMIN only (handler check, 403 otherwise).
+- Not done: frontend alignment with the real drift shape (the store still treats `/drift` and `/settings` as assumed); deploy and Kong rollout (the `/api/v1/ic-assessments` prefix is in the four Kong configs in the working tree but is not deployed; run `risk up` / `audit migrate up` per tenant, devops task D1); phase 2 (COSO ERM 2017); the audit-service ic_assessment package has no handler-level tests yet; the prod and tenant migrations (section 15 steps 1, 2, 7) have not been run.
+- B2 (auth acceptance-summary, master employee filters) is in the working tree and not part of this status.
+
+Original status line: DRAFT FOR DECISION (revision 1, 2026-11-04). Plan only at that time. Verified against the repo on branch `staging`, HEAD `b8ac7ba`, with uncommitted work in the tree (section 2.3). Re-check section 2 before relying on it. Open questions are in section 13; the defaults written in this spec apply until the user decides otherwise.
 
 Hard constraint: existing databases (the prod `rb_audit` stack and tenant `bai`) get only additive DDL: new tables and new nullable columns. No column is dropped, renamed or retyped, no existing row is rewritten by a migration, and the reference data seed is insert-if-missing.
 
@@ -385,6 +393,21 @@ New namespaces in `frontend/locales/en/common.json` and `frontend/locales/id/com
 7. R7 Uncommitted RCM and dashboard work (2.3) conflicts with F1/F3 if started in parallel.
 
 ## 13. Open questions (defaults apply until decided)
+
+**Decided 2026-11-06 (these override the defaults below):**
+
+- Q1: CAE and ADMIN approve; AUDIT_MANAGER does not.
+- Q2: branch-level assessments are an option (department stays primary).
+- Q3: quarterly assessments are an option (annual is the default period).
+- Q4: thresholds are tenant settings, default LHA 30 days and management response 14 days. Settable at provisioning in the site generator and editable later by ADMIN.
+- Q5: no cross-service lock on RCM edits; show the "data changed since approval" indicator.
+- Q6: default kept (DEPARTMENT_HEAD/AUDITEE see approved assessments of their own department).
+- Q7: `NOT_APPLICABLE` allowed with a mandatory rationale.
+- Q8: run `backfill-rcm-department` on prod only (dry run reviewed first, then `--apply`); not on `bai`.
+- Q9: approval signature image allowed (optional).
+- Q10: signal weights fixed in code.
+- Q11: integrity pact signal counts the SYSTEM agreement at its current version only.
+- Q12: demo seed includes tagged RCM rows and one approved assessment.
 
 1. Q1 Approvers: CAE + ADMIN (default, same as executive summary)? Should AUDIT_MANAGER also approve?
 2. Q2 Branch-level assessments in phase 1 (default: allowed, optional), or department only?

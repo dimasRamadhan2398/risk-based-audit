@@ -22,6 +22,19 @@ const (
 	CodeEmployeeNotFound           = "EMPLOYEE_NOT_FOUND"
 	CodeEmployeeCodeAlreadyExists  = "EMPLOYEE_CODE_ALREADY_EXISTS"
 	CodeEmployeeEmailAlreadyExists = "EMPLOYEE_EMAIL_ALREADY_EXISTS"
+	// CodeEmployeeInUse refuses a hard delete of an employee other rows still
+	// reference; data.references lists where.
+	CodeEmployeeInUse = "EMPLOYEE_IN_USE"
+	// CodeEmployeeDeleteIncomplete: the login account was hard-deleted but the
+	// employee row could not be; repeating the delete finishes it.
+	CodeEmployeeDeleteIncomplete = "EMPLOYEE_DELETE_INCOMPLETE"
+	// CodeEmployeeRollbackFailed: auth-service refused a status change and
+	// the employee change could not be undone.
+	CodeEmployeeRollbackFailed = "EMPLOYEE_ROLLBACK_FAILED"
+
+	// Passed through unchanged from auth-service (409).
+	CodeSeatLimitReached = "SEAT_LIMIT_REACHED"
+	CodeLastAdmin        = "LAST_ADMIN"
 
 	CodeDepartmentNotFound          = "DEPARTMENT_NOT_FOUND"
 	CodeDepartmentCodeAlreadyExists = "DEPARTMENT_CODE_ALREADY_EXISTS"

@@ -39,3 +39,30 @@ type ConfidentialityAgreement struct {
 func (ConfidentialityAgreement) TableName() string {
 	return "confidentiality_agreements"
 }
+
+// CurrentSystemAgreementVersion is the SYSTEM agreement version users are asked
+// to accept. The frontend posts it with POST /confidentiality/accept
+// (frontend/stores/auth.ts, acceptConfidentiality); keep the two in step when
+// the integrity pact text changes. Only an acceptance of this version counts in
+// GET /confidentiality/acceptance-summary.
+const CurrentSystemAgreementVersion = "1.0"
+
+// MaxAcceptanceSummaryCodes caps the employee_codes of one acceptance-summary
+// request.
+const MaxAcceptanceSummaryCodes = 500
+
+// MaxEmployeeCodeLength is the width of users.employee_id.
+const MaxEmployeeCodeLength = 50
+
+// ConfidentialityAcceptanceItem is one row of GET
+// /confidentiality/acceptance-summary: whether the employee code has an
+// active login account and whether that account holds an accepted, unexpired
+// SYSTEM agreement at CurrentSystemAgreementVersion. No agreement content,
+// IP address, user agent or account details are returned.
+type ConfidentialityAcceptanceItem struct {
+	EmployeeCode string     `json:"employee_code"`
+	HasUser      bool       `json:"has_user"`
+	Accepted     bool       `json:"accepted"`
+	AcceptedAt   *time.Time `json:"accepted_at"`
+	Version      *string    `json:"version"`
+}

@@ -134,6 +134,11 @@ services:
       context: ./audit-service
       dockerfile: Dockerfile
     container_name: rb_audit_audit_service
+    environment:
+      # Internal control assessment thresholds (days). Seeded into the settings
+      # table at migrate time only if missing; ADMIN edits them in the app.
+      - IC_LHA_DUE_DAYS=${IC_LHA_DUE_DAYS:-30}
+      - IC_MGMT_RESPONSE_DUE_DAYS=${IC_MGMT_RESPONSE_DUE_DAYS:-14}
     depends_on:
       postgres:
         condition: service_started

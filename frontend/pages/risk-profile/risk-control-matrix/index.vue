@@ -4,7 +4,10 @@
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
         <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-1">
-          <NuxtLink to="/risk-profile" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">{{ t('rcm.breadcrumb.riskProfile') }}</NuxtLink>
+          <NuxtLink
+            to="/risk-profile"
+            class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+          >{{ t('rcm.breadcrumb.riskProfile') }}</NuxtLink>
           <span>/</span>
           <span class="text-slate-800 dark:text-slate-200 font-medium">{{ t('rcm.breadcrumb.rcm') }}</span>
         </div>
@@ -27,10 +30,31 @@
         />
 
         <USelect
-          v-model="rcmStore.selectedDepartment"
-          :items="departmentOptions"
+          v-model="rcmStore.selectedDepartmentId"
+          :items="departmentFilterOptions"
           value-key="value"
           size="md"
+          icon="i-lucide-network"
+          :loading="departmentsLoading"
+          :aria-label="t('rcm.filters.departmentLabel')"
+          class="w-full sm:w-56"
+        />
+
+        <USelect
+          v-model="rcmStore.selectedComponent"
+          :items="componentFilterOptions"
+          value-key="value"
+          size="md"
+          :aria-label="t('rcm.filters.componentLabel')"
+          class="w-full sm:w-56"
+        />
+
+        <USelect
+          v-model="rcmStore.selectedPrinciple"
+          :items="principleFilterOptions"
+          value-key="value"
+          size="md"
+          :aria-label="t('rcm.filters.principleLabel')"
           class="w-full sm:w-64"
         />
 
@@ -47,21 +71,24 @@
           class="w-full sm:w-56"
         />
 
-        <UButton v-if="canWrite"
+        <UButton
+          v-if="canWrite"
           color="primary"
           variant="solid"
           class="font-medium shadow-sm w-full sm:w-auto justify-center"
           @click="openAddModal"
         >
-          <UIcon name="i-lucide-plus" class="size-4 mr-1.5" />
+          <UIcon
+            name="i-lucide-plus"
+            class="size-4 mr-1.5"
+          />
           {{ t('rcm.header.addControlMatrix') }}
         </UButton>
       </div>
     </div>
 
-    <!-- Top Cards Grid: Yearly Internal Control Effectiveness & COSO 5 Dimensions Breakdown -->
+    <!-- Top Cards Grid: Yearly Internal Control Effectiveness & control effectiveness criteria breakdown -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      
       <!-- Card 1: Yearly Internal Control Effectiveness (2 Cols) -->
       <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 flex flex-col justify-between">
         <div>
@@ -73,7 +100,9 @@
               {{ t('rcm.cards.effectiveness.periodInfo', { year: rcmStore.selectedYear, department: selectedScopeLabel }) }}
             </span>
           </div>
-          <h2 class="text-xl font-bold text-slate-900 dark:text-white mt-1">{{ t('rcm.cards.effectiveness.title') }}</h2>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white mt-1">
+            {{ t('rcm.cards.effectiveness.title') }}
+          </h2>
         </div>
 
         <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-4 border border-slate-100 dark:border-slate-700/60">
@@ -107,7 +136,10 @@
               </span>
             </div>
             <div class="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
-              <UIcon name="i-lucide-shield-check" class="size-4 shrink-0 text-emerald-500" />
+              <UIcon
+                name="i-lucide-shield-check"
+                class="size-4 shrink-0 text-emerald-500"
+              />
               <span>{{ t('rcm.cards.effectiveness.mitigationCoverage', { covered: rcmStore.mitigationCoverage.covered, total: rcmStore.mitigationCoverage.total }) }}</span>
             </div>
             <UAlert
@@ -122,23 +154,32 @@
         </div>
 
         <div class="mt-3 text-sm text-slate-400 dark:text-slate-400 flex items-center gap-4">
-          <UIcon name="i-lucide-check-circle-2" class="size-10 text-emerald-500" />
+          <UIcon
+            name="i-lucide-check-circle-2"
+            class="size-10 text-emerald-500"
+          />
           <span>{{ t('rcm.cards.effectiveness.syncNote') }}</span>
         </div>
       </div>
 
-      <!-- Card 2: COSO 2013 5 Dimensions Summary (1 Col) -->
+      <!-- Card 2: Control effectiveness criteria summary (1 Col) -->
       <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between">
-            <h3 class="text-base font-bold text-slate-900 dark:text-white">{{ t('rcm.cards.coso.title') }}</h3>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">
+              {{ t('rcm.cards.coso.title') }}
+            </h3>
             <span class="text-md font-bold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/60 px-2.5 py-1 rounded-full border border-primary-100 dark:border-primary-800">
-              {{ rcmStore.cosoAverages.totalWeighted }}%
+              {{ rcmStore.controlCriteriaAverages.totalWeighted }}%
             </span>
           </div>
 
           <div class="mt-4 space-y-3">
-            <div v-for="dim in cosoDimensions" :key="dim.key" class="space-y-1">
+            <div
+              v-for="dim in controlCriteria"
+              :key="dim.key"
+              class="space-y-1"
+            >
               <div class="flex justify-between text-md">
                 <span class="font-medium text-slate-700 dark:text-slate-300">{{ t(`rcm.dimensions.${dim.i18nKey}`) }}</span>
                 <span class="font-bold text-slate-900 dark:text-white">{{ getDimAverage(dim.key) }}%</span>
@@ -147,7 +188,7 @@
                 <div
                   class="bg-primary-600 dark:bg-primary-500 h-full rounded-full transition-all duration-300"
                   :style="{ width: `${getDimAverage(dim.key)}%` }"
-                ></div>
+                />
               </div>
             </div>
           </div>
@@ -167,10 +208,16 @@
         @click="showRatingTable = !showRatingTable"
       >
         <div class="flex items-center gap-2">
-          <UIcon name="i-lucide-book-open" class="size-5 text-primary-600 dark:text-primary-400" />
+          <UIcon
+            name="i-lucide-book-open"
+            class="size-5 text-primary-600 dark:text-primary-400"
+          />
           <span class="font-bold text-slate-900 dark:text-white text-sm md:text-base">{{ t('rcm.interpretationTable.toggle') }}</span>
         </div>
-        <UIcon :name="showRatingTable ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'" class="size-5 text-slate-400 dark:text-slate-500" />
+        <UIcon
+          :name="showRatingTable ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+          class="size-5 text-slate-400 dark:text-slate-500"
+        />
       </button>
 
       <div v-if="showRatingTable" class="px-4 sm:px-6 pb-4 sm:pb-6 border-t border-slate-100 dark:border-slate-800 pt-4">
@@ -179,46 +226,87 @@
           <table class="w-full text-left text-md border-collapse">
             <thead>
               <tr class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold">
-                <th class="py-2.5 px-4 rounded-l-lg whitespace-nowrap">{{ t('rcm.interpretationTable.headers.totalWeightedScore') }}</th>
-                <th class="py-2.5 px-4 whitespace-nowrap">{{ t('rcm.interpretationTable.headers.rating') }}</th>
-                <th class="py-2.5 px-4 rounded-r-lg">{{ t('rcm.interpretationTable.headers.interpretation') }}</th>
+                <th class="py-2.5 px-4 rounded-l-lg whitespace-nowrap">
+                  {{ t('rcm.interpretationTable.headers.totalWeightedScore') }}
+                </th>
+                <th class="py-2.5 px-4 whitespace-nowrap">
+                  {{ t('rcm.interpretationTable.headers.rating') }}
+                </th>
+                <th class="py-2.5 px-4 rounded-r-lg">
+                  {{ t('rcm.interpretationTable.headers.interpretation') }}
+                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
               <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
-                <td class="py-2.5 px-4 font-bold text-green-700 dark:text-green-400 whitespace-nowrap">90 – 100%</td>
-                <td class="py-2.5 px-4 whitespace-nowrap">
-                  <span class="font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block" :class="getControlEffectivenessColorClass('Highly Effective')">{{ t('rcm.interpretationTable.ratings.highlyEffective') }}</span>
+                <td class="py-2.5 px-4 font-bold text-green-700 dark:text-green-400 whitespace-nowrap">
+                  90 – 100%
                 </td>
-                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">{{ t('rcm.interpretationTable.descriptions.highlyEffective') }}</td>
+                <td class="py-2.5 px-4 whitespace-nowrap">
+                  <span
+                    class="font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block"
+                    :class="getControlEffectivenessColorClass('Highly Effective')"
+                  >{{ t('rcm.interpretationTable.ratings.highlyEffective') }}</span>
+                </td>
+                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">
+                  {{ t('rcm.interpretationTable.descriptions.highlyEffective') }}
+                </td>
               </tr>
               <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
-                <td class="py-2.5 px-4 font-bold text-lime-700 dark:text-lime-400 whitespace-nowrap">80 – 89%</td>
-                <td class="py-2.5 px-4 whitespace-nowrap">
-                  <span class="font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block" :class="getControlEffectivenessColorClass('Effective')">{{ t('rcm.interpretationTable.ratings.effective') }}</span>
+                <td class="py-2.5 px-4 font-bold text-lime-700 dark:text-lime-400 whitespace-nowrap">
+                  80 – 89%
                 </td>
-                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">{{ t('rcm.interpretationTable.descriptions.effective') }}</td>
+                <td class="py-2.5 px-4 whitespace-nowrap">
+                  <span
+                    class="font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block"
+                    :class="getControlEffectivenessColorClass('Effective')"
+                  >{{ t('rcm.interpretationTable.ratings.effective') }}</span>
+                </td>
+                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">
+                  {{ t('rcm.interpretationTable.descriptions.effective') }}
+                </td>
               </tr>
               <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
-                <td class="py-2.5 px-4 font-bold text-yellow-700 dark:text-yellow-400 whitespace-nowrap">70 – 79%</td>
-                <td class="py-2.5 px-4 whitespace-nowrap">
-                  <span class="font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block" :class="getControlEffectivenessColorClass('Moderately Effective')">{{ t('rcm.interpretationTable.ratings.moderatelyEffective') }}</span>
+                <td class="py-2.5 px-4 font-bold text-yellow-700 dark:text-yellow-400 whitespace-nowrap">
+                  70 – 79%
                 </td>
-                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">{{ t('rcm.interpretationTable.descriptions.moderatelyEffective') }}</td>
+                <td class="py-2.5 px-4 whitespace-nowrap">
+                  <span
+                    class="font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block"
+                    :class="getControlEffectivenessColorClass('Moderately Effective')"
+                  >{{ t('rcm.interpretationTable.ratings.moderatelyEffective') }}</span>
+                </td>
+                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">
+                  {{ t('rcm.interpretationTable.descriptions.moderatelyEffective') }}
+                </td>
               </tr>
               <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
-                <td class="py-2.5 px-4 font-bold text-orange-700 dark:text-orange-400 whitespace-nowrap">60 – 69%</td>
-                <td class="py-2.5 px-4 whitespace-nowrap">
-                  <span class="font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block" :class="getControlEffectivenessColorClass('Weak')">{{ t('rcm.interpretationTable.ratings.weak') }}</span>
+                <td class="py-2.5 px-4 font-bold text-orange-700 dark:text-orange-400 whitespace-nowrap">
+                  60 – 69%
                 </td>
-                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">{{ t('rcm.interpretationTable.descriptions.weak') }}</td>
+                <td class="py-2.5 px-4 whitespace-nowrap">
+                  <span
+                    class="font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block"
+                    :class="getControlEffectivenessColorClass('Weak')"
+                  >{{ t('rcm.interpretationTable.ratings.weak') }}</span>
+                </td>
+                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">
+                  {{ t('rcm.interpretationTable.descriptions.weak') }}
+                </td>
               </tr>
               <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
-                <td class="py-2.5 px-4 font-bold text-red-700 dark:text-red-400 whitespace-nowrap">&lt; 60%</td>
-                <td class="py-2.5 px-4 whitespace-nowrap">
-                  <span class="font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block" :class="getControlEffectivenessColorClass('Ineffective')">{{ t('rcm.interpretationTable.ratings.ineffective') }}</span>
+                <td class="py-2.5 px-4 font-bold text-red-700 dark:text-red-400 whitespace-nowrap">
+                  &lt; 60%
                 </td>
-                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">{{ t('rcm.interpretationTable.descriptions.ineffective') }}</td>
+                <td class="py-2.5 px-4 whitespace-nowrap">
+                  <span
+                    class="font-bold px-2.5 py-1 rounded-md text-md whitespace-nowrap inline-block"
+                    :class="getControlEffectivenessColorClass('Ineffective')"
+                  >{{ t('rcm.interpretationTable.ratings.ineffective') }}</span>
+                </td>
+                <td class="py-2.5 px-4 text-slate-600 dark:text-slate-300">
+                  {{ t('rcm.interpretationTable.descriptions.ineffective') }}
+                </td>
               </tr>
             </tbody>
           </table>
@@ -273,8 +361,12 @@
     <div class="bg-transparent rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden p-4 sm:p-6 space-y-4">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ t('rcm.table.title') }}</h3>
-          <p class="text-sm text-slate-500 dark:text-slate-400">{{ t('rcm.table.subtitle') }}</p>
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+            {{ t('rcm.table.title') }}
+          </h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400">
+            {{ t('rcm.table.subtitle') }}
+          </p>
         </div>
         <div class="relative w-full md:w-64">
           <input
@@ -282,8 +374,11 @@
             type="text"
             :placeholder="t('rcm.table.searchPlaceholder')"
             class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg pl-9 pr-3 py-1.5 text-sm text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+          <UIcon
+            name="i-lucide-search"
+            class="absolute left-3 top-2.5 size-3.5 text-slate-400 dark:text-slate-500"
           />
-          <UIcon name="i-lucide-search" class="absolute left-3 top-2.5 size-3.5 text-slate-400 dark:text-slate-500" />
         </div>
       </div>
 
@@ -313,7 +408,10 @@
               <span class="inline-block px-2 py-0.5 bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 font-bold rounded text-xs">
                 {{ row.original.risk_code }}
               </span>
-              <p class="font-medium text-slate-900 dark:text-white text-sm leading-snug break-words" :title="row.original.risk_event">
+              <p
+                class="font-medium text-slate-900 dark:text-white text-sm leading-snug break-words"
+                :title="row.original.risk_event"
+              >
                 {{ row.original.risk_event }}
               </p>
             </div>
@@ -325,7 +423,10 @@
               <span class="inline-block px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-extrabold rounded text-xs border border-slate-200 dark:border-slate-700">
                 {{ row.original.control_code }}
               </span>
-              <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed break-words" :title="row.original.control_description">
+              <p
+                class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed break-words"
+                :title="row.original.control_description"
+              >
                 {{ row.original.control_description }}
               </p>
             </div>
@@ -334,15 +435,56 @@
           <!-- Department & PIC -->
           <template #department-cell="{ row }">
             <div class="min-w-[140px] whitespace-normal break-words">
-              <p class="text-sm text-slate-800 dark:text-slate-100 font-semibold mb-0.5">{{ row.original.department }}</p>
-              <p class="text-xs text-slate-500 dark:text-slate-400">{{ t('rcm.table.cells.pic') }} <strong class="text-slate-700 dark:text-slate-200">{{ row.original.control_owner }}</strong></p>
+              <p class="text-sm text-slate-800 dark:text-slate-100 font-semibold mb-0.5">
+                {{ row.original.department }}
+              </p>
+              <p
+                v-if="!row.original.department_id"
+                class="text-xs text-amber-700 dark:text-amber-400 mb-0.5"
+              >
+                {{ t('rcm.table.cells.departmentUnlinked') }}
+              </p>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                {{ t('rcm.table.cells.pic') }} <strong class="text-slate-700 dark:text-slate-200">{{ row.original.control_owner }}</strong>
+              </p>
             </div>
+          </template>
+
+          <!-- COSO 2013 mapping: primary component + principle chips -->
+          <template #coso-cell="{ row }">
+            <div
+              v-if="row.original.coso_component_code || row.original.coso_principle_codes?.length"
+              class="flex flex-wrap items-center gap-1 whitespace-normal"
+            >
+              <span
+                v-if="row.original.coso_component_code"
+                class="inline-block px-2 py-0.5 rounded text-xs font-bold bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 border border-primary-100 dark:border-primary-800"
+                :title="componentName(row.original.coso_component_code)"
+              >
+                {{ row.original.coso_component_code }} · {{ componentName(row.original.coso_component_code) }}
+              </span>
+              <span
+                v-for="code in row.original.coso_principle_codes || []"
+                :key="code"
+                class="inline-block px-1.5 py-0.5 rounded text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700"
+                :title="principleName(code)"
+              >
+                {{ code }}
+              </span>
+            </div>
+            <span
+              v-else
+              class="text-xs text-slate-400 dark:text-slate-500"
+            >{{ t('rcm.table.cells.cosoNone') }}</span>
           </template>
 
           <!-- Design Rating (1-5) -->
           <template #design_effectiveness_rating-cell="{ row }">
             <div class="text-center font-bold text-slate-700 dark:text-slate-200">
-              <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.design_effectiveness_rating * 4}%`">
+              <span
+                class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block"
+                :title="`${row.original.design_effectiveness_rating * 4}%`"
+              >
                 {{ row.original.design_effectiveness_rating }}
               </span>
             </div>
@@ -351,7 +493,10 @@
           <!-- Operating Rating (1-5) -->
           <template #operating_effectiveness_rating-cell="{ row }">
             <div class="text-center font-bold text-slate-700 dark:text-slate-200">
-              <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.operating_effectiveness_rating * 4}%`">
+              <span
+                class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block"
+                :title="`${row.original.operating_effectiveness_rating * 4}%`"
+              >
                 {{ row.original.operating_effectiveness_rating }}
               </span>
             </div>
@@ -360,7 +505,10 @@
           <!-- Coverage Rating (1-5) -->
           <template #coverage_completeness_rating-cell="{ row }">
             <div class="text-center font-bold text-slate-700 dark:text-slate-200">
-              <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.coverage_completeness_rating * 4}%`">
+              <span
+                class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block"
+                :title="`${row.original.coverage_completeness_rating * 4}%`"
+              >
                 {{ row.original.coverage_completeness_rating }}
               </span>
             </div>
@@ -369,7 +517,10 @@
           <!-- Timeliness Rating (1-5) -->
           <template #timeliness_rating-cell="{ row }">
             <div class="text-center font-bold text-slate-700 dark:text-slate-200">
-              <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.timeliness_rating * 4}%`">
+              <span
+                class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block"
+                :title="`${row.original.timeliness_rating * 4}%`"
+              >
                 {{ row.original.timeliness_rating }}
               </span>
             </div>
@@ -378,7 +529,10 @@
           <!-- Automation Rating (1-5) -->
           <template #automation_monitoring_rating-cell="{ row }">
             <div class="text-center font-bold text-slate-700 dark:text-slate-200">
-              <span class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block" :title="`${row.original.automation_monitoring_rating * 4}%`">
+              <span
+                class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-xs inline-block"
+                :title="`${row.original.automation_monitoring_rating * 4}%`"
+              >
                 {{ row.original.automation_monitoring_rating }}
               </span>
             </div>
@@ -405,25 +559,31 @@
           <!-- Actions -->
           <template #actions-cell="{ row }">
             <div class="flex items-center justify-end gap-1">
-              <UTooltip v-if="canWrite" :text="t('rcm.table.actions.edit')">
-              <UButton
-                icon="i-lucide-edit-3"
-                color="neutral"
-                variant="ghost"
-                size="xs"
-                :title="t('rcm.table.actions.edit')"
-                @click="openEditModal(row.original)"
-              />
-              </UTooltip>  
-              <UTooltip v-if="canWrite" :text="t('rcm.table.actions.delete')">
-              <UButton
-                icon="i-lucide-trash-2"
-                color="error"
-                variant="ghost"
-                size="xs"
-                :title="t('rcm.table.actions.delete')"
-                @click="confirmDelete(row.original.id)"
-              />
+              <UTooltip
+                v-if="canWrite"
+                :text="t('rcm.table.actions.edit')"
+              >
+                <UButton
+                  icon="i-lucide-edit-3"
+                  color="neutral"
+                  variant="ghost"
+                  size="xs"
+                  :title="t('rcm.table.actions.edit')"
+                  @click="openEditModal(row.original)"
+                />
+              </UTooltip>
+              <UTooltip
+                v-if="canWrite"
+                :text="t('rcm.table.actions.delete')"
+              >
+                <UButton
+                  icon="i-lucide-trash-2"
+                  color="error"
+                  variant="ghost"
+                  size="xs"
+                  :title="t('rcm.table.actions.delete')"
+                  @click="confirmDelete(row.original.id)"
+                />
               </UTooltip>
             </div>
           </template>
@@ -482,14 +642,42 @@
 
             <!-- Department & PIC -->
             <div class="flex flex-wrap items-center justify-between gap-2 text-xs pt-1 border-t border-gray-100 dark:border-gray-800 text-slate-600 dark:text-slate-400">
-              <div class="flex items-center gap-1.5">
-                <UIcon name="i-lucide-building-2" class="size-3.5 text-slate-400" />
-                <span class="font-medium text-slate-700 dark:text-slate-200">{{ row.department }}</span>
+              <div class="flex flex-col gap-0.5">
+                <div class="flex items-center gap-1.5">
+                  <UIcon name="i-lucide-building-2" class="size-3.5 text-slate-400" />
+                  <span class="font-medium text-slate-700 dark:text-slate-200">{{ row.department }}</span>
+                </div>
+                <p
+                  v-if="!row.department_id"
+                  class="text-[11px] text-amber-700 dark:text-amber-400 pl-5"
+                >
+                  {{ t('rcm.table.cells.departmentUnlinked') }}
+                </p>
               </div>
               <div class="flex items-center gap-1.5">
                 <UIcon name="i-lucide-user" class="size-3.5 text-slate-400" />
                 <span>{{ t('rcm.table.cells.pic') }} <strong class="text-slate-700 dark:text-slate-200">{{ row.control_owner }}</strong></span>
               </div>
+            </div>
+
+            <!-- COSO 2013 Mapping Chips -->
+            <div
+              v-if="row.coso_component_code || row.coso_principle_codes?.length"
+              class="flex flex-wrap items-center gap-1 pt-1"
+            >
+              <span
+                v-if="row.coso_component_code"
+                class="inline-block px-2 py-0.5 rounded text-xs font-bold bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 border border-primary-100 dark:border-primary-800"
+              >
+                {{ row.coso_component_code }} · {{ componentName(row.coso_component_code) }}
+              </span>
+              <span
+                v-for="code in row.coso_principle_codes || []"
+                :key="code"
+                class="inline-block px-1.5 py-0.5 rounded text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700"
+              >
+                {{ code }}
+              </span>
             </div>
 
             <!-- 5 COSO Dimension Ratings Grid -->
@@ -597,7 +785,7 @@
               class="-my-1"
               aria-label="Tutup form Risk Control Matrix"
               :title="t('common.close')"
-              @click="() => { isModalOpen = false }" 
+              @click="isModalOpen = false"
             />
           </div>
 
@@ -709,12 +897,25 @@
                   </UFormField>
                   <UFormField
                     :label="t('rcm.modal.departmentLabel')"
+                    :required="departmentRequired"
+                    :error="departmentError"
+                    :hint="!formData.department_id && isEditMode && formData.department ? t('rcm.modal.departmentLegacyHint', { name: formData.department }) : undefined"
                   >
-                    <UInput
-                      v-model="formData.department"
-                      disabled
+                    <USelectMenu
+                      :model-value="formData.department_id ?? undefined"
+                      :items="departmentFormOptions"
+                      value-key="value"
                       class="w-full"
+                      :loading="departmentsLoading"
+                      :placeholder="t('rcm.modal.departmentPlaceholder')"
+                      @update:model-value="onDepartmentSelected"
                     />
+                    <template
+                      v-if="departmentsFailed"
+                      #help
+                    >
+                      <span class="text-amber-700 dark:text-amber-400">{{ t('rcm.modal.departmentsUnavailable') }}</span>
+                    </template>
                   </UFormField>
                 </div>
 
@@ -850,7 +1051,7 @@
                       />
                     </UFormField>
                   </div>
-  
+
                   <UFormField
                     :label="t('rcm.modal.controlDescLabel')"
                     required
@@ -868,11 +1069,84 @@
               </UCard>
             </div>
 
-            <!-- Step 3: Evaluation of 5 Internal Control Dimensions (COSO) -->
+            <!-- Step 3: COSO 2013 mapping + control effectiveness criteria -->
             <div
               v-else-if="currentStep === 2"
               class="space-y-5"
             >
+              <UCard
+                :ui="{ body: 'p-4 sm:p-6 space-y-4' }"
+                class="border border-[var(--border-main)]"
+                data-testid="rcm-coso-mapping"
+              >
+                <template #header>
+                  <div class="flex items-center gap-2">
+                    <UIcon
+                      name="i-lucide-landmark"
+                      class="h-5 w-5 text-amber-500"
+                    />
+                    <h3 class="text-lg font-bold text-[var(--text-main)]">
+                      {{ t('rcm.modal.cosoMappingTitle') }}
+                    </h3>
+                  </div>
+                </template>
+
+                <p class="text-sm text-[var(--text-muted)]">
+                  {{ t('rcm.modal.cosoMappingHelp') }}
+                </p>
+                <p
+                  v-if="rcmStore.cosoCatalogueFailed"
+                  class="text-sm text-amber-700 dark:text-amber-400"
+                >
+                  {{ t('rcm.modal.cosoCatalogueUnavailable') }}
+                </p>
+
+                <UFormField
+                  :label="t('rcm.modal.cosoComponentLabel')"
+                  :error="cosoComponentError"
+                  :help="t('rcm.modal.cosoComponentHelp')"
+                >
+                  <USelectMenu
+                    :model-value="formData.coso_component_code || NO_COMPONENT"
+                    :items="componentFormOptions"
+                    value-key="value"
+                    class="w-full"
+                    :loading="rcmStore.cosoCatalogueLoading"
+                    @update:model-value="onComponentSelected"
+                  />
+                </UFormField>
+
+                <UFormField
+                  :label="t('rcm.modal.cosoPrinciplesLabel')"
+                  :error="cosoPrincipleError"
+                  :help="t('rcm.modal.cosoPrinciplesHelp')"
+                >
+                  <USelectMenu
+                    :model-value="formData.coso_principle_codes || []"
+                    :items="principleFormOptions"
+                    value-key="value"
+                    multiple
+                    class="w-full"
+                    :loading="rcmStore.cosoCatalogueLoading"
+                    :placeholder="t('rcm.modal.cosoPrinciplesPlaceholder')"
+                    @update:model-value="onPrinciplesSelected"
+                  />
+                </UFormField>
+
+                <div
+                  v-if="formData.coso_principle_codes?.length"
+                  class="flex flex-wrap gap-1.5"
+                >
+                  <span
+                    v-for="code in formData.coso_principle_codes"
+                    :key="code"
+                    class="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700"
+                  >
+                    {{ code }} · {{ principleName(code) }}
+                  </span>
+                </div>
+              </UCard>
+
               <UCard
                 :ui="{ body: 'p-4 sm:p-6 space-y-4' }"
                 class="border border-[var(--border-main)]"
@@ -896,14 +1170,16 @@
 
                 <div class="space-y-3.5">
                   <div
-                    v-for="dim in cosoModalDimensions"
+                    v-for="dim in criteriaModalDimensions"
                     :key="dim.key"
                     class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80 space-y-2.5"
                   >
                     <div class="flex items-start sm:items-center justify-between gap-2">
                       <div>
                         <span class="font-bold text-slate-800 dark:text-slate-200 text-sm sm:text-base">{{ dim.name }}</span>
-                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">{{ dim.desc }}</p>
+                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                          {{ dim.desc }}
+                        </p>
                       </div>
                       <span class="font-extrabold text-primary-700 dark:text-primary-300 bg-white dark:bg-slate-900 px-2.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-sm shrink-0">
                         {{ formData[dim.key] ? `${formData[dim.key]! * 4}%` : '-' }}
@@ -992,50 +1268,11 @@
   </div>
 </template>
 
-<style scoped>
-/* Freeze the first two columns of the RCM table during horizontal scroll ONLY on desktop.
-   On mobile/tablet (< 1280px), disable sticky so all columns (Department, PIC, Ratings, Actions)
-   can be freely scrolled to and are not obscured by frozen columns. */
-@media (min-width: 1280px) {
-  .rcm-table :deep(th:nth-child(-n + 2)),
-  .rcm-table :deep(td:nth-child(-n + 2)) {
-    position: sticky;
-  }
-
-  .rcm-table :deep(th:nth-child(1)),
-  .rcm-table :deep(td:nth-child(1)) {
-    left: 0;
-  }
-
-  .rcm-table :deep(th:nth-child(2)),
-  .rcm-table :deep(td:nth-child(2)) {
-    left: 280px;
-    border-right: 1px solid var(--border-main);
-  }
-
-  /* Opaque fills so scrolled cells cannot bleed through. The theme variables
-     already flip under .dark, so no dark-mode override is needed. */
-  .rcm-table :deep(td:nth-child(-n + 2)) {
-    z-index: 1;
-    background-color: var(--bg-main);
-  }
-
-  .rcm-table :deep(th:nth-child(-n + 2)) {
-    z-index: 2;
-    background-color: var(--bg-surface);
-  }
-
-  .rcm-table :deep(tbody tr:hover td:nth-child(-n + 2)) {
-    background-color: var(--bg-surface);
-  }
-}
-</style>
-
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRbac } from '~/composables/useRbac'
 import { useI18n } from '~/composables/useI18n'
-import { useRCMStore, cosoDimensions, getEffectivenessInterpretation, getEffectivenessKey, type RCMItem } from '~/stores/rcm'
+import { useRCMStore, controlCriteria, getEffectivenessInterpretation, getEffectivenessKey, type RCMItem } from '~/stores/rcm'
 import { getControlEffectivenessColorClass } from '~/utils/riskLevelBadge'
 import { useRiskProfileStore } from '~/stores/risk-profile'
 import { useMitigationStore } from '~/stores/mitigation-risk'
@@ -1044,6 +1281,15 @@ import type { RiskMitigation } from '~/types/risk'
 import { useGlobalModalStore } from '~/stores/global-modal'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { RCM_ALL_BRANCHES, buildRcmBranchOptions } from '~/utils/rcmBranch'
+import { useDepartmentApi } from '~/composables/useDepartmentApi'
+import type { Department } from '~/types/master'
+import {
+  RCM_FILTER_ALL,
+  RCM_FILTER_UNASSIGNED,
+  selectablePrinciples,
+  validateCosoMapping,
+  componentOfPrinciple
+} from '~/utils/rcmCoso'
 import { createEmptyRcmForm, rcmFormFromItem, hasAllRatings, calculateFormScorePercent, toRcmItemForSave, type RCMFormData } from '~/utils/rcmForm'
 
 definePageMeta({
@@ -1072,10 +1318,10 @@ const bodyRef = ref<HTMLElement | null>(null)
 const steps = computed(() => [
   { key: 'riskProfile', label: t('rcm.modal.steps.riskProfile') },
   { key: 'controlMitigation', label: t('rcm.modal.steps.controlMitigation') },
-  { key: 'cosoEvaluation', label: t('rcm.modal.steps.cosoEvaluation') }
+  { key: 'cosoEvaluation', label: t('rcm.modal.steps.controlEvaluation') }
 ])
 
-const cosoModalDimensions = computed(() => [
+const criteriaModalDimensions = computed(() => [
   {
     key: 'design_effectiveness_rating' as const,
     name: t('rcm.dimensions.designFullName'),
@@ -1119,6 +1365,11 @@ const validateStep = (stepIdx: number): boolean => {
       toast.showWarning(t('rcm.toasts.validationWarning'))
       return false
     }
+    if (departmentRequired.value && !formData.value.department_id) {
+      showDepartmentError.value = true
+      toast.showWarning(t('rcm.modal.departmentRequired'))
+      return false
+    }
   } else if (stepIdx === 1) {
     if (hasNoMitigationPlan.value) {
       toast.showWarning(t('rcm.toasts.mitigationPlanRequired'))
@@ -1129,6 +1380,10 @@ const validateStep = (stepIdx: number): boolean => {
       return false
     }
   } else if (stepIdx === 2) {
+    if (cosoMappingIssue.value) {
+      toast.showWarning(t(`rcm.modal.cosoErrors.${cosoMappingIssue.value}`))
+      return false
+    }
     if (!hasAllRatings(formData.value)) {
       showRatingErrors.value = true
       toast.showWarning(t('rcm.toasts.dimensionsRequired'))
@@ -1162,9 +1417,10 @@ const paginatedRCMList = computed(() => {
   return filteredList.value.slice(start, start + itemsPerPage.value)
 })
 
-watch([searchQuery, () => rcmStore.selectedYear, () => rcmStore.selectedDepartment], () => {
-  currentPage.value = 1
-})
+watch(
+  () => [rcmStore.selectedYear, rcmStore.selectedDepartmentId, rcmStore.selectedComponent, rcmStore.selectedPrinciple, rcmStore.selectedBranch, searchQuery.value],
+  () => { currentPage.value = 1 }
+)
 
 // Every risk in the Corporate Risk Profile; the department follows from the chosen risk.
 const riskOptionsForModal = computed(() => {
@@ -1198,37 +1454,135 @@ const yearOptions = computed(() => {
   }))
 })
 
-// Computed so the "All departments" label follows the active locale (branch names are master data).
-const departmentOptions = computed(() => [
-  { label: t('rcm.filters.allDepartments'), value: 'All Departments' },
-  { label: 'Head Office', value: 'Head Office' },
-  { label: 'Jakarta Branch', value: 'Jakarta Branch' },
-  { label: 'Surabaya Branch', value: 'Surabaya Branch' },
-  { label: 'Bandung Branch', value: 'Bandung Branch' },
-  { label: 'Bali Branch', value: 'Bali Branch' }
+// Master departments (department_id). Loaded once; a failure only disables the department picks.
+const departments = ref<Department[]>([])
+const departmentsLoading = ref(false)
+const departmentsFailed = ref(false)
+const loadDepartments = async () => {
+  departmentsLoading.value = true
+  departmentsFailed.value = false
+  try {
+    departments.value = await useDepartmentApi().getAllDepartments()
+  } catch (e) {
+    console.warn('Failed to load departments', e)
+    departments.value = []
+    departmentsFailed.value = true
+  } finally {
+    departmentsLoading.value = false
+  }
+}
+
+const departmentLabel = (d: Department) => d.department_code ? `${d.department_name} (${d.department_code})` : d.department_name
+
+const departmentFilterOptions = computed(() => [
+  { label: t('rcm.filters.allDepartments'), value: RCM_FILTER_ALL },
+  ...departments.value.filter(d => d.is_active !== false).map(d => ({ label: departmentLabel(d), value: d.id })),
+  { label: t('rcm.filters.unassignedDepartment'), value: RCM_FILTER_UNASSIGNED }
 ])
+
+// Active departments, plus the one the row being edited already points to (it may have been deactivated since).
+const departmentFormOptions = computed(() =>
+  departments.value
+    .filter(d => d.is_active !== false || d.id === formData.value.department_id)
+    .map(d => ({ label: departmentLabel(d), value: d.id }))
+)
+
+// New rows need a department; legacy rows (no department_id) can still be edited without one.
+// If the master list could not load, do not block saving.
+const departmentRequired = computed(() => !isEditMode.value && !departmentsFailed.value)
+
+const onDepartmentSelected = (id?: string | null) => {
+  formData.value.department_id = id || null
+  const dept = departments.value.find(d => d.id === id)
+  if (dept) formData.value.department = dept.department_name
+  rcmStore.fieldErrors = { ...rcmStore.fieldErrors, department_id: '' }
+}
+
+// COSO 2013 catalogue labels come from i18n; name_en is only a fallback.
+const translated = (key: string, fallback: string) => {
+  const v = t(key)
+  return v && v !== key ? v : fallback
+}
+const componentName = (code: string) =>
+  translated(`coso.components.${code}`, rcmStore.cosoCatalogue.find(c => c.code === code)?.name_en || code)
+const principleName = (code: string) =>
+  translated(`coso.principles.${code}.title`,
+    rcmStore.cosoCatalogue.flatMap(c => c.principles).find(p => p.code === code)?.name_en || code)
+
+const componentFilterOptions = computed(() => [
+  { label: t('rcm.filters.allComponents'), value: RCM_FILTER_ALL },
+  ...rcmStore.cosoCatalogue.map(c => ({ label: `${c.code} · ${componentName(c.code)}`, value: c.code }))
+])
+const principleFilterOptions = computed(() => [
+  { label: t('rcm.filters.allPrinciples'), value: RCM_FILTER_ALL },
+  ...selectablePrinciples(rcmStore.cosoCatalogue, {
+    componentCode: rcmStore.selectedComponent === RCM_FILTER_ALL ? null : rcmStore.selectedComponent,
+    keep: rcmStore.selectedPrinciple === RCM_FILTER_ALL ? [] : [rcmStore.selectedPrinciple]
+  }).map(p => ({ label: `${p.code} · ${principleName(p.code)}`, value: p.code }))
+])
+// A principle that is not in the newly chosen component no longer applies.
+watch(() => rcmStore.selectedComponent, (component) => {
+  const principle = rcmStore.selectedPrinciple
+  if (component === RCM_FILTER_ALL || principle === RCM_FILTER_ALL) return
+  if (componentOfPrinciple(rcmStore.cosoCatalogue, principle) !== component) rcmStore.selectedPrinciple = RCM_FILTER_ALL
+})
+
+// Form: USelectMenu cannot hold null, so "no primary component" is a sentinel.
+const NO_COMPONENT = '__none'
+const componentFormOptions = computed(() => [
+  { label: t('rcm.modal.cosoNoComponent'), value: NO_COMPONENT },
+  ...rcmStore.cosoCatalogue.map(c => ({ label: `${c.code} · ${componentName(c.code)}`, value: c.code }))
+])
+const principleFormOptions = computed(() =>
+  selectablePrinciples(rcmStore.cosoCatalogue, {
+    componentCode: formData.value.coso_component_code,
+    keep: formData.value.coso_principle_codes || []
+  }).map(p => ({ label: `${p.code} · ${principleName(p.code)}`, value: p.code }))
+)
+
+const onComponentSelected = (code?: string) => {
+  formData.value.coso_component_code = !code || code === NO_COMPONENT ? null : code
+  rcmStore.fieldErrors = { ...rcmStore.fieldErrors, coso_component_code: '' }
+}
+const onPrinciplesSelected = (codes?: string[]) => {
+  formData.value.coso_principle_codes = Array.isArray(codes) ? [...codes] : []
+  // The tags decide the component: with none left there is nothing to be the primary component of.
+  if (!formData.value.coso_principle_codes.length) formData.value.coso_component_code = null
+  rcmStore.fieldErrors = { ...rcmStore.fieldErrors, coso_principle_codes: '' }
+}
+
+const cosoMappingIssue = computed(() =>
+  validateCosoMapping(rcmStore.cosoCatalogue, formData.value.coso_component_code, formData.value.coso_principle_codes || [])
+)
+const departmentError = computed(() => rcmStore.fieldErrors.department_id || (showDepartmentError.value ? t('rcm.modal.departmentRequired') : undefined))
+const cosoComponentError = computed(() =>
+  rcmStore.fieldErrors.coso_component_code
+  || (cosoMappingIssue.value ? t(`rcm.modal.cosoErrors.${cosoMappingIssue.value}`) : undefined)
+)
+const cosoPrincipleError = computed(() => rcmStore.fieldErrors.coso_principle_codes || undefined)
+const showDepartmentError = ref(false)
 
 const formData = ref<RCMFormData>(createEmptyRcmForm(rcmStore.selectedYear))
 
 const dynamicYears = computed(() => {
   const years = new Set<number>()
-  
-  riskProfileStore.risks.forEach(risk => {
+
+  riskProfileStore.risks.forEach((risk) => {
     if (risk.assessments) {
       risk.assessments.forEach((ass: any) => {
         if (ass.year) years.add(ass.year)
       })
     }
   })
-  
+
   if (rcmStore.selectedYear) {
     years.add(rcmStore.selectedYear)
   }
-  
+
   if (years.size === 0) {
     years.add(new Date().getFullYear())
   }
-  
+
   return Array.from(years)
     .sort((a, b) => b - a)
     .map(y => ({ id: y, label: t('rcm.filters.yearOption', { year: y }) }))
@@ -1236,23 +1590,23 @@ const dynamicYears = computed(() => {
 
 const dynamicDepartments = computed(() => {
   const depts = new Set<string>()
-  
-  riskProfileStore.risks.forEach(risk => {
+
+  riskProfileStore.risks.forEach((risk) => {
     if (risk.branch) {
       depts.add(risk.branch)
     } else if (risk.category) {
       depts.add(risk.category)
     }
   })
-  
+
   if (rcmStore.selectedDepartment && rcmStore.selectedDepartment !== 'All Departments') {
     depts.add(rcmStore.selectedDepartment)
   }
-  
+
   if (depts.size === 0) {
     depts.add('Head Office')
   }
-  
+
   return [
     { id: 'All Departments', label: t('rcm.filters.allDepartments') },
     ...Array.from(depts).sort().map(d => ({ id: d, label: d }))
@@ -1289,15 +1643,12 @@ const selectedScopeLabel = computed(() => {
   return branch ? `${selectedDepartmentLabel.value} · ${branch}` : selectedDepartmentLabel.value
 })
 
-// Any filter change sends the table back to page 1.
-const tablePage = ref(1)
-watch(
-  () => [rcmStore.selectedYear, rcmStore.selectedDepartment, rcmStore.selectedBranch, searchQuery.value],
-  () => { tablePage.value = 1 }
-)
+// Pagination state is managed via currentPage above.
 
 onMounted(() => {
   rcmStore.fetchRCMList()
+  rcmStore.fetchCosoCatalogue()
+  loadDepartments()
   mitigationStore.fetchMitigations()
   // CRP risks + all mitigation plans for the effectiveness card (skipped when already loaded).
   rcmStore.ensureRiskSummaryData()
@@ -1308,12 +1659,12 @@ const filteredList = computed(() => {
   if (searchQuery.value.trim()) {
     const q = searchQuery.value.toLowerCase()
     list = list.filter(item =>
-      item.risk_code.toLowerCase().includes(q) ||
-      item.risk_event.toLowerCase().includes(q) ||
-      item.control_code.toLowerCase().includes(q) ||
-      item.control_description.toLowerCase().includes(q) ||
-      item.department.toLowerCase().includes(q) ||
-      item.control_owner.toLowerCase().includes(q)
+      item.risk_code.toLowerCase().includes(q)
+      || item.risk_event.toLowerCase().includes(q)
+      || item.control_code.toLowerCase().includes(q)
+      || item.control_description.toLowerCase().includes(q)
+      || item.department.toLowerCase().includes(q)
+      || item.control_owner.toLowerCase().includes(q)
     )
   }
   return list
@@ -1342,11 +1693,11 @@ const hasNoMitigationPlan = computed(() =>
 
 const getDimAverage = (dimKey: string) => {
   const map: Record<string, number> = {
-    design_effectiveness: rcmStore.cosoAverages.design,
-    operating_effectiveness: rcmStore.cosoAverages.operating,
-    coverage_completeness: rcmStore.cosoAverages.coverage,
-    timeliness: rcmStore.cosoAverages.timeliness,
-    automation_monitoring: rcmStore.cosoAverages.automation
+    design_effectiveness: rcmStore.controlCriteriaAverages.design,
+    operating_effectiveness: rcmStore.controlCriteriaAverages.operating,
+    coverage_completeness: rcmStore.controlCriteriaAverages.coverage,
+    timeliness: rcmStore.controlCriteriaAverages.timeliness,
+    automation_monitoring: rcmStore.controlCriteriaAverages.automation
   }
   return map[dimKey] || 0
 }
@@ -1385,7 +1736,8 @@ const onRiskSelected = async (newVal?: any) => {
   formData.value.risk_id = String(risk.id)
   formData.value.risk_code = riskProfileStore.getFormattedId(risk)
   formData.value.risk_event = risk.name
-  formData.value.department = risk.branch || risk.category || 'Head Office'
+  // A picked master department keeps its name; otherwise the risk's branch is the legacy text.
+  if (!formData.value.department_id) formData.value.department = risk.branch || risk.category || 'Head Office'
 
   // Sync the control fields from the risk's mitigation plans (empty until a plan exists).
   selectedMitigationId.value = ''
@@ -1425,6 +1777,8 @@ const openAddModal = () => {
   isEditMode.value = false
   currentStep.value = 0
   showRatingErrors.value = false
+  showDepartmentError.value = false
+  rcmStore.fieldErrors = {}
   selectedRiskId.value = ''
   selectedMitigationId.value = ''
 
@@ -1455,6 +1809,8 @@ const openEditModal = (item: RCMItem) => {
   isEditMode.value = true
   currentStep.value = 0
   showRatingErrors.value = false
+  showDepartmentError.value = false
+  rcmStore.fieldErrors = {}
   formData.value = rcmFormFromItem(item)
   selectedRiskId.value = item.risk_id || ''
   isModalOpen.value = true
@@ -1465,6 +1821,8 @@ const saveForm = async () => {
     toast.showWarning(t('rcm.toasts.validationWarning'))
     return
   }
+
+  if (!validateStep(0)) { currentStep.value = 0; return }
 
   // Never let an unscored dimension reach the store (buildPayload would silently default it).
   if (!validateStep(2)) return
@@ -1481,6 +1839,10 @@ const saveForm = async () => {
     }
     isModalOpen.value = false
   } catch (err: any) {
+    // 422 per field: show the messages under the fields and go to the step that holds them.
+    const fe = rcmStore.fieldErrors
+    if (fe.department_id) currentStep.value = 0
+    else if (fe.coso_component_code || fe.coso_principle_codes) currentStep.value = 2
     toast.showError(rcmStore.errorMsg || err?.message || t('errors.unknown'))
   }
 }
@@ -1496,3 +1858,42 @@ const confirmDelete = async (id: string) => {
   }
 }
 </script>
+
+<style scoped>
+/* Freeze the first two columns of the RCM table during horizontal scroll ONLY on desktop.
+   On mobile/tablet (< 1280px), disable sticky so all columns (Department, PIC, Ratings, Actions)
+   can be freely scrolled to and are not obscured by frozen columns. */
+@media (min-width: 1280px) {
+  .rcm-table :deep(th:nth-child(-n + 2)),
+  .rcm-table :deep(td:nth-child(-n + 2)) {
+    position: sticky;
+  }
+
+  .rcm-table :deep(th:nth-child(1)),
+  .rcm-table :deep(td:nth-child(1)) {
+    left: 0;
+  }
+
+  .rcm-table :deep(th:nth-child(2)),
+  .rcm-table :deep(td:nth-child(2)) {
+    left: 280px;
+    border-right: 1px solid var(--border-main);
+  }
+
+  /* Opaque fills so scrolled cells cannot bleed through. The theme variables
+     already flip under .dark, so no dark-mode override is needed. */
+  .rcm-table :deep(td:nth-child(-n + 2)) {
+    z-index: 1;
+    background-color: var(--bg-main);
+  }
+
+  .rcm-table :deep(th:nth-child(-n + 2)) {
+    z-index: 2;
+    background-color: var(--bg-surface);
+  }
+
+  .rcm-table :deep(tbody tr:hover td:nth-child(-n + 2)) {
+    background-color: var(--bg-surface);
+  }
+}
+</style>

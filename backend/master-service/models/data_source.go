@@ -22,18 +22,36 @@ type SchemaTable struct {
 	Description string        `json:"description,omitempty"`
 }
 
+type CustomAnomalyRule struct {
+	ID           string  `json:"id"`
+	Name         string  `json:"name"`
+	Field        string  `json:"field"`
+	Operator     string  `json:"operator"` // ">", "<", ">=", "<=", "==", "!=", "outside"
+	Threshold    float64 `json:"threshold"`
+	ThresholdStr string  `json:"thresholdStr,omitempty"`
+	Severity     string  `json:"severity"` // "Critical", "High", "Medium", "Low"
+	Category     string  `json:"category"`
+	Description  string  `json:"description,omitempty"`
+	IsActive     bool    `json:"isActive"`
+}
+
 type TableDataMapping struct {
-	TableName       string   `json:"tableName"`
-	TargetScope     string   `json:"targetScope"` // risk_management, audit_features, qar_features
-	TargetModule    string   `json:"targetModule"` // e.g. "Risk Profile / Heatmap", "Working Paper Evidence", "Compliance Monitoring"
-	AuditField      string   `json:"auditField"`   // mapped field (e.g. "transaction_amount", "user_id")
-	SyncInterval    string   `json:"syncInterval"` // "Hourly", "Real-time", "Daily"
-	AnomalyRules    []string `json:"anomalyRules,omitempty"` // e.g. ["Threshold Breach (>100M)", "Weekend Transaction"]
-	IsActive        bool     `json:"isActive"`
+	TableName    string              `json:"tableName"`
+	TargetScope  string              `json:"targetScope"`            // risk_management, audit_features, qar_features, data_analytics
+	TargetModule string              `json:"targetModule"`           // e.g. "Risk Profile / Heatmap", "AI: Anomaly Detection"
+	AuditField   string              `json:"auditField"`             // mapped field (e.g. "transaction_amount", "user_id")
+	SyncInterval string              `json:"syncInterval"`           // "Hourly", "Real-time", "Daily"
+	AnomalyRules []string            `json:"anomalyRules,omitempty"` // e.g. ["Threshold Breach (>100M)", "Weekend Transaction"]
+	CustomRules  []CustomAnomalyRule `json:"customRules,omitempty"`  // User-defined anomaly rules for AI model training
+	IsActive     bool                `json:"isActive"`
 	// Column that marks a source row as deleted (sent by the Data Source settings page); "" = none.
 	SoftDeleteColumn string `json:"softDeleteColumn,omitempty"`
 }
 
+// DataSourceConnection is an external source. SSLMode is a libpq sslmode (disable, require,
+// verify-ca, verify-full) and SSL mirrors it (SSL = SSLMode != disable). SSLRootCert is an optional
+// PEM CA bundle for the verify modes; a CA certificate is public, so it is stored unencrypted.
+// Rows created before ssl_mode existed are backfilled by cmd/migrate.go.
 type DataSourceConnection struct {
 	ID           uuid.UUID          `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
 	Name         string             `gorm:"type:varchar(255);not null" json:"name"`
@@ -46,7 +64,9 @@ type DataSourceConnection struct {
 	SyncSchedule string             `gorm:"type:varchar(100);default:'Hourly'" json:"syncSchedule"`
 	LastSync     string             `gorm:"type:varchar(100)" json:"lastSync"`
 	LastError    string             `gorm:"type:text" json:"lastError,omitempty"`
-	SSL          bool               `gorm:"default:true" json:"ssl"`
+	SSL          bool               `json:"ssl"` // no gorm default: default:true made GORM insert true for an explicit false (ssl_mode=disable)
+	SSLMode      string             `gorm:"type:varchar(20)" json:"sslMode"`
+	SSLRootCert  string             `gorm:"type:text" json:"sslRootCert,omitempty"`
 	Username     string             `gorm:"type:varchar(255)" json:"username,omitempty"`
 	Password     string             `gorm:"type:varchar(255)" json:"password,omitempty"`
 	Scopes       []string           `gorm:"serializer:json" json:"scopes,omitempty"`

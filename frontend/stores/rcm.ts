@@ -10,6 +10,15 @@ import { useI18n } from '~/composables/useI18n'
 import { RCM_ALL_BRANCHES, resolveRcmItemLocationId, filterRcmItemsByBranch } from '~/utils/rcmBranch'
 import { currentQuarter, type Quarter } from '~/utils/fiscalPeriod'
 import { computeRcmRiskCounts, computeMitigationCoverage } from '~/utils/rcmRiskCounts'
+import {
+  RCM_FILTER_ALL,
+  matchesRcmCoso,
+  matchesRcmDepartment,
+  parseCosoCatalogue,
+  parseRcmFieldErrors,
+  type CosoComponent,
+  type RcmFieldErrors
+} from '~/utils/rcmCoso'
 
 export interface RCMItem {
   id: string
@@ -21,6 +30,12 @@ export interface RCMItem {
   control_type?: string
   control_owner: string
   department: string
+  /** Master department (null/absent on rows created before the master link). */
+  department_id?: string | null
+  /** Primary COSO 2013 component (CE/RA/CA/IC/MA); null/absent when untagged. */
+  coso_component_code?: string | null
+  /** Tagged COSO 2013 principles (P01-P17). */
+  coso_principle_codes?: string[]
   year: number
   design_effectiveness_weight: number // 20%
   design_effectiveness_rating: number // 1-5 (4%, 8%, 12%, 16%, 20%)
@@ -38,7 +53,8 @@ export interface RCMItem {
   notes?: string
 }
 
-export const cosoDimensions = [
+// The five control effectiveness criteria scored per control (not the COSO 2013 components).
+export const controlCriteria = [
   { key: 'design_effectiveness', i18nKey: 'design', label: '1. Design Effectiveness', shortLabel: 'Design', ratingKey: 'design_effectiveness_rating' },
   { key: 'operating_effectiveness', i18nKey: 'operating', label: '2. Operating Effectiveness', shortLabel: 'Operating', ratingKey: 'operating_effectiveness_rating' },
   { key: 'coverage_completeness', i18nKey: 'coverage', label: '3. Coverage & Completeness', shortLabel: 'Coverage', ratingKey: 'coverage_completeness_rating' },
@@ -88,10 +104,10 @@ export const computeInherentVsResidualByDepartment = (
     const baseImpact = risk.impact ?? 0
     const baseLikelihood = risk.likelihood ?? 0
 
-    const inherent =
-      (assessment?.impact_q1 ?? baseImpact) * (assessment?.likelihood_q1 ?? baseLikelihood)
-    const residual =
-      (assessment?.impact_q4 ?? baseImpact) * (assessment?.likelihood_q4 ?? baseLikelihood)
+    const inherent
+      = (assessment?.impact_q1 ?? baseImpact) * (assessment?.likelihood_q1 ?? baseLikelihood)
+    const residual
+      = (assessment?.impact_q4 ?? baseImpact) * (assessment?.likelihood_q4 ?? baseLikelihood)
 
     const group = groups.get(department) || { inherent: 0, residual: 0, count: 0 }
     group.inherent += inherent
@@ -110,9 +126,12 @@ export const computeInherentVsResidualByDepartment = (
 
 /** i18n key suffix (rcm.interpretationTable.ratings.* / descriptions.*) for a score, same bands as getEffectivenessInterpretation. */
 export const getEffectivenessKey = (scorePercent: number) =>
-  scorePercent >= 90 ? 'highlyEffective'
-    : scorePercent >= 80 ? 'effective'
-      : scorePercent >= 70 ? 'moderatelyEffective'
+  scorePercent >= 90
+    ? 'highlyEffective'
+    : scorePercent >= 80
+      ? 'effective'
+      : scorePercent >= 70
+        ? 'moderatelyEffective'
         : scorePercent >= 60 ? 'weak' : 'ineffective'
 
 export const getEffectivenessInterpretation = (scorePercent: number) => {
@@ -176,7 +195,17 @@ export const useRCMStore = defineStore('rcm', () => {
   const rcmList = ref<RCMItem[]>([])
   const { selectedFiscalYear } = useFiscalYear()
   const selectedYear = selectedFiscalYear
+  // Legacy department-name text; the RCM page filters by master department (selectedDepartmentId) instead.
   const selectedDepartment = ref('All Departments')
+  // RCM_FILTER_ALL, RCM_FILTER_UNASSIGNED or a master department id.
+  const selectedDepartmentId = ref<string>(RCM_FILTER_ALL)
+  const selectedComponent = ref<string>(RCM_FILTER_ALL)
+  const selectedPrinciple = ref<string>(RCM_FILTER_ALL)
+  const cosoCatalogue = ref<CosoComponent[]>([])
+  const cosoCatalogueLoading = ref(false)
+  const cosoCatalogueFailed = ref(false)
+  // 422 messages per request field (department_id, coso_component_code, coso_principle_codes) of the last write.
+  const fieldErrors = ref<RcmFieldErrors>({})
   // RCM_ALL_BRANCHES, RCM_UNASSIGNED_BRANCH or a Location master ID. Independent of the CRP page's branch filter.
   const selectedBranch = ref<string>(RCM_ALL_BRANCHES)
   const loading = ref(false)
@@ -188,6 +217,7 @@ export const useRCMStore = defineStore('rcm', () => {
     { accessorKey: 'risk_code', id: 'risk_code', header: t('rcm.table.columns.riskCode'), class: 'w-[280px] min-w-[280px]' },
     { accessorKey: 'control_code', id: 'control_code', header: t('rcm.table.columns.controlCode'), class: 'w-[320px] min-w-[320px]' },
     { accessorKey: 'department', id: 'department', header: t('rcm.table.columns.department'), class: 'w-[170px] min-w-[170px]' },
+    { accessorKey: 'coso', id: 'coso', header: t('rcm.table.columns.coso'), class: 'w-[190px] min-w-[190px]' },
     { accessorKey: 'design_effectiveness_rating', id: 'design_effectiveness_rating', header: t('rcm.table.columns.design'), class: 'w-[100px] min-w-[100px] text-center' },
     { accessorKey: 'operating_effectiveness_rating', id: 'operating_effectiveness_rating', header: t('rcm.table.columns.operating'), class: 'w-[100px] min-w-[100px] text-center' },
     { accessorKey: 'coverage_completeness_rating', id: 'coverage_completeness_rating', header: t('rcm.table.columns.coverage'), class: 'w-[100px] min-w-[100px] text-center' },
@@ -207,7 +237,6 @@ export const useRCMStore = defineStore('rcm', () => {
       // storage unavailable (private mode etc.) — nothing to clear
     }
   }
-
 
   // Calculate rating (1-5) to percentage (4%, 8%, 12%, 16%, 20%)
   const ratingToPercent = (rating: number): number => {
@@ -236,11 +265,13 @@ export const useRCMStore = defineStore('rcm', () => {
     const currentYear = new Date().getFullYear()
     const isFutureYear = selectedYear.value > currentYear
 
-    return rcmList.value.filter(item => {
+    return rcmList.value.filter((item) => {
       const itemYear = item.year || (isFutureYear ? null : 2026)
       const matchYear = itemYear === selectedYear.value
       const matchDept = selectedDepartment.value === 'All Departments' || item.department === selectedDepartment.value
       return matchYear && matchDept
+        && matchesRcmDepartment(item, selectedDepartmentId.value)
+        && matchesRcmCoso(item, cosoCatalogue.value, selectedComponent.value, selectedPrinciple.value)
     })
   })
 
@@ -322,8 +353,8 @@ export const useRCMStore = defineStore('rcm', () => {
     return getEffectivenessInterpretation(internalControlEffectiveness.value)
   })
 
-  // COSO 2013 Averages in %
-  const cosoAverages = computed(() => {
+  // Averages of the control effectiveness criteria in %
+  const controlCriteriaAverages = computed(() => {
     const list = filteredRCMList.value
     if (list.length === 0) {
       return {
@@ -339,7 +370,7 @@ export const useRCMStore = defineStore('rcm', () => {
     const count = list.length
     let designSum = 0, operatingSum = 0, coverageSum = 0, timelinessSum = 0, automationSum = 0, totalSum = 0
 
-    list.forEach(item => {
+    list.forEach((item) => {
       designSum += ratingToPercent(item.design_effectiveness_rating)
       operatingSum += ratingToPercent(item.operating_effectiveness_rating)
       coverageSum += ratingToPercent(item.coverage_completeness_rating)
@@ -391,6 +422,14 @@ export const useRCMStore = defineStore('rcm', () => {
     if (isValidUUID(item.risk_id)) {
       payload.risk_id = item.risk_id
     }
+    // Master department: omitted keeps what the row has (legacy rows have none).
+    if (isValidUUID(item.department_id ?? undefined)) {
+      payload.department_id = item.department_id
+    }
+    // COSO 2013 mapping: always sent so the form state wins; null clears the component, [] clears the tags.
+    const principles = Array.isArray(item.coso_principle_codes) ? item.coso_principle_codes : []
+    payload.coso_principle_codes = principles
+    payload.coso_component_code = principles.length ? (item.coso_component_code || null) : null
     return payload
   }
 
@@ -412,10 +451,29 @@ export const useRCMStore = defineStore('rcm', () => {
     }
   }
 
+  // COSO 2013 catalogue (5 components, 17 principles): static reference data, fetched once per session.
+  // Names come from i18n (coso.*); name_en is only a fallback.
+  const fetchCosoCatalogue = async (force = false) => {
+    if (!force && (cosoCatalogue.value.length || cosoCatalogueLoading.value)) return
+    cosoCatalogueLoading.value = true
+    cosoCatalogueFailed.value = false
+    try {
+      const response = await $fetch(`${getRiskServiceBaseUrl()}/rcm/coso-principles`)
+      cosoCatalogue.value = parseCosoCatalogue(response)
+      cosoCatalogueFailed.value = cosoCatalogue.value.length === 0
+    } catch (error) {
+      console.warn('Failed to fetch COSO catalogue:', error)
+      cosoCatalogueFailed.value = true
+    } finally {
+      cosoCatalogueLoading.value = false
+    }
+  }
+
   // CRUD actions — the list only changes after the server confirms the write.
   const addRCMItem = async (newItem: Omit<RCMItem, 'id' | 'total_weighted_score'> & { id?: string }) => {
     loading.value = true
     errorMsg.value = ''
+    fieldErrors.value = {}
     try {
       const baseUrl = getRiskServiceBaseUrl()
       const response: any = await $fetch(`${baseUrl}/rcm`, {
@@ -430,6 +488,7 @@ export const useRCMStore = defineStore('rcm', () => {
       }
     } catch (error: any) {
       console.warn('Backend create error:', error)
+      fieldErrors.value = parseRcmFieldErrors(error)
       errorMsg.value = extractErrorMessage(error, 'Gagal menyimpan data RCM ke server.')
       throw error
     } finally {
@@ -440,6 +499,7 @@ export const useRCMStore = defineStore('rcm', () => {
   const updateRCMItem = async (updatedItem: RCMItem) => {
     loading.value = true
     errorMsg.value = ''
+    fieldErrors.value = {}
     try {
       const baseUrl = getRiskServiceBaseUrl()
       const response: any = await $fetch(`${baseUrl}/rcm/${updatedItem.id}`, {
@@ -455,6 +515,7 @@ export const useRCMStore = defineStore('rcm', () => {
       }
     } catch (error: any) {
       console.warn('Backend update error:', error)
+      fieldErrors.value = parseRcmFieldErrors(error)
       errorMsg.value = extractErrorMessage(error, 'Gagal mengupdate data RCM di server.')
       throw error
     } finally {
@@ -485,6 +546,14 @@ export const useRCMStore = defineStore('rcm', () => {
     filteredRCMList,
     selectedYear,
     selectedDepartment,
+    selectedDepartmentId,
+    selectedComponent,
+    selectedPrinciple,
+    cosoCatalogue,
+    cosoCatalogueLoading,
+    cosoCatalogueFailed,
+    fieldErrors,
+    fetchCosoCatalogue,
     selectedBranch,
     hasUnassignedBranchItems,
     itemLocationId,
@@ -499,7 +568,7 @@ export const useRCMStore = defineStore('rcm', () => {
     inherentVsResidualByDepartment,
     internalControlEffectiveness,
     effectivenessRating,
-    cosoAverages,
+    controlCriteriaAverages,
     ratingToPercent,
     calculateItemScorePercent,
     fetchRCMList,

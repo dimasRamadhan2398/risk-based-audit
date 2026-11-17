@@ -472,18 +472,18 @@
         </div>
       </div>
 
-      <!-- Card 2: COSO 2013 5 Dimensions Summary (1 Col) -->
+      <!-- Card 2: Control effectiveness criteria summary (1 Col) -->
       <div class="p-4 flex flex-col justify-between dashboard-card">
         <div>
           <div class="flex items-center justify-between gap-2">
             <h3 class="text-base font-bold text-slate-900 dark:text-white">{{ t('rcm.cards.coso.title') }}</h3>
             <span class="text-md font-bold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-950/60 px-2.5 py-1 rounded-full border border-primary-100 dark:border-primary-800 whitespace-nowrap shrink-0">
-              {{ rcmStore.cosoAverages.totalWeighted }}%
+              {{ rcmStore.controlCriteriaAverages.totalWeighted }}%
             </span>
           </div>
 
           <div class="mt-3 space-y-2">
-            <div v-for="dim in cosoDimensions" :key="dim.key" class="space-y-1">
+            <div v-for="dim in controlCriteria" :key="dim.key" class="space-y-1">
               <div class="flex justify-between text-md">
                 <span class="font-medium text-slate-700 dark:text-slate-300">{{ t(`rcm.dimensions.${dim.i18nKey}`) }}</span>
                 <span class="font-bold text-slate-900 dark:text-white">{{ getDimAverage(dim.key) }}%</span>
@@ -1209,7 +1209,7 @@ import { useAuditExecutionStore } from "~/stores/audit-execution";
 import { getProgressValue } from "~/utils/executionSources";
 import { useAuditResultReportStore } from "~/stores/audit-result-report";
 import { useAuthStore } from "~/stores/auth";
-import { useRCMStore, cosoDimensions, getEffectivenessKey } from "~/stores/rcm";
+import { useRCMStore, controlCriteria, getEffectivenessKey } from "~/stores/rcm";
 import { RiskLevel } from "~/types/risk";
 import { ATR_SLICE_HEX, atrStatusBadgeColor, atrStatusI18nKey, formatAtrDate, type AtrSliceKey } from "~/utils/actionTakenReport";
 import { UBadge } from "#components";
@@ -1245,11 +1245,11 @@ const canToggleRoleView = computed(() => isAdmin.value || canManageAudits.value)
 // ─── Internal Control Effectiveness (COSO 2013) ─────────────
 const getDimAverage = (dimKey: string) => {
   const map: Record<string, number> = {
-    design_effectiveness: rcmStore.cosoAverages.design,
-    operating_effectiveness: rcmStore.cosoAverages.operating,
-    coverage_completeness: rcmStore.cosoAverages.coverage,
-    timeliness: rcmStore.cosoAverages.timeliness,
-    automation_monitoring: rcmStore.cosoAverages.automation,
+    design_effectiveness: rcmStore.controlCriteriaAverages.design,
+    operating_effectiveness: rcmStore.controlCriteriaAverages.operating,
+    coverage_completeness: rcmStore.controlCriteriaAverages.coverage,
+    timeliness: rcmStore.controlCriteriaAverages.timeliness,
+    automation_monitoring: rcmStore.controlCriteriaAverages.automation,
   };
   return map[dimKey] || 0;
 };
@@ -1450,17 +1450,17 @@ const anomalyScatterOptions = computed(() => {
         grid: { color: "rgba(226, 232, 240, 0.6)" },
         ticks: { font: { size: 11 }, maxTicksLimit: 5, callback: (v: any) => config.formatX(Number(v)) },
       },
-      // Y = transaction hour from the data (0-23).
+      // Y = transaction hour from the data (0-24).
       y: {
-        min: 0,
-        max: 23,
+        suggestedMin: 0,
+        suggestedMax: 24,
         title: {
           display: true,
           text: t("analytics.isolation.axisHour"),
           font: { size: 11, weight: "bold" as const },
         },
         grid: { display: false },
-        ticks: { font: { size: 11 }, stepSize: 6 },
+        ticks: { font: { size: 11 }, stepSize: 4 },
       },
     },
   };

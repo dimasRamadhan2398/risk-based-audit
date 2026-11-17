@@ -6,9 +6,11 @@ import type {
   CreateEmployeeRequest,
   EmployeeLoginAccount,
   UpdateEmployeeRequest,
-  PaginationMeta
+  PaginationMeta,
+  UserSeats
 } from '~/types/master'
 import { getUserErrorMessage } from '~/utils/error'
+import { getEmployeeActionError, isSeatDowngraded, type EmployeeAction } from '~/utils/employeeSeats'
 import { useI18n } from '~/composables/useI18n'
 import { useAppToast } from '~/composables/useAppToast'
 
@@ -38,6 +40,13 @@ export const useEmployeeStore = defineStore('employee', () => {
   // password only until the credentials dialog is dismissed; never persisted.
   const createdAccount = ref<EmployeeLoginAccount | null>(null)
   const createdAccountEmployeeName = ref('')
+  // Login of the last created employee was set to VIEWER because the seats were full
+  const createdSeatDowngraded = ref(false)
+
+  // User seat usage (GET /users/seats, ADMIN only). Stays null until the page
+  // loads it for an admin; after that every create/update/delete refreshes it.
+  const seats = ref<UserSeats | null>(null)
+  let seatsTracked = false
 
   // Pagination State
   const pagination = ref<PaginationMeta>({
@@ -57,7 +66,6 @@ export const useEmployeeStore = defineStore('employee', () => {
     company_id: '',
     department_id: '',
     job_role_id: '',
-    level_grade: 1,
     work_location_id: '',
     residence_address: '',
     residence_city: '',
@@ -74,7 +82,6 @@ export const useEmployeeStore = defineStore('employee', () => {
     { accessorKey: 'full_name', header: t('masterData.employee.columns.fullName') },
     { accessorKey: 'email', header: t('masterData.employee.columns.email') },
     { accessorKey: 'phone', header: t('masterData.employee.columns.phone') },
-    { accessorKey: 'level_grade', header: t('masterData.employee.columns.level') },
     { accessorKey: 'is_active', header: t('masterData.employee.columns.status') },
     { accessorKey: 'actions', header: t('common.columns.actions') }
   ])
@@ -111,6 +118,38 @@ export const useEmployeeStore = defineStore('employee', () => {
   }
 
   // ============= Actions =============
+
+  /**
+   * Load the seat usage. Admin only: the page calls this once for admins, and
+   * later mutations refresh it through refreshSeats. A failure keeps the last
+   * known value; seats are informational and never block a save.
+   */
+  const fetchSeats = async () => {
+    seatsTracked = true
+    try {
+      seats.value = await useEmployeeApi().getUserSeats()
+    } catch (error) {
+      console.error('Failed to fetch user seats:', error)
+    }
+  }
+
+  /** Stop tracking the seats (e.g. the signed-in user is not an admin) */
+  const resetSeats = () => {
+    seatsTracked = false
+    seats.value = null
+  }
+
+  /** Refresh the seats only when they were loaded before (i.e. for admins) */
+  const refreshSeats = async () => {
+    if (seatsTracked) await fetchSeats()
+  }
+
+  /** Error toast for a failed row action, listing where the employee is used if known */
+  const toastActionError = (error: unknown, action: EmployeeAction) => {
+    const { message, usages } = getEmployeeActionError(error, t, action)
+    const description = usages.length ? t('masterData.employee.errors.usedIn', { list: usages.join(', ') }) : undefined
+    useAppToast().error(message, description)
+  }
 
   /**
    * Fetch employees with pagination
@@ -168,6 +207,7 @@ export const useEmployeeStore = defineStore('employee', () => {
     errorMsg.value = ''
     createdEmployeeCode.value = ''
     createdAccount.value = null
+    createdSeatDowngraded.value = false
 
     try {
       const api = useEmployeeApi()
@@ -192,8 +232,9 @@ export const useEmployeeStore = defineStore('employee', () => {
       const created = await api.createEmployee(payload)
       createdEmployeeCode.value = created?.employee_code || ''
       createdAccount.value = created?.account || null
+      createdSeatDowngraded.value = isSeatDowngraded(created)
       createdAccountEmployeeName.value = form.full_name
-      await fetchEmployees()
+      await Promise.all([fetchEmployees(), refreshSeats()])
       return true
     } catch (error: any) {
       console.error('Failed to create employee:', error)
@@ -229,6 +270,14 @@ export const useEmployeeStore = defineStore('employee', () => {
     } else {
       toast.success(message)
     }
+    if (createdSeatDowngraded.value) {
+      toast.warning(
+        t('masterData.employee.seats.downgradedTitle'),
+        account?.username
+          ? t('masterData.employee.seats.downgradedToast', { username: account.username })
+          : t('masterData.employee.seats.downgradedToastNoUsername')
+      )
+    }
   }
 
   /**
@@ -262,11 +311,12 @@ export const useEmployeeStore = defineStore('employee', () => {
       }
 
       await api.updateEmployee(id, payload)
-      await fetchEmployees()
+      // Status and job role changes can take or free a seat
+      await Promise.all([fetchEmployees(), refreshSeats()])
       return true
     } catch (error: any) {
       console.error('Failed to update employee:', error)
-      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.updateEmployee' })
+      errorMsg.value = getEmployeeActionError(error, t, 'update').message
       return false
     } finally {
       loading.value = false
@@ -274,20 +324,49 @@ export const useEmployeeStore = defineStore('employee', () => {
   }
 
   /**
-   * Delete employee
+   * Delete employee. The default soft delete deactivates the login and can be
+   * restored; hard: true removes the employee permanently. Failures are
+   * reported as a toast so the list stays visible.
    */
-  const deleteEmployee = async (id: string): Promise<boolean> => {
+  const deleteEmployee = async (id: string, options?: { hard?: boolean }): Promise<boolean> => {
     loading.value = true
     errorMsg.value = ''
 
     try {
       const api = useEmployeeApi()
-      await api.deleteEmployee(id)
-      await fetchEmployees()
+      await api.deleteEmployee(id, options)
+      await Promise.all([fetchEmployees(), refreshSeats()])
       return true
     } catch (error: any) {
       console.error('Failed to delete employee:', error)
-      errorMsg.value = getUserErrorMessage(error, t, { fallbackKey: 'masterData.errors.deleteEmployee' })
+      toastActionError(error, options?.hard ? 'hardDelete' : 'delete')
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * Activate or deactivate an employee; the backend does the same to the
+   * login. Sends only the status plus the two fields the update endpoint
+   * requires (employee_code, company_id), so nothing else is overwritten.
+   */
+  const setEmployeeActive = async (employee: Employee, active: boolean): Promise<boolean> => {
+    loading.value = true
+    errorMsg.value = ''
+
+    try {
+      const api = useEmployeeApi()
+      await api.updateEmployee(employee.id, {
+        employee_code: employee.employee_code,
+        company_id: employee.company_id,
+        is_active: active
+      })
+      await Promise.all([fetchEmployees(), refreshSeats()])
+      return true
+    } catch (error: any) {
+      console.error('Failed to change employee status:', error)
+      toastActionError(error, active ? 'reactivate' : 'deactivate')
       return false
     } finally {
       loading.value = false
@@ -332,6 +411,8 @@ export const useEmployeeStore = defineStore('employee', () => {
     resetForm()
     showModal.value = true
     fetchNextEmployeeCode()
+    // Keep the seats-full alert current (no-op for non-admins)
+    refreshSeats()
   }
 
   /**
@@ -349,7 +430,6 @@ export const useEmployeeStore = defineStore('employee', () => {
     form.company_id = employee.company_id
     form.department_id = employee.department_id
     form.job_role_id = employee.job_role_id
-    form.level_grade = employee.level_grade
     form.work_location_id = employee.work_location_id || ''
     form.residence_address = employee.residence_address || ''
     form.residence_city = employee.residence_city || ''
@@ -389,7 +469,6 @@ export const useEmployeeStore = defineStore('employee', () => {
     form.company_id = ''
     form.department_id = ''
     form.job_role_id = ''
-    form.level_grade = 1
     form.work_location_id = ''
     form.residence_address = ''
     form.residence_city = ''
@@ -450,16 +529,61 @@ export const useEmployeeStore = defineStore('employee', () => {
   }
 
   /**
-   * Handle delete with confirmation
+   * Soft delete with confirmation: deactivates the login, can be restored
    */
   const handleDelete = async (employee: Employee) => {
-    if (!await useGlobalModalStore().confirmDelete({ description: t('masterData.employee.deleteConfirm', { name: employee.full_name }) })) {
-      return
-    }
+    const confirmed = await useGlobalModalStore().confirmDelete({
+      description: t('masterData.employee.softDeleteConfirm', { name: employee.full_name }),
+      body: [t('masterData.employee.softDeleteConfirmBody')],
+      confirmLabel: t('masterData.employee.actions.softDelete')
+    })
+    if (!confirmed) return
 
     const success = await deleteEmployee(employee.id)
     if (success) {
-      useAppToast().success(t('masterData.employee.messages.deleted'))
+      useAppToast().success(t('masterData.employee.messages.softDeleted'))
+    }
+  }
+
+  /**
+   * Permanent delete (ADMIN only in the UI; the backend enforces it too)
+   */
+  const handleHardDelete = async (employee: Employee) => {
+    const confirmed = await useGlobalModalStore().confirmDelete({
+      description: t('masterData.employee.hardDeleteConfirm', { name: employee.full_name }),
+      body: [t('masterData.employee.hardDeleteConfirmBody'), t('masterData.employee.hardDeleteConfirmNote')],
+      confirmLabel: t('masterData.employee.actions.hardDelete')
+    })
+    if (!confirmed) return
+
+    const success = await deleteEmployee(employee.id, { hard: true })
+    if (success) {
+      useAppToast().success(t('masterData.employee.messages.hardDeleted'))
+    }
+  }
+
+  /**
+   * Deactivate / reactivate with confirmation; the login follows the status
+   */
+  const handleToggleActive = async (employee: Employee) => {
+    const activate = !employee.is_active
+    const modal = useGlobalModalStore()
+    const confirmed = activate
+      ? await modal.confirmSubmit({
+        description: t('masterData.employee.reactivateConfirm', { name: employee.full_name }),
+        body: [t('masterData.employee.reactivateConfirmBody')],
+        confirmLabel: t('masterData.employee.actions.reactivate')
+      })
+      : await modal.confirmDelete({
+        description: t('masterData.employee.deactivateConfirm', { name: employee.full_name }),
+        body: [t('masterData.employee.deactivateConfirmBody')],
+        confirmLabel: t('masterData.employee.actions.deactivate')
+      })
+    if (!confirmed) return
+
+    const success = await setEmployeeActive(employee, activate)
+    if (success) {
+      useAppToast().success(t(activate ? 'masterData.employee.messages.reactivated' : 'masterData.employee.messages.deactivated'))
     }
   }
 
@@ -509,6 +633,8 @@ export const useEmployeeStore = defineStore('employee', () => {
     nextEmployeeCodeFailed,
     createdAccount,
     createdAccountEmployeeName,
+    createdSeatDowngraded,
+    seats,
     pagination,
     search,
     form,
@@ -528,9 +654,15 @@ export const useEmployeeStore = defineStore('employee', () => {
     clearCreatedAccount,
     updateEmployee,
     deleteEmployee,
+    setEmployeeActive,
+    fetchSeats,
+    refreshSeats,
+    resetSeats,
     openCreateModal,
     handleEdit,
     handleDelete,
+    handleHardDelete,
+    handleToggleActive,
     closeModal,
     handleSubmit,
     resetForm,

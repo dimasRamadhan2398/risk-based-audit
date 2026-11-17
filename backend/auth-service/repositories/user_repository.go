@@ -28,6 +28,114 @@ type UserRepositoryInterface interface {
 	AssignRoles(userID uuid.UUID, roleNames []string) error
 	FindAssignable(offset, limit int, search string, id *uuid.UUID) ([]*models.User, int64, error)
 	FindContacts(ids []uuid.UUID, departmentHeadOf string) ([]*models.User, error)
+
+	// WithSeatLock runs fn in one transaction holding the seat lock
+	// (pg_advisory_xact_lock(SeatLockKey) on Postgres, nothing elsewhere). fn
+	// gets a repository bound to that transaction; returning an error rolls
+	// everything back. Every write that can change the seat count or the
+	// number of active admins goes through here.
+	WithSeatLock(fn func(tx UserRepositoryInterface) error) error
+	// CountSeats counts active, non-deleted users holding at least one role
+	// other than VIEWER (each user once).
+	CountSeats() (int64, error)
+	// CountActiveAdmins counts active, non-deleted users holding ADMIN.
+	CountActiveAdmins() (int64, error)
+	// SetActive sets users.is_active of one user.
+	SetActive(id uuid.UUID, active bool) error
+	// HardDelete permanently removes a user (soft-deleted or not) and the rows
+	// that reference it: role links, MFA setups, trusted devices, refresh
+	// tokens and confidentiality agreements. Activity log rows are kept;
+	// their legacy sys_alert_logs.user_id is cleared. Returns ErrNotFound when
+	// there is no such user.
+	HardDelete(id uuid.UUID) error
+}
+
+// SeatLockKey is the fixed pg_advisory_xact_lock key of the seat lock. Each
+// tenant has its own database, so one key per database is enough.
+const SeatLockKey int64 = 7_412_993_050_001
+
+// seatRoleSubquery selects the users holding a role other than VIEWER.
+const seatRoleSubquery = "id IN (SELECT ur.user_id FROM user_roles ur JOIN roles ro ON ro.id = ur.role_id WHERE UPPER(TRIM(ro.name)) <> ?)"
+
+// adminRoleSubquery selects the users holding ADMIN.
+const adminRoleSubquery = "id IN (SELECT ur.user_id FROM user_roles ur JOIN roles ro ON ro.id = ur.role_id WHERE UPPER(TRIM(ro.name)) = ?)"
+
+// WithSeatLock implements UserRepositoryInterface.
+func (r *UserRepository) WithSeatLock(fn func(tx UserRepositoryInterface) error) error {
+	return r.GetDB().Transaction(func(tx *gorm.DB) error {
+		// Transaction-level lock: released at commit or rollback. SQLite (tests)
+		// has no advisory locks; there the lock is a no-op.
+		if tx.Dialector.Name() == "postgres" {
+			if err := tx.Exec("SELECT pg_advisory_xact_lock(?)", SeatLockKey).Error; err != nil {
+				return err
+			}
+		}
+		return fn(&UserRepository{BaseRepository: NewBaseRepository(tx)})
+	})
+}
+
+// CountSeats implements UserRepositoryInterface.
+func (r *UserRepository) CountSeats() (int64, error) {
+	var n int64
+	err := r.GetDB().Model(&models.User{}).
+		Where("is_active = ?", true).
+		Where(seatRoleSubquery, "VIEWER").
+		Count(&n).Error
+	return n, err
+}
+
+// CountActiveAdmins implements UserRepositoryInterface.
+func (r *UserRepository) CountActiveAdmins() (int64, error) {
+	var n int64
+	err := r.GetDB().Model(&models.User{}).
+		Where("is_active = ?", true).
+		Where(adminRoleSubquery, "ADMIN").
+		Count(&n).Error
+	return n, err
+}
+
+// SetActive implements UserRepositoryInterface.
+func (r *UserRepository) SetActive(id uuid.UUID, active bool) error {
+	res := r.GetDB().Model(&models.User{}).Where("id = ?", id).Update("is_active", active)
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return apperrors.ErrNotFound
+	}
+	return nil
+}
+
+// HardDelete implements UserRepositoryInterface. Callers run it inside
+// WithSeatLock so all deletes commit or roll back together.
+func (r *UserRepository) HardDelete(id uuid.UUID) error {
+	db := r.GetDB()
+	var n int64
+	if err := db.Unscoped().Model(&models.User{}).Where("id = ?", id).Count(&n).Error; err != nil {
+		return err
+	}
+	if n == 0 {
+		return apperrors.ErrNotFound
+	}
+	steps := []func() error{
+		func() error { return db.Exec("DELETE FROM user_roles WHERE user_id = ?", id).Error },
+		func() error { return db.Where("user_id = ?", id).Delete(&models.MFASetup{}).Error },
+		func() error { return db.Where("user_id = ?", id).Delete(&models.TrustedDevice{}).Error },
+		func() error { return db.Where("user_id = ?", id).Delete(&models.RefreshToken{}).Error },
+		func() error {
+			return db.Unscoped().Where("user_id = ?", id).Delete(&models.ConfidentialityAgreement{}).Error
+		},
+		func() error {
+			return db.Model(&models.SysAlertLog{}).Where("user_id = ?", id).UpdateColumn("user_id", nil).Error
+		},
+		func() error { return db.Unscoped().Where("id = ?", id).Delete(&models.User{}).Error },
+	}
+	for _, step := range steps {
+		if err := step(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // UserRepository handles user data operations

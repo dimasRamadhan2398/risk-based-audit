@@ -88,12 +88,6 @@
             </a>
           </template>
 
-          <template #level_grade-cell="{ row }">
-            <UBadge color="neutral" variant="soft">
-              {{ t('masterData.employee.level', { level: row.original.level_grade }) }}
-            </UBadge>
-          </template>
-
           <template #is_active-cell="{ row }">
             <UBadge
               :color="row.original.is_active ? 'secondary' : 'error'"
@@ -122,13 +116,36 @@
                 :title="t('masterData.employee.resetPassword')"
                 @click="openResetPassword(row.original)"
               />
+              <!-- Status also enables/disables the login account -->
+              <UButton
+                v-if="canWriteMasterData"
+                :icon="row.original.is_active ? 'i-heroicons-no-symbol' : 'i-heroicons-arrow-path'"
+                :color="row.original.is_active ? 'warning' : 'secondary'"
+                variant="ghost"
+                size="sm"
+                :title="row.original.is_active ? t('masterData.employee.actions.deactivate') : t('masterData.employee.actions.reactivate')"
+                :aria-label="row.original.is_active ? t('masterData.employee.actions.deactivate') : t('masterData.employee.actions.reactivate')"
+                @click="store.handleToggleActive(row.original)"
+              />
               <UButton
                 v-if="canWriteMasterData"
                 icon="i-heroicons-trash"
                 color="error"
                 variant="ghost"
                 size="sm"
+                :title="t('masterData.employee.actions.softDeleteHint')"
+                :aria-label="t('masterData.employee.actions.softDeleteHint')"
                 @click="store.handleDelete(row.original)"
+              />
+              <UButton
+                v-if="isAdmin"
+                icon="i-heroicons-x-circle"
+                color="error"
+                variant="ghost"
+                size="sm"
+                :title="t('masterData.employee.actions.hardDelete')"
+                :aria-label="t('masterData.employee.actions.hardDelete')"
+                @click="store.handleHardDelete(row.original)"
               />
             </div>
           </template>
@@ -142,7 +159,7 @@
           :key="emp.id || index"
           class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3"
         >
-          <!-- Card Header: Code Badge + Active & Level Grade Badges -->
+          <!-- Card Header: Code Badge + Active Badge -->
           <div class="flex items-center justify-between gap-2">
             <div class="flex items-center gap-1.5 flex-wrap">
               <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/40 px-2 py-0.5 rounded-md border border-primary-200/50 dark:border-primary-800/40">
@@ -157,9 +174,9 @@
                 {{ emp.is_active ? t('masterData.employee.active') : t('masterData.employee.inactive') }}
               </UBadge>
             </div>
-            <UBadge color="neutral" variant="soft" size="sm">
-              {{ t('masterData.employee.level', { level: emp.level_grade }) }}
-            </UBadge>
+            <span v-if="emp.phone" class="text-xs text-slate-500 dark:text-slate-400 font-mono">
+              {{ emp.phone }}
+            </span>
           </div>
 
           <!-- Card Body: Full Name & Email -->
@@ -200,11 +217,33 @@
               />
               <UButton
                 v-if="canWriteMasterData"
+                :icon="emp.is_active ? 'i-heroicons-no-symbol' : 'i-heroicons-arrow-path'"
+                :color="emp.is_active ? 'warning' : 'secondary'"
+                variant="ghost"
+                size="md"
+                :title="emp.is_active ? t('masterData.employee.actions.deactivate') : t('masterData.employee.actions.reactivate')"
+                :aria-label="emp.is_active ? t('masterData.employee.actions.deactivate') : t('masterData.employee.actions.reactivate')"
+                @click="store.handleToggleActive(emp)"
+              />
+              <UButton
+                v-if="canWriteMasterData"
                 icon="i-heroicons-trash"
                 color="error"
                 variant="ghost"
                 size="md"
+                :title="t('masterData.employee.actions.softDeleteHint')"
+                :aria-label="t('masterData.employee.actions.softDeleteHint')"
                 @click="store.handleDelete(emp)"
+              />
+              <UButton
+                v-if="isAdmin"
+                icon="i-heroicons-x-circle"
+                color="error"
+                variant="ghost"
+                size="md"
+                :title="t('masterData.employee.actions.hardDelete')"
+                :aria-label="t('masterData.employee.actions.hardDelete')"
+                @click="store.handleHardDelete(emp)"
               />
             </div>
           </div>

@@ -1,14 +1,24 @@
 #!/bin/bash
 # =============================================================================
 # AuditSphere Automated Tenant Onboarding Script
-# Usage: ./scripts/onboard-tenant.sh <tenant_slug> <client_name> [frontend_port] [kong_port] [--local] [--empty-data]
-# Example: ./scripts/onboard-tenant.sh accenture "Accenture" 3014 8094 --local --empty-data
+# Usage: ./scripts/onboard-tenant.sh <tenant_slug> <client_name> [frontend_port] [kong_port] [options]
+# Example: ./scripts/onboard-tenant.sh accenture "Accenture" 3014 8094 --local --empty-data \
+#              --ic-lha-due-days 30 --ic-mgmt-response-due-days 14
 #
 # Options:
 #   --local            Target <slug>.localhost over http; skip Nginx + Certbot
 #   --empty-data       Migrate only, no demo records (default)
 #   --with-demo-data   Also run the demo seeders
 #   --skip-start       Provision everything but leave the stack stopped
+#   --ic-lha-due-days <n>
+#                      Internal control: audit report (LHA) due days, 1-365.
+#                      Default: the tenant's current value, else 30.
+#   --ic-mgmt-response-due-days <n>
+#                      Internal control: management response due days, 1-365.
+#                      Default: the tenant's current value, else 14.
+#   Both are written to the tenant .env and seeded into audit-service's
+#   settings table by `audit migrate up` only if the setting is missing, so
+#   re-onboarding with a new value does not change an existing tenant's setting.
 #
 # Pipeline: generate the tenant stack -> create its databases -> build images
 # -> migrate inside the containers -> allocate storage -> email key -> start
@@ -22,6 +32,31 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 REGISTRY="$ROOT_DIR/backend/tenants/registry.tsv"
 
 die() { echo "Error: $*" >&2; exit 1; }
+
+IS_LOCAL=false
+EMPTY_DATA=true
+SKIP_START=false
+IC_LHA_DUE_DAYS=""
+IC_MGMT_RESPONSE_DUE_DAYS=""
+
+# Flags first, so the positional port logic below never sees a flag's value
+# (e.g. the "45" of `--ic-lha-due-days 45` read as a frontend port).
+POSITIONAL=()
+while [ $# -gt 0 ]; do
+    case $1 in
+        --local) IS_LOCAL=true ;;
+        --with-demo-data) EMPTY_DATA=false ;;
+        --empty-data) EMPTY_DATA=true ;;
+        --skip-start) SKIP_START=true ;;
+        --ic-lha-due-days) IC_LHA_DUE_DAYS=${2:?"--ic-lha-due-days needs a value"}; shift ;;
+        --ic-lha-due-days=*) IC_LHA_DUE_DAYS=${1#*=} ;;
+        --ic-mgmt-response-due-days) IC_MGMT_RESPONSE_DUE_DAYS=${2:?"--ic-mgmt-response-due-days needs a value"}; shift ;;
+        --ic-mgmt-response-due-days=*) IC_MGMT_RESPONSE_DUE_DAYS=${1#*=} ;;
+        *) POSITIONAL+=("$1") ;;
+    esac
+    shift
+done
+set -- ${POSITIONAL[@]+"${POSITIONAL[@]}"}
 
 SLUG=${1:?"Error: Tenant slug is required (e.g. accenture)"}
 CLIENT_NAME=${2:?"Error: Client name is required (e.g. 'Accenture')"}
@@ -41,18 +76,12 @@ else
 fi
 [[ "$KONG_PORT" =~ ^[0-9]+$ ]] || KONG_PORT=""
 
-IS_LOCAL=false
-EMPTY_DATA=true
-SKIP_START=false
-
-for arg in "$@"; do
-    case $arg in
-        --local) IS_LOCAL=true ;;
-        --with-demo-data) EMPTY_DATA=false ;;
-        --empty-data) EMPTY_DATA=true ;;
-        --skip-start) SKIP_START=true ;;
-    esac
-done
+# Fail before anything is provisioned. generate-tenant-stack.sh validates again.
+valid_due_days() { [[ "$1" =~ ^[1-9][0-9]{0,2}$ ]] && [ "$1" -le 365 ]; }
+[ -z "$IC_LHA_DUE_DAYS" ] || valid_due_days "$IC_LHA_DUE_DAYS" \
+    || die "--ic-lha-due-days must be a whole number of days between 1 and 365 (got '$IC_LHA_DUE_DAYS')"
+[ -z "$IC_MGMT_RESPONSE_DUE_DAYS" ] || valid_due_days "$IC_MGMT_RESPONSE_DUE_DAYS" \
+    || die "--ic-mgmt-response-due-days must be a whole number of days between 1 and 365 (got '$IC_MGMT_RESPONSE_DUE_DAYS')"
 
 if [ "$IS_LOCAL" = true ]; then
     PROTO="http"
@@ -84,6 +113,8 @@ GEN_ARGS=("$SLUG" "$CLIENT_NAME" --force)
 [ "$IS_LOCAL" = true ] && GEN_ARGS+=(--local)
 [ -n "$FE_PORT" ]   && GEN_ARGS+=(--fe-port "$FE_PORT")
 [ -n "$KONG_PORT" ] && GEN_ARGS+=(--kong-port "$KONG_PORT")
+[ -n "$IC_LHA_DUE_DAYS" ] && GEN_ARGS+=(--ic-lha-due-days "$IC_LHA_DUE_DAYS")
+[ -n "$IC_MGMT_RESPONSE_DUE_DAYS" ] && GEN_ARGS+=(--ic-mgmt-response-due-days "$IC_MGMT_RESPONSE_DUE_DAYS")
 
 bash "$SCRIPT_DIR/generate-tenant-stack.sh" "${GEN_ARGS[@]}"
 
@@ -96,6 +127,12 @@ FE_PORT=$(registry_field 5)
 KONG_PORT=$(registry_field 6)
 REDIS_DB=$(registry_field 8)
 [ -n "$FE_PORT" ] || die "tenant '$SLUG' is missing from $REGISTRY after generation"
+
+# The thresholds the generator resolved (flag > existing .env > default). Plain
+# day counts; nothing else is read from the secrets file.
+tenant_env_value() { awk -F= -v k="$1" '$1==k {sub(/^[^=]*=/,""); print; exit}' "$TENANT_DIR/.env"; }
+IC_LHA_DUE_DAYS=$(tenant_env_value TENANT_IC_LHA_DUE_DAYS)
+IC_MGMT_RESPONSE_DUE_DAYS=$(tenant_env_value TENANT_IC_MGMT_RESPONSE_DUE_DAYS)
 
 if [ "$IS_LOCAL" = true ]; then
     DOMAIN="${DOMAIN_HOST}:${FE_PORT}"
@@ -119,6 +156,7 @@ echo "║          GoogleDrv : Blocked / Disabled by Architecture      "
 echo "║          FE Port   : $FE_PORT  |  Kong Port: $KONG_PORT      "
 echo "║          Redis DB  : $REDIS_DB (isolated logical index)      "
 echo "║          Data State: $([ "$EMPTY_DATA" = true ] && echo "Clean / Empty Data" || echo "Demo Pre-seeded")"
+echo "║          IC Due    : LHA ${IC_LHA_DUE_DAYS}d | Mgmt response ${IC_MGMT_RESPONSE_DUE_DAYS}d"
 echo "║          Email Svc : Resend, shared domain + tenant-scoped key"
 echo "╚══════════════════════════════════════════════════════════════╝"
 echo ""
@@ -391,6 +429,8 @@ echo "   Databases    : rb_audit_{auth,audit,master,risk}_${SLUG}"
 echo "   Redis DB     : ${REDIS_DB} (isolated logical index)"
 echo "   Kafka        : topic ${KAFKA_TOPIC}, group audit-service-annual-plan-sync-${SLUG}"
 echo "   Risk catalogs: ${CATALOG_STATUS}"
+echo "   IC thresholds: LHA ${IC_LHA_DUE_DAYS} days, management response ${IC_MGMT_RESPONSE_DUE_DAYS} days"
+echo "                  (seeded only if missing; change later as ADMIN in the app)"
 echo "   Storage Silo : ${STORAGE_DIR}"
 echo "   Google Drive : Blocked / Disabled (Local VPS Storage Active)"
 echo "   Email Svc    : ${EMAIL_STATUS}"
