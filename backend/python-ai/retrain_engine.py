@@ -36,6 +36,9 @@ from nlp_taxonomy import (
     extract_finding_and_recommendation,
     add_taxonomy_item,
     normalize_or_resolve_category,
+    normalize_nlp_risk_level,
+    sanitize_nlp_doc_record,
+    sanitize_nlp_corpus_item,
     load_live_nlp_corpus,
     upsert_live_nlp_corpus,
     harvest_all_live_nlp_training_data,
@@ -47,6 +50,11 @@ from ai_training_storage import (
     load_auditor_training_dataframe,
     upsert_entity_prediction_pool,
     load_entity_prediction_training_dataframe,
+    CANONICAL_RISK_CODES,
+    CANONICAL_RISK_CODE_TO_LABEL,
+    CANONICAL_RISK_CODE_TO_UI_FLOAT_PAIR,
+    normalize_canonical_risk_level,
+    matrix_risk_level,
 )
 from resource_profile import (
     get_resource_profile,
@@ -336,47 +344,13 @@ class AutoRetrainEngine:
         target_keys = resolve_model_keys(scope) or list(MODEL_KEYS)
         synced_counts = {"risk": 0, "audit_universe": 0, "audit": 0, "master": 0, "auditor_kpi": 0, "auditee_kpi": 0}
 
-        # 1. Entity Prediction sources (Risk Register + Audit Universe)
+        # 1. Entity Prediction sources (Audit Universe only — excludes Corporate Risk Profile)
         if "entity" in target_keys:
-            try:
-                r = requests.get(f"{self.risk_service_url}/api/v1/risks", timeout=2)
-                if r.status_code != 200:
-                    r = requests.get(f"{self.risk_service_url}/api/v1/risk-registers", timeout=2)
-                if r.status_code == 200:
-                    data = r.json()
-                    items = data.get("data", []) if isinstance(data, dict) else data
-                    if isinstance(items, list) and len(items) > 0:
-                        new_rows = []
-                        for item in items:
-                            ent = item.get("branch") or item.get("location_name") or item.get("entity_name") or "Kantor Pusat"
-                            cat = item.get("category") or "Operational"
-                            lik = float(item.get("likelihood") or item.get("inherent_likelihood") or 3.0)
-                            imp = float(item.get("impact") or item.get("inherent_impact") or 3.0)
-                            new_rows.append({
-                                "entity": ent,
-                                "entity_type": "Branch" if any(w in str(ent).lower() for w in ["cabang", "kcp", "regional", "kc", "outlet", "branch"]) else "Auditable Entity",
-                                "risk_category": cat,
-                                "inherent_likelihood": lik,
-                                "inherent_impact": imp,
-                                "audit_findings_count": float(item.get("findings_count") or 0.0),
-                                "kpi_below_target_count": float(item.get("kpi_below_target") or 0.0),
-                                "kpi_volatility": float(item.get("kpi_volatility") or 0.1),
-                                "previous_risk_score": float(item.get("previous_score") or (lik * imp)),
-                                "assessment_month": int(item.get("assessment_month") or 1),
-                                "target_likelihood": float(item.get("residual_likelihood") or lik),
-                                "target_impact": float(item.get("residual_impact") or imp),
-                                "source_id": "risk_profile",
-                                "current_risk_level": item.get("risk_level", "MODERATE"),
-                            })
-                        if new_rows:
-                            upsert_entity_prediction_pool(new_rows)
-                            synced_counts["risk"] = len(new_rows)
-            except Exception:
-                pass
-
             try:
                 curr_year = datetime.now().year
                 ru = requests.get(f"{self.risk_service_url}/audit-universe/year/{curr_year}", timeout=2)
+                if ru.status_code != 200:
+                    ru = requests.get(f"{self.risk_service_url}/api/v1/audit-universe/year/{curr_year}", timeout=2)
                 if ru.status_code == 200:
                     u_data = ru.json()
                     u_items = u_data.get("data", []) if isinstance(u_data, dict) else u_data
@@ -387,10 +361,25 @@ class AutoRetrainEngine:
                             u_name = corp_u.get("name") or u.get("name")
                             if not u_name or "legal & compliance" in str(u_name).lower():
                                 continue
-                            u_lvl = str(u.get("risk_level") or "MODERATE").upper().replace(" ", "_")
-                            u_idx = float(u.get("risk_index") or 50.0)
-                            lik = max(1.0, min(5.0, round((u_idx / 20.0) * 0.9, 1))) if u_idx > 0 else 3.0
-                            imp = max(1.0, min(5.0, round((u_idx / 20.0) * 1.1, 1))) if u_idx > 0 else 3.0
+                            raw_u_lvl = str(u.get("risk_level") or "").strip()
+                            u_idx = float(u.get("risk_index") or 0.0)
+                            if not raw_u_lvl or raw_u_lvl.lower() == "not scored":
+                                if u_idx >= 80:
+                                    lvl_source = "HIGH"
+                                elif u_idx >= 60:
+                                    lvl_source = "MODERATE_HIGH"
+                                elif u_idx >= 40:
+                                    lvl_source = "MODERATE"
+                                elif u_idx >= 20:
+                                    lvl_source = "LOW_MODERATE"
+                                elif u_idx > 0:
+                                    lvl_source = "LOW"
+                                else:
+                                    lvl_source = "MODERATE"
+                            else:
+                                lvl_source = raw_u_lvl
+                            u_lvl, _, _, _ = normalize_canonical_risk_level(lvl_source, default_code="MODERATE")
+                            lik, imp = CANONICAL_RISK_CODE_TO_UI_FLOAT_PAIR[u_lvl]
                             is_br = any(w in str(u_name).lower() for w in ["cabang", "kcp", "regional", "kc", "outlet", "branch"])
                             u_rows.append({
                                 "entity": str(u_name).strip(),
@@ -486,7 +475,21 @@ class AutoRetrainEngine:
                             period_str = f"Bulan {p_raw}" if not str(p_raw).startswith("Bulan") else str(p_raw)
                             imp = 4 if act_val > tgt_val * 1.5 else (2 if act_val < tgt_val else 3)
                             lik = 4 if imp >= 4 else 3
-                            r_level = "HIGH" if (imp * lik >= 15) else ("MEDIUM" if (imp * lik >= 8) else "LOW")
+                            raw_ext_risk = (
+                                item.get("risk_level")
+                                or item.get("riskLevel")
+                                or item.get("risk_rating")
+                                or item.get("severity")
+                                or item.get("tingkat_risiko")
+                            )
+                            if raw_ext_risk is not None and str(raw_ext_risk).strip() != "":
+                                r_level, _, def_imp, def_lik = normalize_canonical_risk_level(
+                                    raw_ext_risk, default_code="MODERATE"
+                                )
+                                if matrix_risk_level(lik, imp) != r_level:
+                                    imp, lik = def_imp, def_lik
+                            else:
+                                r_level = matrix_risk_level(lik, imp)
                             entity_name = "Kantor Pusat"
                             for city in ["Surabaya", "Jakarta", "Bandung", "Medan", "Bali", "Semarang", "Makassar", "Palembang"]:
                                 if kpi_name and city in str(kpi_name):
@@ -907,6 +910,15 @@ class AutoRetrainEngine:
             if df.empty:
                 return False
 
+            # Enforce [1.0, 5.0] bounds and canonical 5-level risk classifications on training data
+            for bound_col in ("inherent_likelihood", "inherent_impact", "target_likelihood", "target_impact"):
+                df[bound_col] = df[bound_col].clip(1.0, 5.0)
+            if "current_risk_level" in df.columns:
+                df["current_risk_level"] = [
+                    normalize_canonical_risk_level(v, default_code="MODERATE")[0]
+                    for v in df["current_risk_level"]
+                ]
+
             raw_batches = list(iter_dataframe_batches(df, batch_rows=batch_rows))
             total_steps = max(2, len(raw_batches) + 1)
             feat_batches = []
@@ -943,9 +955,9 @@ class AutoRetrainEngine:
             X_scaled = sc.fit_transform(X_encoded).astype(np.float32)
 
             le_imp = LabelEncoder()
-            y_imp = le_imp.fit_transform(df["target_impact"].round().astype(int))
+            y_imp = le_imp.fit_transform(df["target_impact"].round().clip(1, 5).astype(int))
             le_lik = LabelEncoder()
-            y_lik = le_lik.fit_transform(df["target_likelihood"].round().astype(int))
+            y_lik = le_lik.fit_transform(df["target_likelihood"].round().clip(1, 5).astype(int))
 
             try:
                 if len(np.unique(y_imp)) < 2 or len(np.unique(y_lik)) < 2:
@@ -986,6 +998,7 @@ class AutoRetrainEngine:
                 "known_entities": sorted(df["entity"].unique().tolist()),
                 "known_categories": sorted(df["risk_category"].unique().tolist()),
                 "entity_type_map": entity_type_map,
+                "allowed_risk_levels": list(CANONICAL_RISK_CODES),
                 "data_samples": total_samples,
             }
 
@@ -1046,19 +1059,36 @@ class AutoRetrainEngine:
         new_corpus_items = []
         limit_per_source = max(50, int(page_size))
 
-        def _register_nlp_entry(doc_id: str, title: str, text_body: str, source_label: str, source_type: str, file_name: str = "", file_type: str = "NOTE", explicit_cat: str = None):
+        def _extract_raw_risk(row_dict: Dict[str, Any]) -> Any:
+            if not isinstance(row_dict, dict):
+                return None
+            for k in ("final_level", "risk_level", "riskLevel", "inherent_level", "severity", "risk_rating", "tingkat_risiko", "severity_level", "kol_status", "priority"):
+                val = row_dict.get(k)
+                if val is not None and str(val).strip() != "":
+                    return val
+            return None
+
+        def _register_nlp_entry(doc_id: str, title: str, text_body: str, source_label: str, source_type: str, file_name: str = "", file_type: str = "NOTE", explicit_cat: str = None, explicit_risk_level: Any = None):
             clean_body = str(text_body or "").strip()
             if len(clean_body) < 12:
                 return
+            norm_ext_risk = None
+            if explicit_risk_level is not None and str(explicit_risk_level).strip() != "" and str(explicit_risk_level).strip().lower() not in {"not scored", "none", "nan", "null"}:
+                norm_ext_risk = normalize_nlp_risk_level(explicit_risk_level, default_code="MODERATE")[0]
+
             cat, conf = classify_risk_category(clean_body, explicit_category=explicit_cat)
-            sev_info = detect_control_indicator_and_severity(clean_body, risk_category=cat)
+            sev_info = detect_control_indicator_and_severity(
+                clean_body,
+                risk_category=cat,
+                explicit_risk_level=norm_ext_risk,
+            )
             ext_info = extract_finding_and_recommendation(
                 clean_body,
                 risk_category=cat,
                 control_indicator=sev_info["control_indicator"],
                 sentiment=sev_info["sentiment"],
             )
-            doc_obj = {
+            doc_obj = sanitize_nlp_doc_record({
                 "docId": doc_id,
                 "title": title[:110] if title else clean_body[:70],
                 "source": source_label,
@@ -1082,16 +1112,18 @@ class AutoRetrainEngine:
                 "date": pd.Timestamp.now().strftime("%Y-%m-%d"),
                 "excerpt": clean_body[:320],
                 "risk_level": sev_info["risk_level"],
-            }
+                "risk_level_label": sev_info["risk_level_label"],
+            })
             upsert_analyzed_document(doc_obj)
-            new_corpus_items.append({
+            new_corpus_items.append(sanitize_nlp_corpus_item({
                 "text": clean_body,
                 "risk_category": cat,
                 "sentiment": sev_info["sentiment"],
                 "impact": sev_info["impact"],
                 "likelihood": sev_info["likelihood"],
+                "risk_level": sev_info["risk_level"],
                 "control_indicator": sev_info["control_indicator"],
-            })
+            }))
 
         # Source 1: Persisted Imported Documents
         persisted_docs = load_analyzed_documents()
@@ -1134,6 +1166,7 @@ class AutoRetrainEngine:
                                     file_name=ep.split("/")[-1],
                                     file_type="NOTE",
                                     explicit_cat=item.get("category") or item.get("risk_category"),
+                                    explicit_risk_level=_extract_raw_risk(item),
                                 )
                                 counts["internal_notes"] += 1
             except Exception:
@@ -1170,12 +1203,14 @@ class AutoRetrainEngine:
                                     file_name=ep.split("/")[-1],
                                     file_type="NOTE",
                                     explicit_cat=raw_cat or None,
+                                    explicit_risk_level=_extract_raw_risk(item),
                                 )
                                 counts["internal_notes"] += 1
             except Exception:
                 pass
 
         # Source 3: External Database Mapped Records from Master Service
+        risk_col_names = {"risk_level", "risklevel", "severity", "risk_rating", "tingkat_risiko", "severity_level", "final_level", "inherent_level"}
         try:
             r = requests.get(f"{self.master_service_url}/api/v1/data-sources/mapped-records", timeout=2)
             if r.status_code == 200:
@@ -1192,11 +1227,20 @@ class AutoRetrainEngine:
                             for s_idx, row in enumerate(samples[:limit_per_source]):
                                 if not isinstance(row, dict):
                                     continue
-                                note_parts = [
-                                    f"{k}: {v}"
-                                    for k, v in row.items()
-                                    if v is not None and any(tok in k.lower() for tok in ("note", "remark", "desc", "category", "status", "action", "channel", "kol"))
-                                ]
+                                raw_ext_risk = _extract_raw_risk(row)
+                                if raw_ext_risk is None and row.get("severity_score") is not None:
+                                    raw_ext_risk = row.get("severity_score")
+                                note_parts = []
+                                for k, v in row.items():
+                                    if v is None:
+                                        continue
+                                    kl = k.lower()
+                                    if any(tok in kl for tok in ("note", "remark", "desc", "category", "status", "action", "channel", "kol", "severity", "risk_level", "risk_rating", "tingkat_risiko")):
+                                        if kl in risk_col_names and str(v).strip() != "":
+                                            norm_v = normalize_nlp_risk_level(v, default_code="MODERATE")[1]
+                                            note_parts.append(f"{k}: {norm_v}")
+                                        else:
+                                            note_parts.append(f"{k}: {v}")
                                 if note_parts:
                                     text_str = f"Tabel Eksternal {tbl_name} ({conn_name}) — " + ", ".join(note_parts)
                                     _register_nlp_entry(
@@ -1207,6 +1251,8 @@ class AutoRetrainEngine:
                                         source_type="External Database",
                                         file_name=f"{tbl_name}",
                                         file_type="DB_RECORD",
+                                        explicit_cat=row.get("risk_category") or row.get("category"),
+                                        explicit_risk_level=raw_ext_risk,
                                     )
                                     counts["external_db"] += 1
         except Exception:
@@ -1223,6 +1269,8 @@ class AutoRetrainEngine:
         Batched & Tiered Re-training of NLP Multi-Task Document Suite.
         - T1 (<200k docs): TfidfVectorizer + LogisticRegression
         - T2/T3 (large corpus): Out-of-core HashingVectorizer + SGDClassifier(loss='log_loss').partial_fit per batch
+        Strictly sanitizes all trained risk_level targets onto ONLY the 5 canonical levels:
+        HIGH, MODERATE_HIGH, MODERATE, LOW_MODERATE, LOW.
         """
         t0 = time.perf_counter()
         peak_ram = _current_rss_mb()
@@ -1235,7 +1283,8 @@ class AutoRetrainEngine:
             if not samples or len(samples) < 3:
                 return False
 
-            df = pd.DataFrame(samples)
+            sanitized_samples = [sanitize_nlp_corpus_item(s) for s in samples if isinstance(s, dict)]
+            df = pd.DataFrame(sanitized_samples)
             tier_info = select_training_tier(len(df), est_bytes_per_row=512, profile=prof)
             tier = tier_info["tier"]
 
@@ -1245,12 +1294,27 @@ class AutoRetrainEngine:
             imp_col = "impact"
             lik_col = "likelihood"
             ind_col = "control_indicator"
+            risk_col = "risk_level"
 
-            for col in [text_col, cat_col, sent_col, ind_col]:
+            for col in [text_col, cat_col, sent_col, ind_col, risk_col]:
                 if col in df.columns:
                     df[col] = df[col].astype(str).str.strip()
 
             df[cat_col] = df[cat_col].apply(lambda c: normalize_or_resolve_category(c) or "Operational")
+            df[imp_col] = pd.to_numeric(df.get(imp_col, 3), errors="coerce").fillna(3).clip(1, 5).round().astype(int)
+            df[lik_col] = pd.to_numeric(df.get(lik_col, 3), errors="coerce").fillna(3).clip(1, 5).round().astype(int)
+
+            # Enforce strictly 5 canonical risk levels across every training sample
+            df[risk_col] = [
+                normalize_nlp_risk_level(r_val, default_code=matrix_risk_level(l_val, i_val))[0]
+                if r_val and str(r_val).strip().lower() not in {"none", "nan", "null", "not scored"}
+                else matrix_risk_level(l_val, i_val)
+                for r_val, l_val, i_val in zip(
+                    df[risk_col] if risk_col in df.columns else [None] * len(df),
+                    df[lik_col],
+                    df[imp_col],
+                )
+            ]
 
             raw_batches = list(iter_dataframe_batches(df, batch_rows=batch_rows))
             total_steps = max(2, len(raw_batches) + 1)
@@ -1258,9 +1322,10 @@ class AutoRetrainEngine:
             target_mapping = {
                 "risk_category": df[cat_col].values,
                 "sentiment": df[sent_col].values,
-                "impact": pd.to_numeric(df[imp_col], errors="coerce").fillna(3).values.astype(int),
-                "likelihood": pd.to_numeric(df[lik_col], errors="coerce").fillna(3).values.astype(int),
+                "impact": df[imp_col].values.astype(int),
+                "likelihood": df[lik_col].values.astype(int),
                 "control_indicator": df[ind_col].values,
+                "risk_level": df[risk_col].values,
             }
 
             models_dict = {}
@@ -1281,7 +1346,7 @@ class AutoRetrainEngine:
                         le = le_dict[key]
                         col_vals = b_df[key].values if key in b_df.columns else b_df[cat_col].values
                         if key in ("impact", "likelihood"):
-                            col_vals = pd.to_numeric(col_vals, errors="coerce").fillna(3).astype(int)
+                            col_vals = pd.to_numeric(col_vals, errors="coerce").fillna(3).clip(1, 5).round().astype(int)
                         y_b = le.transform(col_vals)
                         classes = np.arange(len(le.classes_))
                         if len(classes) > 1:
@@ -1322,6 +1387,9 @@ class AutoRetrainEngine:
                 "impact_model": models_dict["impact"],
                 "likelihood_model": models_dict["likelihood"],
                 "control_indicator_model": models_dict["control_indicator"],
+                "risk_level_model": models_dict["risk_level"],
+                "allowed_risk_levels": list(CANONICAL_RISK_CODES),
+                "allowed_risk_level_labels": list(CANONICAL_RISK_CODE_TO_LABEL.values()),
                 "data_samples": total_samples,
                 "source": "LIVE_MULTI_SOURCE_DIRECT",
             }
@@ -1445,9 +1513,44 @@ class AutoRetrainEngine:
                 continue
             entity = str(item.get("entity") or "Unit Operasional").strip()
             entity_type = str(item.get("entityType") or item.get("entity_type") or "Department")
-            imp = int(item.get("impactScore") or item.get("impact") or 3)
-            lik = int(item.get("likelihoodScore") or item.get("likelihood") or 3)
-            r_lvl = str(item.get("riskLevel") or item.get("risk_level") or "MODERATE")
+            raw_imp = item.get("impactScore") if item.get("impactScore") is not None else item.get("impact")
+            raw_lik = item.get("likelihoodScore") if item.get("likelihoodScore") is not None else item.get("likelihood")
+            raw_risk = (
+                item.get("riskLevel")
+                if item.get("riskLevel") is not None
+                else (
+                    item.get("risk_level")
+                    if item.get("risk_level") is not None
+                    else (
+                        item.get("riskRating")
+                        if item.get("riskRating") is not None
+                        else (item.get("severity") if item.get("severity") is not None else item.get("tingkat_risiko"))
+                    )
+                )
+            )
+            has_ext_risk = raw_risk is not None and str(raw_risk).strip() != "" and str(raw_risk).strip().lower() not in {"not scored", "none", "nan", "null"}
+            if has_ext_risk:
+                r_lvl, _, def_imp, def_lik = normalize_canonical_risk_level(raw_risk, default_code="MODERATE")
+                if raw_imp is not None and raw_lik is not None:
+                    try:
+                        imp = max(1, min(5, int(round(float(raw_imp)))))
+                        lik = max(1, min(5, int(round(float(raw_lik)))))
+                    except Exception:
+                        imp, lik = def_imp, def_lik
+                    if matrix_risk_level(lik, imp) != r_lvl:
+                        imp, lik = def_imp, def_lik
+                else:
+                    imp, lik = def_imp, def_lik
+            else:
+                try:
+                    imp = max(1, min(5, int(round(float(raw_imp if raw_imp is not None else 3)))))
+                except Exception:
+                    imp = 3
+                try:
+                    lik = max(1, min(5, int(round(float(raw_lik if raw_lik is not None else 3)))))
+                except Exception:
+                    lik = 3
+                r_lvl = matrix_risk_level(lik, imp)
             sync_freq = str(item.get("syncFrequency") or item.get("sync_frequency") or "External DB")
 
             hist_list = item.get("history") if isinstance(item.get("history"), list) else []
@@ -1836,6 +1939,7 @@ class AutoRetrainEngine:
                 "likelihood_classifier": lik_clf,
                 "impact_le": imp_le,
                 "likelihood_le": lik_le,
+                "canonical_risk_levels": list(CANONICAL_RISK_CODES),
                 "data_samples": total_samples,
                 "known_kpis": list(df["Nama KPI"].unique()),
             }

@@ -230,7 +230,7 @@ const selectAnomalyFromPlot = (id: string, type?: string) => {
       entity: found.entity || found.accountNumber || 'Kantor Pusat / GL',
       type: found.type,
       metric: formatMetricDisplay(found),
-      riskLevel: found.riskLevel || 'High'
+      riskLevel: getRiskConfig(found.riskLevel).label
     }
 
     // Adjust page if necessary
@@ -259,7 +259,7 @@ const focusOnPlot = (a: any) => {
     entity: a.entity || a.accountNumber || 'Kantor Pusat / GL',
     type: a.type,
     metric: formatMetricDisplay(a),
-    riskLevel: a.riskLevel || 'High'
+    riskLevel: getRiskConfig(a.riskLevel).label
   }
   nextTick(() => {
     const el = document.getElementById('anomaly-scatter-chart-card')
@@ -381,7 +381,7 @@ const scatterOptions = computed(() => {
                 `Kategori: ${anom?.type || selectedAnomalyType.value}`,
                 `Metrik (${metricName}): ${formattedX}`,
                 `${t('analytics.isolation.axisFrequency')}: ${ctx.parsed.y}`,
-                `Tingkat Risiko: ${anom?.riskLevel || 'High'}`,
+                `Tingkat Risiko: ${getRiskConfig(anom?.riskLevel).label}`,
                 `👉 Klik titik ini untuk menyorot di Tabel`
               ]
             }
@@ -508,14 +508,11 @@ const scatterOptions = computed(() => {
           >
             <div class="space-y-1 overflow-hidden pr-2">
               <div class="flex items-center gap-1.5 flex-wrap">
-                <UBadge
-                  :color="rule.severity === 'CRITICAL' ? 'error' : rule.severity === 'HIGH' ? 'warning' : 'neutral'"
-                  size="xs"
-                  variant="subtle"
-                  class="font-mono text-[9px]"
+                <span
+                  :class="['inline-flex items-center px-2 py-0.5 rounded font-bold text-[10px]', getRiskConfig(rule.severity || rule.riskLevel || 'High').badgeClass]"
                 >
-                  {{ rule.severity || 'HIGH' }}
-                </UBadge>
+                  {{ getRiskConfig(rule.severity || rule.riskLevel || 'High').label }}
+                </span>
                 <span class="text-xs font-bold text-gray-900 dark:text-white truncate">{{ rule.name }}</span>
               </div>
               <p class="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-1">

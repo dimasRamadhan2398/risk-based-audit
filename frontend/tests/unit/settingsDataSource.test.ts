@@ -5,6 +5,9 @@ import {
   normalizeSyncSchedule,
   resolveAutoMappingMetadata,
   shouldShowAnomalyRules,
+  isTargetModuleSupported,
+  getModulesForTargetScope,
+  getDefaultModuleForTargetScope,
 } from '~/utils/dataSourceConfig'
 
 interface DataSourceConn {
@@ -427,6 +430,31 @@ describe('Settings DataSource Component Logic', () => {
     expect(aiPoolMeta.auditField).toBe('incident_id')
     expect(aiPoolMeta.watermarkColumn).toBe('reported_at')
     expect(aiPoolMeta.softDeleteColumn).toBe('')
+  })
+
+  it('disables unsupported Target Modules in dropdown and picks supported default modules per scope', () => {
+    expect(isTargetModuleSupported('Corporate Risk Profile')).toBe(true)
+    expect(isTargetModuleSupported('Audit Universe')).toBe(true)
+    expect(isTargetModuleSupported('Strategic Audit Plan')).toBe(true)
+    expect(isTargetModuleSupported('Annual Audit Plan')).toBe(true)
+    expect(isTargetModuleSupported('Working Paper Evidence')).toBe(true)
+    expect(isTargetModuleSupported('AI: Anomaly Detection')).toBe(true)
+    expect(isTargetModuleSupported('Risk Factors')).toBe(false)
+    expect(isTargetModuleSupported('Assignment Letter')).toBe(false)
+
+    const auditModules = getModulesForTargetScope('audit_features')
+    const strategicOpt = auditModules.find(m => m.value === 'Strategic Audit Plan')
+    const annualOpt = auditModules.find(m => m.value === 'Annual Audit Plan')
+    const fieldworkOpt = auditModules.find(m => m.value === 'Audit Fieldwork')
+
+    expect(strategicOpt?.disabled).toBeFalsy()
+    expect(annualOpt?.disabled).toBeFalsy()
+    expect(fieldworkOpt?.disabled).toBe(true)
+    expect(fieldworkOpt?.label).toContain('(Belum didukung)')
+
+    expect(getDefaultModuleForTargetScope('risk_management')).toBe('Corporate Risk Profile')
+    expect(getDefaultModuleForTargetScope('audit_features')).toBe('Strategic Audit Plan')
+    expect(getDefaultModuleForTargetScope('data_analytics')).toBe('AI: Entity Prediction')
   })
 })
 

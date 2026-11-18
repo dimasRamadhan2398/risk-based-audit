@@ -134,6 +134,8 @@ func (c *AnalyticsController) GetTextAnalysis(ctx *gin.Context) {
 				req.SourceType = ctx.PostForm("sourceType")
 				req.Text = ctx.PostForm("text")
 				req.RiskCategory = ctx.PostForm("riskCategory")
+				req.RiskLevel = ctx.PostForm("riskLevel")
+				req.Severity = ctx.PostForm("severity")
 			}
 		}
 	}

@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -701,5 +702,153 @@ func dataSourceReconcile(db *gorm.DB, dh *services.DataHubClient) gin.HandlerFun
 		db.Create(&logEntry)
 
 		c.JSON(http.StatusOK, res)
+	}
+}
+
+func dataSourceMappedRecords(db *gorm.DB, dh *services.DataHubClient) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		targetScope := c.Query("target_scope")
+		targetModule := c.Query("target_module")
+		sourceID := c.Query("source_id")
+
+		norm := func(s string) string {
+			s = strings.ToLower(strings.TrimSpace(s))
+			s = strings.ReplaceAll(s, " ", "_")
+			s = strings.ReplaceAll(s, "-", "_")
+			return s
+		}
+		moduleMatch := func(savedModule, queryModule string) bool {
+			if queryModule == "" {
+				return true
+			}
+			s1 := norm(savedModule)
+			s2 := norm(queryModule)
+			if s1 == s2 || strings.Contains(s1, s2) || strings.Contains(s2, s1) {
+				return true
+			}
+			if (strings.Contains(s1, "corporate_risk") || strings.Contains(s1, "risk_profile")) &&
+				(strings.Contains(s2, "corporate_risk") || strings.Contains(s2, "risk_profile") || strings.Contains(s2, "risk_universe")) {
+				return true
+			}
+			if (strings.Contains(s1, "anomaly") || strings.Contains(s1, "continuous")) &&
+				(strings.Contains(s2, "anomaly") || strings.Contains(s2, "continuous") || strings.Contains(s2, "analytics")) {
+				return true
+			}
+			if strings.Contains(s1, "analytics") && strings.Contains(s2, "analytics") {
+				return true
+			}
+			if (strings.Contains(s1, "benford") && strings.Contains(s2, "benford")) ||
+				(strings.Contains(s1, "duplicate") && strings.Contains(s2, "duplicate")) ||
+				(strings.Contains(s1, "reconciliation") && strings.Contains(s2, "reconciliation")) ||
+				((strings.Contains(s1, "scoring") || strings.Contains(s1, "entity")) && (strings.Contains(s2, "scoring") || strings.Contains(s2, "entity"))) {
+				return true
+			}
+			return false
+		}
+		scopeMatch := func(savedScope, queryScope string) bool {
+			if queryScope == "" || savedScope == "" {
+				return true
+			}
+			n1 := norm(savedScope)
+			n2 := norm(queryScope)
+			if n1 == n2 {
+				return true
+			}
+			// Internal Audit Performance (KPI) is listed under audit_features in Data Source settings
+			if (n1 == "audit_features" && n2 == "reporting") || (n1 == "reporting" && n2 == "audit_features") {
+				return true
+			}
+			return false
+		}
+
+		var connections []models.DataSourceConnection
+		q := db.Order("updated_at DESC")
+		if sourceID != "" && sourceID != "all" {
+			if parsedID, err := uuid.Parse(sourceID); err == nil {
+				q = q.Where("id = ?", parsedID)
+			}
+		}
+		q.Find(&connections)
+
+		type MappedResult struct {
+			ConnectionID       string                     `json:"connection_id"`
+			ConnectionName     string                     `json:"connection_name"`
+			TableName          string                     `json:"table_name"`
+			TargetScope        string                     `json:"target_scope"`
+			TargetModule       string                     `json:"target_module"`
+			AuditField         string                     `json:"audit_field"`
+			TotalRows          int64                      `json:"total_rows"`
+			Profile            map[string]interface{}     `json:"profile,omitempty"`
+			DataHubUnavailable bool                       `json:"data_hub_unavailable,omitempty"`
+			SampleRecords      []map[string]interface{}   `json:"sample_records"`
+			AnomalyRules       []string                   `json:"anomaly_rules,omitempty"`
+			CustomRules        []models.CustomAnomalyRule `json:"custom_rules,omitempty"`
+		}
+
+		results := make([]MappedResult, 0)
+		for _, conn := range connections {
+			for _, m := range conn.DataMappings {
+				if !m.IsActive {
+					continue
+				}
+				if targetScope != "" && !scopeMatch(m.TargetScope, targetScope) {
+					continue
+				}
+				if targetModule != "" && !moduleMatch(m.TargetModule, targetModule) {
+					continue
+				}
+
+				sampleRows := make([]map[string]interface{}, 0)
+				var totalRows int64
+				var profile map[string]interface{}
+				hubUnavailable := true
+
+				if conn.Status != "Error" && dh != nil {
+					if prevRes, prevErr := dh.PreviewSourceTable(conn.ID.String(), m.TableName); prevErr == nil && prevRes != nil {
+						hubUnavailable = false
+						if dataObj, ok := prevRes["data"].(map[string]interface{}); ok {
+							if rawRows, ok := dataObj["rows"].([]interface{}); ok {
+								for _, item := range rawRows {
+									if rowMap, ok := item.(map[string]interface{}); ok {
+										sampleRows = append(sampleRows, rowMap)
+									}
+								}
+							}
+							if tr, ok := dataObj["total_rows"].(float64); ok && tr > 0 {
+								totalRows = int64(tr)
+							}
+							if prof, ok := dataObj["profile"].(map[string]interface{}); ok {
+								profile = prof
+								if totalRows == 0 {
+									if ptr, ok := prof["total_rows"].(float64); ok && ptr > 0 {
+										totalRows = int64(ptr)
+									}
+								}
+							}
+						}
+						if totalRows == 0 && len(sampleRows) > 0 {
+							totalRows = int64(len(sampleRows))
+						}
+					}
+				}
+
+				results = append(results, MappedResult{
+					ConnectionID:       conn.ID.String(),
+					ConnectionName:     conn.Name,
+					TableName:          m.TableName,
+					TargetScope:        m.TargetScope,
+					TargetModule:       m.TargetModule,
+					AuditField:         m.AuditField,
+					TotalRows:          totalRows,
+					Profile:            profile,
+					DataHubUnavailable: hubUnavailable,
+					SampleRecords:      sampleRows,
+					AnomalyRules:       m.AnomalyRules,
+					CustomRules:        m.CustomRules,
+				})
+			}
+		}
+
+		c.JSON(http.StatusOK, gin.H{"success": true, "data": results})
 	}
 }

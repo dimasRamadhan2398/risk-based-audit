@@ -620,7 +620,7 @@
                       :items="[
                         { label: 'Risk Management', value: 'risk_management' },
                         { label: 'Audit Features', value: 'audit_features' },
-                        { label: 'QAR Features', value: 'qar_features' },
+                        { label: 'QAR Features (Belum didukung)', value: 'qar_features', disabled: true },
                         { label: 'Data Analytics / AI', value: 'data_analytics' }
                       ]"
                       size="sm"
@@ -728,14 +728,11 @@
                         class="flex items-center justify-between px-2.5 py-1.5 rounded-lg border text-xs bg-gray-50/70 dark:bg-gray-800/60 border-gray-200 dark:border-gray-700/80"
                       >
                         <div class="flex items-center gap-2 overflow-hidden">
-                          <UBadge
-                            :color="cRule.severity === 'CRITICAL' ? 'error' : cRule.severity === 'HIGH' ? 'warning' : 'neutral'"
-                            size="xs"
-                            variant="subtle"
-                            class="font-mono text-[10px]"
+                          <span
+                            :class="['inline-flex items-center px-2 py-0.5 rounded font-bold text-[10px] shrink-0', getRiskLevelColorClass(normalizeAnomalyRiskLevel(cRule.severity))]"
                           >
-                            {{ cRule.severity }}
-                          </UBadge>
+                            {{ normalizeAnomalyRiskLevel(cRule.severity) }}
+                          </span>
                           <span class="font-semibold text-gray-900 dark:text-white truncate">{{ cRule.name }}</span>
                           <span class="text-gray-400 text-[11px] font-mono">({{ cRule.field }} {{ cRule.operator }} {{ cRule.thresholdStr || cRule.threshold }})</span>
                         </div>
@@ -930,9 +927,12 @@ import { getMasterServiceBaseUrl, getDataHubBaseUrl } from '~/composables/useApi
 import { useDataSourceStore } from '~/stores/data-source'
 import { useAiAnalytics } from '~/composables/useAiAnalytics'
 import { getCanonicalCategory } from '~/composables/useAnomalyScatter'
+import { normalizeAnomalyRiskLevel, toAnomalyRiskCode, getRiskLevelColorClass } from '~/utils/riskLevelBadge'
 import {
   SYNC_FREQUENCY_OPTIONS,
   type SyncFrequencyOption,
+  getDefaultModuleForTargetScope,
+  getModulesForTargetScope,
   normalizeSyncSchedule,
   resolveAutoMappingMetadata,
   shouldShowAnomalyRules,
@@ -967,7 +967,7 @@ export interface CustomAnomalyRule {
   operator: string
   threshold: number
   thresholdStr?: string
-  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'
+  severity: 'HIGH' | 'MODERATE_HIGH' | 'MODERATE' | 'LOW_MODERATE' | 'LOW'
   category?: string
   description?: string
   isActive?: boolean
@@ -1775,46 +1775,8 @@ const activeMappings = ref<Record<string, TableDataMapping[]>>({})
 const tableSearchQuery = ref('')
 const scopeFilter = ref('All Scopes')
 
-// Dynamic Modules mapping per Target Audit Scope
-const scopeModulesMap: Record<string, { label: string; value: string }[]> = {
-  risk_management: [
-    { label: 'Corporate Risk Profile', value: 'Corporate Risk Profile' },
-    { label: 'Risk Appetite Statement', value: 'Risk Appetite Statement' },
-    { label: 'Risk Factors', value: 'Risk Factors' },
-    { label: 'Audit Universe', value: 'Audit Universe' },
-    { label: 'Audit Priority', value: 'Audit Priority' },
-    { label: 'Risk Control Matrix (RCM)', value: 'Risk Control Matrix (RCM)' },
-    { label: 'Risk Mitigation', value: 'Risk Mitigation' },
-  ],
-  audit_features: [
-    { label: 'Strategic Audit Plan', value: 'Strategic Audit Plan' },
-    { label: 'Annual Audit Plan', value: 'Annual Audit Plan' },
-    { label: 'Audit Activity Plan', value: 'Audit Activity Plan' },
-    { label: 'Assignment Letter', value: 'Assignment Letter' },
-    { label: 'Audit Execution Status', value: 'Audit Execution Status' },
-    { label: 'Audit Fieldwork', value: 'Audit Fieldwork' },
-    { label: 'Working Paper Evidence', value: 'Working Paper Evidence' },
-    { label: 'Internal Audit Performance (KPI)', value: 'Internal Audit Performance (KPI)' },
-    { label: 'Audit Result Report (LHA)', value: 'Audit Result Report (LHA)' },
-    { label: 'Action Taken Report (ATR)', value: 'Action Taken Report (ATR)' },
-  ],
-  qar_features: [
-    { label: 'Quality Assurance Dashboard', value: 'Quality Assurance Dashboard' },
-    { label: 'Periodic Self-Assessment', value: 'Periodic Self-Assessment' },
-    { label: 'SAIV Validation', value: 'SAIV Validation' },
-    { label: 'IACM Assessment', value: 'IACM Assessment' },
-    { label: 'Consulting Service', value: 'Consulting Service' },
-  ],
-  data_analytics: [
-    { label: 'AI: Entity Prediction', value: 'AI: Entity Prediction' },
-    { label: 'AI: Anomaly Detection', value: 'AI: Anomaly Detection' },
-    { label: 'AI: NLP Document Analysis', value: 'AI: NLP Document Analysis' },
-    { label: 'AI: KPI & Loss Forecast', value: 'AI: KPI & Loss Forecast' },
-  ],
-}
-
 function getModulesForScope(scope?: string) {
-  return scopeModulesMap[scope || 'audit_features'] || scopeModulesMap.audit_features
+  return getModulesForTargetScope(scope)
 }
 
 // Preview state
@@ -1893,10 +1855,7 @@ function updateMappingField(tableName: string, index: number, field: keyof Table
       [field]: value
     }
     if (field === 'targetScope') {
-      const mods = scopeModulesMap[value] || []
-      if (mods.length > 0 && mods[0]) {
-        nextItem.targetModule = mods[0].value
-      }
+      nextItem.targetModule = getDefaultModuleForTargetScope(value)
     }
     if (field === 'targetScope' || field === 'targetModule') {
       const table = discoveredTables.value.find(t => t.tableName === tableName)
@@ -1935,7 +1894,7 @@ const newCustomRule = ref<{
   operator: string
   threshold: number
   thresholdStr: string
-  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'
+  severity: 'HIGH' | 'MODERATE_HIGH' | 'MODERATE' | 'LOW_MODERATE' | 'LOW'
   category: string
   description: string
 }>({
@@ -1950,10 +1909,11 @@ const newCustomRule = ref<{
 })
 
 const ruleSeverityOptions = [
-  { label: 'CRITICAL', value: 'CRITICAL' },
-  { label: 'HIGH', value: 'HIGH' },
-  { label: 'MEDIUM', value: 'MEDIUM' },
-  { label: 'LOW', value: 'LOW' }
+  { label: 'High', value: 'HIGH' },
+  { label: 'Moderate to High', value: 'MODERATE_HIGH' },
+  { label: 'Moderate', value: 'MODERATE' },
+  { label: 'Low to Moderate', value: 'LOW_MODERATE' },
+  { label: 'Low', value: 'LOW' }
 ]
 
 const ruleOperatorOptions = [
@@ -2168,7 +2128,12 @@ async function openSchemaExplorer(conn: DataSourceConn) {
         watermarkColumn: m.watermarkColumn === '__none__' ? '' : (m.watermarkColumn || ''),
         softDeleteColumn: m.softDeleteColumn === '__none__' ? '' : (m.softDeleteColumn || ''),
         anomalyRules: m.anomalyRules ? [...m.anomalyRules] : [],
-        customRules: m.customRules ? [...m.customRules] : []
+        customRules: m.customRules
+          ? m.customRules.map(cr => ({
+              ...cr,
+              severity: toAnomalyRiskCode(cr.severity) as CustomAnomalyRule['severity']
+            }))
+          : []
       })
     })
   }

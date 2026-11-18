@@ -13,6 +13,7 @@ import {
   Filler
 } from 'chart.js'
 import { useAiAnalytics } from '~/composables/useAiAnalytics'
+import { toEntityRiskCode } from '~/utils/riskLevelBadge'
 import { useI18n } from '~/composables/useI18n'
 import {
   buildKpiForecastChart,
@@ -380,10 +381,7 @@ const filteredAuditeeForecasts = computed(() => {
     )
   }
   if (selectedRiskFilter.value !== 'ALL') {
-    list = list.filter((k: AuditeeKpiItem) => {
-      const r = String(k.riskLevel || '').toUpperCase()
-      return r === selectedRiskFilter.value || r.includes(selectedRiskFilter.value)
-    })
+    list = list.filter((k: AuditeeKpiItem) => toEntityRiskCode(k.riskLevel || 'MODERATE') === selectedRiskFilter.value)
   }
   return list
 })
@@ -1431,14 +1429,17 @@ const getStatusBadgeConfig = (status: string) => {
                   <option value="ALL">
                     Semua Risk Level
                   </option>
-                  <option value="CRITICAL">
-                    Critical
-                  </option>
                   <option value="HIGH">
                     High
                   </option>
+                  <option value="MODERATE_HIGH">
+                    Moderate to High
+                  </option>
                   <option value="MODERATE">
-                    Moderate / Moderate to High
+                    Moderate
+                  </option>
+                  <option value="LOW_MODERATE">
+                    Low to Moderate
                   </option>
                   <option value="LOW">
                     Low

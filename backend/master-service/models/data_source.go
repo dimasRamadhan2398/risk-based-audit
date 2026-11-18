@@ -30,7 +30,7 @@ type CustomAnomalyRule struct {
 	Operator     string  `json:"operator"` // ">", "<", ">=", "<=", "==", "!=", "outside"
 	Threshold    float64 `json:"threshold"`
 	ThresholdStr string  `json:"thresholdStr,omitempty"`
-	Severity     string  `json:"severity"` // "Critical", "High", "Medium", "Low"
+	Severity     string  `json:"severity"` // "High", "Moderate to High", "Moderate", "Low to Moderate", "Low"
 	Category     string  `json:"category"`
 	Description  string  `json:"description,omitempty"`
 	IsActive     bool    `json:"isActive"`

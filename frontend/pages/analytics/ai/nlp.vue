@@ -20,6 +20,7 @@ const {
   loading,
   nlpState,
   getRiskConfig,
+  NLP_RISK_LEVELS,
   sentimentColor,
   riskCategoryColor,
   controlIndicatorColor,
@@ -39,6 +40,7 @@ onMounted(() => {
 const selectedSourceType = ref<string>('ALL')
 const selectedCategory = ref<string>('ALL')
 const selectedIndicator = ref<string>('ALL')
+const selectedRiskLevel = ref<string>('ALL')
 const searchQuery = ref<string>('')
 const chartMode = ref<'indicator' | 'sentiment'>('indicator')
 const activeKpiFilter = ref<'ALL' | 'FRAUD' | 'WEAKNESS' | 'EXTERNAL' | null>(null)
@@ -167,6 +169,9 @@ const filteredDocuments = computed(() => {
     if (selectedIndicator.value !== 'ALL' && (doc.controlIndicator || 'Internal Control Weakness') !== selectedIndicator.value) {
       return false
     }
+    if (selectedRiskLevel.value !== 'ALL' && getRiskConfig(doc.riskLevel).label !== selectedRiskLevel.value) {
+      return false
+    }
     if (searchQuery.value.trim()) {
       const q = searchQuery.value.toLowerCase()
       const hay = [
@@ -176,6 +181,7 @@ const filteredDocuments = computed(() => {
         doc.fileName,
         doc.autoCategory,
         doc.controlIndicator,
+        getRiskConfig(doc.riskLevel).label,
         doc.extractedFinding,
         doc.extractedRecommendation,
         doc.excerpt
@@ -196,7 +202,7 @@ const paginatedDocuments = computed(() => {
   return filteredDocuments.value.slice(start, start + itemsPerPage.value)
 })
 
-watch([selectedSourceType, selectedCategory, selectedIndicator, searchQuery], () => {
+watch([selectedSourceType, selectedCategory, selectedIndicator, selectedRiskLevel, searchQuery], () => {
   currentPage.value = 1
 })
 
@@ -227,19 +233,23 @@ const applyKpiFilter = (type: 'ALL' | 'FRAUD' | 'WEAKNESS' | 'EXTERNAL') => {
     selectedSourceType.value = 'ALL'
     selectedCategory.value = 'ALL'
     selectedIndicator.value = 'ALL'
+    selectedRiskLevel.value = 'ALL'
     searchQuery.value = ''
   } else if (type === 'FRAUD') {
     selectedSourceType.value = 'ALL'
     selectedCategory.value = 'ALL'
     selectedIndicator.value = 'Fraud Indication'
+    selectedRiskLevel.value = 'ALL'
   } else if (type === 'WEAKNESS') {
     selectedSourceType.value = 'ALL'
     selectedCategory.value = 'ALL'
     selectedIndicator.value = 'Internal Control Weakness'
+    selectedRiskLevel.value = 'ALL'
   } else if (type === 'EXTERNAL') {
     selectedSourceType.value = 'External Database'
     selectedCategory.value = 'ALL'
     selectedIndicator.value = 'ALL'
+    selectedRiskLevel.value = 'ALL'
   }
 }
 
@@ -248,6 +258,7 @@ const resetAllFilters = () => {
   selectedSourceType.value = 'ALL'
   selectedCategory.value = 'ALL'
   selectedIndicator.value = 'ALL'
+  selectedRiskLevel.value = 'ALL'
   searchQuery.value = ''
   currentPage.value = 1
 }
@@ -256,6 +267,7 @@ const isFilterActive = computed(() => {
   return selectedSourceType.value !== 'ALL' ||
     selectedCategory.value !== 'ALL' ||
     selectedIndicator.value !== 'ALL' ||
+    selectedRiskLevel.value !== 'ALL' ||
     searchQuery.value.trim().length > 0 ||
     activeKpiFilter.value !== null
 })
@@ -900,7 +912,7 @@ const copyToClipboard = async (text: string) => {
             </div>
 
             <!-- Responsive Filter & Search Bar -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-1">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 pt-1">
               <!-- Search Input -->
               <div class="relative">
                 <UIcon name="i-heroicons-magnifying-glass" class="w-4 h-4 absolute left-3 top-2.5 text-gray-400" />
@@ -947,6 +959,15 @@ const copyToClipboard = async (text: string) => {
               >
                 <option value="ALL">Semua Control Indicator</option>
                 <option v-for="ind in availableIndicators" :key="ind" :value="ind">{{ ind }}</option>
+              </select>
+
+              <!-- 5-Tier Risk Level Filter -->
+              <select
+                v-model="selectedRiskLevel"
+                class="text-xs rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800 px-3 py-2 font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              >
+                <option value="ALL">Semua Risk Level</option>
+                <option v-for="lvl in NLP_RISK_LEVELS" :key="lvl" :value="lvl">{{ lvl }}</option>
               </select>
             </div>
           </div>
@@ -1529,6 +1550,14 @@ const copyToClipboard = async (text: string) => {
                 {{ selectedDocDetail.source }}
               </UBadge>
               <UBadge color="neutral" variant="soft" size="xs">{{ selectedDocDetail.fileType || 'PDF' }}</UBadge>
+              <UBadge
+                :class="getRiskConfig(selectedDocDetail.riskLevel).badgeClass"
+                variant="solid"
+                size="xs"
+                class="font-bold"
+              >
+                {{ getRiskConfig(selectedDocDetail.riskLevel).label }}
+              </UBadge>
             </div>
             <h3 class="font-bold text-base text-gray-900 dark:text-white mt-1.5">{{ selectedDocDetail.title }}</h3>
           </div>

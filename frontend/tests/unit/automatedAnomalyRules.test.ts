@@ -8,7 +8,7 @@ interface CustomAnomalyRule {
   operator: string
   threshold: number
   thresholdStr?: string
-  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'
+  severity: 'HIGH' | 'MODERATE_HIGH' | 'MODERATE' | 'LOW_MODERATE' | 'LOW'
   category?: string
   description?: string
   isActive?: boolean
@@ -58,7 +58,7 @@ describe('Automated Anomaly Rules & Model Training', () => {
       field: 'amount',
       operator: '>',
       threshold: 500000000,
-      severity: 'CRITICAL',
+      severity: 'HIGH',
       category: 'Transaction',
       description: 'Transaksi bernilai sangat tinggi via RTGS',
       isActive: true
@@ -68,7 +68,7 @@ describe('Automated Anomaly Rules & Model Training', () => {
     expect(mapping.customRules?.length).toBe(1)
     expect(mapping.customRules![0].name).toBe('High Value RTGS Transfer (>500M)')
     expect(mapping.customRules![0].threshold).toBe(500000000)
-    expect(mapping.customRules![0].severity).toBe('CRITICAL')
+    expect(mapping.customRules![0].severity).toBe('HIGH')
 
     // Toggle active state
     mapping.customRules![0].isActive = false
@@ -99,7 +99,7 @@ describe('Automated Anomaly Rules & Model Training', () => {
         threshold: 0,
         thresholdStr: 'ATM',
         category: 'Transaction',
-        severity: 'MEDIUM',
+        severity: 'MODERATE',
         trained_at: '2026-11-11T12:00:00Z'
       }
     ]
@@ -119,7 +119,7 @@ describe('Automated Anomaly Rules & Model Training', () => {
         field: 'amount',
         operator: '>',
         threshold: 100000000,
-        severity: 'CRITICAL'
+        severity: 'HIGH'
       }
     ]
 

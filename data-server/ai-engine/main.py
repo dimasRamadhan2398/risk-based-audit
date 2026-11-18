@@ -13,7 +13,7 @@ import torch.nn as nn
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Request, Body
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional, Any, Tuple
 from sklearn.preprocessing import MinMaxScaler
 from retrain_engine import (
     AutoRetrainEngine,
@@ -32,12 +32,23 @@ from nlp_taxonomy import (
     detect_control_indicator_and_severity,
     extract_finding_and_recommendation,
     load_analyzed_documents,
+    save_analyzed_documents,
     upsert_analyzed_document,
     normalize_or_resolve_category,
-    load_live_nlp_corpus
+    normalize_nlp_risk_level,
+    sanitize_nlp_doc_record,
+    load_live_nlp_corpus,
+    DEFAULT_MULTI_SOURCE_DOCS,
 )
 from text_extractor import extract_text_from_document
 from ai_training_storage import (
+    CANONICAL_RISK_CODES,
+    CANONICAL_RISK_CODE_TO_LABEL,
+    CANONICAL_RISK_CODE_TO_PAIR,
+    CANONICAL_RISK_CODE_TO_UI_FLOAT_PAIR,
+    score_to_risk_level,
+    matrix_risk_level,
+    normalize_canonical_risk_level,
     load_auditee_training_dataframe,
     load_auditor_training_dataframe,
     upsert_entity_prediction_pool,
@@ -184,32 +195,36 @@ def get_known_bank_categories() -> List[str]:
                     cats.append(c_clean)
     return cats
 
-def score_to_risk_level(score: float) -> str:
-    if score >= 20:
-        return "HIGH"
-    elif score >= 15:
-        return "MODERATE_HIGH"
-    elif score >= 10:
-        return "MODERATE"
-    elif score >= 5:
-        return "LOW_MODERATE"
-    return "LOW"
+ANOMALY_RISK_CODE_TO_LABEL = CANONICAL_RISK_CODE_TO_LABEL
+ANOMALY_RISK_CODE_TO_PAIR = CANONICAL_RISK_CODE_TO_PAIR
+ENTITY_RISK_CODE_TO_LABEL = CANONICAL_RISK_CODE_TO_LABEL
 
-def matrix_risk_level(likelihood: float, impact: float) -> str:
-    """Exact alignment with Corporate Risk Profile 5x5 Matrix"""
-    try:
-        l_int = max(1, min(5, int(round(likelihood))))
-        i_int = max(1, min(5, int(round(impact))))
-        matrix = {
-            5: {1: "LOW_MODERATE", 2: "MODERATE", 3: "MODERATE_HIGH", 4: "HIGH", 5: "HIGH"},
-            4: {1: "LOW", 2: "LOW_MODERATE", 3: "MODERATE", 4: "MODERATE_HIGH", 5: "HIGH"},
-            3: {1: "LOW", 2: "LOW_MODERATE", 3: "MODERATE", 4: "MODERATE_HIGH", 5: "HIGH"},
-            2: {1: "LOW", 2: "LOW_MODERATE", 3: "LOW_MODERATE", 4: "MODERATE_HIGH", 5: "HIGH"},
-            1: {1: "LOW", 2: "LOW", 3: "LOW_MODERATE", 4: "MODERATE", 5: "HIGH"}
-        }
-        return matrix.get(l_int, {}).get(i_int, score_to_risk_level(float(l_int * i_int)))
-    except Exception:
-        return score_to_risk_level(float(likelihood * impact))
+normalize_anomaly_risk_level = normalize_canonical_risk_level
+normalize_entity_risk_level = normalize_canonical_risk_level
+
+
+def _resolve_entity_risk_code_and_label(
+    raw_level: Any,
+    lik: Optional[float] = None,
+    imp: Optional[float] = None,
+) -> Tuple[str, str, float, float]:
+    """
+    Strictly resolves an Entity Prediction risk level (and default likelihood/impact)
+    onto ONLY the 5 canonical risk levels: HIGH, MODERATE_HIGH, MODERATE, LOW_MODERATE, LOW.
+    """
+    if raw_level is not None and str(raw_level).strip():
+        code, label, _, _ = normalize_entity_risk_level(raw_level)
+        def_lik, def_imp = CANONICAL_RISK_CODE_TO_UI_FLOAT_PAIR[code]
+        resolved_lik = max(1.0, min(5.0, float(lik))) if lik is not None else def_lik
+        resolved_imp = max(1.0, min(5.0, float(imp))) if imp is not None else def_imp
+        return code, label, resolved_lik, resolved_imp
+
+    resolved_lik = max(1.0, min(5.0, float(lik))) if lik is not None else 3.0
+    resolved_imp = max(1.0, min(5.0, float(imp))) if imp is not None else 3.2
+    code = matrix_risk_level(resolved_lik, resolved_imp)
+    if code not in CANONICAL_RISK_CODE_TO_LABEL:
+        code, _, _, _ = normalize_entity_risk_level(code)
+    return code, CANONICAL_RISK_CODE_TO_LABEL[code], resolved_lik, resolved_imp
 
 def format_rupiah_millions(amount_millions: float) -> str:
     """Rupiah amount given in millions, written with Indonesian scale words:
@@ -298,23 +313,24 @@ class DepartmentRiskRequest(BaseModel):
     kpi_volatility: float = Field(0.15, ge=0.0)
     previous_risk_score: float = Field(12.0, ge=0.0)
     assessment_month: int = Field(6, ge=1, le=12)
+    current_risk_level: Optional[str] = Field(None, description="Optional external/current risk level; strictly normalized onto the 5 canonical levels")
 
 class EntityRiskSyncItem(BaseModel):
     entity: str
-    entity_type: Optional[str] = "Branch"
+    entity_type: Optional[str] = "Auditable Entity"
     target_timeline: Optional[str] = None
     risk_category: Optional[str] = "Operational"
-    inherent_likelihood: Optional[float] = 3.0
-    inherent_impact: Optional[float] = 3.0
+    inherent_likelihood: Optional[float] = None
+    inherent_impact: Optional[float] = None
     audit_findings_count: Optional[float] = 0.0
     kpi_below_target_count: Optional[float] = 0.0
     kpi_volatility: Optional[float] = 0.1
-    previous_risk_score: Optional[float] = 9.0
+    previous_risk_score: Optional[float] = None
     assessment_month: Optional[int] = 1
-    current_risk_level: Optional[str] = "MODERATE"
+    current_risk_level: Optional[str] = None
     target_likelihood: Optional[float] = None
     target_impact: Optional[float] = None
-    source_id: Optional[str] = "risk_profile"
+    source_id: Optional[str] = "audit_universe"
 
 class EntityRiskSyncRequest(BaseModel):
     items: List[EntityRiskSyncItem] = Field(default_factory=list)
@@ -339,6 +355,8 @@ class AnomalyRequest(BaseModel):
     customer_risk_profile: Optional[str] = Field("Low Risk", description="Tingkat Risiko Nasabah: Low Risk, Medium Risk, High Risk, PEP / High Risk Watchlist")
     authorization_status: Optional[str] = Field("Terverifikasi Dual Control (Maker-Checker)", description="Status Otorisasi")
     historical_dev_pct: Optional[float] = Field(5.0, description="Deviasi terhadap Profil Historis (%)")
+    risk_level: Optional[str] = Field(None, description="Optional external database risk level mapped strictly onto High, Moderate to High, Moderate, Low to Moderate, Low")
+    severity: Optional[str] = Field(None, description="Optional external database severity mapped strictly onto the 5 risk levels")
 
 class TextAnalysisRequest(BaseModel):
     text: Optional[str] = Field(None, description="Audit finding text or note")
@@ -350,6 +368,8 @@ class TextAnalysisRequest(BaseModel):
     file_type: Optional[str] = Field(None, alias="fileType", description="PDF | DOCX | XLSX | NOTE | DB_RECORD")
     file_content_base64: Optional[str] = Field(None, alias="fileContentBase64", description="Base64-encoded file content for Text Extraction / OCR")
     risk_category: Optional[str] = Field(None, alias="riskCategory", description="Optional explicit risk category")
+    risk_level: Optional[str] = Field(None, alias="riskLevel", description="Optional external/explicit risk level mapped strictly onto High, Moderate to High, Moderate, Low to Moderate, Low")
+    severity: Optional[str] = Field(None, description="Optional external severity mapped strictly onto the 5 canonical risk levels")
     persist: Optional[bool] = Field(None, description="Whether to persist this analyzed document/note in the batch list")
 
     class Config:
@@ -371,6 +391,8 @@ class TaxonomyItemRequest(BaseModel):
 class PerformanceTrendRequest(BaseModel):
     kpi_name: Optional[str] = Field("NPL Ratio", description="KPI Name")
     historical_data: List[float] = Field(default_factory=lambda: [80.0, 82.0, 85.0, 81.0, 79.0])
+    risk_level: Optional[str] = Field(None, description="Optional external database risk level normalized strictly onto High, Moderate to High, Moderate, Low to Moderate, Low")
+    severity: Optional[str] = Field(None, description="Optional external database severity normalized strictly onto the 5 canonical risk levels")
 
 class AuditorKpiItemInput(BaseModel):
     code: Optional[str] = "SO-IA01"
@@ -432,23 +454,30 @@ def predict_department_risk(req: DepartmentRiskRequest):
             next_y = now.year if q < 4 else now.year + 1
             target_timeline = f"Q{next_q} {next_y}"
 
+    actual_lvl, _, base_lik, base_imp = _resolve_entity_risk_code_and_label(
+        req.current_risk_level,
+        req.inherent_likelihood,
+        req.inherent_impact,
+    )
+
     if department_bundle is None:
-        imp = int(round(req.inherent_impact))
-        lik = int(round(req.inherent_likelihood))
+        imp = max(1, min(5, int(round(base_imp))))
+        lik = max(1, min(5, int(round(base_lik))))
         score = float(imp * lik)
+        pred_lvl, _, _, _ = _resolve_entity_risk_code_and_label(matrix_risk_level(lik, imp), lik, imp)
         return {
             "entity": req.entity,
             "type": ent_type,
             "risk_category": req.risk_category,
             "target_timeline": target_timeline,
-            "current_likelihood": req.inherent_likelihood,
-            "current_impact": req.inherent_impact,
+            "current_likelihood": base_lik,
+            "current_impact": base_imp,
             "predicted_impact": imp,
             "predicted_likelihood": lik,
             "predicted_score": score,
-            "actual_score": float(req.inherent_impact * req.inherent_likelihood),
-            "risk_level": matrix_risk_level(lik, imp),
-            "actual_risk_level": matrix_risk_level(req.inherent_likelihood, req.inherent_impact),
+            "actual_score": float(base_imp * base_lik),
+            "risk_level": pred_lvl,
+            "actual_risk_level": actual_lvl,
             "confidence": 0.88,
             "delta": 0.0,
             "trend": "stable",
@@ -464,7 +493,7 @@ def predict_department_risk(req: DepartmentRiskRequest):
     try:
         month_sin = np.sin(2 * np.pi * (req.assessment_month - 1) / 12)
         month_cos = np.cos(2 * np.pi * (req.assessment_month - 1) / 12)
-        inherent_risk_score = req.inherent_likelihood * req.inherent_impact
+        inherent_risk_score = base_lik * base_imp
         kpi_volatility_log = np.log1p(req.kpi_volatility)
         findings_kpi_ratio = (req.audit_findings_count + 1) / (req.kpi_below_target_count + 1)
         risk_score_diff = inherent_risk_score - req.previous_risk_score
@@ -472,8 +501,8 @@ def predict_department_risk(req: DepartmentRiskRequest):
         row = [
             req.entity.strip(),
             req.risk_category.strip(),
-            req.inherent_likelihood,
-            req.inherent_impact,
+            base_lik,
+            base_imp,
             req.audit_findings_count,
             req.kpi_below_target_count,
             req.kpi_volatility,
@@ -507,10 +536,12 @@ def predict_department_risk(req: DepartmentRiskRequest):
         else:
             lik_val = int(lik_pred_idx) + 1
 
+        imp_val = max(1, min(5, imp_val))
+        lik_val = max(1, min(5, lik_val))
+
         score = float(imp_val * lik_val)
-        actual_s = float(req.inherent_impact * req.inherent_likelihood)
-        risk_lvl = matrix_risk_level(lik_val, imp_val)
-        actual_lvl = matrix_risk_level(req.inherent_likelihood, req.inherent_impact)
+        actual_s = float(base_imp * base_lik)
+        risk_lvl, _, _, _ = _resolve_entity_risk_code_and_label(matrix_risk_level(lik_val, imp_val), lik_val, imp_val)
 
         if isinstance(department_bundle.get('entity_type_map'), dict):
             mapped_t = department_bundle['entity_type_map'].get(req.entity)
@@ -524,8 +555,8 @@ def predict_department_risk(req: DepartmentRiskRequest):
             "type": ent_type,
             "risk_category": req.risk_category,
             "target_timeline": target_timeline,
-            "current_likelihood": req.inherent_likelihood,
-            "current_impact": req.inherent_impact,
+            "current_likelihood": base_lik,
+            "current_impact": base_imp,
             "predicted_impact": imp_val,
             "predicted_likelihood": lik_val,
             "predicted_score": score,
@@ -543,21 +574,24 @@ def predict_department_risk(req: DepartmentRiskRequest):
                 "Previous Risk Score": 0.12
             }
         }
-    except Exception as e:
-        score = float(req.inherent_impact * req.inherent_likelihood)
+    except Exception:
+        imp_fb = max(1, min(5, int(round(base_imp))))
+        lik_fb = max(1, min(5, int(round(base_lik))))
+        score = float(base_imp * base_lik)
+        pred_lvl, _, _, _ = _resolve_entity_risk_code_and_label(matrix_risk_level(lik_fb, imp_fb), lik_fb, imp_fb)
         return {
             "entity": req.entity,
             "type": ent_type,
             "risk_category": req.risk_category,
             "target_timeline": target_timeline,
-            "current_likelihood": req.inherent_likelihood,
-            "current_impact": req.inherent_impact,
-            "predicted_impact": int(round(req.inherent_impact)),
-            "predicted_likelihood": int(round(req.inherent_likelihood)),
+            "current_likelihood": base_lik,
+            "current_impact": base_imp,
+            "predicted_impact": imp_fb,
+            "predicted_likelihood": lik_fb,
             "predicted_score": float(score),
             "actual_score": float(score),
-            "risk_level": matrix_risk_level(req.inherent_likelihood, req.inherent_impact),
-            "actual_risk_level": matrix_risk_level(req.inherent_likelihood, req.inherent_impact),
+            "risk_level": pred_lvl,
+            "actual_risk_level": actual_lvl,
             "confidence": 0.85,
             "delta": 0.0,
             "trend": "stable",
@@ -610,6 +644,7 @@ def get_department_risk_batch():
     col_mth = 'assessment_month' if 'assessment_month' in df.columns else 'Bulan Penilaian'
     col_typ = 'entity_type' if 'entity_type' in df.columns else None
     col_ttl = 'target_timeline' if 'target_timeline' in df.columns else None
+    col_crl = 'current_risk_level' if 'current_risk_level' in df.columns else None
 
     # Unlimited: include all distinct entity risk entries without artificial capping (.tail(20) removed)
     df_sample = df.drop_duplicates(subset=[col_ent], keep='last')
@@ -624,18 +659,23 @@ def get_department_risk_batch():
         if not raw_ttl:
             now = datetime.now()
             raw_ttl = f"FY {now.year}"
+        raw_crl = str(r.get(col_crl, '')).strip() if col_crl and pd.notna(r.get(col_crl)) else None
+        raw_lik = float(r.get(col_lik)) if pd.notna(r.get(col_lik)) else None
+        raw_imp = float(r.get(col_imp)) if pd.notna(r.get(col_imp)) else None
+        crl_code, _, resolved_lik, resolved_imp = _resolve_entity_risk_code_and_label(raw_crl, raw_lik, raw_imp)
         req_obj = DepartmentRiskRequest(
             entity=entity_name,
             entity_type=raw_typ or None,
             target_timeline=raw_ttl,
             risk_category=str(r[col_cat]).strip(),
-            inherent_likelihood=float(r.get(col_lik, 3.0)),
-            inherent_impact=float(r.get(col_imp, 3.0)),
+            inherent_likelihood=resolved_lik,
+            inherent_impact=resolved_imp,
             audit_findings_count=float(r.get(col_fnd, 0.0)),
             kpi_below_target_count=float(r.get(col_kpi, 0.0)),
             kpi_volatility=float(r.get(col_vol, 0.1)),
-            previous_risk_score=float(r.get(col_scr, 9.0)),
-            assessment_month=int(r.get(col_mth, 1))
+            previous_risk_score=float(r.get(col_scr, resolved_lik * resolved_imp)),
+            assessment_month=max(1, min(12, int(r.get(col_mth, 1)))),
+            current_risk_level=crl_code,
         )
         res = predict_department_risk(req_obj)
         if res.get('type') == 'Department':
@@ -682,22 +722,29 @@ def sync_entity_prediction_with_sources(req: EntityRiskSyncRequest):
                 et = "Auditable Entity"
             now = datetime.now()
             ttl = it.target_timeline or f"FY {now.year}"
+            norm_crl, _, resolved_lik, resolved_imp = _resolve_entity_risk_code_and_label(
+                it.current_risk_level,
+                it.inherent_likelihood,
+                it.inherent_impact,
+            )
+            tgt_lik = max(1.0, min(5.0, float(it.target_likelihood))) if it.target_likelihood is not None else resolved_lik
+            tgt_imp = max(1.0, min(5.0, float(it.target_impact))) if it.target_impact is not None else resolved_imp
             dict_records.append({
                 "entity": it.entity,
                 "entity_type": et,
                 "target_timeline": ttl,
                 "risk_category": it.risk_category or "Operational",
-                "inherent_likelihood": it.inherent_likelihood or 3.0,
-                "inherent_impact": it.inherent_impact or 3.0,
-                "audit_findings_count": it.audit_findings_count or 0.0,
-                "kpi_below_target_count": it.kpi_below_target_count or 0.0,
-                "kpi_volatility": it.kpi_volatility or 0.1,
-                "previous_risk_score": it.previous_risk_score or (it.inherent_likelihood * it.inherent_impact),
-                "assessment_month": it.assessment_month or 1,
-                "target_likelihood": it.target_likelihood or it.inherent_likelihood,
-                "target_impact": it.target_impact or it.inherent_impact,
-                "current_risk_level": it.current_risk_level or matrix_risk_level(it.inherent_likelihood, it.inherent_impact),
-                "source_id": it.source_id or "risk_profile"
+                "inherent_likelihood": resolved_lik,
+                "inherent_impact": resolved_imp,
+                "audit_findings_count": float(it.audit_findings_count or 0.0),
+                "kpi_below_target_count": float(it.kpi_below_target_count or 0.0),
+                "kpi_volatility": float(it.kpi_volatility or 0.1),
+                "previous_risk_score": float(it.previous_risk_score) if it.previous_risk_score is not None else float(resolved_lik * resolved_imp),
+                "assessment_month": max(1, min(12, int(it.assessment_month or 1))),
+                "target_likelihood": tgt_lik,
+                "target_impact": tgt_imp,
+                "current_risk_level": norm_crl,
+                "source_id": it.source_id or "audit_universe"
             })
         synced_count = upsert_entity_prediction_pool(dict_records)
 
@@ -724,6 +771,18 @@ def sync_entity_prediction_with_sources(req: EntityRiskSyncRequest):
 # ----------------------------------------------------------------------
 # 2. ANOMALY DETECTION ENDPOINTS
 # ----------------------------------------------------------------------
+def _resolve_anomaly_risk_and_severity(req: AnomalyRequest, imp_idx: int, lik_idx: int) -> Tuple[str, str]:
+    external_val = req.risk_level or req.severity
+    if external_val is not None and str(external_val).strip():
+        code, label, _, _ = normalize_anomaly_risk_level(external_val)
+        return code, label
+    code = matrix_risk_level(lik_idx, imp_idx)
+    if code not in ANOMALY_RISK_CODE_TO_LABEL:
+        code, label, _, _ = normalize_anomaly_risk_level(code)
+        return code, label
+    return code, ANOMALY_RISK_CODE_TO_LABEL[code]
+
+
 @app.post("/predict/anomaly")
 def predict_anomaly(req: AnomalyRequest):
     bank_cats = get_known_bank_categories()
@@ -738,9 +797,9 @@ def predict_anomaly(req: AnomalyRequest):
         hour_val = int(req.hour_of_day if req.hour_of_day is not None else 12)
         is_anom = amt_val > 500 or hour_val < 6 or (req.is_new_beneficiary == 1) or ((req.failed_logins or 0) >= 3)
         anom_score = 0.88 if is_anom else 0.15
-        imp_idx = 5 if is_anom else 2
+        imp_idx = 5 if is_anom else 1
         lik_idx = 5 if is_anom else 1
-        score = float(imp_idx * lik_idx)
+        risk_code, sev_label = _resolve_anomaly_risk_and_severity(req, imp_idx, lik_idx)
         chosen_type = req.category if (req.category in bank_cats or req.category) else mapped_type
         x_val = get_metric_x_value(chosen_type, amt_val, hour_val, 1, float(req.historical_dev_pct or 0.0), int(req.failed_logins or 0))
         return {
@@ -749,13 +808,13 @@ def predict_anomaly(req: AnomalyRequest):
             "type": chosen_type,
             "anomaly_score": round(anom_score, 4),
             "description": f"{req.description or chosen_type} - {format_rupiah_millions(amt_val)} (Jam {hour_val}:00)",
-            "severity": "Critical" if is_anom else "Low",
+            "severity": sev_label,
             "date": "2026-06-01",
             "amount": amt_val * 1000000,
             "is_anomaly": is_anom,
             "predicted_impact": imp_idx,
             "predicted_likelihood": lik_idx,
-            "risk_level": score_to_risk_level(score),
+            "risk_level": risk_code,
             "xMetric": x_val,
             "hour": hour_val,
             "hour_of_day": hour_val,
@@ -833,8 +892,7 @@ def predict_anomaly(req: AnomalyRequest):
             is_anom = bool(prob >= thresh)
             imp_idx = int(bank_model['impact_classifier'].predict(X_scaled)[0]) + 1
             lik_idx = int(bank_model['likelihood_classifier'].predict(X_scaled)[0]) + 1
-            score = float(imp_idx * lik_idx)
-            sev = "Critical" if (is_anom and score >= 16) else ("High" if is_anom else "Medium")
+            risk_code, sev_label = _resolve_anomaly_risk_and_severity(req, imp_idx, lik_idx)
             x_metric = get_metric_x_value(b_cat, b_amt, b_hour, 1, b_hist_dev, b_fails)
 
             return {
@@ -843,13 +901,13 @@ def predict_anomaly(req: AnomalyRequest):
                 "type": b_cat,
                 "anomaly_score": round(prob, 4),
                 "description": f"{req.description or b_cat} - {format_rupiah_millions(b_amt)} (Jam {b_hour}:00)",
-                "severity": sev,
+                "severity": sev_label,
                 "date": "2026-06-01",
                 "amount": b_amt * 1000000,
                 "is_anomaly": is_anom,
                 "predicted_impact": imp_idx,
                 "predicted_likelihood": lik_idx,
-                "risk_level": score_to_risk_level(score),
+                "risk_level": risk_code,
                 "xMetric": x_metric,
                 "hour": b_hour,
                 "hour_of_day": b_hour,
@@ -915,8 +973,7 @@ def predict_anomaly(req: AnomalyRequest):
         is_anom = bool(prob >= thresh)
         imp_idx = int(anomaly_bundle['impact_classifier'].predict(X_scaled)[0]) + 1
         lik_idx = int(anomaly_bundle['likelihood_classifier'].predict(X_scaled)[0]) + 1
-        score = float(imp_idx * lik_idx)
-        sev = "Critical" if (is_anom and score >= 16) else ("High" if is_anom else "Medium")
+        risk_code, sev_label = _resolve_anomaly_risk_and_severity(req, imp_idx, lik_idx)
         x_metric = get_metric_x_value(mapped_type, amt_val, hour_val, 1)
 
         return {
@@ -925,13 +982,13 @@ def predict_anomaly(req: AnomalyRequest):
             "type": mapped_type,
             "anomaly_score": round(prob, 4),
             "description": f"{req.description or 'Transaksi'} - {format_rupiah_millions(amt_val)} (Jam {hour_val}:00)",
-            "severity": sev,
+            "severity": sev_label,
             "date": "2026-06-01",
             "amount": amt_val * 1000000,
             "is_anomaly": is_anom,
             "predicted_impact": imp_idx,
             "predicted_likelihood": lik_idx,
-            "risk_level": score_to_risk_level(score),
+            "risk_level": risk_code,
             "xMetric": x_metric,
             "hour": hour_val,
             "hour_of_day": hour_val,
@@ -942,6 +999,9 @@ def predict_anomaly(req: AnomalyRequest):
         amt_val = float(req.amount if req.amount is not None else 15.0)
         hour_val = int(req.hour_of_day if req.hour_of_day is not None else 12)
         is_anom = amt_val > 500 or hour_val < 6
+        imp_fb = 5 if is_anom else 1
+        lik_fb = 5 if is_anom else 1
+        risk_code, sev_label = _resolve_anomaly_risk_and_severity(req, imp_fb, lik_fb)
         chosen_type = req.category if (req.category in bank_cats or req.category) else mapped_type
         return {
             "id": "ANM-001",
@@ -949,13 +1009,13 @@ def predict_anomaly(req: AnomalyRequest):
             "type": chosen_type,
             "anomaly_score": 0.85 if is_anom else 0.15,
             "description": f"{req.description or chosen_type} - {format_rupiah_millions(amt_val)}",
-            "severity": "High" if is_anom else "Low",
+            "severity": sev_label,
             "date": "2026-06-01",
             "amount": amt_val * 1000000,
             "is_anomaly": is_anom,
-            "predicted_impact": 4 if is_anom else 2,
-            "predicted_likelihood": 4 if is_anom else 1,
-            "risk_level": "HIGH" if is_anom else "LOW",
+            "predicted_impact": imp_fb,
+            "predicted_likelihood": lik_fb,
+            "risk_level": risk_code,
             "xMetric": get_metric_x_value(chosen_type, amt_val, hour_val, 1),
             "hour": hour_val,
             "hour_of_day": hour_val,
@@ -1043,6 +1103,15 @@ def get_anomaly_batch():
             desc = str(r['Alasan Anomali']).strip() if (str(r.get('Alasan Anomali', '-')).strip() != '-') else f"Transaksi anomali {cat} pada {ent}"
             desc = normalize_rupiah_text(desc)
 
+            ext_risk_col = r.get('risk_level') or r.get('severity')
+            if (not ext_risk_col or str(ext_risk_col).strip() in ('', '-', 'nan')) and str(trx_id).startswith(('RULE-', 'EXT-')):
+                try:
+                    t_imp = int(pd.to_numeric(r.get('TARGET: Impact (1-5)'), errors='coerce') or 4)
+                    t_lik = int(pd.to_numeric(r.get('TARGET: Likelihood (1-5)'), errors='coerce') or 4)
+                    ext_risk_col = matrix_risk_level(t_lik, t_imp)
+                except Exception:
+                    ext_risk_col = None
+
             req_obj = AnomalyRequest(
                 entity=ent,
                 description=desc,
@@ -1055,9 +1124,13 @@ def get_anomaly_batch():
                 failed_logins=fails,
                 customer_risk_profile=str(r.get('Tingkat Risiko Nasabah', 'Low Risk')).strip(),
                 authorization_status=str(r.get('Status Otorisasi / Maker-Checker', 'Terverifikasi Dual Control (Maker-Checker)')).strip(),
-                historical_dev_pct=deviasi
+                historical_dev_pct=deviasi,
+                risk_level=str(ext_risk_col).strip() if ext_risk_col and str(ext_risk_col).strip() not in ('', '-', 'nan') else None
             )
             pred = predict_anomaly(req_obj)
+            r_code, r_label, _, _ = normalize_anomaly_risk_level(pred.get('risk_level') or pred.get('severity'))
+            pred['risk_level'] = r_code
+            pred['severity'] = r_label
             pred['id'] = trx_id
             pred['type'] = cat
             pred['xMetric'] = get_metric_x_value(cat, amt, hour, idx, deviasi, fails)
@@ -1240,7 +1313,7 @@ def train_anomaly_with_rules(req: AnomalyRuleTrainRequest):
             rule_field = str(r_item.get('field') or "amount").lower()
             rule_op = str(r_item.get('operator') or ">")
             rule_thresh = r_item.get('threshold')
-            rule_sev = str(r_item.get('severity') or "High").upper()
+            rule_sev_raw = r_item.get('risk_level') or r_item.get('severity') or "HIGH"
             rule_cat = str(r_item.get('category') or canonical_cat)
             rule_desc = str(r_item.get('description') or f"Pelanggaran aturan '{rule_name}' pada tabel {table_name}")
         else:
@@ -1248,17 +1321,12 @@ def train_anomaly_with_rules(req: AnomalyRuleTrainRequest):
             rule_field = "amount"
             rule_op = ">"
             rule_thresh = 100.0
-            rule_sev = "HIGH"
+            rule_sev_raw = "HIGH"
             rule_cat = canonical_cat
             rule_desc = f"Aturan otomatis '{rule_name}' terdeteksi pada tabel {table_name}"
 
-        # Determine Impact & Likelihood from Severity
-        if rule_sev == "CRITICAL":
-            imp, lik = 5, 5
-        elif rule_sev == "HIGH":
-            imp, lik = 4, 4
-        else:
-            imp, lik = 3, 3
+        # Normalize rule severity strictly to the 5 canonical risk levels (never CRITICAL)
+        rule_code, rule_label, imp, lik = normalize_anomaly_risk_level(rule_sev_raw, default_code="HIGH")
 
         # Generate 3 targeted anomaly samples embodying this rule
         for s_idx in range(3):
@@ -1286,6 +1354,7 @@ def train_anomaly_with_rules(req: AnomalyRuleTrainRequest):
             elif "deviation" in lower_name or "deviasi" in lower_name:
                 deviasi = 120.0 + (s_idx * 30.0)
 
+            cust_risk_txt = "High Risk" if rule_code in ("HIGH", "MODERATE_HIGH") else ("Medium Risk" if rule_code == "MODERATE" else "Low Risk")
             new_training_rows.append({
                 'ID Transaksi': trx_id,
                 'Kategori': rule_cat,
@@ -1294,16 +1363,80 @@ def train_anomaly_with_rules(req: AnomalyRuleTrainRequest):
                 'Nilai Transaksi (Juta Rp)': round(amt, 2),
                 'Bunga/Margin (%)': 6.5,
                 'Jam Transaksi (0-23)': hour,
-                'Status Dokumen': 'Tidak Lengkap' if imp >= 5 else 'Lengkap',
+                'Status Dokumen': 'Tidak Lengkap' if rule_code == 'HIGH' else 'Lengkap',
                 'Jumlah Gagal Login': fails,
-                'Tingkat Risiko Nasabah': 'High Risk' if imp >= 4 else 'Medium Risk',
+                'Tingkat Risiko Nasabah': cust_risk_txt,
                 'Status Otorisasi / Maker-Checker': auth,
                 'Deviasi terhadap Profil Historis (%)': round(deviasi, 2),
                 'TARGET: is_anomaly': 'Ya (Anomali)',
                 'TARGET: Impact (1-5)': imp,
                 'TARGET: Likelihood (1-5)': lik,
-                'Alasan Anomali': f"{rule_desc} [Rule: {rule_name}]"
+                'Alasan Anomali': f"{rule_desc} [Rule: {rule_name}] ({rule_label})"
             })
+
+    # Absorb and normalize any sample records coming from an external database
+    for ext_idx, rec in enumerate(req.sample_records or []):
+        if not isinstance(rec, dict):
+            continue
+        raw_ext_risk = (
+            rec.get('risk_level')
+            or rec.get('riskLevel')
+            or rec.get('severity')
+            or rec.get('risk_rating')
+            or rec.get('tingkat_risiko')
+            or rec.get('severity_level')
+            or rec.get('severity_score')
+        )
+        ext_code, ext_label, ext_imp, ext_lik = normalize_anomaly_risk_level(raw_ext_risk, default_code="MODERATE")
+
+        raw_amt = (
+            rec.get('amount')
+            or rec.get('nominal')
+            or rec.get('principal_amount')
+            or rec.get('invoice_amount')
+            or rec.get('balance')
+            or rec.get('exposure_value')
+            or 0.0
+        )
+        try:
+            amt_num = float(raw_amt)
+            if amt_num > 100000:
+                amt_num = amt_num / 1_000_000.0
+        except Exception:
+            amt_num = 25.0
+
+        is_ext_anom = bool(
+            rec.get('is_anomaly')
+            or rec.get('risk_flag')
+            or ext_code in ("HIGH", "MODERATE_HIGH")
+            or amt_num > 100.0
+        )
+        ext_entity = str(
+            rec.get('entity_unit')
+            or rec.get('branch_name')
+            or rec.get('entity')
+            or rec.get('department')
+            or f"Unit Kerja {conn_name}"
+        ).strip()
+        ext_cust_risk = "High Risk" if ext_code in ("HIGH", "MODERATE_HIGH") else ("Medium Risk" if ext_code == "MODERATE" else "Low Risk")
+        new_training_rows.append({
+            'ID Transaksi': f"EXT-{ts % 10000}-{ext_idx+1}",
+            'Kategori': canonical_cat,
+            'Entitas': ext_entity,
+            'Kanal Transaksi': str(rec.get('channel') or 'Host-to-Host Core Banking'),
+            'Nilai Transaksi (Juta Rp)': round(max(amt_num, 0.0), 2),
+            'Bunga/Margin (%)': float(rec.get('interest_rate') or 5.5),
+            'Jam Transaksi (0-23)': int(rec.get('hour_of_day') or rec.get('hour') or (23 if is_ext_anom else 11)) % 24,
+            'Status Dokumen': 'Tidak Lengkap' if ext_code == 'HIGH' else 'Lengkap',
+            'Jumlah Gagal Login': int(rec.get('failed_logins') or 0),
+            'Tingkat Risiko Nasabah': ext_cust_risk,
+            'Status Otorisasi / Maker-Checker': 'Override / Tanpa Otorisasi' if rec.get('is_override_auth') else 'Terverifikasi Dual Control (Maker-Checker)',
+            'Deviasi terhadap Profil Historis (%)': 85.0 if is_ext_anom else 5.0,
+            'TARGET: is_anomaly': 'Ya (Anomali)' if is_ext_anom else 'Tidak',
+            'TARGET: Impact (1-5)': ext_imp,
+            'TARGET: Likelihood (1-5)': ext_lik,
+            'Alasan Anomali': f"Rekaman eksternal {table_name} [Risk: {ext_label}]" if is_ext_anom else '-'
+        })
 
     # Generate 10 standard negative (normal) baseline instances for stability
     for n_idx in range(10):
@@ -1444,6 +1577,7 @@ def predict_text_analysis(req: TextAnalysisRequest):
     model_sent = None
     model_imp = 3
     model_lik = 3
+    model_risk_level = None
 
     if document_bundle is not None:
         try:
@@ -1451,7 +1585,7 @@ def predict_text_analysis(req: TextAnalysisRequest):
             if vec is not None:
                 X_tfidf = vec.transform([effective_text])
                 if 'models' in document_bundle and 'label_encoders' in document_bundle:
-                    for key in ['risk_category', 'sentiment', 'impact', 'likelihood']:
+                    for key in ['risk_category', 'sentiment', 'impact', 'likelihood', 'risk_level']:
                         if key in document_bundle['models'] and key in document_bundle['label_encoders']:
                             clf = document_bundle['models'][key]
                             le = document_bundle['label_encoders'][key]
@@ -1465,6 +1599,8 @@ def predict_text_analysis(req: TextAnalysisRequest):
                                 model_imp = int(val)
                             elif key == 'likelihood':
                                 model_lik = int(val)
+                            elif key == 'risk_level':
+                                model_risk_level = normalize_nlp_risk_level(str(val), default_code="MODERATE")[0]
                 elif 'category_model' in document_bundle:
                     model_cat = str(document_bundle['category_model'].predict(X_tfidf)[0])
                     model_sent = str(document_bundle['sentiment_model'].predict(X_tfidf)[0])
@@ -1480,13 +1616,18 @@ def predict_text_analysis(req: TextAnalysisRequest):
         explicit_category=req.risk_category
     )
 
-    # 4. Sentiment, Severity Score & Control Indicator (Internal Control Weakness / Fraud / etc.)
+    # 4. Sentiment, Severity Score & Control Indicator (strictly 5 canonical risk levels)
+    raw_ext_risk = req.risk_level if req.risk_level is not None else req.severity
     sev_data = detect_control_indicator_and_severity(
         effective_text,
         model_sentiment=model_sent,
         model_impact=model_imp,
         model_likelihood=model_lik,
-        risk_category=risk_cat
+        risk_category=risk_cat,
+        explicit_risk_level=raw_ext_risk
+    )
+    risk_code, risk_label, _, _ = normalize_nlp_risk_level(
+        sev_data.get("risk_level") or model_risk_level, default_code="MODERATE"
     )
 
     # 5. Automated Extraction of Audit Finding (Temuan) & Recommendation (Rekomendasi)
@@ -1513,7 +1654,7 @@ def predict_text_analysis(req: TextAnalysisRequest):
         first_sentence = effective_text.split(".")[0].strip()
         doc_title = first_sentence[:75] + ("..." if len(first_sentence) > 75 else "")
 
-    result = {
+    result = sanitize_nlp_doc_record({
         "docId": doc_id,
         "title": doc_title,
         "source": src_label,
@@ -1536,8 +1677,9 @@ def predict_text_analysis(req: TextAnalysisRequest):
         "confidence": confidence,
         "date": datetime.now().strftime("%Y-%m-%d"),
         "excerpt": effective_text[:340] + ("..." if len(effective_text) > 340 else ""),
-        "risk_level": sev_data["risk_level"]
-    }
+        "risk_level": risk_code,
+        "risk_level_label": risk_label
+    })
 
     should_persist = req.persist if req.persist is not None else bool(
         req.file_content_base64 or req.file_name or req.doc_id or req.title
@@ -1555,7 +1697,8 @@ def get_text_analysis_batch():
     documents: List[Dict[str, Any]] = []
     seen_titles = set()
 
-    for pdoc in persisted_docs:
+    for raw_pdoc in persisted_docs:
+        pdoc = sanitize_nlp_doc_record(raw_pdoc)
         cat = normalize_or_resolve_category(pdoc.get("risk_category") or pdoc.get("autoCategory")) or "Operational"
         pdoc["risk_category"] = cat
         pdoc["autoCategory"] = cat
@@ -1563,7 +1706,8 @@ def get_text_analysis_batch():
             sev = detect_control_indicator_and_severity(
                 pdoc.get("excerpt", ""),
                 model_sentiment=pdoc.get("sentiment"),
-                risk_category=cat
+                risk_category=cat,
+                explicit_risk_level=pdoc.get("risk_level")
             )
             pdoc["control_indicator"] = sev["control_indicator"]
             pdoc["controlIndicator"] = sev["control_indicator"]
@@ -1584,6 +1728,7 @@ def get_text_analysis_batch():
             pdoc["extracted_recommendation"] = ext["extracted_recommendation"]
             pdoc["extractedRecommendation"] = ext["extracted_recommendation"]
 
+        pdoc = sanitize_nlp_doc_record(pdoc)
         documents.append(pdoc)
         seen_titles.add(str(pdoc.get("title", "")).strip().lower())
 
@@ -1606,6 +1751,7 @@ def get_text_analysis_batch():
                 fileName="live_feature_notes",
                 fileType="NOTE",
                 riskCategory=raw_cat,
+                riskLevel=item.get("risk_level"),
                 persist=False
             )
         )
@@ -1614,7 +1760,7 @@ def get_text_analysis_batch():
         if item.get("control_indicator"):
             pred['control_indicator'] = item["control_indicator"]
             pred['controlIndicator'] = item["control_indicator"]
-        documents.append(pred)
+        documents.append(sanitize_nlp_doc_record(pred))
         seen_titles.add(cand_title.lower())
 
     # 3. Compute dynamic distributions for Risk Category, Sentiment, Control Indicator, and Source Type
@@ -1654,6 +1800,7 @@ def get_text_analysis_batch():
         "sentiment_distribution": sent_normalized,
         "control_indicator_distribution": ind_counts,
         "source_type_distribution": source_type_counts,
+        "allowed_risk_levels": list(CANONICAL_RISK_CODES),
         "taxonomy": load_taxonomy()
     }
 
@@ -1672,20 +1819,38 @@ def reset_analyzed_documents():
 # ----------------------------------------------------------------------
 # 4. KPI PYTORCH LSTM ENDPOINTS
 # ----------------------------------------------------------------------
+def _resolve_auditee_risk_code_and_scores(
+    raw_level: Optional[Any],
+    imp_val: int,
+    lik_val: int,
+) -> tuple:
+    """Strictly resolves Auditee KPI risk_level onto the 5 canonical codes and 1..5 scores."""
+    imp_c = max(1, min(5, int(round(float(imp_val or 3)))))
+    lik_c = max(1, min(5, int(round(float(lik_val or 3)))))
+    s_raw = "" if raw_level is None else str(raw_level).strip()
+    if s_raw and s_raw.lower() not in {"not scored", "none", "nan", "null"}:
+        code, label, def_imp, def_lik = normalize_canonical_risk_level(s_raw, default_code="MODERATE")
+        if matrix_risk_level(lik_c, imp_c) != code:
+            imp_c, lik_c = def_imp, def_lik
+        return code, label, imp_c, lik_c
+    code = matrix_risk_level(lik_c, imp_c)
+    return code, CANONICAL_RISK_CODE_TO_LABEL[code], imp_c, lik_c
+
+
 @app.post("/predict/performance-trend")
 def predict_performance_trend(req: PerformanceTrendRequest):
     hist = req.historical_data
     if len(hist) < 5:
         hist = hist + [hist[-1] if hist else 80.0] * (5 - len(hist))
 
+    ext_risk_raw = req.risk_level if req.risk_level is not None else req.severity
+
     if kpi_lstm_model is None or kpi_bundle is None:
         last_val = hist[-1]
         diff = hist[-1] - hist[0]
         forecast = [round(last_val + diff * 0.1 * i, 2) for i in range(1, 4)]
         trend_str = "Improving" if forecast[-1] >= last_val else "Deteriorating"
-        imp = 3
-        lik = 3
-        score = imp * lik
+        r_code, r_label, imp, lik = _resolve_auditee_risk_code_and_scores(ext_risk_raw, 3, 3)
         return {
             "kpi_name": req.kpi_name,
             "predicted_performance": forecast[0],
@@ -1694,7 +1859,8 @@ def predict_performance_trend(req: PerformanceTrendRequest):
             "impact": imp,
             "likelihood": lik,
             "alert_level": "Watch" if trend_str == "Deteriorating" else "None",
-            "risk_level": score_to_risk_level(score)
+            "risk_level": r_code,
+            "risk_level_label": r_label,
         }
 
     try:
@@ -1784,7 +1950,7 @@ def predict_performance_trend(req: PerformanceTrendRequest):
             imp_val = 3
             lik_val = 3
 
-        score = float(imp_val * lik_val)
+        r_code, r_label, imp_val, lik_val = _resolve_auditee_risk_code_and_scores(ext_risk_raw, imp_val, lik_val)
 
         return {
             "kpi_name": req.kpi_name,
@@ -1794,19 +1960,22 @@ def predict_performance_trend(req: PerformanceTrendRequest):
             "impact": imp_val,
             "likelihood": lik_val,
             "alert_level": "Warning" if trend_str == "Deteriorating" else "None",
-            "risk_level": score_to_risk_level(score)
+            "risk_level": r_code,
+            "risk_level_label": r_label,
         }
     except Exception as e:
         print(f"KPI LSTM inference error: {e}")
+        r_code, r_label, imp_fb, lik_fb = _resolve_auditee_risk_code_and_scores(ext_risk_raw, 3, 3)
         return {
             "kpi_name": req.kpi_name,
             "predicted_performance": round(hist[-1] * 0.98, 2),
             "forecast_series": [round(hist[-1] * 0.98, 2), round(hist[-1] * 0.96, 2), round(hist[-1] * 0.95, 2)],
             "trend": "Deteriorating",
-            "impact": 3,
-            "likelihood": 3,
+            "impact": imp_fb,
+            "likelihood": lik_fb,
             "alert_level": "Watch",
-            "risk_level": "MODERATE"
+            "risk_level": r_code,
+            "risk_level_label": r_label,
         }
 
 def _parse_numeric_kpi(val: Any) -> Optional[float]:
@@ -2302,7 +2471,30 @@ def get_performance_trend_batch():
         if not hist:
             continue
 
-        pred = predict_performance_trend(PerformanceTrendRequest(kpi_name=kpi_name, historical_data=hist))
+        row_risk_raw = None
+        for r_col in ("Risk Level", "risk_level"):
+            if r_col in group.columns:
+                non_empty_r = [
+                    str(v).strip() for v in group[r_col].tolist()
+                    if v is not None and not (isinstance(v, float) and np.isnan(v)) and str(v).strip() != ""
+                ]
+                if non_empty_r:
+                    row_risk_raw = non_empty_r[-1]
+                    break
+
+        is_external_row = False
+        if "ID KPI" in group.columns:
+            last_id = str(group["ID KPI"].iloc[-1] or "").upper()
+            if last_id.startswith("KPI-EXT") or last_id.startswith("KPI-GOLD"):
+                is_external_row = True
+
+        pred = predict_performance_trend(
+            PerformanceTrendRequest(
+                kpi_name=kpi_name,
+                historical_data=hist,
+                risk_level=row_risk_raw if (row_risk_raw and (is_external_row or len(hist) < 2)) else None,
+            )
+        )
 
         last_period = periods[-1] if periods else pd.Timestamp.now().strftime("%Y-%m")
         if periods:
@@ -2359,6 +2551,9 @@ def get_performance_trend_batch():
             narrative = f"Tren indikator {kpi_name} pada {entity_info[0]} diproyeksikan {trend_key.lower()} pada horizon {horizon_start}..{horizon_end}."
             rec_action = "Lakukan audit investigasi atas deviasi performa KPI bisnis" if trend_key == 'Deteriorating' else "Monitoring berkala performa KPI bisnis sesuai toleransi risiko."
 
+        canonical_risk, canonical_risk_label, _, _ = normalize_canonical_risk_level(
+            pred.get('risk_level'), default_code='MODERATE'
+        )
         auditee_forecasts.append({
             "kpiName": kpi_name,
             "code": code_str,
@@ -2375,7 +2570,8 @@ def get_performance_trend_batch():
             "alertLevel": pred['alert_level'],
             "impactScore": pred.get('impact', 3),
             "likelihoodScore": pred.get('likelihood', 3),
-            "riskLevel": pred['risk_level'],
+            "riskLevel": canonical_risk,
+            "riskLevelLabel": canonical_risk_label,
             "aiNarrative": narrative,
             "recommendedAction": rec_action,
             "lastActualPeriod": last_period,
@@ -2384,7 +2580,7 @@ def get_performance_trend_batch():
         })
         series_by_kpi[kpi_name] = (history_points, forecast_points)
 
-        if trend_key == "Deteriorating" or pred['risk_level'] in ['HIGH', 'CRITICAL']:
+        if trend_key == "Deteriorating" or canonical_risk in ("HIGH", "MODERATE_HIGH"):
             auditee_at_risk.append({
                 "department": entity_info[0],
                 "kpi": kpi_name,
@@ -2393,7 +2589,8 @@ def get_performance_trend_batch():
                 "predictedQ3": end_val,
                 "horizonEnd": horizon_end,
                 "unit": unit_str,
-                "riskLevel": pred['risk_level']
+                "riskLevel": canonical_risk,
+                "riskLevelLabel": canonical_risk_label,
             })
 
     # Build default chart time_series_data directly from the primary at-risk (or first) Auditee KPI in table (never hardcoded)

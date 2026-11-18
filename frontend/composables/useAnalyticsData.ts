@@ -47,7 +47,7 @@ export interface AnomalyRecord {
   category?: string
   anomalyScore: number
   description: string
-  severity: 'Critical' | 'High' | 'Medium' | 'Low'
+  severity: 'High' | 'Moderate to High' | 'Moderate' | 'Low to Moderate' | 'Low'
   date: string
   amount?: number
   frequency?: number
@@ -607,7 +607,7 @@ export function useTimeSeriesData() {
       confidenceLower: 93.0,
       confidenceUpper: 98.0,
       aiNarrative: 'Dengan kecepatan saat ini, target Cakupan Audit Berbasis Risiko diproyeksikan tercapai 96.0% (Moderate) di akhir tahun.',
-      recommendedAction: 'Prioritaskan audit entitas auditee berkategori risiko High dan Critical.'
+      recommendedAction: 'Prioritaskan audit entitas auditee berkategori risiko High dan Moderate to High.'
     },
     {
       code: 'SO-IA07',

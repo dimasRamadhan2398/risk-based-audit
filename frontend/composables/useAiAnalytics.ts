@@ -10,7 +10,17 @@ import {
   type NLPDocumentResult,
   type KPIForecast
 } from '~/composables/useAnalyticsData'
-import { normalizeRiskLevel, getRiskLevelColorClass } from '~/utils/riskLevelBadge'
+import {
+  ENTITY_RISK_LEVELS,
+  NLP_RISK_LEVELS,
+  normalizeRiskLevel,
+  normalizeAnomalyRiskLevel,
+  normalizeEntityRiskLevel,
+  normalizeNlpRiskLevel,
+  toEntityRiskCode,
+  toNlpRiskCode,
+  getRiskLevelColorClass
+} from '~/utils/riskLevelBadge'
 import { getAnalyticsServiceBaseUrl, getPythonAiBaseUrl, getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 import { getCanonicalCategory } from '~/composables/useAnomalyScatter'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
@@ -35,12 +45,115 @@ const AUTOMATED_ANOMALY_RULES_KEY = 'auditsphere_automated_anomaly_rules_v1'
 const CUSTOM_ENTITY_PREDICTIONS_KEY = 'auditsphere_custom_entity_predictions_v1'
 const CUSTOM_AUDITEE_KPIS_KEY = 'auditsphere_custom_auditee_kpis_v1'
 
+const CANONICAL_ENTITY_UI_PAIRS: Record<string, [number, number]> = {
+  HIGH: [4.7, 4.8],
+  MODERATE_HIGH: [3.8, 4.0],
+  MODERATE: [3.0, 3.2],
+  LOW_MODERATE: [2.2, 2.4],
+  LOW: [1.2, 1.4]
+}
+
+const clampEntityRating = (v: unknown, fallback: number): number => {
+  const n = Number(v)
+  if (!Number.isFinite(n) || n <= 0) return fallback
+  return Math.min(5, Math.max(1, n))
+}
+
+const matrixCalc5Tier = (lik: number, imp: number): string => {
+  const m: Record<number, Record<number, string>> = {
+    5: { 1: 'LOW_MODERATE', 2: 'MODERATE', 3: 'MODERATE_HIGH', 4: 'HIGH', 5: 'HIGH' },
+    4: { 1: 'LOW', 2: 'LOW_MODERATE', 3: 'MODERATE', 4: 'MODERATE_HIGH', 5: 'HIGH' },
+    3: { 1: 'LOW', 2: 'LOW_MODERATE', 3: 'MODERATE', 4: 'MODERATE_HIGH', 5: 'HIGH' },
+    2: { 1: 'LOW', 2: 'LOW_MODERATE', 3: 'LOW_MODERATE', 4: 'MODERATE_HIGH', 5: 'HIGH' },
+    1: { 1: 'LOW', 2: 'LOW', 3: 'LOW_MODERATE', 4: 'MODERATE', 5: 'HIGH' }
+  }
+  const lInt = Math.min(5, Math.max(1, Math.round(Number(lik) || 3)))
+  const iInt = Math.min(5, Math.max(1, Math.round(Number(imp) || 3)))
+  return m[lInt]?.[iInt] || 'MODERATE'
+}
+
+export const sanitizeEntityPredictionRecord = (it: any) => {
+  if (!it || !it.entity) return null
+  const rawActual = it.actualRiskLevel ?? it.actual_risk_level ?? it.currentRiskLevel ?? it.current_risk_level
+  const rawCurLik = it.currentLikelihood ?? it.current_likelihood ?? it.inherent_likelihood
+  const rawCurImp = it.currentImpact ?? it.current_impact ?? it.inherent_impact
+  const actualCode = rawActual
+    ? toEntityRiskCode(rawActual)
+    : matrixCalc5Tier(clampEntityRating(rawCurLik, 3), clampEntityRating(rawCurImp, 3))
+  const [defLik, defImp] = CANONICAL_ENTITY_UI_PAIRS[actualCode] || [3.0, 3.2]
+  const curLik = clampEntityRating(rawCurLik, defLik)
+  const curImp = clampEntityRating(rawCurImp, defImp)
+  const rawPred = it.predictedRiskLevel ?? it.risk_level ?? it.riskLevel
+  const predLik = clampEntityRating(it.predictedLikelihood ?? it.predicted_likelihood, Math.round(curLik))
+  const predImp = clampEntityRating(it.predictedImpact ?? it.predicted_impact, Math.round(curImp))
+  const predCode = rawPred ? toEntityRiskCode(rawPred) : matrixCalc5Tier(predLik, predImp)
+  return {
+    ...it,
+    type: it.type === 'Department' ? 'Auditable Entity' : (it.type || 'Auditable Entity'),
+    currentLikelihood: curLik,
+    currentImpact: curImp,
+    predictedLikelihood: predLik,
+    predictedImpact: predImp,
+    predictedRiskLevel: predCode,
+    actualRiskLevel: actualCode
+  }
+}
+
+const CANONICAL_AUDITEE_SCORE_PAIRS: Record<string, [number, number]> = {
+  HIGH: [5, 5],
+  MODERATE_HIGH: [4, 4],
+  MODERATE: [3, 3],
+  LOW_MODERATE: [2, 2],
+  LOW: [1, 1]
+}
+
+const clampAuditeeIntScore = (v: unknown, fallback: number): number => {
+  const n = Number(v)
+  if (!Number.isFinite(n) || n <= 0) return fallback
+  return Math.min(5, Math.max(1, Math.round(n)))
+}
+
+export const sanitizeAuditeeKpiForecastRecord = (it: any) => {
+  if (!it || !it.kpiName) return null
+  const rawLevel = it.riskLevel ?? it.risk_level ?? it.severity ?? it.riskRating ?? it.tingkat_risiko
+  const hasExplicit = rawLevel !== undefined && rawLevel !== null && String(rawLevel).trim() !== '' && !['not scored', 'none', 'nan', 'null'].includes(String(rawLevel).trim().toLowerCase())
+  const rawImp = it.impactScore ?? it.impact
+  const rawLik = it.likelihoodScore ?? it.likelihood
+  let imp = clampAuditeeIntScore(rawImp, 3)
+  let lik = clampAuditeeIntScore(rawLik, 3)
+
+  const riskCode = hasExplicit ? toEntityRiskCode(rawLevel) : matrixCalc5Tier(lik, imp)
+  if (hasExplicit && (rawImp == null || rawLik == null || matrixCalc5Tier(lik, imp) !== riskCode)) {
+    const [defImp, defLik] = CANONICAL_AUDITEE_SCORE_PAIRS[riskCode] || [3, 3]
+    imp = defImp
+    lik = defLik
+  }
+
+  return {
+    ...it,
+    impactScore: imp,
+    likelihoodScore: lik,
+    riskLevel: riskCode
+  }
+}
+
+export const sanitizeAuditeeAtRiskRecord = (d: any) => {
+  if (!d) return d
+  const rawLevel = d.riskLevel ?? d.risk_level ?? d.severity
+  return {
+    ...d,
+    riskLevel: toEntityRiskCode(rawLevel || 'HIGH')
+  }
+}
+
 export const getPersistedCustomEntityPredictions = (): any[] => {
   if (typeof window === 'undefined') return []
   try {
     const raw = localStorage.getItem(CUSTOM_ENTITY_PREDICTIONS_KEY)
     const list = raw ? JSON.parse(raw) : []
-    return Array.isArray(list) ? list : []
+    return Array.isArray(list)
+      ? list.map(sanitizeEntityPredictionRecord).filter(Boolean)
+      : []
   } catch {
     return []
   }
@@ -51,10 +164,12 @@ export const savePersistedCustomEntityPredictions = (items: any[]) => {
   try {
     const existing = getPersistedCustomEntityPredictions()
     const map = new Map<string, any>()
-    for (const it of items) {
+    for (const rawIt of items) {
+      const it = sanitizeEntityPredictionRecord(rawIt)
       if (it?.entity) map.set(`${String(it.entity).toLowerCase()}__${String(it.riskCategory || '').toLowerCase()}`, it)
     }
-    for (const ex of existing) {
+    for (const rawEx of existing) {
+      const ex = sanitizeEntityPredictionRecord(rawEx)
       const k = `${String(ex?.entity || '').toLowerCase()}__${String(ex?.riskCategory || '').toLowerCase()}`
       if (ex?.entity && !map.has(k)) map.set(k, ex)
     }
@@ -67,7 +182,8 @@ export const savePersistedCustomEntityPredictions = (items: any[]) => {
 const mergeEntityPredictions = (baseList: any[], customList: any[]): any[] => {
   const seen = new Set<string>()
   const merged: any[] = []
-  for (const item of [...(customList || []), ...(baseList || [])]) {
+  for (const rawItem of [...(customList || []), ...(baseList || [])]) {
+    const item = sanitizeEntityPredictionRecord(rawItem)
     if (!item?.entity) continue
     const key = `${String(item.entity).trim().toLowerCase()}__${String(item.riskCategory || '').trim().toLowerCase()}`
     if (!seen.has(key)) {
@@ -83,7 +199,7 @@ export const getPersistedCustomAuditeeKpis = (): any[] => {
   try {
     const raw = localStorage.getItem(CUSTOM_AUDITEE_KPIS_KEY)
     const list = raw ? JSON.parse(raw) : []
-    return Array.isArray(list) ? list : []
+    return Array.isArray(list) ? list.map(sanitizeAuditeeKpiForecastRecord).filter(Boolean) : []
   } catch {
     return []
   }
@@ -94,7 +210,8 @@ export const savePersistedCustomAuditeeKpis = (items: any[]) => {
   try {
     const existing = getPersistedCustomAuditeeKpis()
     const map = new Map<string, any>()
-    for (const it of items) {
+    for (const rawIt of items) {
+      const it = sanitizeAuditeeKpiForecastRecord(rawIt)
       if (it?.kpiName) map.set(`${String(it.code || '').toLowerCase()}__${String(it.kpiName).toLowerCase()}`, it)
     }
     for (const ex of existing) {
@@ -125,7 +242,13 @@ export const getPersistedAutomatedRules = (): any[] => {
   if (typeof window === 'undefined') return []
   try {
     const raw = localStorage.getItem(AUTOMATED_ANOMALY_RULES_KEY)
-    return raw ? JSON.parse(raw) : []
+    const list = raw ? JSON.parse(raw) : []
+    return Array.isArray(list)
+      ? list.map((r: any) => ({
+        ...r,
+        severity: normalizeAnomalyRiskLevel(r?.severity || r?.riskLevel || 'High')
+      }))
+      : []
   } catch {
     return []
   }
@@ -134,7 +257,13 @@ export const getPersistedAutomatedRules = (): any[] => {
 export const savePersistedAutomatedRules = (rules: any[]) => {
   if (typeof window === 'undefined') return
   try {
-    localStorage.setItem(AUTOMATED_ANOMALY_RULES_KEY, JSON.stringify(rules))
+    const normalized = Array.isArray(rules)
+      ? rules.map((r: any) => ({
+        ...r,
+        severity: normalizeAnomalyRiskLevel(r?.severity || r?.riskLevel || 'High')
+      }))
+      : []
+    localStorage.setItem(AUTOMATED_ANOMALY_RULES_KEY, JSON.stringify(normalized))
   } catch (e) {
     console.warn('Failed to save persisted automated anomaly rules', e)
   }
@@ -145,11 +274,16 @@ export const getPersistedCustomAnomalies = (): any[] => {
   try {
     const raw = localStorage.getItem(CUSTOM_ANOMALIES_KEY)
     const list = raw ? JSON.parse(raw) : []
-    return Array.isArray(list) ? list.map(a => ({
-      ...a,
-      type: getCanonicalCategory(a.type),
-      category: getCanonicalCategory(a.category || a.type)
-    })) : []
+    return Array.isArray(list) ? list.map(a => {
+      const normalizedLevel = normalizeAnomalyRiskLevel(a.riskLevel || a.risk_level || a.severity)
+      return {
+        ...a,
+        type: getCanonicalCategory(a.type),
+        category: getCanonicalCategory(a.category || a.type),
+        severity: normalizedLevel,
+        riskLevel: normalizedLevel
+      }
+    }) : []
   } catch {
     return []
   }
@@ -169,12 +303,38 @@ export const getPersistedCustomScatter = (): any[] => {
   }
 }
 
+export const sanitizeNlpDocumentRecord = (d: any) => {
+  if (!d || typeof d !== 'object') return d
+  const rawRisk = d.riskLevel ?? d.risk_level ?? d.risk_level_label ?? d.riskLevelLabel ?? d.severity
+  const hasExplicit =
+    rawRisk !== undefined &&
+    rawRisk !== null &&
+    String(rawRisk).trim() !== '' &&
+    !['not scored', 'none', 'nan', 'null'].includes(String(rawRisk).trim().toLowerCase())
+  const isPos =
+    String(d.sentiment || '').toLowerCase() === 'positive' ||
+    d.controlIndicator === 'Adequate Control' ||
+    d.control_indicator === 'Adequate Control'
+  const fallbackLabel = isPos
+    ? 'Low'
+    : (d.severityScore !== undefined ? normalizeNlpRiskLevel(d.severityScore, 'Moderate') : 'Moderate')
+  const canonicalLabel = hasExplicit
+    ? normalizeNlpRiskLevel(rawRisk, fallbackLabel)
+    : (d.severityScore !== undefined ? normalizeNlpRiskLevel(d.severityScore, fallbackLabel) : fallbackLabel)
+  const canonicalCode = toNlpRiskCode(canonicalLabel, fallbackLabel)
+  return {
+    ...d,
+    riskLevel: canonicalCode,
+    riskLevelLabel: canonicalLabel
+  }
+}
+
 export const getPersistedCustomNlpDocs = (): any[] => {
   if (typeof window === 'undefined') return []
   try {
     const raw = localStorage.getItem(CUSTOM_NLP_DOCS_KEY)
     const list = raw ? JSON.parse(raw) : []
-    return Array.isArray(list) ? list : []
+    return Array.isArray(list) ? list.map(sanitizeNlpDocumentRecord).filter(Boolean) : []
   } catch {
     return []
   }
@@ -183,13 +343,14 @@ export const getPersistedCustomNlpDocs = (): any[] => {
 export const savePersistedCustomNlpDoc = (doc: any) => {
   if (typeof window === 'undefined' || !doc) return
   try {
+    const sanitized = sanitizeNlpDocumentRecord(doc)
     const current = getPersistedCustomNlpDocs()
-    const targetId = doc.docId
+    const targetId = sanitized.docId
     const existsIdx = current.findIndex(d => d.docId === targetId)
     if (existsIdx >= 0) {
-      current[existsIdx] = doc
+      current[existsIdx] = sanitized
     } else {
-      current.unshift(doc)
+      current.unshift(sanitized)
     }
     localStorage.setItem(CUSTOM_NLP_DOCS_KEY, JSON.stringify(current))
   } catch (e) {
@@ -276,18 +437,23 @@ export const savePersistedCustomNlpTaxonomy = (taxonomy: any) => {
 }
 
 export const mergeNlpDocuments = (baseDocs: any[] = [], customDocs: any[] = []): any[] => {
-  const customIds = new Set(customDocs.map(c => c.docId))
-  const filteredBase = (baseDocs || []).filter(b => !customIds.has(b.docId))
-  return [...customDocs, ...filteredBase]
+  const sanitizedCustom = (customDocs || []).map(sanitizeNlpDocumentRecord).filter(Boolean)
+  const sanitizedBase = (baseDocs || []).map(sanitizeNlpDocumentRecord).filter(Boolean)
+  const customIds = new Set(sanitizedCustom.map(c => c.docId))
+  const filteredBase = sanitizedBase.filter(b => !customIds.has(b.docId))
+  return [...sanitizedCustom, ...filteredBase]
 }
 
 export const savePersistedCustomAnomaly = (anom: any, scatter?: any) => {
   if (typeof window === 'undefined') return
   try {
+    const normalizedLevel = normalizeAnomalyRiskLevel(anom.riskLevel || anom.risk_level || anom.severity)
     const normalizedAnom = {
       ...anom,
       type: getCanonicalCategory(anom.type),
-      category: getCanonicalCategory(anom.category || anom.type)
+      category: getCanonicalCategory(anom.category || anom.type),
+      severity: normalizedLevel,
+      riskLevel: normalizedLevel
     }
     const current = getPersistedCustomAnomalies()
     const existsIdx = current.findIndex(a => a.id === normalizedAnom.id)
@@ -370,8 +536,20 @@ const xgboostState = ref<any>({
   modelMetrics: { ...initialXGB.modelMetrics }
 })
 
+const normalizeIsolationAnomaliesList = (list: any[] = []) =>
+  (list || []).map((a: any) => {
+    const normalizedLevel = normalizeAnomalyRiskLevel(a.riskLevel || a.risk_level || a.severity)
+    return {
+      ...a,
+      type: getCanonicalCategory(a.type),
+      category: getCanonicalCategory(a.category || a.type),
+      severity: normalizedLevel,
+      riskLevel: normalizedLevel
+    }
+  })
+
 const isolationState = ref<any>({
-  anomalies: [...initialCustomAnoms, ...initialIso.anomalies],
+  anomalies: normalizeIsolationAnomaliesList([...initialCustomAnoms, ...initialIso.anomalies]),
   scatterData: [...initialCustomScatter, ...initialIso.scatterData],
   summary: { ...initialIso.summary }
 })
@@ -485,10 +663,15 @@ const retrainQueue = ref<any[]>([])
 const retrainResource = ref<Record<string, any> | null>(null)
 
 const initialCustomAuditeeKpis = getPersistedCustomAuditeeKpis()
+const initialAuditeeKpis = mergeAuditeeKpiForecasts(
+  initialTS.kpiForecasts.map(sanitizeAuditeeKpiForecastRecord).filter(Boolean),
+  initialCustomAuditeeKpis
+)
+const initialAuditeeAtRisk = initialTS.atRiskDepartments.map(sanitizeAuditeeAtRiskRecord)
 const timeseriesState = ref<any>({
   historicalKPI: [...initialTS.historicalKPI],
-  kpiForecasts: mergeAuditeeKpiForecasts([...initialTS.kpiForecasts], initialCustomAuditeeKpis),
-  atRiskDepartments: [...initialTS.atRiskDepartments],
+  kpiForecasts: initialAuditeeKpis,
+  atRiskDepartments: initialAuditeeAtRisk,
   forecastAccuracy: { ...initialTS.forecastAccuracy },
   auditorForecast: {
     kpiForecasts: [] as any[],
@@ -497,18 +680,22 @@ const timeseriesState = ref<any>({
     executiveSummary: 'Memuat proyeksi KPI Auditor dari fitur Strategic Audit Plan dan Internal Audit Performance...'
   },
   auditeeForecast: {
-    kpiForecasts: mergeAuditeeKpiForecasts([...initialTS.kpiForecasts], initialCustomAuditeeKpis),
-    atRiskDepartments: [...initialTS.atRiskDepartments],
+    kpiForecasts: initialAuditeeKpis,
+    atRiskDepartments: initialAuditeeAtRisk,
     timeSeriesData: [...initialTS.historicalKPI],
     executiveSummary: 'Diprediksi Cabang Surabaya akan mengalami lonjakan NPL dalam 2 kuartal ke depan akibat kenaikan rasio kredit berisiko. Diperlukan pemantauan kredit macet dan pengetatan threshold Continuous Auditing.'
   }
 })
 
-const CACHE_KEY = 'auditsphere_real_analytics_cache_v15'
+const CACHE_KEY = 'auditsphere_real_analytics_cache_v19'
 
 const clearLegacyAnalyticsCaches = () => {
   if (typeof window === 'undefined') return
   const legacyKeys = [
+    'auditsphere_real_analytics_cache_v18',
+    'auditsphere_real_analytics_cache_v17',
+    'auditsphere_real_analytics_cache_v16',
+    'auditsphere_real_analytics_cache_v15',
     'auditsphere_real_analytics_cache_v14',
     'auditsphere_real_analytics_cache_v13',
     'auditsphere_real_analytics_cache_v12',
@@ -564,7 +751,7 @@ const loadRealCache = (): boolean => {
       // Restore from full 150 seed dataset
       const freshIso = useIsolationForestData()
       isolationState.value = {
-        anomalies: [...freshIso.anomalies],
+        anomalies: normalizeIsolationAnomaliesList([...freshIso.anomalies]),
         scatterData: [...freshIso.scatterData],
         summary: { ...freshIso.summary }
       }
@@ -581,16 +768,21 @@ const loadRealCache = (): boolean => {
               !String(p.entity).toLowerCase().includes('legal & compliance') &&
               p.riskCategory !== 'Legal'
             )
-            .map((p: any) => ({
+            .map((p: any) => sanitizeEntityPredictionRecord({
               ...p,
-              type: p.type === 'Department' ? 'Auditable Entity' : (p.type || 'Auditable Entity'),
               targetTimeline: p.targetTimeline && !p.targetTimeline.startsWith('Q') ? p.targetTimeline : `FY ${cy}`
             }))
+            .filter(Boolean)
           xgboostState.value = parsed.xgboost
         }
       }
     }
-    if (parsed.isolation) isolationState.value = parsed.isolation
+    if (parsed.isolation) {
+      isolationState.value = {
+        ...parsed.isolation,
+        anomalies: normalizeIsolationAnomaliesList(parsed.isolation.anomalies || [])
+      }
+    }
 
     // Merge persisted custom anomalies so they are never lost
     const customAnoms = getPersistedCustomAnomalies()
@@ -625,9 +817,29 @@ const loadRealCache = (): boolean => {
       recalculateNlpDistributions()
     }
     if (parsed.timeseries) {
+      const sanitizedTopKpis = Array.isArray(parsed.timeseries.kpiForecasts)
+        ? parsed.timeseries.kpiForecasts.map(sanitizeAuditeeKpiForecastRecord).filter(Boolean)
+        : timeseriesState.value.kpiForecasts
+      const sanitizedTopAtRisk = Array.isArray(parsed.timeseries.atRiskDepartments)
+        ? parsed.timeseries.atRiskDepartments.map(sanitizeAuditeeAtRiskRecord)
+        : timeseriesState.value.atRiskDepartments
+      const sanitizedAuditeeForecast = parsed.timeseries.auditeeForecast
+        ? {
+          ...parsed.timeseries.auditeeForecast,
+          kpiForecasts: Array.isArray(parsed.timeseries.auditeeForecast.kpiForecasts)
+            ? parsed.timeseries.auditeeForecast.kpiForecasts.map(sanitizeAuditeeKpiForecastRecord).filter(Boolean)
+            : sanitizedTopKpis,
+          atRiskDepartments: Array.isArray(parsed.timeseries.auditeeForecast.atRiskDepartments)
+            ? parsed.timeseries.auditeeForecast.atRiskDepartments.map(sanitizeAuditeeAtRiskRecord)
+            : sanitizedTopAtRisk
+        }
+        : undefined
       timeseriesState.value = {
         ...timeseriesState.value,
         ...parsed.timeseries,
+        kpiForecasts: sanitizedTopKpis,
+        atRiskDepartments: sanitizedTopAtRisk,
+        ...(sanitizedAuditeeForecast ? { auditeeForecast: sanitizedAuditeeForecast } : {}),
         auditorForecast: {
           kpiForecasts: Array.isArray(parsed.timeseries.auditorForecast?.kpiForecasts)
             ? parsed.timeseries.auditorForecast.kpiForecasts
@@ -698,18 +910,19 @@ export const useAiAnalytics = () => {
     return Number(val).toFixed(decimals)
   }
 
-  // Level names come from the AI service in many spellings; normalizeRiskLevel maps them onto one scale
-  // (combined levels first, so "Moderate to High" no longer collapses into "Moderate").
+  // Strictly map ANY risk level (including legacy 'Critical' or custom external DB ratings)
+  // onto the 5 canonical levels: High, Moderate to High, Moderate, Low to Moderate, Low.
   const getRiskConfig = (level: string) => {
-    const key = normalizeRiskLevel(level || 'Moderate')
+    const canonicalLabel = normalizeAnomalyRiskLevel(level || 'Moderate')
+    const key = normalizeRiskLevel(canonicalLabel)
     const badgeClass = getRiskLevelColorClass(key)
     switch (key) {
-      case 'High': return { label: String(level).toUpperCase() === 'HIGH' ? 'High' : level, color: '#F44336', bg: '#B71C1C', badgeClass }
+      case 'High': return { label: 'High', color: '#F44336', bg: '#B71C1C', badgeClass }
       case 'Medium to High': return { label: 'Moderate to High', color: '#FF9800', bg: '#E65100', badgeClass }
       case 'Medium': return { label: 'Moderate', color: '#FFC107', bg: '#FF6F00', badgeClass }
       case 'Low to Medium': return { label: 'Low to Moderate', color: '#8BC34A', bg: '#33691E', badgeClass }
       case 'Low': return { label: 'Low', color: '#4CAF50', bg: '#1B5E20', badgeClass }
-      default: return { label: level, color: '#9E9E9E', bg: '#616161', badgeClass }
+      default: return { label: 'Moderate', color: '#FFC107', bg: '#FF6F00', badgeClass: getRiskLevelColorClass('Medium') }
     }
   }
 
@@ -1035,8 +1248,8 @@ export const useAiAnalytics = () => {
                       actualScore: p.actual_score ?? p.actualScore ?? 9,
                       delta: p.delta ?? 0,
                       trend: p.trend || 'stable',
-                      predictedRiskLevel: p.risk_level || p.predictedRiskLevel || 'MODERATE_HIGH',
-                      actualRiskLevel: p.actual_risk_level || p.actualRiskLevel || 'MODERATE_HIGH'
+                      predictedRiskLevel: toEntityRiskCode(p.risk_level || p.predictedRiskLevel || 'MODERATE'),
+                      actualRiskLevel: toEntityRiskCode(p.actual_risk_level || p.actualRiskLevel || 'MODERATE')
                     }
                   }),
                 getPersistedCustomEntityPredictions()
@@ -1048,20 +1261,23 @@ export const useAiAnalytics = () => {
         if (resAnomalyBatch?.data || resAnomalyBatch?.anomalies) {
           const bData = resAnomalyBatch.data || resAnomalyBatch
           if (bData.anomalies && bData.anomalies.length > 0) {
-            const fetchedAnomalies = bData.anomalies.map((a: any) => ({
-              id: a.id || 'ANM-001',
-              entity: a.entity || a.accountNumber || a.refNumber || 'Kantor Pusat / GL',
-              type: a.type || a.category || 'Funding',
-              anomalyScore: a.anomaly_score ?? a.anomalyScore ?? 0.85,
-              description: a.description || a.reason || a.notes || 'Transaksi Anomali',
-              severity: a.severity || 'High',
-              date: a.date || a.timestamp?.slice(0, 10) || '2026-06-01',
-              amount: a.amount ?? 0,
-              xMetric: a.xMetric ?? (a.amount ? a.amount / 1000000 : 0),
-              hour: a.hour ?? a.hour_of_day ?? null,
-              isAnomaly: a.is_anomaly !== undefined ? a.is_anomaly : true,
-              riskLevel: a.risk_level || a.riskLevel || 'HIGH'
-            }))
+            const fetchedAnomalies = bData.anomalies.map((a: any) => {
+              const normalizedLevel = normalizeAnomalyRiskLevel(a.risk_level || a.riskLevel || a.severity)
+              return {
+                id: a.id || 'ANM-001',
+                entity: a.entity || a.accountNumber || a.refNumber || 'Kantor Pusat / GL',
+                type: a.type || a.category || 'Funding',
+                anomalyScore: a.anomaly_score ?? a.anomalyScore ?? 0.85,
+                description: a.description || a.reason || a.notes || 'Transaksi Anomali',
+                severity: normalizedLevel,
+                date: a.date || a.timestamp?.slice(0, 10) || '2026-06-01',
+                amount: a.amount ?? 0,
+                xMetric: a.xMetric ?? (a.amount ? a.amount / 1000000 : 0),
+                hour: a.hour ?? a.hour_of_day ?? null,
+                isAnomaly: a.is_anomaly !== undefined ? a.is_anomaly : true,
+                riskLevel: normalizedLevel
+              }
+            })
 
             // Merge persisted custom anomalies so dynamic categories are NEVER wiped on refresh/fetch
             const customAnoms = getPersistedCustomAnomalies()
@@ -1094,7 +1310,7 @@ export const useAiAnalytics = () => {
         if (resTextBatch?.data || resTextBatch?.documents) {
           const bData = resTextBatch.data || resTextBatch
           if (bData.documents && bData.documents.length > 0) {
-            const fetchedDocs = bData.documents.map((d: any) => ({
+            const fetchedDocs = bData.documents.map((d: any) => sanitizeNlpDocumentRecord({
               docId: d.docId || 'WP-001',
               title: d.title || 'Document Title',
               source: d.source || 'Working Paper',
@@ -1111,7 +1327,7 @@ export const useAiAnalytics = () => {
               extractedRecommendation: d.extracted_recommendation || d.extractedRecommendation || 'Perkuat pengendalian internal dan lakukan verifikasi berjenjang.',
               date: d.date || '2026-06-15',
               excerpt: d.excerpt || '',
-              riskLevel: d.risk_level || d.riskLevel || 'HIGH'
+              riskLevel: d.risk_level || d.riskLevel || d.risk_level_label || d.severityScore || 'HIGH'
             }))
             const customDocs = getPersistedCustomNlpDocs()
             nlpState.value.documents = mergeNlpDocuments(fetchedDocs, customDocs)
@@ -1123,46 +1339,48 @@ export const useAiAnalytics = () => {
           recalculateNlpDistributions()
         }
 
-        if (resPerfBatch?.data || resPerfBatch?.kpi_forecasts || resPerfBatch?.auditor_forecast) {
+        if (resPerfBatch?.data || resPerfBatch?.kpi_forecasts || resPerfBatch?.auditee_forecast || resPerfBatch?.auditor_forecast) {
           const bData = resPerfBatch.data || resPerfBatch
 
           // Auditee perspective (Gold Zone / CAATT + External DB Mapped KPIs)
           const auditeeSource = bData.auditee_forecast || bData
           if (auditeeSource.kpi_forecasts && auditeeSource.kpi_forecasts.length > 0) {
-            const mappedAuditee = auditeeSource.kpi_forecasts.map((f: any) => ({
-              kpiName: f.kpiName || f.kpi_name,
-              code: f.code || 'KPI-001',
-              unit: f.unit || '%',
-              entity: f.entity || 'Finance Dept',
-              entityType: f.entityType || f.entity_type || 'Department',
-              syncFrequency: f.syncFrequency || f.sync_frequency || 'Real-time (CDC)',
-              lastSyncedAt: f.lastSyncedAt || f.last_synced_at || '',
-              targetHorizon: f.targetHorizon || f.target_horizon || 'Q3 2026',
-              currentValue: f.currentValue ?? f.current_value ?? 0,
-              forecastedValue: f.forecastedValue ?? f.forecasted_value ?? 0,
-              deltaPct: f.deltaPct ?? f.delta_pct ?? 0,
-              trend: f.trend || 'Stable',
-              impactScore: f.impactScore ?? f.impact ?? 3,
-              likelihoodScore: f.likelihoodScore ?? f.likelihood ?? 3,
-              riskLevel: f.riskLevel || f.risk_level || 'LOW',
-              aiNarrative: f.aiNarrative || f.ai_narrative || '',
-              recommendedAction: f.recommendedAction || f.recommended_action || '',
-              lastActualPeriod: f.lastActualPeriod || f.last_actual_period || '',
-              history: f.history || [],
-              forecast: f.forecast || []
-            }))
+            const mappedAuditee = auditeeSource.kpi_forecasts
+              .map((f: any) => sanitizeAuditeeKpiForecastRecord({
+                kpiName: f.kpiName || f.kpi_name,
+                code: f.code || 'KPI-001',
+                unit: f.unit || '%',
+                entity: f.entity || 'Finance Dept',
+                entityType: f.entityType || f.entity_type || 'Department',
+                syncFrequency: f.syncFrequency || f.sync_frequency || 'Real-time (CDC)',
+                lastSyncedAt: f.lastSyncedAt || f.last_synced_at || '',
+                targetHorizon: f.targetHorizon || f.target_horizon || 'Q3 2026',
+                currentValue: f.currentValue ?? f.current_value ?? 0,
+                forecastedValue: f.forecastedValue ?? f.forecasted_value ?? 0,
+                deltaPct: f.deltaPct ?? f.delta_pct ?? 0,
+                trend: f.trend || 'Stable',
+                impactScore: f.impactScore ?? f.impact ?? 3,
+                likelihoodScore: f.likelihoodScore ?? f.likelihood ?? 3,
+                riskLevel: f.riskLevel || f.risk_level || 'LOW',
+                aiNarrative: f.aiNarrative || f.ai_narrative || '',
+                recommendedAction: f.recommendedAction || f.recommended_action || '',
+                lastActualPeriod: f.lastActualPeriod || f.last_actual_period || '',
+                history: f.history || [],
+                forecast: f.forecast || []
+              }))
+              .filter(Boolean)
 
             const customAuditee = getPersistedCustomAuditeeKpis()
             const mergedAuditee = mergeAuditeeKpiForecasts(mappedAuditee, customAuditee)
             const customAtRisk = customAuditee
-              .filter((k: any) => k.riskLevel === 'HIGH' || k.riskLevel === 'CRITICAL' || k.trend === 'Deteriorating')
-              .map((k: any) => ({
-                department: k.entity || ' Divisi Kredit',
+              .filter((k: any) => k.riskLevel === 'HIGH' || k.riskLevel === 'MODERATE_HIGH' || k.trend === 'Deteriorating')
+              .map((k: any) => sanitizeAuditeeAtRiskRecord({
+                department: k.entity || 'Divisi Kredit',
                 kpi: k.kpiName,
                 predictedDrop: `${k.deltaPct >= 0 ? '+' : ''}${k.deltaPct}% (${k.forecastedValue}${k.unit === '%' ? '%' : ' ' + k.unit})`,
                 riskLevel: k.riskLevel || 'HIGH'
               }))
-            const baseAtRisk = auditeeSource.at_risk_departments || []
+            const baseAtRisk = (auditeeSource.at_risk_departments || []).map(sanitizeAuditeeAtRiskRecord)
             const mergedAtRisk = [...customAtRisk, ...baseAtRisk.filter((b: any) => !customAtRisk.some((c: any) => c.kpi === b.kpi))]
 
             timeseriesState.value.auditeeForecast = {
@@ -1219,9 +1437,15 @@ export const useAiAnalytics = () => {
     fileType?: string
     fileContentBase64?: string
     riskCategory?: string
+    riskLevel?: string
+    severity?: string
   }) => {
+    const normalizedExtRiskCode = payload.riskLevel
+      ? toNlpRiskCode(payload.riskLevel)
+      : (payload.severity ? toNlpRiskCode(payload.severity) : undefined)
     const reqBody = {
       ...payload,
+      ...(normalizedExtRiskCode ? { riskLevel: normalizedExtRiskCode } : {}),
       persist: true
     }
     const res = await safeApiFetch('/text-analysis', {
@@ -1434,7 +1658,10 @@ export const useAiAnalytics = () => {
       finalExcerpt = findingText
     }
 
-    mappedDoc = {
+    const fallbackRiskCode = isPos ? 'LOW' : (isFraud || isSoD || resolvedCategory === 'Technology' || resolvedCategory === 'Financial' ? 'HIGH' : 'MODERATE_HIGH')
+    const rawRiskInput = rawDoc?.risk_level ?? rawDoc?.riskLevel ?? rawDoc?.risk_level_label ?? rawDoc?.severity ?? normalizedExtRiskCode ?? fallbackRiskCode
+
+    mappedDoc = sanitizeNlpDocumentRecord({
       docId: resolvedDocId,
       title: cleanTitle,
       source: rawDoc?.source || payload.source || 'Working Paper',
@@ -1451,8 +1678,8 @@ export const useAiAnalytics = () => {
       extractedRecommendation: recText,
       date: rawDoc?.date || new Date().toISOString().slice(0, 10),
       excerpt: finalExcerpt.slice(0, 340),
-      riskLevel: rawDoc?.risk_level || rawDoc?.riskLevel || (isPos ? 'LOW' : (isFraud ? 'CRITICAL' : 'HIGH'))
-    }
+      riskLevel: toNlpRiskCode(rawRiskInput, isPos ? 'Low' : 'High')
+    })
 
     nlpState.value.documents = [
       mappedDoc,
@@ -1520,7 +1747,7 @@ export const useAiAnalytics = () => {
     const res = await safeApiFetch('/text-analysis/sync-sources', { method: 'POST' })
     const bData = res?.data || res
     if (bData?.documents && bData.documents.length > 0) {
-      const mappedSynced = bData.documents.map((d: any) => ({
+      const mappedSynced = bData.documents.map((d: any) => sanitizeNlpDocumentRecord({
         docId: d.docId || 'WP-001',
         title: d.title || 'Document Title',
         source: d.source || 'Working Paper',
@@ -1537,7 +1764,7 @@ export const useAiAnalytics = () => {
         extractedRecommendation: d.extracted_recommendation || d.extractedRecommendation || '',
         date: d.date || '2026-06-15',
         excerpt: d.excerpt || '',
-        riskLevel: d.risk_level || d.riskLevel || 'HIGH'
+        riskLevel: d.risk_level || d.riskLevel || d.risk_level_label || d.severityScore || 'HIGH'
       }))
       const customDocs = getPersistedCustomNlpDocs()
       nlpState.value.documents = mergeNlpDocuments(mappedSynced, customDocs)
@@ -1593,6 +1820,7 @@ export const useAiAnalytics = () => {
   const addCustomAnomalyRecord = (anom: any, scatter?: any) => {
     if (!anom) return null
 
+    const normalizedLevel = normalizeAnomalyRiskLevel(anom.riskLevel || anom.risk_level || anom.severity || 'High')
     const record = {
       id: anom.id || `ANM-${Date.now().toString().slice(-4)}`,
       entity: anom.entity || 'Kantor Pusat / GL',
@@ -1600,12 +1828,14 @@ export const useAiAnalytics = () => {
       category: anom.type || anom.category || 'Custom',
       anomalyScore: anom.anomalyScore ?? 0.88,
       description: anom.description || anom.reason || 'Transaksi Anomali Terdeteksi',
-      severity: anom.severity || 'High',
+      severity: normalizedLevel,
       date: anom.date || new Date().toISOString().slice(0, 10),
       amount: anom.amount ?? (anom.xMetric ? anom.xMetric * 1000000 : 0),
       xMetric: anom.xMetric ?? (anom.amount ? anom.amount / 1000000 : 15),
+      hour: anom.hour ?? anom.hour_of_day ?? null,
+      hour_of_day: anom.hour_of_day ?? anom.hour ?? null,
       isAnomaly: true,
-      riskLevel: anom.riskLevel || 'HIGH'
+      riskLevel: normalizedLevel
     }
 
     const scatterPoint = scatter || {
@@ -1694,51 +1924,76 @@ export const useAiAnalytics = () => {
   }) => {
     loading.value = true
     try {
-      // 1. Persist rules locally and update reactive state
+      // 1. Persist rules locally (strictly normalized to the 5 risk levels) and update reactive state
       const existingRules = getPersistedAutomatedRules()
-      const newRulesList = (payload.rules || []).map((r: any, idx: number) => ({
-        ...(typeof r === 'string' ? { id: `rule-${Date.now()}-${idx}`, name: r, severity: 'HIGH' } : r),
-        table_name: payload.table_name,
-        connection_name: payload.connection_name,
-        category: payload.category || 'Transaction',
-        trained_at: new Date().toISOString()
-      }))
+      const sanitizedRules = (payload.rules || []).map((r: any, idx: number) => {
+        const baseRule = typeof r === 'string'
+          ? { id: `rule-${Date.now()}-${idx}`, name: r, severity: 'High' }
+          : r
+        return {
+          ...baseRule,
+          severity: normalizeAnomalyRiskLevel(baseRule.severity || baseRule.riskLevel || 'High'),
+          table_name: payload.table_name,
+          connection_name: payload.connection_name,
+          category: payload.category || 'Transaction',
+          trained_at: new Date().toISOString()
+        }
+      })
+
+      // Also normalize any external database sample records' risk level/severity before sending to AI training
+      const sanitizedSamples = Array.isArray(payload.sample_records)
+        ? payload.sample_records.map((rec: any) => {
+          if (!rec || typeof rec !== 'object') return rec
+          const extRisk = rec.risk_level ?? rec.riskLevel ?? rec.severity ?? rec.risk_rating ?? rec.tingkat_risiko ?? rec.severity_score
+          if (extRisk === undefined || extRisk === null || extRisk === '') return rec
+          const normExt = normalizeAnomalyRiskLevel(extRisk)
+          return { ...rec, risk_level: normExt, severity: normExt }
+        })
+        : payload.sample_records
 
       // Filter out duplicate rules by name & table
       const filteredExisting = existingRules.filter(
-        (er: any) => !(er.table_name === payload.table_name && newRulesList.some(nr => nr.name === er.name))
+        (er: any) => !(er.table_name === payload.table_name && sanitizedRules.some(nr => nr.name === er.name))
       )
-      const mergedRules = [...newRulesList, ...filteredExisting]
+      const mergedRules = [...sanitizedRules, ...filteredExisting]
       automatedAnomalyRules.value = mergedRules
       savePersistedAutomatedRules(mergedRules)
 
-      // 2. Call backend AI service to retrain with rules
+      // 2. Call backend AI service to retrain with 5-tier normalized rules & samples
       const res = await safeApiFetch('/predict/anomaly/train-rules', {
         method: 'POST',
-        body: payload
+        body: {
+          ...payload,
+          rules: sanitizedRules,
+          sample_records: sanitizedSamples
+        }
       })
 
       // 3. If response returns fresh anomalies and scatter points, merge them
       const bData = res?.data || res
       if (bData?.anomalies && bData.anomalies.length > 0) {
-        const fetchedAnomalies = bData.anomalies.map((a: any) => ({
-          id: a.id || 'ANM-001',
-          entity: a.entity || 'Kantor Operasional / Core Banking',
-          refNumber: a.id || 'TRX-001',
-          accountNumber: a.accountNumber || a.id || 'ACC-881923',
-          amount: a.amount || 0,
-          type: getCanonicalCategory(a.type),
-          category: getCanonicalCategory(a.category || a.type),
-          anomalyScore: a.anomaly_score || 0.85,
-          description: a.description || 'Transaksi anomali terdeteksi',
-          reason: a.reason || a.description || 'Penyimpangan aturan operasional',
-          date: a.date || new Date().toISOString().slice(0, 10),
-          riskLevel: normalizeRiskLevel(a.risk_level || a.severity),
-          xMetric: a.xMetric ?? (a.amount ? a.amount / 1000000 : 25.0),
-          hour: a.hour ?? a.hour_of_day ?? 12,
-          hour_of_day: a.hour ?? a.hour_of_day ?? 12,
-          isAnomaly: true
-        }))
+        const fetchedAnomalies = bData.anomalies.map((a: any) => {
+          const normalizedLevel = normalizeAnomalyRiskLevel(a.risk_level || a.riskLevel || a.severity)
+          return {
+            id: a.id || 'ANM-001',
+            entity: a.entity || 'Kantor Operasional / Core Banking',
+            refNumber: a.id || 'TRX-001',
+            accountNumber: a.accountNumber || a.id || 'ACC-881923',
+            amount: a.amount || 0,
+            type: getCanonicalCategory(a.type),
+            category: getCanonicalCategory(a.category || a.type),
+            anomalyScore: a.anomaly_score || 0.85,
+            description: a.description || 'Transaksi anomali terdeteksi',
+            reason: a.reason || a.description || 'Penyimpangan aturan operasional',
+            date: a.date || new Date().toISOString().slice(0, 10),
+            severity: normalizedLevel,
+            riskLevel: normalizedLevel,
+            xMetric: a.xMetric ?? (a.amount ? a.amount / 1000000 : 25.0),
+            hour: a.hour ?? a.hour_of_day ?? 12,
+            hour_of_day: a.hour ?? a.hour_of_day ?? 12,
+            isAnomaly: true
+          }
+        })
 
         // Save generated rule anomalies to persistent state
         fetchedAnomalies
@@ -1833,7 +2088,7 @@ export const useAiAnalytics = () => {
       try {
         const strategicStore = useStrategicPlanStore()
         if (!strategicStore.strategicObjectives?.length && typeof strategicStore.fetchStrategicPlans === 'function') {
-          await strategicStore.fetchStrategicPlans().catch(() => {})
+          await strategicStore.fetchStrategicPlans().catch(() => { })
         }
         if (Array.isArray(strategicStore.strategicObjectives)) {
           storePlans = [...strategicStore.strategicObjectives]
@@ -1903,16 +2158,16 @@ export const useAiAnalytics = () => {
         const atRiskPillars = Array.isArray(aiData.at_risk_pillars)
           ? aiData.at_risk_pillars
           : kpiForecasts
-              .filter((k: any) => k.predictedStatus === 'Poor' || k.predictedStatus === 'Moderate' || k.trend === 'Deteriorating')
-              .map((k: any) => ({
-                pillar: k.category,
-                code: k.code,
-                kpi: k.kpiName,
-                target: k.targetValue,
-                predicted: k.forecastedValue,
-                achievementRate: k.forecastedAchievementRate,
-                predictedStatus: k.predictedStatus
-              }))
+            .filter((k: any) => k.predictedStatus === 'Poor' || k.predictedStatus === 'Moderate' || k.trend === 'Deteriorating')
+            .map((k: any) => ({
+              pillar: k.category,
+              code: k.code,
+              kpi: k.kpiName,
+              target: k.targetValue,
+              predicted: k.forecastedValue,
+              achievementRate: k.forecastedAchievementRate,
+              predictedStatus: k.predictedStatus
+            }))
 
         const timeSeriesData = Array.isArray(aiData.time_series_data) && aiData.time_series_data.length > 0
           ? aiData.time_series_data
@@ -1997,28 +2252,30 @@ export const useAiAnalytics = () => {
 
   const addCustomAuditeeKpiForecasts = (newKpis: any[]) => {
     if (!Array.isArray(newKpis) || newKpis.length === 0) return []
-    savePersistedCustomAuditeeKpis(newKpis)
+    const sanitizedNewKpis = newKpis.map(sanitizeAuditeeKpiForecastRecord).filter(Boolean)
+    if (sanitizedNewKpis.length === 0) return []
+    savePersistedCustomAuditeeKpis(sanitizedNewKpis)
     customAuditeeVersion.value++
     const allCustom = getPersistedCustomAuditeeKpis()
     const currentBase = timeseriesState.value.auditeeForecast?.kpiForecasts || timeseriesState.value.kpiForecasts || []
     const mergedKpis = mergeAuditeeKpiForecasts(currentBase, allCustom)
 
     const customAtRisk = allCustom
-      .filter((k: any) => k.riskLevel === 'HIGH' || k.riskLevel === 'CRITICAL' || k.trend === 'Deteriorating')
-      .map((k: any) => ({
+      .filter((k: any) => k.riskLevel === 'HIGH' || k.riskLevel === 'MODERATE_HIGH' || k.trend === 'Deteriorating')
+      .map((k: any) => sanitizeAuditeeAtRiskRecord({
         department: k.entity || 'Divisi Kredit & Portofolio',
         kpi: k.kpiName,
         predictedDrop: `${k.deltaPct >= 0 ? '+' : ''}${k.deltaPct}% (${k.forecastedValue}${k.unit === '%' ? '%' : ' ' + k.unit})`,
         riskLevel: k.riskLevel || 'HIGH'
       }))
-    const existingAtRisk = timeseriesState.value.auditeeForecast?.atRiskDepartments || timeseriesState.value.atRiskDepartments || []
+    const existingAtRisk = (timeseriesState.value.auditeeForecast?.atRiskDepartments || timeseriesState.value.atRiskDepartments || []).map(sanitizeAuditeeAtRiskRecord)
     const mergedAtRisk = [...customAtRisk, ...existingAtRisk.filter((b: any) => !customAtRisk.some((c: any) => c.kpi === b.kpi))]
 
     timeseriesState.value.auditeeForecast = {
       ...(timeseriesState.value.auditeeForecast || {}),
       kpiForecasts: mergedKpis,
       atRiskDepartments: mergedAtRisk,
-      executiveSummary: `Proyeksi KPI Auditee diperbarui dengan ${newKpis.length} indikator portofolio dari database eksternal (${newKpis[0]?.entity || 'Unit Operasional'}). Ditemukan ${mergedAtRisk.length} indikator/unit berisiko yang memerlukan pemantauan Continuous Auditing.`
+      executiveSummary: `Proyeksi KPI Auditee diperbarui dengan ${sanitizedNewKpis.length} indikator portofolio dari database eksternal (${sanitizedNewKpis[0]?.entity || 'Unit Operasional'}). Ditemukan ${mergedAtRisk.length} indikator/unit berisiko yang memerlukan pemantauan Continuous Auditing.`
     }
     timeseriesState.value.kpiForecasts = mergedKpis
     timeseriesState.value.atRiskDepartments = mergedAtRisk
@@ -2038,19 +2295,31 @@ export const useAiAnalytics = () => {
           !String(it.entity).toLowerCase().includes('legal & compliance') &&
           it.risk_category !== 'Legal'
         )
-        .map((it: any) => ({
-          ...it,
-          entity_type: it.entity_type === 'Department' ? 'Auditable Entity' : (it.entity_type || 'Auditable Entity')
-        }))
+        .map((it: any) => {
+          const rawLvl = it.current_risk_level ?? it.risk_level ?? it.riskLevel ?? it.severity
+          const lvlCode = rawLvl ? toEntityRiskCode(rawLvl) : null
+          const [defLik, defImp] = lvlCode ? (CANONICAL_ENTITY_UI_PAIRS[lvlCode] || [3.0, 3.2]) : [3.0, 3.2]
+          const lik = clampEntityRating(it.inherent_likelihood, defLik)
+          const imp = clampEntityRating(it.inherent_impact, defImp)
+          const resolvedCode = lvlCode || matrixCalc5Tier(lik, imp)
+          return {
+            ...it,
+            entity_type: it.entity_type === 'Department' ? 'Auditable Entity' : (it.entity_type || 'Auditable Entity'),
+            inherent_likelihood: lik,
+            inherent_impact: imp,
+            previous_risk_score: Number(it.previous_risk_score) > 0 ? Number(it.previous_risk_score) : +(lik * imp).toFixed(1),
+            current_risk_level: resolvedCode
+          }
+        })
     } else {
       try {
         const auditUniverseStore = useAuditUniverseStore()
 
         if (!auditUniverseStore.yearlyUniverse || auditUniverseStore.yearlyUniverse.length === 0) {
-          await auditUniverseStore.fetchYearlyUniverse(currentYear).catch(() => {})
+          await auditUniverseStore.fetchYearlyUniverse(currentYear).catch(() => { })
         }
         if (!auditUniverseStore.corporateUniverse || auditUniverseStore.corporateUniverse.length === 0) {
-          await auditUniverseStore.fetchCorporateUniverse().catch(() => {})
+          await auditUniverseStore.fetchCorporateUniverse().catch(() => { })
         }
 
         const entityMap = new Map<string, any>()
@@ -2098,31 +2367,25 @@ export const useAiAnalytics = () => {
             category = 'Human Resources'
           }
 
-          // Map riskLevel and riskIndex from Audit Priority to inherent likelihood and impact (1-5)
-          let lik = 3.0
-          let imp = 3.0
-          const normLevel = normalizeRiskLevel(opt.riskLevel || 'Moderate')
+          // Map riskLevel and riskIndex strictly onto the 5 canonical Entity levels:
+          // High, Moderate to High, Moderate, Low to Moderate, Low.
+          const hasExplicitLevel = Boolean(opt.riskLevel && String(opt.riskLevel).trim())
           const rIndex = typeof opt.riskIndex === 'number' ? opt.riskIndex : Number(opt.riskIndex) || 0
+          let canonicalLabel = hasExplicitLevel
+            ? normalizeEntityRiskLevel(opt.riskLevel)
+            : 'Moderate'
 
-          if (normLevel === 'High' || rIndex >= 80) {
-            lik = 4.5
-            imp = 4.8
-          } else if (normLevel === 'Medium to High' || (rIndex >= 60 && rIndex < 80)) {
-            lik = 3.8
-            imp = 4.0
-          } else if (normLevel === 'Medium' || (rIndex >= 40 && rIndex < 60)) {
-            lik = 3.0
-            imp = 3.2
-          } else if (normLevel === 'Low to Medium' || (rIndex >= 20 && rIndex < 40)) {
-            lik = 2.2
-            imp = 2.5
-          } else if (normLevel === 'Low' || (rIndex > 0 && rIndex < 20)) {
-            lik = 1.5
-            imp = 1.8
+          if (rIndex >= 80) canonicalLabel = 'High'
+          else if (rIndex >= 60 && (!hasExplicitLevel || canonicalLabel === 'Moderate')) canonicalLabel = 'Moderate to High'
+          else if (!hasExplicitLevel) {
+            if (rIndex >= 40) canonicalLabel = 'Moderate'
+            else if (rIndex >= 20) canonicalLabel = 'Low to Moderate'
+            else if (rIndex > 0) canonicalLabel = 'Low'
           }
 
+          const lvlKey = toEntityRiskCode(canonicalLabel)
+          const [lik, imp] = CANONICAL_ENTITY_UI_PAIRS[lvlKey] || [3.0, 3.2]
           const score = +(lik * imp).toFixed(1)
-          const lvlKey = normLevel ? normLevel.toUpperCase().replace(/\s+/g, '_') : 'MODERATE'
           entityMap.set(lowerName, {
             entity: cleanName,
             entity_type: isBranch ? 'Branch' : 'Auditable Entity',
@@ -2150,25 +2413,16 @@ export const useAiAnalytics = () => {
 
     if (itemsToSync.length === 0) return null
 
-    const matrixCalc = (lik: number, imp: number) => {
-      const m: Record<number, Record<number, string>> = {
-        5: { 1: 'LOW_MODERATE', 2: 'MODERATE', 3: 'MODERATE_HIGH', 4: 'HIGH', 5: 'HIGH' },
-        4: { 1: 'LOW', 2: 'LOW_MODERATE', 3: 'MODERATE', 4: 'MODERATE_HIGH', 5: 'HIGH' },
-        3: { 1: 'LOW', 2: 'LOW_MODERATE', 3: 'MODERATE', 4: 'MODERATE_HIGH', 5: 'HIGH' },
-        2: { 1: 'LOW', 2: 'LOW_MODERATE', 3: 'LOW_MODERATE', 4: 'MODERATE_HIGH', 5: 'HIGH' },
-        1: { 1: 'LOW', 2: 'LOW', 3: 'LOW_MODERATE', 4: 'MODERATE', 5: 'HIGH' }
-      }
-      return m[Math.min(5, Math.max(1, Math.round(lik)))]?.[Math.min(5, Math.max(1, Math.round(imp)))] || 'MODERATE'
-    }
-
     const buildLocalPredictions = (list: any[]) => list.map((it: any) => {
-      const lik = Number(it.inherent_likelihood) || 3
-      const imp = Number(it.inherent_impact) || 3
+      const lik = clampEntityRating(it.inherent_likelihood, 3)
+      const imp = clampEntityRating(it.inherent_impact, 3)
       const actualScore = +(lik * imp).toFixed(1)
       const predLik = Math.min(5, Math.max(1, +(lik + ((it.audit_findings_count ?? 2) >= 2 ? 0.3 : -0.1)).toFixed(1)))
       const predImp = Math.min(5, Math.max(1, +(imp + ((it.kpi_below_target_count ?? 1) >= 1 ? 0.3 : -0.1)).toFixed(1)))
       const predScore = +(predLik * predImp).toFixed(1)
-      const predLvl = matrixCalc(predLik, predImp)
+      const predLvl = toEntityRiskCode(matrixCalc5Tier(predLik, predImp))
+      const rawActual = it.current_risk_level ?? it.currentRiskLevel ?? it.risk_level ?? it.riskLevel ?? it.severity
+      const actualLvl = rawActual ? toEntityRiskCode(rawActual) : toEntityRiskCode(matrixCalc5Tier(lik, imp))
       const isBr = ['cabang', 'kcp', 'regional', 'kc', 'outlet', 'branch'].some(w => String(it.entity).toLowerCase().includes(w))
       const defTimeline = it.target_timeline && !String(it.target_timeline).startsWith('Q') ? it.target_timeline : `FY ${currentYear}`
       return {
@@ -2185,7 +2439,7 @@ export const useAiAnalytics = () => {
         delta: +(predScore - actualScore).toFixed(1),
         trend: predScore > actualScore ? 'up' : (predScore < actualScore ? 'down' : 'stable'),
         predictedRiskLevel: predLvl,
-        actualRiskLevel: it.current_risk_level || matrixCalc(lik, imp),
+        actualRiskLevel: actualLvl,
         source: it.source_id || 'external_db'
       }
     })
@@ -2241,8 +2495,8 @@ export const useAiAnalytics = () => {
               actualScore: p.actual_score ?? p.actualScore ?? 9,
               delta: p.delta ?? 0,
               trend: p.trend || 'stable',
-              predictedRiskLevel: p.risk_level || p.predictedRiskLevel || 'MODERATE',
-              actualRiskLevel: p.actual_risk_level || p.actualRiskLevel || 'MODERATE'
+              predictedRiskLevel: toEntityRiskCode(p.risk_level || p.predictedRiskLevel || 'MODERATE'),
+              actualRiskLevel: toEntityRiskCode(p.actual_risk_level || p.actualRiskLevel || 'MODERATE')
             }
           })
 
@@ -2304,6 +2558,7 @@ export const useAiAnalytics = () => {
     syncEntityPredictionWithAuditUniverse: syncEntityPredictionWithRiskProfile,
     syncAuditorKpiWithStrategicPlan,
     addCustomAuditeeKpiForecasts,
+    sanitizeAuditeeKpiForecastRecord,
     isolationState,
     nlpState,
     timeseriesState,
@@ -2326,6 +2581,14 @@ export const useAiAnalytics = () => {
     savePersistedAutomatedRules,
     formatNum,
     getRiskConfig,
+    ENTITY_RISK_LEVELS,
+    NLP_RISK_LEVELS,
+    normalizeAnomalyRiskLevel,
+    normalizeEntityRiskLevel,
+    normalizeNlpRiskLevel,
+    toEntityRiskCode,
+    toNlpRiskCode,
+    sanitizeNlpDocumentRecord,
     sentimentColor,
     riskCategoryColor,
     controlIndicatorColor,

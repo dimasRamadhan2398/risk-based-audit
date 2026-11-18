@@ -14,6 +14,7 @@ from main import engine
 from core.identifiers import validate_identifier, quote_identifier
 from core.db import build_client_conn_string, get_read_only_client_conn, resolve_ssl_mode, validate_ssl_config, SSLConfigError
 from ingestion.introspect import introspect_schema
+from ingestion.profile import profile_client_table
 from jobs.queue import enqueue_job, get_job_status
 
 router = APIRouter()
@@ -241,9 +242,8 @@ def introspect_source_schema(source_id: str):
         raise HTTPException(status_code=500, detail=f"Failed to introspect schema: {str(e)}")
 
 @router.get("/{source_id}/preview/{table_name}")
-def preview_source_table(source_id: str, table_name: str, limit: int = 10):
-    """Preview sample records from a specific table in client database safely."""
-    # Sanitize identifier to prevent SQL injection
+def preview_source_table(source_id: str, table_name: str, limit: int = 50):
+    """Preview stratified sample records and real table profile from client database safely."""
     validate_identifier(table_name)
 
     with engine.connect() as conn:
@@ -255,18 +255,19 @@ def preview_source_table(source_id: str, table_name: str, limit: int = 10):
         raise HTTPException(status_code=404, detail="Source not registered")
 
     src = dict(row._mapping)
-    rows = []
     try:
         with get_read_only_client_conn(src) as conn:
-            with conn.cursor() as cur:
-                cur.execute(f"SELECT * FROM {quote_identifier(table_name)} LIMIT %s;", (limit,))
-                col_names = [desc[0] for desc in cur.description] if cur.description else []
-                for r in cur.fetchall():
-                    rows.append(dict(zip(col_names, r)))
+            data = profile_client_table(conn, table_name, sample_limit=limit)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to preview table {table_name}: {str(e)}")
 
-    return {"success": True, "data": {"tableName": table_name, "rows": rows}}
+    return {"success": True, "data": data}
+
+
+@router.get("/{source_id}/profile/{table_name}")
+def get_source_table_profile(source_id: str, table_name: str, limit: int = 50):
+    """Return exact row count, real metric aggregates, dimension breakdown, and stratified sample rows."""
+    return preview_source_table(source_id=source_id, table_name=table_name, limit=limit)
 
 def notify_ai_engine(source_id: str, source_name: str):
     """Notify AI engine that new data is available in gold.ai_training_pool with authentication."""

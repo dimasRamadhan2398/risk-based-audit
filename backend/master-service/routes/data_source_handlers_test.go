@@ -511,3 +511,106 @@ func TestDataSourceScheduleAndMappingsAndReconcile(t *testing.T) {
 		t.Fatalf("reconcile fail should return 502: %d %s", w.Code, w.Body.String())
 	}
 }
+
+func TestDataSourceMappedRecords_RealProfileAndNoFakeFallback(t *testing.T) {
+	_, db, _ := newDSEnv(t)
+	hubOnline := true
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if !hubOnline {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			_, _ = w.Write([]byte(`{"detail":"offline"}`))
+			return
+		}
+		if strings.Contains(req.URL.Path, "/preview/corporate_transactions") {
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(`{
+				"success": true,
+				"data": {
+					"tableName": "corporate_transactions",
+					"total_rows": 3244,
+					"rows": [
+						{"trx_id": 2801, "trx_ref_number": "NSA-AFT8-00001", "branch_name": "KCU Sudirman Plaza", "amount": 850000000, "is_suspicious": true}
+					],
+					"profile": {
+						"total_rows": 3244,
+						"flagged_rows": 318,
+						"has_numeric_measure": true,
+						"dimension_column": "branch_name",
+						"amount_column": "amount"
+					}
+				}
+			}`))
+			return
+		}
+		w.WriteHeader(http.StatusNotFound)
+	}))
+	defer srv.Close()
+
+	dh := services.NewDataHubClient()
+	dh.BaseURL = srv.URL
+
+	conn := models.DataSourceConnection{
+		ID:       uuid.New(),
+		Name:     "CBS Local",
+		Type:     "postgres",
+		Host:     "127.0.0.1",
+		Port:     5432,
+		Database: "cbs",
+		Status:   "Connected",
+		DataMappings: []models.TableDataMapping{
+			{
+				TableName:    "corporate_transactions",
+				TargetScope:  "audit_features",
+				TargetModule: "Strategic Audit Plan",
+				AuditField:   "trx_id",
+				IsActive:     true,
+			},
+			{
+				TableName:    "corporate_transactions",
+				TargetScope:  "audit_features",
+				TargetModule: "Annual Audit Plan",
+				AuditField:   "trx_id",
+				IsActive:     true,
+			},
+		},
+	}
+	if err := db.Create(&conn).Error; err != nil {
+		t.Fatal(err)
+	}
+
+	r := gin.New()
+	r.GET("/data-sources/mapped-records", dataSourceMappedRecords(db, dh))
+
+	// 1. Strategic Audit Plan returns real total_rows, profile, and sample_records
+	req := httptest.NewRequest(http.MethodGet, "/data-sources/mapped-records?target_scope=audit_features&target_module=Strategic+Audit+Plan", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("mapped-records strategic: %d %s", w.Code, w.Body.String())
+	}
+	m := decode(t, w)
+	dataList, _ := m["data"].([]interface{})
+	if len(dataList) != 1 {
+		t.Fatalf("expected 1 mapped record, got %d", len(dataList))
+	}
+	rec := dataList[0].(map[string]interface{})
+	if int(rec["total_rows"].(float64)) != 3244 || rec["data_hub_unavailable"] == true {
+		t.Fatalf("expected total_rows=3244 and hub online, got %+v", rec)
+	}
+	samples := rec["sample_records"].([]interface{})
+	if len(samples) != 1 {
+		t.Fatalf("expected 1 real sample row, got %d", len(samples))
+	}
+
+	// 2. When Data Hub is offline, returns empty sample_records and data_hub_unavailable=true (no fake REC-01)
+	hubOnline = false
+	req2 := httptest.NewRequest(http.MethodGet, "/data-sources/mapped-records?target_scope=audit_features&target_module=Annual+Audit+Plan", nil)
+	w2 := httptest.NewRecorder()
+	r.ServeHTTP(w2, req2)
+	m2 := decode(t, w2)
+	rec2 := m2["data"].([]interface{})[0].(map[string]interface{})
+	samples2 := rec2["sample_records"].([]interface{})
+	if len(samples2) != 0 || rec2["data_hub_unavailable"] != true || int(rec2["total_rows"].(float64)) != 0 {
+		t.Fatalf("expected empty sample_records and data_hub_unavailable=true when offline, got %+v", rec2)
+	}
+}

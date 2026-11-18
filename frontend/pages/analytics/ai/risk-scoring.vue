@@ -162,9 +162,9 @@ const xgboostBarOptions = computed(() => ({
           const item = chartPredictions.value[idx]
           if (!item) return `${ctx.dataset.label}: ${formatNum(ctx.parsed.y, 1)}`
           if (ctx.datasetIndex === 0) {
-            return `Prediksi: ${formatNum(item.predictedScore, 1)} [Likelihood: ${formatNum(item.predictedLikelihood, 1)}, Impact: ${formatNum(item.predictedImpact, 1)}] - ${item.predictedRiskLevel}`
+            return `Prediksi: ${formatNum(item.predictedScore, 1)} [Likelihood: ${formatNum(item.predictedLikelihood, 1)}, Impact: ${formatNum(item.predictedImpact, 1)}] - ${getRiskConfig(item.predictedRiskLevel).label}`
           } else {
-            return `Current: ${formatNum(item.actualScore, 1)} [Likelihood: ${formatNum(item.currentLikelihood ?? 3, 1)}, Impact: ${formatNum(item.currentImpact ?? 3, 1)}] - ${item.actualRiskLevel}`
+            return `Current: ${formatNum(item.actualScore, 1)} [Likelihood: ${formatNum(item.currentLikelihood ?? 3, 1)}, Impact: ${formatNum(item.currentImpact ?? 3, 1)}] - ${getRiskConfig(item.actualRiskLevel).label}`
           }
         }
       }

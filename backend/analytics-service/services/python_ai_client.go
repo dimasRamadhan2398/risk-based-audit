@@ -39,15 +39,18 @@ func NewPythonAIClient() *PythonAIClient {
 
 // --- Requests ---
 type DepartmentRiskRequest struct {
-	Entity               string  `json:"entity"`
-	RiskCategory         string  `json:"risk_category"`
-	InherentLikelihood   float64 `json:"inherent_likelihood"`
-	InherentImpact       float64 `json:"inherent_impact"`
-	AuditFindingsCount   float64 `json:"audit_findings_count"`
-	KPIBelowTargetCount  float64 `json:"kpi_below_target_count"`
-	KPIVolatility        float64 `json:"kpi_volatility"`
-	PreviousRiskScore    float64 `json:"previous_risk_score"`
-	AssessmentMonth      int     `json:"assessment_month"`
+	Entity              string  `json:"entity"`
+	EntityType          string  `json:"entity_type,omitempty"`
+	TargetTimeline      string  `json:"target_timeline,omitempty"`
+	RiskCategory        string  `json:"risk_category"`
+	InherentLikelihood  float64 `json:"inherent_likelihood"`
+	InherentImpact      float64 `json:"inherent_impact"`
+	AuditFindingsCount  float64 `json:"audit_findings_count"`
+	KPIBelowTargetCount float64 `json:"kpi_below_target_count"`
+	KPIVolatility       float64 `json:"kpi_volatility"`
+	PreviousRiskScore   float64 `json:"previous_risk_score"`
+	AssessmentMonth     int     `json:"assessment_month"`
+	CurrentRiskLevel    string  `json:"current_risk_level,omitempty"`
 }
 
 type AnomalyRequest struct {
@@ -78,6 +81,8 @@ type TextRequest struct {
 	FileType          string `json:"fileType,omitempty"`
 	FileContentBase64 string `json:"fileContentBase64,omitempty"`
 	RiskCategory      string `json:"riskCategory,omitempty"`
+	RiskLevel         string `json:"riskLevel,omitempty"`
+	Severity          string `json:"severity,omitempty"`
 	Persist           *bool  `json:"persist,omitempty"`
 }
 
@@ -146,6 +151,7 @@ type IndoBERTResponse struct {
 	Date                    string  `json:"date,omitempty"`
 	Excerpt                 string  `json:"excerpt"`
 	RiskLevel               string  `json:"risk_level"`
+	RiskLevelLabel          string  `json:"risk_level_label,omitempty"`
 }
 
 type LSTMResponse struct {

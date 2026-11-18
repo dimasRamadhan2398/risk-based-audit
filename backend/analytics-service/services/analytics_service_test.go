@@ -266,3 +266,107 @@ func TestTriggerModelRetrain_PerModelCacheInvalidation(t *testing.T) {
 		t.Fatalf("expected performance-trend batch cache NOT invalidated when retraining anomaly")
 	}
 }
+
+func TestNLPAnalysisRiskLevel5TierEnforcement(t *testing.T) {
+	allowedCodes := map[string]bool{
+		"HIGH":          true,
+		"MODERATE_HIGH": true,
+		"MODERATE":      true,
+		"LOW_MODERATE":  true,
+		"LOW":           true,
+	}
+
+	// 1. Offline fraud inference must NEVER return CRITICAL; strictly maps to HIGH
+	_, _, _, _, _, _, fraudLevel := inferDocumentMetadata("Laporan Fraud Kas", "fraud.pdf", "Ditemukan transaksi fiktif", "")
+	if fraudLevel != "HIGH" {
+		t.Fatalf("expected HIGH for fraud metadata fallback, got %q", fraudLevel)
+	}
+
+	// 2. Canonical Go risk normalization eliminates external/legacy non-5-tier labels
+	cases := map[string]string{
+		"Critical":         "HIGH",
+		"CRITICAL":         "HIGH",
+		"Extreme":          "HIGH",
+		"Very High":        "HIGH",
+		"Major":            "MODERATE_HIGH",
+		"Medium to High":   "MODERATE_HIGH",
+		"KOL-3":            "MODERATE_HIGH",
+		"Medium":           "MODERATE",
+		"Watch":            "MODERATE",
+		"Minor":            "LOW_MODERATE",
+		"Low to Medium":    "LOW_MODERATE",
+		"KOL-2":            "LOW_MODERATE",
+		"Insignificant":    "LOW",
+		"Safe":             "LOW",
+		"KOL-1":            "LOW",
+		"Not Scored":       "MODERATE",
+	}
+	for raw, expected := range cases {
+		code, label := normalizeCanonicalRiskLevelGo(raw, "MODERATE")
+		if code != expected {
+			t.Fatalf("normalizeCanonicalRiskLevelGo(%q) = %q (%q), expected %q", raw, code, label, expected)
+		}
+		if !allowedCodes[code] {
+			t.Fatalf("unexpected non-canonical code %q", code)
+		}
+	}
+
+	// 3. Offline AnalyzeDocumentOrText adapts external DB riskLevel/severity strictly to 5 levels
+	dead := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+	deadURL := dead.URL
+	dead.Close()
+	t.Setenv("PYTHON_AI_URL", deadURL)
+	service := NewAnalyticsService()
+
+	for raw, exp := range map[string]string{"Extreme": "HIGH", "Major": "MODERATE_HIGH", "Medium": "MODERATE", "Minor": "LOW_MODERATE", "Insignificant": "LOW"} {
+		res, err := service.AnalyzeDocumentOrText(TextRequest{
+			Title:      "External Record " + raw,
+			Text:       "Temuan eksternal atas proses pengendalian internal cabang.",
+			SourceType: "External Database",
+			RiskLevel:  raw,
+		})
+		if err != nil {
+			t.Fatalf("unexpected fallback error: %v", err)
+		}
+		if res.RiskLevel != exp {
+			t.Fatalf("expected fallback RiskLevel %q for external %q, got %q", exp, raw, res.RiskLevel)
+		}
+	}
+
+	// 4. Online batch response sanitizes legacy CRITICAL/MEDIUM/Minor records from AI or cache
+	pySrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"documents": []map[string]interface{}{
+				{"docId": "EXT-1", "title": "Critical Doc", "risk_level": "CRITICAL"},
+				{"docId": "EXT-2", "title": "Major Doc", "risk_level": "Major"},
+				{"docId": "EXT-3", "title": "Medium Doc", "risk_level": "MEDIUM"},
+				{"docId": "EXT-4", "title": "Minor Doc", "risk_level": "Minor"},
+				{"docId": "EXT-5", "title": "Safe Doc", "risk_level": "Insignificant"},
+			},
+		})
+	}))
+	defer pySrv.Close()
+	t.Setenv("PYTHON_AI_URL", pySrv.URL)
+	serviceOnline := NewAnalyticsService()
+	batchRes, err := serviceOnline.GetTextAnalysisBatch()
+	if err != nil {
+		t.Fatalf("unexpected batch error: %v", err)
+	}
+	m, ok := batchRes.(map[string]interface{})
+	if !ok {
+		t.Fatalf("expected map response, got %T", batchRes)
+	}
+	docs := m["documents"].([]interface{})
+	expectedOrder := []string{"HIGH", "MODERATE_HIGH", "MODERATE", "LOW_MODERATE", "LOW"}
+	for idx, item := range docs {
+		doc := item.(map[string]interface{})
+		got := doc["risk_level"].(string)
+		if got != expectedOrder[idx] {
+			t.Fatalf("doc[%d] risk_level = %q, expected %q", idx, got, expectedOrder[idx])
+		}
+		if !allowedCodes[got] {
+			t.Fatalf("non-canonical risk_level %q leaked in batch response", got)
+		}
+	}
+}

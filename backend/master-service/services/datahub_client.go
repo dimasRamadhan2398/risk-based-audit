@@ -230,9 +230,14 @@ func (c *DataHubClient) GetSourceSchema(sourceID string) (map[string]interface{}
 	return c.getWithResponse(fmt.Sprintf("/api/v1/sources/%s/schema", sourceID))
 }
 
-// PreviewSourceTable fetches sample rows from source DB via Data Hub
+// PreviewSourceTable fetches sample rows and table profile from source DB via Data Hub
 func (c *DataHubClient) PreviewSourceTable(sourceID string, tableName string) (map[string]interface{}, error) {
 	return c.getWithResponse(fmt.Sprintf("/api/v1/sources/%s/preview/%s", sourceID, tableName))
+}
+
+// ProfileSourceTable fetches exact row count, metric aggregates, dimension breakdown, and stratified samples via Data Hub
+func (c *DataHubClient) ProfileSourceTable(sourceID string, tableName string) (map[string]interface{}, error) {
+	return c.getWithResponse(fmt.Sprintf("/api/v1/sources/%s/profile/%s", sourceID, tableName))
 }
 
 func (c *DataHubClient) getWithResponse(path string) (map[string]interface{}, error) {

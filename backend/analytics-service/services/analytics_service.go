@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -43,16 +44,40 @@ func (s *AnalyticsService) GetRiskScore(req DepartmentRiskRequest) (*DepartmentR
 
 	res, err := s.aiClient.PredictRiskScore(req)
 	if err != nil {
-		score := req.InherentImpact * req.InherentLikelihood
+		lInt := int(req.InherentLikelihood + 0.5)
+		if lInt < 1 {
+			lInt = 1
+		} else if lInt > 5 {
+			lInt = 5
+		}
+		iInt := int(req.InherentImpact + 0.5)
+		if iInt < 1 {
+			iInt = 1
+		} else if iInt > 5 {
+			iInt = 5
+		}
+		matrix := [5][5]string{
+			{"LOW", "LOW", "LOW_MODERATE", "MODERATE", "HIGH"},
+			{"LOW", "LOW_MODERATE", "LOW_MODERATE", "MODERATE_HIGH", "HIGH"},
+			{"LOW", "LOW_MODERATE", "MODERATE", "MODERATE_HIGH", "HIGH"},
+			{"LOW", "LOW_MODERATE", "MODERATE", "MODERATE_HIGH", "HIGH"},
+			{"LOW_MODERATE", "MODERATE", "MODERATE_HIGH", "HIGH", "HIGH"},
+		}
+		lvl := matrix[lInt-1][iInt-1]
+		score := float64(iInt * lInt)
+		entType := req.EntityType
+		if entType == "" || entType == "Department" {
+			entType = "Auditable Entity"
+		}
 		return &DepartmentRiskResponse{
 			Entity:              req.Entity,
-			Type:                "Department",
-			PredictedImpact:     int(req.InherentImpact),
-			PredictedLikelihood: int(req.InherentLikelihood),
+			Type:                entType,
+			PredictedImpact:     iInt,
+			PredictedLikelihood: lInt,
 			PredictedScore:      score,
-			ActualScore:         score,
-			RiskLevel:           "MODERATE_HIGH",
-			ActualRiskLevel:     "MODERATE_HIGH",
+			ActualScore:         req.InherentImpact * req.InherentLikelihood,
+			RiskLevel:           lvl,
+			ActualRiskLevel:     lvl,
 			Confidence:          0.88,
 			Delta:               0.0,
 			Trend:               "stable",
@@ -139,6 +164,172 @@ func (s *AnalyticsService) GetTextAnalysis(text string) (*IndoBERTResponse, erro
 	return s.AnalyzeDocumentOrText(TextRequest{Text: text})
 }
 
+var canonicalRiskCodeToLabel = map[string]string{
+	"HIGH":          "High",
+	"MODERATE_HIGH": "Moderate to High",
+	"MODERATE":      "Moderate",
+	"LOW_MODERATE":  "Low to Moderate",
+	"LOW":           "Low",
+}
+
+func hasWordToken(s string, targets ...string) bool {
+	tokens := strings.FieldsFunc(s, func(r rune) bool {
+		return !(r >= 'a' && r <= 'z') && !(r >= '0' && r <= '9')
+	})
+	for _, tok := range tokens {
+		for _, target := range targets {
+			if tok == target {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func normalizeCanonicalRiskLevelGo(raw string, fallbackCode string) (string, string) {
+	fb := strings.ToUpper(strings.TrimSpace(fallbackCode))
+	if _, ok := canonicalRiskCodeToLabel[fb]; !ok {
+		fb = "MODERATE"
+	}
+
+	s := strings.TrimSpace(raw)
+	if s == "" {
+		return fb, canonicalRiskCodeToLabel[fb]
+	}
+
+	if numVal, err := strconv.ParseFloat(s, 64); err == nil {
+		code := fb
+		switch {
+		case numVal <= 5:
+			if numVal >= 4.5 {
+				code = "HIGH"
+			} else if numVal >= 3.5 {
+				code = "MODERATE_HIGH"
+			} else if numVal >= 2.5 {
+				code = "MODERATE"
+			} else if numVal >= 1.5 {
+				code = "LOW_MODERATE"
+			} else {
+				code = "LOW"
+			}
+		case numVal <= 25:
+			if numVal >= 20 {
+				code = "HIGH"
+			} else if numVal >= 15 {
+				code = "MODERATE_HIGH"
+			} else if numVal >= 10 {
+				code = "MODERATE"
+			} else if numVal >= 5 {
+				code = "LOW_MODERATE"
+			} else {
+				code = "LOW"
+			}
+		default:
+			if numVal >= 80 {
+				code = "HIGH"
+			} else if numVal >= 60 {
+				code = "MODERATE_HIGH"
+			} else if numVal >= 40 {
+				code = "MODERATE"
+			} else if numVal >= 20 {
+				code = "LOW_MODERATE"
+			} else {
+				code = "LOW"
+			}
+		}
+		return code, canonicalRiskCodeToLabel[code]
+	}
+
+	lower := strings.ToLower(s)
+	replacer := strings.NewReplacer(" ", "", "-", "", "_", "", "/", "")
+	compact := replacer.Replace(lower)
+
+	code := fb
+	switch {
+	case strings.Contains(compact, "moderatetohigh") || strings.Contains(compact, "mediumtohigh") ||
+		strings.Contains(compact, "sedangketinggi") ||
+		strings.Contains(compact, "moderatehigh") || strings.Contains(compact, "mediumhigh") ||
+		strings.Contains(compact, "modhigh") || strings.Contains(compact, "hightomoderate") ||
+		strings.Contains(compact, "hightomedium") ||
+		compact == "elevated" || compact == "significant" || compact == "major" ||
+		compact == "tier2" || compact == "level4" || compact == "kol3" || compact == "p2" || compact == "kuranglancar" ||
+		strings.Contains(lower, "kurang lancar"):
+		code = "MODERATE_HIGH"
+	case strings.Contains(compact, "lowtomoderate") || strings.Contains(compact, "lowtomedium") ||
+		strings.Contains(compact, "rendahkesedang") || strings.Contains(compact, "lowmoderate") ||
+		strings.Contains(compact, "lowmedium") || strings.Contains(compact, "lowmod") ||
+		strings.Contains(compact, "moderatetolow") || strings.Contains(compact, "mediumtolow") ||
+		compact == "guarded" || compact == "minor" ||
+		compact == "tier4" || compact == "level2" || compact == "kol2" || compact == "p4" || compact == "lancardengancatatan" ||
+		strings.Contains(lower, "lancar dengan catatan"):
+		code = "LOW_MODERATE"
+	case compact == "high" || compact == "highrisk" || compact == "risikotinggi" || compact == "tinggi" ||
+		compact == "veryhigh" || compact == "veryhighrisk" || compact == "critical" || compact == "criticalrisk" ||
+		compact == "extreme" || compact == "extremerisk" || compact == "catastrophic" || compact == "severe" ||
+		compact == "urgent" || compact == "blocker" || compact == "fatal" || compact == "sangattinggi" ||
+		compact == "kritis" || compact == "bahaya" || compact == "macet" || compact == "diragukan" ||
+		compact == "tier1" || compact == "level5" || compact == "kol4" || compact == "kol5" || compact == "p1" || compact == "p0" ||
+		strings.Contains(lower, "crit") || strings.Contains(lower, "extr") || strings.Contains(lower, "catastroph") ||
+		strings.Contains(lower, "sever") || strings.Contains(lower, "sangat tinggi") || strings.Contains(lower, "kritis") ||
+		hasWordToken(lower, "high", "tinggi"):
+		code = "HIGH"
+	case compact == "low" || compact == "lowrisk" || compact == "risikorendah" || compact == "rendah" ||
+		compact == "verylow" || compact == "minimal" || compact == "insignificant" || compact == "negligible" ||
+		compact == "trivial" || compact == "safe" || compact == "normal" || compact == "healthy" ||
+		compact == "info" || compact == "informational" || compact == "sangatrendah" || compact == "aman" ||
+		compact == "lancar" || compact == "tier5" || compact == "level1" || compact == "kol1" || compact == "p5" ||
+		strings.Contains(lower, "insignif") || strings.Contains(lower, "neglig") || strings.Contains(lower, "trivial") ||
+		strings.Contains(lower, "minimal") || strings.Contains(lower, "sangat rendah") || hasWordToken(lower, "low", "rendah"):
+		code = "LOW"
+	case compact == "moderate" || compact == "medium" || compact == "mod" || compact == "moderaterisk" ||
+		compact == "mediumrisk" || compact == "risikosedang" || compact == "sedang" || compact == "menengah" ||
+		compact == "watch" || compact == "warning" || compact == "fair" || compact == "average" ||
+		compact == "dpk" || compact == "dalamperhatiankhusus" || compact == "tier3" || compact == "level3" || compact == "p3" ||
+		strings.Contains(lower, "dalam perhatian khusus"):
+		code = "MODERATE"
+	}
+
+	return code, canonicalRiskCodeToLabel[code]
+}
+
+func sanitizeNLPBatchResponse(res interface{}) interface{} {
+	m, ok := res.(map[string]interface{})
+	if !ok {
+		return res
+	}
+	docsRaw, hasDocs := m["documents"].([]interface{})
+	if !hasDocs {
+		return res
+	}
+	for _, item := range docsRaw {
+		doc, ok := item.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		rawLvl := ""
+		for _, k := range []string{"risk_level", "riskLevel", "severity"} {
+			if v, exists := doc[k]; exists && v != nil {
+				s := strings.TrimSpace(fmt.Sprintf("%v", v))
+				if s != "" && s != "<nil>" {
+					rawLvl = s
+					break
+				}
+			}
+		}
+		fb := "MODERATE"
+		if sent, ok := doc["sentiment"].(string); ok && strings.EqualFold(sent, "Positive") {
+			fb = "LOW"
+		}
+		code, label := normalizeCanonicalRiskLevelGo(rawLvl, fb)
+		doc["risk_level"] = code
+		doc["risk_level_label"] = label
+		if _, hasCamel := doc["riskLevel"]; hasCamel {
+			doc["riskLevel"] = code
+		}
+	}
+	return m
+}
+
 // inferDocumentMetadata provides intelligent dynamic categorization, indicator, finding, and recommendation
 // based on filename, title, and extracted text when Python AI is offline or unreachable.
 func inferDocumentMetadata(title, fileName, text, explicitCat string) (cat, indicator, finding, rec, sentiment string, score int, riskLevel string) {
@@ -209,7 +400,7 @@ func inferDocumentMetadata(title, fileName, text, explicitCat string) (cat, indi
 		sentiment = "Negative"
 		indicator = "Fraud Indication"
 		score = 92
-		riskLevel = "CRITICAL"
+		riskLevel = "HIGH"
 		rec = "Lakukan audit investigatif khusus (forensik), bekukan sementara akses transaksi terkait, dan amankan bukti jejak audit."
 	} else if isSoD {
 		sentiment = "Negative"
@@ -294,6 +485,16 @@ func (s *AnalyticsService) AnalyzeDocumentOrText(req TextRequest) (*IndoBERTResp
 
 		cat, ind, finding, rec, sent, score, riskLevel := inferDocumentMetadata(title, req.FileName, req.Text, req.RiskCategory)
 
+		rawExtRisk := req.RiskLevel
+		if rawExtRisk == "" {
+			rawExtRisk = req.Severity
+		}
+		if rawExtRisk != "" && strings.ToLower(strings.TrimSpace(rawExtRisk)) != "not scored" {
+			code, _ := normalizeCanonicalRiskLevelGo(rawExtRisk, riskLevel)
+			riskLevel = code
+		}
+		finalCode, finalLabel := normalizeCanonicalRiskLevelGo(riskLevel, "MODERATE")
+
 		src := req.Source
 		if src == "" {
 			src = "Working Paper"
@@ -336,8 +537,14 @@ func (s *AnalyticsService) AnalyzeDocumentOrText(req TextRequest) (*IndoBERTResp
 			Confidence:              0.92,
 			Date:                    time.Now().Format("2006-01-02"),
 			Excerpt:                 excerpt,
-			RiskLevel:               riskLevel,
+			RiskLevel:               finalCode,
+			RiskLevelLabel:          finalLabel,
 		}, nil
+	}
+	if res != nil {
+		finalCode, finalLabel := normalizeCanonicalRiskLevelGo(res.RiskLevel, "MODERATE")
+		res.RiskLevel = finalCode
+		res.RiskLevelLabel = finalLabel
 	}
 	if req.FileContentBase64 != "" || req.FileName != "" || req.DocID != "" || req.Title != "" || (req.Persist != nil && *req.Persist) {
 		s.cache.InvalidateAll()
@@ -352,7 +559,7 @@ func (s *AnalyticsService) GetTextAnalysisBatch() (interface{}, error) {
 	}
 	var res interface{}
 	_ = json.Unmarshal(raw, &res)
-	return res, nil
+	return sanitizeNLPBatchResponse(res), nil
 }
 
 func (s *AnalyticsService) GetNLPTaxonomy() (interface{}, error) {
@@ -384,7 +591,7 @@ func (s *AnalyticsService) SyncNLPMultiSources() (interface{}, error) {
 	s.cache.InvalidateAll()
 	var res interface{}
 	_ = json.Unmarshal(raw, &res)
-	return res, nil
+	return sanitizeNLPBatchResponse(res), nil
 }
 
 func (s *AnalyticsService) DeleteNLPAnalyzeDocument(docID string) (interface{}, error) {

@@ -1084,7 +1084,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     clearFilters, openViewModal, closeViewModal, departmentOptions, departments, departmentOptionsLoading, fetchDepartmentOptions, statusOptions,
     activityDepartmentName, activityRiskName,
     toggleMonth, addActivity, removeActivity, handleDownload,
-    openModal, closeModal, handleSubmit, handleEdit, handleEditFromView, handleDelete,
+    openModal, closeModal, handleSubmit, handleEdit, handleEditFromView, handleDelete, addPlan,
     getStatusColor, getStatusBadgeColor, getStatusLabel, handleFileChange, fetchPlans, fetchAnnualPlans: fetchPlans,
     handleStaffApprove, handleStaffReject, handleManagerApprove, handleManagerReject, handleChiefApprove, handleChiefReject,
     createRevision, getRiskLevelColor,

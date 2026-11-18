@@ -45,6 +45,76 @@ export function shouldShowAnomalyRules(targetScope?: string, targetModule?: stri
   return targetScope === 'data_analytics' && targetModule === 'AI: Anomaly Detection'
 }
 
+export interface TargetModuleOption {
+  label: string
+  value: string
+  disabled?: boolean
+}
+
+export const SUPPORTED_TARGET_MODULES = new Set<string>([
+  'Corporate Risk Profile',
+  'Audit Universe',
+  'Strategic Audit Plan',
+  'Annual Audit Plan',
+  'Working Paper Evidence',
+  'AI: Entity Prediction',
+  'AI: Anomaly Detection',
+  'AI: NLP Document Analysis',
+  'AI: KPI & Loss Forecast',
+])
+
+export function isTargetModuleSupported(targetModule?: string): boolean {
+  if (!targetModule) return false
+  return SUPPORTED_TARGET_MODULES.has(targetModule.trim())
+}
+
+export const SCOPE_MODULES_MAP: Record<string, TargetModuleOption[]> = {
+  risk_management: [
+    { label: 'Corporate Risk Profile', value: 'Corporate Risk Profile' },
+    { label: 'Audit Universe', value: 'Audit Universe' },
+    { label: 'Risk Appetite Statement (Belum didukung)', value: 'Risk Appetite Statement', disabled: true },
+    { label: 'Risk Factors (Belum didukung)', value: 'Risk Factors', disabled: true },
+    { label: 'Audit Priority (Belum didukung)', value: 'Audit Priority', disabled: true },
+    { label: 'Risk Control Matrix (RCM) (Belum didukung)', value: 'Risk Control Matrix (RCM)', disabled: true },
+    { label: 'Risk Mitigation (Belum didukung)', value: 'Risk Mitigation', disabled: true },
+  ],
+  audit_features: [
+    { label: 'Strategic Audit Plan', value: 'Strategic Audit Plan' },
+    { label: 'Annual Audit Plan', value: 'Annual Audit Plan' },
+    { label: 'Working Paper Evidence', value: 'Working Paper Evidence' },
+    { label: 'Audit Activity Plan (Belum didukung)', value: 'Audit Activity Plan', disabled: true },
+    { label: 'Assignment Letter (Belum didukung)', value: 'Assignment Letter', disabled: true },
+    { label: 'Audit Execution Status (Belum didukung)', value: 'Audit Execution Status', disabled: true },
+    { label: 'Audit Fieldwork (Belum didukung)', value: 'Audit Fieldwork', disabled: true },
+    { label: 'Internal Audit Performance (KPI) (Belum didukung)', value: 'Internal Audit Performance (KPI)', disabled: true },
+    { label: 'Audit Result Report (LHA) (Belum didukung)', value: 'Audit Result Report (LHA)', disabled: true },
+    { label: 'Action Taken Report (ATR) (Belum didukung)', value: 'Action Taken Report (ATR)', disabled: true },
+  ],
+  qar_features: [
+    { label: 'Quality Assurance Dashboard (Belum didukung)', value: 'Quality Assurance Dashboard', disabled: true },
+    { label: 'Periodic Self-Assessment (Belum didukung)', value: 'Periodic Self-Assessment', disabled: true },
+    { label: 'SAIV Validation (Belum didukung)', value: 'SAIV Validation', disabled: true },
+    { label: 'IACM Assessment (Belum didukung)', value: 'IACM Assessment', disabled: true },
+    { label: 'Consulting Service (Belum didukung)', value: 'Consulting Service', disabled: true },
+  ],
+  data_analytics: [
+    { label: 'AI: Entity Prediction', value: 'AI: Entity Prediction' },
+    { label: 'AI: Anomaly Detection', value: 'AI: Anomaly Detection' },
+    { label: 'AI: NLP Document Analysis', value: 'AI: NLP Document Analysis' },
+    { label: 'AI: KPI & Loss Forecast', value: 'AI: KPI & Loss Forecast' },
+  ],
+}
+
+export function getModulesForTargetScope(scope?: string): TargetModuleOption[] {
+  return SCOPE_MODULES_MAP[scope || 'audit_features'] || SCOPE_MODULES_MAP.audit_features || []
+}
+
+export function getDefaultModuleForTargetScope(scope?: string): string {
+  const mods = getModulesForTargetScope(scope)
+  const firstSupported = mods.find(m => !m.disabled)
+  return firstSupported?.value || mods[0]?.value || 'Working Paper Evidence'
+}
+
 export function resolveCanonicalEntityAuto(tableName: string, targetModule: string): string {
   const tbl = (tableName || '').toLowerCase()
   const mod = (targetModule || '').toLowerCase()
