@@ -48,6 +48,7 @@ func (ctl *Controller) Register(g *gin.RouterGroup) {
 	g.GET("/summary", ctl.Summary)
 	g.GET("/settings", ctl.GetSettings)
 	g.PUT("/settings", ctl.PutSettings)
+	ctl.registerPoF(g)
 	g.GET("/periods", ctl.ListPeriods)
 	g.POST("/periods/lock", ctl.LockPeriod)
 	g.POST("/periods/unlock", ctl.UnlockPeriod)

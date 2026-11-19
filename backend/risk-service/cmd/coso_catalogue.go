@@ -11,3 +11,9 @@ import (
 func seedCosoCatalogue(db *gorm.DB) error {
 	return services.SeedCosoCatalogue(db)
 }
+
+// seedCosoPofCatalogue runs in `risk up` after seedCosoCatalogue. Insert-if-
+// missing, validated before any write; see services.SeedCosoPofCatalogue.
+func seedCosoPofCatalogue(db *gorm.DB) error {
+	return services.SeedCosoPofCatalogue(db)
+}

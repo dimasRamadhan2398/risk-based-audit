@@ -96,6 +96,14 @@ func TestViewerRouteMatrix(t *testing.T) {
 		"/api/v1/action-taken-reports",
 		"/api/v1/performance/kpi",
 		"/api/v1/uploaded-annual-plans", // metadata list only, no file bytes
+		// COSO PoF assessment: lists and the scored tree are plain business data
+		"/api/v1/ic-assessments/branch-methods",
+		"/api/v1/ic-assessments/pof-settings",
+		"/api/v1/ic-assessments/pof-import-profiles",
+		"/api/v1/ic-assessments/" + id + "/pof",
+		"/api/v1/ic-assessments/" + id + "/pof-summary",
+		"/api/v1/ic-assessments/" + id + "/pof-assignments",
+		"/api/v1/ic-assessments/" + id + "/pof-evidence", // metadata list only
 	}
 	for _, p := range reads {
 		if c := doViewerReq(engine, "GET", p, viewer); c == 403 || c == 401 {
@@ -121,7 +129,17 @@ func TestViewerRouteMatrix(t *testing.T) {
 		{"POST", "/api/v1/working-papers/imports"},
 		{"POST", "/api/v1/media/upload"},
 		{"DELETE", "/api/v1/performance/kpi/" + id},
+		{"PUT", "/api/v1/ic-assessments/branch-methods"},
+		{"PUT", "/api/v1/ic-assessments/pof-settings"},
+		{"POST", "/api/v1/ic-assessments/pof-import-profiles"},
+		{"PUT", "/api/v1/ic-assessments/" + id + "/pof-values"},
+		{"PUT", "/api/v1/ic-assessments/" + id + "/pof-assignments"},
+		{"POST", "/api/v1/ic-assessments/" + id + "/pof-evidence"},
+		{"POST", "/api/v1/ic-assessments/" + id + "/pof-import/preview"},
+		{"POST", "/api/v1/ic-assessments/" + id + "/pof-import/" + id + "/apply"},
 		// file access
+		{"GET", "/api/v1/ic-assessments/" + id + "/pof-evidence/" + id + "/download"},
+		{"GET", "/api/v1/ic-assessments/" + id + "/pof-import/" + id + "/download"},
 		{"GET", "/api/v1/uploaded-annual-plans/" + id + "/download"},
 		{"GET", "/api/v1/uploaded-annual-plans/" + id + "/view"},
 		{"GET", "/api/v1/uploaded-annual-plans/" + id + "/view/a.pdf"},
@@ -134,6 +152,8 @@ func TestViewerRouteMatrix(t *testing.T) {
 		{"GET", "/uploads/plan.pdf"},
 		{"HEAD", "/uploads/plan.pdf"},
 		// exports
+		{"GET", "/api/v1/ic-assessments/" + id + "/pof-export"},
+		{"GET", "/api/v1/ic-assessments/pof-export-template"},
 		{"GET", "/api/v1/performance/export-pdf"},
 		{"GET", "/api/v1/audit-result-reports/" + id + "/download-docx"},
 	}

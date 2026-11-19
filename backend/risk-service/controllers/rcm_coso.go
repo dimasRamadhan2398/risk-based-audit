@@ -517,3 +517,67 @@ func (ctrl *RCMController) GetCosoSignals(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": res})
 }
+
+// ---- GET /rcm/coso-pof-catalogue ----
+
+// OwnerRoleLabel describes one default owner label of the PoF catalogue and
+// the auth-service role it matches, if any. A label with no auth role is
+// assigned to a user together with the free label; no role is ever created.
+type ownerRoleLabelDTO struct {
+	Label    string `json:"label"`
+	NameEn   string `json:"name_en"`
+	NameID   string `json:"name_id"`
+	AuthRole string `json:"auth_role"`
+}
+
+func ownerRoleLabels() []ownerRoleLabelDTO {
+	return []ownerRoleLabelDTO{
+		{"EXECUTIVE", "Executive / Board of Directors", "Eksekutif / Direksi", "EXECUTIVE"},
+		{"AUDIT_COMMITTEE", "Audit Committee", "Komite Audit", ""},
+		{"CORPORATE_SECRETARY", "Corporate Secretary", "Sekretaris Perusahaan", ""},
+		{"HEAD_OF_HR", "Head of Human Resources", "Kepala SDM", ""},
+		{"RISK_MANAGEMENT", "Risk Management (second line)", "Manajemen Risiko (lini 2)", ""},
+		{"DEPARTMENT_HEAD", "Head of Department", "Kepala Departemen", "DEPARTMENT_HEAD"},
+		{"HEAD_OF_IT", "Head of IT", "Kepala TI", ""},
+		{"CORPORATE_COMMUNICATION", "Corporate Communication", "Komunikasi Korporat", ""},
+		{"MANAGEMENT", "Management", "Manajemen", ""},
+	}
+}
+
+// GetCosoPofCatalogue returns one version of the PoF catalogue (default: the
+// current one) with the weights, elements and default owner labels. Read-only,
+// any authenticated role. audit-service reads it when it creates a
+// quantitative assessment and copies it into the assessment (a snapshot per
+// catalog_version).
+func (ctrl *RCMController) GetCosoPofCatalogue(c *gin.Context) {
+	framework := normalizeCode(c.DefaultQuery("framework", models.CosoPofFramework))
+	if !frameworkPattern.MatchString(framework) {
+		respondValidation(c, fieldErrors{"framework": "must be 1-20 characters A-Z, 0-9 or _"})
+		return
+	}
+	version := strings.TrimSpace(c.Query("version"))
+	if len(version) > 20 {
+		respondValidation(c, fieldErrors{"version": "must be at most 20 characters"})
+		return
+	}
+	cat, err := services.LoadCosoPofCatalogue(ctrl.db.WithContext(c.Request.Context()), framework, version)
+	if errors.Is(err, services.ErrCatalogNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "error": gin.H{"code": "NOT_FOUND", "message": "COSO PoF catalogue version not found; run `risk up`"}})
+		return
+	}
+	if err != nil {
+		respondDB(c, "Failed to load the COSO PoF catalogue", err)
+		return
+	}
+	issues := services.ValidateCosoPofCatalogue(cat)
+	if len(issues) > 0 {
+		// A stored catalogue that breaks an invariant is never served.
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": gin.H{
+			"code": "CATALOGUE_INVALID", "message": "The stored COSO PoF catalogue breaks a weight invariant", "details": issues}})
+		return
+	}
+	pofs, els := services.CountPofElements(cat)
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": gin.H{
+		"catalogue": cat, "counts": gin.H{"pofs": pofs, "elements": els}, "owner_roles": ownerRoleLabels(),
+	}})
+}

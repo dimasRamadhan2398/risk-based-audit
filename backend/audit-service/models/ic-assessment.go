@@ -37,6 +37,16 @@ type ICAssessment struct {
 	PeriodEnd      time.Time  `gorm:"type:date" json:"period_end"`
 	AsOfDate       *time.Time `gorm:"type:date" json:"as_of_date"`
 
+	// Method is the assessment method, fixed when the assessment is created
+	// (from the branch setting, ic_branch_methods): QUALITATIVE (YES/PARTIAL/NO
+	// per principle) or QUANTITATIVE_POF (weighted point-of-focus scoring,
+	// docs/coso-pof-assessment-api.md). Existing rows are QUALITATIVE.
+	Method string `gorm:"type:varchar(20);not null;default:'QUALITATIVE'" json:"method"`
+	// CatalogVersion and the two thresholds are set for QUANTITATIVE_POF only
+	CatalogVersion      string   `gorm:"type:varchar(20)" json:"catalog_version"`
+	PofYesThreshold     *float64 `gorm:"type:decimal(4,3)" json:"pof_yes_threshold"`
+	PofPartialThreshold *float64 `gorm:"type:decimal(4,3)" json:"pof_partial_threshold"`
+
 	Status      string `gorm:"type:varchar(20);not null;index" json:"status"`
 	Version     int    `gorm:"not null;default:1" json:"version"`
 	ProposalRun int    `gorm:"not null;default:0" json:"proposal_run"`
@@ -246,20 +256,25 @@ const ICAssessmentSettingsID = 1
 // when set, else the defaults) and never overwrites it; ADMIN changes it
 // through PUT /ic-assessments/settings.
 type ICAssessmentSettings struct {
-	ID                        int       `gorm:"primaryKey;autoIncrement:false" json:"-"`
-	LHADueDays                int       `gorm:"column:lha_due_days;not null" json:"lha_due_days"`
-	ManagementResponseDueDays int       `gorm:"column:management_response_due_days;not null" json:"management_response_due_days"`
-	UpdatedByUserID           string    `gorm:"type:varchar(64)" json:"updated_by_user_id"`
-	UpdatedByName             string    `gorm:"type:varchar(200)" json:"updated_by_name"`
-	CreatedAt                 time.Time `json:"created_at"`
-	UpdatedAt                 time.Time `json:"updated_at"`
+	ID                        int `gorm:"primaryKey;autoIncrement:false" json:"-"`
+	LHADueDays                int `gorm:"column:lha_due_days;not null" json:"lha_due_days"`
+	ManagementResponseDueDays int `gorm:"column:management_response_due_days;not null" json:"management_response_due_days"`
+	// PoF thresholds (QUANTITATIVE_POF): achievement at or above the yes
+	// threshold is YES, at or above the partial threshold PARTIAL, else NO.
+	// Added later than the table: the column defaults fill the existing row.
+	PofYesThreshold     float64   `gorm:"column:pof_yes_threshold;type:decimal(4,3);not null;default:0.8" json:"-"`
+	PofPartialThreshold float64   `gorm:"column:pof_partial_threshold;type:decimal(4,3);not null;default:0.4" json:"-"`
+	UpdatedByUserID     string    `gorm:"type:varchar(64)" json:"updated_by_user_id"`
+	UpdatedByName       string    `gorm:"type:varchar(200)" json:"updated_by_name"`
+	CreatedAt           time.Time `json:"created_at"`
+	UpdatedAt           time.Time `json:"updated_at"`
 }
 
 func (ICAssessmentSettings) TableName() string { return "ic_assessment_settings" }
 
 // ICAssessmentModels lists the models "audit migrate up" creates, in order
 func ICAssessmentModels() []interface{} {
-	return []interface{}{
+	out := []interface{}{
 		&ICAssessment{},
 		&ICAssessmentComponent{},
 		&ICAssessmentPrinciple{},
@@ -268,4 +283,5 @@ func ICAssessmentModels() []interface{} {
 		&ICAssessmentPeriod{},
 		&ICAssessmentSettings{},
 	}
+	return append(out, ICPoFModels()...)
 }
