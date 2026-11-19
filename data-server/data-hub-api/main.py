@@ -12,7 +12,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker
 
-from core.db import engine, cbs_engine
+from core.db import engine, cbs_engine, SSL_MODES
 from core.migrations import run_migrations
 
 API_KEY = os.getenv("API_KEY", "dev-api-key")
@@ -142,4 +142,8 @@ def health():
         "service": "auditsphere-data-hub-api",
         "database": {"datalake": db_ok, "cbs_simulator": cbs_ok},
         "schemas": schemas,
+        # Capability signal (additive): lets master-service verify this Data Hub
+        # understands per-source ssl_mode before relying on verify-ca/verify-full.
+        "features": ["ssl_mode"],
+        "ssl_modes": list(SSL_MODES),
     }
