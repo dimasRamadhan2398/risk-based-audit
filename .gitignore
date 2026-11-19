@@ -65,3 +65,10 @@ logs/
 # (docker-compose.prod.yml -> /etc/rb-audit/pg-ca). Only .gitkeep is tracked.
 backend/pg-ca/*
 !backend/pg-ca/.gitkeep
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Local sample DB TLS material (never commit keys)
+local-sample-db/certs/
