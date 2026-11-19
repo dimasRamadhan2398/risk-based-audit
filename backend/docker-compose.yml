@@ -169,6 +169,12 @@ services:
       # table at migrate time only if missing; ADMIN edits them in the app.
       - IC_LHA_DUE_DAYS=${IC_LHA_DUE_DAYS:-30}
       - IC_MGMT_RESPONSE_DUE_DAYS=${IC_MGMT_RESPONSE_DUE_DAYS:-14}
+      # Local dev has no ClamAV sidecar (it only exists in docker-compose.prod.yml),
+      # so the default "required" mode would refuse every upload. Accept unscanned
+      # files locally. To test scanning, copy the `clamav` service (and clamav_db
+      # volume) from docker-compose.prod.yml, which mounts ./clamav/clamd.conf,
+      # then run with CLAMAV_MODE=required. Prod must stay required.
+      - CLAMAV_MODE=${CLAMAV_MODE:-optional}
     depends_on:
       postgres:
         condition: service_started
@@ -204,6 +210,8 @@ services:
       - JWT_SECRET=${JWT_SECRET:-6958c455ba7378688fac7200001d6bca8048fa66a28447ecc69f3b74b7ded4fa}
       - DATA_HUB_URL=${DATA_HUB_URL:-http://10.0.0.1:8100}
       - DATA_HUB_API_KEY=${DATA_HUB_API_KEY:-dev-api-key}
+      # See audit-service: no ClamAV sidecar locally, so accept unscanned uploads.
+      - CLAMAV_MODE=${CLAMAV_MODE:-optional}
     command: sh -c "./master serve"
     networks:
       - rb_audit_network
