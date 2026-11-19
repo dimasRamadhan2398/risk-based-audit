@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { useActiveDataSource } from '~/composables/useActiveDataSource'
 import { useDataSourceStore } from '~/stores/data-source'
@@ -11,16 +11,24 @@ import { useAnnualPlanStore } from '~/stores/annual-audit'
 import { useVisionMissionGoalsStore } from '~/stores/vision-mission-goals'
 import { useAiAnalytics } from '~/composables/useAiAnalytics'
 import { useAppToast } from '~/composables/useAppToast'
-import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
+import { getAuditServiceBaseUrl, getRiskServiceBaseUrl } from '~/composables/useApiUrl'
 import { useRuntimeConfig } from '#app'
 import { AnnualAuditPlanStatus, AuditCategory, type AnnualPlanForm } from '~/types/audit'
 import {
+  getRiskLevelDotClass,
   normalizeAnomalyRiskLevel,
   normalizeEntityRiskLevel,
   toEntityRiskCode,
   normalizeNlpRiskLevel,
   toNlpRiskCode,
 } from '~/utils/riskLevelBadge'
+import {
+  buildAuditableEntityOptions,
+  findAuditableEntityForActivity,
+  NOT_SCORED_RISK_LEVEL,
+  resolveAuditableEntitySelection,
+  type AuditableEntityOption,
+} from '~/utils/auditableEntityOptions'
 import {
   STRATEGIC_PLAN_CATEGORIES,
   buildStrategicPlanPayload,
@@ -29,13 +37,17 @@ import {
   sanitizeKpiNumberInput,
 } from '~/utils/strategicPlanPayload'
 import {
+  type AnnualPlanActivityCandidate,
   type AnnualPlanDraftCandidate,
   type MappedRecordInput,
   type StrategicPlanKpiCandidate,
   type TableProfileMeta,
   buildAnnualPlanDraftFromTable,
+  buildAuditUniverseCandidatesFromTable,
   buildRealTableAnomalies,
+  buildRiskProfilePayloadsFromRows,
   buildStrategicPlanCandidatesFromTable,
+  calculateQuartersFromMonths,
   computeStrategicKpiMetrics,
   evaluateTableModuleCompatibility,
   resolveBannerModuleInfo,
@@ -50,6 +62,8 @@ const route = useRoute()
 const config = useRuntimeConfig()
 const toast = useAppToast()
 const dataSourceStore = useDataSourceStore()
+const annualStore = useAnnualPlanStore()
+const universeStore = useAuditUniverseStore()
 const { selectedSourceId } = useActiveDataSource()
 
 const isModalOpen = ref(false)
@@ -70,15 +84,144 @@ const isSavingStrategic = ref(false)
 const isAnnualModalOpen = ref(false)
 const annualModalRecord = ref<MappedRecord | null>(null)
 const annualDraft = ref<AnnualPlanDraftCandidate | null>(null)
+const annualDraftMode = ref<'per_row' | 'per_dimension'>('per_row')
 const isSavingAnnual = ref(false)
 
 const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
-const auditCategoryOptions = [
-  { label: 'Assurance', value: AuditCategory.ASSURANCE },
-  { label: 'Consulting Services', value: AuditCategory.CONSULTING_SERVICES },
-  { label: 'Special Audit', value: AuditCategory.SPECIAL_AUDIT },
-  { label: 'Follow-Up Audit', value: AuditCategory.FOLLOWUP_AUDIT },
-]
+const auditCategoryOptions = Object.values(AuditCategory) as AuditCategory[]
+
+const auditableUniverseOptions = computed<AuditableEntityOption[]>(() =>
+  buildAuditableEntityOptions(universeStore.yearlyUniverse, universeStore.corporateUniverse)
+)
+
+const annualDraftQuarters = computed(() =>
+  calculateQuartersFromMonths(annualDraft.value?.selectedMonths || [])
+)
+
+watch(
+  () => annualDraft.value?.year,
+  async (newYear) => {
+    if (isAnnualModalOpen.value && newYear) {
+      await universeStore.fetchYearlyUniverse(Number(newYear))
+    }
+  }
+)
+
+const getAnnualAuditableEntityValue = (act: AnnualPlanActivityCandidate): AuditableEntityOption | undefined =>
+  findAuditableEntityForActivity(auditableUniverseOptions.value, {
+    auditUniverseId: act.auditUniverseId || undefined,
+    riskName: act.auditUniverseName || undefined,
+    riskLevel: act.riskLevel || undefined,
+  })
+
+const handleSelectAnnualAuditableEntity = (act: AnnualPlanActivityCandidate, val: unknown) => {
+  const match = resolveAuditableEntitySelection(auditableUniverseOptions.value, val)
+  if (match) {
+    act.auditUniverseId = match.id || ''
+    act.auditUniverseName = match.name
+    act.riskLevel = match.riskLevel || NOT_SCORED_RISK_LEVEL
+  } else {
+    act.auditUniverseId = ''
+    act.auditUniverseName = ''
+    act.riskLevel = ''
+  }
+}
+
+const syncAnnualDraftUniverseSnapshots = (draft: AnnualPlanDraftCandidate) => {
+  for (const act of draft.activities) {
+    const matchedOpt = findAuditableEntityForActivity(auditableUniverseOptions.value, {
+      auditUniverseId: act.auditUniverseId || undefined,
+      riskName: act.auditUniverseName || undefined,
+    })
+    if (matchedOpt) {
+      act.auditUniverseId = matchedOpt.id || act.auditUniverseId
+      act.auditUniverseName = matchedOpt.name
+      act.riskLevel = matchedOpt.riskLevel
+    }
+  }
+}
+
+const switchAnnualDraftMode = (mode: 'per_row' | 'per_dimension') => {
+  if (!annualModalRecord.value) return
+  annualDraftMode.value = mode
+  const currentYear = Number(annualDraft.value?.year) || new Date().getFullYear()
+  const prevTitle = annualDraft.value?.title
+  const prevYear = annualDraft.value?.year
+  const prevMonths = annualDraft.value?.selectedMonths
+  const draft = buildAnnualPlanDraftFromTable(annualModalRecord.value, {
+    departments: annualStore.departments,
+    corporateUniverse: universeStore.corporateUniverse,
+    supervisors: annualStore.supervisorOptions,
+    year: currentYear,
+    mode,
+  })
+  if (prevTitle) draft.title = prevTitle
+  if (prevYear) draft.year = prevYear
+  if (prevMonths && prevMonths.length > 0) draft.selectedMonths = [...prevMonths]
+  syncAnnualDraftUniverseSnapshots(draft)
+  annualDraft.value = draft
+}
+
+const selectAllAnnualActivities = (selected: boolean) => {
+  if (!annualDraft.value) return
+  for (const act of annualDraft.value.activities) {
+    act.selected = selected
+  }
+}
+
+const unlockBodyPointerEvents = () => {
+  if (typeof document === 'undefined') return
+  const clearLocks = () => {
+    if (!isAnnualModalOpen.value && !isStrategicModalOpen.value && !isModalOpen.value) {
+      document.body.style.pointerEvents = ''
+      document.body.style.overflow = ''
+      document.documentElement.style.pointerEvents = ''
+      document.documentElement.style.overflow = ''
+      const nuxtRoot = document.getElementById('__nuxt')
+      if (nuxtRoot) {
+        nuxtRoot.removeAttribute('inert')
+        nuxtRoot.removeAttribute('aria-hidden')
+        ;(nuxtRoot as HTMLElement).style.pointerEvents = ''
+      }
+    }
+  }
+  clearLocks()
+  setTimeout(clearLocks, 50)
+  setTimeout(clearLocks, 260)
+}
+
+const closeStrategicModal = () => {
+  isStrategicModalOpen.value = false
+  unlockBodyPointerEvents()
+  setTimeout(() => {
+    if (!isStrategicModalOpen.value) {
+      strategicModalRecord.value = null
+    }
+  }, 220)
+}
+
+const closeAnnualModal = () => {
+  isAnnualModalOpen.value = false
+  unlockBodyPointerEvents()
+  setTimeout(() => {
+    if (!isAnnualModalOpen.value) {
+      annualModalRecord.value = null
+      annualDraft.value = null
+    }
+  }, 220)
+}
+
+const closePreviewModal = () => {
+  isModalOpen.value = false
+  unlockBodyPointerEvents()
+}
+
+onBeforeUnmount(() => {
+  isAnnualModalOpen.value = false
+  isStrategicModalOpen.value = false
+  isModalOpen.value = false
+  unlockBodyPointerEvents()
+})
 
 const getBaseUrl = (): string => {
   return (config.public?.masterServiceBaseUrl as string) || '/api/v1'
@@ -245,12 +388,19 @@ const fetchMappedData = async () => {
 }
 
 watch(
-  () => [route.path, selectedSourceId.value, dataSourceStore.sources],
-  () => {
-    isDismissed.value = false
+  () => [route.path, selectedSourceId.value, dataSourceStore.sources.length],
+  ([newPath], oldValues) => {
+    const oldPath = oldValues?.[0]
+    const routeChanged = newPath !== oldPath
+    if (routeChanged) {
+      isDismissed.value = false
+    }
+    if (!routeChanged && (isAnnualModalOpen.value || isStrategicModalOpen.value || isModalOpen.value)) {
+      return
+    }
     fetchMappedData()
   },
-  { immediate: true, deep: true }
+  { immediate: true }
 )
 
 const openPreview = (item: MappedRecord) => {
@@ -368,7 +518,8 @@ const confirmCreateStrategicPlans = async () => {
     }
 
     await strategicStore.fetchStrategicPlans()
-    isStrategicModalOpen.value = false
+    closeStrategicModal()
+    await nextTick()
 
     if (savedCount === 0 && skippedCount > 0) {
       toast.warning(
@@ -401,6 +552,24 @@ const toggleAnnualDraftMonth = (monthIdx: number) => {
   }
 }
 
+const findCorporateNodeByName = (
+  nodes: any[],
+  targetName: string
+): { id: string; name: string } | null => {
+  if (!Array.isArray(nodes)) return null
+  for (const node of nodes) {
+    if (!node) continue
+    if (node.id && node.name === targetName) {
+      return { id: node.id, name: node.name }
+    }
+    if (Array.isArray(node.children) && node.children.length > 0) {
+      const childMatch = findCorporateNodeByName(node.children, targetName)
+      if (childMatch) return childMatch
+    }
+  }
+  return null
+}
+
 const confirmCreateAnnualPlan = async () => {
   const item = annualModalRecord.value
   const draft = annualDraft.value
@@ -409,6 +578,10 @@ const confirmCreateAnnualPlan = async () => {
   const selectedActs = draft.activities.filter(a => a.selected)
   if (selectedActs.length === 0) {
     toast.warning('Pilih Minimal 1 Aktivitas', 'Centang minimal satu objek aktivitas audit untuk dibuatkan Draft PKAT.')
+    return
+  }
+  if (!draft.year) {
+    toast.warning('Tahun Fiskal Wajib Dipilih', 'Pilih Tahun Fiskal untuk Draft PKAT.')
     return
   }
   if (draft.selectedMonths.length === 0) {
@@ -442,9 +615,6 @@ const confirmCreateAnnualPlan = async () => {
 
   isSavingAnnual.value = true
   try {
-    const annualStore = useAnnualPlanStore()
-    const universeStore = useAuditUniverseStore()
-
     const existingPlan = annualStore.plans.find(
       p => (p.title || '').trim().toLowerCase() === draft.title.trim().toLowerCase()
     )
@@ -457,18 +627,42 @@ const confirmCreateAnnualPlan = async () => {
       return
     }
 
-    // Ensure every activity has a valid Audit Universe ID (auto-create corporate node if needed)
-    for (const act of selectedActs) {
+    // Clone selected activities so we do not mutate reactive modal state while saving
+    const preparedActs = selectedActs.map(a => ({ ...a }))
+    const createdNodesCache = new Map<string, { id: string; name: string }>()
+
+    for (const act of preparedActs) {
       if (!act.auditUniverseId) {
-        const nodeName = `${act.dimensionName} (${item.table_name})`
-        await universeStore.saveCorporateNode({
-          name: nodeName,
-          department_id: act.departmentId || null,
-        })
-        const created = universeStore.corporateUniverse.find(u => u.name === nodeName) || universeStore.corporateUniverse[0]
-        if (created?.id) {
-          act.auditUniverseId = created.id
-          act.auditUniverseName = created.name
+        const cleanDim = act.dimensionName.replace(/\s*\([^)]*\)\s*$/, '').trim() || act.dimensionName
+        const nodeName = `${cleanDim} (${item.table_name})`
+        const cacheKey = nodeName.toLowerCase()
+
+        let resolved =
+          createdNodesCache.get(cacheKey) ||
+          findCorporateNodeByName(universeStore.corporateUniverse, nodeName) ||
+          findCorporateNodeByName(universeStore.corporateUniverse, cleanDim)
+
+        if (!resolved) {
+          const savedNode = await universeStore.saveCorporateNode({
+            name: nodeName,
+            department_id: act.departmentId || null,
+          })
+          resolved =
+            (savedNode?.id ? { id: savedNode.id, name: savedNode.name || nodeName } : null) ||
+            findCorporateNodeByName(universeStore.corporateUniverse, nodeName)
+        }
+
+        if (!resolved && auditableUniverseOptions.value.length > 0) {
+          const firstOpt = auditableUniverseOptions.value[0]!
+          if (firstOpt.id) {
+            resolved = { id: firstOpt.id, name: firstOpt.name }
+          }
+        }
+
+        if (resolved?.id) {
+          createdNodesCache.set(cacheKey, resolved)
+          act.auditUniverseId = resolved.id
+          act.auditUniverseName = resolved.name
         }
       }
       if (!act.auditUniverseId) {
@@ -481,10 +675,11 @@ const confirmCreateAnnualPlan = async () => {
       }
     }
 
+    const derivedTimeline = annualDraftQuarters.value.join(', ') || 'Q1'
     const planForm: AnnualPlanForm = {
       code: '',
       title: draft.title.trim(),
-      year: draft.year,
+      year: String(draft.year),
       version: 'v1.0',
       status: AnnualAuditPlanStatus.DRAFT,
       selectedMonths: [...draft.selectedMonths].sort((a, b) => a - b),
@@ -499,27 +694,37 @@ const confirmCreateAnnualPlan = async () => {
       managerApprovalNote: '',
       chiefApprovalNote: '',
       revisionHistory: [],
-      activities: selectedActs.map((act, idx) => ({
-        itemNumber: String(idx + 1),
-        name: act.name.trim(),
-        category: act.category,
-        departmentId: act.departmentId,
-        department: act.departmentName,
-        auditUniverseId: act.auditUniverseId,
-        riskName: act.auditUniverseName,
-        riskLevel: act.flaggedCount >= 5 ? 'High' : 'Moderate',
-        timelineText: act.timelineText || 'Q1',
-        auditorCount: Number(act.auditorCount) || 2,
-        totalMandays: Number(act.totalMandays) || 15,
-        supervisorName: act.supervisorName.trim(),
-      })),
+      activities: preparedActs.map((act, idx) => {
+        const deptName =
+          annualStore.departments.find(d => d.id === act.departmentId)?.name ||
+          act.departmentName
+        return {
+          itemNumber: String(idx + 1),
+          name: act.name.trim(),
+          category: act.category,
+          departmentId: act.departmentId,
+          department: deptName,
+          auditUniverseId: act.auditUniverseId,
+          riskName: act.auditUniverseName,
+          riskLevel: act.riskLevel || (act.flaggedCount >= 1 ? 'High' : 'Moderate'),
+          timelineText: derivedTimeline,
+          auditorCount: Number(act.auditorCount) || 2,
+          totalMandays: Number(act.totalMandays) || 15,
+          supervisorName: act.supervisorName.trim(),
+        }
+      }),
     }
 
+    const savedTitle = draft.title
+    const savedCount = preparedActs.length
     const createdCode = await annualStore.addPlan(planForm)
-    isAnnualModalOpen.value = false
+    annualStore.clearFilters()
+    annualStore.paginations.currentIndex = 1
+    closeAnnualModal()
+    await nextTick()
     toast.success(
       'Draft Annual Audit Plan Berhasil Dibuat',
-      `Rencana audit ${createdCode ? `(${createdCode}) ` : ''}"${draft.title}" dengan ${selectedActs.length} aktivitas berhasil disimpan sebagai Draft!`
+      `Rencana audit ${createdCode ? `(${createdCode}) ` : ''}"${savedTitle}" dengan ${savedCount} aktivitas berhasil disimpan sebagai Draft!`
     )
   } catch (err: any) {
     const msg = err?.data?.error?.message || err?.data?.message || err?.message || 'Gagal menyimpan rencana audit tahunan.'
@@ -555,118 +760,133 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
       }
       strategicModalRecord.value = item
       strategicCandidates.value = candidates
+      closePreviewModal()
       isStrategicModalOpen.value = true
       return
     }
 
     // 2. Annual Audit Plan -> Load Master Options & Open Draft Confirmation Modal
     if (actionType === 'annual_plan') {
-      const annualStore = useAnnualPlanStore()
-      const universeStore = useAuditUniverseStore()
+      const currentYear = new Date().getFullYear()
 
       await Promise.allSettled([
         annualStore.fetchDepartmentOptions(),
         annualStore.fetchEmployees(),
         universeStore.fetchCorporateUniverse(),
+        universeStore.fetchYearlyUniverse(currentYear),
       ])
 
+      const defaultMode: 'per_row' | 'per_dimension' =
+        Array.isArray(item.sample_records) && item.sample_records.length > 0 ? 'per_row' : 'per_dimension'
+      annualDraftMode.value = defaultMode
       annualModalRecord.value = item
-      annualDraft.value = buildAnnualPlanDraftFromTable(item, {
+      const draft = buildAnnualPlanDraftFromTable(item, {
         departments: annualStore.departments,
         corporateUniverse: universeStore.corporateUniverse,
         supervisors: annualStore.supervisorOptions,
-        year: new Date().getFullYear(),
+        year: currentYear,
+        mode: defaultMode,
       })
+
+      if (!annualStore.yearOptions.includes(draft.year) && annualStore.yearOptions.length > 0) {
+        draft.year = annualStore.yearOptions.find(y => y === String(currentYear)) || annualStore.yearOptions[0]!
+      }
+
+      syncAnnualDraftUniverseSnapshots(draft)
+
+      annualDraft.value = draft
+      closePreviewModal()
       isAnnualModalOpen.value = true
       return
     }
 
-    // 3. Corporate Risk Profile Injection (Real Row Counts & All Connected Tables)
+    // 3. Corporate Risk Profile Injection (Per-Transaction / Per-Row Without Limit)
     if (actionType === 'risk_profile') {
       const riskStore = useRiskProfileStore()
-      const totalPop = getRecordPopulationCount(item)
-      const popStr = totalPop.toLocaleString('id-ID')
-      const flaggedCount = Number(item.profile?.flagged_rows || 0)
+      await Promise.allSettled([
+        riskStore.fetchBranches(),
+        riskStore.fetchRisks(),
+      ])
 
-      let riskName = `Risiko Pemantauan Pipeline Data: ${item.table_name}`
-      let riskDesc = `Risiko teridentifikasi otomatis dari data pipeline '${item.connection_name}' (tabel ${item.table_name}) dengan populasi nyata ${popStr} rekaman.`
-      let riskCategory = 'Financial Risk'
-      let riskLikelihood = 3
-      let riskImpact = 4
-      let riskLevel = 'High'
+      const candidates = buildRiskProfilePayloadsFromRows(item, {
+        fiscalYear: riskStore.selectedYear,
+        locations: riskStore.locations,
+      })
 
-      if (item.table_name === 'corporate_transactions' || item.table_name === 'gl_transactions' || item.table_name === 'gl_journal_entries') {
-        riskName = `Risiko Integritas Transaksi & Otorisasi Keuangan (${item.table_name})`
-        riskDesc = `Risiko teridentifikasi dari pipeline '${item.connection_name}' (tabel ${item.table_name}) atas populasi nyata ${popStr} baris${flaggedCount > 0 ? ` (${flaggedCount} baris terindikasi anomali/deviasi otorisasi)` : ''}.`
-        riskCategory = 'Financial Risk'
-        riskLikelihood = flaggedCount > 50 ? 4 : 3
-        riskImpact = 4
-        riskLevel = 'High'
-      } else if (item.table_name === 'credit_loan_portfolio' || item.table_name === 'loan_accounts') {
-        riskName = `Risiko Portofolio Kredit: Kredit Bermasalah & Underwriting (${item.table_name})`
-        riskDesc = `Risiko portofolio kredit dari pipeline '${item.connection_name}' (tabel ${item.table_name}) atas populasi nyata ${popStr} rekening pinjaman${flaggedCount > 0 ? ` (${flaggedCount} fasilitas KOL 3-5 / pelanggaran plafon)` : ''}.`
-        riskCategory = 'Financial Risk'
-        riskLikelihood = 4
-        riskImpact = 4
-        riskLevel = 'High'
-      } else if (item.table_name === 'user_access_audit_logs') {
-        riskName = `Risiko Keamanan Siber: Hak Akses Istimewa & Anomali Sistem (${item.table_name})`
-        riskDesc = `Risiko keamanan akses dari pipeline '${item.connection_name}' (tabel ${item.table_name}) atas populasi nyata ${popStr} log aktivitas sistem.`
-        riskCategory = 'Operational Risk'
-        riskLikelihood = 4
-        riskImpact = 4
-        riskLevel = 'Extreme'
-      } else if (item.table_name === 'vendor_contracts' || item.table_name === 'vendor_invoices') {
-        riskName = `Risiko Pengadaan: Kepatuhan Kontrak & Faktur Vendor (${item.table_name})`
-        riskDesc = `Risiko pengadaan dari pipeline '${item.connection_name}' (tabel ${item.table_name}) atas populasi nyata ${popStr} kontrak/faktur${flaggedCount > 0 ? ` (${flaggedCount} kontrak berisiko/split PO)` : ''}.`
-        riskCategory = 'Compliance Risk'
-        riskLikelihood = 3
-        riskImpact = 4
-        riskLevel = 'High'
-      } else if (item.table_name === 'audit_risk_incidents' || item.table_name === 'compliance_incident_records') {
-        riskName = `Risiko Kepatuhan Regulasi & Insiden Audit (${item.table_name})`
-        riskDesc = `Risiko kepatuhan dari pipeline '${item.connection_name}' (tabel ${item.table_name}) atas populasi nyata ${popStr} insiden regulasi.`
-        riskCategory = 'Compliance Risk'
-        riskLikelihood = 3
-        riskImpact = 5
-        riskLevel = 'High'
-      }
-
-      const existing = riskStore.rawRisks.find(r => r.name === riskName)
-      if (existing) {
-        toast.warning('Risiko Sudah Ada', `Risiko untuk tabel ${item.table_name} sudah terdaftar di Corporate Risk Profile.`)
+      if (candidates.length === 0) {
+        toast.warning('Tidak Ada Baris Data', `Tabel ${item.table_name} tidak memiliki baris data untuk dipetakan ke Corporate Risk Profile.`)
         return
       }
 
-      const payload = {
-        name: riskName,
-        description: riskDesc,
-        category: riskCategory,
-        likelihood: riskLikelihood,
-        impact: riskImpact,
-        risk_level: riskLevel,
-        source: `${item.connection_name} / ${item.table_name}`,
-        status: 'Active',
-        likelihood_q1: riskLikelihood,
-        impact_q1: riskImpact,
-        likelihood_q2: riskLikelihood,
-        impact_q2: riskImpact,
-        likelihood_q3: riskLikelihood,
-        impact_q3: riskImpact,
-        likelihood_q4: riskLikelihood,
-        impact_q4: riskImpact,
+      const existingNames = new Set(
+        (riskStore.rawRisks || []).map((r: any) => String(r.name || '').trim().toLowerCase())
+      )
+      const toCreate = candidates.filter(c => !existingNames.has(c.name.trim().toLowerCase()))
+
+      if (toCreate.length === 0) {
+        toast.warning(
+          'Risiko Sudah Terdaftar',
+          `Seluruh ${candidates.length} profil risiko dari baris tabel '${item.table_name}' sudah terdaftar di Corporate Risk Profile.`
+        )
+        return
       }
 
-      const ok = await riskStore.addRisk(payload).catch(() => false)
-      if (!ok) {
-        const optimisticRisk = {
-          id: `risk-mapped-${Date.now()}`,
-          ...payload,
-          displayId: (riskStore.rawRisks?.length || 0) + 1,
-          created_at: new Date().toISOString(),
-        }
-        riskStore.rawRisks.push(optimisticRisk)
+      const baseUrl = getRiskServiceBaseUrl()
+      let addedCount = 0
+      const chunkSize = 5
+
+      for (let i = 0; i < toCreate.length; i += chunkSize) {
+        const chunk = toCreate.slice(i, i + chunkSize)
+        const results = await Promise.allSettled(
+          chunk.map(cand =>
+            $fetch(`${baseUrl}/risks`, {
+              method: 'POST',
+              body: {
+                year: riskStore.selectedYear,
+                name: cand.name,
+                category: cand.category,
+                description: cand.description,
+                impact: cand.impact,
+                likelihood: cand.likelihood,
+                severity: cand.severity,
+                ...(cand.location_id ? { location_id: cand.location_id, branch: cand.branch } : {}),
+                assessments: cand.assessments,
+              },
+            })
+          )
+        )
+
+        results.forEach((res, idx) => {
+          const cand = chunk[idx]!
+          if (res.status === 'fulfilled') {
+            const resp: any = res.value
+            const createdData = resp?.data ?? resp
+            riskStore.rawRisks.push({
+              ...cand,
+              ...(createdData && typeof createdData === 'object' ? createdData : {}),
+              assessments: createdData?.assessments ?? cand.assessments,
+              displayId: riskStore.rawRisks.length + 1,
+            })
+            addedCount++
+          } else {
+            // Fallback optimistic row with complete `assessments` structure so UI renders it if backend is offline
+            riskStore.rawRisks.push({
+              id: `risk-mapped-${Date.now()}-${i + idx}`,
+              ...cand,
+              displayId: riskStore.rawRisks.length + 1,
+              created_at: new Date().toISOString(),
+            })
+            addedCount++
+          }
+        })
       }
+
+      riskStore.resetRiskPages()
+      await Promise.allSettled([
+        riskStore.fetchRisks(),
+        riskStore.refreshRiskPages(),
+        riskStore.fetchCategories(),
+      ])
 
       try {
         const { syncEntityPredictionWithRiskProfile } = useAiAnalytics()
@@ -675,7 +895,7 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
 
       toast.success(
         'Data Berhasil Ditambahkan ke Profil Risiko',
-        `Risiko dari pipeline '${item.table_name}' (${popStr} baris) berhasil ditambahkan ke Corporate Risk Profile!`
+        `${addedCount} profil risiko per baris/transaksi dari tabel '${item.table_name}' berhasil ditambahkan ke Corporate Risk Profile!`
       )
     }
 
@@ -916,32 +1136,47 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
       )
     }
 
-    // 6. Audit Universe Injection (Persisted to Backend via saveCorporateNode)
+    // 6. Audit Universe Injection (Per-Row / All Entities Without Limit)
     else if (actionType === 'audit_universe') {
-      const universeStore = useAuditUniverseStore()
       await universeStore.fetchCorporateUniverse()
 
-      const candidateNames: string[] = []
-      if (Array.isArray(item.profile?.dimension_breakdown) && item.profile!.dimension_breakdown!.length > 0) {
-        for (const d of item.profile!.dimension_breakdown!.slice(0, 6)) {
-          if (d.name) candidateNames.push(`${d.name} (${item.table_name})`)
-        }
-      } else {
-        candidateNames.push(`Proses Operasional: ${item.table_name} (${item.connection_name})`)
+      const candidates = buildAuditUniverseCandidatesFromTable(item)
+      if (candidates.length === 0) {
+        toast.warning('Tidak Ada Entitas', `Tabel ${item.table_name} tidak memiliki data entitas untuk ditambahkan ke Audit Universe.`)
+        return
       }
 
-      let addedCount = 0
-      for (const entityName of candidateNames) {
-        const exists = universeStore.corporateUniverse?.some(
-          u => (u.name || '').trim().toLowerCase() === entityName.trim().toLowerCase()
-        )
-        if (exists) continue
-        await universeStore.saveCorporateNode({ name: entityName })
-        addedCount++
+      const toCreate = candidates.filter(
+        c => !findCorporateNodeByName(universeStore.corporateUniverse, c.name)
+      )
+
+      if (toCreate.length === 0) {
+        toast.warning('Entitas Sudah Terdaftar', `Seluruh ${candidates.length} entitas dari tabel ${item.table_name} sudah ada di Audit Universe.`)
+        return
       }
+
+      const baseUrl = getRiskServiceBaseUrl()
+      let addedCount = 0
+      const chunkSize = 5
+      for (let i = 0; i < toCreate.length; i += chunkSize) {
+        const chunk = toCreate.slice(i, i + chunkSize)
+        const results = await Promise.allSettled(
+          chunk.map(c =>
+            $fetch(`${baseUrl}/audit-universe/corporate`, {
+              method: 'POST',
+              body: { name: c.name },
+            })
+          )
+        )
+        for (const r of results) {
+          if (r.status === 'fulfilled') addedCount++
+        }
+      }
+
+      await universeStore.fetchCorporateUniverse()
 
       if (addedCount === 0) {
-        toast.warning('Entitas Sudah Terdaftar', `Entitas dari tabel ${item.table_name} sudah ada di Audit Universe.`)
+        toast.error('Gagal Menyimpan ke Audit Universe', `Tidak dapat menyimpan entitas dari tabel ${item.table_name} ke server Audit Universe.`)
         return
       }
 
@@ -1000,7 +1235,7 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
         const bRisk = (b.risk_flag || b.is_flagged || b.is_suspicious || b.is_split_contract || b.is_anomaly || b.compliance_status === 'NON_COMPLIANT' || Number(b.severity_score) >= 75) ? 1 : 0
         return bRisk - aRisk
       })
-      const targetRows = sortedRows.slice(0, Math.min(5, Math.max(1, sortedRows.length)))
+      const targetRows = sortedRows
 
       let addedCount = 0
       const riskRatingCols = new Set(['risk_level', 'risklevel', 'severity', 'risk_rating', 'tingkat_risiko', 'severity_level'])
@@ -1035,7 +1270,6 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
         } else {
           const pkVal = r[item.audit_field] || r.trx_ref_number || r.loan_number || r.voucher_number || r.id || `REC-${i + 1}`
           const summaryPairs = Object.entries(r)
-            .slice(0, 8)
             .map(([k, v]) => {
               const formattedVal = riskRatingCols.has(k.toLowerCase()) && v != null && String(v).trim() !== ''
                 ? normalizeNlpRiskLevel(v)
@@ -1258,136 +1492,152 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
 </script>
 
 <template>
-  <div
-    v-if="currentModuleInfo && mappedRecords.length > 0 && activeRecord && !isDismissed"
-    class="mb-4 mx-4 sm:mx-6 rounded-xl border border-primary-500/20 bg-primary-50/70 dark:bg-primary-950/30 p-3.5 shadow-xs transition-all duration-200 space-y-2.5"
-  >
-    <!-- Multi-Table Tab Bar when 2 or more tables are connected -->
-    <div v-if="mappedRecords.length > 1" class="flex items-center gap-2 border-b border-primary-500/20 pb-2.5 overflow-x-auto">
-      <span class="text-[11px] font-bold text-primary-800 dark:text-primary-200 uppercase tracking-wider shrink-0 flex items-center gap-1.5">
-        <UIcon name="i-lucide-layers" class="size-3.5 text-primary-500" />
-        {{ mappedRecords.length }} Tabel Terhubung:
-      </span>
-      <button
-        v-for="(rec, idx) in mappedRecords"
-        :key="rec.connection_id + rec.table_name"
-        type="button"
-        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all duration-150 shrink-0 cursor-pointer"
-        :class="selectedTableIndex === idx
-          ? 'bg-primary-600 text-white shadow-xs font-bold'
-          : 'bg-primary-100/70 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 hover:bg-primary-200/70'"
-        @click="selectedTableIndex = idx"
-      >
-        <UIcon name="i-lucide-table" class="size-3.5" />
-        <span>{{ rec.table_name }}</span>
-        <span class="text-[10px] px-1.5 py-0.2 rounded-full" :class="selectedTableIndex === idx ? 'bg-white/20 text-white' : 'bg-primary-500/10 text-primary-600'">
-          {{ getRecordPopulationCount(rec).toLocaleString('id-ID') }} rows
-        </span>
-      </button>
-    </div>
-
-    <!-- Active Table Information and Controls -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <div class="flex items-start sm:items-center gap-3">
-        <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary-500/10 text-primary-600 dark:text-primary-400">
-          <UIcon name="i-lucide-database" class="size-5" />
-        </div>
-        <div>
-          <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-xs font-semibold text-primary-700 dark:text-primary-300">
-              Pipeline Sumber Data Terhubung
-            </span>
-            <span
-              v-if="!activeRecord.data_hub_unavailable"
-              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
-            >
-              <span class="size-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              Live Synced
-            </span>
-            <span
-              v-else
-              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
-            >
-              Data Hub Offline
-            </span>
-            <span class="text-xs text-[var(--text-muted)]">
-              &bull; {{ activeRecord.connection_name }} &rsaquo; <code class="font-mono font-semibold text-primary-700 dark:text-primary-300">{{ activeRecord.table_name }}</code>
-            </span>
-          </div>
-          <p class="text-xs text-[var(--text-muted)] mt-0.5">
-            Tabel <code class="font-mono font-bold text-primary-700 dark:text-primary-300">{{ activeRecord.table_name }}</code>:
-            Total Populasi <strong class="text-[var(--text-main)]">{{ getRecordPopulationCount(activeRecord).toLocaleString('id-ID') }} baris</strong>.
-            Tersedia <strong class="text-primary-600 dark:text-primary-400">{{ activeRecord.sample_records?.length || 0 }} rekaman sampel nyata</strong> untuk modul ini.
-          </p>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2 shrink-0 flex-wrap">
-        <UButton
-          size="xs"
-          :color="activeCompatibility && !activeCompatibility.compatible ? 'neutral' : 'primary'"
-          variant="solid"
-          icon="i-lucide-play-circle"
-          :loading="isExecutingAction"
-          :disabled="Boolean(activeCompatibility && !activeCompatibility.compatible)"
-          @click="handleExecuteFeatureAction(activeRecord)"
-        >
-          {{ currentModuleInfo.actionLabel }}
-        </UButton>
-
-        <UButton
-          size="xs"
-          color="primary"
-          variant="soft"
-          icon="i-lucide-table"
-          @click="openPreview(activeRecord)"
-        >
-          Lihat Sampel Data ({{ activeRecord.sample_records?.length || 0 }})
-        </UButton>
-        <UButton
-          size="xs"
-          color="neutral"
-          variant="ghost"
-          icon="i-lucide-external-link"
-          to="/settings?tab=datasource"
-        >
-          Konfigurasi
-        </UButton>
-        <UButton
-          size="xs"
-          color="neutral"
-          variant="ghost"
-          icon="i-lucide-x"
-          @click="isDismissed = true"
-        />
-      </div>
-    </div>
-
-    <!-- Incompatibility / Unsupported Warning Alert -->
+  <div>
     <div
-      v-if="activeCompatibility && !activeCompatibility.compatible"
-      class="p-2.5 rounded-lg border border-amber-500/30 bg-amber-50/80 dark:bg-amber-950/30 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2"
+      v-if="currentModuleInfo && mappedRecords.length > 0 && activeRecord && !isDismissed"
+      class="mb-4 mx-4 sm:mx-6 rounded-xl border border-primary-500/20 bg-primary-50/70 dark:bg-primary-950/30 p-3.5 shadow-xs transition-all duration-200 space-y-2.5"
     >
-      <UIcon name="i-lucide-alert-triangle" class="size-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-      <span>{{ activeCompatibility.reason }}</span>
+      <!-- Multi-Table Tab Bar when 2 or more tables are connected -->
+      <div v-if="mappedRecords.length > 1" class="flex items-center gap-2 border-b border-primary-500/20 pb-2.5 overflow-x-auto">
+        <span class="text-[11px] font-bold text-primary-800 dark:text-primary-200 uppercase tracking-wider shrink-0 flex items-center gap-1.5">
+          <UIcon name="i-lucide-layers" class="size-3.5 text-primary-500" />
+          {{ mappedRecords.length }} Tabel Terhubung:
+        </span>
+        <button
+          v-for="(rec, idx) in mappedRecords"
+          :key="rec.connection_id + rec.table_name"
+          type="button"
+          class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all duration-150 shrink-0 cursor-pointer"
+          :class="selectedTableIndex === idx
+            ? 'bg-primary-600 text-white shadow-xs font-bold'
+            : 'bg-primary-100/70 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 hover:bg-primary-200/70'"
+          @click="selectedTableIndex = idx"
+        >
+          <UIcon name="i-lucide-table" class="size-3.5" />
+          <span>{{ rec.table_name }}</span>
+          <span class="text-[10px] px-1.5 py-0.2 rounded-full" :class="selectedTableIndex === idx ? 'bg-white/20 text-white' : 'bg-primary-500/10 text-primary-600'">
+            {{ getRecordPopulationCount(rec).toLocaleString('id-ID') }} rows
+          </span>
+        </button>
+      </div>
+
+      <!-- Active Table Information and Controls -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex items-start sm:items-center gap-3">
+          <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary-500/10 text-primary-600 dark:text-primary-400">
+            <UIcon name="i-lucide-database" class="size-5" />
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-xs font-semibold text-primary-700 dark:text-primary-300">
+                Pipeline Sumber Data Terhubung
+              </span>
+              <span
+                v-if="!activeRecord.data_hub_unavailable"
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
+              >
+                <span class="size-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Live Synced
+              </span>
+              <span
+                v-else
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
+              >
+                Data Hub Offline
+              </span>
+              <span class="text-xs text-[var(--text-muted)]">
+                &bull; {{ activeRecord.connection_name }} &rsaquo; <code class="font-mono font-semibold text-primary-700 dark:text-primary-300">{{ activeRecord.table_name }}</code>
+              </span>
+            </div>
+            <p class="text-xs text-[var(--text-muted)] mt-0.5">
+              Tabel <code class="font-mono font-bold text-primary-700 dark:text-primary-300">{{ activeRecord.table_name }}</code>:
+              Total Populasi <strong class="text-[var(--text-main)]">{{ getRecordPopulationCount(activeRecord).toLocaleString('id-ID') }} baris</strong>.
+              Tersedia <strong class="text-primary-600 dark:text-primary-400">{{ activeRecord.sample_records?.length || 0 }} rekaman sampel nyata</strong> untuk modul ini.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0 flex-wrap">
+          <UButton
+            size="xs"
+            :color="activeCompatibility && !activeCompatibility.compatible ? 'neutral' : 'primary'"
+            variant="solid"
+            icon="i-lucide-play-circle"
+            :loading="isExecutingAction"
+            :disabled="Boolean(activeCompatibility && !activeCompatibility.compatible)"
+            @click="handleExecuteFeatureAction(activeRecord)"
+          >
+            {{ currentModuleInfo.actionLabel }}
+          </UButton>
+
+          <UButton
+            size="xs"
+            color="primary"
+            variant="soft"
+            icon="i-lucide-table"
+            @click="openPreview(activeRecord)"
+          >
+            Lihat Sampel Data ({{ activeRecord.sample_records?.length || 0 }})
+          </UButton>
+          <UButton
+            size="xs"
+            color="neutral"
+            variant="ghost"
+            icon="i-lucide-external-link"
+            to="/settings?tab=datasource"
+          >
+            Konfigurasi
+          </UButton>
+          <UButton
+            size="xs"
+            color="neutral"
+            variant="ghost"
+            icon="i-lucide-x"
+            @click="isDismissed = true"
+          />
+        </div>
+      </div>
+
+      <!-- Incompatibility / Unsupported Warning Alert -->
+      <div
+        v-if="activeCompatibility && !activeCompatibility.compatible"
+        class="p-2.5 rounded-lg border border-amber-500/30 bg-amber-50/80 dark:bg-amber-950/30 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2"
+      >
+        <UIcon name="i-lucide-alert-triangle" class="size-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+        <span>{{ activeCompatibility.reason }}</span>
+      </div>
     </div>
 
-    <!-- Modal 1: Strategic Audit Plan Derived KPI Confirmation Modal -->
+    <!-- Modal 1: Strategic Audit Plan Derived KPI Confirmation Modal (Outside v-if banner) -->
     <UModal
-      v-model:open="isStrategicModalOpen"
+      :open="isStrategicModalOpen"
       :title="`Konfirmasi KPI Strategic Audit Plan — ${strategicModalRecord?.table_name || ''}`"
-      class="w-[calc(100vw-2rem)] sm:max-w-3xl"
+      :ui="{
+        content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-3xl max-h-[88vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
+      @update:open="(open: boolean) => { if (!open) closeStrategicModal() }"
     >
       <template #content>
-        <div class="p-5 space-y-4 max-h-[80vh] overflow-y-auto bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
-          <div class="border-b border-gray-200 dark:border-gray-800 pb-3">
-            <h4 class="text-base font-bold">
-              Buat KPI Turunan ke Strategic Audit Plan
-            </h4>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Sumber: <strong>{{ strategicModalRecord?.connection_name }}</strong> &rsaquo; <code class="font-mono font-semibold">{{ strategicModalRecord?.table_name }}</code>
-              ({{ getRecordPopulationCount(strategicModalRecord).toLocaleString('id-ID') }} baris). Silakan sesuaikan nilai <strong>Target</strong> sebelum menyimpan.
-            </p>
+        <div class="p-5 space-y-4 max-h-[82vh] overflow-y-auto bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+          <div class="border-b border-gray-200 dark:border-gray-800 pb-3 flex items-start justify-between gap-2">
+            <div>
+              <h4 class="text-base font-bold">
+                Buat KPI Turunan ke Strategic Audit Plan
+              </h4>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Sumber: <strong>{{ strategicModalRecord?.connection_name }}</strong> &rsaquo; <code class="font-mono font-semibold">{{ strategicModalRecord?.table_name }}</code>
+                ({{ getRecordPopulationCount(strategicModalRecord).toLocaleString('id-ID') }} baris). Silakan sesuaikan nilai <strong>Target</strong> sebelum menyimpan.
+              </p>
+            </div>
+            <UButton
+              type="button"
+              color="neutral"
+              variant="ghost"
+              size="xs"
+              icon="i-lucide-x"
+              @click="closeStrategicModal"
+            />
           </div>
 
           <div class="space-y-3">
@@ -1426,21 +1676,24 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div>
                   <label class="block text-[11px] font-bold mb-1">Kategori</label>
-                  <USelect
+                  <select
                     v-model="cand.category"
-                    :items="[...STRATEGIC_PLAN_CATEGORIES]"
-                    size="sm"
-                    class="w-full"
-                  />
+                    class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2.5 py-1.5 text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  >
+                    <option v-for="cat in STRATEGIC_PLAN_CATEGORIES" :key="cat" :value="cat">
+                      {{ cat }}
+                    </option>
+                  </select>
                 </div>
                 <div>
                   <label class="block text-[11px] font-bold mb-1">Arah KPI</label>
-                  <USelect
+                  <select
                     v-model="cand.hibHig"
-                    :items="['HIG', 'HIB']"
-                    size="sm"
-                    class="w-full"
-                  />
+                    class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2.5 py-1.5 text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  >
+                    <option value="HIG">HIG</option>
+                    <option value="HIB">HIB</option>
+                  </select>
                 </div>
                 <div>
                   <label class="block text-[11px] font-bold mb-1">Actual (Database)</label>
@@ -1455,10 +1708,11 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
           </div>
 
           <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-200 dark:border-gray-800">
-            <UButton color="neutral" variant="outline" size="sm" @click="isStrategicModalOpen = false">
+            <UButton type="button" color="neutral" variant="outline" size="sm" @click="closeStrategicModal">
               Batal
             </UButton>
             <UButton
+              type="button"
               color="primary"
               variant="solid"
               size="sm"
@@ -1473,144 +1727,244 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
       </template>
     </UModal>
 
-    <!-- Modal 2: Annual Audit Plan (Draft) Confirmation Modal -->
+    <!-- Modal 2: Annual Audit Plan (Draft) Confirmation Modal (Outside v-if banner) -->
     <UModal
-      v-model:open="isAnnualModalOpen"
+      :open="isAnnualModalOpen"
       :title="`Konfirmasi Draft Annual Audit Plan — ${annualModalRecord?.table_name || ''}`"
-      class="w-[calc(100vw-2rem)] sm:max-w-4xl"
+      :ui="{
+        content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
+      @update:open="(open: boolean) => { if (!open) closeAnnualModal() }"
     >
       <template #content>
-        <div v-if="annualDraft" class="p-5 space-y-4 max-h-[82vh] overflow-y-auto bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
-          <div class="border-b border-gray-200 dark:border-gray-800 pb-3">
-            <h4 class="text-base font-bold">
-              Buat Draft Annual Audit Plan (PKAT) dari Tabel Sumber Data
-            </h4>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Konfirmasi pemetaan Departemen, Entitas Audit Universe, dan Supervisor untuk setiap objek audit di bawah ini. Rencana akan disimpan dengan status <strong>Draft</strong>.
-            </p>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div class="sm:col-span-2">
-              <label class="block text-xs font-bold mb-1">Judul PKAT</label>
-              <UInput v-model="annualDraft.title" size="sm" class="w-full" />
-            </div>
+        <div v-if="annualDraft" class="flex flex-col max-h-[90vh] overflow-hidden">
+          <!-- Fixed Header -->
+          <div class="shrink-0 flex items-start justify-between gap-2 px-5 py-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
             <div>
-              <label class="block text-xs font-bold mb-1">Tahun Fiskal</label>
-              <UInput v-model="annualDraft.year" size="sm" class="w-full font-mono" />
+              <h4 class="text-base font-bold text-gray-900 dark:text-white">
+                Buat Draft Annual Audit Plan (PKAT) dari Tabel Sumber Data
+              </h4>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Konfirmasi pemetaan Departemen, Entitas Audit Universe, dan Supervisor untuk setiap objek audit di bawah ini. Rencana akan disimpan dengan status <strong>Draft</strong>.
+              </p>
             </div>
+            <UButton
+              type="button"
+              color="neutral"
+              variant="ghost"
+              size="xs"
+              icon="i-lucide-x"
+              aria-label="Tutup"
+              @click="closeAnnualModal"
+            />
           </div>
 
-          <div>
-            <label class="block text-xs font-bold mb-1.5">Bulan Pelaksanaan Audit</label>
-            <div class="flex items-center gap-1.5 flex-wrap">
-              <button
-                v-for="(mLabel, mIdx) in monthsList"
-                :key="mIdx"
-                type="button"
-                class="px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors"
-                :class="annualDraft.selectedMonths.includes(mIdx)
-                  ? 'bg-primary-600 text-white border-primary-600'
-                  : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700'"
-                @click="toggleAnnualDraftMonth(mIdx)"
-              >
-                {{ mLabel }}
-              </button>
+          <!-- Scrollable Body -->
+          <div class="flex-1 min-h-0 overflow-y-auto p-5 space-y-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-bold mb-1">Judul PKAT</label>
+                <UInput v-model="annualDraft.title" size="sm" class="w-full" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold mb-1">Tahun Fiskal *</label>
+                <select
+                  v-model="annualDraft.year"
+                  class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2.5 py-1.5 text-xs font-semibold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                  <option v-for="yr in annualStore.yearOptions" :key="yr" :value="yr">
+                    {{ yr }}
+                  </option>
+                </select>
+              </div>
             </div>
-          </div>
 
-          <div class="space-y-3">
-            <div class="text-xs font-bold uppercase tracking-wider text-gray-500">
-              Daftar Aktivitas Audit ({{ annualDraft.activities.filter(a => a.selected).length }} terpilih)
-            </div>
-            <div
-              v-for="(act, aIdx) in annualDraft.activities"
-              :key="aIdx"
-              class="p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/40 space-y-2.5"
-            >
-              <div class="flex items-center justify-between gap-2 flex-wrap">
-                <label class="flex items-center gap-2 text-xs font-bold cursor-pointer">
-                  <input v-model="act.selected" type="checkbox" class="rounded border-gray-300 text-primary-600" />
-                  <span>Aktivitas #{{ aIdx + 1 }} — {{ act.dimensionName }}</span>
-                </label>
-                <span class="text-[11px] font-mono text-gray-500">
-                  {{ act.rowCount.toLocaleString('id-ID') }} baris ({{ act.flaggedCount }} berisiko)
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
+                <label class="block text-xs font-bold">Bulan Pelaksanaan Audit *</label>
+                <span class="text-[11px] font-mono text-gray-500 dark:text-gray-400">
+                  Kuartal Terhitung: <strong>{{ annualDraftQuarters.length ? annualDraftQuarters.join(', ') : '-' }}</strong>
                 </span>
               </div>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <button
+                  v-for="(mLabel, mIdx) in monthsList"
+                  :key="mIdx"
+                  type="button"
+                  class="px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors cursor-pointer"
+                  :class="annualDraft.selectedMonths.includes(mIdx)
+                    ? 'bg-primary-600 text-white border-primary-600'
+                    : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700'"
+                  @click="toggleAnnualDraftMonth(mIdx)"
+                >
+                  {{ mLabel }}
+                </button>
+              </div>
+            </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div>
-                  <label class="block text-[11px] font-bold mb-1">Nama Objek / Aktivitas Audit *</label>
-                  <UInput v-model="act.name" size="xs" class="w-full" />
+            <div class="space-y-3">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <div class="text-xs font-bold uppercase tracking-wider text-gray-500">
+                  Daftar Aktivitas Audit ({{ annualDraft.activities.filter(a => a.selected).length }} / {{ annualDraft.activities.length }} terpilih)
                 </div>
-                <div>
-                  <label class="block text-[11px] font-bold mb-1">Kategori Audit *</label>
-                  <USelect
-                    v-model="act.category"
-                    :items="auditCategoryOptions"
-                    size="xs"
-                    class="w-full"
-                  />
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <button
+                    type="button"
+                    class="px-2 py-1 rounded text-[11px] font-semibold border transition-colors cursor-pointer"
+                    :class="annualDraftMode === 'per_row'
+                      ? 'bg-primary-600 text-white border-primary-600'
+                      : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700'"
+                    @click="switchAnnualDraftMode('per_row')"
+                  >
+                    Per Baris / Transaksi ({{ annualModalRecord?.sample_records?.length || 0 }})
+                  </button>
+                  <button
+                    type="button"
+                    class="px-2 py-1 rounded text-[11px] font-semibold border transition-colors cursor-pointer"
+                    :class="annualDraftMode === 'per_dimension'
+                      ? 'bg-primary-600 text-white border-primary-600'
+                      : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700'"
+                    @click="switchAnnualDraftMode('per_dimension')"
+                  >
+                    Per Unit / Cabang
+                  </button>
+                  <button
+                    type="button"
+                    class="px-2 py-1 rounded text-[11px] font-medium text-primary-600 dark:text-primary-400 hover:underline cursor-pointer"
+                    @click="selectAllAnnualActivities(true)"
+                  >
+                    Pilih Semua
+                  </button>
+                  <button
+                    type="button"
+                    class="px-2 py-1 rounded text-[11px] font-medium text-gray-500 hover:underline cursor-pointer"
+                    @click="selectAllAnnualActivities(false)"
+                  >
+                    Reset Pilihan
+                  </button>
                 </div>
               </div>
+              <div
+                v-for="(act, aIdx) in annualDraft.activities"
+                :key="aIdx"
+                class="p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/40 space-y-2.5"
+              >
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                  <label class="flex items-center gap-2 text-xs font-bold cursor-pointer">
+                    <input v-model="act.selected" type="checkbox" class="rounded border-gray-300 text-primary-600" />
+                    <span>Aktivitas #{{ aIdx + 1 }} — {{ act.dimensionName }}</span>
+                  </label>
+                  <span class="text-[11px] font-mono text-gray-500">
+                    {{ act.rowCount.toLocaleString('id-ID') }} baris ({{ act.flaggedCount }} berisiko)
+                  </span>
+                </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                <div>
-                  <label class="block text-[11px] font-bold mb-1">Departemen *</label>
-                  <USelect
-                    v-model="act.departmentId"
-                    :items="useAnnualPlanStore().departments.map(d => ({ label: d.name, value: d.id }))"
-                    size="xs"
-                    class="w-full"
-                    placeholder="Pilih Departemen"
-                  />
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div>
+                    <label class="block text-[11px] font-bold mb-1">Nama Objek / Aktivitas Audit *</label>
+                    <UInput v-model="act.name" size="xs" class="w-full" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold mb-1">Kategori Audit *</label>
+                    <select
+                      v-model="act.category"
+                      class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2.5 py-1 text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    >
+                      <option v-for="cat in auditCategoryOptions" :key="cat" :value="cat">
+                        {{ cat }}
+                      </option>
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label class="block text-[11px] font-bold mb-1">Entitas Audit Universe</label>
-                  <USelect
-                    v-model="act.auditUniverseId"
-                    :items="[
-                      { label: `(Otomatis buat: ${act.dimensionName})`, value: '' },
-                      ...useAuditUniverseStore().corporateUniverse.map(u => ({ label: u.name, value: u.id }))
-                    ]"
-                    size="xs"
-                    class="w-full"
-                  />
-                </div>
-                <div>
-                  <label class="block text-[11px] font-bold mb-1">Supervisor / Ketua Tim *</label>
-                  <USelect
-                    v-model="act.supervisorName"
-                    :items="useAnnualPlanStore().supervisorOptions"
-                    size="xs"
-                    class="w-full"
-                    placeholder="Pilih Supervisor"
-                  />
-                </div>
-              </div>
 
-              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                <div>
-                  <label class="block text-[11px] font-bold mb-1">Jumlah Auditor (1-10) *</label>
-                  <UInput v-model.number="act.auditorCount" type="number" size="xs" class="w-full font-mono" />
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <div>
+                    <label class="block text-[11px] font-bold mb-1">Departemen *</label>
+                    <select
+                      v-model="act.departmentId"
+                      class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2.5 py-1 text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    >
+                      <option value="" disabled>Pilih Departemen</option>
+                      <option v-for="dept in annualStore.departments" :key="dept.id" :value="dept.id">
+                        {{ dept.name }}
+                      </option>
+                    </select>
+                  </div>
+                  <div>
+                    <div class="flex items-center justify-between gap-1 mb-1">
+                      <label class="block text-[11px] font-bold">Entitas Audit Universe</label>
+                      <span
+                        v-if="getAnnualAuditableEntityValue(act)"
+                        class="inline-flex items-center gap-1 text-[10px] font-semibold text-gray-600 dark:text-gray-300"
+                      >
+                        <span
+                          class="w-2 h-2 rounded-full shrink-0"
+                          :class="getRiskLevelDotClass(getAnnualAuditableEntityValue(act)?.riskLevel)"
+                        />
+                        [{{ getAnnualAuditableEntityValue(act)?.riskLevel }}]
+                      </span>
+                    </div>
+                    <select
+                      :value="act.auditUniverseId"
+                      class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2.5 py-1 text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      @change="handleSelectAnnualAuditableEntity(act, ($event.target as HTMLSelectElement).value)"
+                    >
+                      <option value="">
+                        (Otomatis buat: {{ act.dimensionName }})
+                      </option>
+                      <option
+                        v-for="uItem in auditableUniverseOptions"
+                        :key="uItem.value"
+                        :value="uItem.id || uItem.value"
+                      >
+                        [{{ uItem.riskLevel }}] {{ uItem.label || uItem.name }}{{ uItem.riskIndex > 0 ? ` (${uItem.riskIndex.toFixed(1)}%)` : '' }}{{ uItem.auditPriority ? ' ★ Priority' : '' }}
+                      </option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold mb-1">Supervisor / Ketua Tim *</label>
+                    <select
+                      v-if="annualStore.supervisorOptions.length > 0"
+                      v-model="act.supervisorName"
+                      class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-2.5 py-1 text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    >
+                      <option value="" disabled>Pilih Supervisor</option>
+                      <option v-for="sup in annualStore.supervisorOptions" :key="sup" :value="sup">
+                        {{ sup }}
+                      </option>
+                    </select>
+                    <UInput
+                      v-else
+                      v-model="act.supervisorName"
+                      size="xs"
+                      class="w-full"
+                      placeholder="Ketik nama Supervisor"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label class="block text-[11px] font-bold mb-1">Total Mandays *</label>
-                  <UInput v-model.number="act.totalMandays" type="number" size="xs" class="w-full font-mono" />
-                </div>
-                <div>
-                  <label class="block text-[11px] font-bold mb-1">Kuartal / Timeline</label>
-                  <UInput v-model="act.timelineText" size="xs" class="w-full font-mono" />
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div>
+                    <label class="block text-[11px] font-bold mb-1">Jumlah Auditor (1-10) *</label>
+                    <UInput v-model.number="act.auditorCount" type="number" min="1" max="10" size="xs" class="w-full font-mono" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold mb-1">Total Mandays *</label>
+                    <UInput v-model.number="act.totalMandays" type="number" min="1" size="xs" class="w-full font-mono" />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-200 dark:border-gray-800">
-            <UButton color="neutral" variant="outline" size="sm" @click="isAnnualModalOpen = false">
+          <!-- Fixed Footer -->
+          <div class="shrink-0 flex items-center justify-end gap-2 px-5 py-3.5 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+            <UButton type="button" color="neutral" variant="outline" size="sm" @click="closeAnnualModal">
               Batal
             </UButton>
             <UButton
+              type="button"
               color="primary"
               variant="solid"
               size="sm"
@@ -1625,8 +1979,16 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
       </template>
     </UModal>
 
-    <!-- Modal 3: Detail Sample Records Preview -->
-    <UModal v-model:open="isModalOpen" :title="`Data Mapping: ${selectedMapping?.table_name || ''}`">
+    <!-- Modal 3: Detail Sample Records Preview (Outside v-if banner) -->
+    <UModal
+      :open="isModalOpen"
+      :title="`Data Mapping: ${selectedMapping?.table_name || ''}`"
+      :ui="{
+        content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-3xl max-h-[82vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
+      }"
+      @update:open="(open: boolean) => { if (!open) closePreviewModal() }"
+    >
       <template #content>
         <div class="p-4 space-y-4 max-h-[75vh] overflow-y-auto">
           <div class="flex items-center justify-between border-b pb-3 border-[var(--border-main)] flex-wrap gap-2">
@@ -1735,7 +2097,7 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
           </div>
 
           <div class="flex justify-end pt-2">
-            <UButton color="neutral" variant="outline" size="sm" @click="isModalOpen = false">
+            <UButton type="button" color="neutral" variant="outline" size="sm" @click="closePreviewModal">
               Tutup
             </UButton>
           </div>

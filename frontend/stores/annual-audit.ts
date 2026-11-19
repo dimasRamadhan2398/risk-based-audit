@@ -550,7 +550,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       const url = `${getAuditServiceBaseUrl()}/annual-audit-plans`
       const fetchPage = (page: number) => $fetch<unknown>(url, {
         method: 'GET',
-        query: { page, page_size: PLAN_PAGE_SIZE }
+        query: { page, page_size: PLAN_PAGE_SIZE },
+        cache: 'no-store'
       })
 
       const first = await fetchPage(1)
@@ -845,8 +846,21 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
         body: payload
       })
       await fetchPlans()
-      // Read from the create response; shape not yet confirmed against the backend.
-      const createdCode = response?.data?.code ?? response?.code
+      // Ensure the newly created plan is immediately present in `plans` even if an intermediate proxy cached GET
+      const createdEntity = response?.data ?? response
+      const createdCode = createdEntity?.code ?? ''
+      if (createdEntity && (createdEntity.id || createdCode)) {
+        const exists = plans.value.some(
+          p => (createdEntity.id && String(p.id) === String(createdEntity.id)) || (createdCode && p.code === createdCode)
+        )
+        if (!exists) {
+          const normalized = normalizePlans([createdEntity])
+          if (normalized.length > 0) {
+            plans.value = [normalized[0]!, ...plans.value]
+          }
+        }
+      }
+      paginations.value.currentIndex = 1
       return typeof createdCode === 'string' ? createdCode : ''
     } catch (error: any) {
       console.error('Failed to create annual plan:', error)

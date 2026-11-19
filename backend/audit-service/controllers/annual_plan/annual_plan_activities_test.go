@@ -223,3 +223,46 @@ func TestPostAssignsActivityIDsAndKeepsEmptyType(t *testing.T) {
 		t.Fatalf("POST did not assign a UUID: %v", acts[0])
 	}
 }
+
+func TestDeleteAnnualPlanUnusedAndInUse(t *testing.T) {
+	r, db := activityRouter(t)
+
+	// 1. Unused plan can be soft-deleted (200 OK).
+	w := doJSON(t, r, http.MethodPost, "/annual-audit-plans", `{"year":2026,"title":"Draft Manual"}`)
+	if w.Code != http.StatusCreated {
+		t.Fatalf("POST unused: %d %s", w.Code, w.Body.String())
+	}
+	unusedID := dataOf(t, w)["id"].(string)
+
+	w = doJSON(t, r, http.MethodDelete, "/annual-audit-plans/"+unusedID, "")
+	if w.Code != http.StatusOK {
+		t.Fatalf("DELETE unused: want 200, got %d %s", w.Code, w.Body.String())
+	}
+	var count int64
+	if err := db.Model(&models.AuditAnnual{}).Where("id = ?", unusedID).Count(&count).Error; err != nil {
+		t.Fatal(err)
+	}
+	if count != 0 {
+		t.Fatalf("deleted plan still visible to GORM default scope (count=%d)", count)
+	}
+
+	// 2. Plan referenced by an RKA returns 409 ANNUAL_PLAN_IN_USE instead of 500 or deleting.
+	w = doJSON(t, r, http.MethodPost, "/annual-audit-plans", `{"year":2026,"title":"Plan In Use"}`)
+	if w.Code != http.StatusCreated {
+		t.Fatalf("POST in-use: %d %s", w.Code, w.Body.String())
+	}
+	inUseID := uuid.MustParse(dataOf(t, w)["id"].(string))
+	if err := db.Create(&models.ActivityPlan{
+		AnnualPlanID: &inUseID,
+		ActivityType: "Assurance",
+		FormVersion:  models.ActivityPlanFormRKA,
+		PlanTitle:    "RKA Holder",
+	}).Error; err != nil {
+		t.Fatal(err)
+	}
+
+	w = doJSON(t, r, http.MethodDelete, "/annual-audit-plans/"+inUseID.String(), "")
+	if w.Code != http.StatusConflict {
+		t.Fatalf("DELETE in-use: want 409, got %d %s", w.Code, w.Body.String())
+	}
+}

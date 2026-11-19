@@ -102,7 +102,7 @@ def profile_client_table(conn, table_name: str, sample_limit: int = 50) -> Dict[
     """
     validate_identifier(table_name)
     quoted_table = quote_identifier(table_name)
-    sample_limit = max(1, min(int(sample_limit or 50), 200))
+    sample_limit = max(1, min(int(sample_limit or 50), 5000))
 
     with conn.cursor() as cur:
         cur.execute(f"SELECT * FROM {quoted_table} LIMIT 1;")
@@ -227,8 +227,7 @@ def profile_client_table(conn, table_name: str, sample_limit: int = 50) -> Dict[
                 FROM {quoted_table}
                 WHERE {active_where} AND {q_dim} IS NOT NULL AND TRIM(CAST({q_dim} AS TEXT)) <> ''
                 GROUP BY {q_dim}
-                ORDER BY flagged_count DESC, row_count DESC, dim_name ASC
-                LIMIT 20;
+                ORDER BY flagged_count DESC, row_count DESC, dim_name ASC;
                 """
             )
             for drow in cur.fetchall():

@@ -139,6 +139,7 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             const baseUrl = getAuditServiceBaseUrl();
             const response: any = await $fetch(`${baseUrl}/strategic-plans`, {
                 method: 'GET',
+                cache: 'no-store',
                 params: {
                     page: 1,
                     page_size: 100,

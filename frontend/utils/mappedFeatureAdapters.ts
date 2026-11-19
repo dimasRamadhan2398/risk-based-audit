@@ -95,6 +95,7 @@ export interface AnnualPlanActivityCandidate {
   departmentName: string
   auditUniverseId: string
   auditUniverseName: string
+  riskLevel?: string
   supervisorName: string
   auditorCount: number
   totalMandays: number
@@ -111,11 +112,49 @@ export interface AnnualPlanDraftCandidate {
   activities: AnnualPlanActivityCandidate[]
 }
 
+export interface CorporateUniverseCandidate {
+  id: string
+  name: string
+  department_id?: string | null
+  children?: CorporateUniverseCandidate[]
+}
+
 export interface AnnualPlanAdapterContext {
   departments: Array<{ id: string; name: string }>
-  corporateUniverse: Array<{ id: string; name: string; department_id?: string | null }>
+  corporateUniverse: CorporateUniverseCandidate[]
   supervisors: string[]
   year?: number
+  mode?: 'per_row' | 'per_dimension'
+}
+
+export interface RiskProfileRowCandidate {
+  refCode: string
+  name: string
+  category: string
+  description: string
+  impact: number
+  likelihood: number
+  severity: number
+  location_id?: string
+  branch?: string
+  source: string
+  assessments: Array<{
+    year: number
+    impact_q1: number
+    impact_q2: number
+    impact_q3: number
+    impact_q4: number
+    likelihood_q1: number
+    likelihood_q2: number
+    likelihood_q3: number
+    likelihood_q4: number
+  }>
+}
+
+export interface AuditUniverseNodeCandidate {
+  name: string
+  dimensionName: string
+  refCode: string
 }
 
 const DIMENSION_COL_CANDIDATES = [
@@ -407,7 +446,7 @@ export function extractDetectedColumns(record: MappedRecordInput): string[] {
     }
   }
   if (Array.isArray(record.sample_records)) {
-    for (const row of record.sample_records.slice(0, 10)) {
+    for (const row of record.sample_records) {
       if (row && typeof row === 'object') {
         for (const k of Object.keys(row)) {
           colSet.add(k)
@@ -895,14 +934,42 @@ export function buildStrategicPlanCandidatesFromTable(
   return candidates
 }
 
+export function calculateQuartersFromMonths(months: number[]): string[] {
+  const qSet = new Set<string>()
+  for (const m of months || []) {
+    if (m >= 0 && m <= 2) qSet.add('Q1')
+    else if (m >= 3 && m <= 5) qSet.add('Q2')
+    else if (m >= 6 && m <= 8) qSet.add('Q3')
+    else if (m >= 9 && m <= 11) qSet.add('Q4')
+  }
+  return Array.from(qSet).sort()
+}
+
+function flattenCorporateUniverse(nodes: CorporateUniverseCandidate[]): CorporateUniverseCandidate[] {
+  const out: CorporateUniverseCandidate[] = []
+  const visit = (list?: CorporateUniverseCandidate[]) => {
+    if (!Array.isArray(list)) return
+    for (const node of list) {
+      if (!node) continue
+      if (node.id && node.name) out.push(node)
+      if (Array.isArray(node.children) && node.children.length > 0) {
+        visit(node.children)
+      }
+    }
+  }
+  visit(nodes)
+  return out
+}
+
 function fuzzyMatchByName<T extends { id: string; name: string }>(
   targetName: string,
-  candidates: T[]
+  candidates: T[],
+  fallbackToFirst = true
 ): T | undefined {
   if (!candidates.length) return undefined
   const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
   const targetNorm = norm(targetName)
-  if (!targetNorm) return candidates[0]
+  if (!targetNorm) return fallbackToFirst ? candidates[0] : undefined
 
   const exact = candidates.find(c => norm(c.name) === targetNorm)
   if (exact) return exact
@@ -923,7 +990,295 @@ function fuzzyMatchByName<T extends { id: string; name: string }>(
       best = cand
     }
   }
-  return best || candidates[0]
+  if (best) return best
+  return fallbackToFirst ? candidates[0] : undefined
+}
+
+function extractRowRefCode(row: Record<string, any>, record: MappedRecordInput, idx: number): string {
+  const raw =
+    row.trx_ref_number ??
+    row.loan_number ??
+    row.contract_no ??
+    row.contract_number ??
+    row.incident_code ??
+    row.voucher_number ??
+    row.branch_code ??
+    row.transaction_ref ??
+    row.invoice_no ??
+    (record.audit_field ? row[record.audit_field] : undefined) ??
+    row.trx_id ??
+    row.loan_id ??
+    row.gl_id ??
+    row.contract_id ??
+    row.incident_id ??
+    row.branch_id ??
+    row.id
+  const str = raw !== undefined && raw !== null ? String(raw).trim() : ''
+  return str || `${(record.table_name || 'ROW').toUpperCase().slice(0, 4)}-${idx + 1}`
+}
+
+function extractRowDimensionName(row: Record<string, any>, record: MappedRecordInput, dimCol?: string | null): string {
+  const raw =
+    (dimCol ? row[dimCol] : undefined) ??
+    row.branch_name ??
+    row.entity_unit ??
+    row.department ??
+    row.reporting_unit ??
+    row.vendor_name ??
+    row.gl_account_name ??
+    row.region ??
+    row.city ??
+    row.customer_name
+  const str = raw !== undefined && raw !== null ? String(raw).trim() : ''
+  return str || `Unit Operasional ${record.table_name}`
+}
+
+function resolveCanonicalCrpCategory(row: Record<string, any>, tableName: string): string {
+  const rawCat = String(row.risk_category ?? row.category ?? '').toLowerCase()
+  if (rawCat.includes('compli') || rawCat.includes('kepatuhan') || rawCat.includes('regulasi') || rawCat.includes('aml') || rawCat.includes('legal')) {
+    return 'Compliance'
+  }
+  if (rawCat.includes('tech') || rawCat.includes('cyber') || rawCat.includes('it') || rawCat.includes('sistem') || rawCat.includes('akses')) {
+    return 'Technology'
+  }
+  if (rawCat.includes('gov') || rawCat.includes('gcg') || rawCat.includes('tata kelola')) {
+    return 'Governance'
+  }
+  if (rawCat.includes('hr') || rawCat.includes('sdm') || rawCat.includes('human')) {
+    return 'Human Resources'
+  }
+  if (rawCat.includes('strateg')) {
+    return 'Strategic'
+  }
+  if (rawCat.includes('finan') || rawCat.includes('keuangan') || rawCat.includes('kredit') || rawCat.includes('credit') || rawCat.includes('treasury')) {
+    return 'Financial'
+  }
+  if (rawCat.includes('operas') || rawCat.includes('ops')) {
+    return 'Operations'
+  }
+
+  const tbl = (tableName || '').toLowerCase()
+  if (
+    tbl === 'corporate_transactions' ||
+    tbl === 'credit_loan_portfolio' ||
+    tbl === 'loan_accounts' ||
+    tbl === 'gl_journal_entries' ||
+    tbl === 'gl_transactions'
+  ) {
+    return 'Financial'
+  }
+  if (
+    tbl === 'vendor_contracts' ||
+    tbl === 'vendor_invoices' ||
+    tbl === 'audit_risk_incidents' ||
+    tbl === 'compliance_incident_records'
+  ) {
+    return 'Compliance'
+  }
+  if (tbl === 'user_access_audit_logs') {
+    return 'Technology'
+  }
+  return 'Operations'
+}
+
+const CRP_SCORE_MATRIX: Record<number, Record<number, number>> = {
+  5: { 1: 7, 2: 12, 3: 17, 4: 22, 5: 25 },
+  4: { 1: 4, 2: 9, 3: 14, 4: 19, 5: 24 },
+  3: { 1: 3, 2: 8, 3: 13, 4: 18, 5: 23 },
+  2: { 1: 2, 2: 6, 3: 11, 4: 16, 5: 21 },
+  1: { 1: 1, 2: 5, 3: 10, 4: 15, 5: 20 },
+}
+
+export function buildRiskProfilePayloadsFromRows(
+  record: MappedRecordInput,
+  options?: {
+    fiscalYear?: number
+    locations?: Array<{ id: string; name: string }>
+  }
+): RiskProfileRowCandidate[] {
+  const year = options?.fiscalYear || new Date().getFullYear()
+  const locations = options?.locations || []
+  const tbl = record.table_name
+  const conn = record.connection_name
+  const rows = Array.isArray(record.sample_records) ? record.sample_records : []
+  const compat = evaluateTableModuleCompatibility(record, 'risk_profile')
+
+  const matchLocation = (branchText: string): { id: string; name: string } | undefined => {
+    if (!branchText || !locations.length) return undefined
+    return fuzzyMatchByName(branchText, locations, false)
+  }
+
+  const makeAssessments = (likelihood: number, impact: number) => [
+    {
+      year,
+      impact_q1: impact,
+      impact_q2: impact,
+      impact_q3: impact,
+      impact_q4: impact,
+      likelihood_q1: likelihood,
+      likelihood_q2: likelihood,
+      likelihood_q3: likelihood,
+      likelihood_q4: likelihood,
+    },
+  ]
+
+  const out: RiskProfileRowCandidate[] = []
+  const seenNames = new Set<string>()
+
+  if (rows.length > 0) {
+    rows.forEach((row, idx) => {
+      if (!row || typeof row !== 'object') return
+
+      const refCode = extractRowRefCode(row, record, idx)
+      const dimName = extractRowDimensionName(row, record, compat.dimensionColumn)
+      const evalRes = isRowAnomalousOrFlagged(row, record.custom_rules, record.anomaly_rules)
+      const category = resolveCanonicalCrpCategory(row, tbl)
+      const amt = Number(
+        row.amount ??
+          row.plafond ??
+          row.outstanding ??
+          row.contract_value ??
+          row.invoice_amount ??
+          row.exposure_value ??
+          row.debit_amount ??
+          row.principal_amount ??
+          0
+      ) || 0
+
+      let likelihood = 2
+      let impact = 3
+      if (evalRes.flagged) {
+        if (evalRes.severity === 'High') {
+          likelihood = amt >= 1_000_000_000 || Number(row.severity_score) >= 90 || Number(row.collectability) >= 5 ? 5 : 4
+          impact = amt >= 500_000_000 || Number(row.severity_score) >= 85 || Number(row.collectability) >= 4 ? 5 : 4
+        } else {
+          likelihood = 3
+          impact = 4
+        }
+      } else if (String(row.risk_tier || '').toUpperCase() === 'HIGH') {
+        likelihood = 4
+        impact = 4
+      } else if (amt >= 250_000_000) {
+        likelihood = 3
+        impact = 3
+      }
+
+      const severity = CRP_SCORE_MATRIX[likelihood]?.[impact] || 13
+
+      let baseName = ''
+      if (tbl === 'corporate_transactions') {
+        const sub = row.category || row.channel || dimName
+        baseName = `Risiko Transaksi ${refCode} — ${sub} (${dimName})`
+      } else if (tbl === 'credit_loan_portfolio' || tbl === 'loan_accounts') {
+        baseName = `Risiko Kredit ${refCode} — ${dimName} (KOL ${row.collectability ?? row.kol_status ?? '-'})`
+      } else if (tbl === 'gl_journal_entries' || tbl === 'gl_transactions') {
+        baseName = `Risiko Jurnal GL ${refCode} — ${row.gl_account_name || row.gl_account_code || dimName}`
+      } else if (tbl === 'vendor_contracts' || tbl === 'vendor_invoices') {
+        baseName = `Risiko Kontrak ${refCode} — ${row.vendor_name || dimName}`
+      } else if (tbl === 'audit_risk_incidents' || tbl === 'compliance_incident_records') {
+        baseName = `Risiko Insiden ${refCode} — ${row.risk_category || dimName}`
+      } else if (tbl === 'branches') {
+        baseName = `Risiko Operasional Cabang ${refCode} — ${row.branch_name || row.city || dimName}`
+      } else {
+        baseName = `Risiko ${tbl} (${refCode}) — ${dimName}`
+      }
+
+      let cleanName = baseName.replace(/\s+/g, ' ').trim().slice(0, 100)
+      if (seenNames.has(cleanName.toLowerCase())) {
+        const suffix = ` #${idx + 1}`
+        cleanName = `${cleanName.slice(0, 100 - suffix.length)}${suffix}`
+      }
+      seenNames.add(cleanName.toLowerCase())
+
+      const amtText = amt > 0 ? ` Nilai/Eksposur: Rp ${amt.toLocaleString('id-ID')}.` : ''
+      const reasonText = evalRes.reasons.length > 0
+        ? ` Indikasi risiko: ${evalRes.reasons.join('; ')}.`
+        : (row.notes || row.finding_summary || row.audit_note ? ` Catatan: ${row.notes || row.finding_summary || row.audit_note}.` : '')
+      const statusText = row.authorization_status || row.approval_status || row.status
+        ? ` Status: ${row.authorization_status || row.approval_status || row.status}.`
+        : ''
+      const description = `Risiko teridentifikasi dari baris data '${refCode}' pada unit '${dimName}' (pipeline '${conn}', tabel ${tbl}).${amtText}${statusText}${reasonText}`.trim()
+
+      const matchedLoc = matchLocation(String(row.branch_name || row.entity_unit || dimName))
+
+      out.push({
+        refCode,
+        name: cleanName,
+        category,
+        description,
+        impact,
+        likelihood,
+        severity,
+        ...(matchedLoc ? { location_id: matchedLoc.id, branch: matchedLoc.name } : {}),
+        source: `${conn} / ${tbl}`,
+        assessments: makeAssessments(likelihood, impact),
+      })
+    })
+    return out
+  }
+
+  const dims = Array.isArray(record.profile?.dimension_breakdown) ? record.profile!.dimension_breakdown! : []
+  if (dims.length > 0) {
+    dims.forEach((d, idx) => {
+      const refCode = `DIM-${idx + 1}`
+      const likelihood = d.flagged_count >= 10 ? 4 : (d.flagged_count > 0 ? 3 : 2)
+      const impact = d.max_amount >= 500_000_000 || d.flagged_count >= 5 ? 4 : 3
+      const severity = CRP_SCORE_MATRIX[likelihood]?.[impact] || 13
+      const category = resolveCanonicalCrpCategory({}, tbl)
+      const cleanName = `Risiko ${tbl} — ${d.name}`.slice(0, 100)
+      const matchedLoc = matchLocation(d.name)
+      out.push({
+        refCode,
+        name: cleanName,
+        category,
+        description: `Risiko unit '${d.name}' dari pipeline '${conn}' (tabel ${tbl}): ${d.row_count.toLocaleString('id-ID')} baris (${d.flagged_count} baris berisiko).`,
+        impact,
+        likelihood,
+        severity,
+        ...(matchedLoc ? { location_id: matchedLoc.id, branch: matchedLoc.name } : {}),
+        source: `${conn} / ${tbl}`,
+        assessments: makeAssessments(likelihood, impact),
+      })
+    })
+  }
+  return out
+}
+
+export function buildAuditUniverseCandidatesFromTable(record: MappedRecordInput): AuditUniverseNodeCandidate[] {
+  const tbl = record.table_name
+  const rows = Array.isArray(record.sample_records) ? record.sample_records : []
+  const compat = evaluateTableModuleCompatibility(record, 'audit_universe')
+  const out: AuditUniverseNodeCandidate[] = []
+  const seen = new Set<string>()
+
+  if (rows.length > 0) {
+    rows.forEach((row, idx) => {
+      if (!row || typeof row !== 'object') return
+      const refCode = extractRowRefCode(row, record, idx)
+      const dimName = extractRowDimensionName(row, record, compat.dimensionColumn)
+      const name = tbl === 'branches'
+        ? `${row.branch_name || dimName} (${refCode})`
+        : `${dimName} — ${refCode} (${tbl})`
+      const key = name.trim().toLowerCase()
+      if (!seen.has(key)) {
+        seen.add(key)
+        out.push({ name: name.trim(), dimensionName: dimName, refCode })
+      }
+    })
+    return out
+  }
+
+  const dims = Array.isArray(record.profile?.dimension_breakdown) ? record.profile!.dimension_breakdown! : []
+  dims.forEach((d, idx) => {
+    if (!d?.name) return
+    const name = `${d.name} (${tbl})`
+    const key = name.trim().toLowerCase()
+    if (!seen.has(key)) {
+      seen.add(key)
+      out.push({ name: name.trim(), dimensionName: d.name, refCode: `DIM-${idx + 1}` })
+    }
+  })
+  return out
 }
 
 export function buildAnnualPlanDraftFromTable(
@@ -935,19 +1290,81 @@ export function buildAnnualPlanDraftFromTable(
   const conn = record.connection_name
   const rows = Array.isArray(record.sample_records) ? record.sample_records : []
   const totalRows = Number(record.profile?.total_rows || record.total_rows || rows.length || 0)
+  const compat = evaluateTableModuleCompatibility(record, 'annual_plan')
+  const dimCol = compat.dimensionColumn
+  const flatUniverse = flattenCorporateUniverse(ctx.corporateUniverse)
+
+  const tableLabelMap: Record<string, string> = {
+    corporate_transactions: 'Transaksi Korporasi & Otorisasi Cabang',
+    credit_loan_portfolio: 'Portofolio Kredit & Kepatuhan Underwriting',
+    gl_journal_entries: 'Jurnal Buku Besar (GL) & Kelengkapan Voucher',
+    vendor_contracts: 'Kontrak Pengadaan & Manajemen Vendor',
+    audit_risk_incidents: 'Tindak Lanjut Insiden Risiko & Kepatuhan',
+    branches: 'Tata Kelola & Operasional Jaringan Cabang',
+  }
+  const readableScope = tableLabelMap[tbl] || `Pengendalian Data ${tbl}`
+
+  const hasDimensionBreakdown =
+    Array.isArray(record.profile?.dimension_breakdown) && record.profile!.dimension_breakdown!.length > 0
+  const effectiveMode: 'per_row' | 'per_dimension' =
+    ctx.mode || (rows.length > 0 ? 'per_row' : 'per_dimension')
+
+  if (effectiveMode === 'per_row' && rows.length > 0) {
+    const activities: AnnualPlanActivityCandidate[] = rows.map((r, idx) => {
+      const refCode = extractRowRefCode(r, record, idx)
+      const dimName = extractRowDimensionName(r, record, dimCol)
+      const evalRes = isRowAnomalousOrFlagged(r, record.custom_rules, record.anomaly_rules)
+      const amt = Number(r.amount ?? r.plafond ?? r.contract_value ?? r.exposure_value ?? r.debit_amount ?? 0) || 0
+
+      const matchedUniverse = fuzzyMatchByName(dimName, flatUniverse, false)
+      let matchedDept = matchedUniverse?.department_id
+        ? ctx.departments.find(d => d.id === matchedUniverse.department_id)
+        : undefined
+      if (!matchedDept) {
+        matchedDept = fuzzyMatchByName(dimName, ctx.departments, true) || ctx.departments[idx % Math.max(1, ctx.departments.length)]
+      }
+      const supervisor = ctx.supervisors.length > 0
+        ? ctx.supervisors[idx % ctx.supervisors.length]!
+        : ''
+
+      const isHighRisk = evalRes.flagged || amt >= 1_000_000_000
+      return {
+        selected: true,
+        dimensionName: `${dimName} (${refCode})`,
+        name: `Audit ${readableScope} — ${dimName} [${refCode}]`.slice(0, 100),
+        category: AuditCategory.ASSURANCE,
+        departmentId: matchedDept?.id || '',
+        departmentName: matchedDept?.name || '',
+        auditUniverseId: matchedUniverse?.id || '',
+        auditUniverseName: matchedUniverse?.name || '',
+        riskLevel: evalRes.flagged ? 'High' : 'Moderate',
+        supervisorName: supervisor,
+        auditorCount: isHighRisk ? 3 : 2,
+        totalMandays: isHighRisk ? 20 : 15,
+        timelineText: 'Q1',
+        rowCount: 1,
+        flaggedCount: evalRes.flagged ? 1 : 0,
+      }
+    })
+
+    return {
+      title: `Sumber Data: ${conn} / ${tbl} (FY ${year})`,
+      year: String(year),
+      selectedMonths: [0, 1, 2],
+      notes: `Draft PKAT otomatis dari pemetaan sumber data '${conn}' (tabel ${tbl}, total populasi ${totalRows.toLocaleString('id-ID')} baris, ${activities.length} objek audit per baris/transaksi).`,
+      activities,
+    }
+  }
 
   let dimSummaries: TableDimensionSummary[] = []
-  if (Array.isArray(record.profile?.dimension_breakdown) && record.profile!.dimension_breakdown!.length > 0) {
-    dimSummaries = record.profile!.dimension_breakdown!.slice(0, 5)
+  if (hasDimensionBreakdown) {
+    dimSummaries = [...record.profile!.dimension_breakdown!]
   } else {
-    const compat = evaluateTableModuleCompatibility(record, 'annual_plan')
-    const dimCol = compat.dimensionColumn
     const groups = new Map<string, TableDimensionSummary>()
 
     for (const r of rows) {
       if (!r || typeof r !== 'object') continue
-      const rawDim = dimCol ? r[dimCol] : (r.branch_name ?? r.entity_unit ?? r.vendor_name ?? r.gl_account_name ?? r.department)
-      const dimName = String(rawDim || `Unit Operasional ${tbl}`).trim()
+      const dimName = extractRowDimensionName(r, record, dimCol)
       if (!groups.has(dimName)) {
         groups.set(dimName, {
           name: dimName,
@@ -969,7 +1386,6 @@ export function buildAnnualPlanDraftFromTable(
 
     dimSummaries = Array.from(groups.values())
       .sort((a, b) => b.flagged_count - a.flagged_count || b.row_count - a.row_count)
-      .slice(0, 5)
   }
 
   if (dimSummaries.length === 0) {
@@ -984,23 +1400,13 @@ export function buildAnnualPlanDraftFromTable(
     ]
   }
 
-  const tableLabelMap: Record<string, string> = {
-    corporate_transactions: 'Transaksi Korporasi & Otorisasi Cabang',
-    credit_loan_portfolio: 'Portofolio Kredit & Kepatuhan Underwriting',
-    gl_journal_entries: 'Jurnal Buku Besar (GL) & Kelengkapan Voucher',
-    vendor_contracts: 'Kontrak Pengadaan & Manajemen Vendor',
-    audit_risk_incidents: 'Tindak Lanjut Insiden Risiko & Kepatuhan',
-    branches: 'Tata Kelola & Operasional Jaringan Cabang',
-  }
-  const readableScope = tableLabelMap[tbl] || `Pengendalian Data ${tbl}`
-
   const activities: AnnualPlanActivityCandidate[] = dimSummaries.map((dim, idx) => {
-    const matchedUniverse = fuzzyMatchByName(dim.name, ctx.corporateUniverse)
+    const matchedUniverse = fuzzyMatchByName(dim.name, flatUniverse, false)
     let matchedDept = matchedUniverse?.department_id
       ? ctx.departments.find(d => d.id === matchedUniverse.department_id)
       : undefined
     if (!matchedDept) {
-      matchedDept = fuzzyMatchByName(dim.name, ctx.departments) || ctx.departments[idx % Math.max(1, ctx.departments.length)]
+      matchedDept = fuzzyMatchByName(dim.name, ctx.departments, true) || ctx.departments[idx % Math.max(1, ctx.departments.length)]
     }
     const supervisor = ctx.supervisors.length > 0
       ? ctx.supervisors[idx % ctx.supervisors.length]!
@@ -1016,6 +1422,7 @@ export function buildAnnualPlanDraftFromTable(
       departmentName: matchedDept?.name || '',
       auditUniverseId: matchedUniverse?.id || '',
       auditUniverseName: matchedUniverse?.name || '',
+      riskLevel: '',
       supervisorName: supervisor,
       auditorCount: isHighRisk ? 3 : 2,
       totalMandays: isHighRisk ? 20 : 15,
