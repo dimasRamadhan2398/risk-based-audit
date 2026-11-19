@@ -1,3 +1,33 @@
+import {
+  getDefaultModuleForTableScope,
+  getModuleOptionsForTableScope,
+  type ModuleImportMode,
+  type ScopedModuleOption,
+  type TableCompatibilityInput,
+} from '~/utils/moduleCompatibility'
+
+export {
+  analyzeTableSchema,
+  evaluateAllModulesForTable,
+  evaluateModuleCompatibility,
+  getDefaultModuleForTableScope,
+  getModuleOptionsForTableScope,
+  getNextRecommendedMappingForTable,
+  getRecommendedMappingsForTable,
+  getScopeOptionsForTable,
+  getTableArchetypeMeta,
+  targetModuleToImportMode,
+  targetModuleToRoute,
+  type ModuleCompatibilityEvaluation,
+  type ModuleImportMode,
+  type RecommendedMappingSpec,
+  type ScopeOptionForTable,
+  type ScopedModuleOption,
+  type TableArchetype,
+  type TableCompatibilityInput,
+  type TableSchemaSignals,
+} from '~/utils/moduleCompatibility'
+
 export interface DataSourceColumnMeta {
   name: string
   dataType: string
@@ -7,6 +37,7 @@ export interface DataSourceColumnMeta {
 
 export interface DataSourceTableMeta {
   tableName: string
+  rowCount?: number
   columns: DataSourceColumnMeta[]
 }
 
@@ -45,10 +76,14 @@ export function shouldShowAnomalyRules(targetScope?: string, targetModule?: stri
   return targetScope === 'data_analytics' && targetModule === 'AI: Anomaly Detection'
 }
 
-export interface TargetModuleOption {
+export interface TargetModuleOption extends ScopedModuleOption {
   label: string
   value: string
   disabled?: boolean
+  recommended?: boolean
+  compatible?: boolean
+  reason?: string
+  importMode?: ModuleImportMode
 }
 
 export const SUPPORTED_TARGET_MODULES = new Set<string>([
@@ -105,14 +140,26 @@ export const SCOPE_MODULES_MAP: Record<string, TargetModuleOption[]> = {
   ],
 }
 
-export function getModulesForTargetScope(scope?: string): TargetModuleOption[] {
+export function getModulesForTargetScope(
+  scope?: string,
+  table?: TableCompatibilityInput
+): TargetModuleOption[] {
+  if (table) {
+    return getModuleOptionsForTableScope(scope, table)
+  }
   return SCOPE_MODULES_MAP[scope || 'audit_features'] || SCOPE_MODULES_MAP.audit_features || []
 }
 
-export function getDefaultModuleForTargetScope(scope?: string): string {
+export function getDefaultModuleForTargetScope(
+  scope?: string,
+  table?: TableCompatibilityInput
+): string {
+  if (table) {
+    return getDefaultModuleForTableScope(scope, table)
+  }
   const mods = getModulesForTargetScope(scope)
   const firstSupported = mods.find(m => !m.disabled)
-  return firstSupported?.value || mods[0]?.value || 'Working Paper Evidence'
+  return firstSupported?.value || mods[0]?.value || 'Annual Audit Plan'
 }
 
 export function resolveCanonicalEntityAuto(tableName: string, targetModule: string): string {

@@ -47,6 +47,7 @@ import {
   buildRealTableAnomalies,
   buildRiskProfilePayloadsFromRows,
   buildStrategicPlanCandidatesFromTable,
+  buildWorkingPaperSamplesFromTable,
   calculateQuartersFromMonths,
   computeStrategicKpiMetrics,
   evaluateTableModuleCompatibility,
@@ -1186,42 +1187,36 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
       )
     }
 
-    // 7. Working Paper Evidence Sampling Injection
+    // 7. Working Paper Evidence Sampling Pre-fill (F-03)
     else if (actionType === 'working_paper') {
       const wpStore = useWorkingPaperStore()
-      const totalPop = getRecordPopulationCount(item)
-      const popStr = totalPop.toLocaleString('id-ID')
+      const wpPayload = buildWorkingPaperSamplesFromTable(item)
 
-      if (wpStore.sampleForm) {
-        wpStore.sampleForm.population = `${popStr} Baris (${item.table_name})`
-        wpStore.sampleForm.sampleSize = item.sample_records.length
-        wpStore.sampleForm.conclusion = `Pengujian substantif validasi otorisasi dan ambang batas limit transaksi terhadap ${item.sample_records.length} sampel uji petik dari total populasi nyata ${popStr} baris pada tabel ${item.table_name}.`
-
-        wpStore.sampleForm.samples = item.sample_records.map((row, idx) => ({
-          id: Date.now() + idx,
-          fieldworkDocument: String(
-            row[item.audit_field] ||
-              row.trx_ref_number ||
-              row.loan_number ||
-              row.voucher_number ||
-              row.contract_no ||
-              row.incident_code ||
-              row.id ||
-              `SMP-00${idx + 1}`
-          ),
-          document: `Bukti Audit ${item.table_name} (${row[item.audit_field] || row.trx_ref_number || row.loan_number || row.contract_no || row.id || idx + 1})`,
-          step1: 'Verifikasi Otorisasi & Kelengkapan Dokumen Pendukung',
-          l1: 'Pass',
-          step2: 'Kesesuaian Limit Transaksi & Rekonsiliasi Saldo',
-          l2: 'Pass',
-          step3: 'Validasi Anti-Fraud & Timestamp Transaksi',
-          l3: 'Pass',
-        }))
+      if (wpPayload.samples.length === 0) {
+        toast.warning(
+          'Tidak Ada Baris Sampel',
+          `Tabel '${item.table_name}' tidak memiliki baris bukti yang dapat diisikan ke Form F-03 Working Paper.`
+        )
+        return
       }
 
-      toast.success(
-        'Bukti Sampel Kertas Kerja Berhasil Ditambahkan',
-        `Populasi ${popStr} baris dan ${item.sample_records.length} sampel uji petik nyata dari '${item.table_name}' berhasil dimasukkan ke Form F-03 Working Paper!`
+      if (typeof wpStore.openModalF03 === 'function') {
+        wpStore.openModalF03()
+      } else {
+        wpStore.isEditingF03 = false
+        wpStore.showModalF03 = true
+      }
+      if (wpStore.sampleForm) {
+        wpStore.sampleForm.population = wpPayload.population
+        wpStore.sampleForm.sampleSize = wpPayload.sampleSize
+        wpStore.sampleForm.conclusion = wpPayload.conclusion
+        wpStore.sampleForm.samples = wpPayload.samples
+      }
+      wpStore.showModalF03 = true
+
+      toast.info(
+        'Form F-03 Working Paper Terisi',
+        `${wpPayload.sampleSize} sampel uji petik (${wpPayload.flaggedCount} berindikasi deviasi) dari populasi ${wpPayload.population} telah diisikan ke Form F-03. Tinjau lalu klik Simpan untuk menyimpan ke Kertas Kerja.`
       )
     }
 

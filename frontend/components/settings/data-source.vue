@@ -143,6 +143,20 @@
                 </UButton>
 
                 <UButton
+                  v-if="getActiveMappingsCountForConn(conn) > 0"
+                  color="success"
+                  variant="subtle"
+                  size="md"
+                  icon="i-lucide-download"
+                  class="rounded-xl font-semibold"
+                  :loading="importingConnId === conn.id && isImportingMappings"
+                  :disabled="isImportingMappings"
+                  @click="importAllMappingsForConn(conn)"
+                >
+                  Impor Semua ({{ getActiveMappingsCountForConn(conn) }})
+                </UButton>
+
+                <UButton
                   color="neutral"
                   variant="subtle"
                   size="md"
@@ -189,6 +203,76 @@
           </p>
           <UButton color="primary" size="sm" icon="i-lucide-plus" class="rounded-xl font-bold" @click="openAddModal">
             {{ t('settings.dataSource.addConnection') }}
+          </UButton>
+        </div>
+      </div>
+    </UCard>
+
+    <!-- Bulk Import Result Summary Card (when triggered from Connection List) -->
+    <UCard
+      v-if="showImportSummaryPanel && lastBulkImportSummary && !isSchemaModalOpen"
+      class="bg-white dark:bg-slate-900 rounded-xl border border-emerald-200 dark:border-emerald-900/50 shadow-sm"
+    >
+      <template #header>
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <UIcon name="i-lucide-check-circle-2" class="w-5 h-5 text-emerald-500" />
+            <h3 class="text-base font-bold text-gray-900 dark:text-white">
+              Ringkasan Impor Mapping &mdash; {{ lastBulkImportSummary.connectionName }}
+            </h3>
+            <UBadge color="success" variant="subtle" size="sm" class="font-mono">
+              +{{ lastBulkImportSummary.totalRecordsAdded }} data baru
+            </UBadge>
+          </div>
+          <UButton
+            color="neutral"
+            variant="ghost"
+            size="xs"
+            icon="i-lucide-x"
+            @click="showImportSummaryPanel = false"
+          />
+        </div>
+      </template>
+
+      <div class="space-y-2.5">
+        <div
+          v-for="res in lastBulkImportSummary.results"
+          :key="res.key"
+          class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl border text-xs"
+          :class="res.status === 'imported'
+            ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/50'
+            : res.status === 'manual_required'
+              ? 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/50'
+              : res.status === 'skipped_duplicate'
+                ? 'bg-gray-50 dark:bg-gray-800/40 border-gray-200 dark:border-gray-700'
+                : 'bg-rose-50/50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/50'"
+        >
+          <div class="space-y-0.5 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="font-mono font-bold text-gray-900 dark:text-white">{{ res.tableName }}</span>
+              <span class="text-gray-400">→</span>
+              <span class="font-semibold text-gray-800 dark:text-gray-200">{{ res.targetModule }}</span>
+              <UBadge
+                :color="res.status === 'imported' ? 'success' : res.status === 'manual_required' ? 'warning' : res.status === 'skipped_duplicate' ? 'neutral' : 'error'"
+                variant="subtle"
+                size="xs"
+              >
+                {{ res.status === 'imported' ? `+${res.addedCount} Diimpor` : res.status === 'manual_required' ? 'Konfirmasi Manual' : res.status === 'skipped_duplicate' ? 'Sudah Sinkron' : res.status === 'incompatible' ? 'Tidak Cocok' : 'Gagal' }}
+              </UBadge>
+            </div>
+            <p class="text-gray-600 dark:text-gray-400">{{ res.message }}</p>
+          </div>
+
+          <UButton
+            v-if="res.route && res.route !== '/' && res.status !== 'incompatible'"
+            :to="res.route"
+            color="primary"
+            variant="subtle"
+            size="xs"
+            icon="i-lucide-external-link"
+            class="rounded-lg font-semibold shrink-0"
+          >
+            {{ res.status === 'manual_required' ? 'Buka & Konfirmasi' : 'Lihat Fitur' }}
           </UButton>
         </div>
       </div>
@@ -524,6 +608,14 @@
                   <div class="flex items-center gap-2.5 flex-wrap">
                     <UIcon name="i-lucide-table" class="w-4 h-4 text-blue-500" />
                     <span class="font-mono font-bold text-gray-900 dark:text-white text-base">{{ table.tableName }}</span>
+                    <UBadge
+                      :color="getTableArchetypeInfo(table).meta.color"
+                      variant="subtle"
+                      size="sm"
+                      class="rounded-md font-semibold text-[11px]"
+                    >
+                      {{ getTableArchetypeInfo(table).meta.label }}
+                    </UBadge>
                     <UBadge color="neutral" variant="subtle" size="sm" class="rounded-md font-mono text-[11px]">
                       {{ table.rowCount.toLocaleString() }} {{ t('settings.dataSource.mapping.rows') }}
                     </UBadge>
@@ -543,10 +635,18 @@
                   <p v-if="table.description" class="text-xs text-gray-500 dark:text-gray-400">
                     {{ table.description }}
                   </p>
+                  <p
+                    v-if="getTableRecommendedModules(table).length > 0"
+                    class="text-[11px] text-primary-700 dark:text-primary-400 flex items-center gap-1.5 flex-wrap"
+                  >
+                    <UIcon name="i-lucide-sparkles" class="w-3.5 h-3.5 shrink-0" />
+                    <span class="font-semibold">Direkomendasikan:</span>
+                    <span>{{ getTableRecommendedModules(table).map(r => r.targetModule).join(', ') }}</span>
+                  </p>
                 </div>
 
                 <!-- Table Quick Actions -->
-                <div class="flex items-center gap-2 shrink-0">
+                <div class="flex items-center gap-2 shrink-0 flex-wrap">
                   <UButton
                     color="neutral"
                     variant="subtle"
@@ -556,6 +656,18 @@
                     @click="openPreviewModal(table.tableName)"
                   >
                     {{ t('settings.dataSource.previewData') }}
+                  </UButton>
+                  <UButton
+                    v-if="getTableRecommendedModules(table).length > 0"
+                    color="success"
+                    variant="subtle"
+                    size="sm"
+                    icon="i-lucide-sparkles"
+                    class="rounded-lg font-semibold text-xs"
+                    :disabled="getUnmappedRecommendedCount(table) === 0"
+                    @click="applyRecommendedMappings(table)"
+                  >
+                    {{ getUnmappedRecommendedCount(table) > 0 ? `Terapkan Rekomendasi (${getUnmappedRecommendedCount(table)})` : 'Semua Rekomendasi Terpasang' }}
                   </UButton>
                   <UButton
                     color="primary"
@@ -588,14 +700,52 @@
               <div
                 v-for="(mapping, mIdx) in getTableMappings(table.tableName)"
                 :key="mIdx"
-                class="mt-3 p-3.5 rounded-xl bg-primary-50/50 dark:bg-primary-950/20 border border-primary-200/60 dark:border-primary-900/40 space-y-3"
+                class="mt-3 p-3.5 rounded-xl border space-y-3"
+                :class="getMappingCompatibility(table, mapping.targetModule).compatible
+                  ? 'bg-primary-50/50 dark:bg-primary-950/20 border-primary-200/60 dark:border-primary-900/40'
+                  : 'bg-amber-50/60 dark:bg-amber-950/20 border-amber-300/80 dark:border-amber-800/60'"
               >
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                  <div class="flex items-center gap-2 flex-wrap">
                     <span class="text-xs font-bold text-primary-900 dark:text-primary-300 flex items-center gap-1.5">
                       <UIcon name="i-lucide-settings-2" class="w-3.5 h-3.5 text-primary-500" />
                       Mapping #{{ mIdx + 1 }} &mdash; {{ mapping.targetModule || getScopeLabel(mapping.targetScope) }}
                     </span>
+                    <UBadge
+                      v-if="getMappingCompatibility(table, mapping.targetModule).compatible"
+                      :color="getImportModeBadge(getMappingCompatibility(table, mapping.targetModule).importMode).color"
+                      variant="subtle"
+                      size="xs"
+                      class="font-semibold text-[10px]"
+                    >
+                      {{ getImportModeBadge(getMappingCompatibility(table, mapping.targetModule).importMode).label }}
+                    </UBadge>
+                    <UBadge
+                      v-if="selectedConnForSchema && getMappingImportStatus(selectedConnForSchema.id, table.tableName, mapping.targetModule)"
+                      :color="getMappingImportStatus(selectedConnForSchema.id, table.tableName, mapping.targetModule)?.status === 'imported'
+                        ? 'success'
+                        : getMappingImportStatus(selectedConnForSchema.id, table.tableName, mapping.targetModule)?.status === 'manual_required'
+                          ? 'warning'
+                          : getMappingImportStatus(selectedConnForSchema.id, table.tableName, mapping.targetModule)?.status === 'skipped_duplicate'
+                            ? 'neutral'
+                            : 'error'"
+                      variant="outline"
+                      size="xs"
+                      class="font-mono text-[10px]"
+                    >
+                      <template v-if="getMappingImportStatus(selectedConnForSchema.id, table.tableName, mapping.targetModule)?.status === 'imported'">
+                        ✓ +{{ getMappingImportStatus(selectedConnForSchema.id, table.tableName, mapping.targetModule)?.addedCount }} diimpor ({{ formatImportTime(getMappingImportStatus(selectedConnForSchema.id, table.tableName, mapping.targetModule)?.importedAt) }})
+                      </template>
+                      <template v-else-if="getMappingImportStatus(selectedConnForSchema.id, table.tableName, mapping.targetModule)?.status === 'skipped_duplicate'">
+                        • Sudah sinkron ({{ formatImportTime(getMappingImportStatus(selectedConnForSchema.id, table.tableName, mapping.targetModule)?.importedAt) }})
+                      </template>
+                      <template v-else-if="getMappingImportStatus(selectedConnForSchema.id, table.tableName, mapping.targetModule)?.status === 'manual_required'">
+                        ⚑ Konfirmasi via Banner
+                      </template>
+                      <template v-else>
+                        ! {{ getMappingImportStatus(selectedConnForSchema.id, table.tableName, mapping.targetModule)?.status }}
+                      </template>
+                    </UBadge>
                   </div>
                   <div class="flex items-center gap-2">
                     <span class="text-[11px] font-mono text-primary-700 dark:text-primary-400 hidden sm:inline">{{ t('settings.dataSource.mapping.targetSchema') }} {{ selectedConnForSchema.database }}</span>
@@ -617,12 +767,7 @@
                     </label>
                     <USelect
                       :model-value="mapping.targetScope"
-                      :items="[
-                        { label: 'Risk Management', value: 'risk_management' },
-                        { label: 'Audit Features', value: 'audit_features' },
-                        { label: 'QAR Features (Belum didukung)', value: 'qar_features', disabled: true },
-                        { label: 'Data Analytics / AI', value: 'data_analytics' }
-                      ]"
+                      :items="getScopesForTable(table)"
                       size="sm"
                       class="w-full"
                       @update:model-value="(val) => updateMappingField(table.tableName, mIdx, 'targetScope', val)"
@@ -635,12 +780,40 @@
                     </label>
                     <USelect
                       :model-value="mapping.targetModule"
-                      :items="getModulesForScope(mapping.targetScope)"
+                      :items="getModulesForScope(mapping.targetScope, table)"
                       size="sm"
                       class="w-full text-xs font-medium"
                       @update:model-value="(val) => updateMappingField(table.tableName, mIdx, 'targetModule', val)"
                     />
                   </div>
+                </div>
+
+                <!-- Compatibility Status & Reason Note -->
+                <div
+                  v-if="getMappingCompatibility(table, mapping.targetModule).compatible"
+                  class="flex items-start gap-2 text-[11px] text-gray-600 dark:text-gray-300 bg-white/70 dark:bg-gray-900/50 border border-gray-200/70 dark:border-gray-800 rounded-lg px-2.5 py-1.5"
+                >
+                  <UIcon name="i-lucide-check-circle-2" class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                  <span>{{ getMappingCompatibility(table, mapping.targetModule).reason }}</span>
+                </div>
+                <div
+                  v-else
+                  class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-amber-800 dark:text-amber-300 bg-amber-100/70 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-800 rounded-lg px-3 py-2"
+                >
+                  <div class="flex items-start gap-2">
+                    <UIcon name="i-lucide-alert-triangle" class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                    <span>{{ getMappingCompatibility(table, mapping.targetModule).reason }}</span>
+                  </div>
+                  <UButton
+                    size="xs"
+                    color="warning"
+                    variant="solid"
+                    icon="i-lucide-sparkles"
+                    class="rounded-lg font-semibold shrink-0"
+                    @click="fixIncompatibleMapping(table, mIdx)"
+                  >
+                    Ganti ke Rekomendasi
+                  </UButton>
                 </div>
 
                 <!-- Anomaly Detection Rules Checklist & AI Training Section - only displayed when module is AI: Anomaly Detection -->
@@ -852,22 +1025,102 @@
             </div>
           </div>
 
-          <!-- Footer Save Button -->
-          <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-800">
-            <UButton type="button" color="neutral" variant="subtle" class="rounded-xl font-semibold" @click="closeSchemaModal">
+          <!-- Bulk Import Summary Panel inside Schema Modal -->
+          <div
+            v-if="showImportSummaryPanel && lastBulkImportSummary && lastBulkImportSummary.connectionId === selectedConnForSchema.id"
+            class="p-4 rounded-xl border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/40 dark:bg-emerald-950/20 space-y-3"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 flex-wrap">
+                <UIcon name="i-lucide-check-circle-2" class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span class="text-xs font-bold text-gray-900 dark:text-white">
+                  Ringkasan Hasil Impor ({{ lastBulkImportSummary.totalMappings }} mapping diproses)
+                </span>
+                <UBadge color="success" variant="subtle" size="xs" class="font-mono">
+                  +{{ lastBulkImportSummary.totalRecordsAdded }} data baru
+                </UBadge>
+                <UBadge v-if="lastBulkImportSummary.manualMappings > 0" color="warning" variant="subtle" size="xs">
+                  {{ lastBulkImportSummary.manualMappings }} konfirmasi manual
+                </UBadge>
+              </div>
+              <UButton
+                color="neutral"
+                variant="ghost"
+                size="xs"
+                icon="i-lucide-x"
+                @click="showImportSummaryPanel = false"
+              />
+            </div>
+
+            <div class="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+              <div
+                v-for="res in lastBulkImportSummary.results"
+                :key="res.key"
+                class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 text-xs"
+              >
+                <div class="min-w-0 space-y-0.5">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="font-mono font-bold text-gray-900 dark:text-white">{{ res.tableName }}</span>
+                    <span class="text-gray-400">→</span>
+                    <span class="font-semibold text-gray-800 dark:text-gray-200">{{ res.targetModule }}</span>
+                    <UBadge
+                      :color="res.status === 'imported' ? 'success' : res.status === 'manual_required' ? 'warning' : res.status === 'skipped_duplicate' ? 'neutral' : 'error'"
+                      variant="subtle"
+                      size="xs"
+                    >
+                      {{ res.status === 'imported' ? `+${res.addedCount} Diimpor` : res.status === 'manual_required' ? 'Lewat Banner' : res.status === 'skipped_duplicate' ? 'Sudah Sinkron' : res.status === 'incompatible' ? 'Tidak Cocok' : 'Gagal' }}
+                    </UBadge>
+                  </div>
+                  <p class="text-[11px] text-gray-600 dark:text-gray-400">{{ res.message }}</p>
+                </div>
+                <UButton
+                  v-if="res.route && res.route !== '/' && res.status !== 'incompatible'"
+                  :to="res.route"
+                  color="primary"
+                  variant="subtle"
+                  size="xs"
+                  icon="i-lucide-external-link"
+                  class="rounded-lg font-semibold shrink-0"
+                  @click="closeSchemaModal()"
+                >
+                  {{ res.status === 'manual_required' ? 'Buka Banner' : 'Buka' }}
+                </UButton>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer Save & Bulk Import Buttons -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-4 border-t border-gray-200 dark:border-gray-800">
+            <UButton type="button" color="neutral" variant="subtle" class="rounded-xl font-semibold justify-center" @click="closeSchemaModal">
               {{ t('settings.dataSource.close') }}
             </UButton>
 
-            <UButton
-              type="button"
-              color="primary"
-              icon="i-lucide-save"
-              class="rounded-xl font-bold"
-              :loading="isSavingMappings"
-              @click="saveSchemaMappings"
-            >
-              {{ t('settings.dataSource.saveMappings') }}
-            </UButton>
+            <div class="flex items-center gap-2 flex-wrap justify-end">
+              <UButton
+                type="button"
+                color="success"
+                variant="subtle"
+                icon="i-lucide-download"
+                class="rounded-xl font-bold"
+                :loading="isImportingMappings"
+                :disabled="activeMappingsCount === 0 || isSavingMappings || isImportingMappings"
+                @click="saveAndImportAllMappings"
+              >
+                Impor Semua Mapping ({{ activeMappingsCount }})
+              </UButton>
+
+              <UButton
+                type="button"
+                color="primary"
+                icon="i-lucide-save"
+                class="rounded-xl font-bold"
+                :loading="isSavingMappings"
+                :disabled="isImportingMappings"
+                @click="saveSchemaMappings"
+              >
+                {{ t('settings.dataSource.saveMappings') }}
+              </UButton>
+            </div>
           </div>
         </div>
       </template>
@@ -931,12 +1184,23 @@ import { normalizeAnomalyRiskLevel, toAnomalyRiskCode, getRiskLevelColorClass } 
 import {
   SYNC_FREQUENCY_OPTIONS,
   type SyncFrequencyOption,
+  analyzeTableSchema,
+  evaluateModuleCompatibility,
   getDefaultModuleForTargetScope,
   getModulesForTargetScope,
+  getNextRecommendedMappingForTable,
+  getRecommendedMappingsForTable,
+  getScopeOptionsForTable,
+  getTableArchetypeMeta,
   normalizeSyncSchedule,
   resolveAutoMappingMetadata,
   shouldShowAnomalyRules,
+  type ModuleCompatibilityEvaluation,
 } from '~/utils/dataSourceConfig'
+import {
+  useMappedDataImporter,
+  type BulkImportSummary,
+} from '~/composables/useMappedDataImporter'
 import SourceSelectorDropdown from '~/components/common/SourceSelectorDropdown.vue'
 
 const toast = useToast()
@@ -944,6 +1208,14 @@ const { t } = useI18n()
 const config = useRuntimeConfig()
 const dataSourceStore = useDataSourceStore()
 const { trainAnomalyWithRules } = useAiAnalytics()
+const {
+  isImporting: isImportingMappings,
+  lastSummary: lastBulkImportSummary,
+  getMappingStatus: getMappingImportStatus,
+  importAllForConnection,
+} = useMappedDataImporter()
+const importingConnId = ref<string | null>(null)
+const showImportSummaryPanel = ref(false)
 
 export interface TableColumn {
   name: string
@@ -1775,8 +2047,59 @@ const activeMappings = ref<Record<string, TableDataMapping[]>>({})
 const tableSearchQuery = ref('')
 const scopeFilter = ref('All Scopes')
 
-function getModulesForScope(scope?: string) {
-  return getModulesForTargetScope(scope)
+function getModulesForScope(scope?: string, table?: SchemaTable) {
+  return getModulesForTargetScope(scope, table)
+}
+
+function getScopesForTable(table: SchemaTable) {
+  return getScopeOptionsForTable(table)
+}
+
+function getTableArchetypeInfo(table: SchemaTable) {
+  const signals = analyzeTableSchema(table)
+  return {
+    signals,
+    meta: getTableArchetypeMeta(signals.archetype),
+  }
+}
+
+function getTableRecommendedModules(table: SchemaTable) {
+  return getRecommendedMappingsForTable(table)
+}
+
+function getUnmappedRecommendedCount(table: SchemaTable): number {
+  const existing = new Set(getTableMappings(table.tableName).map(m => (m.targetModule || '').toLowerCase()))
+  return getRecommendedMappingsForTable(table).filter(r => !existing.has(r.targetModule.toLowerCase())).length
+}
+
+function getMappingCompatibility(table: SchemaTable, targetModule: string): ModuleCompatibilityEvaluation {
+  return evaluateModuleCompatibility(table, targetModule)
+}
+
+function getImportModeBadge(importMode?: string) {
+  if (importMode === 'auto') {
+    return { label: 'Impor Otomatis', color: 'success' as const }
+  }
+  if (importMode === 'manual_banner') {
+    return { label: 'Konfirmasi Manual via Banner', color: 'warning' as const }
+  }
+  if (importMode === 'prefill_form') {
+    return { label: 'Pre-fill Form F-03 via Banner', color: 'info' as const }
+  }
+  return { label: 'Belum Didukung', color: 'neutral' as const }
+}
+
+function formatImportTime(iso?: string): string {
+  if (!iso) return ''
+  try {
+    return new Date(iso).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+  } catch {
+    return ''
+  }
+}
+
+function getActiveMappingsCountForConn(conn: DataSourceConn): number {
+  return (conn.dataMappings || []).filter(m => m.isActive !== false).length
 }
 
 // Preview state
@@ -1825,20 +2148,75 @@ function getTableMappings(tableName: string): TableDataMapping[] {
 
 function addTableMapping(table: SchemaTable) {
   const list = activeMappings.value[table.tableName] ?? (activeMappings.value[table.tableName] = [])
-  const defaultScope = 'audit_features'
-  const defaultModule = 'Working Paper Evidence'
-  const autoMeta = resolveAutoMappingMetadata(table, defaultModule)
+  const existingModules = list.map(m => m.targetModule)
+  const recommended = getNextRecommendedMappingForTable(table, existingModules)
+  const autoMeta = resolveAutoMappingMetadata(table, recommended.targetModule)
 
   list.push({
     tableName: table.tableName,
-    targetScope: defaultScope,
-    targetModule: defaultModule,
+    targetScope: recommended.targetScope,
+    targetModule: recommended.targetModule,
     ...autoMeta,
     syncInterval: normalizeSyncSchedule(selectedConnForSchema.value?.syncSchedule),
     anomalyRules: [],
     customRules: [],
     isActive: true,
   })
+}
+
+function applyRecommendedMappings(table: SchemaTable) {
+  const list = activeMappings.value[table.tableName] ?? (activeMappings.value[table.tableName] = [])
+  const existing = new Set(list.map(m => (m.targetModule || '').trim().toLowerCase()))
+  const recs = getRecommendedMappingsForTable(table)
+  let added = 0
+
+  for (const rec of recs) {
+    if (existing.has(rec.targetModule.toLowerCase())) continue
+    const autoMeta = resolveAutoMappingMetadata(table, rec.targetModule)
+    list.push({
+      tableName: table.tableName,
+      targetScope: rec.targetScope,
+      targetModule: rec.targetModule,
+      ...autoMeta,
+      syncInterval: normalizeSyncSchedule(selectedConnForSchema.value?.syncSchedule),
+      anomalyRules: [],
+      customRules: [],
+      isActive: true,
+    })
+    existing.add(rec.targetModule.toLowerCase())
+    added++
+  }
+
+  if (added > 0) {
+    toast.add({
+      title: 'Rekomendasi Diterapkan',
+      description: `${added} mapping fitur yang cocok untuk tabel '${table.tableName}' telah ditambahkan.`,
+      color: 'success',
+    })
+  } else {
+    toast.add({
+      title: 'Semua Rekomendasi Sudah Terpasang',
+      description: `Seluruh fitur yang direkomendasikan untuk tabel '${table.tableName}' sudah dimapping.`,
+      color: 'info',
+    })
+  }
+}
+
+function fixIncompatibleMapping(table: SchemaTable, index: number) {
+  const list = activeMappings.value[table.tableName]
+  if (!list || !list[index]) return
+  const otherModules = list.filter((_, i) => i !== index).map(m => m.targetModule)
+  const recommended = getNextRecommendedMappingForTable(table, otherModules)
+  const autoMeta = resolveAutoMappingMetadata(table, recommended.targetModule)
+  list[index] = {
+    ...list[index],
+    targetScope: recommended.targetScope,
+    targetModule: recommended.targetModule,
+    canonicalEntity: autoMeta.canonicalEntity,
+    auditField: autoMeta.auditField,
+    watermarkColumn: autoMeta.watermarkColumn,
+    softDeleteColumn: autoMeta.softDeleteColumn,
+  }
 }
 
 function removeTableMapping(tableName: string, index: number) {
@@ -1850,15 +2228,15 @@ function removeTableMapping(tableName: string, index: number) {
 function updateMappingField(tableName: string, index: number, field: keyof TableDataMapping, value: any) {
   const list = activeMappings.value[tableName]
   if (list && list[index]) {
+    const table = discoveredTables.value.find(t => t.tableName === tableName)
     const nextItem: TableDataMapping = {
       ...list[index],
       [field]: value
     }
     if (field === 'targetScope') {
-      nextItem.targetModule = getDefaultModuleForTargetScope(value)
+      nextItem.targetModule = getDefaultModuleForTargetScope(value, table)
     }
     if (field === 'targetScope' || field === 'targetModule') {
-      const table = discoveredTables.value.find(t => t.tableName === tableName)
       const autoMeta = resolveAutoMappingMetadata(table, nextItem.targetModule)
       nextItem.canonicalEntity = autoMeta.canonicalEntity
       nextItem.auditField = autoMeta.auditField
@@ -2230,11 +2608,7 @@ function closeSchemaModal() {
   isSchemaModalOpen.value = false
 }
 
-async function saveSchemaMappings() {
-  const currentConn = selectedConnForSchema.value
-  if (!currentConn) return
-  isSavingMappings.value = true
-
+async function persistSchemaMappings(currentConn: DataSourceConn): Promise<TableDataMapping[]> {
   const mappingsArray = Object.values(activeMappings.value).flat().map(m => {
     const table = discoveredTables.value.find(t => t.tableName === m.tableName)
     const autoMeta = resolveAutoMappingMetadata(table, m.targetModule)
@@ -2272,8 +2646,50 @@ async function saveSchemaMappings() {
         source_type: updatedConn.type,
       })
     }
-  } finally {
-    isSavingMappings.value = false
+  }
+
+  return mappingsArray
+}
+
+function showBulkImportSummaryToast(summary: BulkImportSummary) {
+  const parts: string[] = []
+  if (summary.importedMappings > 0) {
+    parts.push(`${summary.importedMappings} mapping berhasil diimpor (${summary.totalRecordsAdded} data baru)`)
+  }
+  if (summary.skippedMappings > 0) {
+    parts.push(`${summary.skippedMappings} sudah sinkron (dedupe)`)
+  }
+  if (summary.manualMappings > 0) {
+    parts.push(`${summary.manualMappings} menunggu konfirmasi manual di banner`)
+  }
+  if (summary.incompatibleMappings > 0) {
+    parts.push(`${summary.incompatibleMappings} tidak cocok`)
+  }
+  if (summary.errorMappings > 0) {
+    parts.push(`${summary.errorMappings} gagal`)
+  }
+
+  const color =
+    summary.errorMappings > 0 && summary.importedMappings === 0
+      ? 'error'
+      : summary.importedMappings > 0
+        ? 'success'
+        : 'info'
+
+  toast.add({
+    title: `Impor Mapping Selesai — ${summary.connectionName}`,
+    description: parts.join(' • ') || 'Tidak ada mapping aktif untuk diimpor.',
+    color,
+  })
+}
+
+async function saveSchemaMappings() {
+  const currentConn = selectedConnForSchema.value
+  if (!currentConn) return
+  isSavingMappings.value = true
+
+  try {
+    const mappingsArray = await persistSchemaMappings(currentConn)
     toast.add({
       title: t('settings.dataSource.mappingsSavedToast'),
       description: `${mappingsArray.filter(m => m.isActive).length} active table pipelines saved for ${currentConn.name}.`,
@@ -2284,6 +2700,54 @@ async function saveSchemaMappings() {
     if (getSyncCooldownRemaining(currentConn.id) === 0) {
       triggerSync(currentConn)
     }
+  } finally {
+    isSavingMappings.value = false
+  }
+}
+
+async function saveAndImportAllMappings() {
+  const currentConn = selectedConnForSchema.value
+  if (!currentConn) return
+  isSavingMappings.value = true
+  importingConnId.value = currentConn.id
+
+  try {
+    const mappingsArray = await persistSchemaMappings(currentConn)
+    isSavingMappings.value = false
+    const summary = await importAllForConnection({
+      connection: { id: currentConn.id, name: currentConn.name },
+      mappings: mappingsArray,
+      schemaTables: discoveredTables.value,
+    })
+    showImportSummaryPanel.value = true
+    showBulkImportSummaryToast(summary)
+  } finally {
+    isSavingMappings.value = false
+    importingConnId.value = null
+  }
+}
+
+async function importAllMappingsForConn(conn: DataSourceConn) {
+  const mappings = (conn.dataMappings || []).filter(m => m.isActive !== false)
+  if (mappings.length === 0) {
+    toast.add({
+      title: 'Belum Ada Mapping Aktif',
+      description: `Buka Schema Explorer pada '${conn.name}' untuk memilih mapping tabel terlebih dahulu.`,
+      color: 'warning',
+    })
+    return
+  }
+
+  importingConnId.value = conn.id
+  try {
+    const summary = await importAllForConnection({
+      connection: { id: conn.id, name: conn.name },
+      mappings,
+    })
+    showImportSummaryPanel.value = true
+    showBulkImportSummaryToast(summary)
+  } finally {
+    importingConnId.value = null
   }
 }
 
