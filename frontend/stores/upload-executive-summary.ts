@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
+import { useI18n } from '~/composables/useI18n';
 import { extractErrorMessage } from '~/utils/error';
 import { viewDocumentInNewTab } from '~/utils/documentViewer';
 
@@ -21,6 +22,7 @@ export const useUploadExecutiveSummaryStore = defineStore('upload-executive-summ
   const loading = ref(false);
   const errorMsg = ref('');
   const toast = useToastNotification();
+  const { t } = useI18n();
 
   const fetchUploadedDocuments = async () => {
     loading.value = true;
@@ -37,7 +39,7 @@ export const useUploadExecutiveSummaryStore = defineStore('upload-executive-summ
       }
     } catch (error: any) {
       console.error('Failed to fetch uploaded executive summaries:', error);
-      errorMsg.value = extractErrorMessage(error, 'Failed to load uploaded executive summary documents.');
+      errorMsg.value = extractErrorMessage(error, t('toasts.document.loadFailed', { name: t('toasts.documentTypes.executiveSummary') }));
     } finally {
       loading.value = false;
     }
@@ -58,13 +60,13 @@ export const useUploadExecutiveSummaryStore = defineStore('upload-executive-summ
         method: 'POST',
         body: formData
       });
-      toast.showSuccess('Executive summary document uploaded successfully.');
+      toast.showSuccess(t('toasts.document.uploaded', { name: t('toasts.documentTypes.executiveSummary') }));
       await fetchUploadedDocuments();
     } catch (error: any) {
       console.error('Failed to upload executive summary document:', error);
-      const detail = extractErrorMessage(error, 'Failed to upload executive summary document.');
+      const detail = extractErrorMessage(error, t('toasts.document.uploadFailed', { name: t('toasts.documentTypes.executiveSummary') }));
       errorMsg.value = detail;
-      toast.showError('Failed to upload executive summary document.', detail);
+      toast.showError(t('toasts.document.uploadFailed', { name: t('toasts.documentTypes.executiveSummary') }), detail);
       throw error;
     } finally {
       loading.value = false;
@@ -79,13 +81,13 @@ export const useUploadExecutiveSummaryStore = defineStore('upload-executive-summ
       await $fetch(`${baseUrl}/uploaded-executive-summaries/${id}`, {
         method: 'DELETE'
       });
-      toast.showSuccess('Executive summary document deleted successfully.');
+      toast.showSuccess(t('toasts.document.deleted', { name: t('toasts.documentTypes.executiveSummary') }));
       await fetchUploadedDocuments();
     } catch (error: any) {
       console.error('Failed to delete uploaded executive summary document:', error);
-      const detail = extractErrorMessage(error, 'Failed to delete executive summary document.');
+      const detail = extractErrorMessage(error, t('toasts.document.deleteFailed', { name: t('toasts.documentTypes.executiveSummary') }));
       errorMsg.value = detail;
-      toast.showError('Failed to delete executive summary document.', detail);
+      toast.showError(t('toasts.document.deleteFailed', { name: t('toasts.documentTypes.executiveSummary') }), detail);
       throw error;
     } finally {
       loading.value = false;
@@ -116,9 +118,9 @@ export const useUploadExecutiveSummaryStore = defineStore('upload-executive-summ
       );
     } catch (error: any) {
       console.error('Failed to view document:', error);
-      const detail = extractErrorMessage(error, 'Failed to view document.');
+      const detail = extractErrorMessage(error, t('toasts.document.viewFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to view document.', detail);
+      toast.showError(t('toasts.document.viewFailed'), detail);
     }
   };
 
@@ -140,9 +142,9 @@ export const useUploadExecutiveSummaryStore = defineStore('upload-executive-summ
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
       console.error('Failed to download executive summary document:', error);
-      const detail = extractErrorMessage(error, 'Failed to download document.');
+      const detail = extractErrorMessage(error, t('toasts.document.downloadFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to download document.', detail);
+      toast.showError(t('toasts.document.downloadFailed'), detail);
     }
   };
 

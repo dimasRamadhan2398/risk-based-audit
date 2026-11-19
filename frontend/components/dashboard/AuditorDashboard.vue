@@ -1308,7 +1308,7 @@ const canToggleRoleView = computed(() => {
 
 const switchDashboardView = (view: string | null) => {
   setRoleView(view)
-  toast.info(view ? `Beralih ke mode pratinjau: ${view}` : 'Tampilan dashboard dikembalikan ke default')
+  toast.info(view ? t('toasts.dashboard.previewMode', { view }) : t('toasts.dashboard.previewReset'))
 }
 
 // Maps a store's loading/error/count to a widget state.

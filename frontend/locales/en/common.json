@@ -398,7 +398,7 @@
       "engagements": {
         "title": "Audit engagements for your unit",
         "description": "Audits whose target unit is your department, with their status and planned period.",
-        "scope": "Scope: engagements filtered to your department (interim, not yet scoped on the server)",
+        "scope": "Scope: engagements in your department",
         "empty": "No audit engagements are linked to your unit yet.",
         "loadError": "Audit engagements could not be loaded.",
         "period": "{start} to {end}",
@@ -413,7 +413,7 @@
       "tasks": {
         "title": "Tasks and deadlines",
         "description": "Open action plans you must fill in or follow up, earliest deadline first.",
-        "scope": "Scope: action plans assigned to you (interim)",
+        "scope": "Scope: action plans assigned to you",
         "empty": "No open action plans. Nothing is waiting on your unit.",
         "dueOn": "Due {date}",
         "noDueDate": "No due date",
@@ -480,7 +480,7 @@
       },
       "stats": {
         "title": "Audit statistics",
-        "scope": "Scope: all ATR and audit data you can access (interim)",
+        "scope": "Scope: all ATR and audit data you can access",
         "plannedAudits": "Planned audits",
         "plannedAuditsHint": "Annual plans not yet approved",
         "openFindings": "Open findings",
@@ -493,7 +493,7 @@
       "coverage": {
         "title": "Audit planning & coverage",
         "description": "Coverage of the annual audit plan (PKAT).",
-        "scope": "Scope: all annual audit plans (interim)",
+        "scope": "Scope: all annual audit plans",
         "overallProgress": "Overall progress",
         "planned": "Planned",
         "approved": "Approved",
@@ -504,7 +504,7 @@
       "status": {
         "title": "Audit status and progress",
         "description": "Published assignment letters, fieldwork stage and working paper completion.",
-        "scope": "Scope: all published assignment letters (interim)",
+        "scope": "Scope: all published assignment letters",
         "searchPlaceholder": "Search letter / unit...",
         "allAssignments": "All assignments",
         "colLetter": "Assignment letter & title",
@@ -552,7 +552,7 @@
       "tasks": {
         "title": "Task list with deadlines",
         "description": "Open ATR items you need to review or follow up.",
-        "scope": "Scope: ATR items you can access (interim)",
+        "scope": "Scope: ATR items you can access",
         "kindReview": "Review ATR action plan",
         "kindFollowUp": "Follow up ATR action plan",
         "dueOn": "Due {date}",
@@ -7048,6 +7048,175 @@
       "empty": "No approved assessment for this period",
       "emptyLink": "Open the assessments",
       "departments": "{count} department(s) assessed"
+    }
+  },
+  "toasts": {
+    "common": {
+      "loadEmployeesFailed": "Failed to load employee data.",
+      "loadDepartmentsFailed": "Failed to load department data.",
+      "loadCompaniesFailed": "Failed to load company data."
+    },
+    "annualPlan": {
+      "incomplete": "Please complete the Activity Detail, Timeline, and Auditor sections.",
+      "updated": "Annual audit plan updated successfully.",
+      "saved": "Annual audit plan saved successfully.",
+      "createFailed": "Failed to add the annual audit plan.",
+      "updateFailed": "Failed to update the annual audit plan.",
+      "revisionCreated": "Revised RKAT created (version {version}).",
+      "revisionFailed": "Failed to create the RKAT revision.",
+      "statusUpdated": "Annual audit plan status updated to {status}.",
+      "statusFailed": "Failed to update the annual audit plan status.",
+      "loadFailed": "Failed to load annual audit plans.",
+      "minOneActivity": "At least one activity is required."
+    },
+    "auditResultReport": {
+      "selectLetterTitle": "Warning",
+      "noNewFindings": "No new audit findings were detected for {letter}.",
+      "findingsFilledTitle": "Findings filled automatically",
+      "findingsFilled": "{count} findings were pulled from the Working Paper and Fieldwork modules.",
+      "saved": "Report saved successfully.",
+      "saveFailed": "Failed to save the report.",
+      "deleted": "Report deleted successfully.",
+      "deleteFailed": "Failed to delete the report.",
+      "wordDownloadFailed": "Failed to download the LHA Word document.",
+      "loadFailed": "Failed to load audit result reports.",
+      "loadFindingsFailed": "Failed to load recent findings."
+    },
+    "assignmentLetter": {
+      "created": "Assignment letter created successfully.",
+      "deleted": "Assignment letter deleted successfully.",
+      "statusChanged": "Assignment letter status changed to {status}.",
+      "createFailed": "Failed to create the assignment letter.",
+      "updateFailed": "Failed to update the assignment letter.",
+      "saveFailed": "Failed to save the assignment letter.",
+      "deleteFailed": "Failed to delete the assignment letter.",
+      "statusFailed": "Failed to change the status.",
+      "loadFailed": "Failed to load assignment letters.",
+      "validationFailed": "Validation failed",
+      "membersMissing": "All team members must have a name and a role.",
+      "duplicateMembers": "Team member names must be unique (no duplicates)."
+    },
+    "executiveSummary": {
+      "saveFailed": "Failed to save the Executive Summary.",
+      "saved": "Executive Summary saved successfully.",
+      "deleted": "Executive Summary deleted successfully.",
+      "deleteFailed": "Failed to delete the Executive Summary.",
+      "noteSaved": "Executive note saved for the auditor.",
+      "statusUpdated": "Executive Summary status updated successfully.",
+      "loadFailed": "Failed to load Executive Summaries."
+    },
+    "qualityAssurance": {
+      "deleteFailed": "Failed to delete the quality assurance report."
+    },
+    "fieldwork": {
+      "items": {
+        "interview": "Interview",
+        "observation": "Observation",
+        "document": "Document",
+        "sample": "Sample",
+        "testControl": "Test control"
+      },
+      "added": "{item} added successfully",
+      "updated": "{item} updated successfully",
+      "deleted": "{item} deleted successfully",
+      "deleteFailed": "Failed to delete {item}",
+      "loadFailed": "Failed to load fieldwork data.",
+      "fileUnavailable": "The file is not available for preview.",
+      "openFileFailed": "Failed to open the file.",
+      "openDocumentFailed": "Failed to open the document.",
+      "downloading": "Downloading {name}",
+      "opening": "Opening {name}",
+      "fileNotFound": "File {name} was not found.",
+      "downloadFileFailed": "Failed to download file {name}.",
+      "notUploaded": "Document \"{name}\" has not been uploaded to the server yet.",
+      "observationIncomplete": "Please complete all required observation fields.",
+      "documentIncomplete": "Please complete all required document fields."
+    },
+    "document": {
+      "downloadFailed": "Failed to download the document.",
+      "uploaded": "{name} uploaded successfully.",
+      "deleted": "{name} deleted successfully.",
+      "uploadFailed": "Failed to upload: {name}.",
+      "deleteFailed": "Failed to delete: {name}.",
+      "loadFailed": "Failed to load: {name}.",
+      "viewFailed": "Failed to open the document."
+    },
+    "rcm": {
+      "deleteFailed": "Failed to delete the data from the server."
+    },
+    "dashboard": {
+      "executiveSynced": "Executive data synced successfully.",
+      "executiveSyncFailed": "Failed to refresh executive data.",
+      "previewMode": "Switched to preview mode: {view}",
+      "previewReset": "Dashboard view restored to default."
+    },
+    "upload": {
+      "validationFailed": "Validation failed",
+      "titleAndFileRequired": "Please fill in the title and select a file before uploading."
+    },
+    "mappedSource": {
+      "riskExistsTitle": "Risk already exists",
+      "riskExistsDesc": "A risk for table {table} is already registered in the Corporate Risk Profile.",
+      "riskAddedTitle": "Data added to the risk profile",
+      "riskAddedDesc": "The risk from pipeline '{table}' ({connection}) was added to the Corporate Risk Profile.",
+      "anomalyTitle": "AI Anomaly Detection ran successfully",
+      "anomalyDesc": "{anomalies} anomalous transactions and {normal} normal distribution points for category '{category}' (table {table}){batch} were merged into the scatter plot.",
+      "anomalyBatch": " (additional batch #{number})",
+      "universeExistsTitle": "Entity already registered",
+      "universeExistsDesc": "Entity {table} already exists in the Audit Universe.",
+      "universeAddedTitle": "Added to the Audit Universe",
+      "universeAddedDesc": "The audit entity for table '{table}' was added to the Audit Universe.",
+      "workingPaperTitle": "Working paper sample evidence added",
+      "workingPaperDesc": "A population of {population} transactions and {samples} test samples from '{table}' were added to Working Paper Form F-03.",
+      "linkedTitle": "Data pipeline linked",
+      "linkedDesc": "Table '{table}' ({connection}) was synced to the {module} module.",
+      "actionFailedTitle": "Failed to run the action"
+    },
+    "dataSource": {
+      "testSuccessDesc": "Successfully reached {name} at {host}:{port}.",
+      "testFailedTitle": "Connection test failed",
+      "testFailedDesc": "Could not reach {name} at {host}:{port}.",
+      "syncStartedDesc": "Incremental sync started for {name}.",
+      "syncFinishedDesc": "Data ingestion finished for {name}.",
+      "batchSyncStartedDesc": "Synchronizing {count} data sources with Data Hub...",
+      "batchSyncFinishedDesc": "All registered data sources were ingested successfully.",
+      "removedDesc": "{name} was removed from data sources.",
+      "validationTitle": "Validation error",
+      "nameHostRequired": "Connection name and host are required.",
+      "savedHubFailed": "{name} was saved, but Data Hub registration failed: {error}",
+      "updatedDesc": "{name} connection settings saved successfully.",
+      "createdDesc": "New data source {name} added successfully.",
+      "ruleNameRequiredTitle": "Validation failed",
+      "ruleNameRequired": "The anomaly rule name is required.",
+      "ruleAddedTitle": "Custom rule added",
+      "ruleAddedDesc": "Rule \"{rule}\" was created for table {table}.",
+      "noRulesTitle": "No rules selected",
+      "noRulesDesc": "Select at least one standard rule or create a custom rule to train the AI model.",
+      "trainedTitle": "AI model trained successfully",
+      "trainedDesc": "The Isolation Forest and XGBoost models learned {count} rules for table '{table}'. Anomalous transactions and the normal distribution are now synced to Anomaly Detection.",
+      "trainInfoTitle": "AI training info",
+      "trainedLocally": "The AI model was trained locally.",
+      "trainFailedTitle": "Failed to train the AI model",
+      "trainFailedDesc": "An error occurred while processing the AI model training.",
+      "autoMapTitle": "Auto-mapping completed",
+      "autoMapDesc": "Table {table} was mapped to {target} (confidence: {confidence}%).",
+      "autoMapDefaultTitle": "Auto-mapping",
+      "autoMapDefaultDesc": "Auto-mapping used the default configuration.",
+      "reconcileTitle": "Deletion reconciliation completed",
+      "reconcileDesc": "{count} records deleted in the source database were found. The audit trail and tombstones were updated.",
+      "reconcileNoneDesc": "Reconciliation completed (no deleted records detected). The audit trail tombstones were updated.",
+      "mappingsSavedDesc": "{count} active table pipelines saved for {name}."
+    },
+    "documentTypes": {
+      "strategicPlan": "Strategic plan document",
+      "activityPlan": "Audit activity plan document",
+      "annualPlan": "Annual audit plan",
+      "consulting": "Consulting document",
+      "lha": "LHA document",
+      "executiveSummary": "Executive summary document",
+      "executiveSummaryReport": "Executive summary report",
+      "assignmentLetter": "Assignment letter document",
+      "workingPaper": "Working paper"
     }
   }
 }

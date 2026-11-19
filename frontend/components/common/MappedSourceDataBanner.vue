@@ -8,6 +8,7 @@ import { useAuditUniverseStore } from '~/stores/audit-universe'
 import { useWorkingPaperStore } from '~/stores/working-paper'
 import { useAiAnalytics } from '~/composables/useAiAnalytics'
 import { useAppToast } from '~/composables/useAppToast'
+import { useI18n } from '~/composables/useI18n'
 import { useRuntimeConfig } from '#app'
 import { getCanonicalCategory } from '~/composables/useAnomalyScatter'
 
@@ -28,6 +29,7 @@ const route = useRoute()
 const router = useRouter()
 const config = useRuntimeConfig()
 const toast = useAppToast()
+const { t } = useI18n()
 const dataSourceStore = useDataSourceStore()
 const { selectedSourceId, selectedSource } = useActiveDataSource()
 
@@ -1343,7 +1345,7 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
       
       const existing = riskStore.rawRisks.find(r => r.name === riskName)
       if (existing) {
-        toast.warning('Risiko Sudah Ada', `Risiko untuk tabel ${item.table_name} sudah terdaftar di Corporate Risk Profile.`)
+        toast.warning(t('toasts.mappedSource.riskExistsTitle'), t('toasts.mappedSource.riskExistsDesc', { table: item.table_name }))
         isExecutingAction.value = false
         return
       }
@@ -1379,8 +1381,8 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
       }
 
       toast.success(
-        'Data Berhasil Ditambahkan ke Profil Risiko',
-        `Risiko dari pipeline '${item.table_name}' (${item.connection_name}) berhasil ditambahkan ke Corporate Risk Profile!`
+        t('toasts.mappedSource.riskAddedTitle'),
+        t('toasts.mappedSource.riskAddedDesc', { table: item.table_name, connection: item.connection_name })
       )
     }
 
@@ -1461,10 +1463,10 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
         ) / 1000
       }
 
-      const batchNote = existingCount > 0 ? ` (Batch Tambahan #${Math.floor(existingCount / sampleAnomalies.length) + 1})` : ''
+      const batchNote = existingCount > 0 ? t('toasts.mappedSource.anomalyBatch', { number: Math.floor(existingCount / sampleAnomalies.length) + 1 }) : ''
       toast.success(
-        'AI Anomaly Detection Berhasil Dijalankan',
-        `${sampleAnomalies.length} Transaksi anomali & ${normalDistributionPoints.length} titik distribusi data normal kategori '${targetCategory}' (tabel ${item.table_name})${batchNote} berhasil disatukan di scatter plot!`
+        t('toasts.mappedSource.anomalyTitle'),
+        t('toasts.mappedSource.anomalyDesc', { anomalies: sampleAnomalies.length, normal: normalDistributionPoints.length, category: targetCategory, table: item.table_name, batch: batchNote })
       )
     }
 
@@ -1475,7 +1477,7 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
       
       const existingNode = universeStore.corporateUniverse?.find(u => u.name === entityName)
       if (existingNode) {
-        toast.warning('Entitas Sudah Terdaftar', `Entitas ${item.table_name} sudah ada di Audit Universe.`)
+        toast.warning(t('toasts.mappedSource.universeExistsTitle'), t('toasts.mappedSource.universeExistsDesc', { table: item.table_name }))
         isExecutingAction.value = false
         return
       }
@@ -1490,8 +1492,8 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
       }
 
       toast.success(
-        'Berhasil Ditambahkan ke Audit Universe',
-        `Entitas audit untuk tabel '${item.table_name}' berhasil ditambahkan ke Audit Universe!`
+        t('toasts.mappedSource.universeAddedTitle'),
+        t('toasts.mappedSource.universeAddedDesc', { table: item.table_name })
       )
     }
 
@@ -1520,20 +1522,20 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
       }
 
       toast.success(
-        'Bukti Sampel Kertas Kerja Berhasil Ditambahkan',
-        `Populasi ${popStr} transaksi dan ${item.sample_records.length} sampel uji petik dari '${item.table_name}' berhasil dimasukkan ke Form F-03 Working Paper!`
+        t('toasts.mappedSource.workingPaperTitle'),
+        t('toasts.mappedSource.workingPaperDesc', { population: popStr, samples: item.sample_records.length, table: item.table_name })
       )
     }
 
     // 5. Generic Module Linking
     else {
       toast.success(
-        'Data Pipeline Berhasil Ditautkan',
-        `Tabel '${item.table_name}' (${item.connection_name}) berhasil disinkronkan ke modul ${currentModuleInfo.value.label}.`
+        t('toasts.mappedSource.linkedTitle'),
+        t('toasts.mappedSource.linkedDesc', { table: item.table_name, connection: item.connection_name, module: currentModuleInfo.value.label })
       )
     }
   } catch (err) {
-    toast.error('Gagal Menjalankan Aksi', String(err))
+    toast.error(t('toasts.mappedSource.actionFailedTitle'), String(err))
   } finally {
     isExecutingAction.value = false
   }

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
+import { useI18n } from '~/composables/useI18n';
 import { extractErrorMessage } from '~/utils/error';
 import { viewDocumentInNewTab } from '~/utils/documentViewer';
 
@@ -20,6 +21,7 @@ export const useUploadStrategicPlanDocumentStore = defineStore('upload-strategic
   const loading = ref(false);
   const errorMsg = ref('');
   const toast = useToastNotification();
+  const { t } = useI18n();
 
   const fetchUploadedDocuments = async () => {
     loading.value = true;
@@ -36,7 +38,7 @@ export const useUploadStrategicPlanDocumentStore = defineStore('upload-strategic
       }
     } catch (error: any) {
       console.error('Failed to fetch uploaded strategic plan documents:', error);
-      errorMsg.value = extractErrorMessage(error, 'Failed to load uploaded strategic plan documents.');
+      errorMsg.value = extractErrorMessage(error, t('toasts.document.loadFailed', { name: t('toasts.documentTypes.strategicPlan') }));
     } finally {
       loading.value = false;
     }
@@ -58,13 +60,13 @@ export const useUploadStrategicPlanDocumentStore = defineStore('upload-strategic
         method: 'POST',
         body: formData
       });
-      toast.showSuccess('Document uploaded successfully');
+      toast.showSuccess(t('toasts.document.uploaded', { name: t('toasts.documentTypes.strategicPlan') }));
       await fetchUploadedDocuments();
     } catch (error: any) {
       console.error('Failed to upload strategic plan document:', error);
-      const detail = extractErrorMessage(error, 'Failed to upload strategic plan document.');
+      const detail = extractErrorMessage(error, t('toasts.document.uploadFailed', { name: t('toasts.documentTypes.strategicPlan') }));
       errorMsg.value = detail;
-      toast.showError('Failed to upload strategic plan document.', detail);
+      toast.showError(t('toasts.document.uploadFailed', { name: t('toasts.documentTypes.strategicPlan') }), detail);
       throw error;
     } finally {
       loading.value = false;
@@ -79,13 +81,13 @@ export const useUploadStrategicPlanDocumentStore = defineStore('upload-strategic
       await $fetch(`${baseUrl}/uploaded-strategic-plan-documents/${id}`, {
         method: 'DELETE'
       });
-      toast.showSuccess('Document deleted successfully');
+      toast.showSuccess(t('toasts.document.deleted', { name: t('toasts.documentTypes.strategicPlan') }));
       await fetchUploadedDocuments();
     } catch (error: any) {
       console.error('Failed to delete uploaded strategic plan document:', error);
-      const detail = extractErrorMessage(error, 'Failed to delete strategic plan document.');
+      const detail = extractErrorMessage(error, t('toasts.document.deleteFailed', { name: t('toasts.documentTypes.strategicPlan') }));
       errorMsg.value = detail;
-      toast.showError('Failed to delete strategic plan document.', detail);
+      toast.showError(t('toasts.document.deleteFailed', { name: t('toasts.documentTypes.strategicPlan') }), detail);
       throw error;
     } finally {
       loading.value = false;
@@ -116,9 +118,9 @@ export const useUploadStrategicPlanDocumentStore = defineStore('upload-strategic
       );
     } catch (error: any) {
       console.error('Failed to view strategic plan document:', error);
-      const detail = extractErrorMessage(error, 'Failed to view document.');
+      const detail = extractErrorMessage(error, t('toasts.document.viewFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to view document.', detail);
+      toast.showError(t('toasts.document.viewFailed'), detail);
     }
   };
 
@@ -140,9 +142,9 @@ export const useUploadStrategicPlanDocumentStore = defineStore('upload-strategic
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
       console.error('Failed to download strategic plan document:', error);
-      const detail = extractErrorMessage(error, 'Failed to download document.');
+      const detail = extractErrorMessage(error, t('toasts.document.downloadFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to download strategic plan document.', detail);
+      toast.showError(t('toasts.document.downloadFailed'), detail);
     }
   };
 

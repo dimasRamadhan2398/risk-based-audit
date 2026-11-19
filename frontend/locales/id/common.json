@@ -397,7 +397,7 @@
       "engagements": {
         "title": "Penugasan audit untuk unit Anda",
         "description": "Audit dengan unit yang diaudit adalah departemen Anda, beserta status dan periode rencananya.",
-        "scope": "Cakupan: penugasan yang difilter ke departemen Anda (sementara, belum dibatasi di server)",
+        "scope": "Cakupan: penugasan di departemen Anda",
         "empty": "Belum ada penugasan audit yang terhubung ke unit Anda.",
         "loadError": "Penugasan audit tidak dapat dimuat.",
         "period": "{start} s.d. {end}",
@@ -412,7 +412,7 @@
       "tasks": {
         "title": "Tugas dan tenggat",
         "description": "Rencana tindak lanjut terbuka yang harus Anda isi atau tindak lanjuti, tenggat terdekat lebih dulu.",
-        "scope": "Cakupan: rencana tindak lanjut yang ditugaskan kepada Anda (sementara)",
+        "scope": "Cakupan: rencana tindak lanjut yang ditugaskan kepada Anda",
         "empty": "Tidak ada rencana tindak lanjut terbuka. Tidak ada yang menunggu unit Anda.",
         "dueOn": "Tenggat {date}",
         "noDueDate": "Belum ada tenggat",
@@ -456,7 +456,7 @@
       },
       "stats": {
         "title": "Statistik audit",
-        "scope": "Cakupan: semua data ATR dan audit yang dapat Anda akses (sementara)",
+        "scope": "Cakupan: semua data ATR dan audit yang dapat Anda akses",
         "plannedAudits": "Audit terencana",
         "plannedAuditsHint": "Rencana tahunan yang belum disetujui",
         "openFindings": "Temuan terbuka",
@@ -469,7 +469,7 @@
       "coverage": {
         "title": "Perencanaan & cakupan audit",
         "description": "Cakupan rencana audit tahunan (PKAT).",
-        "scope": "Cakupan: semua rencana audit tahunan (sementara)",
+        "scope": "Cakupan: semua rencana audit tahunan",
         "overallProgress": "Progres keseluruhan",
         "planned": "Terencana",
         "approved": "Disetujui",
@@ -480,7 +480,7 @@
       "status": {
         "title": "Status dan progres audit",
         "description": "Surat tugas yang terbit, tahap pekerjaan lapangan, dan kelengkapan kertas kerja.",
-        "scope": "Cakupan: semua surat tugas yang sudah terbit (sementara)",
+        "scope": "Cakupan: semua surat tugas yang sudah terbit",
         "searchPlaceholder": "Cari surat / unit...",
         "allAssignments": "Semua penugasan",
         "colLetter": "Surat tugas & judul",
@@ -528,7 +528,7 @@
       "tasks": {
         "title": "Daftar tugas dengan tenggat",
         "description": "Item ATR terbuka yang perlu Anda review atau tindak lanjuti.",
-        "scope": "Cakupan: item ATR yang dapat Anda akses (sementara)",
+        "scope": "Cakupan: item ATR yang dapat Anda akses",
         "kindReview": "Review rencana aksi ATR",
         "kindFollowUp": "Tindak lanjut rencana aksi ATR",
         "dueOn": "Tenggat {date}",
@@ -1540,7 +1540,11 @@
       "factorDeleted": "Faktor risiko standar berhasil dihapus.",
       "factorCreateFailed": "Gagal membuat faktor risiko standar.",
       "factorUpdateFailed": "Gagal memperbarui faktor risiko standar.",
-      "factorDeleteFailed": "Gagal menghapus faktor risiko standar."
+      "factorDeleteFailed": "Gagal menghapus faktor risiko standar.",
+    "factorRemoved": "Faktor berhasil dihapus dari daftar korporat.",
+    "nameRequired": "Nama faktor wajib diisi.",
+    "operationFailed": "Operasi gagal.",
+    "deleteFailed": "Gagal menghapus faktor."
     },
     "scoreLabels": {
       "1": "Rendah (1)",
@@ -6936,6 +6940,175 @@
       "empty": "Belum ada asesmen yang disetujui untuk periode ini",
       "emptyLink": "Buka daftar asesmen",
       "departments": "{count} departemen dinilai"
+    }
+  },
+  "toasts": {
+    "common": {
+      "loadEmployeesFailed": "Gagal memuat data karyawan.",
+      "loadDepartmentsFailed": "Gagal memuat data departemen.",
+      "loadCompaniesFailed": "Gagal memuat data perusahaan."
+    },
+    "annualPlan": {
+      "incomplete": "Mohon lengkapi data pada Activity Detail, Timeline, dan Auditor.",
+      "updated": "Data Rencana Audit berhasil diperbarui.",
+      "saved": "Data Rencana Audit berhasil disimpan.",
+      "createFailed": "Gagal menambahkan rencana audit.",
+      "updateFailed": "Gagal memperbarui rencana audit.",
+      "revisionCreated": "Revisi RKAT berhasil dibuat (versi {version}).",
+      "revisionFailed": "Gagal membuat revisi RKAT.",
+      "statusUpdated": "Status Rencana Audit berhasil diperbarui menjadi {status}.",
+      "statusFailed": "Gagal memperbarui status rencana audit.",
+      "loadFailed": "Gagal memuat rencana audit tahunan.",
+      "minOneActivity": "Minimal harus ada 1 aktivitas."
+    },
+    "auditResultReport": {
+      "selectLetterTitle": "Peringatan",
+      "noNewFindings": "Tidak ada temuan audit baru yang terdeteksi untuk {letter}.",
+      "findingsFilledTitle": "Temuan terisi otomatis",
+      "findingsFilled": "{count} temuan berhasil ditarik dari modul Kertas Kerja dan Fieldwork.",
+      "saved": "Laporan berhasil disimpan.",
+      "saveFailed": "Gagal menyimpan laporan.",
+      "deleted": "Laporan berhasil dihapus.",
+      "deleteFailed": "Gagal menghapus laporan.",
+      "wordDownloadFailed": "Gagal mengunduh dokumen Word LHA.",
+      "loadFailed": "Gagal memuat Laporan Hasil Audit.",
+      "loadFindingsFailed": "Gagal memuat temuan terbaru."
+    },
+    "assignmentLetter": {
+      "created": "Surat Tugas berhasil dibuat.",
+      "deleted": "Surat Tugas berhasil dihapus.",
+      "statusChanged": "Status Surat Tugas diubah menjadi {status}.",
+      "createFailed": "Gagal membuat Surat Tugas.",
+      "updateFailed": "Gagal memperbarui Surat Tugas.",
+      "saveFailed": "Gagal menyimpan Surat Tugas.",
+      "deleteFailed": "Gagal menghapus Surat Tugas.",
+      "statusFailed": "Gagal mengubah status.",
+      "loadFailed": "Gagal memuat Surat Tugas.",
+      "validationFailed": "Validasi gagal",
+      "membersMissing": "Semua anggota tim harus memiliki nama dan peran.",
+      "duplicateMembers": "Nama anggota tim tidak boleh sama (duplikat)."
+    },
+    "executiveSummary": {
+      "saveFailed": "Gagal menyimpan Executive Summary.",
+      "saved": "Executive Summary berhasil disimpan.",
+      "deleted": "Executive Summary berhasil dihapus.",
+      "deleteFailed": "Gagal menghapus Executive Summary.",
+      "noteSaved": "Catatan Executive berhasil disimpan untuk Auditor.",
+      "statusUpdated": "Status Executive Summary berhasil diperbarui.",
+      "loadFailed": "Gagal memuat Executive Summary."
+    },
+    "qualityAssurance": {
+      "deleteFailed": "Gagal menghapus laporan Quality Assurance."
+    },
+    "fieldwork": {
+      "items": {
+        "interview": "Wawancara",
+        "observation": "Observasi",
+        "document": "Dokumen",
+        "sample": "Sample",
+        "testControl": "Test Control"
+      },
+      "added": "{item} berhasil ditambahkan",
+      "updated": "{item} berhasil diperbarui",
+      "deleted": "{item} berhasil dihapus",
+      "deleteFailed": "Gagal menghapus {item}",
+      "loadFailed": "Gagal memuat data fieldwork.",
+      "fileUnavailable": "Berkas belum tersedia untuk ditampilkan.",
+      "openFileFailed": "Gagal membuka berkas.",
+      "openDocumentFailed": "Gagal membuka dokumen.",
+      "downloading": "Mengunduh {name}",
+      "opening": "Membuka {name}",
+      "fileNotFound": "Berkas {name} tidak ditemukan.",
+      "downloadFileFailed": "Gagal mengunduh berkas {name}.",
+      "notUploaded": "Dokumen \"{name}\" belum diunggah ke server.",
+      "observationIncomplete": "Mohon lengkapi semua data observasi yang wajib diisi.",
+      "documentIncomplete": "Mohon lengkapi semua data dokumen yang wajib diisi."
+    },
+    "document": {
+      "downloadFailed": "Gagal mengunduh dokumen.",
+      "uploaded": "{name} berhasil diunggah.",
+      "deleted": "{name} berhasil dihapus.",
+      "uploadFailed": "Gagal mengunggah: {name}.",
+      "deleteFailed": "Gagal menghapus: {name}.",
+      "loadFailed": "Gagal memuat: {name}.",
+      "viewFailed": "Gagal membuka dokumen."
+    },
+    "rcm": {
+      "deleteFailed": "Gagal menghapus data dari server."
+    },
+    "dashboard": {
+      "executiveSynced": "Data eksekutif berhasil disinkronkan.",
+      "executiveSyncFailed": "Gagal memperbarui data eksekutif.",
+      "previewMode": "Beralih ke mode pratinjau: {view}",
+      "previewReset": "Tampilan dashboard dikembalikan ke default."
+    },
+    "upload": {
+      "validationFailed": "Validasi gagal",
+      "titleAndFileRequired": "Mohon lengkapi judul dan file sebelum mengunggah."
+    },
+    "mappedSource": {
+      "riskExistsTitle": "Risiko sudah ada",
+      "riskExistsDesc": "Risiko untuk tabel {table} sudah terdaftar di Corporate Risk Profile.",
+      "riskAddedTitle": "Data berhasil ditambahkan ke profil risiko",
+      "riskAddedDesc": "Risiko dari pipeline '{table}' ({connection}) berhasil ditambahkan ke Corporate Risk Profile.",
+      "anomalyTitle": "AI Anomaly Detection berhasil dijalankan",
+      "anomalyDesc": "{anomalies} transaksi anomali dan {normal} titik distribusi data normal kategori '{category}' (tabel {table}){batch} berhasil disatukan di scatter plot.",
+      "anomalyBatch": " (batch tambahan #{number})",
+      "universeExistsTitle": "Entitas sudah terdaftar",
+      "universeExistsDesc": "Entitas {table} sudah ada di Audit Universe.",
+      "universeAddedTitle": "Berhasil ditambahkan ke Audit Universe",
+      "universeAddedDesc": "Entitas audit untuk tabel '{table}' berhasil ditambahkan ke Audit Universe.",
+      "workingPaperTitle": "Bukti sampel Kertas Kerja berhasil ditambahkan",
+      "workingPaperDesc": "Populasi {population} transaksi dan {samples} sampel uji petik dari '{table}' berhasil dimasukkan ke Form F-03 Kertas Kerja.",
+      "linkedTitle": "Data pipeline berhasil ditautkan",
+      "linkedDesc": "Tabel '{table}' ({connection}) berhasil disinkronkan ke modul {module}.",
+      "actionFailedTitle": "Gagal menjalankan aksi"
+    },
+    "dataSource": {
+      "testSuccessDesc": "Berhasil terhubung ke {name} di {host}:{port}.",
+      "testFailedTitle": "Uji koneksi gagal",
+      "testFailedDesc": "Tidak dapat terhubung ke {name} di {host}:{port}.",
+      "syncStartedDesc": "Sinkronisasi inkremental dimulai untuk {name}.",
+      "syncFinishedDesc": "Ingesti data selesai untuk {name}.",
+      "batchSyncStartedDesc": "Menyinkronkan {count} sumber data dengan Data Hub...",
+      "batchSyncFinishedDesc": "Semua sumber data terdaftar berhasil diingesti.",
+      "removedDesc": "{name} telah dihapus dari sumber data.",
+      "validationTitle": "Validasi gagal",
+      "nameHostRequired": "Nama koneksi dan host wajib diisi.",
+      "savedHubFailed": "{name} tersimpan, tetapi pendaftaran ke Data Hub gagal: {error}",
+      "updatedDesc": "Pengaturan koneksi {name} berhasil disimpan.",
+      "createdDesc": "Sumber data baru {name} berhasil ditambahkan.",
+      "ruleNameRequiredTitle": "Validasi gagal",
+      "ruleNameRequired": "Nama aturan anomali wajib diisi.",
+      "ruleAddedTitle": "Aturan kustom ditambahkan",
+      "ruleAddedDesc": "Aturan \"{rule}\" berhasil dibuat untuk tabel {table}.",
+      "noRulesTitle": "Tidak ada aturan terpilih",
+      "noRulesDesc": "Pilih minimal satu aturan standar atau buat aturan kustom untuk melatih model AI.",
+      "trainedTitle": "Model AI berhasil dilatih",
+      "trainedDesc": "Model AI Isolation Forest dan XGBoost telah mempelajari {count} aturan untuk tabel '{table}'. Transaksi anomali dan sebaran normal telah disinkronkan ke fitur Anomaly Detection.",
+      "trainInfoTitle": "Info pelatihan AI",
+      "trainedLocally": "Model AI berhasil dilatih secara lokal.",
+      "trainFailedTitle": "Gagal melatih model AI",
+      "trainFailedDesc": "Terjadi kesalahan saat memproses pelatihan model AI.",
+      "autoMapTitle": "Auto-mapping berhasil",
+      "autoMapDesc": "Tabel {table} dipetakan ke {target} (tingkat keyakinan: {confidence}%).",
+      "autoMapDefaultTitle": "Auto-mapping",
+      "autoMapDefaultDesc": "Auto-mapping menggunakan konfigurasi default.",
+      "reconcileTitle": "Rekonsiliasi penghapusan selesai",
+      "reconcileDesc": "Ditemukan {count} record yang dihapus di database sumber. Jejak audit dan tombstone telah diperbarui.",
+      "reconcileNoneDesc": "Rekonsiliasi selesai (tidak ada record terhapus yang terdeteksi). Tombstone jejak audit telah diperbarui.",
+      "mappingsSavedDesc": "{count} pipeline tabel aktif tersimpan untuk {name}."
+    },
+    "documentTypes": {
+      "strategicPlan": "Dokumen Rencana Strategis",
+      "activityPlan": "Dokumen Rencana Kegiatan Audit",
+      "annualPlan": "Rencana Audit Tahunan",
+      "consulting": "Dokumen konsultasi",
+      "lha": "Dokumen LHA",
+      "executiveSummary": "Dokumen Executive Summary",
+      "executiveSummaryReport": "Laporan Executive Summary",
+      "assignmentLetter": "Dokumen Surat Tugas",
+      "workingPaper": "Kertas Kerja"
     }
   }
 }

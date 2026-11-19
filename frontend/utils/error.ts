@@ -1,3 +1,5 @@
+import { useI18n } from '~/composables/useI18n'
+
 /**
  * Utility to extract user-friendly error messages from API calls, $fetch / FetchError,
  * standard Error objects, or custom backend response structures.
@@ -21,8 +23,16 @@ export interface ErrorDetails {
  * 6. Standard Error message: error.message
  * 7. Provided fallback string
  */
-export const extractErrorMessage = (error: any, fallback = 'Terjadi kesalahan pada sistem. Tolong tunggu beberapa saat lalu coba lagi.'): string => {
-  if (!error) return fallback
+const defaultErrorFallback = (): string => {
+  try {
+    return useI18n().t('errors.unknown')
+  } catch {
+    return 'Something went wrong. Please try again in a few moments.'
+  }
+}
+
+export const extractErrorMessage = (error: any, fallback?: string): string => {
+  if (!error) return fallback ?? defaultErrorFallback()
   if (typeof error === 'string') return error
 
   // 1. Nested Go backend structure: { success: false, error: { code, message, details } }
@@ -69,7 +79,7 @@ export const extractErrorMessage = (error: any, fallback = 'Terjadi kesalahan pa
     return error.message.trim()
   }
 
-  return fallback
+  return fallback ?? defaultErrorFallback()
 }
 
 /**

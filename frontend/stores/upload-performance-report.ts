@@ -84,14 +84,11 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
         method: 'POST',
         body: formData
       });
-      toast.showSuccess(t('kpiPerformance.store.uploadedDocument'));
       await fetchUploadedReports(payload.period, payload.year);
-      toast.showSuccess(t('kpiPerformance.store.uploadedReport'));
     } catch (error: any) {
       console.error('Failed to upload performance report:', error);
       const detail = extractErrorMessage(error, t('kpiPerformance.store.uploadFailed'));
       errorMsg.value = detail;
-      toast.showError(t('kpiPerformance.store.uploadFailed'), detail);
       throw error;
     } finally {
       loading.value = false;
@@ -106,14 +103,11 @@ export const useUploadPerformanceReportStore = defineStore('upload-performance-r
       await $fetch(`${baseUrl}/uploaded-performance-reports/${id}`, {
         method: 'DELETE'
       });
-      toast.showSuccess(t('kpiPerformance.store.deletedDocument'));
       await fetchUploadedReports(currentPeriod, currentYear);
-      toast.showSuccess(t('kpiPerformance.store.deletedReport'));
     } catch (error: any) {
       console.error('Failed to delete performance report document:', error);
       const detail = extractErrorMessage(error, t('kpiPerformance.store.deleteFailed'));
       errorMsg.value = detail;
-      toast.showError(t('kpiPerformance.store.deleteFailed'), detail);
       throw error;
     } finally {
       loading.value = false;

@@ -4,6 +4,7 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
 
+import { useI18n } from '~/composables/useI18n';
 import { extractErrorMessage } from '~/utils/error';
 import { viewDocumentInNewTab } from '~/utils/documentViewer';
 
@@ -22,6 +23,7 @@ export const useUploadAssignmentLetterStore = defineStore('upload-assignment-let
   const loading = ref(false);
   const errorMsg = ref('');
   const toast = useToastNotification()
+  const { t } = useI18n()
 
 
   const fetchUploadedDocuments = async () => {
@@ -39,7 +41,7 @@ export const useUploadAssignmentLetterStore = defineStore('upload-assignment-let
       }
     } catch (error: any) {
       console.error('Failed to fetch uploaded assignment letters:', error);
-      errorMsg.value = extractErrorMessage(error, 'Failed to load uploaded assignment letters.');
+      errorMsg.value = extractErrorMessage(error, t('toasts.document.loadFailed', { name: t('toasts.documentTypes.assignmentLetter') }));
     } finally {
       loading.value = false;
     }
@@ -60,13 +62,13 @@ export const useUploadAssignmentLetterStore = defineStore('upload-assignment-let
         method: 'POST',
         body: formData
       });
-      toast.showSuccess('Assignment letter document uploaded successfully')
+      toast.showSuccess(t('toasts.document.uploaded', { name: t('toasts.documentTypes.assignmentLetter') }))
       await fetchUploadedDocuments();
     } catch (error: any) {
       console.error('Failed to upload assignment letter document:', error);
-      const detail = extractErrorMessage(error, 'Failed to upload assignment letter document.');
+      const detail = extractErrorMessage(error, t('toasts.document.uploadFailed', { name: t('toasts.documentTypes.assignmentLetter') }));
       errorMsg.value = detail;
-      toast.showError('Failed to upload assignment letter document.', detail);
+      toast.showError(t('toasts.document.uploadFailed', { name: t('toasts.documentTypes.assignmentLetter') }), detail);
       throw error;
     } finally {
       loading.value = false;
@@ -81,13 +83,13 @@ export const useUploadAssignmentLetterStore = defineStore('upload-assignment-let
       await $fetch(`${baseUrl}/uploaded-assignment-letters/${id}`, {
         method: 'DELETE'
       });
-      toast.showSuccess('Assignment letter document deleted successfully')
+      toast.showSuccess(t('toasts.document.deleted', { name: t('toasts.documentTypes.assignmentLetter') }))
       await fetchUploadedDocuments();
     } catch (error: any) {
       console.error('Failed to delete uploaded assignment letter:', error);
-      const detail = extractErrorMessage(error, 'Failed to delete assignment letter.');
+      const detail = extractErrorMessage(error, t('toasts.document.deleteFailed', { name: t('toasts.documentTypes.assignmentLetter') }));
       errorMsg.value = detail;
-      toast.showError('Failed to delete assignment letter.', detail);
+      toast.showError(t('toasts.document.deleteFailed', { name: t('toasts.documentTypes.assignmentLetter') }), detail);
       throw error;
     } finally {
       loading.value = false;
@@ -118,9 +120,9 @@ export const useUploadAssignmentLetterStore = defineStore('upload-assignment-let
       );
     } catch (error: any) {
       console.error('Failed to view document:', error);
-      const detail = extractErrorMessage(error, 'Failed to view document.');
+      const detail = extractErrorMessage(error, t('toasts.document.viewFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to view document.', detail);
+      toast.showError(t('toasts.document.viewFailed'), detail);
     }
   };
 
@@ -142,9 +144,9 @@ export const useUploadAssignmentLetterStore = defineStore('upload-assignment-let
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
       console.error('Failed to download assignment letter document:', error);
-      const detail = extractErrorMessage(error, 'Failed to download document.');
+      const detail = extractErrorMessage(error, t('toasts.document.downloadFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to download document.', detail);
+      toast.showError(t('toasts.document.downloadFailed'), detail);
     }
   };
 

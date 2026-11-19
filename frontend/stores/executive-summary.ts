@@ -286,7 +286,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       }
     } catch (error: any) {
       console.error('Failed to fetch departments for executive summary:', error)
-      departmentsError.value = extractErrorMessage(error, 'Gagal memuat data departemen.')
+      departmentsError.value = extractErrorMessage(error, t('toasts.common.loadDepartmentsFailed'))
       if (!departmentsLoaded.value) {
         departments.value = []
       }
@@ -339,7 +339,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
         .filter(b => !isExcluded(b.nomorDokumen))
     } catch (error) {
       console.error('Failed to fetch executive summaries:', error)
-      errorMsg.value = extractErrorMessage(error, 'Failed to load executive summaries.')
+      errorMsg.value = extractErrorMessage(error, t('toasts.executiveSummary.loadFailed'))
       summaryList.value = []
     } finally {
       // Overlay persisted changes from localStorage (status approvals and notes)
@@ -624,9 +624,9 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       }
     } catch (error: any) {
       console.error('Failed to save summary to backend, simulating local save:', error)
-      const detail = extractErrorMessage(error, 'Gagal menyimpan Executive Summary.')
+      const detail = extractErrorMessage(error, t('toasts.executiveSummary.saveFailed'))
       errorMsg.value = detail
-      toast.showError('Gagal menyimpan Executive Summary.', detail)
+      toast.showError(t('toasts.executiveSummary.saveFailed'), detail)
 
       // Simulating save in state for offline capabilities
       const targetDoc = form.nomorDokumen
@@ -665,7 +665,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       } catch (errSync) {
         console.warn('Sync to AuditResultReport failed:', errSync)
       }
-      toast.showSuccess('Executive Summary berhasil disimpan!')
+      toast.showSuccess(t('toasts.executiveSummary.saved'))
     } finally {
       loading.value = false
     }
@@ -698,12 +698,12 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
         await $fetch(`${baseUrl}/executive-summaries/${backendId}`, { method: 'DELETE' })
         await fetchSummaries()
       }
-      toast.showSuccess('Executive Summary berhasil dihapus!')
+      toast.showSuccess(t('toasts.executiveSummary.deleted'))
     } catch (error: any) {
       console.error('Failed to delete on backend, simulating local deletion:', error)
-      const detail = extractErrorMessage(error, 'Gagal menghapus Executive Summary.')
+      const detail = extractErrorMessage(error, t('toasts.executiveSummary.deleteFailed'))
       errorMsg.value = detail
-      toast.showError('Gagal menghapus Executive Summary.', detail)
+      toast.showError(t('toasts.executiveSummary.deleteFailed'), detail)
     } finally {
       summaryList.value = summaryList.value.filter(s => s.id !== id && s.nomorDokumen !== targetDocNum)
       if (targetDocNum) {
@@ -793,7 +793,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
         console.warn('Sync note to AuditResultReport failed:', e)
       }
 
-      toast.showSuccess('Catatan Executive berhasil disimpan untuk Auditor.')
+      toast.showSuccess(t('toasts.executiveSummary.noteSaved'))
       loading.value = false
     }
   }
@@ -956,7 +956,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
         console.warn('Sync status to AuditResultReport failed:', e)
       }
 
-      toast.showSuccess('Status Executive Summary berhasil diperbarui!')
+      toast.showSuccess(t('toasts.executiveSummary.statusUpdated'))
       loading.value = false
     }
   }

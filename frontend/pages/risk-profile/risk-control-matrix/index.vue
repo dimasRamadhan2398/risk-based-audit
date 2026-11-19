@@ -1635,7 +1635,7 @@ const confirmDelete = async (id: string) => {
       await rcmStore.deleteRCMItem(id)
       toast.showSuccess(t('rcm.toasts.deleteSuccess'))
     } catch (err: any) {
-      toast.showError(rcmStore.errorMsg || err?.message || 'Gagal menghapus data dari server.')
+      toast.showError(rcmStore.errorMsg || err?.message || t('toasts.rcm.deleteFailed'))
     }
   }
 }
