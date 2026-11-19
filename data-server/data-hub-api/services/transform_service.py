@@ -131,7 +131,7 @@ def feed_ai_training_pool(engine, source_id, source_name, table_name, mapping):
                                 source_id, kpi_name, entity, entity_type, period_date, period_label,
                                 actual_value, target_value, impact, likelihood, risk_level, sync_frequency, updated_at
                             ) VALUES (
-                                :source_id, :kpi_name, :entity, :entity_type, :period_date::date, :period_label,
+                                :source_id, :kpi_name, :entity, :entity_type, CAST(:period_date AS date), :period_label,
                                 :actual_value, :target_value, :impact, :likelihood, :risk_level, :sync_frequency, NOW()
                             )
                             ON CONFLICT (kpi_name, period_date, entity)

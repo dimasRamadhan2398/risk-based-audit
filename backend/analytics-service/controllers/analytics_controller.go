@@ -69,6 +69,23 @@ func (c *AnalyticsController) GetRiskScoreBatch(ctx *gin.Context) {
 	})
 }
 
+func (c *AnalyticsController) SyncEntityPredictionProfile(ctx *gin.Context) {
+	var req interface{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+		return
+	}
+	res, err := c.service.SyncEntityPredictionProfile(req)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   res,
+	})
+}
+
 // GetAnomaly handles POST & GET /api/analytics/anomaly
 func (c *AnalyticsController) GetAnomaly(ctx *gin.Context) {
 	var req services.AnomalyRequest
@@ -117,6 +134,8 @@ func (c *AnalyticsController) GetTextAnalysis(ctx *gin.Context) {
 				req.SourceType = ctx.PostForm("sourceType")
 				req.Text = ctx.PostForm("text")
 				req.RiskCategory = ctx.PostForm("riskCategory")
+				req.RiskLevel = ctx.PostForm("riskLevel")
+				req.Severity = ctx.PostForm("severity")
 			}
 		}
 	}
@@ -242,8 +261,91 @@ func (c *AnalyticsController) GetPerformanceTrendBatch(ctx *gin.Context) {
 	})
 }
 
+// PredictAuditorKPIForecast handles POST /api/analytics/performance-trend/auditor-forecast.
+func (c *AnalyticsController) PredictAuditorKPIForecast(ctx *gin.Context) {
+	var payload map[string]interface{}
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	res, err := c.service.PredictAuditorKPIForecast(payload)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   res,
+	})
+}
+
+// GetRetrainStatus handles GET /api/analytics/retrain/status.
+func (c *AnalyticsController) GetRetrainStatus(ctx *gin.Context) {
+	res, err := c.service.GetRetrainStatus(ctx.Request.URL.RawQuery)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   res,
+	})
+}
+
 func (c *AnalyticsController) TriggerAutoRetrain(ctx *gin.Context) {
-	res, err := c.service.TriggerAutoRetrain()
+	force := ctx.Query("force") == "true" || ctx.Query("force") == "1"
+	var payload map[string]interface{}
+	if ctx.Request.Body != nil && ctx.Request.ContentLength > 0 {
+		if err := ctx.ShouldBindJSON(&payload); err == nil {
+			if bodyForce, ok := payload["force"].(bool); ok && bodyForce {
+				force = true
+			}
+		}
+	}
+	if payload == nil {
+		payload = map[string]interface{}{}
+	}
+	if force {
+		payload["force"] = true
+		payload["wait"] = true
+	}
+
+	res, err := c.service.TriggerAutoRetrainWithOptions(force, payload)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   res,
+	})
+}
+
+// TriggerModelRetrain handles POST /api/analytics/retrain/model/:model.
+func (c *AnalyticsController) TriggerModelRetrain(ctx *gin.Context) {
+	model := ctx.Param("model")
+	if !services.IsValidRetrainModel(model) {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "Unknown model '" + model + "'. Valid models: entity, anomaly, nlp, kpi, kpi_auditee, kpi_auditor.",
+		})
+		return
+	}
+	var payload map[string]interface{}
+	if ctx.Request.Body != nil && ctx.Request.ContentLength > 0 {
+		_ = ctx.ShouldBindJSON(&payload)
+	}
+	if payload == nil {
+		payload = map[string]interface{}{}
+	}
+	if ctx.Query("force") == "true" || ctx.Query("force") == "1" {
+		payload["force"] = true
+	}
+	if ctx.Query("wait") == "true" || ctx.Query("wait") == "1" {
+		payload["wait"] = true
+	}
+
+	res, err := c.service.TriggerModelRetrain(model, payload)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -256,13 +358,34 @@ func (c *AnalyticsController) TriggerAutoRetrain(ctx *gin.Context) {
 
 // ─── CAATT Analytics Handlers ────────────────────────────────────────────────
 
+// TriggerCAATTRun handles POST /api/analytics/caatt/run
+func (c *AnalyticsController) TriggerCAATTRun(ctx *gin.Context) {
+	sourceID := ctx.Query("source_id")
+	if sourceID == "" {
+		var body struct {
+			SourceID string `json:"source_id"`
+		}
+		if err := ctx.ShouldBindJSON(&body); err == nil && body.SourceID != "" {
+			sourceID = body.SourceID
+		}
+	}
+
+	res, err := c.service.TriggerCAATTRun(sourceID)
+	if err != nil {
+		ctx.JSON(http.StatusBadGateway, gin.H{"status": "error", "error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, res)
+}
+
 // GetFullPopulation handles GET /api/analytics/caatt/full-population
 func (c *AnalyticsController) GetFullPopulation(ctx *gin.Context) {
+	sourceID := ctx.Query("source_id")
 	limitStr := ctx.DefaultQuery("limit", "100")
 	limit := 100
 	fmt.Sscanf(limitStr, "%d", &limit)
 
-	res, err := c.service.GetCAATTFullPopulation(limit)
+	res, err := c.service.GetCAATTFullPopulation(sourceID, limit)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -276,12 +399,13 @@ func (c *AnalyticsController) GetFullPopulation(ctx *gin.Context) {
 
 // GetDuplicateGap handles GET /api/analytics/caatt/duplicate-gap
 func (c *AnalyticsController) GetDuplicateGap(ctx *gin.Context) {
+	sourceID := ctx.Query("source_id")
 	resultType := ctx.Query("result_type")
 	limitStr := ctx.DefaultQuery("limit", "100")
 	limit := 100
 	fmt.Sscanf(limitStr, "%d", &limit)
 
-	res, err := c.service.GetCAATTDuplicateGap(resultType, limit)
+	res, err := c.service.GetCAATTDuplicateGap(sourceID, resultType, limit)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -295,23 +419,28 @@ func (c *AnalyticsController) GetDuplicateGap(ctx *gin.Context) {
 
 // GetBenfordAnalysis handles GET /api/analytics/caatt/benford
 func (c *AnalyticsController) GetBenfordAnalysis(ctx *gin.Context) {
-	res, err := c.service.GetCAATTBenford()
+	sourceID := ctx.Query("source_id")
+	digit := ctx.Query("digit")
+	findingsLimit := ctx.Query("findings_limit")
+	res, err := c.service.GetCAATTBenfordWithParams(sourceID, digit, findingsLimit)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"status":  "success",
-		"data":    res.Data,
-		"summary": res.Summary,
+		"status":   "success",
+		"data":     res.Data,
+		"findings": res.Findings,
+		"summary":  res.Summary,
 	})
 }
 
 // GetStratification handles GET /api/analytics/caatt/stratification
 func (c *AnalyticsController) GetStratification(ctx *gin.Context) {
+	sourceID := ctx.Query("source_id")
 	category := ctx.Query("category")
 
-	res, err := c.service.GetCAATTStratification(category)
+	res, err := c.service.GetCAATTStratification(sourceID, category)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -325,7 +454,8 @@ func (c *AnalyticsController) GetStratification(ctx *gin.Context) {
 
 // GetReconciliation handles GET /api/analytics/caatt/reconciliation
 func (c *AnalyticsController) GetReconciliation(ctx *gin.Context) {
-	res, err := c.service.GetCAATTReconciliation()
+	sourceID := ctx.Query("source_id")
+	res, err := c.service.GetCAATTReconciliation(sourceID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -339,12 +469,13 @@ func (c *AnalyticsController) GetReconciliation(ctx *gin.Context) {
 
 // GetPolicyViolations handles GET /api/analytics/caatt/policy-violations
 func (c *AnalyticsController) GetPolicyViolations(ctx *gin.Context) {
+	sourceID := ctx.Query("source_id")
 	severity := ctx.Query("severity")
 	limitStr := ctx.DefaultQuery("limit", "100")
 	limit := 100
 	fmt.Sscanf(limitStr, "%d", &limit)
 
-	res, err := c.service.GetCAATTPolicyViolations(severity, limit)
+	res, err := c.service.GetCAATTPolicyViolations(sourceID, severity, limit)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -358,7 +489,8 @@ func (c *AnalyticsController) GetPolicyViolations(ctx *gin.Context) {
 
 // GetDataQualityMetrics handles GET /api/analytics/caatt/data-quality
 func (c *AnalyticsController) GetDataQualityMetrics(ctx *gin.Context) {
-	res, err := c.service.GetDataQualityMetrics()
+	sourceID := ctx.Query("source_id")
+	res, err := c.service.GetDataQualityMetrics(sourceID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

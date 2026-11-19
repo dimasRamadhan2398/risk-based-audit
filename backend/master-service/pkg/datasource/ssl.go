@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -142,6 +143,65 @@ func BuildPostgresDSN(host string, port int, database, user, password, mode stri
 	return strings.Join(parts, " "), nil
 }
 
+// ResolveDockerFallbackAddrs returns fallback host:port candidates when master-service runs inside
+// a Docker container (/.dockerenv exists) and the user configured a loopback or Docker-internal host.
+func ResolveDockerFallbackAddrs(host string, port int) []string {
+	if _, err := os.Stat("/.dockerenv"); err != nil {
+		return nil
+	}
+	if port <= 0 {
+		port = 5432
+	}
+	h := strings.ToLower(strings.TrimSpace(host))
+	var out []string
+	switch h {
+	case "localhost", "127.0.0.1", "::1":
+		out = append(out, net.JoinHostPort("host.docker.internal", strconv.Itoa(port)))
+		if port == 5432 {
+			out = append(out, "host.docker.internal:5434", "postgres:5432")
+		}
+	case "host.docker.internal":
+		if port == 5432 {
+			out = append(out, "host.docker.internal:5434", "postgres:5432")
+		}
+	case "postgres-cbs-sim", "auditsphere_cbs":
+		out = append(out, "host.docker.internal:5434")
+	}
+	return out
+}
+
+func dialWithDockerFallback(ctx context.Context, host string, port int) (net.Conn, string, error) {
+	if port <= 0 {
+		port = 5432
+	}
+	primaryAddr := net.JoinHostPort(host, strconv.Itoa(port))
+	var d net.Dialer
+	raw, err := d.DialContext(ctx, "tcp", primaryAddr)
+	if err == nil {
+		return raw, primaryAddr, nil
+	}
+	for _, cand := range ResolveDockerFallbackAddrs(host, port) {
+		if c, fErr := d.DialContext(ctx, "tcp", cand); fErr == nil {
+			return c, cand, nil
+		}
+	}
+	return nil, primaryAddr, fmt.Errorf("connect to %s: %w", primaryAddr, err)
+}
+
+// DialPostgresTCP checks plain TCP reachability (with Docker loopback fallback when inside a container).
+func DialPostgresTCP(ctx context.Context, host string, port int, timeout time.Duration) error {
+	if timeout <= 0 {
+		timeout = 3 * time.Second
+	}
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	c, _, err := dialWithDockerFallback(ctx, host, port)
+	if err != nil {
+		return err
+	}
+	return c.Close()
+}
+
 // ProbePostgresTLS performs the PostgreSQL SSLRequest exchange and a TLS handshake
 // using the config from BuildTLSConfig. It does not authenticate. Mode disable is rejected.
 func ProbePostgresTLS(ctx context.Context, host string, port int, mode, rootCertPEM string, timeout time.Duration) error {
@@ -158,10 +218,25 @@ func ProbePostgresTLS(ctx context.Context, host string, port int, mode, rootCert
 	if timeout <= 0 {
 		timeout = 5 * time.Second
 	}
-	ctx, cancel := context.WithTimeout(ctx, timeout)
+
+	primaryAddr := net.JoinHostPort(host, strconv.Itoa(port))
+	primaryErr := probePostgresTLSAddr(ctx, primaryAddr, tlsCfg, mode, timeout)
+	if primaryErr == nil {
+		return nil
+	}
+
+	for _, candAddr := range ResolveDockerFallbackAddrs(host, port) {
+		if err := probePostgresTLSAddr(ctx, candAddr, tlsCfg, mode, timeout); err == nil {
+			return nil
+		}
+	}
+	return primaryErr
+}
+
+func probePostgresTLSAddr(parentCtx context.Context, addr string, tlsCfg *tls.Config, mode string, timeout time.Duration) error {
+	ctx, cancel := context.WithTimeout(parentCtx, timeout)
 	defer cancel()
 
-	addr := net.JoinHostPort(host, strconv.Itoa(port))
 	var d net.Dialer
 	raw, err := d.DialContext(ctx, "tcp", addr)
 	if err != nil {
@@ -190,7 +265,7 @@ func ProbePostgresTLS(ctx context.Context, host string, port int, mode, rootCert
 		return fmt.Errorf("unexpected SSLRequest response %q from %s", resp[0], addr)
 	}
 
-	tc := tls.Client(raw, tlsCfg)
+	tc := tls.Client(raw, tlsCfg.Clone())
 	if err := tc.HandshakeContext(ctx); err != nil {
 		return fmt.Errorf("TLS handshake with %s (ssl_mode=%s) failed: %w", addr, mode, err)
 	}

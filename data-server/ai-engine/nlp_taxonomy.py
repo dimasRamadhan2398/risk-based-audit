@@ -3,6 +3,13 @@ import re
 import json
 from datetime import datetime
 from typing import Dict, List, Any, Optional, Tuple
+from ai_training_storage import (
+    CANONICAL_RISK_CODES,
+    CANONICAL_RISK_CODE_TO_LABEL,
+    CANONICAL_RISK_CODE_TO_PAIR,
+    matrix_risk_level,
+    normalize_canonical_risk_level,
+)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
@@ -241,6 +248,7 @@ def add_taxonomy_item(
                 "sentiment": "Negative",
                 "impact": 4,
                 "likelihood": 3,
+                "risk_level": "MODERATE",
                 "control_indicator": "Internal Control Weakness"
             },
             {
@@ -249,6 +257,7 @@ def add_taxonomy_item(
                 "sentiment": "Negative",
                 "impact": 4,
                 "likelihood": 4,
+                "risk_level": "MODERATE_HIGH",
                 "control_indicator": "Internal Control Weakness"
             }
         ]
@@ -282,21 +291,25 @@ def add_taxonomy_item(
 
         # Seed the live training corpus so the supervised ML model learns this indicator immediately
         kw_phrase = ", ".join(kw_list[:8])
+        seed_ind_code = "LOW" if str(default_sentiment).lower() == "positive" else ("HIGH" if int(severity_boost or 0) >= 20 else "MODERATE_HIGH")
+        seed_imp, seed_lik = CANONICAL_RISK_CODE_TO_PAIR[seed_ind_code]
         seed_items = [
             {
                 "text": f"Hasil pengujian substantif menemukan indikasi {clean_name}: terdeteksi kelemahan terkait {kw_phrase}.",
                 "risk_category": "Operational",
                 "sentiment": default_sentiment,
-                "impact": 4,
-                "likelihood": 4,
+                "impact": seed_imp,
+                "likelihood": seed_lik,
+                "risk_level": seed_ind_code,
                 "control_indicator": clean_name
             },
             {
                 "text": f"Evaluasi kertas kerja audit mengonfirmasi adanya temuan {clean_name} pada proses operasional cabang.",
                 "risk_category": "Operational",
                 "sentiment": default_sentiment,
-                "impact": 4,
-                "likelihood": 4,
+                "impact": seed_imp,
+                "likelihood": seed_lik,
+                "risk_level": seed_ind_code,
                 "control_indicator": clean_name
             }
         ]
@@ -412,18 +425,30 @@ def classify_risk_category(
     return best_cat, confidence
 
 
+def normalize_nlp_risk_level(raw_level: Any, default_code: str = "MODERATE") -> Tuple[str, str, int, int]:
+    """
+    Strictly maps ANY NLP risk level / severity value (including legacy 'Critical',
+    external DB custom ratings like 'Extreme', 'Very High', 'Catastrophic', 'Major',
+    'Minor', 'Insignificant', 'Not Scored', 'KOL-1..5', Indonesian ratings, or scores)
+    onto ONLY the 5 canonical risk levels:
+      High, Moderate to High, Moderate, Low to Moderate, Low.
+    """
+    return normalize_canonical_risk_level(raw_level, default_code=default_code)
+
+
 def detect_control_indicator_and_severity(
     text: str,
     model_sentiment: Optional[str] = None,
     model_impact: int = 3,
     model_likelihood: int = 3,
-    risk_category: str = "Operational"
+    risk_category: str = "Operational",
+    explicit_risk_level: Optional[Any] = None
 ) -> Dict[str, Any]:
     """
     Analyzes extracted document/note text to determine:
     - control_indicator (Fraud Indication, Internal Control Weakness, SoD Violation, etc. or custom indicator)
     - sentiment (Negative, Neutral, Positive)
-    - impact (1-5), likelihood (1-5), severityScore (0-100), risk_level
+    - impact (1-5), likelihood (1-5), severityScore (0-100), risk_level (strictly 5 canonical levels)
     """
     tax = load_taxonomy()
     indicators = tax.get("control_indicators", [])
@@ -535,13 +560,34 @@ def detect_control_indicator_and_severity(
     else:
         risk_level = "LOW"
 
+    raw_ext = explicit_risk_level
+    if raw_ext is not None and str(raw_ext).strip() != "" and str(raw_ext).strip().lower() not in {"not scored", "none", "nan", "null"}:
+        ext_code, _, def_imp, def_lik = normalize_nlp_risk_level(raw_ext, default_code=risk_level)
+        risk_level = ext_code
+        if matrix_risk_level(lik, imp) != ext_code:
+            imp, lik = def_imp, def_lik
+        if ext_code == "HIGH":
+            severity_score = max(severity_score, 85)
+        elif ext_code == "MODERATE_HIGH":
+            severity_score = max(72, min(84, severity_score if 72 <= severity_score <= 84 else 76))
+        elif ext_code == "MODERATE":
+            severity_score = max(50, min(71, severity_score if 50 <= severity_score <= 71 else 58))
+        elif ext_code == "LOW_MODERATE":
+            severity_score = max(30, min(49, severity_score if 30 <= severity_score <= 49 else 38))
+        else:
+            severity_score = max(12, min(29, severity_score if severity_score <= 29 else 22))
+
+    # Strict 5-tier canonical invariant (only High, Moderate to High, Moderate, Low to Moderate, Low)
+    final_code, final_label, _, _ = normalize_nlp_risk_level(risk_level, default_code="MODERATE")
+
     return {
         "sentiment": sentiment,
         "control_indicator": matched_indicator,
         "impact": imp,
         "likelihood": lik,
         "severityScore": severity_score,
-        "risk_level": risk_level
+        "risk_level": final_code,
+        "risk_level_label": final_label
     }
 
 
@@ -865,23 +911,139 @@ DEFAULT_MULTI_SOURCE_DOCS: List[Dict[str, Any]] = [
 ]
 
 
+def _clamp_int_1_to_5(val: Any, default: int = 3) -> int:
+    try:
+        return max(1, min(5, int(round(float(val)))))
+    except Exception:
+        return default
+
+
+def sanitize_nlp_doc_record(doc: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Strictly enforces ONLY the 5 canonical Risk Levels (High, Moderate to High,
+    Moderate, Low to Moderate, Low) and [1, 5] impact/likelihood on any persisted,
+    synced, or predicted NLP document record.
+    """
+    if not isinstance(doc, dict):
+        return doc
+    cleaned = dict(doc)
+    imp = _clamp_int_1_to_5(cleaned.get("impact"), 3)
+    lik = _clamp_int_1_to_5(cleaned.get("likelihood"), 3)
+
+    raw_lvl = (
+        cleaned.get("risk_level")
+        if cleaned.get("risk_level") is not None
+        else (
+            cleaned.get("riskLevel")
+            if cleaned.get("riskLevel") is not None
+            else cleaned.get("severity")
+        )
+    )
+    s_raw = "" if raw_lvl is None else str(raw_lvl).strip()
+    if s_raw and s_raw.lower() not in {"not scored", "none", "nan", "null"}:
+        is_already_canonical = s_raw.upper() in CANONICAL_RISK_CODES
+        r_code, r_label, def_imp, def_lik = normalize_nlp_risk_level(
+            s_raw, default_code=matrix_risk_level(lik, imp)
+        )
+        if not is_already_canonical or cleaned.get("impact") is None or cleaned.get("likelihood") is None:
+            if not is_already_canonical and matrix_risk_level(lik, imp) != r_code:
+                imp, lik = def_imp, def_lik
+    else:
+        sev_score = cleaned.get("severityScore")
+        if sev_score is not None:
+            try:
+                sc = float(sev_score)
+                if sc >= 85:
+                    r_code = "HIGH"
+                elif sc >= 72:
+                    r_code = "MODERATE_HIGH"
+                elif sc >= 50:
+                    r_code = "MODERATE"
+                elif sc >= 30:
+                    r_code = "LOW_MODERATE"
+                else:
+                    r_code = "LOW"
+            except Exception:
+                r_code = matrix_risk_level(lik, imp)
+        else:
+            r_code = matrix_risk_level(lik, imp)
+        r_label = CANONICAL_RISK_CODE_TO_LABEL[r_code]
+
+    cleaned["impact"] = imp
+    cleaned["likelihood"] = lik
+    cleaned["risk_level"] = r_code
+    cleaned["risk_level_label"] = r_label
+    if "riskLevel" in cleaned:
+        cleaned["riskLevel"] = r_code
+    return cleaned
+
+
+def sanitize_nlp_corpus_item(item: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Strictly enforces ONLY the 5 canonical Risk Levels and [1, 5] impact/likelihood
+    on any NLP training corpus sample before storage or model training.
+    """
+    if not isinstance(item, dict):
+        return item
+    cleaned = dict(item)
+    imp = _clamp_int_1_to_5(cleaned.get("impact"), 3)
+    lik = _clamp_int_1_to_5(cleaned.get("likelihood"), 3)
+
+    raw_lvl = (
+        cleaned.get("risk_level")
+        if cleaned.get("risk_level") is not None
+        else (
+            cleaned.get("riskLevel")
+            if cleaned.get("riskLevel") is not None
+            else cleaned.get("severity")
+        )
+    )
+    s_raw = "" if raw_lvl is None else str(raw_lvl).strip()
+    if s_raw and s_raw.lower() not in {"not scored", "none", "nan", "null"}:
+        is_already_canonical = s_raw.upper() in CANONICAL_RISK_CODES
+        r_code, r_label, def_imp, def_lik = normalize_nlp_risk_level(
+            s_raw, default_code=matrix_risk_level(lik, imp)
+        )
+        if not is_already_canonical and matrix_risk_level(lik, imp) != r_code:
+            imp, lik = def_imp, def_lik
+    else:
+        r_code = matrix_risk_level(lik, imp)
+        r_label = CANONICAL_RISK_CODE_TO_LABEL[r_code]
+
+    cleaned["impact"] = imp
+    cleaned["likelihood"] = lik
+    cleaned["risk_level"] = r_code
+    cleaned["risk_level_label"] = r_label
+    cleaned["risk_category"] = normalize_or_resolve_category(cleaned.get("risk_category")) or "Operational"
+    cleaned["sentiment"] = str(cleaned.get("sentiment") or "Negative").strip() or "Negative"
+    cleaned["control_indicator"] = str(cleaned.get("control_indicator") or "Internal Control Weakness").strip() or "Internal Control Weakness"
+    cleaned.pop("riskLevel", None)
+    cleaned.pop("severity", None)
+    return cleaned
+
+
 def load_analyzed_documents() -> List[Dict[str, Any]]:
     if os.path.exists(IMPORTED_DOCS_FILE):
         try:
             with open(IMPORTED_DOCS_FILE, "r", encoding="utf-8") as f:
                 docs = json.load(f)
                 if isinstance(docs, list) and len(docs) > 0:
-                    return docs
+                    sanitized = [sanitize_nlp_doc_record(d) for d in docs if isinstance(d, dict)]
+                    if sanitized != docs:
+                        save_analyzed_documents(sanitized)
+                    return sanitized
         except Exception as e:
             print(f"Warning loading imported_nlp_documents.json: {e}")
-    save_analyzed_documents(DEFAULT_MULTI_SOURCE_DOCS)
-    return json.loads(json.dumps(DEFAULT_MULTI_SOURCE_DOCS))
+    defaults = [sanitize_nlp_doc_record(d) for d in DEFAULT_MULTI_SOURCE_DOCS]
+    save_analyzed_documents(defaults)
+    return json.loads(json.dumps(defaults))
 
 
 def save_analyzed_documents(docs: List[Dict[str, Any]]) -> None:
     try:
+        sanitized = [sanitize_nlp_doc_record(d) for d in (docs or []) if isinstance(d, dict)][:150]
         with open(IMPORTED_DOCS_FILE, "w", encoding="utf-8") as f:
-            json.dump(docs[:150], f, indent=2, ensure_ascii=False)
+            json.dump(sanitized, f, indent=2, ensure_ascii=False)
     except Exception as e:
         print(f"Warning saving imported_nlp_documents.json: {e}")
 
@@ -889,12 +1051,13 @@ def save_analyzed_documents(docs: List[Dict[str, Any]]) -> None:
 def upsert_analyzed_document(doc: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
     Prepends a newly analyzed document/note/external-record to imported_nlp_documents.json,
-    deduplicating by docId or (title + source).
+    deduplicating by docId or (title + source) and enforcing strictly the 5 canonical risk levels.
     """
+    clean_doc = sanitize_nlp_doc_record(doc)
     docs = load_analyzed_documents()
-    doc_id = str(doc.get("docId", "")).strip()
-    file_name = str(doc.get("fileName", "")).strip().lower()
-    source = str(doc.get("source", "")).strip().lower()
+    doc_id = str(clean_doc.get("docId", "")).strip()
+    file_name = str(clean_doc.get("fileName", "")).strip().lower()
+    source = str(clean_doc.get("source", "")).strip().lower()
 
     filtered = []
     for existing in docs:
@@ -907,7 +1070,7 @@ def upsert_analyzed_document(doc: Dict[str, Any]) -> List[Dict[str, Any]]:
             continue
         filtered.append(existing)
 
-    filtered.insert(0, doc)
+    filtered.insert(0, clean_doc)
     save_analyzed_documents(filtered)
     return filtered
 
@@ -919,6 +1082,7 @@ IN_MEMORY_SEED_CORPUS: List[Dict[str, Any]] = [
         "sentiment": "Negative",
         "impact": 4,
         "likelihood": 4,
+        "risk_level": "MODERATE_HIGH",
         "control_indicator": "Internal Control Weakness"
     },
     {
@@ -927,6 +1091,7 @@ IN_MEMORY_SEED_CORPUS: List[Dict[str, Any]] = [
         "sentiment": "Negative",
         "impact": 5,
         "likelihood": 4,
+        "risk_level": "HIGH",
         "control_indicator": "Fraud Indication"
     },
     {
@@ -935,6 +1100,7 @@ IN_MEMORY_SEED_CORPUS: List[Dict[str, Any]] = [
         "sentiment": "Negative",
         "impact": 4,
         "likelihood": 4,
+        "risk_level": "MODERATE_HIGH",
         "control_indicator": "Segregation of Duties (SoD) Violation"
     },
     {
@@ -943,6 +1109,7 @@ IN_MEMORY_SEED_CORPUS: List[Dict[str, Any]] = [
         "sentiment": "Negative",
         "impact": 4,
         "likelihood": 4,
+        "risk_level": "MODERATE_HIGH",
         "control_indicator": "IT & Access Control Weakness"
     },
     {
@@ -951,6 +1118,7 @@ IN_MEMORY_SEED_CORPUS: List[Dict[str, Any]] = [
         "sentiment": "Negative",
         "impact": 3,
         "likelihood": 3,
+        "risk_level": "MODERATE",
         "control_indicator": "Compliance Deviation"
     },
     {
@@ -959,6 +1127,7 @@ IN_MEMORY_SEED_CORPUS: List[Dict[str, Any]] = [
         "sentiment": "Positive",
         "impact": 1,
         "likelihood": 2,
+        "risk_level": "LOW",
         "control_indicator": "Adequate Control"
     },
     {
@@ -967,6 +1136,7 @@ IN_MEMORY_SEED_CORPUS: List[Dict[str, Any]] = [
         "sentiment": "Negative",
         "impact": 3,
         "likelihood": 3,
+        "risk_level": "MODERATE",
         "control_indicator": "Internal Control Weakness"
     },
     {
@@ -975,6 +1145,7 @@ IN_MEMORY_SEED_CORPUS: List[Dict[str, Any]] = [
         "sentiment": "Positive",
         "impact": 1,
         "likelihood": 1,
+        "risk_level": "LOW",
         "control_indicator": "Adequate Control"
     },
     {
@@ -983,6 +1154,7 @@ IN_MEMORY_SEED_CORPUS: List[Dict[str, Any]] = [
         "sentiment": "Negative",
         "impact": 4,
         "likelihood": 3,
+        "risk_level": "MODERATE_HIGH",
         "control_indicator": "IT & Access Control Weakness"
     },
     {
@@ -991,6 +1163,7 @@ IN_MEMORY_SEED_CORPUS: List[Dict[str, Any]] = [
         "sentiment": "Negative",
         "impact": 5,
         "likelihood": 4,
+        "risk_level": "HIGH",
         "control_indicator": "Fraud Indication"
     },
     {
@@ -999,6 +1172,7 @@ IN_MEMORY_SEED_CORPUS: List[Dict[str, Any]] = [
         "sentiment": "Positive",
         "impact": 1,
         "likelihood": 1,
+        "risk_level": "LOW",
         "control_indicator": "Adequate Control"
     },
     {
@@ -1007,7 +1181,26 @@ IN_MEMORY_SEED_CORPUS: List[Dict[str, Any]] = [
         "sentiment": "Positive",
         "impact": 1,
         "likelihood": 1,
+        "risk_level": "LOW",
         "control_indicator": "Adequate Control"
+    },
+    {
+        "text": "Ditemukan keterlambatan minor pengarsipan salinan bukti serah terima barang ATK selama 2 hari tanpa dampak selisih stok maupun kerugian keuangan.",
+        "risk_category": "Operational",
+        "sentiment": "Neutral",
+        "impact": 2,
+        "likelihood": 2,
+        "risk_level": "LOW_MODERATE",
+        "control_indicator": "Internal Control Weakness"
+    },
+    {
+        "text": "Dokumentasi log pemantauan kapasitas jaringan kantor cabang pembantu perlu penomoran revisi minor meski kontrol backup berjalan baik.",
+        "risk_category": "Technology",
+        "sentiment": "Neutral",
+        "impact": 2,
+        "likelihood": 2,
+        "risk_level": "LOW_MODERATE",
+        "control_indicator": "Internal Control Weakness"
     }
 ]
 
@@ -1015,27 +1208,32 @@ IN_MEMORY_SEED_CORPUS: List[Dict[str, Any]] = [
 def load_live_nlp_corpus() -> List[Dict[str, Any]]:
     """
     Loads harvested notes & external DB training entries from live_nlp_corpus.json.
-    Falls back to in-memory seed corpus if the file does not exist yet.
+    Sanitizes every record onto the 5 canonical risk levels and falls back to seed corpus.
     """
     if os.path.exists(LIVE_CORPUS_FILE):
         try:
             with open(LIVE_CORPUS_FILE, "r", encoding="utf-8") as f:
                 items = json.load(f)
                 if isinstance(items, list) and len(items) > 0:
-                    return items
+                    sanitized = [sanitize_nlp_corpus_item(it) for it in items if isinstance(it, dict)]
+                    if sanitized != items:
+                        save_live_nlp_corpus(sanitized)
+                    return sanitized
         except Exception as e:
             print(f"Warning loading live_nlp_corpus.json: {e}")
-    save_live_nlp_corpus(IN_MEMORY_SEED_CORPUS)
-    return list(IN_MEMORY_SEED_CORPUS)
+    sanitized_seeds = [sanitize_nlp_corpus_item(it) for it in IN_MEMORY_SEED_CORPUS]
+    save_live_nlp_corpus(sanitized_seeds)
+    return sanitized_seeds
 
 
 def save_live_nlp_corpus(items: List[Dict[str, Any]]) -> None:
     """
-    Persists harvested training items to live_nlp_corpus.json.
+    Persists harvested training items to live_nlp_corpus.json with strictly 5-tier risk levels.
     """
     try:
+        sanitized = [sanitize_nlp_corpus_item(it) for it in (items or []) if isinstance(it, dict)][:350]
         with open(LIVE_CORPUS_FILE, "w", encoding="utf-8") as f:
-            json.dump(items[:350], f, indent=2, ensure_ascii=False)
+            json.dump(sanitized, f, indent=2, ensure_ascii=False)
     except Exception as e:
         print(f"Warning saving live_nlp_corpus.json: {e}")
 
@@ -1050,7 +1248,8 @@ def upsert_live_nlp_corpus(new_items: List[Dict[str, Any]]) -> int:
     added = 0
     merged = list(existing)
 
-    for item in new_items:
+    for raw_item in new_items:
+        item = sanitize_nlp_corpus_item(raw_item)
         raw_text = str(item.get("text", "")).strip()
         norm = re.sub(r'\s+', ' ', raw_text.lower())
         if len(norm) >= 12 and norm not in seen:
@@ -1069,6 +1268,7 @@ def harvest_all_live_nlp_training_data() -> List[Dict[str, Any]]:
     1. Imported Documents (PDF/Word/Excel extracted text & OCR)
     2. Live Feature Notes & External Database Records (from live_nlp_corpus.json)
     3. In-memory baseline domain seeds (ensures cold-start stability)
+    Strictly enforces ONLY the 5 canonical risk levels across every training sample.
     """
     consolidated: List[Dict[str, Any]] = []
     seen_texts = set()
@@ -1082,14 +1282,16 @@ def harvest_all_live_nlp_training_data() -> List[Dict[str, Any]]:
             seen_texts.add(norm)
             cat = normalize_or_resolve_category(doc.get("risk_category") or doc.get("autoCategory")) or "Operational"
             ind = doc.get("control_indicator") or doc.get("controlIndicator") or "Internal Control Weakness"
-            consolidated.append({
+            sample = sanitize_nlp_corpus_item({
                 "text": excerpt,
                 "risk_category": cat,
                 "sentiment": doc.get("sentiment", "Negative"),
-                "impact": int(doc.get("impact", 3)),
-                "likelihood": int(doc.get("likelihood", 3)),
+                "impact": doc.get("impact", 3),
+                "likelihood": doc.get("likelihood", 3),
+                "risk_level": doc.get("risk_level") or doc.get("riskLevel"),
                 "control_indicator": ind
             })
+            consolidated.append(sample)
 
     # 2. Live Feature Notes & External DB records
     live_corpus = load_live_nlp_corpus()
@@ -1100,14 +1302,16 @@ def harvest_all_live_nlp_training_data() -> List[Dict[str, Any]]:
             seen_texts.add(norm)
             cat = normalize_or_resolve_category(item.get("risk_category")) or "Operational"
             ind = item.get("control_indicator", "Internal Control Weakness")
-            consolidated.append({
+            sample = sanitize_nlp_corpus_item({
                 "text": raw,
                 "risk_category": cat,
                 "sentiment": item.get("sentiment", "Negative"),
-                "impact": int(item.get("impact", 3)),
-                "likelihood": int(item.get("likelihood", 3)),
+                "impact": item.get("impact", 3),
+                "likelihood": item.get("likelihood", 3),
+                "risk_level": item.get("risk_level") or item.get("riskLevel") or item.get("severity"),
                 "control_indicator": ind
             })
+            consolidated.append(sample)
 
     # 3. Baseline seeds (if not already included)
     for seed in IN_MEMORY_SEED_CORPUS:
@@ -1115,7 +1319,7 @@ def harvest_all_live_nlp_training_data() -> List[Dict[str, Any]]:
         norm = re.sub(r'\s+', ' ', raw.lower())
         if norm not in seen_texts:
             seen_texts.add(norm)
-            consolidated.append(seed)
+            consolidated.append(sanitize_nlp_corpus_item(seed))
 
     return consolidated
 

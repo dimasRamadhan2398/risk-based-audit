@@ -315,7 +315,7 @@
             <!-- Top Detected Anomaly List -->
             <div class="mt-6 space-y-3">
               <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-                Critical Anomaly Alerts Requiring Investigation
+                Priority Anomaly Alerts Requiring Investigation
               </h4>
 
               <div
@@ -325,9 +325,9 @@
               >
                 <div class="space-y-1 min-w-0">
                   <div class="flex flex-wrap items-center gap-2">
-                    <UBadge :color="getSeverityColor(anm.severity) as any" variant="solid" size="sm" class="font-bold text-[10px]">
-                      {{ anm.severity }}
-                    </UBadge>
+                    <span :class="['inline-flex items-center px-2 py-0.5 rounded font-bold text-[10px]', getRiskLevelColorClass(normalizeAnomalyRiskLevel(anm.riskLevel || anm.severity))]">
+                      {{ normalizeAnomalyRiskLevel(anm.riskLevel || anm.severity) }}
+                    </span>
                     <span class="font-mono text-xs font-bold text-slate-900 dark:text-slate-100">{{ anm.id }}</span>
                     <span class="text-xs font-bold text-slate-600 dark:text-slate-400">· {{ anm.entity }}</span>
                   </div>
@@ -896,6 +896,7 @@ import {
   Filler
 } from "chart.js";
 import { useAiAnalytics } from "~/composables/useAiAnalytics";
+import { normalizeAnomalyRiskLevel, getRiskLevelColorClass } from "~/utils/riskLevelBadge";
 import {
   buildAnomalyScatterPoints,
   createAnomalyTypeConfigs,
@@ -1351,19 +1352,6 @@ const getHeatMapCellColor = (x: number, y: number): string => {
 };
 
 const getRiskLevel = (x: number, y: number) => riskProfileStore.getRiskLevel(y, x);
-
-const getSeverityColor = (sev: string) => {
-  switch (sev) {
-    case "Critical":
-      return "error";
-    case "High":
-      return "warning";
-    case "Medium":
-      return "info";
-    default:
-      return "neutral";
-  }
-};
 
 const getTrendBadgeColor = (trend: string) => {
   switch (trend) {

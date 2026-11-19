@@ -24,6 +24,8 @@ services:
   postgres-cbs-sim:
     image: postgres:16-alpine
     container_name: auditsphere_cbs
+    ports:
+      - "${CBS_POSTGRES_PORT:-5434}:5432"
     environment:
       POSTGRES_USER: ${CBS_POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${CBS_POSTGRES_PASSWORD}
@@ -106,6 +108,8 @@ services:
     depends_on:
       postgres-datalake:
         condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - auditsphere_data_net
     restart: unless-stopped
@@ -136,6 +140,8 @@ services:
     depends_on:
       postgres-datalake:
         condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - auditsphere_data_net
     restart: unless-stopped

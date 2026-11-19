@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
-	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
@@ -665,6 +664,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 	// Data Sources routes
 	ds := api.Group("/data-sources")
 	dhClient := services.NewDataHubClient()
+	syncTracker := newSyncCooldownTracker(dataSourceSyncCooldown)
 	{
 		ds.GET("", func(c *gin.Context) {
 			var connections []models.DataSourceConnection
@@ -738,7 +738,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 
 		ds.POST("/test", dataSourceTestAdhoc())
 
-		ds.POST("/:id/test", dataSourceTestByID(db))
+		ds.POST("/:id/test", dataSourceTestByID(db, dhClient))
 
 		// Schema Introspection: returns discovered tables & column metadata
 		ds.GET("/:id/schema", func(c *gin.Context) {
@@ -752,6 +752,9 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 				c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Data source connection not found"})
 				return
 			}
+
+			// Ensure registered in Data Hub before introspecting schema
+			_ = syncSourceToHubSSLStrict(db, dhClient, &conn)
 
 			// Attempt real introspection via Data Hub API
 			schemaRes, err := dhClient.GetSourceSchema(id.String())
@@ -909,129 +912,10 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 		})
 
 		// Save Data Mappings endpoint
-		ds.PUT("/:id/mappings", func(c *gin.Context) {
-			id, err := uuid.Parse(c.Param("id"))
-			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid ID format"})
-				return
-			}
-			var conn models.DataSourceConnection
-			if err := db.First(&conn, "id = ?", id).Error; err != nil {
-				c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Data source connection not found"})
-				return
-			}
+		ds.PUT("/:id/mappings", dataSourceUpdateMappings(db, dhClient))
 
-			type MappingPayload struct {
-				DataMappings []models.TableDataMapping `json:"dataMappings"`
-			}
-			var req MappingPayload
-			if err := c.ShouldBindJSON(&req); err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
-				return
-			}
-
-			conn.DataMappings = req.DataMappings
-			if err := db.Save(&conn).Error; err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to update mappings: " + err.Error()})
-				return
-			}
-
-			// Update in Data Hub. Only a non-applied ssl_mode is fatal (marks the source Error);
-			// other Hub outages stay non-fatal as before.
-			hubErr := syncSourceToHubSSLStrict(db, dhClient, &conn)
-
-			log := models.DataSourceActivityLog{
-				ID:             uuid.New(),
-				ConnectionID:   conn.ID,
-				ConnectionName: conn.Name,
-				Type:           conn.Type,
-				Event:          "Schema Mappings Updated",
-				Status:         "SUCCESS",
-				Records:        len(req.DataMappings),
-				Duration:       "0.2s",
-				Timestamp:      time.Now().Format("15:04:05"),
-			}
-			db.Create(&log)
-
-			c.JSON(http.StatusOK, gin.H{
-				"success":           true,
-				"message":           fmt.Sprintf("Successfully saved %d table data mappings for %s.", len(req.DataMappings), conn.Name),
-				"data":              conn,
-				"dataHubRegistered": hubErr == nil,
-				"dataHubError":      errString(hubErr),
-			})
-		})
-
-		// Single Source Sync endpoint
-		ds.POST("/:id/sync", func(c *gin.Context) {
-			id, err := uuid.Parse(c.Param("id"))
-			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid ID format"})
-				return
-			}
-			var conn models.DataSourceConnection
-			if err := db.First(&conn, "id = ?", id).Error; err != nil {
-				c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Data source connection not found"})
-				return
-			}
-
-			// Ensure source is registered in Data Hub (an unapplied ssl_mode aborts the sync)
-			if hubErr := syncSourceToHubSSLStrict(db, dhClient, &conn); hubErr != nil {
-				log := models.DataSourceActivityLog{
-					ID:             uuid.New(),
-					ConnectionID:   conn.ID,
-					ConnectionName: conn.Name,
-					Type:           conn.Type,
-					Event:          "Manual Triggered Sync (Data Hub did not apply ssl_mode)",
-					Status:         "FAILED",
-					Duration:       "0.1s",
-					Timestamp:      time.Now().Format("15:04:05"),
-				}
-				db.Create(&log)
-				c.JSON(http.StatusBadGateway, gin.H{
-					"success":      false,
-					"message":      hubErr.Error(),
-					"dataHubError": hubErr.Error(),
-					"data":         conn,
-				})
-				return
-			}
-
-			conn.Status = "Connected"
-			conn.LastSync = "Just now"
-			conn.LastError = ""
-			db.Save(&conn)
-
-			// Trigger real Data Hub ingest
-			var jobID string
-			ingestRes, err := dhClient.TriggerIngest([]string{id.String()}, "selected")
-			if err == nil && ingestRes != nil {
-				if jid, ok := ingestRes["job_id"].(string); ok {
-					jobID = jid
-				}
-			}
-
-			records := rand.Intn(2500) + 150
-			log := models.DataSourceActivityLog{
-				ID:             uuid.New(),
-				ConnectionID:   conn.ID,
-				ConnectionName: conn.Name,
-				Type:           conn.Type,
-				Event:          "Manual Triggered Sync",
-				Status:         "SUCCESS",
-				Records:        records,
-				Duration:       "1.2s",
-				Timestamp:      time.Now().Format("15:04:05"),
-			}
-			db.Create(&log)
-
-			c.JSON(http.StatusOK, gin.H{
-				"success": true,
-				"message": fmt.Sprintf("Data ingestion initiated for %s (%d records ingested).", conn.Name, records),
-				"job_id":  jobID,
-				"data":    conn,
-			})
-		})
+		// Single Source Sync endpoint (60s anti-spam cooldown + real Data Hub failure reporting)
+		ds.POST("/:id/sync", dataSourceSync(db, dhClient, syncTracker))
 
 		// Batch Sync (Multiple Sources)
 		ds.POST("/sync-batch", func(c *gin.Context) {
@@ -1046,7 +930,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 
 			res, err := dhClient.TriggerIngest(req.IDs, "selected")
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to trigger batch ingest: " + err.Error()})
+				c.JSON(http.StatusBadGateway, gin.H{"success": false, "message": "Failed to trigger batch ingest: " + err.Error()})
 				return
 			}
 
@@ -1070,95 +954,16 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			})
 		})
 
-		// Sync All Sources
-		ds.POST("/sync-all", func(c *gin.Context) {
-			res, err := dhClient.TriggerBatchIngest()
+		// Sync All Sources (60s anti-spam cooldown)
+		ds.POST("/sync-all", dataSourceSyncAll(db, dhClient, syncTracker, func() {
 			triggerExternalDBNLPSync("All Data Sources")
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to trigger sync all: " + err.Error()})
-				return
-			}
-
-			log := models.DataSourceActivityLog{
-				ID:             uuid.New(),
-				ConnectionName: "All Data Sources",
-				Type:           "postgres",
-				Event:          "Sync All Triggered",
-				Status:         "SUCCESS",
-				Records:        0,
-				Duration:       "0.4s",
-				Timestamp:      time.Now().Format("15:04:05"),
-			}
-			db.Create(&log)
-
-			c.JSON(http.StatusOK, gin.H{
-				"success": true,
-				"message": "Full synchronization initiated for all registered data sources.",
-				"job_id":  res["job_id"],
-				"data":    res,
-			})
-		})
+		}))
 
 		// Check Ingest Job Status
-		ds.GET("/sync-status/:jobId", func(c *gin.Context) {
-			jobID := c.Param("jobId")
-			status, err := dhClient.GetIngestStatus(jobID)
-			if err != nil {
-				c.JSON(http.StatusNotFound, gin.H{"success": false, "message": err.Error()})
-				return
-			}
-			c.JSON(http.StatusOK, gin.H{"success": true, "data": status})
-		})
+		ds.GET("/sync-status/:jobId", dataSourceSyncStatus(db, dhClient))
 
 		// Deletion Detection Reconcile Endpoint
-		ds.POST("/:id/reconcile", func(c *gin.Context) {
-			id, err := uuid.Parse(c.Param("id"))
-			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid ID format"})
-				return
-			}
-			var conn models.DataSourceConnection
-			if err := db.First(&conn, "id = ?", id).Error; err != nil {
-				c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Data source connection not found"})
-				return
-			}
-
-			// Try Data Hub API first
-			res, err := dhClient.ReconcileSource(id.String())
-			if err == nil && res != nil {
-				c.JSON(http.StatusOK, res)
-				return
-			}
-
-			// Fallback simulation when Data Hub is offline
-			totalDeletes := 0
-			for _, m := range conn.DataMappings {
-				if m.IsActive && m.SoftDeleteColumn != "" {
-					totalDeletes += rand.Intn(3)
-				}
-			}
-
-			log := models.DataSourceActivityLog{
-				ID:             uuid.New(),
-				ConnectionID:   conn.ID,
-				ConnectionName: conn.Name,
-				Type:           conn.Type,
-				Event:          "Deletion Reconcile Completed",
-				Status:         "SUCCESS",
-				Records:        totalDeletes,
-				Duration:       "0.3s",
-				Timestamp:      time.Now().Format("15:04:05"),
-			}
-			db.Create(&log)
-
-			c.JSON(http.StatusOK, gin.H{
-				"success":                true,
-				"status":                 "success",
-				"source_id":              conn.ID.String(),
-				"total_deletes_detected": totalDeletes,
-				"message":                fmt.Sprintf("Deletion detection finished for %s. %d tombstones updated.", conn.Name, totalDeletes),
-			})
-		})
+		ds.POST("/:id/reconcile", dataSourceReconcile(db, dhClient))
 
 		// AI / Smart Auto-Suggest Mapping Endpoint
 		ds.POST("/mapping/suggest", func(c *gin.Context) {
@@ -1186,24 +991,24 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 			if strings.Contains(tblLower, "trx") || strings.Contains(tblLower, "transact") {
 				entity = "transactions"
 				scope = "audit_features"
-				module = "CAATT: Full Population Testing"
+				module = "Working Paper Evidence"
 				confidence = 0.95
-			} else if strings.Contains(tblLower, "loan") || strings.Contains(tblLower, "credit") {
+			} else if strings.Contains(tblLower, "loan") || strings.Contains(tblLower, "credit") || strings.Contains(tblLower, "kredit") {
 				entity = "loans"
 				scope = "risk_management"
 				module = "Corporate Risk Profile"
 				confidence = 0.92
-			} else if strings.Contains(tblLower, "gl") || strings.Contains(tblLower, "ledger") {
+			} else if strings.Contains(tblLower, "gl") || strings.Contains(tblLower, "ledger") || strings.Contains(tblLower, "journal") {
 				entity = "gl_entries"
 				scope = "audit_features"
-				module = "General Ledger Verification"
+				module = "Audit Fieldwork"
 				confidence = 0.90
-			} else if strings.Contains(tblLower, "incident") || strings.Contains(tblLower, "compliance") {
+			} else if strings.Contains(tblLower, "incident") || strings.Contains(tblLower, "compliance") || strings.Contains(tblLower, "risk") {
 				entity = "generic"
-				scope = "qar_features"
-				module = "Quality Assurance Dashboard"
+				scope = "risk_management"
+				module = "Corporate Risk Profile"
 				confidence = 0.88
-			} else if strings.Contains(tblLower, "user") || strings.Contains(tblLower, "audit") {
+			} else if strings.Contains(tblLower, "user") || strings.Contains(tblLower, "audit") || strings.Contains(tblLower, "contract") || strings.Contains(tblLower, "invoice") {
 				entity = "generic"
 				scope = "data_analytics"
 				module = "AI: Anomaly Detection"
@@ -1223,132 +1028,7 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 		})
 
 		// Get Mapped Records for a specific Target Scope / Target Module
-		ds.GET("/mapped-records", func(c *gin.Context) {
-			targetScope := c.Query("target_scope")
-			targetModule := c.Query("target_module")
-			sourceID := c.Query("source_id")
-
-			norm := func(s string) string {
-				s = strings.ToLower(strings.TrimSpace(s))
-				s = strings.ReplaceAll(s, " ", "_")
-				s = strings.ReplaceAll(s, "-", "_")
-				return s
-			}
-			moduleMatch := func(savedModule, queryModule string) bool {
-				if queryModule == "" {
-					return true
-				}
-				s1 := norm(savedModule)
-				s2 := norm(queryModule)
-				if s1 == s2 || strings.Contains(s1, s2) || strings.Contains(s2, s1) {
-					return true
-				}
-				if (strings.Contains(s1, "corporate_risk") || strings.Contains(s1, "risk_profile")) &&
-					(strings.Contains(s2, "corporate_risk") || strings.Contains(s2, "risk_profile") || strings.Contains(s2, "risk_universe")) {
-					return true
-				}
-				if (strings.Contains(s1, "anomaly") || strings.Contains(s1, "continuous")) &&
-					(strings.Contains(s2, "anomaly") || strings.Contains(s2, "continuous") || strings.Contains(s2, "analytics")) {
-					return true
-				}
-				if strings.Contains(s1, "analytics") && strings.Contains(s2, "analytics") {
-					return true
-				}
-				if (strings.Contains(s1, "benford") && strings.Contains(s2, "benford")) ||
-					(strings.Contains(s1, "duplicate") && strings.Contains(s2, "duplicate")) ||
-					(strings.Contains(s1, "reconciliation") && strings.Contains(s2, "reconciliation")) ||
-					(strings.Contains(s1, "scoring") && strings.Contains(s2, "scoring")) {
-					return true
-				}
-				return false
-			}
-			scopeMatch := func(savedScope, queryScope string) bool {
-				if queryScope == "" {
-					return true
-				}
-				return norm(savedScope) == norm(queryScope)
-			}
-
-			var connections []models.DataSourceConnection
-			q := db.Order("updated_at DESC")
-			if sourceID != "" && sourceID != "all" {
-				if parsedID, err := uuid.Parse(sourceID); err == nil {
-					q = q.Where("id = ?", parsedID)
-				}
-			}
-			q.Find(&connections)
-
-			type MappedResult struct {
-				ConnectionID   string                     `json:"connection_id"`
-				ConnectionName string                     `json:"connection_name"`
-				TableName      string                     `json:"table_name"`
-				TargetScope    string                     `json:"target_scope"`
-				TargetModule   string                     `json:"target_module"`
-				AuditField     string                     `json:"audit_field"`
-				SampleRecords  []map[string]interface{}   `json:"sample_records"`
-				AnomalyRules   []string                   `json:"anomaly_rules,omitempty"`
-				CustomRules    []models.CustomAnomalyRule `json:"custom_rules,omitempty"`
-			}
-
-			var results []MappedResult
-			for _, conn := range connections {
-				for _, m := range conn.DataMappings {
-					if !m.IsActive {
-						continue
-					}
-					if targetScope != "" && !scopeMatch(m.TargetScope, targetScope) {
-						continue
-					}
-					if targetModule != "" && !moduleMatch(m.TargetModule, targetModule) {
-						continue
-					}
-
-					var sampleRows []map[string]interface{}
-					switch m.TableName {
-					case "gl_transactions":
-						sampleRows = []map[string]interface{}{
-							{"id": "TRX-001", "transaction_ref": "TRX-2026-0091", "account_number": "ACC-10029381", "amount": 450000000.0, "currency": "IDR", "channel": "RTGS"},
-							{"id": "TRX-002", "transaction_ref": "TRX-2026-0092", "account_number": "ACC-50019283", "amount": 12500000.0, "currency": "IDR", "channel": "MOBILE_APP"},
-						}
-					case "loan_accounts":
-						sampleRows = []map[string]interface{}{
-							{"loan_id": "LN-001", "cif_number": "CIF-881923", "product_type": "Commercial Working Capital", "principal_amount": 2500000000.0, "kol_status": "KOL-1"},
-							{"loan_id": "LN-002", "cif_number": "CIF-772910", "product_type": "Mortgage Griya", "principal_amount": 750000000.0, "kol_status": "KOL-2"},
-						}
-					case "user_access_audit_logs":
-						sampleRows = []map[string]interface{}{
-							{"log_id": 98120, "user_id": "adm_super_01", "action_name": "MUTATION_TABLE_PERMISSIONS", "ip_address": "10.20.4.12", "is_override_auth": true},
-						}
-					case "vendor_invoices":
-						sampleRows = []map[string]interface{}{
-							{"invoice_no": "INV-2026-8801", "vendor_code": "VND-TECH-01", "invoice_amount": 185000000.0, "approval_status": "APPROVED"},
-						}
-					case "compliance_incident_records":
-						sampleRows = []map[string]interface{}{
-							{"incident_id": "INC-001", "category": "AML_STR_ALERT", "severity_score": 85, "status": "ESCALATED"},
-						}
-					default:
-						sampleRows = []map[string]interface{}{
-							{"id": "REC-01", "name": m.TableName + " sample 1", "field": m.AuditField},
-						}
-					}
-
-					results = append(results, MappedResult{
-						ConnectionID:   conn.ID.String(),
-						ConnectionName: conn.Name,
-						TableName:      m.TableName,
-						TargetScope:    m.TargetScope,
-						TargetModule:   m.TargetModule,
-						AuditField:     m.AuditField,
-						SampleRecords:  sampleRows,
-						AnomalyRules:   m.AnomalyRules,
-						CustomRules:    m.CustomRules,
-					})
-				}
-			}
-
-			c.JSON(http.StatusOK, gin.H{"success": true, "data": results})
-		})
+		ds.GET("/mapped-records", dataSourceMappedRecords(db, dhClient))
 	}
 }
 
@@ -1358,37 +1038,11 @@ func RegisterRoutes(router *gin.Engine, controller controllers.IControllerRegist
 // records the error on the connection (status "Error", lastError) so callers and the UI
 // can see it, instead of the failure being swallowed.
 func registerDataSourceInHub(db *gorm.DB, dh *services.DataHubClient, conn *models.DataSourceConnection) error {
-	if err := dh.RegisterSource(dataSourceHubPayload(conn)); err != nil {
-		fmt.Printf("[MasterService] Warning: failed to register source %s in Data Hub: %v\n", conn.ID, err)
-		conn.Status = "Error"
-		if services.IsSSLModeNotApplied(err) {
-			conn.LastError = err.Error()
-		} else {
-			conn.LastError = "Data Hub registration failed: " + err.Error()
-		}
-		db.Save(conn)
-		return err
-	}
-	return nil
+	return services.RegisterDataSourceInHub(db, dh, conn)
 }
 
-// syncSourceToHubSSLStrict re-pushes a connection to the Data Hub (mapping save, manual
-// sync). Other Hub errors are only logged (legacy behaviour), but when the Hub did not
-// apply the requested ssl_mode the source is marked Error with lastError and the error is
-// returned, so it is never left Connected on a silently downgraded TLS mode.
 func syncSourceToHubSSLStrict(db *gorm.DB, dh *services.DataHubClient, conn *models.DataSourceConnection) error {
-	err := dh.RegisterSource(dataSourceHubPayload(conn))
-	if err == nil {
-		return nil
-	}
-	if services.IsSSLModeNotApplied(err) {
-		conn.Status = "Error"
-		conn.LastError = err.Error()
-		db.Save(conn)
-		return err
-	}
-	fmt.Printf("[MasterService] Warning: Data Hub registration of source %s failed (non-fatal): %v\n", conn.ID, err)
-	return nil
+	return services.SyncSourceToHubSSLStrict(db, dh, conn)
 }
 
 func errString(err error) string {
@@ -1399,22 +1053,7 @@ func errString(err error) string {
 }
 
 func dataSourceHubPayload(conn *models.DataSourceConnection) map[string]interface{} {
-	return map[string]interface{}{
-		"source_id":     conn.ID.String(),
-		"name":          conn.Name,
-		"source_type":   conn.Type,
-		"host":          conn.Host,
-		"port":          conn.Port,
-		"database_name": conn.Database,
-		"username":      conn.Username,
-		"password":      conn.Password,
-		"ssl_enabled":   conn.SSL,
-		"ssl_mode":      conn.SSLMode,
-		"ssl_root_cert": conn.SSLRootCert,
-		"sync_schedule": conn.SyncSchedule,
-		"scopes":        conn.Scopes,
-		"data_mappings": conn.DataMappings,
-	}
+	return services.BuildDataHubPayload(conn)
 }
 
 func resyncDepartmentEvents(db *gorm.DB, events *kafka.DomainPublisher) gin.HandlerFunc {

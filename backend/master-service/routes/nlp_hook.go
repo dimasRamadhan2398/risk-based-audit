@@ -89,6 +89,12 @@ func dispatchMasterDocumentToNLP(docID, title, notes, source, sourceType, fileNa
 	}()
 }
 
+// TriggerExternalDBNLPSync triggers multi-source synchronization on Python AI
+// when an external database connection is synced in Data Sources.
+func TriggerExternalDBNLPSync(connName string) {
+	triggerExternalDBNLPSync(connName)
+}
+
 // triggerExternalDBNLPSync triggers multi-source synchronization on Python AI
 // when an external database connection is synced in Data Sources.
 func triggerExternalDBNLPSync(connName string) {

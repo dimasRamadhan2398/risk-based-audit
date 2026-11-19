@@ -24,6 +24,7 @@ func SetupRoutes(r *gin.Engine, authMiddleware *middleware.AuthMiddleware) {
 		"POST /api/analytics/anomaly",
 		"POST /api/analytics/text-analysis",
 		"POST /api/analytics/performance-trend",
+		"POST /api/analytics/performance-trend/auditor-forecast",
 	))
 	{
 		api.GET("/report", analyticsController.GetReport)
@@ -32,6 +33,8 @@ func SetupRoutes(r *gin.Engine, authMiddleware *middleware.AuthMiddleware) {
 		api.GET("/risk-score", analyticsController.GetRiskScore)
 		api.POST("/risk-score", analyticsController.GetRiskScore)
 		api.GET("/risk-score/batch", analyticsController.GetRiskScoreBatch)
+		api.POST("/risk-score/sync-profile", analyticsController.SyncEntityPredictionProfile)
+		api.POST("/entity-prediction/sync", analyticsController.SyncEntityPredictionProfile)
 
 		api.GET("/anomaly", analyticsController.GetAnomaly)
 		api.POST("/anomaly", analyticsController.GetAnomaly)
@@ -49,12 +52,16 @@ func SetupRoutes(r *gin.Engine, authMiddleware *middleware.AuthMiddleware) {
 		api.GET("/performance-trend", analyticsController.GetPerformanceTrend)
 		api.POST("/performance-trend", analyticsController.GetPerformanceTrend)
 		api.GET("/performance-trend/batch", analyticsController.GetPerformanceTrendBatch)
+		api.POST("/performance-trend/auditor-forecast", analyticsController.PredictAuditorKPIForecast)
 
+		api.GET("/retrain/status", analyticsController.GetRetrainStatus)
 		api.POST("/retrain/auto", analyticsController.TriggerAutoRetrain)
+		api.POST("/retrain/model/:model", analyticsController.TriggerModelRetrain)
 
 		// CAATT Analytics routes
 		caatt := api.Group("/caatt")
 		{
+			caatt.POST("/run", analyticsController.TriggerCAATTRun)
 			caatt.GET("/full-population", analyticsController.GetFullPopulation)
 			caatt.GET("/duplicate-gap", analyticsController.GetDuplicateGap)
 			caatt.GET("/benford", analyticsController.GetBenfordAnalysis)

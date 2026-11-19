@@ -217,6 +217,12 @@ watch(() => [route.query.step, route.query.tab], ([step, tab]) => {
   }
 })
 
+watch(() => store.showModalF03, (isOpen) => {
+  if (isOpen && activeStep.value !== 2) {
+    activeStep.value = 2
+  }
+})
+
 onMounted(() => {
   store.fetchAllData()
   const assignmentLetterStore = useAssignmentLetterStore()

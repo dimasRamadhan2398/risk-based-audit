@@ -49,8 +49,9 @@ function formatSourceLabel(src?: DataSourceItem | null) {
 }
 
 function getStatusDotClass(status?: string) {
-  if (status === 'Connected' || status === 'synced') return 'bg-emerald-500'
+  if (status === 'Connected' || status === 'synced' || status === 'registered') return 'bg-emerald-500'
   if (status === 'Syncing') return 'bg-blue-500 animate-pulse'
+  if (status === 'Error') return 'bg-rose-500'
   return 'bg-amber-500'
 }
 

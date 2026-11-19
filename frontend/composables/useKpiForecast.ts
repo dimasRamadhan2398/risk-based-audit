@@ -24,6 +24,7 @@ import {
   type KpiMeta,
   type KpiTrend,
 } from '~/utils/analyticsFormat'
+import { toEntityRiskCode } from '~/utils/riskLevelBadge'
 
 export interface KpiPoint {
   period: string
@@ -55,14 +56,12 @@ export interface KpiForecastView {
 const RISK_RANK: Record<string, number> = {
   HIGH: 5,
   MODERATE_HIGH: 4,
-  'MODERATE-HIGH': 4,
   MODERATE: 3,
   LOW_MODERATE: 2,
-  'LOW-MODERATE': 2,
   LOW: 1,
 }
 
-const riskRank = (level: string) => RISK_RANK[String(level || '').toUpperCase().replace(/\s+TO\s+/g, '_')] ?? 0
+const riskRank = (level: string) => RISK_RANK[toEntityRiskCode(level || 'MODERATE')] ?? 0
 
 export const toKpiForecastView = (kpi: any): KpiForecastView => {
   const meta = getKpiMeta(kpi.kpiName, kpi.unit)
@@ -82,7 +81,7 @@ export const toKpiForecastView = (kpi: any): KpiForecastView => {
     code: kpi.code,
     entity: kpi.entity,
     entityType: kpi.entityType,
-    riskLevel: kpi.riskLevel,
+    riskLevel: toEntityRiskCode(kpi.riskLevel ?? kpi.risk_level ?? 'MODERATE'),
     recommendedAction: kpi.recommendedAction,
     currentValue: current,
     forecastedValue: Number(kpi.forecastedValue),

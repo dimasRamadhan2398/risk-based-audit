@@ -66,7 +66,7 @@ func TestViewerAnalyticsRoutes(t *testing.T) {
 		t.Errorf("viewer GET /api/analytics/report = %d, want 200", c)
 	}
 	// POSTs that only compute a result stay open for a viewer.
-	for _, p := range []string{"risk-score", "anomaly", "text-analysis", "performance-trend"} {
+	for _, p := range []string{"risk-score", "anomaly", "text-analysis", "performance-trend", "performance-trend/auditor-forecast"} {
 		if c := doViewerReq(engine, "POST", "/api/analytics/"+p, viewer); c == 403 || c == 401 {
 			t.Errorf("viewer POST /api/analytics/%s = %d, want it to pass the guard", p, c)
 		}
@@ -93,10 +93,11 @@ func TestViewerEveryAnalyticsRoute(t *testing.T) {
 	engine := viewerTestEngine(t)
 	viewer := viewerTestToken(t, "VIEWER")
 	open := map[string]bool{
-		"POST /api/analytics/risk-score":        true,
-		"POST /api/analytics/anomaly":           true,
-		"POST /api/analytics/text-analysis":     true,
-		"POST /api/analytics/performance-trend": true,
+		"POST /api/analytics/risk-score":                         true,
+		"POST /api/analytics/anomaly":                            true,
+		"POST /api/analytics/text-analysis":                      true,
+		"POST /api/analytics/performance-trend":                  true,
+		"POST /api/analytics/performance-trend/auditor-forecast": true,
 	}
 	for _, r := range engine.Routes() {
 		c := doViewerReq(engine, r.Method, r.Path, viewer)

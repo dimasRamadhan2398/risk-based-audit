@@ -157,10 +157,12 @@ services:
     container_name: rb_audit_analytics_service_dev
     environment:
       - JWT_SECRET=${JWT_SECRET:-6958c455ba7378688fac7200001d6bca8048fa66a28447ecc69f3b74b7ded4fa}
-      - PYTHON_AI_URL=${PYTHON_AI_URL:-http://10.0.0.1:8000}
+      - PYTHON_AI_URL=${PYTHON_AI_URL:-http://host.docker.internal:8000}
       - PYTHON_AI_API_KEY=${PYTHON_AI_API_KEY:-dev-ai-api-key}
-      - DATA_HUB_URL=${DATA_HUB_URL:-http://10.0.0.1:8100}
+      - DATA_HUB_URL=${DATA_HUB_URL:-http://host.docker.internal:8100}
       - DATA_HUB_API_KEY=${DATA_HUB_API_KEY:-dev-api-key}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       postgres:
         condition: service_started
@@ -216,10 +218,12 @@ services:
     container_name: rb_audit_master_service_dev
     environment:
       - JWT_SECRET=${JWT_SECRET:-6958c455ba7378688fac7200001d6bca8048fa66a28447ecc69f3b74b7ded4fa}
-      - DATA_HUB_URL=${DATA_HUB_URL:-http://10.0.0.1:8100}
+      - DATA_HUB_URL=${DATA_HUB_URL:-http://host.docker.internal:8100}
       - DATA_HUB_API_KEY=${DATA_HUB_API_KEY:-dev-api-key}
       # See audit-service: no ClamAV sidecar locally, so accept unscanned uploads.
       - CLAMAV_MODE=${CLAMAV_MODE:-optional}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       postgres:
         condition: service_started

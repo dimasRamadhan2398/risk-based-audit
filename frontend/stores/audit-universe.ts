@@ -91,7 +91,7 @@ export const useAuditUniverseStore = defineStore('audit-universe', () => {
     errorMsg.value = ''
     try {
       const baseUrl = getRiskServiceBaseUrl()
-      const response: any = await $fetch(`${baseUrl}/audit-universe/corporate`)
+      const response: any = await $fetch(`${baseUrl}/audit-universe/corporate`, { cache: 'no-store' })
       if (response && response.success) {
         corporateUniverse.value = response.data
       }
@@ -214,7 +214,7 @@ export const useAuditUniverseStore = defineStore('audit-universe', () => {
     errorMsg.value = ''
     try {
       const baseUrl = getRiskServiceBaseUrl()
-      const response: any = await $fetch(`${baseUrl}/audit-universe/year/${year}`)
+      const response: any = await $fetch(`${baseUrl}/audit-universe/year/${year}`, { cache: 'no-store' })
       if (response && response.success) {
         yearlyUniverse.value = response.data
       }

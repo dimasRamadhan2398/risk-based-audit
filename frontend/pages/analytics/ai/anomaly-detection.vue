@@ -22,42 +22,62 @@ import {
 import { formatRupiahFromMillions, normalizeRupiahInText } from '~/utils/analyticsFormat'
 import { useI18n } from '~/composables/useI18n'
 import AiInsightHeader from '~/components/analytics/AiInsightHeader.vue'
+import AiModelStatusBadge from '~/components/analytics/AiModelStatusBadge.vue'
 
 ChartJS.register(LinearScale, PointElement, Tooltip, Legend)
 
 const { t, locale } = useI18n()
+const toast = useToast()
 const {
   loading,
   isolationState,
   summary,
+  modelStatuses,
   automatedAnomalyRules,
   trainAnomalyWithRules,
+  retrainModel,
+  fetchRetrainStatus,
   formatNum,
   getRiskConfig,
   fetchAiAnalytics
 } = useAiAnalytics()
 
 const isRetrainingRules = ref(false)
+const anomalyModelState = computed(() => modelStatuses.value.anomaly)
+const isAnomalyBusy = computed(() =>
+  anomalyModelState.value?.state === 'training' || anomalyModelState.value?.state === 'queued'
+)
 
 async function reSyncAllAutomatedRules() {
-  if (!automatedAnomalyRules.value || automatedAnomalyRules.value.length === 0) return
+  if (isAnomalyBusy.value) return
   isRetrainingRules.value = true
   try {
-    const rulesByTable: Record<string, any[]> = {}
-    automatedAnomalyRules.value.forEach((r: any) => {
-      const tbl = r.table_name || 'gl_transactions'
-      if (!rulesByTable[tbl]) rulesByTable[tbl] = []
-      rulesByTable[tbl].push(r)
-    })
-
-    for (const [tbl, rules] of Object.entries(rulesByTable)) {
-      await trainAnomalyWithRules({
-        table_name: tbl,
-        connection_name: rules[0]?.connection_name || 'Core Banking',
-        category: rules[0]?.category || 'Transaction',
-        rules
+    if (automatedAnomalyRules.value && automatedAnomalyRules.value.length > 0) {
+      const rulesByTable: Record<string, any[]> = {}
+      automatedAnomalyRules.value.forEach((r: any) => {
+        const tbl = r.table_name || 'gl_transactions'
+        if (!rulesByTable[tbl]) rulesByTable[tbl] = []
+        rulesByTable[tbl].push(r)
       })
+
+      for (const [tbl, rules] of Object.entries(rulesByTable)) {
+        await trainAnomalyWithRules({
+          table_name: tbl,
+          connection_name: rules[0]?.connection_name || 'Core Banking',
+          category: rules[0]?.category || 'Transaction',
+          rules
+        })
+      }
+    } else {
+      await retrainModel('anomaly', { force: true, trigger: 'manual_anomaly_page' })
     }
+    await fetchRetrainStatus().catch(() => null)
+    toast.add({
+      title: 'Pelatihan Model Anomaly Detection Dijadwalkan',
+      description: 'Hanya model Anomaly Detection (XGBoost & Isolation Forest) yang dilatih ulang secara berbatch.',
+      color: 'success',
+      icon: 'i-lucide-check-circle'
+    })
   } finally {
     isRetrainingRules.value = false
   }
@@ -210,7 +230,7 @@ const selectAnomalyFromPlot = (id: string, type?: string) => {
       entity: found.entity || found.accountNumber || 'Kantor Pusat / GL',
       type: found.type,
       metric: formatMetricDisplay(found),
-      riskLevel: found.riskLevel || 'High'
+      riskLevel: getRiskConfig(found.riskLevel).label
     }
 
     // Adjust page if necessary
@@ -239,7 +259,7 @@ const focusOnPlot = (a: any) => {
     entity: a.entity || a.accountNumber || 'Kantor Pusat / GL',
     type: a.type,
     metric: formatMetricDisplay(a),
-    riskLevel: a.riskLevel || 'High'
+    riskLevel: getRiskConfig(a.riskLevel).label
   }
   nextTick(() => {
     const el = document.getElementById('anomaly-scatter-chart-card')
@@ -361,7 +381,7 @@ const scatterOptions = computed(() => {
                 `Kategori: ${anom?.type || selectedAnomalyType.value}`,
                 `Metrik (${metricName}): ${formattedX}`,
                 `${t('analytics.isolation.axisFrequency')}: ${ctx.parsed.y}`,
-                `Tingkat Risiko: ${anom?.riskLevel || 'High'}`,
+                `Tingkat Risiko: ${getRiskConfig(anom?.riskLevel).label}`,
                 `👉 Klik titik ini untuk menyorot di Tabel`
               ]
             }
@@ -441,6 +461,13 @@ const scatterOptions = computed(() => {
         </UCard>
       </div>
 
+      <!-- Real-Time Per-Model Status Banner (Anomaly Detection) -->
+      <AiModelStatusBadge
+        model-key="anomaly"
+        show-retrain-button
+        button-label="Latih Ulang Model AI"
+      />
+
       <!-- Automated Anomaly Rules (from Data Source Pipeline) Banner -->
       <UCard v-if="automatedAnomalyRules && automatedAnomalyRules.length > 0" class="border border-primary-200/60 dark:border-primary-900/40 bg-gradient-to-r from-primary-50/40 via-white to-primary-50/20 dark:from-primary-950/20 dark:via-gray-900 dark:to-primary-950/10">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -481,14 +508,11 @@ const scatterOptions = computed(() => {
           >
             <div class="space-y-1 overflow-hidden pr-2">
               <div class="flex items-center gap-1.5 flex-wrap">
-                <UBadge
-                  :color="rule.severity === 'CRITICAL' ? 'error' : rule.severity === 'HIGH' ? 'warning' : 'neutral'"
-                  size="xs"
-                  variant="subtle"
-                  class="font-mono text-[9px]"
+                <span
+                  :class="['inline-flex items-center px-2 py-0.5 rounded font-bold text-[10px]', getRiskConfig(rule.severity || rule.riskLevel || 'High').badgeClass]"
                 >
-                  {{ rule.severity || 'HIGH' }}
-                </UBadge>
+                  {{ getRiskConfig(rule.severity || rule.riskLevel || 'High').label }}
+                </span>
                 <span class="text-xs font-bold text-gray-900 dark:text-white truncate">{{ rule.name }}</span>
               </div>
               <p class="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-1">

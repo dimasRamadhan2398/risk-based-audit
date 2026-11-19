@@ -8,6 +8,7 @@ import (
 	"audit-service/controllers/crud"
 	"audit-service/models"
 	apperrors "audit-service/pkg/errors"
+	"audit-service/pkg/logger"
 	"audit-service/pkg/response"
 	form "audit-service/services/activity_plan_form"
 
@@ -126,6 +127,9 @@ func Delete(db *gorm.DB) gin.HandlerFunc {
 			case stderrors.As(err, &appErr):
 				response.Error(c, appErr.StatusCode, appErr.Code, appErr.Message, appErr.Details)
 			default:
+				logger.Error("Failed to delete AuditAnnual",
+					logger.LogField("id", id.String()),
+					logger.LogField("error", err))
 				response.InternalServerError(c, "Failed to delete AuditAnnual")
 			}
 			return

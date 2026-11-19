@@ -5,7 +5,10 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 if CURRENT_DIR not in sys.path:
     sys.path.append(CURRENT_DIR)
 
-from main import predict_anomaly, get_anomaly_batch, AnomalyRequest
+from main import predict_anomaly, get_anomaly_batch, normalize_anomaly_risk_level, AnomalyRequest
+
+ALLOWED_RISK_CODES = {'HIGH', 'MODERATE_HIGH', 'MODERATE', 'LOW_MODERATE', 'LOW'}
+ALLOWED_RISK_LABELS = {'High', 'Moderate to High', 'Moderate', 'Low to Moderate', 'Low'}
 
 def run_tests():
     print("=" * 60)
@@ -94,13 +97,50 @@ def run_tests():
     for pt in scatter:
         assert 0.0 <= pt['y'] <= 24.0, f"Scatter point y value out of bounds (0-24): {pt}"
 
-    # Verify each anomaly has a valid hour
+    # Verify each anomaly has a valid hour and strictly uses the 5 allowed risk levels (no Critical)
     for anom in anomalies:
         assert 'hour' in anom and anom['hour'] is not None, f"Anomaly missing hour: {anom['id']}"
         assert 0 <= anom['hour'] <= 23, f"Anomaly hour out of bounds (0-23): {anom['hour']}"
+        assert anom.get('risk_level') in ALLOWED_RISK_CODES, f"Invalid risk_level: {anom.get('risk_level')}"
+        assert anom.get('severity') in ALLOWED_RISK_LABELS, f"Invalid severity: {anom.get('severity')}"
+
+    # 5. Verify External Database & Critical Risk Level Normalization
+    for single_pred in [leg_data, bf_data, bit_data]:
+        assert single_pred.get('risk_level') in ALLOWED_RISK_CODES, f"Invalid single risk_level: {single_pred.get('risk_level')}"
+        assert single_pred.get('severity') in ALLOWED_RISK_LABELS, f"Invalid single severity: {single_pred.get('severity')}"
+
+    ext_cases = [
+        ("Critical", "HIGH", "High"),
+        ("CRITICAL", "HIGH", "High"),
+        ("Extreme", "HIGH", "High"),
+        ("Very High", "HIGH", "High"),
+        ("Elevated", "MODERATE_HIGH", "Moderate to High"),
+        ("Moderate to High", "MODERATE_HIGH", "Moderate to High"),
+        ("Moderate", "MODERATE", "Moderate"),
+        ("Minor", "LOW_MODERATE", "Low to Moderate"),
+        ("Low to Moderate", "LOW_MODERATE", "Low to Moderate"),
+        ("Insignificant", "LOW", "Low"),
+        ("Very Low", "LOW", "Low"),
+        ("Unrecognized Custom DB Tier", "MODERATE", "Moderate"),
+    ]
+    for raw_ext, exp_code, exp_label in ext_cases:
+        code, label, _, _ = normalize_anomaly_risk_level(raw_ext)
+        assert code == exp_code, f"{raw_ext} -> expected {exp_code}, got {code}"
+        assert label == exp_label, f"{raw_ext} -> expected {exp_label}, got {label}"
+
+    ext_req = AnomalyRequest(
+        entity="External Core DB",
+        category="Transaction",
+        amount=650.0,
+        hour_of_day=23,
+        risk_level="Critical"
+    )
+    ext_pred = predict_anomaly(ext_req)
+    assert ext_pred['risk_level'] == 'HIGH', f"Expected HIGH for Critical external input, got {ext_pred['risk_level']}"
+    assert ext_pred['severity'] == 'High', f"Expected High for Critical external input, got {ext_pred['severity']}"
 
     print("=" * 60)
-    print("ALL 4 VERIFICATION TESTS PASSED SUCCESSFULLY!")
+    print("ALL 5 VERIFICATION TESTS PASSED SUCCESSFULLY!")
     print("=" * 60)
 
 if __name__ == '__main__':

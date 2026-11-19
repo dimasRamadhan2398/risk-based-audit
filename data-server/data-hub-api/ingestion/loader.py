@@ -83,4 +83,7 @@ def stream_load_to_bronze(
             if wm_col and chunk_wm:
                 commit_table_watermark(source_id, target_bronze_table, wm_col, chunk_wm, chunk_pk, batch_rows_count)
 
+    if not wm_col and total_records > 0:
+        commit_table_watermark(source_id, target_bronze_table, "__full_load__", None, None, total_records, replace_total=True)
+
     return total_records, batch_ids

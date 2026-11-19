@@ -10,6 +10,13 @@ WORKDIR /app
 ENV PIP_INDEX_URL=https://pypi.org/simple
 ENV PIP_NO_CACHE_DIR=1
 
+# Install Tesseract OCR engine (English & Indonesian) for scanned PDFs and image documents
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    tesseract-ocr-ind \
+    && rm -rf /var/lib/apt/lists/*
+
 # ------------------------------------------------------------------
 # Layer 1: upgrade pip and pre-install every transitive dep that
 # torch needs, all from plain PyPI — no PyTorch index involved yet.

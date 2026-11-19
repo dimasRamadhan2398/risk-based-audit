@@ -143,6 +143,7 @@ export const getDeterministicCategoryStyle = (categoryName: string) => {
 
 /** Used when a category has no entry of its own (and as the typed fallback). */
 export const getAnomalyTypeConfig = (tOrType: Translate | string, typeOrConfigs?: any, locale: AppLocale = 'id'): AnomalyTypeConfig => {
+  const rupiah = (val: number) => formatRupiahFromMillions(val, locale)
   if (typeof tOrType === 'function') {
     const t = tOrType
     const type = typeof typeOrConfigs === 'string' ? typeOrConfigs : 'Funding'
@@ -151,8 +152,8 @@ export const getAnomalyTypeConfig = (tOrType: Translate | string, typeOrConfigs?
     const customShape = getDeterministicCategoryStyle(type).style
     return {
       xAxisTitle: `${type} Metric`,
-      unit: 'Rp M',
-      formatX: (val: number) => `Rp ${val}M`,
+      unit: 'Rupiah',
+      formatX: rupiah,
       colors: anomalyColors(customShape)
     }
   } else {
@@ -162,8 +163,8 @@ export const getAnomalyTypeConfig = (tOrType: Translate | string, typeOrConfigs?
     const customShape = getDeterministicCategoryStyle(type).style
     return {
       xAxisTitle: `${type} Metric`,
-      unit: 'Rp M',
-      formatX: (val: number) => `Rp ${val}M`,
+      unit: 'Rupiah',
+      formatX: rupiah,
       colors: anomalyColors(customShape)
     }
   }

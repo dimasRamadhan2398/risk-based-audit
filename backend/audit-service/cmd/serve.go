@@ -20,6 +20,7 @@ import (
 	"audit-service/pkg/redis"
 	"audit-service/repositories"
 	"audit-service/routes"
+	activityplanform "audit-service/services/activity_plan_form"
 	annualPlanSync "audit-service/services/annual_plan_sync"
 	svcActivity "audit-service/services/audit_activity"
 	svcAssignment "audit-service/services/audit_assignment"
@@ -108,9 +109,30 @@ func runServe(cmd *cobra.Command, args []string) error {
 		&models.ActivityCodeSequence{},
 		// Plan code PKAT-{year}-{seq} and its partial unique index (models/audit-annual-plan.go).
 		&models.AuditAnnual{},
+		// Annual plan snapshot refs, RKA headers, and audit activity columns needed
+		// by GET/DELETE /annual-audit-plans (PlanUsage) and annual_plan_sync.
+		&models.AnnualSnapshotRef{},
+		&models.ActivityPlan{},
+		&models.AuditActivity{},
 		&models.AuditResultReport{},
 	); err != nil {
 		logger.Error("Auto-migrate failed; audit tables may be missing columns or indexes", logger.LogField("error", err))
+	}
+
+	if err := db.AutoMigrate(models.ICAssessmentModels()...); err != nil {
+		logger.Error("IC assessment auto-migrate failed", logger.LogField("error", err))
+	}
+	if err := migrateICAssessment(db); err != nil {
+		logger.Error("IC assessment migration failed", logger.LogField("error", err))
+	}
+
+	// Ensure RKA partial unique indexes and nullable target_unit_id (PKAT rows without
+	// a department may be added to an RKA without failing NOT NULL on legacy schemas).
+	if err := activityplanform.EnsureIndexes(db); err != nil {
+		logger.Error("Failed to ensure activity plan indexes", logger.LogField("error", err))
+	}
+	if err := db.Exec(`ALTER TABLE audit_activities ALTER COLUMN target_unit_id DROP NOT NULL`).Error; err != nil {
+		logger.Warn("Could not drop NOT NULL on audit_activities.target_unit_id", logger.LogField("error", err))
 	}
 
 	// GORM's AutoMigrate did not create the partial unique index on the plan code

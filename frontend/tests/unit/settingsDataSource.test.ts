@@ -1,5 +1,14 @@
 // @ts-nocheck
 import { describe, it, expect } from 'vitest'
+import {
+  SYNC_FREQUENCY_OPTIONS,
+  normalizeSyncSchedule,
+  resolveAutoMappingMetadata,
+  shouldShowAnomalyRules,
+  isTargetModuleSupported,
+  getModulesForTargetScope,
+  getDefaultModuleForTargetScope,
+} from '~/utils/dataSourceConfig'
 
 interface DataSourceConn {
   id: string
@@ -368,6 +377,84 @@ describe('Settings DataSource Component Logic', () => {
     const isAnalytics = (m: TableDataMapping) => m.targetScope === 'data_analytics'
     expect(isAnalytics(multiMappings['gl_transactions'][0])).toBe(false)
     expect(isAnalytics(multiMappings['gl_transactions'][1])).toBe(true)
+  })
+
+  it('excludes Real-time (CDC) from Sync Frequency options and normalizes legacy values', () => {
+    expect(SYNC_FREQUENCY_OPTIONS).toEqual(['Every 15 mins', 'Hourly', 'Daily', 'Manual Only'])
+    expect(SYNC_FREQUENCY_OPTIONS).not.toContain('Real-time (CDC)')
+    expect(normalizeSyncSchedule('Real-time (CDC)')).toBe('Every 15 mins')
+    expect(normalizeSyncSchedule('Hourly')).toBe('Hourly')
+    expect(normalizeSyncSchedule('Daily')).toBe('Daily')
+    expect(normalizeSyncSchedule('Manual Only')).toBe('Manual Only')
+  })
+
+  it('shows Automated Anomaly Rules only when Target Module is AI: Anomaly Detection', () => {
+    expect(shouldShowAnomalyRules('data_analytics', 'AI: Anomaly Detection')).toBe(true)
+    expect(shouldShowAnomalyRules('data_analytics', 'AI: Entity Prediction')).toBe(false)
+    expect(shouldShowAnomalyRules('data_analytics', 'AI: NLP Document Analysis')).toBe(false)
+    expect(shouldShowAnomalyRules('data_analytics', 'AI: KPI & Loss Forecast')).toBe(false)
+    expect(shouldShowAnomalyRules('audit_features', 'AI: Anomaly Detection')).toBe(false)
+  })
+
+  it('automatically resolves PK, watermark, soft-delete column, and canonical entity for mappings', () => {
+    const table: SchemaTable = {
+      tableName: 'gl_transactions',
+      rowCount: 1000,
+      columnCount: 5,
+      columns: [
+        { name: 'trx_id', dataType: 'uuid', isNullable: false, isPrimary: true },
+        { name: 'amount', dataType: 'numeric', isNullable: false, isPrimary: false },
+        { name: 'created_at', dataType: 'timestamp', isNullable: false, isPrimary: false },
+        { name: 'is_deleted', dataType: 'boolean', isNullable: false, isPrimary: false },
+        { name: 'is_active', dataType: 'boolean', isNullable: false, isPrimary: false }
+      ]
+    }
+    const meta = resolveAutoMappingMetadata(table, 'AI: Anomaly Detection')
+    expect(meta.canonicalEntity).toBe('transactions')
+    expect(meta.auditField).toBe('trx_id')
+    expect(meta.watermarkColumn).toBe('created_at')
+    expect(meta.softDeleteColumn).toBe('is_deleted')
+
+    const genericTable: SchemaTable = {
+      tableName: 'compliance_incident_records',
+      rowCount: 320,
+      columnCount: 3,
+      columns: [
+        { name: 'incident_id', dataType: 'uuid', isNullable: false, isPrimary: true },
+        { name: 'reported_at', dataType: 'timestamp', isNullable: false, isPrimary: false },
+        { name: 'deleted_at', dataType: 'timestamp', isNullable: true, isPrimary: false }
+      ]
+    }
+    const aiPoolMeta = resolveAutoMappingMetadata(genericTable, 'AI: Anomaly Detection')
+    expect(aiPoolMeta.canonicalEntity).toBe('ai_training_pool')
+    expect(aiPoolMeta.auditField).toBe('incident_id')
+    expect(aiPoolMeta.watermarkColumn).toBe('reported_at')
+    expect(aiPoolMeta.softDeleteColumn).toBe('')
+  })
+
+  it('disables unsupported Target Modules in dropdown and picks supported default modules per scope', () => {
+    expect(isTargetModuleSupported('Corporate Risk Profile')).toBe(true)
+    expect(isTargetModuleSupported('Audit Universe')).toBe(true)
+    expect(isTargetModuleSupported('Strategic Audit Plan')).toBe(true)
+    expect(isTargetModuleSupported('Annual Audit Plan')).toBe(true)
+    expect(isTargetModuleSupported('Working Paper Evidence')).toBe(true)
+    expect(isTargetModuleSupported('AI: Anomaly Detection')).toBe(true)
+    expect(isTargetModuleSupported('Risk Factors')).toBe(false)
+    expect(isTargetModuleSupported('Assignment Letter')).toBe(false)
+
+    const auditModules = getModulesForTargetScope('audit_features')
+    const strategicOpt = auditModules.find(m => m.value === 'Strategic Audit Plan')
+    const annualOpt = auditModules.find(m => m.value === 'Annual Audit Plan')
+    const fieldworkOpt = auditModules.find(m => m.value === 'Audit Fieldwork')
+
+    expect(strategicOpt?.disabled).toBeFalsy()
+    expect(annualOpt?.disabled).toBeFalsy()
+    expect(fieldworkOpt?.disabled).toBe(true)
+    expect(fieldworkOpt?.label).toContain('(Belum didukung)')
+
+    expect(getDefaultModuleForTargetScope('risk_management')).toBe('Corporate Risk Profile')
+    expect(getDefaultModuleForTargetScope('audit_features')).toBe('Strategic Audit Plan')
+    expect(getDefaultModuleForTargetScope('data_analytics')).toBe('AI: Entity Prediction')
   })
 })
 
