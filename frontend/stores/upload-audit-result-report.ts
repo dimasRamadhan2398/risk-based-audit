@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
+import { useI18n } from '~/composables/useI18n';
 import { extractErrorMessage } from '~/utils/error';
 import { viewDocumentInNewTab } from '~/utils/documentViewer';
 
@@ -20,6 +21,7 @@ export const useUploadAuditResultReportStore = defineStore('upload-audit-result-
   const loading = ref(false);
   const errorMsg = ref('');
   const toast = useToastNotification();
+  const { t } = useI18n();
 
   const fetchUploadedDocuments = async () => {
     loading.value = true;
@@ -36,7 +38,7 @@ export const useUploadAuditResultReportStore = defineStore('upload-audit-result-
       }
     } catch (error: any) {
       console.error('Failed to fetch uploaded audit result reports:', error);
-      errorMsg.value = extractErrorMessage(error, 'Failed to load uploaded LHA documents.');
+      errorMsg.value = extractErrorMessage(error, t('toasts.document.loadFailed', { name: t('toasts.documentTypes.lha') }));
     } finally {
       loading.value = false;
     }
@@ -58,14 +60,13 @@ export const useUploadAuditResultReportStore = defineStore('upload-audit-result-
         method: 'POST',
         body: formData
       });
-      toast.showSuccess('LHA document uploaded successfully');
       await fetchUploadedDocuments();
-      toast.showSuccess('LHA document uploaded successfully!')
+      toast.showSuccess(t('toasts.document.uploaded', { name: t('toasts.documentTypes.lha') }))
     } catch (error: any) {
       console.error('Failed to upload LHA document:', error);
-      const detail = extractErrorMessage(error, 'Failed to upload LHA document.');
+      const detail = extractErrorMessage(error, t('toasts.document.uploadFailed', { name: t('toasts.documentTypes.lha') }));
       errorMsg.value = detail;
-      toast.showError('Failed to upload LHA document.', detail);
+      toast.showError(t('toasts.document.uploadFailed', { name: t('toasts.documentTypes.lha') }), detail);
       throw error;
     } finally {
       loading.value = false;
@@ -80,14 +81,13 @@ export const useUploadAuditResultReportStore = defineStore('upload-audit-result-
       await $fetch(`${baseUrl}/uploaded-audit-result-reports/${id}`, {
         method: 'DELETE'
       });
-      toast.showSuccess('LHA document deleted successfully');
       await fetchUploadedDocuments();
-      toast.showSuccess('LHA document deleted successfully!')
+      toast.showSuccess(t('toasts.document.deleted', { name: t('toasts.documentTypes.lha') }))
     } catch (error: any) {
       console.error('Failed to delete uploaded LHA document:', error);
-      const detail = extractErrorMessage(error, 'Failed to delete LHA document.');
+      const detail = extractErrorMessage(error, t('toasts.document.deleteFailed', { name: t('toasts.documentTypes.lha') }));
       errorMsg.value = detail;
-      toast.showError('Failed to delete LHA document.', detail);
+      toast.showError(t('toasts.document.deleteFailed', { name: t('toasts.documentTypes.lha') }), detail);
       throw error;
     } finally {
       loading.value = false;
@@ -118,9 +118,9 @@ export const useUploadAuditResultReportStore = defineStore('upload-audit-result-
       );
     } catch (error: any) {
       console.error('Failed to view document:', error);
-      const detail = extractErrorMessage(error, 'Failed to view document.');
+      const detail = extractErrorMessage(error, t('toasts.document.viewFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to view document.', detail);
+      toast.showError(t('toasts.document.viewFailed'), detail);
     }
   };
 
@@ -142,9 +142,9 @@ export const useUploadAuditResultReportStore = defineStore('upload-audit-result-
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
       console.error('Failed to download LHA document:', error);
-      const detail = extractErrorMessage(error, 'Failed to download document.');
+      const detail = extractErrorMessage(error, t('toasts.document.downloadFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to download document.', detail);
+      toast.showError(t('toasts.document.downloadFailed'), detail);
     }
   };
 

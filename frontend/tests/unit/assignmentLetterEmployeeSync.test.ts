@@ -221,7 +221,7 @@ describe('Assignment Letter - Team Members Synchronized with Master Employee Man
 
     await store.handleSubmit()
 
-    expect(store.errorMsg).toBe('Nama anggota tim tidak boleh sama (duplikat).')
+    expect(store.errorMsg).toBe('Team member names must be unique (no duplicates).')
   })
 
   it('preserves existing member values when opening form for edit', async () => {

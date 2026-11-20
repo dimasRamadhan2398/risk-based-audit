@@ -86,6 +86,15 @@ func EncryptMFASecrets(db *gorm.DB, c *secretcrypt.Cipher, dryRun bool) (MFASecr
 			if upd.RowsAffected != 1 {
 				return fmt.Errorf("update mfa_setups %s: row changed during migration", row.ID)
 			}
+			// Verify before commit: read the stored value back, decrypt, compare.
+			var stored models.MFASetup
+			if err := tx.Select("id", "secret_key").Where("id = ?", row.ID).Take(&stored).Error; err != nil {
+				return fmt.Errorf("verify mfa_setups %s: %w", row.ID, err)
+			}
+			back, _, err := c.Open(stored.SecretKey, aad)
+			if err != nil || back != plain || !secretcrypt.IsEncrypted(stored.SecretKey) {
+				return fmt.Errorf("verify mfa_setups %s: round-trip mismatch, rolling back", row.ID)
+			}
 		}
 		if res.Unreadable > 0 {
 			return errUnreadableRows

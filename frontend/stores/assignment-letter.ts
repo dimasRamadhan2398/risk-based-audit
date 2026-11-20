@@ -334,7 +334,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         }
       } catch (error: any) {
         console.error('Failed to fetch departments for assignment letter:', error)
-        this.departmentsError = extractErrorMessage(error, 'Gagal memuat data departemen.')
+        this.departmentsError = extractErrorMessage(error, useI18n().t('toasts.common.loadDepartmentsFailed'))
         if (!this.departmentsLoaded) {
           this.departments = []
         }
@@ -365,7 +365,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         }
       } catch (error: any) {
         console.error('Failed to fetch employees for assignment letter:', error)
-        this.employeesError = extractErrorMessage(error, 'Gagal memuat data karyawan.')
+        this.employeesError = extractErrorMessage(error, useI18n().t('toasts.common.loadEmployeesFailed'))
         if (!this.employeesLoaded) {
           this.employees = []
         }
@@ -401,7 +401,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         this.assignmentLetterList = items
       } catch (error: any) {
         console.error('Failed to fetch assignment letters:', error)
-        this.errorMsg = extractErrorMessage(error, 'Failed to load assignment letters.')
+        this.errorMsg = extractErrorMessage(error, useI18n().t('toasts.assignmentLetter.loadFailed'))
         this.assignmentLetterList = []
       } finally {
         this.loading = false
@@ -554,13 +554,13 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
 
       const isMembersValid = this.form.membersList.every(m => m.name && m.role)
       if (!isMembersValid) {
-        this.errorMsg = 'All team members must have a name and a role.'
+        this.errorMsg = useI18n().t('toasts.assignmentLetter.membersMissing')
         return
       }
 
       if (this.hasDuplicateMembers) {
-        this.errorMsg = 'Nama anggota tim tidak boleh sama (duplikat).'
-        useToastNotification().showError('Validasi Gagal', this.errorMsg)
+        this.errorMsg = useI18n().t('toasts.assignmentLetter.duplicateMembers')
+        useToastNotification().showError(useI18n().t('toasts.assignmentLetter.validationFailed'), this.errorMsg)
         return
       }
 
@@ -636,7 +636,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
             method: 'POST',
             body: payload
           })
-          useToastNotification().success('Assignment letter created successfully!')
+          useToastNotification().success(useI18n().t('toasts.assignmentLetter.created'))
         }
         this.closeModal()
         await this.fetchAssignmentLetters()
@@ -648,8 +648,8 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
           error
         )
         const fallback = this.editingId
-          ? 'Failed to update assignment letter.'
-          : 'Failed to save assignment letter.'
+          ? useI18n().t('toasts.assignmentLetter.updateFailed')
+          : useI18n().t('toasts.assignmentLetter.saveFailed')
         const detail = extractErrorMessage(error, fallback)
         this.errorMsg = detail
         useToastNotification().showError(fallback, detail)
@@ -676,13 +676,13 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
           method: 'POST',
           body: payload
         })
-        useToastNotification().showSuccess('Assignment letter created successfully!')
+        useToastNotification().showSuccess(useI18n().t('toasts.assignmentLetter.created'))
         await this.fetchAssignmentLetters()
       } catch (error: any) {
         console.error(error)
-        const detail = extractErrorMessage(error, 'Failed to create assignment letter.')
+        const detail = extractErrorMessage(error, useI18n().t('toasts.assignmentLetter.createFailed'))
         this.errorMsg = detail
-        useToastNotification().showError('Failed to create assignment letter.', detail)
+        useToastNotification().showError(useI18n().t('toasts.assignmentLetter.createFailed'), detail)
       } finally {
         this.loading = false
       }
@@ -696,13 +696,13 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         await $fetch(`${baseUrl}/assignment-letters/${id}`, {
           method: 'DELETE'
         })
-        useToastNotification().showSuccess('Assignment letter deleted successfully!')
+        useToastNotification().showSuccess(useI18n().t('toasts.assignmentLetter.deleted'))
         await this.fetchAssignmentLetters()
       } catch (error: any) {
         console.error(error)
-        const detail = extractErrorMessage(error, 'Failed to delete assignment letter.')
+        const detail = extractErrorMessage(error, useI18n().t('toasts.assignmentLetter.deleteFailed'))
         this.errorMsg = detail
-        useToastNotification().showError('Failed to delete assignment letter.', detail)
+        useToastNotification().showError(useI18n().t('toasts.assignmentLetter.deleteFailed'), detail)
       } finally {
         this.loading = false
       }
@@ -733,13 +733,13 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
           method: 'PUT',
           body: { status }
         })
-        useToastNotification().showSuccess(`Assignment letter status changed to ${status}!`)
+        useToastNotification().showSuccess(useI18n().t('toasts.assignmentLetter.statusChanged', { status: useI18n().t(`assignmentLetter.table.status.${status}`) }))
         await this.fetchAssignmentLetters()
       } catch (error: any) {
         console.error(error)
-        const detail = extractErrorMessage(error, 'Failed to change status.')
+        const detail = extractErrorMessage(error, useI18n().t('toasts.assignmentLetter.statusFailed'))
         this.errorMsg = detail
-        useToastNotification().showError('Failed to change status.', detail)
+        useToastNotification().showError(useI18n().t('toasts.assignmentLetter.statusFailed'), detail)
       } finally {
         this.loading = false
       }

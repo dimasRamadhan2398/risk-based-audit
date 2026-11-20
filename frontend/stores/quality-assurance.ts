@@ -188,7 +188,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
       }
     } catch (error: any) {
       console.error('Failed to fetch companies for quality assurance:', error)
-      companiesError.value = extractErrorMessage(error, 'Gagal memuat data perusahaan.')
+      companiesError.value = extractErrorMessage(error, t('toasts.common.loadCompaniesFailed'))
       companiesLoaded.value = false
       companies.value = []
     } finally {
@@ -619,7 +619,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
     } catch (error: any) {
       console.error('Failed to delete QA report:', error)
       errorMsg.value = extractErrorMessage(error, 'Failed to delete Quality Assurance report.')
-      toast.showError('Gagal menghapus data laporan QA')
+      toast.showError(t('toasts.qualityAssurance.deleteFailed'))
     } finally {
       loading.value = false
     }

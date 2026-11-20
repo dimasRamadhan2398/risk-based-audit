@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
+import { useI18n } from '~/composables/useI18n';
 import { extractErrorMessage } from '~/utils/error';
 import { viewDocumentInNewTab } from '~/utils/documentViewer';
 
@@ -20,6 +21,7 @@ export const useUploadExecutiveSummaryReportStore = defineStore('upload-executiv
   const loading = ref(false);
   const errorMsg = ref('');
   const toast = useToastNotification();
+  const { t } = useI18n();
 
   const fetchUploadedDocuments = async () => {
     loading.value = true;
@@ -36,7 +38,7 @@ export const useUploadExecutiveSummaryReportStore = defineStore('upload-executiv
       }
     } catch (error: any) {
       console.error('Failed to fetch uploaded executive summary reports:', error);
-      errorMsg.value = extractErrorMessage(error, 'Failed to load uploaded executive summary reports.');
+      errorMsg.value = extractErrorMessage(error, t('toasts.document.loadFailed', { name: t('toasts.documentTypes.executiveSummaryReport') }));
     } finally {
       loading.value = false;
     }
@@ -58,14 +60,13 @@ export const useUploadExecutiveSummaryReportStore = defineStore('upload-executiv
         method: 'POST',
         body: formData
       });
-      toast.showSuccess('Executive summary report uploaded successfully');
       await fetchUploadedDocuments();
-      toast.showSuccess('Laporan berhasil diunggah')
+      toast.showSuccess(t('toasts.document.uploaded', { name: t('toasts.documentTypes.executiveSummaryReport') }))
     } catch (error: any) {
       console.error('Failed to upload executive summary report:', error);
-      const detail = extractErrorMessage(error, 'Failed to upload executive summary report.');
+      const detail = extractErrorMessage(error, t('toasts.document.uploadFailed', { name: t('toasts.documentTypes.executiveSummaryReport') }));
       errorMsg.value = detail;
-      toast.showError('Failed to upload executive summary report.', detail);
+      toast.showError(t('toasts.document.uploadFailed', { name: t('toasts.documentTypes.executiveSummaryReport') }), detail);
       throw error;
     } finally {
       loading.value = false;
@@ -80,14 +81,13 @@ export const useUploadExecutiveSummaryReportStore = defineStore('upload-executiv
       await $fetch(`${baseUrl}/uploaded-executive-summary-reports/${id}`, {
         method: 'DELETE'
       });
-      toast.showSuccess('Executive summary report deleted successfully');
       await fetchUploadedDocuments();
-      toast.showSuccess('Laporan berhasil dihapus')
+      toast.showSuccess(t('toasts.document.deleted', { name: t('toasts.documentTypes.executiveSummaryReport') }))
     } catch (error: any) {
       console.error('Failed to delete uploaded executive summary report:', error);
-      const detail = extractErrorMessage(error, 'Failed to delete executive summary report.');
+      const detail = extractErrorMessage(error, t('toasts.document.deleteFailed', { name: t('toasts.documentTypes.executiveSummaryReport') }));
       errorMsg.value = detail;
-      toast.showError('Failed to delete executive summary report.', detail);
+      toast.showError(t('toasts.document.deleteFailed', { name: t('toasts.documentTypes.executiveSummaryReport') }), detail);
       throw error;
     } finally {
       loading.value = false;
@@ -118,9 +118,9 @@ export const useUploadExecutiveSummaryReportStore = defineStore('upload-executiv
       );
     } catch (error: any) {
       console.error('Failed to view document:', error);
-      const detail = extractErrorMessage(error, 'Failed to view document.');
+      const detail = extractErrorMessage(error, t('toasts.document.viewFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to view document.', detail);
+      toast.showError(t('toasts.document.viewFailed'), detail);
     }
   };
 
@@ -142,9 +142,9 @@ export const useUploadExecutiveSummaryReportStore = defineStore('upload-executiv
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
       console.error('Failed to download executive summary report:', error);
-      const detail = extractErrorMessage(error, 'Failed to download document.');
+      const detail = extractErrorMessage(error, t('toasts.document.downloadFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to download document.', detail);
+      toast.showError(t('toasts.document.downloadFailed'), detail);
     }
   };
 

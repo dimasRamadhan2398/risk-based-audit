@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
+import { useI18n } from '~/composables/useI18n';
 import { extractErrorMessage } from '~/utils/error';
 import { viewDocumentInNewTab } from '~/utils/documentViewer';
 
@@ -20,6 +21,7 @@ export const useUploadPlanDocumentStore = defineStore('upload-plan-document', ()
   const loading = ref(false);
   const errorMsg = ref('');
   const toast = useToastNotification();
+  const { t } = useI18n();
 
   const fetchUploadedDocuments = async () => {
     loading.value = true;
@@ -36,7 +38,7 @@ export const useUploadPlanDocumentStore = defineStore('upload-plan-document', ()
       }
     } catch (error: any) {
       console.error('Failed to fetch uploaded plan documents:', error);
-      errorMsg.value = extractErrorMessage(error, 'Failed to load uploaded plan documents.');
+      errorMsg.value = extractErrorMessage(error, t('toasts.document.loadFailed', { name: t('toasts.documentTypes.activityPlan') }));
     } finally {
       loading.value = false;
     }
@@ -58,13 +60,13 @@ export const useUploadPlanDocumentStore = defineStore('upload-plan-document', ()
         method: 'POST',
         body: formData
       });
-      toast.showSuccess('Document uploaded successfully');
+      toast.showSuccess(t('toasts.document.uploaded', { name: t('toasts.documentTypes.activityPlan') }));
       await fetchUploadedDocuments();
     } catch (error: any) {
       console.error('Failed to upload plan document:', error);
-      const detail = extractErrorMessage(error, 'Failed to upload plan document.');
+      const detail = extractErrorMessage(error, t('toasts.document.uploadFailed', { name: t('toasts.documentTypes.activityPlan') }));
       errorMsg.value = detail;
-      toast.showError('Failed to upload plan document.', detail);
+      toast.showError(t('toasts.document.uploadFailed', { name: t('toasts.documentTypes.activityPlan') }), detail);
       throw error;
     } finally {
       loading.value = false;
@@ -79,13 +81,13 @@ export const useUploadPlanDocumentStore = defineStore('upload-plan-document', ()
       await $fetch(`${baseUrl}/uploaded-plan-documents/${id}`, {
         method: 'DELETE'
       });
-      toast.showSuccess('Document deleted successfully');
+      toast.showSuccess(t('toasts.document.deleted', { name: t('toasts.documentTypes.activityPlan') }));
       await fetchUploadedDocuments();
     } catch (error: any) {
       console.error('Failed to delete uploaded plan document:', error);
-      const detail = extractErrorMessage(error, 'Failed to delete plan document.');
+      const detail = extractErrorMessage(error, t('toasts.document.deleteFailed', { name: t('toasts.documentTypes.activityPlan') }));
       errorMsg.value = detail;
-      toast.showError('Failed to delete plan document.', detail);
+      toast.showError(t('toasts.document.deleteFailed', { name: t('toasts.documentTypes.activityPlan') }), detail);
       throw error;
     } finally {
       loading.value = false;
@@ -116,9 +118,9 @@ export const useUploadPlanDocumentStore = defineStore('upload-plan-document', ()
       );
     } catch (error: any) {
       console.error('Failed to view document:', error);
-      const detail = extractErrorMessage(error, 'Failed to view document.');
+      const detail = extractErrorMessage(error, t('toasts.document.viewFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to view document.', detail);
+      toast.showError(t('toasts.document.viewFailed'), detail);
     }
   };
 
@@ -140,9 +142,9 @@ export const useUploadPlanDocumentStore = defineStore('upload-plan-document', ()
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
       console.error('Failed to download plan document:', error);
-      const detail = extractErrorMessage(error, 'Failed to download document.');
+      const detail = extractErrorMessage(error, t('toasts.document.downloadFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to download plan document.', detail);
+      toast.showError(t('toasts.document.downloadFailed'), detail);
     }
   };
 

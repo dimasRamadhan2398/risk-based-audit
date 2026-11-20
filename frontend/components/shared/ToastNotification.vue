@@ -5,14 +5,16 @@
 
 <script lang="ts">
 import { useAppToast } from '~/composables/useAppToast'
+import { useI18n } from '~/composables/useI18n'
 
 export function useToastNotification() {
   const appToast = useAppToast()
+  const { t } = useI18n()
   return {
-    showSuccess: (title?: string, description?: string) => appToast.success(title || 'Berhasil', description),
-    showError: (title?: string, description?: string) => appToast.error(title || 'Gagal', description),
-    showWarning: (title?: string, description?: string) => appToast.warning(title || 'Peringatan', description),
-    showInfo: (title?: string, description?: string) => appToast.info(title || 'Informasi', description),
+    showSuccess: (title?: string, description?: string) => appToast.success(title || t('common.success'), description),
+    showError: (title?: string, description?: string) => appToast.error(title || t('common.error'), description),
+    showWarning: (title?: string, description?: string) => appToast.warning(title || t('common.warning'), description),
+    showInfo: (title?: string, description?: string) => appToast.info(title || t('common.info'), description),
     ...appToast
   }
 }
@@ -20,6 +22,7 @@ export function useToastNotification() {
 
 <script setup lang="ts">
 const appToast = useAppToast()
+const { t } = useI18n()
 
 const props = defineProps<{
   title?: string
@@ -28,19 +31,19 @@ const props = defineProps<{
 }>()
 
 const showSuccess = (title?: string, description?: string) => {
-  appToast.success(title || props.title || 'Berhasil', description || props.description)
+  appToast.success(title || props.title || t('common.success'), description || props.description)
 }
 
 const showError = (title?: string, description?: string) => {
-  appToast.error(title || props.title || 'Gagal', description || props.description)
+  appToast.error(title || props.title || t('common.error'), description || props.description)
 }
 
 const showWarning = (title?: string, description?: string) => {
-  appToast.warning(title || props.title || 'Peringatan', description || props.description)
+  appToast.warning(title || props.title || t('common.warning'), description || props.description)
 }
 
 const showInfo = (title?: string, description?: string) => {
-  appToast.info(title || props.title || 'Informasi', description || props.description)
+  appToast.info(title || props.title || t('common.info'), description || props.description)
 }
 
 defineExpose({

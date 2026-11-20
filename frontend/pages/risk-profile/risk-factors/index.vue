@@ -895,7 +895,7 @@ const removeFactorFromCorporate = (item: any) => {
   selectedCorporateList.value = selectedCorporateList.value.filter(
     i => i.standard_risk_factor_id !== item.standard_risk_factor_id
   )
-  toast.showSuccess('Factor berhasil dihapus')
+  toast.showSuccess(t('riskFactors.messages.factorRemoved'))
 }
 
 const openGuidelines = (factor: any) => {
@@ -1050,7 +1050,7 @@ const openEditFactorModal = (factor: any) => {
 
 const saveFactorForm = async () => {
   if (!factorForm.value.name.trim()) {
-    toast.showError('Name is required')
+    toast.showError(t('riskFactors.messages.nameRequired'))
     return
   }
 
@@ -1088,7 +1088,7 @@ const saveFactorForm = async () => {
       }
     }
   } catch (err: any) {
-    toast.showError(err.message || 'Operation failed')
+    toast.showError(err.message || t('riskFactors.messages.operationFailed'))
   } finally {
     factorSubmitting.value = false
   }
@@ -1120,7 +1120,7 @@ const confirmDeleteFactor = async () => {
       toast.showError(store.errorMsg || t('riskFactors.messages.factorDeleteFailed'))
     }
   } catch (err: any) {
-    toast.showError(err.message || 'Failed to delete')
+    toast.showError(err.message || t('riskFactors.messages.deleteFailed'))
   } finally {
     deleteSubmitting.value = false
   }

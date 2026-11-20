@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { useToastNotification } from '~/components/shared/ToastNotification.vue';
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl';
+import { useI18n } from '~/composables/useI18n';
 import { extractErrorMessage } from '~/utils/error';
 import { viewDocumentInNewTab } from '~/utils/documentViewer';
 
@@ -20,6 +21,7 @@ export const useUploadConsultingDocumentStore = defineStore('upload-consulting-d
   const loading = ref(false);
   const errorMsg = ref('');
   const toast = useToastNotification();
+  const { t } = useI18n();
 
   const fetchUploadedDocuments = async () => {
     loading.value = true;
@@ -36,7 +38,7 @@ export const useUploadConsultingDocumentStore = defineStore('upload-consulting-d
       }
     } catch (error: any) {
       console.error('Failed to fetch uploaded consulting documents:', error);
-      errorMsg.value = extractErrorMessage(error, 'Failed to load uploaded consulting documents.');
+      errorMsg.value = extractErrorMessage(error, t('toasts.document.loadFailed', { name: t('toasts.documentTypes.consulting') }));
     } finally {
       loading.value = false;
     }
@@ -58,14 +60,13 @@ export const useUploadConsultingDocumentStore = defineStore('upload-consulting-d
         method: 'POST',
         body: formData
       });
-      toast.showSuccess('Consulting document uploaded successfully');
       await fetchUploadedDocuments();
-      toast.showSuccess('Consulting document uploaded successfully!')
+      toast.showSuccess(t('toasts.document.uploaded', { name: t('toasts.documentTypes.consulting') }))
     } catch (error: any) {
       console.error('Failed to upload consulting document:', error);
-      const detail = extractErrorMessage(error, 'Failed to upload consulting document.');
+      const detail = extractErrorMessage(error, t('toasts.document.uploadFailed', { name: t('toasts.documentTypes.consulting') }));
       errorMsg.value = detail;
-      toast.showError('Failed to upload consulting document.', detail);
+      toast.showError(t('toasts.document.uploadFailed', { name: t('toasts.documentTypes.consulting') }), detail);
       throw error;
     } finally {
       loading.value = false;
@@ -80,14 +81,13 @@ export const useUploadConsultingDocumentStore = defineStore('upload-consulting-d
       await $fetch(`${baseUrl}/uploaded-consulting-documents/${id}`, {
         method: 'DELETE'
       });
-      toast.showSuccess('Consulting document deleted successfully');
       await fetchUploadedDocuments();
-      toast.showSuccess('Consulting document deleted successfully!')
+      toast.showSuccess(t('toasts.document.deleted', { name: t('toasts.documentTypes.consulting') }))
     } catch (error: any) {
       console.error('Failed to delete uploaded consulting document:', error);
-      const detail = extractErrorMessage(error, 'Failed to delete consulting document.');
+      const detail = extractErrorMessage(error, t('toasts.document.deleteFailed', { name: t('toasts.documentTypes.consulting') }));
       errorMsg.value = detail;
-      toast.showError('Failed to delete consulting document.', detail);
+      toast.showError(t('toasts.document.deleteFailed', { name: t('toasts.documentTypes.consulting') }), detail);
       throw error;
     } finally {
       loading.value = false;
@@ -118,9 +118,9 @@ export const useUploadConsultingDocumentStore = defineStore('upload-consulting-d
       );
     } catch (error: any) {
       console.error('Failed to view document:', error);
-      const detail = extractErrorMessage(error, 'Failed to view document.');
+      const detail = extractErrorMessage(error, t('toasts.document.viewFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to view document.', detail);
+      toast.showError(t('toasts.document.viewFailed'), detail);
     }
   };
 
@@ -142,9 +142,9 @@ export const useUploadConsultingDocumentStore = defineStore('upload-consulting-d
       window.URL.revokeObjectURL(url);
     } catch (error: any) {
       console.error('Failed to download consulting document:', error);
-      const detail = extractErrorMessage(error, 'Failed to download document.');
+      const detail = extractErrorMessage(error, t('toasts.document.downloadFailed'));
       errorMsg.value = detail;
-      toast.showError('Failed to download document.', detail);
+      toast.showError(t('toasts.document.downloadFailed'), detail);
     }
   };
 

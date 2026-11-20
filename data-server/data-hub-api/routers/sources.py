@@ -63,7 +63,7 @@ class IngestRequest(BaseModel):
 def register_source(req: SourceRegistration):
     """Register or update an external data source from Audit Server."""
     with engine.connect() as conn:
-        conn.execute(text("""
+        stored = conn.execute(text("""
             INSERT INTO bronze.registered_sources
                 (source_id, name, source_type, host, port, database_name,
                  username, password_encrypted, ssl_enabled, ssl_mode, ssl_root_cert, sync_schedule, scopes, data_mappings, updated_at)
@@ -83,7 +83,8 @@ def register_source(req: SourceRegistration):
                 sync_schedule = EXCLUDED.sync_schedule,
                 scopes = EXCLUDED.scopes,
                 data_mappings = EXCLUDED.data_mappings,
-                updated_at = NOW();
+                updated_at = NOW()
+            RETURNING ssl_mode, ssl_enabled, (ssl_root_cert IS NOT NULL) AS has_root_cert;
         """), {
             "sid": req.source_id,
             "name": req.name,
@@ -100,12 +101,17 @@ def register_source(req: SourceRegistration):
             "scopes": json.dumps(req.scopes),
             "mappings": json.dumps(req.data_mappings)
         })
+        row = stored.one()
         conn.commit()
+    # Echo the value actually persisted (read back via RETURNING, not the request) so the
+    # caller (master-service) can detect an older Data Hub that ignores ssl_mode.
     return {
         "status": "success",
-        "source_id": req.source_id,
-        "ssl_mode": req.ssl_mode,
         "message": f"Source '{req.name}' successfully registered",
+        "source_id": req.source_id,
+        "ssl_mode": row.ssl_mode,
+        "ssl_enabled": row.ssl_enabled,
+        "has_ssl_root_cert": row.has_root_cert,
     }
 
 @router.get("")

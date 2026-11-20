@@ -24,6 +24,9 @@ type Sources interface {
 	EmployeeByCode(ctx context.Context, code string) (*masterclient.Employee, error)
 	Acceptance(ctx context.Context, employeeCodes []string) ([]authclient.Acceptance, error)
 	CosoSignals(ctx context.Context, q riskclient.CosoSignalQuery) (*riskclient.CosoSignals, error)
+	// PofCatalogue reads one COSO PoF catalogue version ("" = current) for
+	// QUANTITATIVE_POF assessments
+	PofCatalogue(ctx context.Context, version string) (*riskclient.PofCatalogue, error)
 }
 
 // HTTPSources calls master-, auth- and risk-service with one caller's
@@ -63,6 +66,10 @@ func (s *HTTPSources) EmployeeByCode(ctx context.Context, code string) (*masterc
 
 func (s *HTTPSources) Acceptance(ctx context.Context, codes []string) ([]authclient.Acceptance, error) {
 	return s.Auth.AcceptanceSummary(ctx, s.Authorization, codes)
+}
+
+func (s *HTTPSources) PofCatalogue(ctx context.Context, version string) (*riskclient.PofCatalogue, error) {
+	return s.Risk.GetPofCatalogue(ctx, s.Authorization, version)
 }
 
 func (s *HTTPSources) CosoSignals(ctx context.Context, q riskclient.CosoSignalQuery) (*riskclient.CosoSignals, error) {

@@ -1555,20 +1555,20 @@ async function testConnection(conn: DataSourceConn) {
     if (res?.success === true) {
       toast.add({
         title: t('settings.dataSource.testSuccessToast'),
-        description: res.message || `Successfully reached ${conn.name} at ${conn.host}:${conn.port}.`,
+        description: res.message || t('toasts.dataSource.testSuccessDesc', { name: conn.name, host: conn.host, port: conn.port }),
         color: 'success',
       })
     } else {
       toast.add({
-        title: 'Connection test failed',
-        description: res?.message || `Could not reach ${conn.name} at ${conn.host}:${conn.port}.`,
+        title: t('toasts.dataSource.testFailedTitle'),
+        description: res?.message || t('toasts.dataSource.testFailedDesc', { name: conn.name, host: conn.host, port: conn.port }),
         color: 'error',
       })
     }
   } catch (err: any) {
     toast.add({
-      title: 'Connection test failed',
-      description: err?.data?.message || err?.message || `Could not reach ${conn.name} at ${conn.host}:${conn.port}.`,
+      title: t('toasts.dataSource.testFailedTitle'),
+      description: err?.data?.message || err?.message || t('toasts.dataSource.testFailedDesc', { name: conn.name, host: conn.host, port: conn.port }),
       color: 'error',
     })
   } finally {
@@ -1628,7 +1628,7 @@ async function triggerSync(conn: DataSourceConn) {
 
   toast.add({
     title: t('settings.dataSource.syncInitToast'),
-    description: `Incremental sync started for ${conn.name}.`,
+    description: t('toasts.dataSource.syncStartedDesc', { name: conn.name }),
     color: 'info',
   })
 
@@ -1702,7 +1702,7 @@ async function syncAllSources() {
 
   toast.add({
     title: t('settings.dataSource.batchSyncStartedToast'),
-    description: `Synchronizing ${connections.value.length} data sources with Data Hub...`,
+    description: t('toasts.dataSource.batchSyncStartedDesc', { count: connections.value.length }),
     color: 'info',
   })
 
@@ -1774,7 +1774,7 @@ async function finishBatchSync(errorMsg?: string) {
   }
   toast.add({
     title: t('settings.dataSource.batchSyncCompletedToast'),
-    description: `All registered data sources successfully ingested & analyzed.`,
+    description: t('toasts.dataSource.batchSyncFinishedDesc'),
     color: 'success',
   })
 }
@@ -1819,7 +1819,7 @@ async function deleteConnection(conn: DataSourceConn) {
   dataSourceStore.removeSource(conn.id)
   toast.add({
     title: t('settings.dataSource.connRemovedToast'),
-    description: `${conn.name} was removed from data sources.`,
+    description: t('toasts.dataSource.removedDesc', { name: conn.name }),
     color: 'neutral',
   })
 }
@@ -1926,8 +1926,8 @@ async function testModalConnection() {
 async function saveConnection() {
   if (!form.value.name || !form.value.host) {
     toast.add({
-      title: 'Validation Error',
-      description: 'Connection name and host are required.',
+      title: t('toasts.dataSource.validationTitle'),
+      description: t('toasts.dataSource.nameHostRequired'),
       color: 'error',
     })
     return
@@ -1973,13 +1973,13 @@ async function saveConnection() {
     if (hubError) {
       toast.add({
         title: t('settings.dataSource.connUpdatedToast'),
-        description: `${form.value.name} saved, but Data Hub registration failed: ${hubError}`,
+        description: t('toasts.dataSource.savedHubFailed', { name: form.value.name, error: hubError }),
         color: 'warning',
       })
     } else {
       toast.add({
         title: t('settings.dataSource.connUpdatedToast'),
-        description: `${form.value.name} connection settings saved successfully.`,
+        description: t('toasts.dataSource.updatedDesc', { name: form.value.name }),
         color: 'success',
       })
     }
@@ -2019,13 +2019,13 @@ async function saveConnection() {
     if (hubError) {
       toast.add({
         title: t('settings.dataSource.connCreatedToast'),
-        description: `${form.value.name} saved, but Data Hub registration failed: ${hubError}`,
+        description: t('toasts.dataSource.savedHubFailed', { name: form.value.name, error: hubError }),
         color: 'warning',
       })
     } else {
       toast.add({
         title: t('settings.dataSource.connCreatedToast'),
-        description: `New data source ${form.value.name} added successfully.`,
+        description: t('toasts.dataSource.createdDesc', { name: form.value.name }),
         color: 'success',
       })
     }
@@ -2338,8 +2338,8 @@ function saveCustomRule(tableName: string, mIdx: number) {
   const form = newCustomRule.value
   if (!form.name.trim()) {
     toast.add({
-      title: 'Validasi Gagal',
-      description: 'Nama aturan anomali wajib diisi.',
+      title: t('toasts.dataSource.ruleNameRequiredTitle'),
+      description: t('toasts.dataSource.ruleNameRequired'),
       color: 'warning'
     })
     return
@@ -2365,8 +2365,8 @@ function saveCustomRule(tableName: string, mIdx: number) {
 
   closeCustomRuleBuilder()
   toast.add({
-    title: 'Aturan Kustom Ditambahkan',
-    description: `Aturan "${newRule.name}" berhasil dibuat untuk tabel ${tableName}.`,
+    title: t('toasts.dataSource.ruleAddedTitle'),
+    description: t('toasts.dataSource.ruleAddedDesc', { rule: newRule.name, table: tableName }),
     color: 'success'
   })
 }
@@ -2399,8 +2399,8 @@ async function trainModelForMapping(table: SchemaTable, mIdx: number) {
 
   if (presetRules.length === 0 && customRules.length === 0) {
     toast.add({
-      title: 'Tidak Ada Aturan Terpilih',
-      description: 'Pilih minimal satu aturan standar atau buat aturan kustom untuk melatih model AI.',
+      title: t('toasts.dataSource.noRulesTitle'),
+      description: t('toasts.dataSource.noRulesDesc'),
       color: 'warning'
     })
     return
@@ -2445,15 +2445,15 @@ async function trainModelForMapping(table: SchemaTable, mIdx: number) {
       }
     } else {
       toast.add({
-        title: 'Info Pelatihan AI',
-        description: result?.message || 'Model AI berhasil dilatih secara lokal.',
+        title: t('toasts.dataSource.trainInfoTitle'),
+        description: result?.message || t('toasts.dataSource.trainedLocally'),
         color: 'info'
       })
     }
   } catch (err: any) {
     toast.add({
-      title: 'Gagal Melatih Model AI',
-      description: err?.message || 'Terjadi kesalahan saat memproses pelatihan model AI.',
+      title: t('toasts.dataSource.trainFailedTitle'),
+      description: err?.message || t('toasts.dataSource.trainFailedDesc'),
       color: 'error'
     })
   } finally {
@@ -2472,8 +2472,8 @@ async function triggerDeleteReconciliation() {
     })
     const delCount = res?.total_deletes_detected ?? 0
     toast.add({
-      title: 'Rekonsiliasi Deletion Selesai',
-      description: `Ditemukan ${delCount} record yang dihapus di database sumber. Audit trail & tombstone diperbarui.`,
+      title: t('toasts.dataSource.reconcileTitle'),
+      description: t('toasts.dataSource.reconcileDesc', { count: delCount }),
       color: delCount > 0 ? 'warning' : 'success'
     })
     fetchLogsFromApi()
@@ -2692,7 +2692,7 @@ async function saveSchemaMappings() {
     const mappingsArray = await persistSchemaMappings(currentConn)
     toast.add({
       title: t('settings.dataSource.mappingsSavedToast'),
-      description: `${mappingsArray.filter(m => m.isActive).length} active table pipelines saved for ${currentConn.name}.`,
+      description: t('toasts.dataSource.mappingsSavedDesc', { count: mappingsArray.filter(m => m.isActive).length, name: currentConn.name }),
       color: 'success',
     })
     closeSchemaModal()
