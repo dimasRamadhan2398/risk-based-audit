@@ -665,7 +665,7 @@ type ProposeRequest struct {
 
 // ScopeOf builds the collection scope of an assessment as of asOf
 func ScopeOf(a *models.ICAssessment, asOf time.Time, st Settings) Scope {
-	sc := Scope{DepartmentID: a.DepartmentID.String(), DepartmentName: a.DepartmentName, LocationName: a.LocationName,
+	sc := Scope{DepartmentID: a.DepartmentID.String(), DepartmentName: a.DepartmentName, DepartmentCode: a.DepartmentCode, LocationName: a.LocationName,
 		Year: a.Year, Quarter: a.Quarter, PeriodStart: dayOf(a.PeriodStart), PeriodEnd: dayOf(a.PeriodEnd), AsOf: dayOf(asOf), Settings: st}
 	if a.LocationID != nil {
 		sc.LocationID = a.LocationID.String()

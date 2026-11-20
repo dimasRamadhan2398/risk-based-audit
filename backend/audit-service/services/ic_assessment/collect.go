@@ -80,6 +80,7 @@ func (s *HTTPSources) CosoSignals(ctx context.Context, q riskclient.CosoSignalQu
 type Scope struct {
 	DepartmentID   string
 	DepartmentName string
+	DepartmentCode string
 	LocationID     string // "" = whole department
 	LocationName   string
 	Year           int
@@ -383,6 +384,53 @@ func sameDepartment(text, name string) bool {
 	return a != "" && b != "" && strings.EqualFold(a, b)
 }
 
+// Department match of an LHA (how it was tied to the scope's department)
+const (
+	deptMatchNone   = ""
+	deptMatchID     = "id"     // the LHA's or its letter's master department id
+	deptMatchLegacy = "legacy" // no id anywhere: the department text
+)
+
+// lhaDepartment tells whether report r belongs to the scope's department.
+// The master id decides: the report's department_id, else its letter's
+// workingUnitDepartmentId. Only a report with neither falls back to the
+// legacy text match (report department, else letter Unit Kerja, against the
+// master name or "Name (CODE)"), until `./audit backfill-department-ids`
+// links it.
+func lhaDepartment(r models.AuditResultReport, letter *models.AssignmentLetter, sc Scope) string {
+	want := strings.ToLower(strings.TrimSpace(sc.DepartmentID))
+	if r.DepartmentID != nil {
+		if strings.EqualFold(r.DepartmentID.String(), want) {
+			return deptMatchID
+		}
+		return deptMatchNone
+	}
+	if letter != nil && letter.WorkingUnitDepartmentID != nil {
+		if strings.EqualFold(letter.WorkingUnitDepartmentID.String(), want) {
+			return deptMatchID
+		}
+		return deptMatchNone
+	}
+	label := sc.DepartmentName
+	if c := strings.TrimSpace(sc.DepartmentCode); c != "" {
+		label = strings.TrimSpace(sc.DepartmentName) + " (" + c + ")"
+	}
+	texts := []string{r.Department}
+	if letter != nil {
+		texts = append(texts, letter.WorkingUnit)
+	}
+	for _, t := range texts {
+		if strings.TrimSpace(t) == "" {
+			continue
+		}
+		if sameDepartment(t, sc.DepartmentName) || sameDepartment(t, label) {
+			return deptMatchLegacy
+		}
+		return deptMatchNone // the first non-empty text decides
+	}
+	return deptMatchNone
+}
+
 func inDays(t, start, end time.Time) bool {
 	d := dayOf(t)
 	return !d.Before(start) && !d.After(end)
@@ -391,21 +439,41 @@ func inDays(t, start, end time.Time) bool {
 // collectAuditSide computes the IC and MA signals from LHAs and ATRs
 func collectAuditSide(db *gorm.DB, sc Scope, scopeNote string) ([]Signal, error) {
 	var reports []models.AuditResultReport
-	if err := db.Select("id", "assignment_letter_id", "report_number", "report_date", "status", "department").
+	if err := db.Select("id", "assignment_letter_id", "report_number", "report_date", "status", "department", "department_id").
 		Where("UPPER(TRIM(status)) IN ?", models.LHAApprovedStatuses).
 		Find(&reports).Error; err != nil {
 		return nil, fmt.Errorf("load approved LHAs: %w", err)
 	}
 
+	letters := map[string]*models.AssignmentLetter{}
+	letterOf := func(ref string) *models.AssignmentLetter {
+		ref = strings.TrimSpace(ref)
+		if l, ok := letters[ref]; ok {
+			return l
+		}
+		l, _ := models.FindAssignmentLetter(db, ref)
+		letters[ref] = l
+		return l
+	}
+
 	var inPeriod, allDept []models.AuditResultReport
-	unmatched := 0
+	unmatched, byLegacyText := 0, 0
 	for _, r := range reports {
 		periodOK := r.ReportDate != nil && inDays(*r.ReportDate, sc.PeriodStart, sc.AsOf)
-		if !sameDepartment(r.Department, sc.DepartmentName) {
+		match := deptMatchNone
+		if r.DepartmentID != nil {
+			match = lhaDepartment(r, nil, sc)
+		} else {
+			match = lhaDepartment(r, letterOf(r.AssignmentLetterID), sc)
+		}
+		if match == deptMatchNone {
 			if periodOK {
 				unmatched++
 			}
 			continue
+		}
+		if match == deptMatchLegacy && periodOK {
+			byLegacyText++
 		}
 		allDept = append(allDept, r)
 		if periodOK {
@@ -419,11 +487,12 @@ func collectAuditSide(db *gorm.DB, sc Scope, scopeNote string) ([]Signal, error)
 	lha.Detail["threshold_days"] = sc.Settings.LHADueDays
 	lha.Detail["lha_in_period"] = len(inPeriod)
 	lha.Detail["lha_in_period_unmatched_department"] = unmatched
+	lha.Detail["lha_in_period_matched_by_legacy_text"] = byLegacyText
 	onTime, comparable, unparseable, noLetter := 0, 0, 0, 0
 	var late []string
 	for _, r := range inPeriod {
-		letter, ok := models.FindAssignmentLetter(db, r.AssignmentLetterID)
-		if !ok {
+		letter := letterOf(r.AssignmentLetterID)
+		if letter == nil {
 			noLetter++
 			continue
 		}

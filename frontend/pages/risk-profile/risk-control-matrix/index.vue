@@ -710,6 +710,23 @@
                   </UFormField>
                 </div>
 
+                <!-- Own branch (Location master). Empty = the branch of the linked risk; needed
+                     for controls without a linked risk to count in a branch IC assessment. -->
+                <UFormField
+                  :label="t('rcm.modal.ownBranchLabel')"
+                  :help="riskProfileStore.branchesError ? t('rcm.filters.branchesUnavailable') : t('rcm.modal.branchHelp')"
+                >
+                  <USelectMenu
+                    :model-value="formData.location_id || RCM_FOLLOW_RISK_BRANCH"
+                    :items="branchFormOptions"
+                    value-key="value"
+                    class="w-full"
+                    :loading="riskProfileStore.branchesLoading"
+                    :disabled="!!riskProfileStore.branchesError"
+                    @update:model-value="onBranchSelected"
+                  />
+                </UFormField>
+
                 <UFormField
                   :label="t('rcm.modal.riskEventLabel')"
                 >
@@ -1263,6 +1280,27 @@ const departmentFormOptions = computed(() =>
     .filter(d => d.is_active !== false || d.id === formData.value.department_id)
     .map(d => ({ label: departmentLabel(d), value: d.id }))
 )
+
+// Own branch of the item. "Follow linked risk" (null) shows which branch that resolves to.
+const RCM_FOLLOW_RISK_BRANCH = '__follow_risk__'
+const branchFormOptions = computed(() => {
+  const inherited = rcmStore.itemLocationId({ ...(formData.value as RCMItem), location_id: null })
+  const inheritedName = inherited ? riskProfileStore.locations.find(l => l.id === inherited)?.name : undefined
+  const options = [
+    {
+      label: inheritedName ? t('rcm.modal.branchFollowRiskWith', { name: inheritedName }) : t('rcm.modal.branchFollowRisk'),
+      value: RCM_FOLLOW_RISK_BRANCH
+    },
+    ...riskProfileStore.locations.map(l => ({ label: l.name, value: l.id }))
+  ]
+  // A saved branch that is no longer active stays selectable for this row.
+  const current = formData.value.location_id
+  if (current && !options.some(o => o.value === current)) options.push({ label: current, value: current })
+  return options
+})
+const onBranchSelected = (value?: string | null) => {
+  formData.value.location_id = value && value !== RCM_FOLLOW_RISK_BRANCH ? value : null
+}
 
 // New rows need a department; legacy rows (no department_id) can still be edited without one.
 // If the master list could not load, do not block saving.

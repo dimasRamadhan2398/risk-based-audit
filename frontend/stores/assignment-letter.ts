@@ -18,7 +18,6 @@ export interface AssignmentLetterState {
   columns: (TableColumn<AssignmentLetter> & { class?: string })[];
   options: {
     auditTeam: { value: string, label: string }[];
-    workingUnit: string[];
     role: string[];
     yearOptions: string[];
   };
@@ -58,6 +57,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
       startPeriod: '',
       finishPeriod: '',
       workingUnit: '',
+      workingUnitDepartmentId: '',
       companyId: '',
       companyName: '',
       auditPurpose: '',
@@ -87,7 +87,6 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         { value: 'SPI', label: 'Satuan Pengawas Intern' },
         { value: 'CAE', label: 'Chief Audit Executive' }
       ],
-      workingUnit: ['Production', 'Marketing', 'Finance', 'IT', 'Operations', 'Procurement', 'Maintenance'],
       role: ['Person in Charge', 'Supervisor', 'Chairperson', 'Member'],
       yearOptions: getFiscalYearStrings()
     }
@@ -229,18 +228,17 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
       })
     },
 
-    workUnitOptions: (state): string[] => {
-      const list = state.departments.map(d =>
-        d.department_code ? `${d.department_name} (${d.department_code})` : d.department_name
-      )
-      if (list.length === 0 && Array.isArray(state.options.workingUnit)) {
-        list.push(...state.options.workingUnit)
-      }
-      if (state.form.workingUnit && !list.includes(state.form.workingUnit)) {
-        list.unshift(state.form.workingUnit)
-      }
-      return list.sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
-    }
+    /** Unit Kerja choices: active master departments only (value = department id). */
+    workUnitItems: (state): { label: string, value: string }[] =>
+      state.departments
+        .map(d => ({
+          label: d.department_code ? `${d.department_name} (${d.department_code})` : d.department_name,
+          value: d.id
+        }))
+        .sort((a, b) => a.label.localeCompare(b.label, 'id', { sensitivity: 'base' })),
+
+    /** A letter whose Unit Kerja text is not linked to a master department (saved before the link existed). */
+    workingUnitUnlinked: (state): boolean => !!state.form.workingUnit && !state.form.workingUnitDepartmentId
   },
   actions: {
     getAuditServiceBaseUrl() {
@@ -280,6 +278,28 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         }
       }
       return '-'
+    },
+
+    /** Id of the one active master department val names (id, code, name or "Name (CODE)"), else ''. */
+    matchDepartmentId(val?: string | null): string {
+      const v = (val || '').trim()
+      if (!v) return ''
+      const matches = this.departments.filter(
+        d => d.id === v
+          || d.department_code === v
+          || d.department_name === v
+          || `${d.department_name} (${d.department_code})` === v
+      )
+      return matches.length === 1 ? matches[0]!.id : ''
+    },
+
+    /** Pick Unit Kerja from the master: stores the id and its display text. */
+    selectWorkingUnit(id?: string | null) {
+      const dept = this.departments.find(d => d.id === id)
+      this.form.workingUnitDepartmentId = dept ? dept.id : ''
+      this.form.workingUnit = dept
+        ? (dept.department_code ? `${dept.department_name} (${dept.department_code})` : dept.department_name)
+        : ''
     },
 
     resolveDepartmentOption(val?: string): string {
@@ -323,14 +343,11 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
           .sort((a, b) => a.department_name.localeCompare(b.department_name, 'id', { sensitivity: 'base' }))
         this.departmentsLoaded = true
 
-        if (this.departments.length > 0) {
-          this.options.workingUnit = this.departments.map(d =>
-            d.department_code ? `${d.department_name} (${d.department_code})` : d.department_name
-          )
-        }
-
         if (this.form.workingUnit) {
           this.form.workingUnit = this.resolveDepartmentOption(this.form.workingUnit)
+          if (!this.form.workingUnitDepartmentId) {
+            this.form.workingUnitDepartmentId = this.matchDepartmentId(this.form.workingUnit)
+          }
         }
       } catch (error: any) {
         console.error('Failed to fetch departments for assignment letter:', error)
@@ -461,6 +478,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         startPeriod: '',
         finishPeriod: '',
         workingUnit: '',
+        workingUnitDepartmentId: '',
         companyId: '',
         companyName: '',
         auditPurpose: '',
@@ -493,6 +511,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         startPeriod: letter.startPeriod,
         finishPeriod: letter.finishPeriod,
         workingUnit: this.resolveDepartmentOption(letter.workingUnit),
+        workingUnitDepartmentId: letter.workingUnitDepartmentId || this.matchDepartmentId(letter.workingUnit),
         companyId: letter.companyId || '',
         companyName: letter.companyName || '',
         auditPurpose: letter.auditPurpose,
@@ -547,8 +566,12 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         return
       }
 
-      if (!this.form.workingUnit) {
-        this.errorMsg = 'Work unit must be filled in.'
+      // Unit Kerja must be a master department. Only when the master could not be
+      // loaded may an existing letter be saved with its stored text (the id is then
+      // omitted, so the server keeps what the letter has).
+      const keepStoredUnit = !!this.editingId && !this.departmentsLoaded && !!this.form.workingUnit
+      if (!this.form.workingUnitDepartmentId && !keepStoredUnit) {
+        this.errorMsg = useI18n().t('assignmentLetter.validation.workUnitRequired')
         return
       }
 
@@ -608,6 +631,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
           }
           if (payload.letterDate === '') payload.letterDate = null
           if (!payload.companyId) delete payload.companyId
+          if (!payload.workingUnitDepartmentId) delete payload.workingUnitDepartmentId
 
           await $fetch(
             `${baseUrl}/assignment-letters/${this.editingId}`,
@@ -631,6 +655,7 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
           }
           if (payload.letterDate === '') payload.letterDate = null
           if (!payload.companyId) delete payload.companyId
+          if (!payload.workingUnitDepartmentId) delete payload.workingUnitDepartmentId
 
           await $fetch(`${baseUrl}/assignment-letters`, {
             method: 'POST',

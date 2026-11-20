@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"sort"
+	"strings"
 	"time"
 
 	"risk-service/models"
@@ -45,6 +46,12 @@ type CosoSignalsParams struct {
 	Quarter      int        // 0 = annual, 1..4
 	LocationID   *uuid.UUID // optional branch scope
 	AsOf         time.Time  // date (UTC midnight)
+	// LegacyDepartmentName is the master name of DepartmentID when it is the
+	// only active master department with that name ("" otherwise). Legacy RCM
+	// rows without department_id whose department text matches it (the
+	// backfill-rcm-department rule) are counted as the department's rows
+	// until they are backfilled or edited.
+	LegacyDepartmentName string
 }
 
 // CosoSignalsScope echoes the scope used, with the derived period.
@@ -96,9 +103,13 @@ type CosoSignalsResult struct {
 	RiskCount int `json:"risk_count"`
 	// UnassignedRCMCount is the number of live RCM rows of the year with no
 	// department_id (data quality context, not scored).
-	UnassignedRCMCount int          `json:"unassigned_rcm_count"`
-	Signals            []CosoSignal `json:"signals"`
-	CollectedAt        time.Time    `json:"collected_at"`
+	UnassignedRCMCount int `json:"unassigned_rcm_count"`
+	// LegacyNameMatchedRCMCount is how many of the department's RCM rows had
+	// no department_id and were matched by department name (included in
+	// RCMCount). Running `./risk backfill-rcm-department --apply` makes it 0.
+	LegacyNameMatchedRCMCount int          `json:"legacy_name_matched_rcm_count"`
+	Signals                   []CosoSignal `json:"signals"`
+	CollectedAt               time.Time    `json:"collected_at"`
 }
 
 // PeriodBounds returns the first and last day of the year or quarter.
@@ -206,6 +217,19 @@ func ComputeCosoSignals(ctx context.Context, db *gorm.DB, locs masterclient.Loca
 		Order("id").Find(&rcms).Error; err != nil {
 		return nil, fmt.Errorf("load rcm: %w", err)
 	}
+	if key := NormalizeDepartmentName(p.LegacyDepartmentName); key != "" && unassigned > 0 {
+		var legacy []models.RiskControlMatrix
+		if err := db.Where("department_id IS NULL AND year = ?", p.Year).Find(&legacy).Error; err != nil {
+			return nil, fmt.Errorf("load legacy rcm: %w", err)
+		}
+		for _, r := range legacy {
+			if NormalizeDepartmentName(r.Department) == key {
+				rcms = append(rcms, r)
+				res.LegacyNameMatchedRCMCount++
+			}
+		}
+		sort.Slice(rcms, func(i, j int) bool { return rcms[i].ID.String() < rcms[j].ID.String() })
+	}
 
 	// Live registers linked from C, with profile and assessments.
 	riskIDSet := map[uuid.UUID]struct{}{}
@@ -230,7 +254,8 @@ func ComputeCosoSignals(ctx context.Context, db *gorm.DB, locs masterclient.Loca
 		}
 	}
 
-	// Branch scope: keep the rows whose linked risk sits in the location.
+	// Branch scope: keep the rows whose own branch, else whose linked risk's
+	// branch, is the location.
 	if p.LocationID != nil {
 		loc := p.LocationID.String()
 		res.Scope.LocationID = &loc
@@ -250,7 +275,7 @@ func ComputeCosoSignals(ctx context.Context, db *gorm.DB, locs masterclient.Loca
 			if r.RiskID != nil {
 				reg = registers[*r.RiskID]
 			}
-			if id := resolver.LocationID(r.Year, reg); id != nil && *id == *p.LocationID {
+			if id := resolver.RowLocationID(r, reg); id != nil && *id == *p.LocationID {
 				kept = append(kept, r)
 			}
 		}
@@ -547,4 +572,10 @@ func LoadRCMPrincipleCodes(db *gorm.DB, rcmIDs []uuid.UUID) (map[uuid.UUID][]str
 		}
 	}
 	return out, nil
+}
+
+// NormalizeDepartmentName is the department-name key used to match legacy
+// department text to the master: trimmed, whitespace collapsed, lower case.
+func NormalizeDepartmentName(s string) string {
+	return strings.ToLower(strings.Join(strings.Fields(s), " "))
 }

@@ -192,9 +192,12 @@ func (h *RouteHandler) RegisterRoutes() {
 			func(c *gin.Context) bool { return ctrlAssignmentLetter.CanPublish(middleware.ContextRoles(c)) })
 		// Each live letter has one audit execution: created with the letter, following
 		// it on update and soft-deleted with it, see controllers/audit_execution/write_sync.go
-		assignmentLetters.POST("", letterStatusGuard, crud.CreateWithHooks(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }, nil, ctrlAuditExecution.SyncLetterAfterCreate()))
+		// Unit Kerja is a master department: workingUnitDepartmentId is checked
+		// against master-service and workingUnit rewritten from it
+		workingUnit := ctrlAssignmentLetter.ResolveWorkingUnit(h.db, masterclient.GetClient())
+		assignmentLetters.POST("", letterStatusGuard, workingUnit, crud.CreateWithHooks(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }, nil, ctrlAuditExecution.SyncLetterAfterCreate()))
 		// auditPurpose echoed back from purposeList is not frozen into the column, see controllers/assignment_letter
-		assignmentLetters.PUT("/:id", letterStatusGuard, ctrlAuditExecution.SyncLetterOnWrite(h.db, crud.UpdateWithHook(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }, ctrlAssignmentLetter.NormalizePurposeOnUpdate)))
+		assignmentLetters.PUT("/:id", letterStatusGuard, workingUnit, ctrlAuditExecution.SyncLetterOnWrite(h.db, crud.UpdateWithHook(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }, ctrlAssignmentLetter.NormalizePurposeOnUpdate)))
 		assignmentLetters.DELETE("/:id", ctrlAuditExecution.SyncLetterOnWrite(h.db, crud.Delete(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} })))
 	}
 
@@ -456,8 +459,10 @@ func (h *RouteHandler) RegisterRoutes() {
 		// Saving a report keeps its action taken reports in step in the same
 		// transaction: approving it ("Final"/"Approved"/"Published") creates one
 		// ATR per finding (see services/action_taken_report.SyncFromReport)
-		auditResultReports.POST("", crud.CreateWithHooks(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }, nil, syncReportAndExecutionsAfterCreate))
-		auditResultReports.PUT("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.AuditResultReport{} }, ctrlAuditExecution.LetterKeysOf, crud.UpdateWithHooks(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }, nil, SyncReportATRs)))
+		// The report's department_id is copied from its letter's master
+		// department on every save (models.ApplyLetterDepartmentOn*)
+		auditResultReports.POST("", crud.CreateWithHooks(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }, models.ApplyLetterDepartmentOnCreate, syncReportAndExecutionsAfterCreate))
+		auditResultReports.PUT("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.AuditResultReport{} }, ctrlAuditExecution.LetterKeysOf, crud.UpdateWithHooks(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }, models.ApplyLetterDepartmentOnUpdate, SyncReportATRs)))
 		auditResultReports.DELETE("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.AuditResultReport{} }, ctrlAuditExecution.LetterKeysOf, crud.Delete(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} })))
 	}
 

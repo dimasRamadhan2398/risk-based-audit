@@ -81,6 +81,16 @@ func respondDepartmentsUnavailable(c *gin.Context) {
 	})
 }
 
+func respondLocationsUnavailable(c *gin.Context) {
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"success": false,
+		"error": gin.H{
+			"code":    "LOCATION_MASTER_UNAVAILABLE",
+			"message": "Location master data is unavailable; try again shortly",
+		},
+	})
+}
+
 // cosoCatalogue is a snapshot of the COSO 2013 rows (22 rows, read per request).
 type cosoCatalogue struct {
 	components map[string]models.CosoComponent
@@ -129,6 +139,7 @@ func (cat *cosoCatalogue) sortCodes(codes []string) {
 type cosoWrite struct {
 	departmentID   *uuid.UUID
 	departmentName string // master name, "" when not looked up
+	locationID     *uuid.UUID
 	componentCode  *string
 	// tagsChanged: the request carried coso_principle_codes, so the row's
 	// tags are replaced by principleIDs/codes in the write transaction.
@@ -142,7 +153,44 @@ type cosoWrite struct {
 // (422), errDepartmentsUnavailable (503) or a DB error.
 func (ctrl *RCMController) resolveCosoWrite(ctx context.Context, req *RCMRequest, cur *models.RiskControlMatrix, curCodes []string) (*cosoWrite, fieldErrors, error) {
 	fields := fieldErrors{}
-	w := &cosoWrite{departmentID: cur.DepartmentID, componentCode: cur.CosoComponentCode}
+	w := &cosoWrite{departmentID: cur.DepartmentID, locationID: cur.LocationID, componentCode: cur.CosoComponentCode}
+
+	// location_id: an active row of the Location master. A row keeps a
+	// location that was since deactivated or removed; a new link must name a
+	// live one.
+	if req.LocationID.Set {
+		raw := ""
+		if req.LocationID.Value != nil {
+			raw = strings.TrimSpace(*req.LocationID.Value)
+		}
+		if raw == "" {
+			w.locationID = nil
+		} else if id, err := uuid.Parse(raw); err != nil || id == uuid.Nil {
+			fields["location_id"] = "must be the UUID of a Location master row"
+		} else {
+			unchanged := cur.LocationID != nil && *cur.LocationID == id
+			if !unchanged {
+				if ctrl.locations == nil {
+					return nil, nil, errLocationsUnavailable
+				}
+				locs, err := ctrl.locations.ListLocations(ctx)
+				if err != nil {
+					return nil, nil, errLocationsUnavailable
+				}
+				found := false
+				for _, l := range locs {
+					if l.ID == id && l.IsActive {
+						found = true
+						break
+					}
+				}
+				if !found {
+					fields["location_id"] = "is not an active location in the master data"
+				}
+			}
+			w.locationID = &id
+		}
+	}
 
 	// department_id
 	if req.DepartmentID.Set {
@@ -260,12 +308,16 @@ func (ctrl *RCMController) resolveCosoWrite(ctx context.Context, req *RCMRequest
 	return w, nil, nil
 }
 
-var errDepartmentsUnavailable = errors.New("department master unavailable")
+var (
+	errDepartmentsUnavailable = errors.New("department master unavailable")
+	errLocationsUnavailable   = errors.New("location master unavailable")
+)
 
 // apply copies the validated fields onto the row. prevDepartment is the
 // department text the row had before parseRCMRequest overwrote it.
 func (w *cosoWrite) apply(target *models.RiskControlMatrix, prevDepartmentID *uuid.UUID, prevDepartment string) {
 	target.DepartmentID = w.departmentID
+	target.LocationID = w.locationID
 	target.CosoComponentCode = w.componentCode
 	target.CosoPrincipleCodes = w.codes
 	if target.CosoPrincipleCodes == nil {
@@ -454,6 +506,47 @@ var signalsTZ = func() *time.Location {
 	return time.FixedZone("WIB", 7*3600)
 }()
 
+// departmentLister is the part of *masterclient.DepartmentClient that lists
+// every department.
+type departmentLister interface {
+	ListDepartments(ctx context.Context) ([]masterclient.Department, error)
+}
+
+// legacyDepartmentName is the master name of id when legacy RCM rows (no
+// department_id) may be matched to it by name: id must be active and the only
+// active department with that name (the backfill-rcm-department rule). ""
+// when the master cannot be read or the name is ambiguous.
+func (ctrl *RCMController) legacyDepartmentName(ctx context.Context, id uuid.UUID) string {
+	lister, ok := ctrl.departments.(departmentLister)
+	if !ok || lister == nil {
+		return ""
+	}
+	depts, err := lister.ListDepartments(ctx)
+	if err != nil {
+		return ""
+	}
+	name := ""
+	for _, d := range depts {
+		if d.ID == id && d.IsActive {
+			name = d.Name
+		}
+	}
+	key := services.NormalizeDepartmentName(name)
+	if key == "" {
+		return ""
+	}
+	n := 0
+	for _, d := range depts {
+		if d.IsActive && services.NormalizeDepartmentName(d.Name) == key {
+			n++
+		}
+	}
+	if n != 1 {
+		return ""
+	}
+	return name
+}
+
 // GetCosoSignals returns the risk-side signals of the COSO 2013 assessment
 // for one department, period and optional branch. Read-only.
 func (ctrl *RCMController) GetCosoSignals(c *gin.Context) {
@@ -510,6 +603,7 @@ func (ctrl *RCMController) GetCosoSignals(c *gin.Context) {
 	p.AsOf = *asOf
 
 	ctx := masterclient.WithAuthorization(c.Request.Context(), c.GetHeader("Authorization"))
+	p.LegacyDepartmentName = ctrl.legacyDepartmentName(ctx, p.DepartmentID)
 	res, err := services.ComputeCosoSignals(ctx, ctrl.db, ctrl.locations, p)
 	if err != nil {
 		respondDB(c, "Failed to compute COSO signals", err)

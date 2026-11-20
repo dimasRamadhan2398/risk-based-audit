@@ -1,7 +1,8 @@
-// Branch filter for the Risk Control Matrix. RCM items have no branch of their
-// own: an item's branch is the Location master branch of its linked Corporate
-// Risk Profile risk. Items with no linked risk, a risk that cannot be found, or
-// a risk without a location fall under "Unassigned" (same as the CRP filter).
+// Branch filter for the Risk Control Matrix. An item's branch is its own
+// location_id (picked from the Location master in the RCM form) when set;
+// otherwise the Location master branch of its linked Corporate Risk Profile
+// risk. Items with neither fall under "Unassigned" (same as the CRP filter).
+// risk-service applies the same rule (services/rcm_branch.go).
 
 // Same sentinel values as ALL_BRANCHES / UNASSIGNED_BRANCH in stores/risk-profile.ts.
 export const RCM_ALL_BRANCHES = 'All Branches'
@@ -17,11 +18,13 @@ export interface RcmBranchRisk {
 export interface RcmBranchItem {
   risk_id?: string | null
   year?: number
+  /** The item's own branch (Location master id); null = follow the linked risk. */
+  location_id?: string | null
 }
 
 /**
  * Location master ID an RCM item belongs to, or null when unassigned.
- * The risk's assessment for the item's year wins (the CRP reads a risk as it
+ * The item's own location_id wins. Otherwise the risk's assessment for the item's year wins (the CRP reads a risk as it
  * stood that year); otherwise the risk's own location (via riskLocationId,
  * which also matches legacy rows that only carry a branch name).
  */
@@ -30,6 +33,7 @@ export const resolveRcmItemLocationId = (
   findRisk: (riskId: string) => RcmBranchRisk | undefined,
   riskLocationId: (risk: RcmBranchRisk) => string | null
 ): string | null => {
+  if (item.location_id) return String(item.location_id)
   if (!item.risk_id) return null
   const risk = findRisk(String(item.risk_id))
   if (!risk) return null

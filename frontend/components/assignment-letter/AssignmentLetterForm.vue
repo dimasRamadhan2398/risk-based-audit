@@ -238,18 +238,20 @@
                     :label="t('assignmentLetter.formExtra.workUnit')"
                     class="md:col-span-4"
                     required
+                    :hint="store.workingUnitUnlinked ? t('assignmentLetter.formExtra.workUnitLegacyHint', { name: store.form.workingUnit }) : undefined"
                   >
+                    <!-- Unit Kerja comes from the department master only (id stored, see store.selectWorkingUnit) -->
                     <USelectMenu
-                      v-model="store.form.workingUnit"
-                      :items="store.workUnitOptions"
+                      :model-value="store.form.workingUnitDepartmentId || undefined"
+                      :items="store.workUnitItems"
+                      value-key="value"
                       :loading="store.departmentsLoading"
                       :placeholder="t('assignmentLetter.formExtra.workUnitPlaceholder')"
                       size="lg"
                       class="w-full"
                       :popper="{ strategy: 'absolute' }"
-                      create-item
-                      @create="(val: string) => { store.form.workingUnit = val.trim() }"
                       required
+                      @update:model-value="(id: string) => store.selectWorkingUnit(id)"
                     >
                       <template #empty>
                         {{ store.departmentsLoading ? t('common.loading') : (store.departmentsError || t('masterData.department.empty')) }}
@@ -592,7 +594,7 @@ const validateStep = (idx: number): string | null => {
     if (!form.startPeriod || !form.finishPeriod) return t('assignmentLetter.validation.periodRequired')
     if (store.dateError) return t('assignmentLetter.validation.periodOrder')
   } else if (idx === 1) {
-    if (!form.workingUnit) return t('assignmentLetter.validation.workUnitRequired')
+    if (!form.workingUnitDepartmentId && !(store.editingId && !store.departmentsLoaded && form.workingUnit)) return t('assignmentLetter.validation.workUnitRequired')
     if (!form.membersList.every(m => m.name && m.role)) return t('assignmentLetter.validation.membersInvalid')
     if (store.hasDuplicateMembers) return 'Nama anggota tim tidak boleh sama (duplikat).'
   } else if (idx === 2) {

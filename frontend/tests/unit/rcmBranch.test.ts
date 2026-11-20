@@ -28,10 +28,16 @@ const findRisk = (riskId: string) => risks.find(r => String(r.id) === riskId)
 const riskLocationId = (risk: RcmBranchRisk) =>
   risk.location_id ? String(risk.location_id) : (locations.find(l => l.name === risk.branch)?.id ?? null)
 
-const locate = (item: { risk_id?: string | null, year?: number }) =>
+const locate = (item: { risk_id?: string | null, year?: number, location_id?: string | null }) =>
   resolveRcmItemLocationId(item, findRisk, riskLocationId)
 
 describe('resolveRcmItemLocationId', () => {
+  it('the item\'s own location_id wins, also without a linked risk', () => {
+    expect(locate({ risk_id: null, location_id: 'loc-sby' })).toBe('loc-sby')
+    expect(locate({ risk_id: 'r-jkt', year: 2026, location_id: 'loc-sby' })).toBe('loc-sby')
+    expect(locate({ risk_id: 'r-jkt', year: 2026, location_id: null })).toBe('loc-jkt')
+  })
+
   it('linked risk with a location -> that location', () => {
     expect(locate({ risk_id: 'r-jkt', year: 2026 })).toBe('loc-jkt')
   })

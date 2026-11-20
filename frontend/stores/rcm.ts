@@ -32,6 +32,8 @@ export interface RCMItem {
   department: string
   /** Master department (null/absent on rows created before the master link). */
   department_id?: string | null
+  /** Own branch (Location master id); null/absent = the branch of the linked risk. */
+  location_id?: string | null
   /** Primary COSO 2013 component (CE/RA/CA/IC/MA); null/absent when untagged. */
   coso_component_code?: string | null
   /** Tagged COSO 2013 principles (P01-P17). */
@@ -426,6 +428,8 @@ export const useRCMStore = defineStore('rcm', () => {
     if (isValidUUID(item.department_id ?? undefined)) {
       payload.department_id = item.department_id
     }
+    // Own branch: always sent so the form state wins; null = follow the linked risk.
+    payload.location_id = isValidUUID(item.location_id ?? undefined) ? item.location_id : null
     // COSO 2013 mapping: always sent so the form state wins; null clears the component, [] clears the tags.
     const principles = Array.isArray(item.coso_principle_codes) ? item.coso_principle_codes : []
     payload.coso_principle_codes = principles
