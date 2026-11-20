@@ -313,13 +313,11 @@ import { useUploadExecutiveSummaryStore } from '~/stores/upload-executive-summar
 import { useI18n } from '~/composables/useI18n'
 import { useAppToast } from '~/composables/useAppToast'
 import TableEntities from '~/components/shared/TableEntities.vue'
-import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { useGlobalModalStore } from '~/stores/global-modal'
 
 const { t, locale } = useI18n()
 const appToast = useAppToast()
 const store = useUploadExecutiveSummaryStore()
-const toast = useToastNotification();
 
 onMounted(() => {
   store.fetchUploadedDocuments()
@@ -412,7 +410,6 @@ const handleUpload = async () => {
 const handleDelete = async (id: string) => {
   if (await useGlobalModalStore().confirmDelete({ description: t('executiveSummaryUpload.confirmDelete') })) {
     await store.deleteDocument(id)
-    toast.success(t('executiveSummaryUpload.deleted'))
   }
 }
 

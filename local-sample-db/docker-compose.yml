@@ -1,0 +1,47 @@
+# ============================================================================
+# Standalone Local Sample Database for Manual AuditSphere Connection Testing
+# Intentionally isolated from AuditSphere networks & containers so you can
+# manually test Test Connection -> Add Connection -> Schema Mapping -> Sync.
+# ============================================================================
+
+services:
+  local-audit-sample-db:
+    image: postgres:16-alpine
+    container_name: local_audit_source_db
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_USER: ${LOCAL_SAMPLE_DB_USER:-audit_client}
+      POSTGRES_PASSWORD: ${LOCAL_SAMPLE_DB_PASSWORD:-AuditClient#2026}
+      POSTGRES_DB: ${LOCAL_SAMPLE_DB_NAME:-nusantara_finance_audit}
+    volumes:
+      - local_audit_sample_pgdata:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d:ro
+      - ./certs:/certs:ro
+    entrypoint:
+      - sh
+      - -c
+      - |
+        cp /certs/server.crt /certs/server.key /var/lib/postgresql/
+        chown postgres:postgres /var/lib/postgresql/server.*
+        chmod 600 /var/lib/postgresql/server.key
+        chmod 644 /var/lib/postgresql/server.crt
+        exec docker-entrypoint.sh postgres \
+          -c ssl=on \
+          -c ssl_cert_file=/var/lib/postgresql/server.crt \
+          -c ssl_key_file=/var/lib/postgresql/server.key
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U audit_client -d nusantara_finance_audit"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - local_audit_net
+    restart: unless-stopped
+
+networks:
+  local_audit_net:
+    driver: bridge
+
+volumes:
+  local_audit_sample_pgdata:

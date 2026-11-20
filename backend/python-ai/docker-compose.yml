@@ -10,8 +10,18 @@ services:
     ports:
       - "8000:8000"
       - "8005:8000"
+    mem_limit: ${AI_CONTAINER_MEM_LIMIT:-6g}
+    cpus: ${AI_CONTAINER_CPUS:-2.0}
     environment:
       - PYTHONUNBUFFERED=1
+      - AI_TRAIN_MAX_CONCURRENT=${AI_TRAIN_MAX_CONCURRENT:-}
+      - AI_TRAIN_THREADS=${AI_TRAIN_THREADS:-}
+      - AI_TRAIN_MAX_RAM_MB=${AI_TRAIN_MAX_RAM_MB:-}
+      - AI_TRAIN_MIN_FREE_RAM_MB=${AI_TRAIN_MIN_FREE_RAM_MB:-}
+      - BATCH_ROWS=${BATCH_ROWS:-}
+      - RETRAIN_AUTO_INTERVAL=${RETRAIN_AUTO_INTERVAL:-60}
+      - RETRAIN_DEBOUNCE_SECONDS=${RETRAIN_DEBOUNCE_SECONDS:-60}
+      - AI_TRAIN_EXECUTOR=${AI_TRAIN_EXECUTOR:-thread}
     volumes:
       - models_data:/app/models
     networks:

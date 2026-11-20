@@ -19,6 +19,7 @@ type CacheConfig struct {
 	// presented a token. Every route below is authenticated, so all are private.
 	IsPublic bool
 	VaryBy   string // Vary header value (e.g., "Accept-Encoding")
+	NoCache  bool   // Sends "private, no-cache" so mutations show immediately on next load
 }
 
 // DefaultCacheConfigs maps routes to their cache configurations
@@ -34,11 +35,10 @@ var DefaultCacheConfigs = map[string]CacheConfig{
 		IsPublic: false,
 		VaryBy:   "Accept-Encoding, Authorization",
 	},
-	// Annual Audit Plans
+	// Annual Audit Plans - edited on the same screen, must always revalidate
 	"GET /api/v1/annual-audit-plans": {
-		MaxAge:   600, // 10 minutes
-		IsPublic: false,
-		VaryBy:   "Accept-Encoding, Authorization",
+		NoCache: true,
+		VaryBy:  "Accept-Encoding, Authorization",
 	},
 	// Assignments
 	"GET /api/v1/audit-assignments": {
@@ -52,11 +52,10 @@ var DefaultCacheConfigs = map[string]CacheConfig{
 		IsPublic: false,
 		VaryBy:   "Accept-Encoding, Authorization",
 	},
-	// Strategic Plans
+	// Strategic Plans - edited on the same screen, must always revalidate
 	"GET /api/v1/strategic-plans": {
-		MaxAge:   600, // 10 minutes
-		IsPublic: false,
-		VaryBy:   "Accept-Encoding, Authorization",
+		NoCache: true,
+		VaryBy:  "Accept-Encoding, Authorization",
 	},
 	// Audit Charters
 	"GET /api/v1/audit-charters": {
@@ -97,6 +96,13 @@ func ResponseCache() gin.HandlerFunc {
 		config, exists := DefaultCacheConfigs[routeKey]
 		if !exists {
 			// No cache config for this route
+			c.Next()
+			return
+		}
+
+		if config.NoCache {
+			c.Header("Cache-Control", "private, no-cache")
+			c.Header("Vary", config.VaryBy)
 			c.Next()
 			return
 		}

@@ -82,6 +82,7 @@ describe('RCM COSO mapping helpers', () => {
   it('form from a legacy row has no department and no tags', () => {
     const form = rcmFormFromItem({ id: 'a', risk_code: 'R', department: 'Head Office' } as any)
     expect(form.department_id).toBeNull()
+    expect(form.location_id).toBeNull()
     expect(form.coso_principle_codes).toEqual([])
     expect(createEmptyRcmForm(2026).coso_component_code).toBeNull()
   })
@@ -126,6 +127,19 @@ describe('RCM store COSO fields', () => {
     expect(body.department_id).toBe('550e8400-e29b-41d4-a716-446655440000')
     expect(body.coso_principle_codes).toEqual([])
     expect(body.coso_component_code).toBeNull()
+    // no own branch picked: null = follow the linked risk
+    expect(body.location_id).toBeNull()
+  })
+
+  it('sends the own branch (location_id) when picked', async () => {
+    const store = useRCMStore()
+    vi.mocked($fetch).mockResolvedValueOnce({ data: { id: 'x' } })
+    await store.addRCMItem({
+      risk_code: 'R', risk_event: 'E', control_code: 'C', control_description: 'D', control_owner: 'O', department: 'HO', year: 2026,
+      location_id: '6ba7b810-9dad-11d1-80b4-00c04fd430c8', coso_principle_codes: []
+    } as any)
+    const post = vi.mocked($fetch).mock.calls.find(c => (c[1] as any)?.method === 'POST')
+    expect((post![1] as any).body.location_id).toBe('6ba7b810-9dad-11d1-80b4-00c04fd430c8')
   })
 
   it('keeps 422 field errors for the form', async () => {

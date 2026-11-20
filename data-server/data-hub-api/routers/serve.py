@@ -432,7 +432,7 @@ def upsert_ai_auditee_training_pool(records: List[dict]):
                         source_id, kpi_name, entity, entity_type, period_date, period_label,
                         actual_value, target_value, impact, likelihood, risk_level, sync_frequency, updated_at
                     ) VALUES (
-                        :source_id, :kpi_name, :entity, :entity_type, :period_date::date, :period_label,
+                        :source_id, :kpi_name, :entity, :entity_type, CAST(:period_date AS date), :period_label,
                         :actual_value, :target_value, :impact, :likelihood, :risk_level, :sync_frequency, NOW()
                     )
                     ON CONFLICT (kpi_name, period_date, entity)
@@ -480,7 +480,7 @@ def upsert_ai_auditor_training_pool(records: List[dict]):
                         code, kpi_name, category, strategic_objective, period_date, period_label,
                         target_value, actual_value, achievement_rate, hib_hig, unit, status, updated_at
                     ) VALUES (
-                        :code, :kpi_name, :category, :strategic_objective, :period_date::date, :period_label,
+                        :code, :kpi_name, :category, :strategic_objective, CAST(:period_date AS date), :period_label,
                         :target_value, :actual_value, :achievement_rate, :hib_hig, :unit, :status, NOW()
                     )
                     ON CONFLICT (code, period_date)

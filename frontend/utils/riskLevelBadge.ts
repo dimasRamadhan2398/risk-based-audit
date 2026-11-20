@@ -130,3 +130,131 @@ export const getControlEffectivenessColorClass = (rating?: string | null): strin
   const key = normalizeControlEffectiveness(rating)
   return getRiskLevelColorClass(key ? CONTROL_EFFECTIVENESS_RISK_EQUIVALENT[key] : null)
 }
+
+// ─── Anomaly Detection 5-Level Normalization ────────────────────────
+// Anomaly Detection strictly uses ONLY the 5 levels requested across trained, predicted,
+// and external database data (no "Critical" or unmapped custom external risk labels).
+export type AnomalyRiskLevelLabel = 'High' | 'Moderate to High' | 'Moderate' | 'Low to Moderate' | 'Low'
+
+export const ANOMALY_RISK_LEVELS: AnomalyRiskLevelLabel[] = [
+  'High',
+  'Moderate to High',
+  'Moderate',
+  'Low to Moderate',
+  'Low'
+]
+
+export const ANOMALY_RISK_LABEL_TO_CODE: Record<AnomalyRiskLevelLabel, string> = {
+  'High': 'HIGH',
+  'Moderate to High': 'MODERATE_HIGH',
+  'Moderate': 'MODERATE',
+  'Low to Moderate': 'LOW_MODERATE',
+  'Low': 'LOW'
+}
+
+/**
+ * Strictly maps ANY anomaly risk level / severity value (including legacy "Critical",
+ * external DB custom ratings such as "Extreme"/"Very High"/"Major"/"Minor"/"KOL-3",
+ * Indonesian ratings, or numeric scores) onto ONLY:
+ *   "High" | "Moderate to High" | "Moderate" | "Low to Moderate" | "Low"
+ */
+export const normalizeAnomalyRiskLevel = (
+  level?: unknown,
+  fallback: AnomalyRiskLevelLabel = 'Moderate'
+): AnomalyRiskLevelLabel => {
+  if (typeof level === 'number' && Number.isFinite(level)) {
+    if (level <= 5) {
+      if (level >= 4.5) return 'High'
+      if (level >= 3.5) return 'Moderate to High'
+      if (level >= 2.5) return 'Moderate'
+      if (level >= 1.5) return 'Low to Moderate'
+      return 'Low'
+    }
+    if (level <= 25) {
+      if (level >= 20) return 'High'
+      if (level >= 15) return 'Moderate to High'
+      if (level >= 10) return 'Moderate'
+      if (level >= 5) return 'Low to Moderate'
+      return 'Low'
+    }
+    if (level >= 80) return 'High'
+    if (level >= 60) return 'Moderate to High'
+    if (level >= 40) return 'Moderate'
+    if (level >= 20) return 'Low to Moderate'
+    return 'Low'
+  }
+
+  const str = level == null ? '' : String(level).trim()
+  if (!str) return fallback
+
+  if (/^-?\d+(\.\d+)?$/.test(str)) {
+    return normalizeAnomalyRiskLevel(Number(str), fallback)
+  }
+
+  const shared = normalizeRiskLevel(str)
+  if (shared === 'High') return 'High'
+  if (shared === 'Medium to High') return 'Moderate to High'
+  if (shared === 'Medium') return 'Moderate'
+  if (shared === 'Low to Medium') return 'Low to Moderate'
+  if (shared === 'Low') return 'Low'
+
+  const lower = str.toLowerCase()
+  const raw = lower.replace(/[\s\-_/]+/g, '')
+
+  // Combined tiers first so "Moderate to High" / "Low to Moderate" never collapse into High / Moderate
+  if (
+    /(moderate|medium|sedang|menengah)(to|ke)?(high|tinggi)/.test(raw) ||
+    /(high|tinggi)(to|ke)?(moderate|medium|sedang)/.test(raw) ||
+    ['moderatehigh', 'mediumhigh', 'modhigh', 'sedangtinggi', 'menengahtinggi', 'elevated', 'significant', 'major', 'tier2', 'level4', 'kol3', 'p2', 'kuranglancar'].includes(raw)
+  ) {
+    return 'Moderate to High'
+  }
+  if (
+    /(low|rendah)(to|ke)?(moderate|medium|sedang)/.test(raw) ||
+    /(moderate|medium|sedang)(to|ke)?(low|rendah)/.test(raw) ||
+    ['lowmoderate', 'lowmedium', 'lowmod', 'sedangrendah', 'rendahsedang', 'guarded', 'minor', 'tier4', 'level2', 'kol2', 'p4', 'dpk', 'dalamperhatiankhusus'].includes(raw)
+  ) {
+    return 'Low to Moderate'
+  }
+  if (
+    ['high', 'highrisk', 'risikotinggi', 'veryhigh', 'veryhighrisk', 'critical', 'extreme', 'catastrophic', 'severe', 'urgent', 'blocker', 'fatal', 'sangattinggi', 'kritis', 'bahaya', 'tinggi', 'tier1', 'level5', 'kol4', 'kol5', 'p0', 'p1', 'diragukan', 'macet'].includes(raw) ||
+    /crit|extr|catastroph|sever|blocker|fatal|sangat\s*tinggi|kritis|\bvery\s*high\b|\bhigh\s*risk\b|\brisiko\s*tinggi\b|\b(high|tinggi)\b/.test(lower)
+  ) {
+    return 'High'
+  }
+  if (
+    ['low', 'lowrisk', 'risikorendah', 'verylow', 'verylowrisk', 'minimal', 'insignificant', 'negligible', 'trivial', 'safe', 'normal', 'info', 'rendah', 'sangatrendah', 'aman', 'tier5', 'level1', 'kol1', 'p5', 'lancar'].includes(raw) ||
+    /insignif|neglig|trivial|minimal|sangat\s*rendah|\blow\s*risk\b|\brisiko\s*rendah\b|\b(low|rendah)\b/.test(lower)
+  ) {
+    return 'Low'
+  }
+  if (
+    ['moderate', 'medium', 'mod', 'moderaterisk', 'mediumrisk', 'risikosedang', 'sedang', 'menengah', 'watch', 'warning', 'fair', 'average', 'tier3', 'level3', 'p3'].includes(raw) ||
+    /\b(moderate|medium)\s*risk\b|\brisiko\s*sedang\b|\b(moderate|medium|sedang)\b/.test(lower)
+  ) {
+    return 'Moderate'
+  }
+
+  return fallback
+}
+
+export const toAnomalyRiskCode = (
+  level?: unknown,
+  fallback: AnomalyRiskLevelLabel = 'Moderate'
+): string => ANOMALY_RISK_LABEL_TO_CODE[normalizeAnomalyRiskLevel(level, fallback)]
+
+// Entity Prediction enforces the exact same 5 canonical risk levels:
+// High, Moderate to High, Moderate, Low to Moderate, Low.
+export type EntityRiskLevelLabel = AnomalyRiskLevelLabel
+export const ENTITY_RISK_LEVELS = ANOMALY_RISK_LEVELS
+export const ENTITY_RISK_LABEL_TO_CODE = ANOMALY_RISK_LABEL_TO_CODE
+export const normalizeEntityRiskLevel = normalizeAnomalyRiskLevel
+export const toEntityRiskCode = toAnomalyRiskCode
+
+// NLP Analysis enforces the exact same 5 canonical risk levels:
+// High, Moderate to High, Moderate, Low to Moderate, Low.
+export type NlpRiskLevelLabel = AnomalyRiskLevelLabel
+export const NLP_RISK_LEVELS = ANOMALY_RISK_LEVELS
+export const NLP_RISK_LABEL_TO_CODE = ANOMALY_RISK_LABEL_TO_CODE
+export const normalizeNlpRiskLevel = normalizeAnomalyRiskLevel
+export const toNlpRiskCode = toAnomalyRiskCode

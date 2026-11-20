@@ -255,7 +255,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       reportList.value = items.map(mapReportItem)
     } catch (error) {
       console.error('Failed to fetch reports:', error)
-      errorMsg.value = extractErrorMessage(error, 'Failed to load audit result reports.')
+      errorMsg.value = extractErrorMessage(error, t('toasts.auditResultReport.loadFailed'))
       reportList.value = []
     } finally {
       loading.value = false
@@ -297,7 +297,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
         .slice(0, limit)
     } catch (error) {
       console.error('Failed to fetch recent findings:', error)
-      recentFindingsError.value = extractErrorMessage(error, 'Failed to load recent findings.')
+      recentFindingsError.value = extractErrorMessage(error, t('toasts.auditResultReport.loadFindingsFailed'))
       recentFindings.value = []
     } finally {
       recentFindingsLoading.value = false
@@ -464,12 +464,12 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
   const runAutoDetectFindings = async (mode: 'replace' | 'merge' = 'replace') => {
     const targetLetter = reportForm.assignmentLetterId || selectedAssignmentLetter.value
     if (!targetLetter) {
-      toast.showWarning('Peringatan', 'Silakan pilih Assignment Letter terlebih dahulu.')
+      toast.showWarning(t('common.warning'), t('auditFieldwork.messages.selectAssignmentLetter'))
       return
     }
     const detected = await fetchAutoFindings(targetLetter)
     if (detected.length === 0) {
-      toast.showWarning('Informasi', `Tidak ada temuan audit baru yang terdeteksi untuk ${targetLetter}.`)
+      toast.showWarning(t('common.info'), t('toasts.auditResultReport.noNewFindings', { letter: targetLetter }))
       return
     }
 
@@ -495,7 +495,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       })
     }
     reportForm.findingsCount = reportForm.findings.length
-    toast.showSuccess('Temuan Terisi Otomatis', `${detected.length} temuan berhasil ditarik dari modul KKA & Fieldwork.`)
+    toast.showSuccess(t('toasts.auditResultReport.findingsFilledTitle'), t('toasts.auditResultReport.findingsFilled', { count: detected.length }))
   }
 
   // Actions
@@ -645,13 +645,13 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       }
       closeModal()
       await fetchReports()
-      toast.showSuccess('Report saved successfully')
+      toast.showSuccess(t('toasts.auditResultReport.saved'))
       if (becameApproved && savedId) await notifyAtrsCreated(savedId)
     } catch (error: any) {
       console.error('Failed to save report:', error)
-      const detail = extractErrorMessage(error, 'Failed to save report.')
+      const detail = extractErrorMessage(error, t('toasts.auditResultReport.saveFailed'))
       errorMsg.value = detail
-      toast.showError('Failed to save report', detail)
+      toast.showError(t('toasts.auditResultReport.saveFailed'), detail)
     } finally {
       loading.value = false
     }
@@ -709,12 +709,12 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
         method: 'DELETE'
       })
       await fetchReports()
-      toast.showSuccess('Report deleted successfully')
+      toast.showSuccess(t('toasts.auditResultReport.deleted'))
     } catch (error: any) {
       console.error('Failed to delete report:', error)
-      const detail = extractErrorMessage(error, 'Failed to delete report.')
+      const detail = extractErrorMessage(error, t('toasts.auditResultReport.deleteFailed'))
       errorMsg.value = detail
-      toast.showError('Failed to delete report', detail)
+      toast.showError(t('toasts.auditResultReport.deleteFailed'), detail)
     } finally {
       loading.value = false
     }
@@ -738,8 +738,8 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       window.URL.revokeObjectURL(url)
     } catch (err: any) {
       console.error('Failed to download docx:', err)
-      const detail = extractErrorMessage(err, 'Gagal mengunduh dokumen Word LHA.')
-      toast.showError('Gagal mengunduh dokumen Word LHA', detail)
+      const detail = extractErrorMessage(err, t('toasts.auditResultReport.wordDownloadFailed'))
+      toast.showError(t('toasts.auditResultReport.wordDownloadFailed'), detail)
     }
   }
 

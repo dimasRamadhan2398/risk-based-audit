@@ -217,7 +217,7 @@ def reconcile_table_deletes(
                     INSERT INTO bronze.{quote_identifier(bronze_table)} (
                         {quoted_pk}, _source, _op, _loaded_at, _batch_id, _row_hash
                     )
-                    SELECT unnest(:d_pks::TEXT[])::INT, :sid, 'D', NOW(), :rid, 'tombstone'
+                    SELECT unnest(CAST(:d_pks AS TEXT[]))::INT, :sid, 'D', NOW(), :rid, 'tombstone'
                     ON CONFLICT DO NOTHING;
                 """), {"d_pks": unique_deletes, "sid": source_id, "rid": run_id})
             except Exception as e:

@@ -143,6 +143,18 @@ func runServe(cmd *cobra.Command, args []string) error {
 	)
 	routes.RegisterRoutes(router, controllerRegistry, db, authMiddleware, domainEvents, orgRoutes)
 
+	if err := services.EnsureDataSourceSyncColumns(db); err != nil {
+		logger.Warn("failed to ensure data source sync schedule columns", zap.Error(err))
+	}
+	schedulerCtx, cancelScheduler := context.WithCancel(context.Background())
+	defer cancelScheduler()
+	syncScheduler := services.NewDataSourceSyncScheduler(
+		db,
+		services.NewDataHubClient(),
+		services.WithOnSyncSuccess(routes.TriggerExternalDBNLPSync),
+	)
+	go syncScheduler.Start(schedulerCtx)
+
 	addr := fmt.Sprintf(":%d", cfg.Server.Port)
 	logger.Info("Starting master-service server", zap.String("addr", addr))
 

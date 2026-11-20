@@ -245,7 +245,13 @@ func (s *Service) detail(db *gorm.DB, actor Actor, a *models.ICAssessment) (*Det
 		AllowedActions: AllowedActions(actor, a, locked)}
 	d.SubmitIssues = []string{}
 	if isEditable(a.Status) {
-		if issues := ValidateForSubmit(a); issues != nil {
+		if a.Method == MethodQuantitativePoF {
+			issues, err := quantSubmitIssues(db, a)
+			if err != nil {
+				return nil, err
+			}
+			d.SubmitIssues = issues
+		} else if issues := ValidateForSubmit(a); issues != nil {
 			d.SubmitIssues = issues
 		}
 	}
@@ -551,14 +557,34 @@ func (s *Service) Create(ctx context.Context, src Sources, actor Actor, req Crea
 		locName = strings.TrimSpace(l.Name)
 	}
 
+	// The method comes from the branch setting and is fixed for the life of
+	// the assessment. QUANTITATIVE_POF copies the catalogue into the assessment.
+	locKey := ""
+	if locID != nil {
+		locKey = locID.String()
+	}
+	method, _, err := ResolveMethod(s.DB, locKey)
+	if err != nil {
+		return nil, err
+	}
+	var pofSetup *pofCreateSetup
+	if method == MethodQuantitativePoF {
+		if pofSetup, err = s.preparePoFCreate(ctx, src); err != nil {
+			return nil, err
+		}
+	}
+
 	now := s.now()
 	start, end := PeriodBounds(req.Year, req.Quarter)
 	a := &models.ICAssessment{
 		DepartmentID: deptID, DepartmentCode: dept.DepartmentCode, DepartmentName: strings.TrimSpace(dept.DepartmentName),
 		LocationID: locID, LocationName: locName, Year: req.Year, Quarter: req.Quarter,
 		PeriodStart: start, PeriodEnd: end, Status: StatusDraft, Version: 1,
-		DerivedConclusion: ConclusionIncomplete,
-		CreatedByUserID:   actor.UserID, CreatedByName: actor.Name, CreatedAt: now, UpdatedAt: now,
+		DerivedConclusion: ConclusionIncomplete, Method: method,
+		CreatedByUserID: actor.UserID, CreatedByName: actor.Name, CreatedAt: now, UpdatedAt: now,
+	}
+	if pofSetup != nil {
+		pofSetup.applyHeader(a)
 	}
 	if c, err := uuid.Parse(strings.TrimSpace(dept.CompanyID)); err == nil && c != uuid.Nil {
 		a.CompanyID = &c
@@ -599,10 +625,19 @@ func (s *Service) Create(ctx context.Context, src Sources, actor Actor, req Crea
 		if err := tx.Create(&prins).Error; err != nil {
 			return err
 		}
-		return writeEvent(tx, actor, &a.ID, ActionCreate, "", StatusDraft, "", nil, map[string]interface{}{
+		created := map[string]interface{}{
 			"department_id": deptID.String(), "department_name": a.DepartmentName, "location_id": a.LocationKey,
-			"year": req.Year, "quarter": req.Quarter,
-		}, now)
+			"year": req.Year, "quarter": req.Quarter, "method": method,
+		}
+		if pofSetup != nil {
+			nPoF, nEl, err := pofSetup.insertRows(tx, a.ID, now)
+			if err != nil {
+				return err
+			}
+			created["catalog_version"] = pofSetup.Catalogue.Version
+			created["pofs"], created["elements"] = nPoF, nEl
+		}
+		return writeEvent(tx, actor, &a.ID, ActionCreate, "", StatusDraft, "", nil, created, now)
 	})
 	if err != nil {
 		return nil, err
@@ -630,7 +665,7 @@ type ProposeRequest struct {
 
 // ScopeOf builds the collection scope of an assessment as of asOf
 func ScopeOf(a *models.ICAssessment, asOf time.Time, st Settings) Scope {
-	sc := Scope{DepartmentID: a.DepartmentID.String(), DepartmentName: a.DepartmentName, LocationName: a.LocationName,
+	sc := Scope{DepartmentID: a.DepartmentID.String(), DepartmentName: a.DepartmentName, DepartmentCode: a.DepartmentCode, LocationName: a.LocationName,
 		Year: a.Year, Quarter: a.Quarter, PeriodStart: dayOf(a.PeriodStart), PeriodEnd: dayOf(a.PeriodEnd), AsOf: dayOf(asOf), Settings: st}
 	if a.LocationID != nil {
 		sc.LocationID = a.LocationID.String()
@@ -647,6 +682,9 @@ func (s *Service) Propose(ctx context.Context, src Sources, actor Actor, id uuid
 	a, err := loadFull(s.DB, id)
 	if err != nil {
 		return nil, err
+	}
+	if a.Method == MethodQuantitativePoF {
+		return nil, methodMismatch(a.Method, "a signal proposal exists only for the QUALITATIVE method")
 	}
 	if !isEditable(a.Status) {
 		return nil, conflictf("INVALID_STATUS", "A proposal can only be run on a DRAFT or REOPENED assessment (current status: %s)", a.Status)
@@ -821,6 +859,9 @@ func ratingVal(r *int) interface{} {
 func (s *Service) Update(ctx context.Context, actor Actor, id uuid.UUID, req UpdateRequest) (*Detail, error) {
 	if !actor.IsAssessor() {
 		return nil, forbiddenf("Only assessors can change an assessment")
+	}
+	if s.methodOf(id) == MethodQuantitativePoF {
+		return s.updateQuantConclusion(actor, id, req)
 	}
 	now := s.now()
 	err := s.DB.Transaction(func(tx *gorm.DB) error {
@@ -1068,9 +1109,19 @@ func (s *Service) Submit(ctx context.Context, actor Actor, id uuid.UUID, req Tra
 		if err := s.mustBeOpen(tx, a.Year, a.Quarter); err != nil {
 			return err
 		}
-		Recompute(a)
-		if issues := ValidateForSubmit(a); len(issues) > 0 {
-			return invalidList("The assessment cannot be submitted yet", issues)
+		if a.Method == MethodQuantitativePoF {
+			issues, err := quantSubmitIssues(tx, a)
+			if err != nil {
+				return err
+			}
+			if len(issues) > 0 {
+				return invalidList("The assessment cannot be submitted yet", issues)
+			}
+		} else {
+			Recompute(a)
+			if issues := ValidateForSubmit(a); len(issues) > 0 {
+				return invalidList("The assessment cannot be submitted yet", issues)
+			}
 		}
 		if err := bump(tx, a, req.Version, []string{StatusDraft, StatusReopened}, map[string]interface{}{
 			"status": StatusSubmitted, "submitted_by_user_id": actor.UserID, "submitted_by_name": actor.Name,

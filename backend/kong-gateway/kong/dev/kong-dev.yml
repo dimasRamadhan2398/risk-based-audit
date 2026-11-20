@@ -42,6 +42,7 @@ plugins:
         - Cache-Control
         - Content-Type
         - Origin
+        - X-API-Key
         - X-Requested-With
         - X-CSRF-Token
         # Password step-up for sensitive actions (POST /api/v1/org-levels/changes/apply).

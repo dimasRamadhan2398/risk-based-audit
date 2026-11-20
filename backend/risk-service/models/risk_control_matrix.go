@@ -25,6 +25,11 @@ type RiskControlMatrix struct {
 	// `./risk backfill-rcm-department`. When set, writes also copy the master
 	// name into Department, which stays for old clients.
 	DepartmentID *uuid.UUID `gorm:"type:uuid;index" json:"department_id"`
+	// LocationID is the row's own branch (master-service Location, soft
+	// reference). NULL = the branch follows the linked risk (see
+	// services.RCMBranchResolver); set it for controls without a linked risk
+	// or whose branch differs from the risk's.
+	LocationID *uuid.UUID `gorm:"type:uuid;index" json:"location_id"`
 	// CosoComponentCode is the primary COSO 2013 component (CE, RA, CA, IC,
 	// MA). When set it must be the component of at least one tagged principle.
 	CosoComponentCode *string `gorm:"type:varchar(10)" json:"coso_component_code"`

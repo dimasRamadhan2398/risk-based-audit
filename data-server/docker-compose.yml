@@ -1,6 +1,6 @@
 # ============================================================================
 # AuditSphere Data Hub — Docker Compose
-# 7 Services: Nginx, CBS Sim, TimescaleDB Data Lake, Data Hub API, Worker, CAATT, AI
+# 8 Services: Nginx, CBS Sim, Nusantara Audit DB, TimescaleDB Data Lake, Data Hub API, Worker, CAATT, AI
 # ============================================================================
 
 services:
@@ -24,6 +24,8 @@ services:
   postgres-cbs-sim:
     image: postgres:16-alpine
     container_name: auditsphere_cbs
+    ports:
+      - "${CBS_POSTGRES_PORT:-5434}:5432"
     environment:
       POSTGRES_USER: ${CBS_POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${CBS_POSTGRES_PASSWORD}
@@ -106,6 +108,8 @@ services:
     depends_on:
       postgres-datalake:
         condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - auditsphere_data_net
     restart: unless-stopped
@@ -136,6 +140,8 @@ services:
     depends_on:
       postgres-datalake:
         condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - auditsphere_data_net
     restart: unless-stopped
@@ -211,6 +217,47 @@ services:
         reservations:
           memory: 512M
 
+  # ─── 8. PostgreSQL: Nusantara Finance Audit Sample DB ──────────────────────
+  local-audit-sample-db:
+    image: postgres:16-alpine
+    container_name: local_audit_source_db
+    ports:
+      - "${LOCAL_SAMPLE_DB_PORT:-5435}:5432"
+    environment:
+      POSTGRES_USER: ${LOCAL_SAMPLE_DB_USER:-audit_client}
+      POSTGRES_PASSWORD: ${LOCAL_SAMPLE_DB_PASSWORD:-AuditClient#2026}
+      POSTGRES_DB: ${LOCAL_SAMPLE_DB_NAME:-nusantara_finance_audit}
+    volumes:
+      - local_audit_sample_pgdata:/var/lib/postgresql/data
+      - ./local-sample-db/init:/docker-entrypoint-initdb.d:ro
+      - ./local-sample-db/certs:/certs:ro
+    entrypoint:
+      - sh
+      - -c
+      - |
+        cp /certs/server.crt /certs/server.key /var/lib/postgresql/
+        chown postgres:postgres /var/lib/postgresql/server.*
+        chmod 600 /var/lib/postgresql/server.key
+        chmod 644 /var/lib/postgresql/server.crt
+        exec docker-entrypoint.sh postgres \
+          -c ssl=on \
+          -c ssl_cert_file=/var/lib/postgresql/server.crt \
+          -c ssl_key_file=/var/lib/postgresql/server.key
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${LOCAL_SAMPLE_DB_USER:-audit_client} -d ${LOCAL_SAMPLE_DB_NAME:-nusantara_finance_audit}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - auditsphere_data_net
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
 # ─── Networks ────────────────────────────────────────────────────────────────
 networks:
   auditsphere_data_net:
@@ -223,3 +270,4 @@ volumes:
   hub_data:
   ai_models:
   jupyter_data:
+  local_audit_sample_pgdata:

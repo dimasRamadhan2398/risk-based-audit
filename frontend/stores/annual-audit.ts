@@ -203,7 +203,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       }
     } catch (error: any) {
       console.error('Failed to fetch employees for annual audit:', error)
-      employeesError.value = extractErrorMessage(error, 'Gagal memuat data karyawan.')
+      employeesError.value = extractErrorMessage(error, t('toasts.common.loadEmployeesFailed'))
       if (!employeesLoaded.value) {
         employees.value = []
       }
@@ -550,7 +550,8 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       const url = `${getAuditServiceBaseUrl()}/annual-audit-plans`
       const fetchPage = (page: number) => $fetch<unknown>(url, {
         method: 'GET',
-        query: { page, page_size: PLAN_PAGE_SIZE }
+        query: { page, page_size: PLAN_PAGE_SIZE },
+        cache: 'no-store'
       })
 
       const first = await fetchPage(1)
@@ -575,7 +576,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     } catch (error: unknown) {
       // Keep whatever was loaded before (empty on first load); never show mock rows.
       console.warn('Failed to fetch annual audit plans:', error)
-      errorMsg.value = extractErrorMessage(error, 'Gagal memuat rencana audit tahunan.')
+      errorMsg.value = extractErrorMessage(error, t('toasts.annualPlan.loadFailed'))
     } finally {
       // The /annual-audit table pages the full list client-side, so keep its own page size.
       const pageSize = paginations.value.pageSize || 10
@@ -669,18 +670,18 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      toast.showError('Mohon lengkapi data pada Activity Detail, Timeline, dan Auditor.')
+      toast.showError(t('toasts.annualPlan.incomplete'))
       return
     }
 
     try {
       if (isEditing.value && editingId.value) {
         await updatePlan(editingId.value, { ...form })
-        toast.showSuccess('Data Rencana Audit Berhasil Diperbarui!')
+        toast.showSuccess(t('toasts.annualPlan.updated'))
       } else {
         const createdCode = await addPlan({ ...form })
         if (createdCode) form.code = createdCode
-        toast.showSuccess('Data Rencana Audit Berhasil Disimpan!')
+        toast.showSuccess(t('toasts.annualPlan.saved'))
       }
 
       closeModal()
@@ -845,14 +846,27 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
         body: payload
       })
       await fetchPlans()
-      // Read from the create response; shape not yet confirmed against the backend.
-      const createdCode = response?.data?.code ?? response?.code
+      // Ensure the newly created plan is immediately present in `plans` even if an intermediate proxy cached GET
+      const createdEntity = response?.data ?? response
+      const createdCode = createdEntity?.code ?? ''
+      if (createdEntity && (createdEntity.id || createdCode)) {
+        const exists = plans.value.some(
+          p => (createdEntity.id && String(p.id) === String(createdEntity.id)) || (createdCode && p.code === createdCode)
+        )
+        if (!exists) {
+          const normalized = normalizePlans([createdEntity])
+          if (normalized.length > 0) {
+            plans.value = [normalized[0]!, ...plans.value]
+          }
+        }
+      }
+      paginations.value.currentIndex = 1
       return typeof createdCode === 'string' ? createdCode : ''
     } catch (error: any) {
       console.error('Failed to create annual plan:', error)
-      const detail = describeWriteError(error, 'Gagal menambahkan rencana audit.')
+      const detail = describeWriteError(error, t('toasts.annualPlan.createFailed'))
       errorMsg.value = detail
-      toast.showError('Gagal menambahkan rencana audit.', detail)
+      toast.showError(t('toasts.annualPlan.createFailed'), detail)
       throw error
     }
   }
@@ -877,10 +891,10 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       await fetchPlans()
     } catch (error: any) {
       console.error('Failed to update annual plan:', error)
-      const detail = describeWriteError(error, 'Gagal memperbarui rencana audit.')
+      const detail = describeWriteError(error, t('toasts.annualPlan.updateFailed'))
       errorMsg.value = detail
       showRowConflictInForm(error, detail)
-      toast.showError('Gagal memperbarui rencana audit.', detail)
+      toast.showError(t('toasts.annualPlan.updateFailed'), detail)
       throw error
     }
   }
@@ -984,12 +998,12 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
         body: payload
       })
       await fetchPlans()
-      toast.showSuccess(`Revised RKAT created (Version ${newVersion}).`)
+      toast.showSuccess(t('toasts.annualPlan.revisionCreated', { version: newVersion }))
     } catch (error: any) {
       console.error('Failed to create revision:', error)
-      const detail = extractErrorMessage(error, 'Gagal membuat revisi RKAT.')
+      const detail = extractErrorMessage(error, t('toasts.annualPlan.revisionFailed'))
       errorMsg.value = detail
-      toast.showError('Gagal membuat revisi RKAT.', detail)
+      toast.showError(t('toasts.annualPlan.revisionFailed'), detail)
       throw error
     }
   }
@@ -1010,12 +1024,12 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
       if (selectedPlan.value && selectedPlan.value.id === id) {
         selectedPlan.value = plans.value.find(p => p.id === id) || { ...selectedPlan.value, status, ...extraPayload }
       }
-      toast.showSuccess(`Status Rencana Audit berhasil diperbarui menjadi ${getStatusLabel(status)}`)
+      toast.showSuccess(t('toasts.annualPlan.statusUpdated', { status: getStatusLabel(status) }))
     } catch (error: any) {
       console.error('Failed to update plan status:', error)
-      const detail = extractErrorMessage(error, 'Gagal memperbarui status rencana audit.')
+      const detail = extractErrorMessage(error, t('toasts.annualPlan.statusFailed'))
       errorMsg.value = detail
-      toast.showError('Gagal memperbarui status rencana audit.', detail)
+      toast.showError(t('toasts.annualPlan.statusFailed'), detail)
       throw error
     }
   }
@@ -1084,7 +1098,7 @@ export const useAnnualPlanStore = defineStore('annual-audit', () => {
     clearFilters, openViewModal, closeViewModal, departmentOptions, departments, departmentOptionsLoading, fetchDepartmentOptions, statusOptions,
     activityDepartmentName, activityRiskName,
     toggleMonth, addActivity, removeActivity, handleDownload,
-    openModal, closeModal, handleSubmit, handleEdit, handleEditFromView, handleDelete,
+    openModal, closeModal, handleSubmit, handleEdit, handleEditFromView, handleDelete, addPlan,
     getStatusColor, getStatusBadgeColor, getStatusLabel, handleFileChange, fetchPlans, fetchAnnualPlans: fetchPlans,
     handleStaffApprove, handleStaffReject, handleManagerApprove, handleManagerReject, handleChiefApprove, handleChiefReject,
     createRevision, getRiskLevelColor,

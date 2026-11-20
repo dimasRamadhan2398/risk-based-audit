@@ -211,7 +211,6 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 const { t, locale } = useI18n()
 const appToast = useAppToast()
 const store = useUploadPlanDocumentStore()
-const toast = useToastNotification()
 
 onMounted(() => {
   store.fetchUploadedDocuments()
@@ -305,7 +304,6 @@ const handleDelete = async (id: string) => {
   if (await useGlobalModalStore().confirmDelete({ description: t('auditActivityPlan.upload.deleteConfirm') })) {
     await store.deleteDocument(id)
   }
-  toast.showSuccess("Document deleted successfully")
 }
 
 const formatBytes = (bytes: number) => {

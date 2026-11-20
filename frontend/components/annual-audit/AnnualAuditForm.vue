@@ -685,7 +685,6 @@
               color="primary"
               class="flex-1 sm:flex-none font-bold shadow-md shadow-primary/20"
               :disabled="store.utilizationData.color === 'red'"
-              @click="handleFormSubmit"
             />
           </div>
         </div>
@@ -747,7 +746,7 @@ const validateStep = (stepIdx: number): boolean => {
     }
   } else if (stepIdx === 1) {
     if (!store.form.activities.length) {
-      toast.showWarning('Minimal harus ada 1 aktivitas.')
+      toast.showWarning(t('toasts.annualPlan.minOneActivity'))
       return false
     }
     for (let i = 0; i < store.form.activities.length; i++) {
@@ -784,10 +783,6 @@ const goToStep = (targetIdx: number) => {
 const handleNext = () => {
   if (!validateStep(currentStep.value)) return
   currentStep.value++
-}
-
-const handleFormSubmit = () => {
-  store.handleSubmit()
 }
 
 const roleLabels: Record<string, string> = {

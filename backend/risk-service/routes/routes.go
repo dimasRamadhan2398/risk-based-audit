@@ -122,6 +122,7 @@ func (r *RiskRoute) Run() {
 		// authenticated role; VIEWER included).
 		apiV1.GET("/rcm/coso-principles", r.rcmCtrl.ListCosoPrinciples)
 		apiV1.GET("/rcm/coso-signals", r.rcmCtrl.GetCosoSignals)
+		apiV1.GET("/rcm/coso-pof-catalogue", r.rcmCtrl.GetCosoPofCatalogue)
 		apiV1.GET("/rcm", r.rcmCtrl.ListRCM)
 		apiV1.POST("/rcm", r.rcmCtrl.CreateRCM)
 		apiV1.PUT("/rcm/:id", r.rcmCtrl.UpdateRCM)

@@ -41,9 +41,18 @@ def run_cbs_etl_pipeline(cbs_engine, datalake_engine) -> dict:
             df["_source"] = "cbs_simulator"
             df["_loaded_at"] = pd.Timestamp.now()
 
-            # Drop the _load_id column if exists in target (it's auto-generated)
-            # Truncate existing data in bronze target
+            # Drop extra CBS source columns absent in Bronze schema & truncate target cleanly
             with datalake_engine.connect() as conn:
+                bronze_cols = {
+                    r[0]
+                    for r in conn.execute(text("""
+                        SELECT column_name
+                        FROM information_schema.columns
+                        WHERE table_schema = 'bronze' AND table_name = :tname
+                    """), {"tname": target_table}).fetchall()
+                }
+                if bronze_cols:
+                    df = df[[c for c in df.columns if c in bronze_cols and c != "_load_id"]]
                 conn.execute(text(f"TRUNCATE TABLE bronze.{target_table}"))
                 conn.commit()
 

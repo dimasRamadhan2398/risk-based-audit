@@ -301,12 +301,11 @@ const handleImport = async () => {
       file: form.value.file
     })
     
-    toast.showSuccess('Document imported successfully!')
     form.value.title = ''
     form.value.description = ''
     clearFile()
   } catch (error: any) {
-    toast.showError(error?.data?.message || 'Failed to import document.')
+    // Error toast is shown by the store
   }
 }
 
@@ -314,7 +313,6 @@ const handleDelete = async (id: string) => {
   if (await useGlobalModalStore().confirmDelete({ description: t('workingPaper.upload.deleteConfirm') })) {
     try {
       await store.deleteImportedPaper(id)
-      toast.showSuccess('Document deleted successfully!')
     } catch (err) {
       toast.showError(t('workingPaper.upload.deleteFailed'))
     }

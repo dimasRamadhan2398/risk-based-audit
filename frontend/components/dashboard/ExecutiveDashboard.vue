@@ -418,9 +418,9 @@ const manualSyncExecutiveData = async () => {
       riskProfileStore.fetchRisks(),
       rcmStore.fetchRCMList()
     ])
-    if (isMounted) toast.success('Data eksekutif berhasil disinkronkan!')
+    if (isMounted) toast.success(t('toasts.dashboard.executiveSynced'))
   } catch (err) {
-    if (isMounted) toast.error('Gagal memperbarui data eksekutif')
+    if (isMounted) toast.error(t('toasts.dashboard.executiveSyncFailed'))
   } finally {
     if (isMounted) isSyncing.value = false
   }

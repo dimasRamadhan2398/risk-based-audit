@@ -10,9 +10,17 @@ import (
 	"gorm.io/gorm"
 )
 
+// LetterMember is one team member of a letter. EmployeeID (master-service
+// employee UUID) and EmployeeCode (employees.employee_code, the value stored in
+// users.employee_id) are optional: letters saved before they existed carry
+// only Name, and the member is then matched to a user by name (see
+// services/me_agenda). The members list is a JSON column, so the extra keys
+// need no migration.
 type LetterMember struct {
-	Name string `json:"name"`
-	Role string `json:"role"`
+	Name         string `json:"name"`
+	Role         string `json:"role"`
+	EmployeeID   string `json:"employeeId,omitempty"`
+	EmployeeCode string `json:"employeeCode,omitempty"`
 }
 
 type AssignmentLetter struct {
@@ -21,12 +29,23 @@ type AssignmentLetter struct {
 	Status             string              `gorm:"type:varchar(50);default:'Draft'" json:"status"`
 	AuditTitle         string              `gorm:"type:varchar(255)" json:"auditTitle"`
 	Leader             string              `gorm:"type:varchar(200)" json:"leader"`
+	// LeaderEmployeeID / LeaderEmployeeCode identify the leader the same way
+	// LetterMember does; empty on letters saved before they existed.
+	LeaderEmployeeID   string              `gorm:"type:varchar(64)" json:"leaderEmployeeId,omitempty"`
+	LeaderEmployeeCode string              `gorm:"type:varchar(64)" json:"leaderEmployeeCode,omitempty"`
 	Category           string              `gorm:"type:varchar(100)" json:"category"`
 	AuditYear          string              `gorm:"type:varchar(10)" json:"auditYear"`
 	AuditTeam          string              `gorm:"type:varchar(100)" json:"auditTeam"`
 	StartPeriod        string              `gorm:"type:varchar(100)" json:"startPeriod"`
 	FinishPeriod       string              `gorm:"type:varchar(100)" json:"finishPeriod"`
 	WorkingUnit        string              `gorm:"type:varchar(255)" json:"workingUnit"`
+	// WorkingUnitDepartmentID is the audited unit as a master-service
+	// department (soft reference). WorkingUnit stays as its display text
+	// ("Name (CODE)"); writes validate the id against the master and rewrite
+	// WorkingUnit from it (controllers/assignment_letter.ResolveWorkingUnit).
+	// NULL on letters saved before it existed until backfilled with
+	// `./audit backfill-department-ids`.
+	WorkingUnitDepartmentID *uuid.UUID `gorm:"type:uuid;index" json:"workingUnitDepartmentId"`
 	CompanyID          *uuid.UUID          `gorm:"type:uuid;index" json:"companyId,omitempty"`
 	CompanyName        string              `gorm:"type:varchar(255)" json:"companyName,omitempty"`
 	ExecutionPeriod    string              `gorm:"type:varchar(255)" json:"executionPeriod"`

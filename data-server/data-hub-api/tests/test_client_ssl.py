@@ -159,6 +159,8 @@ def test_registration_model_ssl_validation():
     assert (r.ssl_mode, r.ssl_enabled) == ("disable", False)
     r = SourceRegistration(**base, ssl_mode="verify-full", ssl_enabled=False)
     assert (r.ssl_mode, r.ssl_enabled) == ("verify-full", True)
+    r_null_lists = SourceRegistration(**base, scopes=None, data_mappings=None)
+    assert r_null_lists.scopes == [] and r_null_lists.data_mappings == []
     with pytest.raises(ValidationError):
         SourceRegistration(**base, ssl_mode="prefer")
     with pytest.raises(ValidationError):

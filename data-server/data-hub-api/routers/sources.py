@@ -14,6 +14,7 @@ from main import engine
 from core.identifiers import validate_identifier, quote_identifier
 from core.db import build_client_conn_string, get_read_only_client_conn, resolve_ssl_mode, validate_ssl_config, SSLConfigError
 from ingestion.introspect import introspect_schema
+from ingestion.profile import profile_client_table
 from jobs.queue import enqueue_job, get_job_status
 
 router = APIRouter()
@@ -32,8 +33,8 @@ class SourceRegistration(BaseModel):
     ssl_mode: Optional[str] = None      # disable | require | verify-ca | verify-full (authoritative when set)
     ssl_root_cert: Optional[str] = None # PEM CA for verify-ca/verify-full; empty = system CA pool
     sync_schedule: str = "Manual Only"
-    scopes: List[str] = []              # ["risk_management","audit_features","qar_features","data_analytics"]
-    data_mappings: list = []
+    scopes: Optional[List[str]] = None  # ["risk_management","audit_features","qar_features","data_analytics"]
+    data_mappings: Optional[list] = None
 
     @model_validator(mode="after")
     def _check_ssl(self):
@@ -45,6 +46,10 @@ class SourceRegistration(BaseModel):
         self.ssl_mode = mode
         self.ssl_enabled = mode != "disable"
         self.ssl_root_cert = (self.ssl_root_cert or "").strip() or None
+        if self.scopes is None:
+            self.scopes = []
+        if self.data_mappings is None:
+            self.data_mappings = []
         return self
 
 class IngestRequest(BaseModel):
@@ -58,7 +63,7 @@ class IngestRequest(BaseModel):
 def register_source(req: SourceRegistration):
     """Register or update an external data source from Audit Server."""
     with engine.connect() as conn:
-        conn.execute(text("""
+        stored = conn.execute(text("""
             INSERT INTO bronze.registered_sources
                 (source_id, name, source_type, host, port, database_name,
                  username, password_encrypted, ssl_enabled, ssl_mode, ssl_root_cert, sync_schedule, scopes, data_mappings, updated_at)
@@ -78,7 +83,8 @@ def register_source(req: SourceRegistration):
                 sync_schedule = EXCLUDED.sync_schedule,
                 scopes = EXCLUDED.scopes,
                 data_mappings = EXCLUDED.data_mappings,
-                updated_at = NOW();
+                updated_at = NOW()
+            RETURNING ssl_mode, ssl_enabled, (ssl_root_cert IS NOT NULL) AS has_root_cert;
         """), {
             "sid": req.source_id,
             "name": req.name,
@@ -95,8 +101,18 @@ def register_source(req: SourceRegistration):
             "scopes": json.dumps(req.scopes),
             "mappings": json.dumps(req.data_mappings)
         })
+        row = stored.one()
         conn.commit()
-    return {"status": "success", "message": f"Source '{req.name}' successfully registered"}
+    # Echo the value actually persisted (read back via RETURNING, not the request) so the
+    # caller (master-service) can detect an older Data Hub that ignores ssl_mode.
+    return {
+        "status": "success",
+        "message": f"Source '{req.name}' successfully registered",
+        "source_id": req.source_id,
+        "ssl_mode": row.ssl_mode,
+        "ssl_enabled": row.ssl_enabled,
+        "has_ssl_root_cert": row.has_root_cert,
+    }
 
 @router.get("")
 def list_sources():
@@ -158,6 +174,14 @@ def get_ingest_job_status(job_id: str):
     status_info = get_job_status(job_id)
     if not status_info:
         raise HTTPException(status_code=404, detail="Job not found")
+    result_data = status_info.get("result") or {}
+    progress = status_info.get("progress") or {}
+    rec_val = 0
+    if isinstance(result_data, dict):
+        rec_val = result_data.get("records_processed", result_data.get("total_records", 0)) or 0
+    if not rec_val and isinstance(progress, dict):
+        rec_val = progress.get("records_processed", progress.get("total_records", progress.get("records_loaded", 0))) or 0
+    status_info["records_processed"] = int(rec_val)
     return status_info
 
 @router.post("/{source_id}/full-resync")
@@ -224,9 +248,8 @@ def introspect_source_schema(source_id: str):
         raise HTTPException(status_code=500, detail=f"Failed to introspect schema: {str(e)}")
 
 @router.get("/{source_id}/preview/{table_name}")
-def preview_source_table(source_id: str, table_name: str, limit: int = 10):
-    """Preview sample records from a specific table in client database safely."""
-    # Sanitize identifier to prevent SQL injection
+def preview_source_table(source_id: str, table_name: str, limit: int = 50):
+    """Preview stratified sample records and real table profile from client database safely."""
     validate_identifier(table_name)
 
     with engine.connect() as conn:
@@ -238,18 +261,19 @@ def preview_source_table(source_id: str, table_name: str, limit: int = 10):
         raise HTTPException(status_code=404, detail="Source not registered")
 
     src = dict(row._mapping)
-    rows = []
     try:
         with get_read_only_client_conn(src) as conn:
-            with conn.cursor() as cur:
-                cur.execute(f"SELECT * FROM {quote_identifier(table_name)} LIMIT %s;", (limit,))
-                col_names = [desc[0] for desc in cur.description] if cur.description else []
-                for r in cur.fetchall():
-                    rows.append(dict(zip(col_names, r)))
+            data = profile_client_table(conn, table_name, sample_limit=limit)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to preview table {table_name}: {str(e)}")
 
-    return {"success": True, "data": {"tableName": table_name, "rows": rows}}
+    return {"success": True, "data": data}
+
+
+@router.get("/{source_id}/profile/{table_name}")
+def get_source_table_profile(source_id: str, table_name: str, limit: int = 50):
+    """Return exact row count, real metric aggregates, dimension breakdown, and stratified sample rows."""
+    return preview_source_table(source_id=source_id, table_name=table_name, limit=limit)
 
 def notify_ai_engine(source_id: str, source_name: str):
     """Notify AI engine that new data is available in gold.ai_training_pool with authentication."""

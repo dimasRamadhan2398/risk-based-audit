@@ -90,6 +90,10 @@ func autoMigrate(db *gorm.DB) error {
 		&models.CosoComponent{},
 		&models.CosoPrinciple{},
 		&models.RcmCosoPrinciple{},
+		&models.CosoCatalogVersion{},
+		&models.CosoCatalogWeight{},
+		&models.CosoPointOfFocus{},
+		&models.CosoPofElement{},
 		&models.SOPDocument{},
 		&models.StrategicObjective{},
 		&models.RiskSOPMap{},
@@ -109,6 +113,11 @@ func autoMigrate(db *gorm.DB) error {
 
 	// COSO 2013 catalogue: reference data, insert-if-missing, never updates.
 	if err := seedCosoCatalogue(db); err != nil {
+		return err
+	}
+
+	// COSO 2013 PoF catalogue (original wording): same insert-if-missing rule.
+	if err := seedCosoPofCatalogue(db); err != nil {
 		return err
 	}
 
@@ -197,6 +206,10 @@ func backfillAssessmentSnapshots(db *gorm.DB) error {
 
 func dropAllTables(db *gorm.DB) error {
 	return db.Migrator().DropTable(
+		&models.CosoPofElement{},
+		&models.CosoPointOfFocus{},
+		&models.CosoCatalogWeight{},
+		&models.CosoCatalogVersion{},
 		&models.RcmCosoPrinciple{},
 		&models.CosoPrinciple{},
 		&models.CosoComponent{},

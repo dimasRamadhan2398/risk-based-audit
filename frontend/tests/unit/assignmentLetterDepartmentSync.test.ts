@@ -105,14 +105,26 @@ describe('Assignment Letter - Work Unit Synchronized with Master Department Mana
     expect(store.departments[2]?.department_name).toBe('Product Development')
   })
 
-  it('generates workUnitOptions with department_name and department_code sorted alphabetically', async () => {
+  it('builds workUnitItems from active master departments (value = id), sorted alphabetically', async () => {
     await store.fetchDepartments()
 
-    expect(store.workUnitOptions).toEqual([
-      'Financial (FIN)',
-      'Operasional (OPS)',
-      'Product Development (DEV)'
+    expect(store.workUnitItems).toEqual([
+      { label: 'Financial (FIN)', value: 'dept-1' },
+      { label: 'Operasional (OPS)', value: 'dept-2' },
+      { label: 'Product Development (DEV)', value: 'dept-3' }
     ])
+  })
+
+  it('selectWorkingUnit stores the department id and its display text', async () => {
+    await store.fetchDepartments()
+
+    store.selectWorkingUnit('dept-2')
+    expect(store.form.workingUnitDepartmentId).toBe('dept-2')
+    expect(store.form.workingUnit).toBe('Operasional (OPS)')
+
+    store.selectWorkingUnit('unknown')
+    expect(store.form.workingUnitDepartmentId).toBe('')
+    expect(store.form.workingUnit).toBe('')
   })
 
   it('resolves department option from ID, code, name or formatted string', async () => {
@@ -169,9 +181,11 @@ describe('Assignment Letter - Work Unit Synchronized with Master Department Mana
 
     expect(store.editingId).toBe('letter-1')
     expect(store.form.workingUnit).toBe('Operasional (OPS)')
+    // a legacy letter whose text names one master department is linked to it
+    expect(store.form.workingUnitDepartmentId).toBe('dept-2')
   })
 
-  it('preserves custom/unmatched workingUnit when editing and includes it in workUnitOptions', async () => {
+  it('keeps an unmatched legacy workingUnit as text but leaves it unlinked when editing', async () => {
     await store.fetchDepartments()
 
     const mockLetter: AssignmentLetter = {
@@ -200,7 +214,9 @@ describe('Assignment Letter - Work Unit Synchronized with Master Department Mana
     store.openEditModal(mockLetter)
 
     expect(store.form.workingUnit).toBe('Special Adhoc Unit')
-    expect(store.workUnitOptions).toContain('Special Adhoc Unit')
+    expect(store.form.workingUnitDepartmentId).toBe('')
+    expect(store.workingUnitUnlinked).toBe(true)
+    expect(store.workUnitItems.some(i => i.label === 'Special Adhoc Unit')).toBe(false)
   })
 
   it('resets workingUnit on openModal in create mode', async () => {
@@ -239,17 +255,17 @@ describe('Assignment Letter - Work Unit Synchronized with Master Department Mana
     expect(store.departmentsError).toBe('Network error')
   })
 
-  it('AssignmentLetterForm.vue binds workingUnit to workUnitOptions with department loading and create-item', () => {
+  it('AssignmentLetterForm.vue picks Unit Kerja from the department master only (no free text)', () => {
     const sfc = readFileSync(FORM_SFC, 'utf-8')
 
-    // Work Unit field binding
     expect(sfc).toMatch(/<UFormField[^>]*?:label="t\('assignmentLetter\.formExtra\.workUnit'\)"/)
-    expect(sfc).toContain(':items="store.workUnitOptions"')
-    expect(sfc).toContain('v-model="store.form.workingUnit"')
+    expect(sfc).toContain(':items="store.workUnitItems"')
+    expect(sfc).toContain('store.selectWorkingUnit(id)')
     expect(sfc).toContain(':loading="store.departmentsLoading"')
-    expect(sfc).toContain('create-item')
-    expect(sfc).toContain('@create=')
+    const unitField = sfc.slice(sfc.indexOf(':items="store.workUnitItems"'), sfc.indexOf('</USelectMenu>', sfc.indexOf(':items="store.workUnitItems"')))
+    expect(unitField).not.toContain('create-item')
     expect(sfc).toContain('masterData.department.empty')
+    expect(sfc).toContain('assignmentLetter.formExtra.workUnitLegacyHint')
   })
 
   it('AssignmentLetterTable.vue uses store.formatDepartmentName for workingUnit cell display', () => {

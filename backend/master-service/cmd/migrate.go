@@ -11,6 +11,7 @@ import (
 	"master-service/pkg/database/orgstructure"
 	"master-service/pkg/database/seeders"
 	"master-service/pkg/logger"
+	"master-service/services"
 
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
@@ -282,6 +283,9 @@ func autoMigrate(db *gorm.DB) error {
 	}
 
 	if err := backfillDataSourceSSLMode(db); err != nil {
+		return err
+	}
+	if err := services.EnsureDataSourceSyncColumns(db); err != nil {
 		return err
 	}
 	return normalizeAnnualPlanStatuses(db)

@@ -4,22 +4,83 @@
  * directly in the browser using standard Web Streams (DecompressionStream).
  */
 
-function decodeHexPdfString(hex: string): string {
+function decodeHexPdfString(hex: string, cmap?: Map<number, string>): string {
   let clean = hex.replace(/[^0-9A-Fa-f]/g, '')
+  if (!clean) return ''
   if (clean.length % 2 !== 0) clean += '0'
+
+  // 1. If ToUnicode CMap is available, try 2-byte and 1-byte glyph mapping first
+  if (cmap && cmap.size > 0) {
+    if (clean.length % 4 === 0) {
+      let mapped2 = ''
+      let hits2 = 0
+      const total2 = clean.length / 4
+      for (let i = 0; i < clean.length; i += 4) {
+        const code = parseInt(clean.slice(i, i + 4), 16)
+        const ch = cmap.get(code)
+        if (ch !== undefined) {
+          mapped2 += ch
+          hits2++
+        } else if (code >= 0x20 && code <= 0x7e) {
+          mapped2 += String.fromCharCode(code)
+        }
+      }
+      if (hits2 > 0 && hits2 >= total2 * 0.4) return mapped2
+    }
+    let mapped1 = ''
+    let hits1 = 0
+    const total1 = clean.length / 2
+    for (let i = 0; i < clean.length; i += 2) {
+      const code = parseInt(clean.slice(i, i + 2), 16)
+      const ch = cmap.get(code)
+      if (ch !== undefined) {
+        mapped1 += ch
+        hits1++
+      } else if (code >= 0x20 && code <= 0x7e) {
+        mapped1 += String.fromCharCode(code)
+      }
+    }
+    if (hits1 > 0 && hits1 >= total1 * 0.4) return mapped1
+  }
+
   const bytes: number[] = []
   for (let i = 0; i < clean.length; i += 2) {
     bytes.push(parseInt(clean.slice(i, i + 2), 16))
   }
+
+  // 2. Check UTF-16BE BOM (FE FF) or UTF-16BE pattern (alternating 0x00 bytes)
+  if (bytes.length >= 2 && bytes[0] === 0xfe && bytes[1] === 0xff) {
+    let out = ''
+    for (let i = 2; i + 1 < bytes.length; i += 2) {
+      const code = (bytes[i] << 8) | bytes[i + 1]
+      if (code >= 0x20 || code === 0x09 || code === 0x0a) out += String.fromCharCode(code)
+    }
+    return out
+  }
+  if (bytes.length >= 4 && bytes.length % 2 === 0) {
+    let zeroEven = 0
+    for (let i = 0; i < bytes.length; i += 2) {
+      if (bytes[i] === 0) zeroEven++
+    }
+    if (zeroEven >= (bytes.length / 2) * 0.7) {
+      let out = ''
+      for (let i = 0; i + 1 < bytes.length; i += 2) {
+        const code = (bytes[i] << 8) | bytes[i + 1]
+        if (code >= 0x20 && code <= 0x024f) out += String.fromCharCode(code)
+      }
+      return out
+    }
+  }
+
   try {
-    return new TextDecoder('utf-8').decode(new Uint8Array(bytes))
+    return new TextDecoder('utf-8', { fatal: false }).decode(new Uint8Array(bytes)).replace(/\0/g, '')
   } catch {
-    return String.fromCharCode(...bytes)
+    return String.fromCharCode(...bytes.filter(b => b >= 32 && b <= 126))
   }
 }
 
-function decodePdfLiteralString(str: string): string {
-  return str
+function decodePdfLiteralString(str: string, cmap?: Map<number, string>): string {
+  const unescaped = str
     .replace(/\\([0-7]{1,3})/g, (_, oct) => String.fromCharCode(parseInt(oct, 8)))
     .replace(/\\n/g, '\n')
     .replace(/\\r/g, '\r')
@@ -27,7 +88,124 @@ function decodePdfLiteralString(str: string): string {
     .replace(/\\\(/g, '(')
     .replace(/\\\)/g, ')')
     .replace(/\\\\/g, '\\')
-    .trim()
+
+  // Handle UTF-16BE BOM inside literal string (\xFE\xFF...)
+  if (unescaped.length >= 2 && unescaped.charCodeAt(0) === 0xfe && unescaped.charCodeAt(1) === 0xff) {
+    let out = ''
+    for (let i = 2; i + 1 < unescaped.length; i += 2) {
+      const code = (unescaped.charCodeAt(i) << 8) | unescaped.charCodeAt(i + 1)
+      if (code >= 0x20) out += String.fromCharCode(code)
+    }
+    return out.trim()
+  }
+
+  if (cmap && cmap.size > 0) {
+    let mapped = ''
+    let hits = 0
+    for (let i = 0; i < unescaped.length; i++) {
+      const code = unescaped.charCodeAt(i)
+      const ch = cmap.get(code)
+      if (ch !== undefined) {
+        mapped += ch
+        hits++
+      } else if (code >= 0x20 && code <= 0x7e) {
+        mapped += unescaped[i]
+      }
+    }
+    if (hits > 0 && hits >= unescaped.length * 0.4) {
+      return mapped.trim()
+    }
+  }
+
+  return unescaped.replace(/\0/g, '').trim()
+}
+
+const PDF_SYNTAX_NOISE = new Set([
+  'obj', 'endobj', 'stream', 'endstream', 'xref', 'trailer', 'startxref',
+  'flatedecode', 'fontdescriptor', 'basefont', 'tounicode', 'cidfont',
+  'identity', 'mediabox', 'cropbox', 'resources', 'procset', 'extgstate',
+  'bitspercomponent', 'colorspace', 'devicergb', 'devicegray', 'xobject',
+  'subtype', 'parent', 'catalog', 'outlines', 'predictor', 'decodeparms'
+])
+
+/**
+ * Validates that an extracted string is genuine human-readable language (Indonesian/English)
+ * and NOT binary stream noise, font tables, or PDF syntax operators.
+ */
+export function isReadableHumanText(text: string): boolean {
+  if (!text) return false
+  const clean = text.replace(/\s+/g, ' ').trim()
+  if (clean.length < 6) return false
+
+  let alpha = 0
+  let vowels = 0
+  let digits = 0
+  let spaces = 0
+  let weird = 0
+
+  for (let i = 0; i < clean.length; i++) {
+    const code = clean.charCodeAt(i)
+    const ch = clean[i]
+    if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122)) {
+      alpha++
+      if ('aeiouAEIOU'.includes(ch)) vowels++
+    } else if (code >= 48 && code <= 57) {
+      digits++
+    } else if (ch === ' ') {
+      spaces++
+    } else if (!'.,;:-_/()[]\'"?!%&+@#Rp$€¥\n\r\t|'.includes(ch)) {
+      weird++
+    }
+  }
+
+  if (weird / clean.length > 0.12) return false
+  if ((alpha + digits) / clean.length < 0.5) return false
+  if (alpha >= 8) {
+    const vowelRatio = vowels / alpha
+    if (vowelRatio < 0.15 || vowelRatio > 0.82) return false
+  }
+
+  const words = clean.toLowerCase().match(/[a-z]{2,}/g) || []
+  if (words.length === 0 && digits < 4) return false
+
+  let pdfNoiseHits = 0
+  for (const w of words) {
+    if (PDF_SYNTAX_NOISE.has(w)) pdfNoiseHits++
+  }
+  if (words.length > 0 && pdfNoiseHits / words.length > 0.2) return false
+
+  return true
+}
+
+function parseToUnicodeCMap(streamText: string, cmap: Map<number, string>) {
+  // Parse beginbfchar ... endbfchar
+  for (const block of streamText.matchAll(/beginbfchar([\s\S]*?)endbfchar/g)) {
+    for (const m of block[1].matchAll(/<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>/g)) {
+      const src = parseInt(m[1], 16)
+      const dstHex = m[2]
+      let dst = ''
+      for (let i = 0; i + 3 < dstHex.length; i += 4) {
+        dst += String.fromCharCode(parseInt(dstHex.slice(i, i + 4), 16))
+      }
+      if (!dst && dstHex.length >= 2) {
+        dst = String.fromCharCode(parseInt(dstHex, 16))
+      }
+      if (!Number.isNaN(src) && dst) cmap.set(src, dst)
+    }
+  }
+  // Parse beginbfrange ... endbfrange
+  for (const block of streamText.matchAll(/beginbfrange([\s\S]*?)endbfrange/g)) {
+    for (const m of block[1].matchAll(/<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>\s*<([0-9A-Fa-f]+)>/g)) {
+      const start = parseInt(m[1], 16)
+      const end = parseInt(m[2], 16)
+      let target = parseInt(m[3], 16)
+      if (!Number.isNaN(start) && !Number.isNaN(end) && !Number.isNaN(target) && end >= start && end - start <= 512) {
+        for (let c = start; c <= end; c++) {
+          cmap.set(c, String.fromCharCode(target++))
+        }
+      }
+    }
+  }
 }
 
 async function decompressZlibDeflate(bytes: Uint8Array): Promise<string | null> {
@@ -147,8 +325,10 @@ async function extractPdfTextFromBuffer(arrayBuffer: ArrayBuffer): Promise<strin
   const bytes = new Uint8Array(arrayBuffer)
   const latin = new TextDecoder('latin1').decode(bytes)
   const extractedChunks: string[] = []
+  const decompressedStreams: string[] = []
+  const cmap = new Map<number, string>()
 
-  // 1. Search for stream ... endstream blocks and decompress Flate streams
+  // 1. Decompress Flate streams and first collect any ToUnicode CMap mappings
   const streamRegex = /stream[\r\n]+([\s\S]*?)[\r\n]+endstream/g
   let match: RegExpExecArray | null
   while ((match = streamRegex.exec(latin)) !== null) {
@@ -160,53 +340,61 @@ async function extractPdfTextFromBuffer(arrayBuffer: ArrayBuffer): Promise<strin
     while (eIdx > sIdx && (bytes[eIdx - 1] === 10 || bytes[eIdx - 1] === 13)) eIdx--
 
     if (sIdx > -1 && eIdx > sIdx) {
+      // Skip obvious binary image/font objects by inspecting object header before 'stream'
+      const headerSlice = latin.slice(Math.max(0, sStart - 220), sStart)
+      if (/\/Subtype\s*\/Image|\/FontFile[23]?|\/Type\s*\/XRef|\/Type\s*\/Metadata/i.test(headerSlice)) {
+        continue
+      }
       const streamBytes = bytes.subarray(sIdx, eIdx)
       const decompressed = await decompressZlibDeflate(streamBytes)
       const streamText = decompressed || new TextDecoder('latin1').decode(streamBytes)
-
-      // Literal strings (...) Tj
-      for (const m of streamText.matchAll(/\(([^()\\]*(?:\\.[^()\\]*)*)\)\s*Tj/g)) {
-        const decoded = decodePdfLiteralString(m[1])
-        if (decoded) extractedChunks.push(decoded)
+      if (streamText.includes('beginbfchar') || streamText.includes('beginbfrange')) {
+        parseToUnicodeCMap(streamText, cmap)
+        continue
       }
-      // Array literal strings [...] TJ
-      for (const m of streamText.matchAll(/\[(.*?)\]\s*TJ/gs)) {
-        const parts = m[1].matchAll(/\(([^()\\]*(?:\\.[^()\\]*)*)\)/g)
-        for (const p of parts) {
-          const decoded = decodePdfLiteralString(p[1])
-          if (decoded) extractedChunks.push(decoded)
-        }
-      }
-      // Hex strings <...> Tj
-      for (const m of streamText.matchAll(/<([0-9A-Fa-f\s]+)>\s*Tj/g)) {
-        const decoded = decodeHexPdfString(m[1])
-        if (decoded && decoded.trim()) extractedChunks.push(decoded.trim())
-      }
-      // Array hex strings [...] TJ
-      for (const m of streamText.matchAll(/\[(.*?)\]\s*TJ/gs)) {
-        const hexParts = m[1].matchAll(/<([0-9A-Fa-f\s]+)>/g)
-        for (const hp of hexParts) {
-          const decoded = decodeHexPdfString(hp[1])
-          if (decoded && decoded.trim()) extractedChunks.push(decoded.trim())
-        }
-      }
+      decompressedStreams.push(streamText)
     }
   }
 
-  if (extractedChunks.length > 0) {
-    return extractedChunks.join(' ').replace(/\s+/g, ' ').trim()
-  }
+  // 2. Extract text operators from content streams using decoded CMap / UTF-16BE / Latin
+  for (const streamText of decompressedStreams) {
+    if (!streamText.includes('Tj') && !streamText.includes('TJ') && !streamText.includes('BT')) {
+      continue
+    }
+    const streamPieces: string[] = []
 
-  // 2. Fallback: Search for printable text in uncompressed portions
-  const parenMatches = latin.matchAll(/\(([^()\\]{4,250})\)/g)
-  for (const m of parenMatches) {
-    const cand = decodePdfLiteralString(m[1])
-    if (/[A-Za-z]{3,}/.test(cand) && !cand.startsWith('PDF-') && !cand.startsWith('Adobe') && !cand.startsWith('Font')) {
-      extractedChunks.push(cand)
+    // Literal strings (...) Tj
+    for (const m of streamText.matchAll(/\(([^()\\]*(?:\\.[^()\\]*)*)\)\s*Tj/g)) {
+      const decoded = decodePdfLiteralString(m[1], cmap)
+      if (decoded) streamPieces.push(decoded)
+    }
+    // Array literal & hex strings [...] TJ
+    for (const m of streamText.matchAll(/\[(.*?)\]\s*TJ/gs)) {
+      const tokenMatches = m[1].matchAll(/\(([^()\\]*(?:\\.[^()\\]*)*)\)|<([0-9A-Fa-f\s]+)>/g)
+      let linePart = ''
+      for (const tk of tokenMatches) {
+        if (tk[1] !== undefined) {
+          linePart += decodePdfLiteralString(tk[1], cmap)
+        } else if (tk[2] !== undefined) {
+          linePart += decodeHexPdfString(tk[2], cmap)
+        }
+      }
+      if (linePart.trim()) streamPieces.push(linePart.trim())
+    }
+    // Hex strings <...> Tj
+    for (const m of streamText.matchAll(/<([0-9A-Fa-f\s]+)>\s*Tj/g)) {
+      const decoded = decodeHexPdfString(m[1], cmap)
+      if (decoded && decoded.trim()) streamPieces.push(decoded.trim())
+    }
+
+    const joinedStream = streamPieces.join(' ').replace(/\s+/g, ' ').trim()
+    if (isReadableHumanText(joinedStream)) {
+      extractedChunks.push(joinedStream)
     }
   }
 
-  return extractedChunks.join(' ').replace(/\s+/g, ' ').trim()
+  const finalResult = extractedChunks.join(' ').replace(/\s+/g, ' ').trim()
+  return isReadableHumanText(finalResult) ? finalResult : ''
 }
 
 export async function extractTextFromClientFile(file: File): Promise<{
@@ -219,14 +407,14 @@ export async function extractTextFromClientFile(file: File): Promise<{
   // 1. Plain Text / CSV / JSON / Markdown
   if (['TXT', 'CSV', 'LOG', 'JSON', 'MD', 'XML', 'HTML'].includes(ext)) {
     try {
-      const text = await file.text()
+      const text = (await file.text()).trim()
       return {
-        text: text.trim(),
+        text,
         method: 'Direct Client Text Reader',
-        charCount: text.trim().length
+        charCount: text.length
       }
     } catch {
-      // fallback to FileReader
+      // fallback
     }
   }
 
@@ -236,7 +424,7 @@ export async function extractTextFromClientFile(file: File): Promise<{
   if (ext === 'DOCX') {
     try {
       const text = await extractDocxOrXlsxFromZip(arrayBuffer, 'docx')
-      if (text && text.length > 10) {
+      if (text && isReadableHumanText(text)) {
         return {
           text,
           method: 'Client Word (DOCX) OOXML Parser',
@@ -246,13 +434,14 @@ export async function extractTextFromClientFile(file: File): Promise<{
     } catch (err) {
       console.warn('DOCX extraction notice:', err)
     }
+    return { text: '', method: 'Server OOXML Word Extractor', charCount: 0 }
   }
 
   // 3. Excel Spreadsheet (XLSX)
   if (ext === 'XLSX') {
     try {
       const text = await extractDocxOrXlsxFromZip(arrayBuffer, 'xlsx')
-      if (text && text.length > 10) {
+      if (text && text.length > 5) {
         return {
           text,
           method: 'Client Excel (XLSX) Spreadsheet Parser',
@@ -262,13 +451,14 @@ export async function extractTextFromClientFile(file: File): Promise<{
     } catch (err) {
       console.warn('XLSX extraction notice:', err)
     }
+    return { text: '', method: 'Server Spreadsheet Extractor', charCount: 0 }
   }
 
-  // 4. PDF Document
+  // 4. PDF Document — return clean human-readable text or delegate to backend pypdf/OCR
   if (ext === 'PDF') {
     try {
       const text = await extractPdfTextFromBuffer(arrayBuffer)
-      if (text && text.length > 10) {
+      if (text && isReadableHumanText(text)) {
         return {
           text,
           method: 'Client PDF Stream & Text Engine',
@@ -278,27 +468,27 @@ export async function extractTextFromClientFile(file: File): Promise<{
     } catch (err) {
       console.warn('PDF extraction notice:', err)
     }
-  }
-
-  // 5. General printable text fallback
-  const bytes = new Uint8Array(arrayBuffer)
-  let rawStr = ''
-  const maxScan = Math.min(bytes.length, 150000)
-  for (let i = 0; i < maxScan; i++) {
-    const b = bytes[i]
-    if ((b >= 32 && b <= 126) || b === 10 || b === 13) {
-      rawStr += String.fromCharCode(b)
-    } else {
-      rawStr += ' '
+    // Delegate to backend python-ai pypdf + OCR engine instead of scanning binary bytes
+    return {
+      text: '',
+      method: 'PDF Text & OCR Engine',
+      charCount: 0
     }
   }
-  const words = rawStr.match(/[A-Za-z0-9_.,;:!?'"/\-()]{3,}/g) || []
-  const text = words.slice(0, 500).join(' ').trim()
+
+  // 5. Image files — always delegate to backend OCR engine (never scan binary image bytes!)
+  if (['PNG', 'JPG', 'JPEG', 'WEBP', 'TIFF', 'BMP'].includes(ext)) {
+    return {
+      text: '',
+      method: 'Optical Character Recognition (OCR)',
+      charCount: 0
+    }
+  }
 
   return {
-    text,
-    method: 'Binary Stream Text Scanner',
-    charCount: text.length
+    text: '',
+    method: 'Server Document & OCR Extractor',
+    charCount: 0
   }
 }
 

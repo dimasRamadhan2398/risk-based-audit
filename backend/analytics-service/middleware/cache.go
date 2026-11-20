@@ -94,39 +94,59 @@ var DefaultCacheConfigs = map[string]CacheConfig{
 		IsPublic: false,
 		VaryBy:   "Accept-Encoding, Authorization",
 	},
-	// CAATT Analytics - lower change frequency
+	"GET /api/analytics/retrain/status": {
+		MaxAge:   0,
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
+	},
+	"POST /api/analytics/retrain/auto": {
+		MaxAge:   0,
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
+	},
+	"POST /api/analytics/retrain/model": {
+		MaxAge:   0,
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
+	},
+	"POST /api/analytics/performance-trend/auditor-forecast": {
+		MaxAge:   0,
+		IsPublic: false,
+		VaryBy:   "Accept-Encoding, Authorization",
+	},
+	// CAATT Analytics - dynamic real-time data per synced Data Source & digit filter; never serve stale browser cache
 	"GET /api/analytics/caatt/full-population": {
-		MaxAge:   1800, // 30 minutes
+		MaxAge:   0,
 		IsPublic: false,
 		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/caatt/duplicate-gap": {
-		MaxAge:   1800, // 30 minutes
+		MaxAge:   0,
 		IsPublic: false,
 		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/caatt/benford": {
-		MaxAge:   1800, // 30 minutes
+		MaxAge:   0,
 		IsPublic: false,
 		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/caatt/stratification": {
-		MaxAge:   1800, // 30 minutes
+		MaxAge:   0,
 		IsPublic: false,
 		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/caatt/reconciliation": {
-		MaxAge:   1800, // 30 minutes
+		MaxAge:   0,
 		IsPublic: false,
 		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/caatt/policy-violations": {
-		MaxAge:   1800, // 30 minutes
+		MaxAge:   0,
 		IsPublic: false,
 		VaryBy:   "Accept-Encoding, Authorization",
 	},
 	"GET /api/analytics/caatt/data-quality": {
-		MaxAge:   1800, // 30 minutes
+		MaxAge:   0,
 		IsPublic: false,
 		VaryBy:   "Accept-Encoding, Authorization",
 	},
@@ -171,6 +191,15 @@ func ResponseCache() gin.HandlerFunc {
 				c.Next()
 				return
 			}
+		}
+
+		// Explicitly disable client/proxy caching for dynamic endpoints (e.g. CAATT per-source analytics)
+		if config.MaxAge <= 0 {
+			c.Header("Cache-Control", "private, no-store, no-cache, must-revalidate")
+			c.Header("Pragma", "no-cache")
+			c.Header("Expires", "0")
+			c.Next()
+			return
 		}
 
 		// Wrap response writer to capture body

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
+import { useI18n } from '~/composables/useI18n'
 import { extractErrorMessage } from '~/utils/error'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 import { viewDocumentInNewTab } from '~/utils/documentViewer'
@@ -22,6 +23,7 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
   const loading = ref(false)
   const errorMsg = ref('')
   const toast = useToastNotification()
+  const { t } = useI18n()
 
   const fetchImportedPapers = async () => {
     loading.value = true
@@ -42,7 +44,7 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
       }
     } catch (error) {
       console.error('Failed to fetch imported working papers:', error)
-      errorMsg.value = extractErrorMessage(error, 'Failed to load imported working papers.')
+      errorMsg.value = extractErrorMessage(error, t('toasts.document.loadFailed', { name: t('toasts.documentTypes.workingPaper') }))
     } finally {
       loading.value = false
     }
@@ -70,14 +72,14 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
         method: 'POST',
         body: formData
       })
-      toast.showSuccess('Working paper imported successfully')
+      toast.showSuccess(t('toasts.document.uploaded', { name: t('toasts.documentTypes.workingPaper') }))
       await fetchImportedPapers()
       return response
     } catch (error: any) {
       console.error('Failed to upload working paper:', error)
-      const detail = extractErrorMessage(error, 'Failed to upload working paper.')
+      const detail = extractErrorMessage(error, t('toasts.document.uploadFailed', { name: t('toasts.documentTypes.workingPaper') }))
       errorMsg.value = detail
-      toast.showError('Failed to upload working paper.', detail)
+      toast.showError(t('toasts.document.uploadFailed', { name: t('toasts.documentTypes.workingPaper') }), detail)
       throw error
     } finally {
       loading.value = false
@@ -92,13 +94,12 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
       await $fetch(`${baseUrl}/working-papers/imports/${id}`, {
         method: 'DELETE'
       })
-      toast.showSuccess('Imported working paper deleted successfully')
+      toast.showSuccess(t('toasts.document.deleted', { name: t('toasts.documentTypes.workingPaper') }))
       await fetchImportedPapers()
     } catch (error) {
       console.error('Failed to delete imported working paper:', error)
-      const detail = extractErrorMessage(error, 'Failed to delete imported working paper.')
+      const detail = extractErrorMessage(error, t('toasts.document.deleteFailed', { name: t('toasts.documentTypes.workingPaper') }))
       errorMsg.value = detail
-      toast.showError('Failed to delete imported working paper.', detail)
       throw error
     } finally {
       loading.value = false
@@ -129,9 +130,9 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
       )
     } catch (error) {
       console.error('Failed to view document:', error)
-      const detail = extractErrorMessage(error, 'Failed to view document.')
+      const detail = extractErrorMessage(error, t('toasts.document.viewFailed'))
       errorMsg.value = detail
-      toast.showError('Failed to view document.', detail)
+      toast.showError(t('toasts.document.viewFailed'), detail)
     }
   }
 
@@ -149,9 +150,9 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
       window.URL.revokeObjectURL(link.href)
     } catch (error) {
       console.error('Failed to download imported working paper:', error)
-      const detail = extractErrorMessage(error, 'Failed to download file.')
+      const detail = extractErrorMessage(error, t('toasts.document.downloadFailed'))
       errorMsg.value = detail
-      toast.showError('Failed to download file.', detail)
+      toast.showError(t('toasts.document.downloadFailed'), detail)
     }
   }
 

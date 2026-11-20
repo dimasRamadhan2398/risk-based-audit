@@ -57,6 +57,31 @@ export const THRESHOLD_MIN = 1
 export const THRESHOLD_MAX = 365
 export const DEFAULT_THRESHOLDS = { lhaDueDays: 30, managementResponseDueDays: 14 } as const
 
+/** Fixed signal weights per component (mirrors audit-service ic_assessment/scoring.go SignalDefs; display only). */
+export const SIGNAL_WEIGHTS: Record<ComponentCode, { key: string, weight: number }[]> = {
+  CE: [
+    { key: 'ce.integrity_pact', weight: 60 },
+    { key: 'ce.unit_accountability', weight: 20 },
+    { key: 'ce.audit_charter', weight: 20 }
+  ],
+  RA: [
+    { key: 'ra.quarterly_coverage', weight: 50 },
+    { key: 'ra.above_appetite_mitigated', weight: 50 }
+  ],
+  CA: [{ key: 'ca.rcm_effectiveness', weight: 100 }],
+  IC: [
+    { key: 'ic.lha_timeliness', weight: 50 },
+    { key: 'ic.management_response', weight: 50 }
+  ],
+  MA: [
+    { key: 'ma.atr_completed_on_time', weight: 50 },
+    { key: 'ma.atr_not_overdue', weight: 50 }
+  ]
+}
+
+/** Minimum share of a component's weight that must have data to get a proposal (scoring.go MinCoveragePct). */
+export const MIN_COVERAGE_PCT = 50
+
 // ============= Model =============
 
 export interface IcActor {

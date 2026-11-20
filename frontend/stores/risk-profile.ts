@@ -268,7 +268,7 @@ export const useRiskProfileStore = defineStore('risk-profile', () => {
     risksLoadError.value = ''
     try {
       const baseUrl = getRiskServiceBaseUrl()
-      const response: any = await $fetch(`${baseUrl}/risks`)
+      const response: any = await $fetch(`${baseUrl}/risks`, { cache: 'no-store' })
       const data = Array.isArray(response?.data) ? response.data : []
       rawRisks.value = data.map((r: any, idx: number) => ({
         ...r,

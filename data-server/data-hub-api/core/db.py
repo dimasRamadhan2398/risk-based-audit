@@ -191,6 +191,25 @@ def build_client_conn_string(src: dict, root_cert_path=None) -> str:
         return f"oracle+cx_oracle://{auth}{host}:{port}/?service_name={db}"
     return _postgres_conninfo(src, root_cert_path)
 
+def _docker_fallback_sources(src: dict) -> list:
+    """When running inside a Docker container, resolve loopback hosts (localhost/127.0.0.1)
+    to host.docker.internal or the local Docker PostgreSQL service if local loopback is refused."""
+    if not os.path.exists("/.dockerenv"):
+        return []
+    host = (src.get("host") or "").strip().lower()
+    port = int(src.get("port") or 5432)
+    fallbacks = []
+    if host in ("localhost", "127.0.0.1", "::1"):
+        fallbacks.append({**src, "host": "host.docker.internal", "port": port})
+        if port == 5432:
+            fallbacks.append({**src, "host": "postgres-cbs-sim", "port": 5432})
+            fallbacks.append({**src, "host": "host.docker.internal", "port": 5434})
+    elif host == "host.docker.internal" and port == 5432:
+        fallbacks.append({**src, "host": "postgres-cbs-sim", "port": 5432})
+        fallbacks.append({**src, "host": "host.docker.internal", "port": 5434})
+    return fallbacks
+
+
 @contextmanager
 def get_read_only_client_conn(src: dict):
     """
@@ -203,12 +222,24 @@ def get_read_only_client_conn(src: dict):
 
     if "postgres" in stype:
         # Connect with psycopg3 (fail-fast within 3s if external host is down)
-        with client_postgres_conninfo(src) as conn_str:
-            conn = psycopg.connect(conn_str, autocommit=True, connect_timeout=3)
+        conn = None
+        last_err = None
+        candidates = [src] + _docker_fallback_sources(src)
+        for cand in candidates:
+            try:
+                with client_postgres_conninfo(cand) as conn_str:
+                    conn = psycopg.connect(conn_str, autocommit=True, connect_timeout=3)
+                break
+            except psycopg.OperationalError as err:
+                if last_err is None:
+                    last_err = err
+        if conn is None:
+            raise last_err
         # CA temp file is already removed here; the TLS session is established.
         with conn:
             with conn.cursor() as cur:
-                cur.execute(f"SET TRANSACTION READ ONLY;")
+                cur.execute("SET search_path TO public, cbs;")
+                cur.execute("SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY;")
                 cur.execute(f"SET statement_timeout = '{timeout_ms}';")
             yield conn
     else:

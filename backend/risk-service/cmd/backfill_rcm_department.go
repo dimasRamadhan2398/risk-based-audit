@@ -13,6 +13,7 @@ import (
 	"risk-service/pkg/database"
 	"risk-service/pkg/logger"
 	"risk-service/pkg/masterclient"
+	"risk-service/services"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -76,9 +77,7 @@ type rcmDepartmentMiss struct {
 	Reason      string
 }
 
-func normalizeDepartmentName(s string) string {
-	return strings.ToLower(strings.Join(strings.Fields(s), " "))
-}
+func normalizeDepartmentName(s string) string { return services.NormalizeDepartmentName(s) }
 
 // planRCMDepartmentBackfill decides which rows can be linked. Rows that
 // already have a department_id are skipped.

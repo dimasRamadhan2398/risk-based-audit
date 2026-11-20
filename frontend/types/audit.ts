@@ -484,6 +484,9 @@ export interface AssignmentLetterForm {
   startPeriod: string;  // Format YYYY-MM-DD
   finishPeriod: string; // Format YYYY-MM-DD
   workingUnit: string;
+  /** Unit Kerja as a master-service department id; workingUnit is its display text ("Name (CODE)").
+   *  Empty on letters saved before it existed until picked again or backfilled. */
+  workingUnitDepartmentId?: string | null;
   companyId?: string;
   companyName?: string;
   auditPurpose: string;

@@ -76,7 +76,10 @@ type RCMRequest struct {
 	// COSO 2013 mapping and master department. Omitted = unchanged on PUT;
 	// department_id / coso_component_code null = clear; coso_principle_codes
 	// [] = clear (null is treated as omitted).
-	DepartmentID       optionalString `json:"department_id"`
+	DepartmentID optionalString `json:"department_id"`
+	// location_id: the row's own branch (Location master). Omitted =
+	// unchanged on PUT; null/"" = follow the linked risk's branch.
+	LocationID         optionalString `json:"location_id"`
 	CosoComponentCode  optionalString `json:"coso_component_code"`
 	CosoPrincipleCodes *[]string      `json:"coso_principle_codes"`
 }
@@ -343,6 +346,9 @@ func (ctrl *RCMController) handleCosoResolveError(c *gin.Context, fields fieldEr
 	switch {
 	case errors.Is(err, errDepartmentsUnavailable):
 		respondDepartmentsUnavailable(c)
+		return false
+	case errors.Is(err, errLocationsUnavailable):
+		respondLocationsUnavailable(c)
 		return false
 	case err != nil:
 		respondDB(c, "Failed to validate RCM item", err)

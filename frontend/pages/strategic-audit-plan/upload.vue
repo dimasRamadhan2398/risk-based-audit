@@ -311,7 +311,7 @@ const formatDate = (dateString: string) => {
 
 const handleUpload = async () => {
   if (!form.value.title || !form.value.fileName || !form.value.file) {
-    toast.showWarning('Validasi Gagal', 'Mohon lengkapi judul dan file sebelum mengunggah.')
+    toast.showWarning(t('toasts.upload.validationFailed'), t('toasts.upload.titleAndFileRequired'))
     return
   }
 
@@ -324,12 +324,11 @@ const handleUpload = async () => {
       file: form.value.file
     })
 
-    toast.showSuccess('Upload Berhasil', 'Dokumen berhasil diunggah.')
     form.value.title = ''
     form.value.description = ''
     clearFile()
   } catch (error: any) {
-    toast.showError(store.errorMsg || 'Gagal mengunggah dokumen.')
+    // Error toast is shown by the store
   }
 }
 
@@ -337,9 +336,8 @@ const handleDelete = async (id: string) => {
   if (await useGlobalModalStore().confirmDelete({ description: t('strategicPlan.upload.deleteConfirm') })) {
     try {
       await store.deleteDocument(id)
-      toast.showSuccess('Hapus Berhasil', 'Dokumen berhasil dihapus.')
     } catch (error: any) {
-      toast.showError(store.errorMsg || 'Gagal menghapus dokumen.')
+      // Error toast is shown by the store
     }
   }
 }

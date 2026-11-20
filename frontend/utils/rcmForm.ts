@@ -31,6 +31,7 @@ export const createEmptyRcmForm = (year: number, overrides: Partial<RCMFormData>
   control_owner: '',
   department: 'Head Office',
   department_id: null,
+  location_id: null,
   coso_component_code: null,
   coso_principle_codes: [],
   year,
@@ -55,6 +56,7 @@ export const rcmFormFromItem = (item: RCMItem): RCMFormData => {
     ...copy,
     control_type: copy.control_type || 'Preventive',
     department_id: copy.department_id || null,
+    location_id: copy.location_id || null,
     coso_component_code: copy.coso_component_code || null,
     coso_principle_codes: Array.isArray(copy.coso_principle_codes) ? copy.coso_principle_codes : []
   } as RCMFormData
