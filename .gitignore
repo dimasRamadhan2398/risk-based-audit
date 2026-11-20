@@ -72,3 +72,4 @@ __pycache__/
 
 # Local sample DB TLS material (never commit keys)
 local-sample-db/certs/
+data-server/local-sample-db/certs/
