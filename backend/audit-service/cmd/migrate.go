@@ -134,7 +134,33 @@ Usage: audit migrate backfill-annual-snapshots [--from-source] [--dry-run]`,
 	backfillSnapshotsCmd.Flags().BoolVar(&backfillSnapshotsFromSource, "from-source", false,
 		"Refresh annual_snapshot_refs from master-service and risk-service first (self-signed service token, or "+servicetoken.OverrideEnv+")")
 
-	migrateCmd.AddCommand(upCmd, downCmd, statusCmd, backfillCmd, backfillSnapshotsCmd)
+	// backfill-department-ids - link legacy letters and LHAs to master
+	// departments by id (IC Assessment matches LHAs by department id)
+	backfillDeptIDsCmd := &cobra.Command{
+		Use:   "backfill-department-ids",
+		Short: "Link legacy assignment letters and LHAs to master departments by id (dry run unless --apply)",
+		Long: `Sets assignment_letters.working_unit_department_id and
+audit_result_reports.department_id where they are NULL.
+
+A letter is linked when its Unit Kerja text names exactly one master-service
+department (its id, code, name or "Name (CODE)"; trimmed, case-insensitive).
+An LHA takes its letter's department; an LHA whose letter has none is matched
+on its own department text the same way. Ambiguous and unmatched rows are
+listed and left alone. Only the id columns are written, in one transaction;
+re-running is a no-op.
+
+master-service requires a JWT: a 5-minute service token is signed with this
+stack's jwt.secret, or set ` + servicetoken.OverrideEnv + `.
+
+  docker exec <audit container> ./audit migrate backfill-department-ids           # dry run
+  docker exec <audit container> ./audit migrate backfill-department-ids --apply
+
+Usage: audit migrate backfill-department-ids [--apply]`,
+		RunE: runBackfillDepartmentIDs,
+	}
+	backfillDeptIDsCmd.Flags().BoolVar(&backfillDeptIDsApply, "apply", false, "Write the links (default is a dry run)")
+
+	migrateCmd.AddCommand(upCmd, downCmd, statusCmd, backfillCmd, backfillSnapshotsCmd, backfillDeptIDsCmd)
 
 	rootCmd.AddCommand(migrateCmd)
 }

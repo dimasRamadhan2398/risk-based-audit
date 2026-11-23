@@ -619,7 +619,7 @@
 
           <!-- Quarterly residual inputs for editing -->
           <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-gray-50/50 dark:bg-gray-900/50 space-y-4">
-            <span class="block text-md font-black uppercase tracking-wider text-warning-500">{{ t('riskProfile.addModal.quarterlyTitle', { year: store.selectedYear }) }}</span>
+            <span class="block text-md font-black tracking-wider text-primary">{{ t('riskProfile.addModal.quarterlyTitle', { year: store.selectedYear }) }}</span>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div v-for="q in ['q1', 'q2', 'q3', 'q4']" :key="q" class="space-y-2 border-r last:border-0 border-gray-200 dark:border-gray-700 pr-2">
                 <span class="text-md font-black uppercase text-gray-500">{{ q }}</span>

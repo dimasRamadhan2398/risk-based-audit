@@ -69,9 +69,26 @@ export interface ModuleCompatibilityEvaluation {
   actionType:
     | 'risk_profile'
     | 'audit_universe'
+    | 'risk_appetite'
+    | 'risk_factors'
+    | 'audit_priority'
+    | 'rcm'
+    | 'risk_mitigation'
     | 'strategic_plan'
     | 'annual_plan'
     | 'working_paper'
+    | 'audit_activity_plan'
+    | 'assignment_letter'
+    | 'audit_execution_status'
+    | 'audit_fieldwork'
+    | 'internal_audit_kpi'
+    | 'audit_result_report'
+    | 'action_taken_report'
+    | 'qar_dashboard'
+    | 'periodic_self_assessment'
+    | 'saiv_validation'
+    | 'iacm_assessment'
+    | 'consulting_service'
     | 'ai_entity_prediction'
     | 'ai_anomaly'
     | 'ai_nlp'
@@ -124,36 +141,36 @@ export interface ModuleCatalogEntry {
 export const MODULE_CATALOG: ModuleCatalogEntry[] = [
   // Risk Management
   { scope: 'risk_management', module: 'Corporate Risk Profile', actionType: 'risk_profile', supported: true, importMode: 'auto', route: '/risk-profile' },
-  { scope: 'risk_management', module: 'Audit Universe', actionType: 'audit_universe', supported: true, importMode: 'auto', route: '/audit-universe' },
-  { scope: 'risk_management', module: 'Risk Appetite Statement', actionType: 'unsupported', supported: false, importMode: 'unsupported', route: '/risk-appetite' },
-  { scope: 'risk_management', module: 'Risk Factors', actionType: 'unsupported', supported: false, importMode: 'unsupported', route: '/risk-factors' },
-  { scope: 'risk_management', module: 'Audit Priority', actionType: 'unsupported', supported: false, importMode: 'unsupported', route: '/audit-priority' },
-  { scope: 'risk_management', module: 'Risk Control Matrix (RCM)', actionType: 'unsupported', supported: false, importMode: 'unsupported', route: '/rcm' },
-  { scope: 'risk_management', module: 'Risk Mitigation', actionType: 'unsupported', supported: false, importMode: 'unsupported', route: '/risk-mitigation' },
+  { scope: 'risk_management', module: 'Audit Universe', actionType: 'audit_universe', supported: true, importMode: 'auto', route: '/risk-profile/audit-universe' },
+  { scope: 'risk_management', module: 'Risk Appetite Statement', actionType: 'risk_appetite', supported: true, importMode: 'auto', route: '/risk-appetite' },
+  { scope: 'risk_management', module: 'Risk Factors', actionType: 'risk_factors', supported: true, importMode: 'auto', route: '/risk-profile/risk-factors' },
+  { scope: 'risk_management', module: 'Audit Priority', actionType: 'audit_priority', supported: true, importMode: 'auto', route: '/risk-profile/audit-priority' },
+  { scope: 'risk_management', module: 'Risk Control Matrix (RCM)', actionType: 'rcm', supported: true, importMode: 'auto', route: '/risk-profile/risk-control-matrix' },
+  { scope: 'risk_management', module: 'Risk Mitigation', actionType: 'risk_mitigation', supported: true, importMode: 'auto', route: '/mitigation' },
 
   // Audit Features
   { scope: 'audit_features', module: 'Strategic Audit Plan', actionType: 'strategic_plan', supported: true, importMode: 'manual_banner', route: '/strategic-audit-plan' },
   { scope: 'audit_features', module: 'Annual Audit Plan', actionType: 'annual_plan', supported: true, importMode: 'manual_banner', route: '/annual-audit' },
   { scope: 'audit_features', module: 'Working Paper Evidence', actionType: 'working_paper', supported: true, importMode: 'prefill_form', route: '/working-paper?step=f03' },
-  { scope: 'audit_features', module: 'Audit Activity Plan', actionType: 'unsupported', supported: false, importMode: 'unsupported', route: '/audit-activity-plan' },
-  { scope: 'audit_features', module: 'Assignment Letter', actionType: 'unsupported', supported: false, importMode: 'unsupported', route: '/assignment-letter' },
-  { scope: 'audit_features', module: 'Audit Execution Status', actionType: 'unsupported', supported: false, importMode: 'unsupported', route: '/audit-execution' },
-  { scope: 'audit_features', module: 'Audit Fieldwork', actionType: 'unsupported', supported: false, importMode: 'unsupported', route: '/audit-fieldwork' },
-  { scope: 'audit_features', module: 'Internal Audit Performance (KPI)', actionType: 'unsupported', supported: false, importMode: 'unsupported', route: '/performance-kpi' },
-  { scope: 'audit_features', module: 'Audit Result Report (LHA)', actionType: 'unsupported', supported: false, importMode: 'unsupported', route: '/audit-result-report' },
-  { scope: 'audit_features', module: 'Action Taken Report (ATR)', actionType: 'unsupported', supported: false, importMode: 'unsupported', route: '/action-taken-report' },
+  { scope: 'audit_features', module: 'Audit Activity Plan', actionType: 'audit_activity_plan', supported: true, importMode: 'prefill_form', route: '/audit-activity-plan' },
+  { scope: 'audit_features', module: 'Assignment Letter', actionType: 'assignment_letter', supported: true, importMode: 'auto', route: '/assignment-letter' },
+  { scope: 'audit_features', module: 'Audit Execution Status', actionType: 'audit_execution_status', supported: true, importMode: 'auto', route: '/audit-execution-status' },
+  { scope: 'audit_features', module: 'Audit Fieldwork', actionType: 'audit_fieldwork', supported: true, importMode: 'auto', route: '/audit-fieldwork' },
+  { scope: 'audit_features', module: 'Internal Audit Performance (KPI)', actionType: 'internal_audit_kpi', supported: true, importMode: 'auto', route: '/kpi-performance' },
+  { scope: 'audit_features', module: 'Audit Result Report (LHA)', actionType: 'audit_result_report', supported: true, importMode: 'auto', route: '/audit-result-report' },
+  { scope: 'audit_features', module: 'Action Taken Report (ATR)', actionType: 'action_taken_report', supported: true, importMode: 'auto', route: '/action-taken-report' },
 
   // QAR Features
-  { scope: 'qar_features', module: 'Quality Assurance Dashboard', actionType: 'unsupported', supported: false, importMode: 'unsupported', route: '/qar' },
-  { scope: 'qar_features', module: 'Periodic Self-Assessment', actionType: 'unsupported', supported: false, importMode: 'unsupported', route: '/qar' },
-  { scope: 'qar_features', module: 'SAIV Validation', actionType: 'unsupported', supported: false, importMode: 'unsupported', route: '/qar' },
-  { scope: 'qar_features', module: 'IACM Assessment', actionType: 'unsupported', supported: false, importMode: 'unsupported', route: '/qar' },
-  { scope: 'qar_features', module: 'Consulting Service', actionType: 'unsupported', supported: false, importMode: 'unsupported', route: '/qar' },
+  { scope: 'qar_features', module: 'Quality Assurance Dashboard', actionType: 'qar_dashboard', supported: true, importMode: 'auto', route: '/quality-assurance' },
+  { scope: 'qar_features', module: 'Periodic Self-Assessment', actionType: 'periodic_self_assessment', supported: true, importMode: 'auto', route: '/quality-assurance/import-periodic-self-assessment' },
+  { scope: 'qar_features', module: 'SAIV Validation', actionType: 'saiv_validation', supported: true, importMode: 'auto', route: '/quality-assurance/import-saiv' },
+  { scope: 'qar_features', module: 'IACM Assessment', actionType: 'iacm_assessment', supported: true, importMode: 'auto', route: '/quality-assurance/import-iacm' },
+  { scope: 'qar_features', module: 'Consulting Service', actionType: 'consulting_service', supported: true, importMode: 'auto', route: '/consulting-service' },
 
   // Data Analytics / AI
   { scope: 'data_analytics', module: 'AI: Entity Prediction', actionType: 'ai_entity_prediction', supported: true, importMode: 'auto', route: '/analytics/ai/risk-scoring' },
   { scope: 'data_analytics', module: 'AI: Anomaly Detection', actionType: 'ai_anomaly', supported: true, importMode: 'auto', route: '/analytics/ai/anomaly-detection' },
-  { scope: 'data_analytics', module: 'AI: NLP Document Analysis', actionType: 'ai_nlp', supported: true, importMode: 'auto', route: '/analytics/ai/nlp-analysis' },
+  { scope: 'data_analytics', module: 'AI: NLP Document Analysis', actionType: 'ai_nlp', supported: true, importMode: 'auto', route: '/analytics/ai/nlp' },
   { scope: 'data_analytics', module: 'AI: KPI & Loss Forecast', actionType: 'ai_kpi_forecast', supported: true, importMode: 'auto', route: '/analytics/ai/kpi-forecast' },
 ]
 
@@ -897,6 +914,656 @@ export function evaluateModuleCompatibility(
       }
     }
 
+    case 'risk_appetite': {
+      const ok =
+        !s.isReferenceTable &&
+        (s.hasNumericMeasure || s.hasIncidentOrRiskSignals || s.hasAnomalyFlag)
+      if (!ok) {
+        return {
+          targetModule: entry.module,
+          targetScope: entry.scope,
+          actionType: entry.actionType,
+          supported: true,
+          compatible: false,
+          recommended: false,
+          priority: 0,
+          importMode: entry.importMode,
+          route: entry.route,
+          reason: s.isReferenceTable
+            ? `Tabel '${table.tableName}' adalah tabel referensi master tanpa metrik ambang batas risiko atau nominal eksposur untuk Risk Appetite Statement.`
+            : `Tabel '${table.tableName}' tidak memiliki kolom metrik kuantitatif, nominal eksposur, atau sinyal deviasi untuk Risk Appetite Statement.`,
+          shortReason: s.isReferenceTable
+            ? 'Tabel referensi master tanpa metrik ambang risiko'
+            : 'Tidak memiliki metrik ambang batas risiko',
+        }
+      }
+      const recommended = s.hasMonetaryMeasure && (s.hasAnomalyFlag || s.hasIncidentOrRiskSignals || s.hasQuantitativeKpi)
+      return {
+        targetModule: entry.module,
+        targetScope: entry.scope,
+        actionType: entry.actionType,
+        supported: true,
+        compatible: true,
+        recommended,
+        priority: recommended ? 77 : 68,
+        importMode: entry.importMode,
+        route: entry.route,
+        reason: `Cocok: metrik eksposur/deviasi (${s.amountColumn || s.metricColumns[0] || s.flagColumns[0]}) dapat diturunkan menjadi ambang batas Risk Appetite Statement.`,
+        shortReason: 'Cocok',
+      }
+    }
+
+    case 'risk_factors': {
+      const ok =
+        !s.isReferenceTable &&
+        (s.hasIncidentOrRiskSignals || s.hasNumericMeasure || s.hasAnomalyFlag || s.hasRiskTierColumn)
+      if (!ok) {
+        return {
+          targetModule: entry.module,
+          targetScope: entry.scope,
+          actionType: entry.actionType,
+          supported: true,
+          compatible: false,
+          recommended: false,
+          priority: 0,
+          importMode: entry.importMode,
+          route: entry.route,
+          reason: s.isReferenceTable
+            ? `Tabel '${table.tableName}' adalah tabel referensi master tanpa parameter bobot/indikator faktor risiko untuk Risk Factors.`
+            : `Tabel '${table.tableName}' tidak memiliki indikator faktor risiko, metrik eksposur, atau sinyal kepatuhan untuk Risk Factors.`,
+          shortReason: s.isReferenceTable
+            ? 'Tabel referensi master tanpa faktor risiko'
+            : 'Tidak memiliki indikator faktor risiko',
+        }
+      }
+      const recommended = s.archetype === 'incident_risk' || (s.hasQuantitativeKpi && s.hasAnomalyFlag)
+      return {
+        targetModule: entry.module,
+        targetScope: entry.scope,
+        actionType: entry.actionType,
+        supported: true,
+        compatible: true,
+        recommended,
+        priority: recommended ? 79 : 69,
+        importMode: entry.importMode,
+        route: entry.route,
+        reason: `Cocok: parameter risiko dari kolom (${s.metricColumns[0] || s.amountColumn || s.flagColumns[0] || s.primaryKeyColumn}) dapat dipetakan ke katalog Risk Factors.`,
+        shortReason: 'Cocok',
+      }
+    }
+
+    case 'audit_priority': {
+      const ok =
+        (s.hasDimensionColumn || s.hasEvidenceIdentifier) &&
+        (s.hasNumericMeasure || s.hasIncidentOrRiskSignals || s.hasRiskTierColumn || s.hasAnomalyFlag)
+      if (!ok) {
+        return {
+          targetModule: entry.module,
+          targetScope: entry.scope,
+          actionType: entry.actionType,
+          supported: true,
+          compatible: false,
+          recommended: false,
+          priority: 0,
+          importMode: entry.importMode,
+          route: entry.route,
+          reason: `Tabel '${table.tableName}' tidak memiliki pasangan kolom entitas/unit dan indikator tingkat risiko untuk perhitungan Audit Priority.`,
+          shortReason: 'Tidak memiliki pasangan entitas & indikator risiko',
+        }
+      }
+      const recommended = s.hasDimensionColumn && (s.hasIncidentOrRiskSignals || s.hasRiskTierColumn || s.hasAnomalyFlag)
+      return {
+        targetModule: entry.module,
+        targetScope: entry.scope,
+        actionType: entry.actionType,
+        supported: true,
+        compatible: true,
+        recommended,
+        priority: s.archetype === 'incident_risk' ? 85 : 79,
+        importMode: entry.importMode,
+        route: entry.route,
+        reason: `Cocok: entitas (${s.dimensionColumn || s.primaryKeyColumn}) beserta sinyal risiko dapat dihitung skor indeks prioritas auditnya di Audit Priority.`,
+        shortReason: 'Cocok',
+      }
+    }
+
+    case 'rcm': {
+      const ok =
+        !s.isReferenceTable &&
+        (s.hasIncidentOrRiskSignals || s.hasAnomalyFlag || s.hasNumericMeasure || s.hasContractOrAuditText)
+      if (!ok) {
+        return {
+          targetModule: entry.module,
+          targetScope: entry.scope,
+          actionType: entry.actionType,
+          supported: true,
+          compatible: false,
+          recommended: false,
+          priority: 0,
+          importMode: entry.importMode,
+          route: entry.route,
+          reason: s.isReferenceTable
+            ? `Tabel '${table.tableName}' adalah tabel referensi master tanpa data pengujian pengendalian atau deviasi untuk Risk Control Matrix (RCM).`
+            : `Tabel '${table.tableName}' tidak memiliki sinyal pengendalian internal, flag deviasi, atau insiden risiko untuk Risk Control Matrix (RCM).`,
+          shortReason: s.isReferenceTable
+            ? 'Tabel referensi master tanpa sinyal kontrol'
+            : 'Tidak memiliki sinyal kontrol/risiko',
+        }
+      }
+      const recommended = s.archetype === 'incident_risk' || s.hasAnomalyFlag || s.hasContractOrAuditText
+      return {
+        targetModule: entry.module,
+        targetScope: entry.scope,
+        actionType: entry.actionType,
+        supported: true,
+        compatible: true,
+        recommended,
+        priority: s.archetype === 'incident_risk' ? 87 : 76,
+        importMode: entry.importMode,
+        route: entry.route,
+        reason: `Cocok: sinyal kontrol & deviasi pada '${table.tableName}' dapat dipetakan menjadi matriks pengendalian COSO di Risk Control Matrix (RCM).`,
+        shortReason: 'Cocok',
+      }
+    }
+
+    case 'risk_mitigation': {
+      const ok =
+        !s.isReferenceTable &&
+        (s.hasIncidentOrRiskSignals || s.hasAnomalyFlag || s.hasMonetaryMeasure || s.hasContractOrAuditText)
+      if (!ok) {
+        return {
+          targetModule: entry.module,
+          targetScope: entry.scope,
+          actionType: entry.actionType,
+          supported: true,
+          compatible: false,
+          recommended: false,
+          priority: 0,
+          importMode: entry.importMode,
+          route: entry.route,
+          reason: s.isReferenceTable
+            ? `Tabel '${table.tableName}' adalah tabel referensi master tanpa insiden atau eksposur risiko yang memerlukan rencana Risk Mitigation.`
+            : `Tabel '${table.tableName}' tidak memiliki catatan insiden, deviasi kepatuhan, atau eksposur risiko untuk Risk Mitigation.`,
+          shortReason: s.isReferenceTable
+            ? 'Tabel referensi master tanpa eksposur risiko'
+            : 'Tidak memiliki insiden/eksposur untuk dimitigasi',
+        }
+      }
+      const recommended = s.archetype === 'incident_risk' || s.hasAnomalyFlag
+      return {
+        targetModule: entry.module,
+        targetScope: entry.scope,
+        actionType: entry.actionType,
+        supported: true,
+        compatible: true,
+        recommended,
+        priority: s.archetype === 'incident_risk' ? 86 : 74,
+        importMode: entry.importMode,
+        route: entry.route,
+        reason: `Cocok: baris berisiko/berflag pada '${table.tableName}' dapat diturunkan menjadi rencana tindak mitigasi di Risk Mitigation.`,
+        shortReason: 'Cocok',
+      }
+    }
+
+    case 'audit_activity_plan': {
+      const ok =
+        !s.isReferenceTable &&
+        (s.hasDimensionColumn || s.hasEvidenceIdentifier) &&
+        (s.hasNumericMeasure || s.hasIncidentOrRiskSignals || s.hasEventDate || s.hasNarrativeText)
+      if (!ok) {
+        return {
+          targetModule: entry.module,
+          targetScope: entry.scope,
+          actionType: entry.actionType,
+          supported: true,
+          compatible: false,
+          recommended: false,
+          priority: 0,
+          importMode: entry.importMode,
+          route: entry.route,
+          reason: s.isReferenceTable
+            ? `Tabel '${table.tableName}' adalah tabel referensi master tanpa rincian kegiatan/objek pemeriksaan untuk Audit Activity Plan.`
+            : `Tabel '${table.tableName}' tidak memiliki rincian aktivitas operasional atau objek audit untuk Audit Activity Plan.`,
+          shortReason: s.isReferenceTable
+            ? 'Tabel referensi master tanpa rincian kegiatan'
+            : 'Tidak memiliki rincian kegiatan audit',
+        }
+      }
+      const recommended = s.hasDimensionColumn && (s.hasIncidentOrRiskSignals || s.hasAnomalyFlag)
+      return {
+        targetModule: entry.module,
+        targetScope: entry.scope,
+        actionType: entry.actionType,
+        supported: true,
+        compatible: true,
+        recommended,
+        priority: recommended ? 75 : 66,
+        importMode: entry.importMode,
+        route: entry.route,
+        reason: `Cocok: aktivitas/entitas (${s.dimensionColumn || s.primaryKeyColumn}) dapat digunakan untuk pre-fill Formulir Rencana Kegiatan Audit.`,
+        shortReason: 'Cocok',
+      }
+    }
+
+    case 'assignment_letter': {
+      const ok = s.hasDimensionColumn || (!s.isReferenceTable && s.hasEvidenceIdentifier)
+      if (!ok) {
+        return {
+          targetModule: entry.module,
+          targetScope: entry.scope,
+          actionType: entry.actionType,
+          supported: true,
+          compatible: false,
+          recommended: false,
+          priority: 0,
+          importMode: entry.importMode,
+          route: entry.route,
+          reason: `Tabel '${table.tableName}' tidak memiliki kolom unit kerja/cabang atau objek penugasan untuk Assignment Letter.`,
+          shortReason: 'Tidak memiliki unit kerja/objek penugasan',
+        }
+      }
+      const recommended = !s.isReferenceTable && s.hasDimensionColumn && (s.hasIncidentOrRiskSignals || s.hasAnomalyFlag)
+      return {
+        targetModule: entry.module,
+        targetScope: entry.scope,
+        actionType: entry.actionType,
+        supported: true,
+        compatible: true,
+        recommended,
+        priority: recommended ? 74 : 65,
+        importMode: entry.importMode,
+        route: entry.route,
+        reason: `Cocok: unit kerja/entitas (${s.dimensionColumn || s.primaryKeyColumn}) dapat dibuatkan draft Surat Tugas (Assignment Letter).`,
+        shortReason: 'Cocok',
+      }
+    }
+
+    case 'audit_execution_status': {
+      const ok =
+        !s.isReferenceTable &&
+        (s.hasDimensionColumn || s.hasEvidenceIdentifier) &&
+        (s.hasEventDate || s.hasNumericMeasure || s.hasIncidentOrRiskSignals)
+      if (!ok) {
+        return {
+          targetModule: entry.module,
+          targetScope: entry.scope,
+          actionType: entry.actionType,
+          supported: true,
+          compatible: false,
+          recommended: false,
+          priority: 0,
+          importMode: entry.importMode,
+          route: entry.route,
+          reason: s.isReferenceTable
+            ? `Tabel '${table.tableName}' adalah tabel referensi master tanpa status tahapan pelaksanaan audit untuk Audit Execution Status.`
+            : `Tabel '${table.tableName}' tidak memiliki data aktivitas/tanggal pelaksanaan untuk Audit Execution Status.`,
+          shortReason: s.isReferenceTable
+            ? 'Tabel referensi master tanpa progres eksekusi'
+            : 'Tidak memiliki data aktivitas pelaksanaan',
+        }
+      }
+      const recommended = s.hasEventDate && (s.hasIncidentOrRiskSignals || s.hasAnomalyFlag)
+      return {
+        targetModule: entry.module,
+        targetScope: entry.scope,
+        actionType: entry.actionType,
+        supported: true,
+        compatible: true,
+        recommended,
+        priority: recommended ? 73 : 64,
+        importMode: entry.importMode,
+        route: entry.route,
+        reason: `Cocok: data pelaksanaan pada '${table.tableName}' dapat disinkronkan ke pemantauan Audit Execution Status.`,
+        shortReason: 'Cocok',
+      }
+    }
+
+    case 'audit_fieldwork': {
+      const ok =
+        !s.isReferenceTable &&
+        s.hasEvidenceIdentifier &&
+        (s.hasMonetaryMeasure || s.hasIncidentOrRiskSignals || s.hasAnomalyFlag || s.hasNarrativeText || s.hasEventDate)
+      if (!ok) {
+        return {
+          targetModule: entry.module,
+          targetScope: entry.scope,
+          actionType: entry.actionType,
+          supported: true,
+          compatible: false,
+          recommended: false,
+          priority: 0,
+          importMode: entry.importMode,
+          route: entry.route,
+          reason: s.isReferenceTable
+            ? `Tabel '${table.tableName}' adalah tabel referensi master tanpa bukti sampel, catatan observasi, atau pengujian kontrol untuk Audit Fieldwork.`
+            : `Tabel '${table.tableName}' tidak memiliki pengenal bukti atau sinyal transaksi/pengendalian untuk Audit Fieldwork.`,
+          shortReason: s.isReferenceTable
+            ? 'Tabel referensi master tanpa bukti fieldwork'
+            : 'Tidak memiliki bukti sampel/pengujian kontrol',
+        }
+      }
+      const recommended = s.archetype === 'incident_risk' || s.hasAnomalyFlag || s.hasContractOrAuditText
+      return {
+        targetModule: entry.module,
+        targetScope: entry.scope,
+        actionType: entry.actionType,
+        supported: true,
+        compatible: true,
+        recommended,
+        priority: recommended ? 82 : 73,
+        importMode: entry.importMode,
+        route: entry.route,
+        reason: `Cocok: rekaman bukti (${s.refColumn || s.primaryKeyColumn}) dapat diimpor menjadi Sample Data & Test Controls pada Audit Fieldwork.`,
+        shortReason: 'Cocok',
+      }
+    }
+
+    case 'internal_audit_kpi': {
+      const ok = !s.isReferenceTable && s.hasNumericMeasure
+      if (!ok) {
+        return {
+          targetModule: entry.module,
+          targetScope: entry.scope,
+          actionType: entry.actionType,
+          supported: true,
+          compatible: false,
+          recommended: false,
+          priority: 0,
+          importMode: entry.importMode,
+          route: entry.route,
+          reason: s.isReferenceTable
+            ? `Tabel '${table.tableName}' adalah tabel referensi master tanpa metrik kuantitatif untuk Internal Audit Performance (KPI).`
+            : `Tabel '${table.tableName}' tidak memiliki kolom metrik numerik atau rasio pencapaian untuk Internal Audit Performance (KPI).`,
+          shortReason: s.isReferenceTable
+            ? 'Tabel referensi master tanpa metrik KPI'
+            : 'Tidak memiliki metrik KPI numerik',
+        }
+      }
+      const recommended = s.hasQuantitativeKpi || s.hasAnomalyFlag
+      return {
+        targetModule: entry.module,
+        targetScope: entry.scope,
+        actionType: entry.actionType,
+        supported: true,
+        compatible: true,
+        recommended,
+        priority: recommended ? 77 : 68,
+        importMode: entry.importMode,
+        route: entry.route,
+        reason: `Cocok: metrik kuantitatif (${s.metricColumns[0] || s.amountColumn || s.flagColumns[0]}) dapat dicatat sebagai realisasi Internal Audit Performance (KPI).`,
+        shortReason: 'Cocok',
+      }
+    }
+
+    case 'audit_result_report': {
+      const ok =
+        !s.isReferenceTable &&
+        (s.hasIncidentOrRiskSignals || s.hasAnomalyFlag || s.hasContractOrAuditText || s.hasMonetaryMeasure)
+      if (!ok) {
+        return {
+          targetModule: entry.module,
+          targetScope: entry.scope,
+          actionType: entry.actionType,
+          supported: true,
+          compatible: false,
+          recommended: false,
+          priority: 0,
+          importMode: entry.importMode,
+          route: entry.route,
+          reason: s.isReferenceTable
+            ? `Tabel '${table.tableName}' adalah tabel referensi master tanpa temuan audit, deviasi, atau insiden untuk Audit Result Report (LHA).`
+            : `Tabel '${table.tableName}' tidak memiliki sinyal temuan, deviasi kepatuhan, atau catatan audit untuk Audit Result Report (LHA).`,
+          shortReason: s.isReferenceTable
+            ? 'Tabel referensi master tanpa temuan LHA'
+            : 'Tidak memiliki data temuan/insiden LHA',
+        }
+      }
+      const recommended = s.archetype === 'incident_risk' || s.hasAnomalyFlag || s.hasContractOrAuditText
+      return {
+        targetModule: entry.module,
+        targetScope: entry.scope,
+        actionType: entry.actionType,
+        supported: true,
+        compatible: true,
+        recommended,
+        priority: s.archetype === 'incident_risk' ? 84 : 74,
+        importMode: entry.importMode,
+        route: entry.route,
+        reason: `Cocok: temuan/deviasi pada '${table.tableName}' dapat dikompilasi menjadi draft Laporan Hasil Audit (LHA).`,
+        shortReason: 'Cocok',
+      }
+    }
+
+    case 'action_taken_report': {
+      const ok =
+        !s.isReferenceTable &&
+        (s.hasIncidentOrRiskSignals || s.hasAnomalyFlag || s.hasContractOrAuditText || s.hasMonetaryMeasure)
+      if (!ok) {
+        return {
+          targetModule: entry.module,
+          targetScope: entry.scope,
+          actionType: entry.actionType,
+          supported: true,
+          compatible: false,
+          recommended: false,
+          priority: 0,
+          importMode: entry.importMode,
+          route: entry.route,
+          reason: s.isReferenceTable
+            ? `Tabel '${table.tableName}' adalah tabel referensi master tanpa temuan yang membutuhkan pemantauan Action Taken Report (ATR).`
+            : `Tabel '${table.tableName}' tidak memiliki catatan temuan, insiden, atau tindak lanjut perbaikan untuk Action Taken Report (ATR).`,
+          shortReason: s.isReferenceTable
+            ? 'Tabel referensi master tanpa tindak lanjut ATR'
+            : 'Tidak memiliki temuan untuk tindak lanjut ATR',
+        }
+      }
+      const recommended = s.archetype === 'incident_risk' || s.hasAnomalyFlag
+      return {
+        targetModule: entry.module,
+        targetScope: entry.scope,
+        actionType: entry.actionType,
+        supported: true,
+        compatible: true,
+        recommended,
+        priority: s.archetype === 'incident_risk' ? 81 : 71,
+        importMode: entry.importMode,
+        route: entry.route,
+        reason: `Cocok: temuan/insiden pada '${table.tableName}' dapat diturunkan menjadi item pemantauan tindak lanjut Action Taken Report (ATR).`,
+        shortReason: 'Cocok',
+      }
+    }
+
+    case 'qar_dashboard': {
+      const ok =
+        !s.isReferenceTable &&
+        (s.hasNumericMeasure || s.hasIncidentOrRiskSignals || s.hasAnomalyFlag || s.hasNarrativeText)
+      if (!ok) {
+        return {
+          targetModule: entry.module,
+          targetScope: entry.scope,
+          actionType: entry.actionType,
+          supported: true,
+          compatible: false,
+          recommended: false,
+          priority: 0,
+          importMode: entry.importMode,
+          route: entry.route,
+          reason: s.isReferenceTable
+            ? `Tabel '${table.tableName}' adalah tabel referensi master tanpa metrik kepatuhan atau hasil evaluasi mutu untuk Quality Assurance Dashboard.`
+            : `Tabel '${table.tableName}' tidak memiliki metrik evaluasi mutu atau sinyal kepatuhan untuk Quality Assurance Dashboard.`,
+          shortReason: s.isReferenceTable
+            ? 'Tabel referensi master tanpa metrik evaluasi mutu'
+            : 'Tidak memiliki metrik evaluasi mutu',
+        }
+      }
+      const recommended = s.hasIncidentOrRiskSignals || s.hasAnomalyFlag || s.hasQuantitativeKpi
+      return {
+        targetModule: entry.module,
+        targetScope: entry.scope,
+        actionType: entry.actionType,
+        supported: true,
+        compatible: true,
+        recommended,
+        priority: recommended ? 73 : 66,
+        importMode: entry.importMode,
+        route: entry.route,
+        reason: `Cocok: metrik kepatuhan & deviasi pada '${table.tableName}' dapat dirangkum menjadi laporan Quality Assurance Review (QAR).`,
+        shortReason: 'Cocok',
+      }
+    }
+
+    case 'periodic_self_assessment': {
+      const ok =
+        !s.isReferenceTable &&
+        (s.hasNumericMeasure || s.hasIncidentOrRiskSignals || s.hasAnomalyFlag || s.hasEventDate)
+      if (!ok) {
+        return {
+          targetModule: entry.module,
+          targetScope: entry.scope,
+          actionType: entry.actionType,
+          supported: true,
+          compatible: false,
+          recommended: false,
+          priority: 0,
+          importMode: entry.importMode,
+          route: entry.route,
+          reason: s.isReferenceTable
+            ? `Tabel '${table.tableName}' adalah tabel referensi master tanpa data penilaian berkala atau indikator kepatuhan untuk Periodic Self-Assessment.`
+            : `Tabel '${table.tableName}' tidak memiliki indikator kepatuhan atau periode evaluasi untuk Periodic Self-Assessment.`,
+          shortReason: s.isReferenceTable
+            ? 'Tabel referensi master tanpa data penilaian berkala'
+            : 'Tidak memiliki data penilaian berkala',
+        }
+      }
+      const recommended = s.hasEventDate && (s.hasAnomalyFlag || s.hasIncidentOrRiskSignals)
+      return {
+        targetModule: entry.module,
+        targetScope: entry.scope,
+        actionType: entry.actionType,
+        supported: true,
+        compatible: true,
+        recommended,
+        priority: recommended ? 72 : 65,
+        importMode: entry.importMode,
+        route: entry.route,
+        reason: `Cocok: hasil pemantauan berkala pada '${table.tableName}' dapat dicatat sebagai laporan Periodic Self-Assessment (RSA).`,
+        shortReason: 'Cocok',
+      }
+    }
+
+    case 'saiv_validation': {
+      const ok =
+        !s.isReferenceTable &&
+        s.hasEvidenceIdentifier &&
+        (s.hasIncidentOrRiskSignals || s.hasAnomalyFlag || s.hasContractOrAuditText || s.hasMonetaryMeasure)
+      if (!ok) {
+        return {
+          targetModule: entry.module,
+          targetScope: entry.scope,
+          actionType: entry.actionType,
+          supported: true,
+          compatible: false,
+          recommended: false,
+          priority: 0,
+          importMode: entry.importMode,
+          route: entry.route,
+          reason: s.isReferenceTable
+            ? `Tabel '${table.tableName}' adalah tabel referensi master tanpa bukti uji validasi independen untuk SAIV Validation.`
+            : `Tabel '${table.tableName}' tidak memiliki bukti validasi independen, catatan audit, atau sinyal kepatuhan untuk SAIV Validation.`,
+          shortReason: s.isReferenceTable
+            ? 'Tabel referensi master tanpa bukti validasi SAIV'
+            : 'Tidak memiliki bukti validasi/kepatuhan SAIV',
+        }
+      }
+      const recommended = s.hasAnomalyFlag || s.hasContractOrAuditText
+      return {
+        targetModule: entry.module,
+        targetScope: entry.scope,
+        actionType: entry.actionType,
+        supported: true,
+        compatible: true,
+        recommended,
+        priority: recommended ? 71 : 64,
+        importMode: entry.importMode,
+        route: entry.route,
+        reason: `Cocok: bukti pengujian & kepatuhan pada '${table.tableName}' dapat divalidasi ke dalam laporan SAIV Validation.`,
+        shortReason: 'Cocok',
+      }
+    }
+
+    case 'iacm_assessment': {
+      const ok =
+        !s.isReferenceTable &&
+        (s.hasNumericMeasure || s.hasIncidentOrRiskSignals || s.hasQuantitativeKpi || s.hasNarrativeText)
+      if (!ok) {
+        return {
+          targetModule: entry.module,
+          targetScope: entry.scope,
+          actionType: entry.actionType,
+          supported: true,
+          compatible: false,
+          recommended: false,
+          priority: 0,
+          importMode: entry.importMode,
+          route: entry.route,
+          reason: s.isReferenceTable
+            ? `Tabel '${table.tableName}' adalah tabel referensi master tanpa indikator kapabilitas/kematangan pengendalian untuk IACM Assessment.`
+            : `Tabel '${table.tableName}' tidak memiliki metrik kapabilitas atau efektivitas kontrol untuk IACM Assessment.`,
+          shortReason: s.isReferenceTable
+            ? 'Tabel referensi master tanpa indikator kapabilitas IACM'
+            : 'Tidak memiliki indikator kapabilitas IACM',
+        }
+      }
+      const recommended = s.hasQuantitativeKpi || s.archetype === 'incident_risk'
+      return {
+        targetModule: entry.module,
+        targetScope: entry.scope,
+        actionType: entry.actionType,
+        supported: true,
+        compatible: true,
+        recommended,
+        priority: recommended ? 70 : 63,
+        importMode: entry.importMode,
+        route: entry.route,
+        reason: `Cocok: tingkat efektivitas pengendalian pada '${table.tableName}' dapat dievaluasi menjadi skor level IACM Assessment.`,
+        shortReason: 'Cocok',
+      }
+    }
+
+    case 'consulting_service': {
+      const ok =
+        s.hasDimensionColumn || s.hasNarrativeText || s.hasIncidentOrRiskSignals || s.hasMonetaryMeasure
+      if (!ok) {
+        return {
+          targetModule: entry.module,
+          targetScope: entry.scope,
+          actionType: entry.actionType,
+          supported: true,
+          compatible: false,
+          recommended: false,
+          priority: 0,
+          importMode: entry.importMode,
+          route: entry.route,
+          reason: `Tabel '${table.tableName}' tidak memiliki informasi unit pemohon, topik konsultasi, atau konteks operasional untuk Consulting Service.`,
+          shortReason: 'Tidak memiliki unit pemohon/konteks konsultasi',
+        }
+      }
+      const recommended = !s.isReferenceTable && (s.hasContractOrAuditText || s.archetype === 'incident_risk')
+      return {
+        targetModule: entry.module,
+        targetScope: entry.scope,
+        actionType: entry.actionType,
+        supported: true,
+        compatible: true,
+        recommended,
+        priority: recommended ? 72 : 64,
+        importMode: entry.importMode,
+        route: entry.route,
+        reason: `Cocok: unit/konteks operasional (${s.dimensionColumn || s.textColumns[0] || s.primaryKeyColumn}) dapat diajukan sebagai penugasan Consulting Service.`,
+        shortReason: 'Cocok',
+      }
+    }
+
     default:
       return {
         targetModule: entry.module,
@@ -973,14 +1640,6 @@ export function getScopeOptionsForTable(table?: TableCompatibilityInput): ScopeO
   const scopes = ['risk_management', 'audit_features', 'qar_features', 'data_analytics']
   return scopes.map(scope => {
     const entries = MODULE_CATALOG.filter(m => m.scope === scope)
-    if (scope === 'qar_features') {
-      return {
-        label: `${SCOPE_LABELS[scope]} (Belum didukung)`,
-        value: scope,
-        disabled: true,
-        compatibleCount: 0,
-      }
-    }
     if (!table) {
       const supportedCount = entries.filter(e => e.supported).length
       return {

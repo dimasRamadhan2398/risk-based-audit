@@ -66,7 +66,7 @@
       "passwordRequired": "Password is required",
       "rememberMe": "Remember me",
       "forgotPassword": "Forgot password?",
-      "encryptedConnection": "Encrypted connection - {device}",
+      "encryptedConnection": "Encrypted connection via {device}",
       "needAccount": "Need an account? Contact system Administrator.",
       "generalError": "An error occurred during login. Please try again.",
       "serverError": "Failed to connect to server. Make sure your internet connection is active and the server is running.",
@@ -2938,6 +2938,7 @@
       "to": "to",
       "workUnit": "Work Unit",
       "workUnitPlaceholder": "Select Work Unit (Required)",
+      "workUnitLegacyHint": "Saved as \"{name}\", which is not linked to the department master. Pick the department again.",
       "company": "Company / Entity",
       "companyPlaceholder": "Select Company / Entity (Optional)",
       "companyNone": "— None (Default {company}) —",
@@ -2971,7 +2972,7 @@
       "teamRequired": "Audit Team must be selected.",
       "periodRequired": "Please fill in start and end period.",
       "periodOrder": "End date cannot be before start date.",
-      "workUnitRequired": "Work unit must be filled in.",
+      "workUnitRequired": "Pick the work unit from the department master.",
       "membersInvalid": "All team members must have a name and a role.",
       "ccInvalid": "All CC fields must be filled in or removed."
     },
@@ -5409,7 +5410,7 @@
     "auditUniverse": "Audit Universe",
     "auditPriority": "Audit Priority",
     "riskControlMatrix": "Risk Control Matrix",
-    "internalControlAssessment": "Internal Control Assessment (COSO 2013)",
+    "internalControlAssessment": "Internal Control Assessment",
     "auditPlanning": "Audit Planning & Fieldwork",
     "strategicAuditPlan": "Strategic Audit Plan",
     "importStrategicAuditPlan": "Import Strategic Audit Plan",
@@ -5777,6 +5778,10 @@
       "departmentRequired": "Select a department.",
       "departmentLegacyHint": "Currently: \"{name}\" (not linked to a master department)",
       "departmentsUnavailable": "Department master data could not be loaded; the department cannot be changed now.",
+      "ownBranchLabel": "Branch",
+      "branchHelp": "Leave on \"follow linked risk\" unless this control belongs to another branch or has no linked risk.",
+      "branchFollowRisk": "Follow linked risk (no branch)",
+      "branchFollowRiskWith": "Follow linked risk: {name}",
       "cosoMappingTitle": "COSO 2013 Mapping",
       "cosoMappingHelp": "Optional. Tag the COSO 2013 principles this control supports. An unmapped control is still valid.",
       "cosoCatalogueUnavailable": "The COSO 2013 list could not be loaded. Reload the page to map this control.",
@@ -6836,8 +6841,27 @@
     }
   },
   "icAssessment": {
+    "proposalInfo": {
+      "label": "How the proposal is calculated",
+      "title": "How \"Propose scores\" works",
+      "intro": "A transparent look at how the system proposal is computed.",
+      "notAi": "This is not AI and it does not use your principle answers. The proposal is calculated from 10 weighted signals taken from existing AuditSphere data for this department and period.",
+      "signalsTitle": "Signals and weights per component",
+      "weight": "weight {weight}",
+      "colSignal": "Signal",
+      "colWeight": "Weight",
+      "calcTitle": "How it is calculated",
+      "calcRatio": "Each signal becomes a ratio, combined by weight into a component score (%), then mapped to a rating of 1-5: 90% or more = 5, 80% = 4, 70% = 3, 60% = 2, below 60% = 1.",
+      "calcExcluded": "Signals with no data, not applicable, or whose source is unavailable are left out of the calculation.",
+      "calcInsufficient": "If less than {pct}% of a component's weight has data, the component shows \"Insufficient data\" instead of a score.",
+      "calcThresholds": "The LHA and management response due-day thresholds are tenant settings (defaults {lha} and {mgmt} days) and are frozen for each proposal run.",
+      "useTitle": "How to use it",
+      "useStartingPoint": "The proposal is only a starting point. The assessor sets the final ratings.",
+      "useOverride": "Changing a proposed rating requires a reason of at least {min} characters.",
+      "useEvidence": "The evidence drawer shows the exact values behind each signal."
+    },
     "page": {
-      "title": "Internal Control Assessment (COSO 2013)",
+      "title": "Internal Control Assessment",
       "description": "Per department and period: are the five COSO 2013 components present and functioning?",
       "detailTitle": "Internal control assessment"
     },
@@ -7029,6 +7053,8 @@
     },
     "evidence": {
       "title": "Evidence: {component}",
+      "excludedTitle": "Signals without a value ({count})",
+      "excludedHelp": "These signals have no usable value (no data, not applicable, or source unavailable). They are left out of the score.",
       "description": "Values frozen when the proposal ran. Later changes to the source data do not change them.",
       "run": "Proposal run",
       "runN": "Run {run}",
@@ -7184,7 +7210,7 @@
       "days": "days"
     },
     "dashboard": {
-      "title": "Internal control (COSO 2013)",
+      "title": "Internal control",
       "subtitle": "Approved assessments per COSO component, {period}",
       "open": "Internal Control Assessment",
       "loading": "Loading...",

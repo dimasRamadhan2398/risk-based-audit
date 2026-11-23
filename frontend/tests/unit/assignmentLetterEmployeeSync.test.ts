@@ -211,6 +211,7 @@ describe('Assignment Letter - Team Members Synchronized with Master Employee Man
     store.form.auditYear = '2026'
     store.form.auditTeam = 'SKAI'
     store.form.workingUnit = 'Finance'
+    store.form.workingUnitDepartmentId = 'dept-fin'
     store.form.startPeriod = '2026-01-01'
     store.form.finishPeriod = '2026-01-31'
     store.form.membersList = [

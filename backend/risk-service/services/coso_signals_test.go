@@ -378,3 +378,75 @@ func TestCoso2013CatalogueShape(t *testing.T) {
 		t.Errorf("%d principles, want 17", next-1)
 	}
 }
+
+func TestCosoSignalsRowOwnBranch(t *testing.T) {
+	db := openSignalsDB(t)
+	dept := uuid.New()
+	jkt, sby := uuid.New(), uuid.New()
+	inSby := addRisk(t, db, 3, 3, &sby)
+	noRisk := addRCM(t, db, &dept, 2026, nil, 90)   // no linked risk, own branch Jakarta
+	moved := addRCM(t, db, &dept, 2026, &inSby, 70) // risk in Surabaya, own branch Jakarta
+	addRCM(t, db, &dept, 2026, &inSby, 50)          // follows its risk: Surabaya
+	addRCM(t, db, &dept, 2026, nil, 10)             // no branch at all
+	for _, id := range []uuid.UUID{noRisk, moved} {
+		if err := db.Model(&models.RiskControlMatrix{}).Where("id = ?", id).Update("location_id", jkt).Error; err != nil {
+			t.Fatal(err)
+		}
+	}
+	locs := signalLocations{locs: []masterclient.Location{{ID: jkt, Name: "Jakarta", IsActive: true}, {ID: sby, Name: "Surabaya", IsActive: true}}}
+
+	res, err := ComputeCosoSignals(context.Background(), db, locs, CosoSignalsParams{DepartmentID: dept, Year: 2026, LocationID: &jkt, AsOf: date(2026, 8, 1)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.RCMCount != 2 || res.RiskCount != 1 {
+		t.Fatalf("jakarta C=%d R=%d, want 2 and 1", res.RCMCount, res.RiskCount)
+	}
+	if s := signal(t, res, SignalCARCMEffectiveness); *s.ValuePct != 80 {
+		t.Errorf("jakarta ca = %v, want 80", *s.ValuePct)
+	}
+	res, err = ComputeCosoSignals(context.Background(), db, locs, CosoSignalsParams{DepartmentID: dept, Year: 2026, LocationID: &sby, AsOf: date(2026, 8, 1)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.RCMCount != 1 {
+		t.Errorf("surabaya C=%d, want 1 (own branch overrides the risk's)", res.RCMCount)
+	}
+}
+
+func TestCosoSignalsLegacyDepartmentName(t *testing.T) {
+	db := openSignalsDB(t)
+	dept := uuid.New()
+	addRCM(t, db, &dept, 2026, nil, 80)
+	legacy := addRCM(t, db, nil, 2026, nil, 60)
+	other := addRCM(t, db, nil, 2026, nil, 10)
+	lastYear := addRCM(t, db, nil, 2025, nil, 10)
+	set := func(id uuid.UUID, name string) {
+		if err := db.Model(&models.RiskControlMatrix{}).Where("id = ?", id).Update("department", name).Error; err != nil {
+			t.Fatal(err)
+		}
+	}
+	set(legacy, "  finance   & Accounting ")
+	set(other, "Operations")
+	set(lastYear, "Finance & Accounting")
+
+	res, err := ComputeCosoSignals(context.Background(), db, nil, CosoSignalsParams{DepartmentID: dept, Year: 2026, AsOf: date(2026, 8, 1), LegacyDepartmentName: "Finance & Accounting"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.RCMCount != 2 || res.LegacyNameMatchedRCMCount != 1 || res.UnassignedRCMCount != 2 {
+		t.Fatalf("C=%d legacy=%d unassigned=%d, want 2/1/2", res.RCMCount, res.LegacyNameMatchedRCMCount, res.UnassignedRCMCount)
+	}
+	if s := signal(t, res, SignalCARCMEffectiveness); *s.ValuePct != 70 {
+		t.Errorf("ca = %v, want 70", *s.ValuePct)
+	}
+
+	// No unique master name: legacy rows stay out.
+	res, err = ComputeCosoSignals(context.Background(), db, nil, CosoSignalsParams{DepartmentID: dept, Year: 2026, AsOf: date(2026, 8, 1)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.RCMCount != 1 || res.LegacyNameMatchedRCMCount != 0 {
+		t.Errorf("without name C=%d legacy=%d, want 1/0", res.RCMCount, res.LegacyNameMatchedRCMCount)
+	}
+}

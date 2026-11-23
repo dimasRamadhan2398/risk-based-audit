@@ -11,37 +11,41 @@ import (
 )
 
 type AuditResultReport struct {
-	ID                 uuid.UUID            `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	ActivityPlanID     *uuid.UUID           `gorm:"type:uuid;index" json:"activity_plan_id"`
-	AssignmentLetterID string               `gorm:"type:varchar(100)" json:"assignmentLetterId"`
-	ReportTitle        string               `gorm:"type:varchar(255)" json:"reportTitle"`
-	FindingsCount      int                  `gorm:"type:int" json:"findingsCount"`
-	ReportNumber       string               `gorm:"type:varchar(100);index" json:"reportNumber"`
-	Title              string               `gorm:"type:varchar(255)" json:"title"`
-	AuditObject        string               `gorm:"type:varchar(255)" json:"audit_object"`
-	Department         string               `gorm:"type:varchar(100)" json:"department"`
-	CompanyID          *uuid.UUID           `gorm:"type:uuid;index" json:"company_id,omitempty"`
-	CompanyName        string               `gorm:"type:varchar(255)" json:"company_name,omitempty"`
-	AuditPeriod        string               `gorm:"type:varchar(100)" json:"audit_period"`
-	ExecutiveSummary   string               `gorm:"type:text" json:"executive_summary"`
-	Scope              string               `gorm:"type:text" json:"scope"`
-	Methodology        string               `gorm:"type:text" json:"methodology"`
-	FindingSummary     string               `gorm:"type:text" json:"finding_summary"`
-	Recommendation     string               `gorm:"type:text" json:"recommendation"`
-	Conclusion         string               `gorm:"type:text" json:"conclusion"`
-	PreparedBy         string               `gorm:"type:varchar(200)" json:"prepared_by"`
-	ReviewedBy         string               `gorm:"type:varchar(200)" json:"reviewed_by"`
-	ApprovedBy         string               `gorm:"type:varchar(200)" json:"approved_by"`
-	ReportDate         *time.Time           `json:"report_date"`
-	Status             string               `gorm:"type:varchar(50);default:'DRAFT'" json:"status"`
-	Attachment         string               `gorm:"type:varchar(500)" json:"attachment"`
-	Findings           []AuditReportFinding `gorm:"serializer:json" json:"findings"`
-	SignaturePlace     string               `gorm:"type:varchar(100)" json:"signaturePlace"`
-	SignatureDate      *time.Time           `json:"signatureDate"`
-	Signatures         []ReportSignature    `gorm:"serializer:json" json:"signatures"`
-	CreatedAt          time.Time            `json:"created_at"`
-	UpdatedAt          time.Time            `json:"updated_at"`
-	DeletedAt          gorm.DeletedAt       `gorm:"index" json:"-"`
+	ID                 uuid.UUID  `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
+	ActivityPlanID     *uuid.UUID `gorm:"type:uuid;index" json:"activity_plan_id"`
+	AssignmentLetterID string     `gorm:"type:varchar(100)" json:"assignmentLetterId"`
+	ReportTitle        string     `gorm:"type:varchar(255)" json:"reportTitle"`
+	FindingsCount      int        `gorm:"type:int" json:"findingsCount"`
+	ReportNumber       string     `gorm:"type:varchar(100);index" json:"reportNumber"`
+	Title              string     `gorm:"type:varchar(255)" json:"title"`
+	AuditObject        string     `gorm:"type:varchar(255)" json:"audit_object"`
+	Department         string     `gorm:"type:varchar(100)" json:"department"`
+	// DepartmentID is the audited master department, copied from the
+	// assignment letter's WorkingUnitDepartmentID on every save (see
+	// ApplyLetterDepartment). Department stays as its display text.
+	DepartmentID     *uuid.UUID           `gorm:"type:uuid;index" json:"department_id"`
+	CompanyID        *uuid.UUID           `gorm:"type:uuid;index" json:"company_id,omitempty"`
+	CompanyName      string               `gorm:"type:varchar(255)" json:"company_name,omitempty"`
+	AuditPeriod      string               `gorm:"type:varchar(100)" json:"audit_period"`
+	ExecutiveSummary string               `gorm:"type:text" json:"executive_summary"`
+	Scope            string               `gorm:"type:text" json:"scope"`
+	Methodology      string               `gorm:"type:text" json:"methodology"`
+	FindingSummary   string               `gorm:"type:text" json:"finding_summary"`
+	Recommendation   string               `gorm:"type:text" json:"recommendation"`
+	Conclusion       string               `gorm:"type:text" json:"conclusion"`
+	PreparedBy       string               `gorm:"type:varchar(200)" json:"prepared_by"`
+	ReviewedBy       string               `gorm:"type:varchar(200)" json:"reviewed_by"`
+	ApprovedBy       string               `gorm:"type:varchar(200)" json:"approved_by"`
+	ReportDate       *time.Time           `json:"report_date"`
+	Status           string               `gorm:"type:varchar(50);default:'DRAFT'" json:"status"`
+	Attachment       string               `gorm:"type:varchar(500)" json:"attachment"`
+	Findings         []AuditReportFinding `gorm:"serializer:json" json:"findings"`
+	SignaturePlace   string               `gorm:"type:varchar(100)" json:"signaturePlace"`
+	SignatureDate    *time.Time           `json:"signatureDate"`
+	Signatures       []ReportSignature    `gorm:"serializer:json" json:"signatures"`
+	CreatedAt        time.Time            `json:"created_at"`
+	UpdatedAt        time.Time            `json:"updated_at"`
+	DeletedAt        gorm.DeletedAt       `gorm:"index" json:"-"`
 }
 
 type ReportSignature struct {
@@ -545,4 +549,70 @@ func countJSONArray(b []byte) int {
 		return 0
 	}
 	return len(items)
+}
+
+// lhaDepartmentMaxLen is the size of audit_result_reports.department
+const lhaDepartmentMaxLen = 100
+
+func truncateRunes(s string, n int) string {
+	if r := []rune(s); len(r) > n {
+		return string(r[:n])
+	}
+	return s
+}
+
+// ApplyLetterDepartmentOnCreate is the before-create hook of POST
+// /audit-result-reports: the report's department is its letter's master
+// department (id and display text). A letter without one leaves the request
+// values.
+func ApplyLetterDepartmentOnCreate(tx *gorm.DB, entity interface{}) error {
+	r, ok := entity.(*AuditResultReport)
+	if !ok {
+		return nil
+	}
+	// department_id is server-owned
+	r.DepartmentID = nil
+	letter, found := FindAssignmentLetter(tx, r.AssignmentLetterID)
+	if !found || letter.WorkingUnitDepartmentID == nil {
+		return nil
+	}
+	id := *letter.WorkingUnitDepartmentID
+	r.DepartmentID = &id
+	if t := strings.TrimSpace(letter.WorkingUnit); t != "" {
+		r.Department = truncateRunes(t, lhaDepartmentMaxLen)
+	}
+	return nil
+}
+
+// ApplyLetterDepartmentOnUpdate is the before-update hook of PUT
+// /audit-result-reports/:id. It sets department_id (and department) from the
+// report's letter after the update. When the report moves to a letter without
+// a master department, department_id is cleared so it never names the old
+// letter's unit; otherwise a row without one keeps what it has.
+func ApplyLetterDepartmentOnUpdate(tx *gorm.DB, existing interface{}, cols map[string]interface{}) error {
+	r, ok := existing.(*AuditResultReport)
+	if !ok {
+		return nil
+	}
+	ref := r.AssignmentLetterID
+	moved := false
+	if v, ok := cols["assignment_letter_id"]; ok {
+		if s, ok := v.(string); ok && strings.TrimSpace(s) != strings.TrimSpace(ref) {
+			ref, moved = s, true
+		}
+	}
+	// department_id is server-owned
+	delete(cols, "department_id")
+	letter, found := FindAssignmentLetter(tx, ref)
+	if !found || letter.WorkingUnitDepartmentID == nil {
+		if moved {
+			cols["department_id"] = nil
+		}
+		return nil
+	}
+	cols["department_id"] = letter.WorkingUnitDepartmentID.String()
+	if t := strings.TrimSpace(letter.WorkingUnit); t != "" {
+		cols["department"] = truncateRunes(t, lhaDepartmentMaxLen)
+	}
+	return nil
 }

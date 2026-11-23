@@ -60,13 +60,6 @@
             >
               {{ t(`icAssessment.status.${draft.status}`) }}
             </UBadge>
-            <UBadge
-              v-if="dirty"
-              color="warning"
-              variant="subtle"
-            >
-              {{ t('icAssessment.detail.unsaved') }}
-            </UBadge>
           </h1>
           <p class="text-sm text-gray-600 dark:text-gray-300">
             {{ t('icAssessment.detail.period') }}: {{ periodLabel(t, draft.year, draft.quarter) }}
@@ -91,7 +84,7 @@
             v-if="draft.createdBy"
             class="text-xs text-gray-500 dark:text-gray-400"
           >
-            {{ t('icAssessment.detail.createdBy', { name: draft.createdBy.name }) }}
+            {{ t('icAssessment.detail.createdBy', { name: createdByName }) }}
           </p>
           <p
             v-if="draft.submittedBy"
@@ -251,81 +244,108 @@
       </div>
 
       <!-- Action bar -->
+      <!-- Sticky so Save / Discard / Submit stay reachable while scrolling (the panel body is the scroll container) -->
       <div
-        class="flex flex-wrap items-center gap-2"
+        class="sticky top-0 z-20 -mx-4 sm:-mx-6 px-4 sm:px-6 py-2 flex flex-wrap items-center gap-x-3 gap-y-2 bg-[var(--bg-main)] border-b border-[var(--border-main)]"
         data-testid="ic-actions"
       >
-        <UButton
-          v-if="actions.propose"
-          icon="i-lucide-wand-sparkles"
-          color="neutral"
-          variant="outline"
-          :loading="busy === 'propose'"
-          :disabled="store.saving"
-          :label="draft.proposalRun > 0 ? t('icAssessment.actions.repropose') : t('icAssessment.actions.propose')"
-          @click="doPropose"
-        />
-        <UButton
-          v-if="actions.edit"
-          icon="i-lucide-save"
-          color="primary"
-          :loading="busy === 'save'"
-          :disabled="store.saving || !dirty"
-          :label="t('icAssessment.actions.save')"
-          @click="doSave"
-        />
-        <UButton
-          v-if="actions.edit && dirty"
-          color="neutral"
-          variant="ghost"
-          :label="t('icAssessment.actions.discard')"
-          @click="doDiscard"
-        />
-        <UButton
-          v-if="actions.submit"
-          icon="i-lucide-send"
-          color="primary"
-          variant="solid"
-          :loading="busy === 'submit'"
-          :disabled="store.saving"
-          :label="t('icAssessment.actions.submit')"
-          @click="doSubmit"
-        />
-        <UButton
-          v-if="actions.approve"
-          icon="i-lucide-check-check"
-          color="success"
-          :disabled="store.saving"
-          :label="t('icAssessment.actions.approve')"
-          @click="approveOpen = true"
-        />
-        <UButton
-          v-if="actions.returnToDraft"
-          icon="i-lucide-undo-2"
-          color="warning"
-          variant="outline"
-          :disabled="store.saving"
-          :label="t('icAssessment.actions.return')"
-          @click="reason = 'return'"
-        />
-        <UButton
-          v-if="actions.reopen"
-          icon="i-lucide-lock-open"
-          color="warning"
-          variant="outline"
-          :disabled="store.saving"
-          :label="t('icAssessment.actions.reopen')"
-          @click="reason = 'reopen'"
-        />
-        <UButton
-          v-if="actions.delete"
-          icon="i-lucide-trash-2"
-          color="error"
-          variant="ghost"
-          :disabled="store.saving"
-          :label="t('icAssessment.actions.delete')"
-          @click="doDelete"
-        />
+        <div class="mr-auto min-w-0 flex items-center gap-2">
+          <span class="truncate text-sm font-semibold text-gray-900 dark:text-white">{{ draft.departmentName }}</span>
+          <UBadge
+            v-if="dirty"
+            color="warning"
+            variant="subtle"
+            size="sm"
+            class="shrink-0"
+          >
+            {{ t('icAssessment.detail.unsaved') }}
+          </UBadge>
+        </div>
+        <div class="flex flex-wrap items-center justify-end gap-2">
+          <UFieldGroup>
+            <UButton
+              v-if="actions.propose"
+              :icon="draft.proposalRun > 0 ? 'i-lucide-refresh-cw' : 'i-lucide-wand-sparkles'"
+              color="neutral"
+              variant="outline"
+              :loading="busy === 'propose'"
+              :disabled="store.saving"
+              :label="draft.proposalRun > 0 ? t('icAssessment.actions.repropose') : t('icAssessment.actions.propose')"
+              @click="doPropose"
+            />
+            <IcProposalInfo />
+          </UFieldGroup>
+          <UButton
+            v-if="actions.edit"
+            icon="i-lucide-save"
+            color="primary"
+            :loading="busy === 'save'"
+            :disabled="store.saving || !dirty"
+            :label="t('icAssessment.actions.save')"
+            @click="doSave"
+          />
+          <UButton
+            v-if="actions.edit && dirty"
+            icon="i-lucide-rotate-ccw"
+            color="neutral"
+            variant="ghost"
+            :label="t('icAssessment.actions.discard')"
+            :aria-label="t('icAssessment.actions.discard')"
+            :ui="{ label: 'hidden sm:inline' }"
+            @click="doDiscard"
+          />
+          <UButton
+            v-if="actions.submit"
+            icon="i-lucide-send"
+            color="primary"
+            variant="solid"
+            :loading="busy === 'submit'"
+            :disabled="store.saving"
+            :label="t('icAssessment.actions.submit')"
+            @click="doSubmit"
+          />
+          <UButton
+            v-if="actions.approve"
+            icon="i-lucide-check-check"
+            color="success"
+            :disabled="store.saving"
+            :label="t('icAssessment.actions.approve')"
+            @click="approveOpen = true"
+          />
+          <UButton
+            v-if="actions.returnToDraft"
+            icon="i-lucide-undo-2"
+            color="warning"
+            variant="outline"
+            :disabled="store.saving"
+            :label="t('icAssessment.actions.return')"
+            :aria-label="t('icAssessment.actions.return')"
+            :ui="{ label: 'hidden sm:inline' }"
+            @click="reason = 'return'"
+          />
+          <UButton
+            v-if="actions.reopen"
+            icon="i-lucide-lock-open"
+            color="warning"
+            variant="outline"
+            :disabled="store.saving"
+            :label="t('icAssessment.actions.reopen')"
+            :aria-label="t('icAssessment.actions.reopen')"
+            :ui="{ label: 'hidden sm:inline' }"
+            @click="reason = 'reopen'"
+          />
+          <UButton
+            v-if="actions.delete"
+            icon="i-lucide-trash-2"
+            color="error"
+            variant="ghost"
+            :disabled="store.saving"
+            :label="t('icAssessment.actions.delete')"
+            :aria-label="t('icAssessment.actions.delete')"
+            :ui="{ label: 'hidden sm:inline' }"
+            @click="doDelete"
+          />
+        </div>
         <p
           v-if="actions.approveBlockedBySoD"
           class="text-sm text-gray-600 dark:text-gray-300"
@@ -532,6 +552,7 @@ import IcComponentCard from '~/components/ic-assessment/IcComponentCard.vue'
 import IcPrinciplesTable from '~/components/ic-assessment/IcPrinciplesTable.vue'
 import IcEvidenceDrawer from '~/components/ic-assessment/IcEvidenceDrawer.vue'
 import IcHistory from '~/components/ic-assessment/IcHistory.vue'
+import IcProposalInfo from '~/components/ic-assessment/IcProposalInfo.vue'
 import IcApproveModal from '~/components/ic-assessment/IcApproveModal.vue'
 import IcReasonModal from '~/components/ic-assessment/IcReasonModal.vue'
 import {
@@ -568,6 +589,15 @@ const route = useRoute()
 const router = useRouter()
 
 const id = computed(() => String(route.params.id))
+
+// The server stores the creator's username; show the full name when it is the signed-in user
+const createdByName = computed(() => {
+  const c = draft.value?.createdBy
+  if (!c) return ''
+  const me = authStore.user
+  if (me?.fullName && ((c.id && c.id === String(me.id)) || (c.name && c.name === me.username))) return me.fullName
+  return c.name || c.id
+})
 
 // `draft` is the working copy; `store.current` is what the server last returned.
 const draft = ref<IcAssessment | null>(null)

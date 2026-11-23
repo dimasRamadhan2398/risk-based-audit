@@ -2838,6 +2838,7 @@
       "to": "hingga",
       "workUnit": "Unit Kerja",
       "workUnitPlaceholder": "Pilih Unit Kerja (Wajib)",
+      "workUnitLegacyHint": "Tersimpan sebagai \"{name}\" dan belum terhubung ke master departemen. Pilih ulang departemennya.",
       "company": "Perusahaan / Entitas",
       "companyPlaceholder": "Pilih Perusahaan / Entitas (Opsional)",
       "companyNone": "— Tidak ada (Bawaan {company}) —",
@@ -2871,7 +2872,7 @@
       "teamRequired": "Tim Audit wajib dipilih.",
       "periodRequired": "Harap isi periode mulai dan selesai.",
       "periodOrder": "Tanggal selesai tidak boleh sebelum tanggal mulai.",
-      "workUnitRequired": "Unit kerja wajib diisi.",
+      "workUnitRequired": "Pilih unit kerja dari master departemen.",
       "membersInvalid": "Semua anggota tim wajib memiliki nama dan peran.",
       "ccInvalid": "Semua kolom tembusan wajib diisi atau dihapus."
     },
@@ -5670,6 +5671,10 @@
       "departmentRequired": "Pilih departemen.",
       "departmentLegacyHint": "Saat ini: \"{name}\" (belum ditautkan ke departemen master)",
       "departmentsUnavailable": "Data master departemen tidak dapat dimuat; departemen tidak dapat diubah saat ini.",
+      "ownBranchLabel": "Cabang",
+      "branchHelp": "Biarkan \"ikuti risiko terkait\" kecuali kontrol ini milik cabang lain atau tidak punya risiko terkait.",
+      "branchFollowRisk": "Ikuti risiko terkait (tanpa cabang)",
+      "branchFollowRiskWith": "Ikuti risiko terkait: {name}",
       "cosoMappingTitle": "Pemetaan COSO 2013",
       "cosoMappingHelp": "Opsional. Tandai prinsip COSO 2013 yang didukung kontrol ini. Kontrol tanpa pemetaan tetap valid.",
       "cosoCatalogueUnavailable": "Daftar COSO 2013 tidak dapat dimuat. Muat ulang halaman untuk memetakan kontrol ini.",
@@ -6728,6 +6733,25 @@
     }
   },
   "icAssessment": {
+    "proposalInfo": {
+      "label": "Cara usulan dihitung",
+      "title": "Cara kerja \"Usulkan skor\"",
+      "intro": "Penjelasan transparan tentang cara usulan sistem dihitung.",
+      "notAi": "Ini bukan AI dan tidak memakai jawaban prinsip Anda. Usulan dihitung dari 10 sinyal berbobot yang diambil dari data AuditSphere yang sudah ada untuk departemen dan periode ini.",
+      "signalsTitle": "Sinyal dan bobot per komponen",
+      "weight": "bobot {weight}",
+      "colSignal": "Sinyal",
+      "colWeight": "Bobot",
+      "calcTitle": "Cara perhitungan",
+      "calcRatio": "Setiap sinyal diubah menjadi rasio, digabung menurut bobot menjadi skor komponen (%), lalu dipetakan ke rating 1-5: 90% ke atas = 5, 80% = 4, 70% = 3, 60% = 2, di bawah 60% = 1.",
+      "calcExcluded": "Sinyal tanpa data, tidak berlaku, atau yang sumbernya tidak tersedia tidak diikutkan dalam perhitungan.",
+      "calcInsufficient": "Jika kurang dari {pct}% bobot suatu komponen memiliki data, komponen tersebut menampilkan \"Data tidak memadai\", bukan skor.",
+      "calcThresholds": "Batas hari jatuh tempo LHA dan tanggapan manajemen adalah pengaturan tenant (bawaan {lha} dan {mgmt} hari) dan dibekukan untuk setiap proses usulan.",
+      "useTitle": "Cara menggunakannya",
+      "useStartingPoint": "Usulan hanyalah titik awal. Penilai menentukan rating akhir.",
+      "useOverride": "Mengubah rating usulan memerlukan alasan minimal {min} karakter.",
+      "useEvidence": "Panel bukti menampilkan nilai persis di balik setiap sinyal."
+    },
     "page": {
       "title": "Penilaian Pengendalian Internal (COSO 2013)",
       "description": "Per departemen dan periode: apakah lima komponen COSO 2013 ada dan berfungsi?",
@@ -6921,6 +6945,8 @@
     },
     "evidence": {
       "title": "Bukti: {component}",
+      "excludedTitle": "Sinyal tanpa nilai ({count})",
+      "excludedHelp": "Sinyal ini tidak memiliki nilai yang dapat digunakan (tidak ada data, tidak berlaku, atau sumber tidak tersedia). Sinyal ini tidak dihitung dalam skor.",
       "description": "Nilai dibekukan saat usulan dijalankan. Perubahan data sumber setelahnya tidak mengubahnya.",
       "run": "Putaran usulan",
       "runN": "Putaran {run}",
