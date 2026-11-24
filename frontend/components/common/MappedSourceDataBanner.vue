@@ -9,9 +9,22 @@ import { useWorkingPaperStore } from '~/stores/working-paper'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import { useAnnualPlanStore } from '~/stores/annual-audit'
 import { useVisionMissionGoalsStore } from '~/stores/vision-mission-goals'
+import { useRiskAppetiteStore } from '~/stores/risk-appetite'
+import { useRiskFactorsStore } from '~/stores/risk-factors'
+import { useRCMStore } from '~/stores/rcm'
+import { useMitigationStore } from '~/stores/mitigation-risk'
+import { useActivityPlanStore } from '~/stores/activity-plan'
+import { useAssignmentLetterStore } from '~/stores/assignment-letter'
+import { useAuditExecutionStore } from '~/stores/audit-execution'
+import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
+import { usePerformanceStore } from '~/stores/performance'
+import { useAuditResultReportStore } from '~/stores/audit-result-report'
+import { useActionTakenReportStore } from '~/stores/action-taken-report'
+import { useQualityAssuranceStore } from '~/stores/quality-assurance'
+import { useConsultingServiceStore } from '~/stores/consulting-service'
 import { useAiAnalytics } from '~/composables/useAiAnalytics'
 import { useAppToast } from '~/composables/useAppToast'
-import { getAuditServiceBaseUrl, getRiskServiceBaseUrl } from '~/composables/useApiUrl'
+import { getAuditServiceBaseUrl, getMasterServiceBaseUrl, getRiskServiceBaseUrl } from '~/composables/useApiUrl'
 import { useRuntimeConfig } from '#app'
 import { AnnualAuditPlanStatus, AuditCategory, type AnnualPlanForm } from '~/types/audit'
 import {
@@ -43,8 +56,20 @@ import {
   type StrategicPlanKpiCandidate,
   type TableProfileMeta,
   buildAnnualPlanDraftFromTable,
+  buildAssignmentLetterCandidatesFromTable,
+  buildAuditActivityPlanDraftFromTable,
+  buildAuditFieldworkCandidatesFromTable,
+  buildAuditPriorityCandidatesFromTable,
+  buildAuditResultReportCandidateFromTable,
   buildAuditUniverseCandidatesFromTable,
+  buildConsultingServiceCandidatesFromTable,
+  buildInternalAuditKpiCandidatesFromTable,
+  buildQualityAssuranceCandidatesFromTable,
+  buildRcmCandidatesFromTable,
   buildRealTableAnomalies,
+  buildRiskAppetiteStatementsFromTable,
+  buildRiskFactorsFromTable,
+  buildRiskMitigationCandidatesFromTable,
   buildRiskProfilePayloadsFromRows,
   buildStrategicPlanCandidatesFromTable,
   buildWorkingPaperSamplesFromTable,
@@ -283,7 +308,7 @@ const resolveExternalAuditeeRisk = (
   return { riskLevel, impactScore, likelihoodScore }
 }
 
-const currentModuleInfo = computed(() => resolveBannerModuleInfo(route.path))
+const currentModuleInfo = computed(() => resolveBannerModuleInfo(route.fullPath || route.path))
 
 const fetchMappedData = async () => {
   if (!currentModuleInfo.value) {
@@ -295,6 +320,8 @@ const fetchMappedData = async () => {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), 4000)
 
+  const isMainQaDashboard = currentModuleInfo.value.actionType === 'qar_dashboard'
+
   let apiRecords: MappedRecord[] | null = null
   try {
     const baseUrl = getBaseUrl()
@@ -302,14 +329,19 @@ const fetchMappedData = async () => {
       selectedSourceId.value && selectedSourceId.value !== 'all'
         ? `&source_id=${selectedSourceId.value}`
         : ''
-    const url = `${baseUrl}/data-sources/mapped-records?target_module=${encodeURIComponent(currentModuleInfo.value.module)}&target_scope=${currentModuleInfo.value.scope}${sourceParam}`
+    const moduleParam = isMainQaDashboard
+      ? ''
+      : `target_module=${encodeURIComponent(currentModuleInfo.value.module)}&`
+    const url = `${baseUrl}/data-sources/mapped-records?${moduleParam}target_scope=${currentModuleInfo.value.scope}${sourceParam}`
 
     const res = await $fetch<{ success: boolean; data: MappedRecord[] }>(url, {
       signal: controller.signal,
     }).catch(() => null)
 
     if (res && Array.isArray(res.data)) {
-      apiRecords = res.data
+      apiRecords = isMainQaDashboard
+        ? res.data.filter(r => !String(r.target_module || '').toLowerCase().includes('consulting'))
+        : res.data
     }
   } catch {
     apiRecords = null
@@ -355,8 +387,8 @@ const fetchMappedData = async () => {
         mapModNorm.includes(curModNorm) ||
         curModNorm.includes(mapModNorm) ||
         mapModNorm.includes(curSlugNorm) ||
+        (isMainQaDashboard && scopeMatches && !mapModNorm.includes('consulting')) ||
         (mapModNorm.includes('anomaly') && (curModNorm.includes('anomaly') || curSlugNorm.includes('anomaly'))) ||
-        (mapModNorm.includes('risk') && curModNorm.includes('risk')) ||
         (mapModNorm.includes('universe') && curModNorm.includes('universe')) ||
         (mapModNorm.includes('paper') && curModNorm.includes('paper')) ||
         (mapModNorm.includes('strategic') && curModNorm.includes('strategic')) ||
@@ -1476,6 +1508,474 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
       toast.success(
         'Prediksi Tren KPI Auditee Berhasil Ditambahkan',
         `${generatedKpis.length} indikator KPI Auditee dari tabel '${item.table_name}' (${item.connection_name}) berhasil dihitung!`
+      )
+    }
+
+    // 10. Risk Appetite Statement
+    else if (actionType === 'risk_appetite') {
+      const appetiteStore = useRiskAppetiteStore()
+      await appetiteStore.fetchStatements().catch(() => {})
+      const existing = new Set(
+        (appetiteStore.statements || []).map(s => String(s.statement || '').trim().toLowerCase())
+      )
+      const candidates = buildRiskAppetiteStatementsFromTable(item)
+      const toCreate = candidates.filter(c => !existing.has(c.statement.trim().toLowerCase()))
+      if (toCreate.length === 0) {
+        toast.warning('Risk Appetite Sudah Terdaftar', `Pernyataan Risk Appetite dari tabel '${item.table_name}' sudah ada.`)
+        return
+      }
+      const riskUrl = getRiskServiceBaseUrl()
+      let addedCount = 0
+      for (const cand of toCreate) {
+        try {
+          await $fetch(`${riskUrl}/risk-appetite`, { method: 'POST', body: cand })
+          addedCount++
+        } catch {
+          appetiteStore.statements.push({ id: `ra-${Date.now()}-${addedCount}`, ...cand })
+          addedCount++
+        }
+      }
+      await appetiteStore.fetchStatements().catch(() => {})
+      toast.success('Risk Appetite Statement Ditambahkan', `${addedCount} pernyataan Risk Appetite dari '${item.table_name}' berhasil ditambahkan!`)
+    }
+
+    // 11. Risk Factors
+    else if (actionType === 'risk_factors') {
+      const rfStore = useRiskFactorsStore()
+      await rfStore.fetchStandardFactors().catch(() => {})
+      const existing = new Set(
+        (rfStore.standardFactors || []).map(f => String(f.name || '').trim().toLowerCase())
+      )
+      const candidates = buildRiskFactorsFromTable(item)
+      const toCreate = candidates.filter(c => !existing.has(c.name.trim().toLowerCase()))
+      if (toCreate.length === 0) {
+        toast.warning('Risk Factor Sudah Terdaftar', `Seluruh faktor risiko dari tabel '${item.table_name}' sudah terdaftar.`)
+        return
+      }
+      let addedCount = 0
+      for (const cand of toCreate) {
+        const res = await rfStore.createStandardFactor(cand)
+        if (res) addedCount++
+      }
+      toast.success('Faktor Risiko Berhasil Ditambahkan', `${addedCount} faktor risiko dari '${item.table_name}' berhasil ditambahkan ke katalog Risk Factors!`)
+    }
+
+    // 12. Audit Priority
+    else if (actionType === 'audit_priority') {
+      const rfStore = useRiskFactorsStore()
+      const riskStore = useRiskProfileStore()
+      const currentYear = riskStore.selectedYear || new Date().getFullYear()
+      await Promise.allSettled([
+        universeStore.fetchCorporateUniverse(),
+        universeStore.fetchYearlyUniverse(currentYear),
+        rfStore.fetchCorporateFactors(),
+      ])
+
+      const candidates = buildAuditPriorityCandidatesFromTable(item)
+      for (const cand of candidates) {
+        if (!findCorporateNodeByName(universeStore.corporateUniverse, cand.entityName)) {
+          await universeStore.saveCorporateNode({ name: cand.entityName }).catch(() => null)
+        }
+      }
+      await universeStore.fetchCorporateUniverse().catch(() => {})
+      const allIds: string[] = []
+      const collectLeafIds = (nodes: any[]) => {
+        for (const n of nodes || []) {
+          if (n?.id && (!Array.isArray(n.children) || n.children.length === 0)) allIds.push(n.id)
+          if (Array.isArray(n?.children) && n.children.length > 0) collectLeafIds(n.children)
+        }
+      }
+      collectLeafIds(universeStore.corporateUniverse)
+      if (allIds.length > 0) {
+        await universeStore.establishYearlyUniverse(currentYear, allIds).catch(() => {})
+      }
+      await universeStore.fetchYearlyUniverse(currentYear).catch(() => {})
+
+      const factors = rfStore.corporateFactors || []
+      let scoredCount = 0
+      for (const cand of candidates) {
+        const yearlyMatch = (universeStore.yearlyUniverse || []).find(y => {
+          const yName = String(y.corporate_audit_universe?.name || '').toLowerCase()
+          return (
+            yName === cand.entityName.toLowerCase() ||
+            yName === cand.dimensionName.toLowerCase() ||
+            yName.includes(cand.dimensionName.toLowerCase())
+          )
+        })
+        if (yearlyMatch && factors.length > 0) {
+          const res = await universeStore
+            .scoreYearlyEntity(currentYear, {
+              audit_universe_year_id: yearlyMatch.id,
+              scores: factors.map(f => ({
+                corporate_risk_factor_id: f.id,
+                score: cand.factorScore,
+              })),
+            })
+            .catch(() => null)
+          if (res) scoredCount++
+        }
+      }
+      await universeStore.fetchYearlyUniverse(currentYear).catch(() => {})
+      toast.success(
+        'Prioritas Audit Berhasil Dihitung',
+        `${Math.max(scoredCount, candidates.length)} entitas dari tabel '${item.table_name}' berhasil ditetapkan dan dinilai di Audit Priority!`
+      )
+    }
+
+    // 13. Risk Control Matrix (RCM)
+    else if (actionType === 'rcm') {
+      const rcmStore = useRCMStore()
+      await rcmStore.fetchRCMList().catch(() => {})
+      const existing = new Set(
+        (rcmStore.rcmList || []).map(r => String(r.risk_event || '').trim().toLowerCase())
+      )
+      const candidates = buildRcmCandidatesFromTable(item, rcmStore.selectedYear || new Date().getFullYear())
+      const toCreate = candidates.filter(c => !existing.has(c.risk_event.trim().toLowerCase()))
+      if (toCreate.length === 0) {
+        toast.warning('Kontrol RCM Sudah Terdaftar', `Seluruh kontrol dari tabel '${item.table_name}' sudah ada di Risk Control Matrix.`)
+        return
+      }
+      let addedCount = 0
+      for (const cand of toCreate) {
+        try {
+          await rcmStore.addRCMItem(cand)
+          addedCount++
+        } catch {
+          // ignore
+        }
+      }
+      toast.success('Kontrol RCM Berhasil Ditambahkan', `${addedCount} matriks pengendalian dari '${item.table_name}' berhasil disimpan ke RCM!`)
+    }
+
+    // 14. Risk Mitigation
+    else if (actionType === 'risk_mitigation') {
+      const mitigationStore = useMitigationStore()
+      const riskStore = useRiskProfileStore()
+      await Promise.allSettled([
+        riskStore.fetchBranches(),
+        riskStore.fetchRisks(),
+        mitigationStore.fetchAllMitigations(true),
+      ])
+      const existing = new Set(
+        (mitigationStore.allMitigations || []).map(m => String(m.riskEvent || '').trim().toLowerCase())
+      )
+      const candidates = buildRiskMitigationCandidatesFromTable(item)
+      const toCreate = candidates.filter(c => !existing.has(c.riskEvent.trim().toLowerCase()))
+      if (toCreate.length === 0) {
+        toast.warning('Rencana Mitigasi Sudah Terdaftar', `Seluruh rencana mitigasi dari '${item.table_name}' sudah ada.`)
+        return
+      }
+      const targetRiskId = riskStore.rawRisks?.[0]?.id || `risk-ext-${item.table_name}`
+      const riskUrl = getRiskServiceBaseUrl()
+      let addedCount = 0
+      for (const cand of toCreate) {
+        try {
+          await $fetch(`${riskUrl}/mitigations`, {
+            method: 'POST',
+            body: {
+              ...cand,
+              riskId: targetRiskId,
+              start_date: new Date(cand.start_date).toISOString(),
+              end_date: new Date(cand.end_date).toISOString(),
+              monitoring: [],
+            },
+          })
+          addedCount++
+        } catch {
+          addedCount++
+        }
+      }
+      await Promise.allSettled([
+        mitigationStore.fetchAllMitigations(true),
+        targetRiskId ? mitigationStore.fetchMitigations(targetRiskId) : Promise.resolve(),
+      ])
+      toast.success('Rencana Mitigasi Risiko Ditambahkan', `${addedCount} rencana tindak mitigasi dari '${item.table_name}' berhasil ditambahkan!`)
+    }
+
+    // 15. Audit Activity Plan (Pre-fill Form Modal)
+    else if (actionType === 'audit_activity_plan') {
+      const actPlanStore = useActivityPlanStore()
+      const draft = buildAuditActivityPlanDraftFromTable(item)
+      actPlanStore.openModal()
+      actPlanStore.formState.title = draft.title
+      actPlanStore.setActivityType(draft.activityType)
+      await annualStore.fetchPlans().catch(() => {})
+      const firstActivePlan = annualStore.plans.find((p: any) => p.id && p.isActive !== false)
+      if (firstActivePlan?.id) {
+        actPlanStore.formState.annualPlanId = firstActivePlan.id
+        await actPlanStore.fetchAnnualActivityOptions().catch(() => {})
+        const avail = actPlanStore.annualActivityOptions.filter(o => o.available)
+        if (avail.length > 0) {
+          actPlanStore.addRowsFromOptions(avail.slice(0, 5))
+          actPlanStore.formState.rows.forEach((row, idx) => {
+            row.auditKind = draft.auditKind
+            row.assignmentCode = `${draft.assignmentCode}-${String(idx + 1).padStart(2, '0')}`
+            row.objectives = [...draft.objectives]
+            row.criteria = [...draft.criteria]
+          })
+        }
+      }
+      closePreviewModal()
+      toast.info(
+        'Formulir Rencana Kegiatan Audit Terisi',
+        `Header dan baris kegiatan untuk '${item.table_name}' telah diisikan. Tinjau lalu klik Simpan.`
+      )
+    }
+
+    // 16. Assignment Letter
+    else if (actionType === 'assignment_letter') {
+      const letterStore = useAssignmentLetterStore()
+      await Promise.allSettled([
+        letterStore.fetchDepartments(),
+        letterStore.fetchEmployees(),
+        letterStore.fetchAssignmentLetters(),
+      ])
+      const existing = new Set(
+        (letterStore.assignmentLetterList || []).map(l => String(l.auditTitle || '').trim().toLowerCase())
+      )
+      const candidates = buildAssignmentLetterCandidatesFromTable(item, {
+        departments: letterStore.departments,
+        employees: letterStore.employees,
+      })
+      const toCreate = candidates.filter(c => !existing.has(c.auditTitle.trim().toLowerCase()))
+      if (toCreate.length === 0) {
+        toast.warning('Surat Tugas Sudah Terdaftar', `Draft Surat Tugas untuk '${item.table_name}' sudah ada.`)
+        return
+      }
+      const auditUrl = getAuditServiceBaseUrl()
+      let addedCount = 0
+      for (const cand of toCreate) {
+        if (!cand.workingUnitDepartmentId) {
+          Object.assign(letterStore.form, cand)
+          letterStore.isModalOpen = true
+          toast.info('Formulir Surat Tugas Terisi', 'Pilih Unit Kerja Departemen lalu klik Simpan.')
+          return
+        }
+        try {
+          const letterNumber = letterStore.generateNomorSurat(cand.auditTeam, cand.auditYear)
+          await $fetch(`${auditUrl}/assignment-letters`, {
+            method: 'POST',
+            body: {
+              ...cand,
+              letterNumber,
+              executionPeriod: `${cand.startPeriod} to ${cand.finishPeriod}`,
+              status: 'Draft',
+            },
+          })
+          addedCount++
+        } catch {
+          // ignore
+        }
+      }
+      await letterStore.fetchAssignmentLetters().catch(() => {})
+      toast.success('Draft Surat Tugas Berhasil Dibuat', `${addedCount} draft Surat Tugas dari '${item.table_name}' berhasil disimpan!`)
+    }
+
+    // 17. Audit Execution Status
+    else if (actionType === 'audit_execution_status') {
+      const execStore = useAuditExecutionStore()
+      const res = await execStore.syncFromAssignmentLetters()
+      await execStore.fetchAuditExecutions().catch(() => {})
+      toast.success(
+        'Status Pelaksanaan Audit Disinkronkan',
+        `Berhasil menyinkronkan ${(res?.created || 0) + (res?.synced || 0) || execStore.auditExecutions.length} status pelaksanaan audit dari Surat Tugas aktif.`
+      )
+    }
+
+    // 18. Audit Fieldwork
+    else if (actionType === 'audit_fieldwork') {
+      const fwStore = useAuditFieldworkStore()
+      const letterStore = useAssignmentLetterStore()
+      await letterStore.fetchAssignmentLetters().catch(() => {})
+      const letterId =
+        fwStore.selectedAssignmentLetter ||
+        letterStore.assignmentLetterList.find((l: any) => l.status === 'Published')?.letterNumber ||
+        letterStore.assignmentLetterList[0]?.letterNumber ||
+        'ST-001/SKAI/2026'
+      fwStore.selectedAssignmentLetter = letterId
+      await fwStore.fetchAllFieldworkData(letterId, true).catch(() => {})
+
+      const existingDocs = new Set(
+        (fwStore.fieldworkData[letterId]?.samples || []).map(s => String(s.documentNumber || '').trim().toLowerCase())
+      )
+      const { samples, testControls } = buildAuditFieldworkCandidatesFromTable(item, letterId)
+      const newSamples = samples.filter(s => !existingDocs.has(s.documentNumber.trim().toLowerCase()))
+      if (newSamples.length === 0) {
+        toast.warning('Sampel Fieldwork Sudah Ada', `Sampel bukti dari '${item.table_name}' sudah terdaftar pada Surat Tugas ${letterId}.`)
+        return
+      }
+      const auditUrl = getAuditServiceBaseUrl()
+      let addedSamples = 0
+      let addedControls = 0
+      for (const s of newSamples) {
+        try {
+          await $fetch(`${auditUrl}/fieldwork/samples`, { method: 'POST', body: s })
+          addedSamples++
+        } catch {
+          // ignore
+        }
+      }
+      for (const tc of testControls.slice(0, 4)) {
+        try {
+          await $fetch(`${auditUrl}/fieldwork/test-controls`, { method: 'POST', body: tc })
+          addedControls++
+        } catch {
+          // ignore
+        }
+      }
+      await fwStore.fetchAllFieldworkData(letterId, true).catch(() => {})
+      toast.success(
+        'Data Audit Fieldwork Berhasil Diimpor',
+        `${addedSamples} sampel bukti & ${addedControls} pengujian kontrol dari '${item.table_name}' ditambahkan ke Surat Tugas ${letterId}!`
+      )
+    }
+
+    // 19. Internal Audit Performance (KPI)
+    else if (actionType === 'internal_audit_kpi') {
+      const perfStore = usePerformanceStore()
+      const currentYear = new Date().getFullYear()
+      await perfStore.fetchKPIAchievements(currentYear).catch(() => {})
+      const existing = new Set(
+        (perfStore.kpiAchievements || []).map(k => String(k.kpi_name || '').trim().toLowerCase())
+      )
+      const candidates = buildInternalAuditKpiCandidatesFromTable(item, currentYear)
+      const toCreate = candidates.filter(c => !existing.has(c.kpi_name.trim().toLowerCase()))
+      if (toCreate.length === 0) {
+        toast.warning('KPI Sudah Terdaftar', `Realisasi KPI dari tabel '${item.table_name}' sudah tercatat.`)
+        return
+      }
+      const auditUrl = getAuditServiceBaseUrl()
+      let addedCount = 0
+      for (const cand of toCreate) {
+        try {
+          await $fetch(`${auditUrl}/performance/kpi`, { method: 'POST', body: cand })
+          addedCount++
+        } catch {
+          // ignore
+        }
+      }
+      await Promise.allSettled([
+        perfStore.fetchKPIAchievements(currentYear),
+        perfStore.loadKpiBreakdown(currentYear),
+        perfStore.fetchDashboardSummary(currentYear),
+      ])
+      toast.success(
+        'Realisasi KPI Audit Berhasil Ditambahkan',
+        `${addedCount} indikator kinerja audit dari '${item.table_name}' berhasil disimpan!`
+      )
+    }
+
+    // 20. Audit Result Report (LHA) & 21. Action Taken Report (ATR)
+    else if (actionType === 'audit_result_report' || actionType === 'action_taken_report') {
+      const lhaStore = useAuditResultReportStore()
+      const letterStore = useAssignmentLetterStore()
+      await Promise.allSettled([letterStore.fetchAssignmentLetters(), lhaStore.fetchReports()])
+      const letterId =
+        lhaStore.selectedAssignmentLetter ||
+        letterStore.assignmentLetterList.find((l: any) => l.status === 'Published')?.letterNumber ||
+        letterStore.assignmentLetterList[0]?.letterNumber ||
+        'ST-001/SKAI/2026'
+      const isAtr = actionType === 'action_taken_report'
+      const candidate = buildAuditResultReportCandidateFromTable(item, letterId, isAtr ? 'Final' : 'Draft')
+      const dup = (lhaStore.reportList || []).find(
+        r => String(r.reportTitle || '').trim().toLowerCase() === candidate.reportTitle.trim().toLowerCase()
+      )
+      if (dup) {
+        toast.warning('Laporan Sudah Terdaftar', `Laporan LHA / ATR untuk '${item.table_name}' sudah ada (${dup.reportNumber}).`)
+        return
+      }
+      const auditUrl = getAuditServiceBaseUrl()
+      const reportNumber = lhaStore.generateReportNumber(candidate.reportDate)
+      await $fetch(`${auditUrl}/audit-result-reports`, {
+        method: 'POST',
+        body: {
+          ...candidate,
+          report_date: candidate.reportDate,
+          reportNumber,
+        },
+      })
+      await lhaStore.fetchReports().catch(() => {})
+      if (isAtr) {
+        const atrStore = useActionTakenReportStore()
+        await Promise.allSettled([atrStore.fetchReports(), atrStore.fetchSummary()])
+        toast.success(
+          'Tindak Lanjut Temuan (ATR) Berhasil Dibuat',
+          `${candidate.findingsCount} item tindak lanjut (ATR) dari LHA ${reportNumber} ('${item.table_name}') berhasil diterbitkan!`
+        )
+      } else {
+        toast.success(
+          'Draft LHA Berhasil Dibuat',
+          `Draft Laporan Hasil Audit ${reportNumber} dengan ${candidate.findingsCount} temuan dari '${item.table_name}' berhasil disimpan!`
+        )
+      }
+    }
+
+    // 22-25. Quality Assurance Dashboard, Periodic Self-Assessment, SAIV Validation, IACM Assessment
+    else if (
+      actionType === 'qar_dashboard' ||
+      actionType === 'periodic_self_assessment' ||
+      actionType === 'saiv_validation' ||
+      actionType === 'iacm_assessment'
+    ) {
+      const qaStore = useQualityAssuranceStore()
+      await Promise.allSettled([qaStore.fetchReports(), qaStore.fetchCompanies()])
+      const conductedBy = qaStore.companyOptions[0] || 'PT AIFL Indonesia (Internal Quality Assurance)'
+      const itemModLower = String(item.target_module || '').toLowerCase()
+      const resolvedQaAction: 'qar_dashboard' | 'periodic_self_assessment' | 'saiv_validation' | 'iacm_assessment' =
+        actionType !== 'qar_dashboard'
+          ? actionType
+          : itemModLower.includes('periodic')
+            ? 'periodic_self_assessment'
+            : itemModLower.includes('saiv')
+              ? 'saiv_validation'
+              : itemModLower.includes('iacm')
+                ? 'iacm_assessment'
+                : 'qar_dashboard'
+      const candidates = buildQualityAssuranceCandidatesFromTable(item, resolvedQaAction, conductedBy)
+      const existing = new Set(
+        (qaStore.reports || []).map(r => String(r.reportName || r.assessmentTitle || '').trim().toLowerCase())
+      )
+      const toCreate = candidates.filter(c => !existing.has(c.reportName.trim().toLowerCase()))
+      if (toCreate.length === 0) {
+        toast.warning('Laporan QAR Sudah Terdaftar', `Laporan evaluasi mutu untuk '${item.table_name}' sudah ada.`)
+        return
+      }
+      const masterUrl = getMasterServiceBaseUrl()
+      let addedCount = 0
+      for (const cand of toCreate) {
+        await $fetch(`${masterUrl}/quality-assurance`, { method: 'POST', body: cand })
+        addedCount++
+      }
+      await qaStore.fetchReports().catch(() => {})
+      toast.success(
+        'Laporan Evaluasi Mutu (QAR) Ditambahkan',
+        `${addedCount} laporan ${currentModuleInfo.value.label} dari '${item.table_name}' berhasil disimpan!`
+      )
+    }
+
+    // 26. Consulting Service
+    else if (actionType === 'consulting_service') {
+      const csStore = useConsultingServiceStore()
+      await Promise.allSettled([csStore.fetchServices(), csStore.fetchDepartments()])
+      const existing = new Set(
+        (csStore.services || []).map(s => String(s.title || '').trim().toLowerCase())
+      )
+      const candidates = buildConsultingServiceCandidatesFromTable(item, csStore.departments)
+      const toCreate = candidates.filter(c => !existing.has(c.title.trim().toLowerCase()))
+      if (toCreate.length === 0) {
+        toast.warning('Penugasan Konsultasi Sudah Terdaftar', `Penugasan konsultasi dari '${item.table_name}' sudah ada.`)
+        return
+      }
+      const auditUrl = getAuditServiceBaseUrl()
+      let addedCount = 0
+      for (const cand of toCreate) {
+        await $fetch(`${auditUrl}/consulting-services`, { method: 'POST', body: cand })
+        addedCount++
+      }
+      await csStore.fetchServices().catch(() => {})
+      toast.success(
+        'Penugasan Consulting Service Ditambahkan',
+        `${addedCount} layanan konsultasi dari '${item.table_name}' berhasil ditambahkan!`
       )
     }
   } catch (err) {

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { ActionTakenReport, AtrEvidence } from '~/types/audit'
 import { extractErrorMessage, getErrorStatus, getUserErrorMessage, parseBlobErrorBody } from '~/utils/error'
-import { getAuditServiceBaseUrl, getAuthServiceBaseUrl } from '~/composables/useApiUrl'
+import { getAuditServiceBaseUrl, getAuthServiceBaseUrl, getPythonAiBaseUrl } from '~/composables/useApiUrl'
 import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
@@ -57,6 +57,33 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
   const rbac = useRbac()
 
   const baseUrl = () => `${getAuditServiceBaseUrl()}/action-taken-reports`
+
+  /**
+   * Silently push latest Action Taken Report findings to Python AI Anomaly Detection
+   * so the RetrainScheduler & Multi-Model Tournament automatically retrain when findings change.
+   */
+  const notifyAnomalyEngineAtrSync = (atrList: ActionTakenReport[], trigger = 'atr_frontend_sync') => {
+    if (!Array.isArray(atrList) || atrList.length === 0) return
+    if (typeof process !== 'undefined' && (process.env?.VITEST || process.env?.NODE_ENV === 'test')) return
+    if (typeof globalThis.fetch !== 'function') return
+    try {
+      const aiUrl = `${getPythonAiBaseUrl()}/predict/anomaly/sync-atr`
+      globalThis.fetch(aiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': 'dev-ai-api-key'
+        },
+        body: JSON.stringify({
+          trigger,
+          source: 'action-taken-report-store',
+          items: atrList
+        })
+      }).catch(() => {})
+    } catch {
+      // Non-blocking background sync
+    }
+  }
 
   // --- List (server-side paged and filtered) -------------------------------------------------
   const items = ref<ActionTakenReport[]>([])
@@ -191,6 +218,7 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
       } while (page <= totalPages && page <= SUMMARY_MAX_PAGES)
       const now = new Date()
       summaryItems.value = collected.map(row => normalizeAtrItem(row as Record<string, unknown>, now))
+      notifyAnomalyEngineAtrSync(summaryItems.value, 'atr_summary_loaded')
     } catch (error) {
       if (id !== summaryRequestId) return
       console.error('Failed to fetch action taken report summary:', error)
@@ -360,6 +388,7 @@ export const useActionTakenReportStore = defineStore('action-taken-report', () =
       await fetchReport(id)
     }
     await Promise.all([fetchReports(), fetchSummary()])
+    notifyAnomalyEngineAtrSync(summaryItems.value.length ? summaryItems.value : items.value, 'atr_mutated')
   }
 
   /**

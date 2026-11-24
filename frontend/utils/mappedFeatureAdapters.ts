@@ -60,9 +60,26 @@ export interface BannerModuleInfo {
   actionType:
     | 'risk_profile'
     | 'audit_universe'
+    | 'risk_appetite'
+    | 'risk_factors'
+    | 'audit_priority'
+    | 'rcm'
+    | 'risk_mitigation'
     | 'strategic_plan'
     | 'annual_plan'
     | 'working_paper'
+    | 'audit_activity_plan'
+    | 'assignment_letter'
+    | 'audit_execution_status'
+    | 'audit_fieldwork'
+    | 'internal_audit_kpi'
+    | 'audit_result_report'
+    | 'action_taken_report'
+    | 'qar_dashboard'
+    | 'periodic_self_assessment'
+    | 'saiv_validation'
+    | 'iacm_assessment'
+    | 'consulting_service'
     | 'ai_anomaly'
     | 'ai_entity_prediction'
     | 'ai_nlp'
@@ -246,9 +263,9 @@ export function resolveBannerModuleInfo(routePath: string): BannerModuleInfo | n
       module: 'Risk Factors',
       slug: 'risk_factors',
       label: 'Risk Factors',
-      actionType: 'unsupported',
-      actionLabel: 'Modul Belum Didukung',
-      supported: false,
+      actionType: 'risk_factors',
+      actionLabel: '+ Tambahkan Faktor Risiko',
+      supported: true,
     }
   }
   if (path.includes('/risk-profile/risk-control-matrix')) {
@@ -257,9 +274,9 @@ export function resolveBannerModuleInfo(routePath: string): BannerModuleInfo | n
       module: 'Risk Control Matrix (RCM)',
       slug: 'risk_control_matrix',
       label: 'Risk Control Matrix (RCM)',
-      actionType: 'unsupported',
-      actionLabel: 'Modul Belum Didukung',
-      supported: false,
+      actionType: 'rcm',
+      actionLabel: '+ Tambahkan Kontrol RCM',
+      supported: true,
     }
   }
   if (path.includes('/risk-profile/audit-priority')) {
@@ -268,9 +285,9 @@ export function resolveBannerModuleInfo(routePath: string): BannerModuleInfo | n
       module: 'Audit Priority',
       slug: 'audit_priority',
       label: 'Audit Priority',
-      actionType: 'unsupported',
-      actionLabel: 'Modul Belum Didukung',
-      supported: false,
+      actionType: 'audit_priority',
+      actionLabel: '+ Hitung & Tetapkan Prioritas Audit',
+      supported: true,
     }
   }
   if (path.includes('/risk-appetite')) {
@@ -279,9 +296,20 @@ export function resolveBannerModuleInfo(routePath: string): BannerModuleInfo | n
       module: 'Risk Appetite Statement',
       slug: 'risk_appetite',
       label: 'Risk Appetite Statement',
-      actionType: 'unsupported',
-      actionLabel: 'Modul Belum Didukung',
-      supported: false,
+      actionType: 'risk_appetite',
+      actionLabel: '+ Buat Risk Appetite Statement',
+      supported: true,
+    }
+  }
+  if (path.includes('/mitigation')) {
+    return {
+      scope: 'risk_management',
+      module: 'Risk Mitigation',
+      slug: 'risk_mitigation',
+      label: 'Risk Mitigation',
+      actionType: 'risk_mitigation',
+      actionLabel: '+ Buat Rencana Mitigasi Risiko',
+      supported: true,
     }
   }
 
@@ -325,9 +353,9 @@ export function resolveBannerModuleInfo(routePath: string): BannerModuleInfo | n
       module: 'Audit Fieldwork',
       slug: 'audit_fieldwork',
       label: 'Audit Fieldwork',
-      actionType: 'unsupported',
-      actionLabel: 'Modul Belum Didukung',
-      supported: false,
+      actionType: 'audit_fieldwork',
+      actionLabel: '+ Impor Sampel & Uji Kontrol Fieldwork',
+      supported: true,
     }
   }
   if (path.includes('/audit-activity-plan')) {
@@ -336,9 +364,9 @@ export function resolveBannerModuleInfo(routePath: string): BannerModuleInfo | n
       module: 'Audit Activity Plan',
       slug: 'audit_activity_plan',
       label: 'Audit Activity Plan',
-      actionType: 'unsupported',
-      actionLabel: 'Modul Belum Didukung',
-      supported: false,
+      actionType: 'audit_activity_plan',
+      actionLabel: '+ Isi Formulir Rencana Kegiatan',
+      supported: true,
     }
   }
   if (path.includes('/assignment-letter')) {
@@ -347,9 +375,9 @@ export function resolveBannerModuleInfo(routePath: string): BannerModuleInfo | n
       module: 'Assignment Letter',
       slug: 'assignment_letter',
       label: 'Assignment Letter',
-      actionType: 'unsupported',
-      actionLabel: 'Modul Belum Didukung',
-      supported: false,
+      actionType: 'assignment_letter',
+      actionLabel: '+ Buat Draft Surat Tugas',
+      supported: true,
     }
   }
   if (path.includes('/audit-execution-status')) {
@@ -358,9 +386,9 @@ export function resolveBannerModuleInfo(routePath: string): BannerModuleInfo | n
       module: 'Audit Execution Status',
       slug: 'audit_execution_status',
       label: 'Audit Execution Status',
-      actionType: 'unsupported',
-      actionLabel: 'Modul Belum Didukung',
-      supported: false,
+      actionType: 'audit_execution_status',
+      actionLabel: '+ Sinkronkan Status Pelaksanaan Audit',
+      supported: true,
     }
   }
   if (path.includes('/audit-result-report')) {
@@ -369,9 +397,9 @@ export function resolveBannerModuleInfo(routePath: string): BannerModuleInfo | n
       module: 'Audit Result Report (LHA)',
       slug: 'audit_result_report',
       label: 'Audit Result Report (LHA)',
-      actionType: 'unsupported',
-      actionLabel: 'Modul Belum Didukung',
-      supported: false,
+      actionType: 'audit_result_report',
+      actionLabel: '+ Buat Draft Laporan Hasil Audit (LHA)',
+      supported: true,
     }
   }
   if (path.includes('/action-taken-report')) {
@@ -380,9 +408,9 @@ export function resolveBannerModuleInfo(routePath: string): BannerModuleInfo | n
       module: 'Action Taken Report (ATR)',
       slug: 'action_taken_report',
       label: 'Action Taken Report (ATR)',
-      actionType: 'unsupported',
-      actionLabel: 'Modul Belum Didukung',
-      supported: false,
+      actionType: 'action_taken_report',
+      actionLabel: '+ Buat Tindak Lanjut Temuan (ATR)',
+      supported: true,
     }
   }
   if (path.includes('/kpi-performance')) {
@@ -391,9 +419,66 @@ export function resolveBannerModuleInfo(routePath: string): BannerModuleInfo | n
       module: 'Internal Audit Performance (KPI)',
       slug: 'kpi_performance',
       label: 'Internal Audit Performance (KPI)',
-      actionType: 'unsupported',
-      actionLabel: 'Modul Belum Didukung',
-      supported: false,
+      actionType: 'internal_audit_kpi',
+      actionLabel: '+ Tambahkan Realisasi KPI Audit',
+      supported: true,
+    }
+  }
+
+  // 2b. QAR Features Scope
+  if (path.includes('/quality-assurance/import-periodic-self-assessment') || path.includes('type=regular')) {
+    return {
+      scope: 'qar_features',
+      module: 'Periodic Self-Assessment',
+      slug: 'periodic_self_assessment',
+      label: 'Periodic Self-Assessment',
+      actionType: 'periodic_self_assessment',
+      actionLabel: '+ Tambahkan Laporan Periodic Self-Assessment',
+      supported: true,
+    }
+  }
+  if (path.includes('/quality-assurance/import-saiv') || path.includes('type=saiv')) {
+    return {
+      scope: 'qar_features',
+      module: 'SAIV Validation',
+      slug: 'saiv_validation',
+      label: 'SAIV Validation',
+      actionType: 'saiv_validation',
+      actionLabel: '+ Tambahkan Laporan SAIV Validation',
+      supported: true,
+    }
+  }
+  if (path.includes('/quality-assurance/import-iacm') || path.includes('type=iacm')) {
+    return {
+      scope: 'qar_features',
+      module: 'IACM Assessment',
+      slug: 'iacm_assessment',
+      label: 'IACM Assessment',
+      actionType: 'iacm_assessment',
+      actionLabel: '+ Tambahkan Laporan IACM Assessment',
+      supported: true,
+    }
+  }
+  if (path.includes('/quality-assurance')) {
+    return {
+      scope: 'qar_features',
+      module: 'Quality Assurance Dashboard',
+      slug: 'quality_assurance_dashboard',
+      label: 'Quality Assurance Dashboard',
+      actionType: 'qar_dashboard',
+      actionLabel: '+ Tambahkan Laporan Evaluasi Mutu (QAR)',
+      supported: true,
+    }
+  }
+  if (path.includes('/consulting-service')) {
+    return {
+      scope: 'qar_features',
+      module: 'Consulting Service',
+      slug: 'consulting_service',
+      label: 'Consulting Service',
+      actionType: 'consulting_service',
+      actionLabel: '+ Buat Penugasan Consulting Service',
+      supported: true,
     }
   }
 
@@ -2150,4 +2235,819 @@ export function buildKpiForecastItemsFromTable(record: MappedRecordInput): any[]
   }
 
   return generatedKpis
+}
+
+// ============================================================================
+// 17 Additional Module Adapters (Risk Management, Audit Features, QAR Features)
+// ============================================================================
+
+function isRowFlaggedBool(row: Record<string, any>, record: MappedRecordInput): boolean {
+  return isRowAnomalousOrFlagged(row, record.custom_rules, record.anomaly_rules).flagged
+}
+
+function extractRowRef(row: Record<string, any>, record: MappedRecordInput, idx = 0): string {
+  const candidates = [
+    record.audit_field ? row?.[record.audit_field] : undefined,
+    row?.trx_ref_number,
+    row?.loan_number,
+    row?.voucher_number,
+    row?.contract_no,
+    row?.contract_number,
+    row?.incident_code,
+    row?.memo_no,
+    row?.document_no,
+    row?.id,
+    row?.trx_id,
+    row?.loan_id,
+    row?.gl_id,
+    row?.contract_id,
+    row?.incident_id,
+    row?.cabang_id,
+  ]
+  for (const c of candidates) {
+    if (c !== undefined && c !== null && String(c).trim() !== '') {
+      return String(c).trim()
+    }
+  }
+  return `${record.table_name.slice(0, 3).toUpperCase()}-${idx + 1}`
+}
+
+function extractRowDimension(row: Record<string, any>, idx = 0): string {
+  for (const col of DIMENSION_COL_CANDIDATES) {
+    const val = row?.[col]
+    if (val !== undefined && val !== null && String(val).trim() !== '') {
+      return String(val).trim()
+    }
+  }
+  for (const [k, v] of Object.entries(row || {})) {
+    if (/(branch|unit|dept|department|entity|division|office|region|vendor|customer)/i.test(k) && !/_id$/i.test(k)) {
+      if (v !== undefined && v !== null && String(v).trim() !== '') {
+        return String(v).trim()
+      }
+    }
+  }
+  return `Unit Operasional ${idx + 1}`
+}
+
+function extractRowAmount(row: Record<string, any>): number {
+  for (const col of AMOUNT_COL_CANDIDATES) {
+    const val = Number(row?.[col])
+    if (Number.isFinite(val) && val > 0) return val
+  }
+  return 0
+}
+
+export interface RiskAppetiteCandidate {
+  statement: string
+  threshold_limit: number
+  status: 'DRAFT' | 'SUBMITTED' | 'APPROVED'
+}
+
+export function buildRiskAppetiteStatementsFromTable(record: MappedRecordInput): RiskAppetiteCandidate[] {
+  const rows = Array.isArray(record.sample_records) ? record.sample_records : []
+  const totalPop = Number(record.profile?.total_rows || record.total_rows || rows.length || 1)
+  const flaggedRows = rows.filter(r => isRowFlaggedBool(r, record))
+  const flaggedCount = Number(record.profile?.flagged_rows ?? flaggedRows.length)
+  const devRate = Math.min(100, Math.max(0.5, +((flaggedCount / Math.max(1, rows.length || totalPop)) * 100).toFixed(2)))
+  const thresholdPct = Math.max(1, Math.min(25, Math.ceil(devRate)))
+
+  const candidates: RiskAppetiteCandidate[] = [
+    {
+      statement: `[${record.table_name}] Batas toleransi maksimum rasio deviasi/anomali pengendalian pada ${record.connection_name} (populasi ${totalPop.toLocaleString('id-ID')} rekaman) ditetapkan maksimal ${thresholdPct}%.`,
+      threshold_limit: thresholdPct,
+      status: 'DRAFT',
+    },
+  ]
+
+  const amounts = rows
+    .map(r => extractRowAmount(r))
+    .filter(v => Number.isFinite(v) && v > 0)
+  if (amounts.length > 0 || Number(record.profile?.max_amount) > 0) {
+    const maxAmt = Math.max(Number(record.profile?.max_amount || 0), ...(amounts.length ? amounts : [0]))
+    const limitJt = Math.max(10, Math.round(maxAmt / 1_000_000))
+    candidates.push({
+      statement: `[${record.table_name}] Batas eksposur nilai transaksi/kontrak tunggal tanpa eskalasi komite risiko pada ${record.connection_name} tidak boleh melebihi Rp ${limitJt.toLocaleString('id-ID')} Juta.`,
+      threshold_limit: limitJt,
+      status: 'DRAFT',
+    })
+  }
+
+  return candidates
+}
+
+export interface RiskFactorCandidate {
+  name: string
+  description: string
+  score_guidelines: string
+}
+
+export function buildRiskFactorsFromTable(record: MappedRecordInput): RiskFactorCandidate[] {
+  const s = analyzeTableSchema({
+    tableName: record.table_name,
+    profile: record.profile,
+    sample_records: record.sample_records,
+  })
+  const cleanTbl = record.table_name.replace(/_/g, ' ')
+  const candidates: RiskFactorCandidate[] = []
+
+  if (s.hasMonetaryMeasure) {
+    candidates.push({
+      name: `Materialitas Eksposur Finansial (${record.table_name})`,
+      description: `Besaran eksposur finansial pada tabel ${cleanTbl} (${record.connection_name}) berdasarkan kolom ${s.amountColumn || 'nominal'}.`,
+      score_guidelines: JSON.stringify([
+        { score: 1, desc: 'Eksposur rendah (< Rp 100 Juta)' },
+        { score: 3, desc: 'Eksposur moderat (Rp 100 Juta - Rp 1 Miliar)' },
+        { score: 5, desc: 'Eksposur kritikal (> Rp 1 Miliar)' },
+      ]),
+    })
+  }
+
+  if (s.hasAnomalyFlag || s.hasIncidentOrRiskSignals) {
+    candidates.push({
+      name: `Frekuensi Deviasi & Pelanggaran Kontrol (${record.table_name})`,
+      description: `Tingkat pelanggaran otorisasi, anomali, atau insiden kepatuhan pada ${cleanTbl} (${s.flagColumns[0] || 'status risiko'}).`,
+      score_guidelines: JSON.stringify([
+        { score: 1, desc: 'Tidak ada deviasi / patuh penuh (< 2%)' },
+        { score: 3, desc: 'Deviasi moderat (2% - 10%)' },
+        { score: 5, desc: 'Deviasi tinggi / override berulang (> 10%)' },
+      ]),
+    })
+  }
+
+  if (candidates.length === 0) {
+    candidates.push({
+      name: `Kompleksitas Operasional Data (${record.table_name})`,
+      description: `Tingkat kerumitan operasional dan volume transaksi pada sumber data ${cleanTbl} (${record.connection_name}).`,
+      score_guidelines: JSON.stringify([
+        { score: 1, desc: 'Volume & kompleksitas rendah' },
+        { score: 3, desc: 'Volume & kompleksitas sedang' },
+        { score: 5, desc: 'Volume tinggi & berdampak langsung pada pelaporan' },
+      ]),
+    })
+  }
+
+  return candidates
+}
+
+export interface AuditPriorityCandidate {
+  entityName: string
+  dimensionName: string
+  factorScore: number
+  riskLevel: string
+  prioritized: boolean
+  rowCount: number
+  flaggedCount: number
+}
+
+export function buildAuditPriorityCandidatesFromTable(record: MappedRecordInput): AuditPriorityCandidate[] {
+  const rows = Array.isArray(record.sample_records) ? record.sample_records : []
+  const groups = new Map<string, { rows: Record<string, any>[]; flagged: number; maxAmt: number; maxSev: number }>()
+
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i] || {}
+    const dim = extractRowDimension(r, i)
+    const g = groups.get(dim) || { rows: [], flagged: 0, maxAmt: 0, maxSev: 0 }
+    g.rows.push(r)
+    if (isRowFlaggedBool(r, record)) g.flagged++
+    const amt = extractRowAmount(r)
+    if (amt > g.maxAmt) g.maxAmt = amt
+    const sev = Number(r.severity_score || r.collectability * 20 || 0)
+    if (sev > g.maxSev) g.maxSev = sev
+    groups.set(dim, g)
+  }
+
+  if (groups.size === 0 && Array.isArray(record.profile?.dimension_breakdown)) {
+    for (const d of record.profile!.dimension_breakdown!) {
+      if (!d?.name) continue
+      groups.set(d.name, {
+        rows: [],
+        flagged: Number(d.flagged_count || 0),
+        maxAmt: Number(d.max_amount || d.total_amount || 0),
+        maxSev: d.flagged_count > 0 ? 80 : 45,
+      })
+    }
+  }
+
+  const out: AuditPriorityCandidate[] = []
+  for (const [dim, g] of groups.entries()) {
+    const first = g.rows[0] || {}
+    const rawTier = String(first.risk_tier || first.risk_level || '').toLowerCase()
+    let factorScore = 3
+    if (g.maxSev >= 80 || g.flagged >= 2 || rawTier.includes('high') || g.maxAmt >= 1_000_000_000) {
+      factorScore = 5
+    } else if (g.maxSev >= 65 || g.flagged === 1 || rawTier.includes('mod') || g.maxAmt >= 250_000_000) {
+      factorScore = 4
+    } else if (rawTier.includes('low') && g.flagged === 0) {
+      factorScore = 2
+    }
+
+    const riskLevel =
+      factorScore >= 5
+        ? 'High'
+        : factorScore === 4
+          ? 'Moderate to High'
+          : factorScore === 3
+            ? 'Moderate'
+            : 'Low to Moderate'
+
+    out.push({
+      entityName: `${dim} (${record.table_name})`,
+      dimensionName: dim,
+      factorScore,
+      riskLevel,
+      prioritized: factorScore >= 4,
+      rowCount: g.rows.length || 1,
+      flaggedCount: g.flagged,
+    })
+  }
+
+  return out
+}
+
+export interface RcmCandidate {
+  risk_code: string
+  risk_event: string
+  control_code: string
+  control_description: string
+  control_type: 'Preventive' | 'Detective' | 'Corrective'
+  control_owner: string
+  department: string
+  year: number
+  design_effectiveness_weight: number
+  design_effectiveness_rating: number
+  operating_effectiveness_weight: number
+  operating_effectiveness_rating: number
+  coverage_completeness_weight: number
+  coverage_completeness_rating: number
+  timeliness_weight: number
+  timeliness_rating: number
+  automation_monitoring_weight: number
+  automation_monitoring_rating: number
+  notes: string
+}
+
+export function buildRcmCandidatesFromTable(record: MappedRecordInput, year = new Date().getFullYear()): RcmCandidate[] {
+  const rows = Array.isArray(record.sample_records) ? record.sample_records : []
+  const targetRows = rows.length > 0 ? rows.slice(0, 15) : [{}]
+  const tblPrefix = record.table_name
+    .split('_')
+    .map(w => w[0] || '')
+    .join('')
+    .toUpperCase()
+    .slice(0, 4) || 'EXT'
+
+  return targetRows.map((row, idx) => {
+    const refCode = extractRowRef(row, record, idx)
+    const dim = extractRowDimension(row, idx)
+    const flagged = isRowFlaggedBool(row, record)
+    const baseRating = flagged ? 2 : 4
+
+    const riskEvent =
+      row.incident_title ||
+      row.finding_summary ||
+      row.control_weakness ||
+      row.audit_note ||
+      row.notes ||
+      `Risiko ketidakpatuhan & anomali pada ${record.table_name} (${refCode} - ${dim})`
+
+    const controlDesc =
+      row.control_weakness
+        ? `Verifikasi & penguatan kontrol atas: ${row.control_weakness}`
+        : `Verifikasi otorisasi berjenjang, rekonsiliasi bukti (${refCode}), dan pemantauan otomatis pada ${dim}`
+
+    return {
+      risk_code: `RSK-${tblPrefix}-${String(idx + 1).padStart(3, '0')}`,
+      risk_event: String(riskEvent).slice(0, 240),
+      control_code: `CTL-${tblPrefix}-${String(idx + 1).padStart(3, '0')}`,
+      control_description: String(controlDesc).slice(0, 240),
+      control_type: flagged ? 'Detective' : 'Preventive',
+      control_owner: `Kepala Unit ${dim}`,
+      department: dim,
+      year,
+      design_effectiveness_weight: 20,
+      design_effectiveness_rating: flagged ? 3 : 4,
+      operating_effectiveness_weight: 20,
+      operating_effectiveness_rating: baseRating,
+      coverage_completeness_weight: 20,
+      coverage_completeness_rating: flagged ? 3 : 4,
+      timeliness_weight: 20,
+      timeliness_rating: baseRating,
+      automation_monitoring_weight: 20,
+      automation_monitoring_rating: flagged ? 2 : 4,
+      notes: `Sumber: ${record.connection_name} -> ${record.table_name} (${refCode})`,
+    }
+  })
+}
+
+export interface RiskMitigationCandidate {
+  riskControlId: string
+  riskEvent: string
+  mitigationPlan: string
+  supervisor: string
+  pic: string
+  unitInCharge: string
+  start_date: string
+  end_date: string
+  notes: string
+}
+
+export function buildRiskMitigationCandidatesFromTable(record: MappedRecordInput): RiskMitigationCandidate[] {
+  const rows = Array.isArray(record.sample_records) ? record.sample_records : []
+  const flaggedRows = rows.filter(r => isRowFlaggedBool(r, record))
+  const sourceRows = (flaggedRows.length > 0 ? flaggedRows : rows).slice(0, 12)
+  const tblPrefix = record.table_name.slice(0, 3).toUpperCase()
+  const today = new Date()
+  const startDate = today.toISOString().split('T')[0] || '2026-01-01'
+  const endObj = new Date(today.getTime() + 45 * 24 * 60 * 60 * 1000)
+  const endDate = endObj.toISOString().split('T')[0] || '2026-03-01'
+
+  return sourceRows.map((row, idx) => {
+    const refCode = extractRowRef(row, record, idx)
+    const dim = extractRowDimension(row, idx)
+    const amt = extractRowAmount(row)
+    const amtText = amt > 0 ? ` (Eksposur Rp ${amt.toLocaleString('id-ID')})` : ''
+
+    const riskEvent =
+      row.incident_title ||
+      row.finding_summary ||
+      row.audit_note ||
+      row.notes ||
+      `Temuan deviasi ${record.table_name} [${refCode}] pada ${dim}${amtText}`
+
+    const plan =
+      row.root_cause || row.control_weakness
+        ? `Perbaikan akar masalah (${row.root_cause || row.control_weakness}) melalui pengetatan dual-control dan validasi dokumen pendukung ${refCode}.`
+        : `Melakukan investigasi, blokir/koreksi otorisasi atas rekaman ${refCode}, serta review kepatuhan SOP pada ${dim}.`
+
+    return {
+      riskControlId: `MIT-${tblPrefix}-${String(idx + 1).padStart(3, '0')}`,
+      riskEvent: String(riskEvent).slice(0, 220),
+      mitigationPlan: String(plan).slice(0, 300),
+      supervisor: String(row.approver_id || row.posted_by || 'Internal Audit Supervisor'),
+      pic: `PIC ${dim}`,
+      unitInCharge: dim,
+      start_date: startDate,
+      end_date: endDate,
+      notes: `Diimpor dari ${record.connection_name} (${record.table_name} #${refCode})`,
+    }
+  })
+}
+
+export interface AuditActivityPlanDraftCandidate {
+  title: string
+  activityType: 'Assurance' | 'Audit Khusus' | 'Audit Tujuan Tertentu' | 'Audit Investigasi'
+  auditKind: string
+  assignmentCode: string
+  objectives: string[]
+  criteria: string[]
+}
+
+export function buildAuditActivityPlanDraftFromTable(record: MappedRecordInput): AuditActivityPlanDraftCandidate {
+  const rows = Array.isArray(record.sample_records) ? record.sample_records : []
+  const flaggedCount = rows.filter(r => isRowFlaggedBool(r, record)).length
+  const totalPop = Number(record.profile?.total_rows || record.total_rows || rows.length || 0)
+  const tblLower = record.table_name.toLowerCase()
+
+  const activityType: AuditActivityPlanDraftCandidate['activityType'] =
+    tblLower.includes('incident') || flaggedCount >= 5 ? 'Audit Khusus' : 'Assurance'
+
+  const auditKind =
+    tblLower.includes('gl') || tblLower.includes('loan') || tblLower.includes('trx') || tblLower.includes('transact')
+      ? 'Keuangan'
+      : tblLower.includes('vendor') || tblLower.includes('incident')
+        ? 'Kepatuhan'
+        : 'Operasional'
+
+  const cleanPrefix = record.table_name.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 6) || 'EXT'
+
+  return {
+    title: `Rencana Kegiatan Audit — ${record.table_name} (${record.connection_name})`,
+    activityType,
+    auditKind,
+    assignmentCode: `RKA-${cleanPrefix}-${new Date().getFullYear()}`,
+    objectives: [
+      `Mengevaluasi keandalan pengendalian internal pada populasi ${totalPop.toLocaleString('id-ID')} baris tabel ${record.table_name}.`,
+      `Memverifikasi ${flaggedCount || rows.length} transaksi/rekaman berisiko tinggi terhadap kepatuhan otorisasi dan SOP perusahaan.`,
+    ],
+    criteria: [
+      `Kebijakan & SOP Pengendalian Internal Perusahaan terkait ${record.table_name}.`,
+      `Standar Audit Intern & Ketentuan Kepatuhan Regulator.`,
+    ],
+  }
+}
+
+export interface AssignmentLetterCandidate {
+  auditTitle: string
+  leader: string
+  category: AuditCategory
+  auditYear: string
+  auditTeam: string
+  startPeriod: string
+  finishPeriod: string
+  workingUnit: string
+  workingUnitDepartmentId: string
+  auditPurpose: string
+  letterDate: string
+  membersList: Array<{ name: string; role: string }>
+  purposeList: string[]
+  scopeList: string[]
+  ccList: string[]
+}
+
+export function buildAssignmentLetterCandidatesFromTable(
+  record: MappedRecordInput,
+  ctx?: {
+    departments?: Array<{ id: string; department_name?: string; name?: string; department_code?: string }>
+    employees?: Array<{ full_name: string; employee_code?: string }>
+    year?: string
+  }
+): AssignmentLetterCandidate[] {
+  const rows = Array.isArray(record.sample_records) ? record.sample_records : []
+  const depts = ctx?.departments || []
+  const emps = ctx?.employees || []
+  const year = ctx?.year || String(new Date().getFullYear())
+  const today = new Date().toISOString().split('T')[0] || `${year}-01-15`
+  const finish = new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] || `${year}-02-05`
+
+  const formatEmp = (e?: { full_name: string; employee_code?: string }, fallback = 'Auditor Senior SKAI') =>
+    e ? (e.employee_code ? `${e.full_name} (${e.employee_code})` : e.full_name) : fallback
+
+  const leaderName = formatEmp(emps[0], 'Ketua Tim Audit Internal')
+  const member1 = formatEmp(emps[1], 'Anggota Auditor 1')
+  const member2 = formatEmp(emps[2], 'Anggota Auditor 2')
+
+  const distinctUnits: string[] = []
+  for (let i = 0; i < rows.length; i++) {
+    const d = extractRowDimension(rows[i] || {}, i)
+    if (d && !distinctUnits.includes(d)) distinctUnits.push(d)
+    if (distinctUnits.length >= 3) break
+  }
+  if (distinctUnits.length === 0) {
+    distinctUnits.push(`Unit Operasional ${record.table_name}`)
+  }
+
+  return distinctUnits.map((unitName) => {
+    const matchedDept =
+      depts.find(d => {
+        const dName = (d.department_name || d.name || '').toLowerCase()
+        return dName && (unitName.toLowerCase().includes(dName) || dName.includes(unitName.toLowerCase()))
+      }) || depts[0]
+
+    const deptLabel = matchedDept
+      ? matchedDept.department_code
+        ? `${matchedDept.department_name || matchedDept.name} (${matchedDept.department_code})`
+        : (matchedDept.department_name || matchedDept.name || unitName)
+      : unitName
+
+    return {
+      auditTitle: `Audit Pemeriksaan ${record.table_name} — ${unitName}`,
+      leader: leaderName,
+      category: AuditCategory.ASSURANCE,
+      auditYear: year,
+      auditTeam: 'SKAI',
+      startPeriod: today,
+      finishPeriod: finish,
+      workingUnit: deptLabel,
+      workingUnitDepartmentId: matchedDept?.id || '',
+      auditPurpose: `Melaksanakan pemeriksaan substantif dan kepatuhan pada ${unitName} berdasarkan sumber data ${record.table_name} (${record.connection_name}).`,
+      letterDate: today,
+      membersList: [
+        { name: leaderName, role: 'Chairperson' },
+        { name: member1, role: 'Member' },
+        { name: member2, role: 'Member' },
+      ],
+      purposeList: [
+        `Menguji validitas dan otorisasi transaksi pada tabel ${record.table_name} di ${unitName}.`,
+        `Menilai efektivitas pengendalian internal dan tindak lanjut anomali data.`,
+      ],
+      scopeList: [
+        `Populasi data ${record.table_name} pada koneksi ${record.connection_name}.`,
+        `Dokumen bukti transaksi dan log persetujuan pada ${unitName}.`,
+      ],
+      ccList: ['President Director', 'Audit Committee'],
+    }
+  })
+}
+
+export interface FieldworkSampleCandidate {
+  assignmentLetterId: string
+  documentName: string
+  documentNumber: string
+  date: string
+  description: string
+}
+
+export interface FieldworkTestControlCandidate {
+  assignmentLetterId: string
+  controlName: string
+  controlDescription: string
+  controlType: string
+  unitDivision: string
+  testProcedure: string
+  testResult: string
+  finding: string
+  recommendation: string
+  mitigationPlan: string
+  pic: string
+  dueDate: string
+}
+
+export function buildAuditFieldworkCandidatesFromTable(
+  record: MappedRecordInput,
+  assignmentLetterId = 'ST-001/SKAI/2026'
+): {
+  samples: FieldworkSampleCandidate[]
+  testControls: FieldworkTestControlCandidate[]
+} {
+  const rows = Array.isArray(record.sample_records) ? record.sample_records : []
+  const sortedRows = [...rows].sort((a, b) => {
+    const aFlag = isRowFlaggedBool(a, record) ? 1 : 0
+    const bFlag = isRowFlaggedBool(b, record) ? 1 : 0
+    return bFlag - aFlag
+  })
+  const selectedRows = sortedRows.slice(0, 12)
+  const today = new Date().toISOString().split('T')[0] || '2026-01-15'
+  const dueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] || '2026-02-15'
+
+  const samples: FieldworkSampleCandidate[] = selectedRows.map((row, idx) => {
+    const refCode = extractRowRef(row, record, idx)
+    const dim = extractRowDimension(row, idx)
+    const amt = extractRowAmount(row)
+    const rawDate =
+      row.trx_date || row.gl_date || row.disbursed_at || row.signed_at || row.reported_at || row.created_at || today
+    const dateStr = String(rawDate).split('T')[0]?.split(' ')[0] || today
+
+    return {
+      assignmentLetterId,
+      documentName: `Bukti ${record.table_name} — ${dim}`,
+      documentNumber: String(refCode),
+      date: dateStr,
+      description: `${row.finding_summary || row.audit_note || row.notes || row.description || `Sampel uji petik ${record.table_name}`}${amt > 0 ? ` (Nominal Rp ${amt.toLocaleString('id-ID')})` : ''}`,
+    }
+  })
+
+  const testControls: FieldworkTestControlCandidate[] = selectedRows.slice(0, 6).map((row, idx) => {
+    const refCode = extractRowRef(row, record, idx)
+    const dim = extractRowDimension(row, idx)
+    const flagged = isRowFlaggedBool(row, record)
+
+    return {
+      assignmentLetterId,
+      controlName: `Kontrol Verifikasi ${record.table_name} (${refCode})`,
+      controlDescription: `Pengujian kepatuhan otorisasi dan kelengkapan bukti pada ${dim} untuk rekaman ${refCode}.`,
+      controlType: flagged ? 'Detective' : 'Preventive',
+      unitDivision: dim,
+      testProcedure: `Inspeksi dokumen sumber, rekonsiliasi nilai database ${record.table_name}, dan verifikasi jejak persetujuan.`,
+      testResult: flagged ? 'Ineffective' : 'Effective',
+      finding: flagged
+        ? String(row.finding_summary || row.audit_note || row.notes || `Ditemukan deviasi otorisasi/parameter pada rekaman ${refCode} di ${dim}.`)
+        : `Tidak ditemukan deviasi material pada rekaman ${refCode}.`,
+      recommendation: flagged
+        ? `Wajibkan verifikasi berjenjang (dual-control) dan peninjauan ulang transaksi ${refCode} pada ${dim}.`
+        : `Pertahankan prosedur pengendalian berjalan pada ${dim}.`,
+      mitigationPlan: flagged
+        ? `Remediasi dokumen & pemutakhiran parameter kontrol sistem pada ${dim}.`
+        : 'Monitoring berkala.',
+      pic: `Kepala Unit ${dim}`,
+      dueDate,
+    }
+  })
+
+  return { samples, testControls }
+}
+
+export interface InternalAuditKpiCandidate {
+  year: number
+  period: string
+  kpi_name: string
+  target: number
+  actual: number
+  achievement_rate: number
+  notes: string
+}
+
+export function buildInternalAuditKpiCandidatesFromTable(
+  record: MappedRecordInput,
+  year = new Date().getFullYear()
+): InternalAuditKpiCandidate[] {
+  const rows = Array.isArray(record.sample_records) ? record.sample_records : []
+  const totalPop = Number(record.profile?.total_rows || record.total_rows || rows.length || 1)
+  const flaggedRows = rows.filter(r => isRowFlaggedBool(r, record))
+  const sampleTotal = Math.max(1, rows.length)
+  const complianceActual = +(((sampleTotal - flaggedRows.length) / sampleTotal) * 100).toFixed(2)
+  const complianceTarget = 95
+  const complianceRate = Math.min(100, +((complianceActual / complianceTarget) * 100).toFixed(2))
+
+  const coverageActual = Math.min(100, +((rows.length / Math.max(1, Math.min(totalPop, 50))) * 100).toFixed(2))
+
+  return [
+    {
+      year,
+      period: 'Tahunan',
+      kpi_name: `Tingkat Kepatuhan Pengendalian ${record.table_name} (${record.connection_name})`,
+      target: complianceTarget,
+      actual: complianceActual,
+      achievement_rate: complianceRate,
+      notes: `Dihitung dari ${sampleTotal} sampel uji (${flaggedRows.length} deviasi) pada populasi ${totalPop.toLocaleString('id-ID')} baris.`,
+    },
+    {
+      year,
+      period: 'Tahunan',
+      kpi_name: `Cakupan Pengujian Substantif Data ${record.table_name}`,
+      target: 100,
+      actual: coverageActual,
+      achievement_rate: coverageActual,
+      notes: `Realisasi penarikan & pengujian bukti otomatis dari sumber data ${record.connection_name}.`,
+    },
+  ]
+}
+
+export interface AuditResultReportCandidate {
+  assignmentLetterId: string
+  reportTitle: string
+  reportDate: string
+  status: 'Draft' | 'Final'
+  findingsCount: number
+  executiveSummary: string
+  findings: Array<{
+    title: string
+    category: 'Very Significant' | 'Significant' | 'Quite Significant' | 'Not Significant'
+    action: string
+    source: string
+  }>
+}
+
+export function buildAuditResultReportCandidateFromTable(
+  record: MappedRecordInput,
+  assignmentLetterId = 'ST-001/SKAI/2026',
+  status: 'Draft' | 'Final' = 'Draft'
+): AuditResultReportCandidate {
+  const rows = Array.isArray(record.sample_records) ? record.sample_records : []
+  const flaggedRows = rows.filter(r => isRowFlaggedBool(r, record))
+  const targetRows = (flaggedRows.length > 0 ? flaggedRows : rows).slice(0, 8)
+  const today = new Date().toISOString().split('T')[0] || '2026-01-15'
+  const totalPop = Number(record.profile?.total_rows || record.total_rows || rows.length || 0)
+
+  const findings = targetRows.map((row, idx) => {
+    const refCode = extractRowRef(row, record, idx)
+    const dim = extractRowDimension(row, idx)
+    const amt = extractRowAmount(row)
+    const sev = Number(row.severity_score || 0)
+    const isHigh = sev >= 80 || amt >= 1_000_000_000 || row.is_suspicious === true || row.is_override_auth === true
+    const category: AuditResultReportCandidate['findings'][number]['category'] = isHigh
+      ? 'Very Significant'
+      : flaggedRows.length > 0
+        ? 'Significant'
+        : 'Quite Significant'
+
+    const desc =
+      row.incident_title ||
+      row.finding_summary ||
+      row.audit_note ||
+      row.notes ||
+      `Deviasi pengendalian & kepatuhan pada ${record.table_name}`
+
+    return {
+      title: `[${refCode}] ${desc} — ${dim}${amt > 0 ? ` (Rp ${amt.toLocaleString('id-ID')})` : ''}`.slice(0, 240),
+      category,
+      action: String(
+        row.control_weakness
+          ? `Perbaiki kelemahan kontrol (${row.control_weakness}) dan lakukan verifikasi ulang atas ${refCode} pada ${dim}.`
+          : `Lakukan tindak lanjut korektif, rekonsiliasi bukti ${refCode}, dan pengetatan otorisasi pada ${dim}.`
+      ).slice(0, 240),
+      source: `${record.connection_name}:${record.table_name}`,
+    }
+  })
+
+  return {
+    assignmentLetterId,
+    reportTitle: `Laporan Hasil Audit (LHA) — Evaluasi Data ${record.table_name} (${record.connection_name})`,
+    reportDate: today,
+    status,
+    findingsCount: findings.length,
+    executiveSummary: `Berdasarkan pengujian populasi ${totalPop.toLocaleString('id-ID')} baris pada tabel ${record.table_name} (${record.connection_name}), teridentifikasi ${findings.length} temuan utama yang memerlukan tindakan korektif manajemen.`,
+    findings,
+  }
+}
+
+export interface QualityAssuranceCandidate {
+  type: string
+  period: string
+  reportName: string
+  assessmentTitle: string
+  result: string
+  status: 'Completed' | 'Verified' | 'In Progress' | 'Planned'
+  conductedBy: string
+  internalEvaluator: string
+}
+
+export function buildQualityAssuranceCandidatesFromTable(
+  record: MappedRecordInput,
+  actionType: 'qar_dashboard' | 'periodic_self_assessment' | 'saiv_validation' | 'iacm_assessment' = 'qar_dashboard',
+  conductedBy = 'PT AIFL Indonesia (Internal Quality Assurance)'
+): QualityAssuranceCandidate[] {
+  const rows = Array.isArray(record.sample_records) ? record.sample_records : []
+  const flaggedCount = rows.filter(r => isRowFlaggedBool(r, record)).length
+  const totalSample = Math.max(1, rows.length)
+  const passRate = Math.round(((totalSample - flaggedCount) / totalSample) * 100)
+  const year = String(new Date().getFullYear())
+
+  const typeMap: Record<typeof actionType, { qaType: string; prefix: string; resultText: string }> = {
+    qar_dashboard: {
+      qaType: 'Quality Assurance Review (QAR)',
+      prefix: 'QAR Review',
+      resultText: passRate >= 85 ? `Generally Conforms (${passRate}%)` : `Partially Conforms (${passRate}%)`,
+    },
+    periodic_self_assessment: {
+      qaType: 'Regular Self Assessment (RSA)',
+      prefix: 'Periodic Self-Assessment',
+      resultText: passRate >= 85 ? `Generally Conforms (${passRate}%)` : `Partially Conforms (${passRate}%)`,
+    },
+    saiv_validation: {
+      qaType: 'Self Assessment w/ Independent Validation (SAIV)',
+      prefix: 'SAIV Independent Validation',
+      resultText: passRate >= 85 ? `Validated — Generally Conforms (${passRate}%)` : `Validated — Partially Conforms (${passRate}%)`,
+    },
+    iacm_assessment: {
+      qaType: 'BUMN IACM Assessment',
+      prefix: 'IACM Capability Assessment',
+      resultText: passRate >= 90 ? `Level 4 — Managed (${passRate}%)` : passRate >= 75 ? `Level 3 — Integrated (${passRate}%)` : `Level 2 — Infrastructure (${passRate}%)`,
+    },
+  }
+
+  const meta = typeMap[actionType] || typeMap.qar_dashboard
+  const title = `${meta.prefix} — ${record.table_name} (${record.connection_name})`
+
+  return [
+    {
+      type: meta.qaType,
+      period: year,
+      reportName: title,
+      assessmentTitle: title,
+      result: meta.resultText,
+      status: 'Completed',
+      conductedBy,
+      internalEvaluator: 'Tim Quality Assurance Audit Internal',
+    },
+  ]
+}
+
+export interface ConsultingServiceCandidate {
+  title: string
+  category: string
+  requestorDept: string
+  period: string
+  consultantName: string
+  status: string
+  notes: string
+}
+
+export function buildConsultingServiceCandidatesFromTable(
+  record: MappedRecordInput,
+  departments?: Array<{ department_name?: string; name?: string; department_code?: string }>
+): ConsultingServiceCandidate[] {
+  const rows = Array.isArray(record.sample_records) ? record.sample_records : []
+  const year = new Date().getFullYear()
+  const tblLower = record.table_name.toLowerCase()
+  const category =
+    tblLower.includes('it') || tblLower.includes('login') || tblLower.includes('access')
+      ? 'IT Advisory'
+      : tblLower.includes('policy') || tblLower.includes('vendor') || tblLower.includes('contract')
+        ? 'Policy & SOP Review'
+        : tblLower.includes('incident') || tblLower.includes('risk')
+          ? 'Governance Assessment'
+          : 'Operational Advisory'
+
+  const distinctUnits: string[] = []
+  for (let i = 0; i < rows.length; i++) {
+    const dim = extractRowDimension(rows[i] || {}, i)
+    if (dim && !distinctUnits.includes(dim)) distinctUnits.push(dim)
+    if (distinctUnits.length >= 3) break
+  }
+  if (distinctUnits.length === 0) {
+    distinctUnits.push(`Unit Operasional ${record.table_name}`)
+  }
+
+  const depts = departments || []
+  return distinctUnits.map((unit) => {
+    const matched = depts.find(d => {
+      const n = (d.department_name || d.name || '').toLowerCase()
+      return n && (unit.toLowerCase().includes(n) || n.includes(unit.toLowerCase()))
+    })
+    const requestorDept = matched
+      ? matched.department_code
+        ? `${matched.department_name || matched.name} (${matched.department_code})`
+        : (matched.department_name || matched.name || unit)
+      : unit
+
+    return {
+      title: `Konsultasi Penguatan Pengendalian ${record.table_name} — ${unit}`,
+      category,
+      requestorDept,
+      period: `Q1 ${year}`,
+      consultantName: 'Tim Advisory Audit Internal (SKAI)',
+      status: 'In Progress',
+      notes: `Penugasan konsultasi berbasis analisis sumber data ${record.connection_name} (${record.table_name}) pada unit ${unit}.`,
+    }
+  })
 }

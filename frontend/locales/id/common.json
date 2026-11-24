@@ -1544,6 +1544,13 @@
     "guidelines": {
       "modalTitle": "Panduan Skala Penilaian: {name}"
     },
+    "defaultScores": {
+      "1": "Rendah – Aktivitas administratif atau rutin dengan risiko minimal",
+      "2": "Rendah ke Sedang – Operasi berisiko rendah dengan dampak minimal",
+      "3": "Sedang – Eksposur risiko moderat dengan dampak perusahaan yang terbatas",
+      "4": "Sedang ke Tinggi – Risiko signifikan yang memengaruhi operasi utama",
+      "5": "Tinggi – Kontributor utama terhadap risiko perusahaan"
+    },
     "messages": {
       "scoresSaved": "Skor risiko berhasil disimpan dan prioritas telah dihitung.",
       "scoresSaveFailed": "Gagal menyimpan skor risiko.",
@@ -1559,6 +1566,8 @@
       "factorDeleteFailed": "Gagal menghapus faktor risiko standar.",
     "factorRemoved": "Faktor berhasil dihapus dari daftar korporat.",
     "nameRequired": "Nama faktor wajib diisi.",
+    "guidelinesRequired": "Semua panduan skala penilaian (1 - 5) wajib diisi.",
+    "scoreGuidelineRequired": "Panduan skor {score} wajib diisi.",
     "operationFailed": "Operasi gagal.",
     "deleteFailed": "Gagal menghapus faktor."
     },
@@ -2506,7 +2515,10 @@
         "transactionUnit": "Rp"
       },
       "axisHour": "Jam transaksi (0–23)",
-      "hourValue": "pukul {hour}:00"
+      "hourValue": "pukul {hour}:00",
+      "legendNormal": "Data Normal",
+      "legendAnomaly": "Anomali",
+      "yAxisTitle": "Frekuensi"
     },
     "nlp": {
       "alertTitle": "Model Analisis Dokumen & Catatan Multi-Source IndoBERT NLP + OCR",
@@ -2568,6 +2580,7 @@
       "colRecommendedAction": "Tindakan yang Direkomendasikan",
       "labelActualKPI": "Nilai aktual",
       "labelForecast": "Prakiraan model (LSTM)",
+      "labelBand": "Interval Kepercayaan",
       "labelUpperBound": "Batas Atas",
       "labelLowerBound": "Batas Bawah",
       "axisKPIScore": "Skor KPI (%)",
@@ -2578,7 +2591,42 @@
       "polarityHIB": "HIB (High Is Bad)",
       "syncNow": "Sinkronkan & Retrain Model",
       "syncing": "Menyinkronkan...",
-      "retrainSuccess": "Retrain model AI selesai dan termuat ke memori."
+      "retrainSuccess": "Retrain model AI selesai dan termuat ke memori.",
+      "selectKpi": "Pilih KPI",
+      "staleWarning": "Data proyeksi berasal dari periode lampau. Sinkronkan & latih ulang model untuk memperbarui proyeksi.",
+      "dataAsOf": "Data per {period}",
+      "horizon": "Horizon proyeksi: {range}",
+      "projectedBy": "Proyeksi {period}",
+      "noAtRisk": "Tidak ada KPI yang diproyeksikan menurun saat ini."
+    },
+    "kpiForecast": {
+      "chart": {
+        "historical": "Historis",
+        "forecast": "Prakiraan"
+      }
+    },
+    "kpiAudit": {
+      "axis": {
+        "percent": "{kpi} (%)",
+        "score": "{kpi} (Skor)",
+        "rupiah": "{kpi} (Rp)"
+      },
+      "kindHint": {
+        "nps": "Catatan: Net Promoter Score (NPS) diukur pada skala indeks -100 hingga +100, bukan persentase."
+      },
+      "actions": {
+        "generic": "Tinjau faktor pemicu operasional terkait dan jadwalkan tindak lanjut audit terarah.",
+        "nps": "Audit SLA penyelesaian keluhan nasabah dan kualitas layanan cabang.",
+        "clv": "Tinjau kontrol retensi nasabah bernilai tinggi dan tata kelola cross-sell.",
+        "aov": "Audit tren nilai per transaksi, diskon harga, dan potensi kebocoran biaya.",
+        "cac": "Audit efektivitas biaya pemasaran, komisi kanal, dan konversi akuisisi.",
+        "mrr": "Verifikasi pengakuan pendapatan berulang, pemicu churn, dan perpanjangan kontrak.",
+        "conversion": "Tinjau kontrol pipeline penjualan, kualifikasi prospek, dan hambatan persetujuan.",
+        "gpm": "Audit varians beban pokok/COGS, tekanan margin, dan penyesuaian harga.",
+        "retention": "Audit akar masalah churn nasabah, log penutupan rekening, dan program retensi.",
+        "roi": "Tinjau persetujuan alokasi modal, realisasi proyek, dan pemantauan manfaat.",
+        "turnover": "Audit ketergantungan personel kunci, hasil exit interview, dan kontrol beban kerja."
+      }
     }
   },
   "annualAudit": {

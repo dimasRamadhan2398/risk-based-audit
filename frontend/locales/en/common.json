@@ -1613,6 +1613,8 @@
       "factorDeleteFailed": "Failed to delete standard risk factor.",
       "factorRemoved": "Factor successfully removed from corporate list.",
       "nameRequired": "Factor name is required.",
+      "guidelinesRequired": "All scoring scale guidelines (1 - 5) are required.",
+      "scoreGuidelineRequired": "Score {score} guideline is required.",
       "operationFailed": "Operation failed.",
       "deleteFailed": "Failed to delete factor."
     },
@@ -2563,7 +2565,10 @@
         "transactionUnit": "IDR"
       },
       "axisHour": "Transaction hour (0–23)",
-      "hourValue": "at {hour}:00"
+      "hourValue": "at {hour}:00",
+      "legendNormal": "Normal Data",
+      "legendAnomaly": "Anomaly",
+      "yAxisTitle": "Frequency"
     },
     "nlp": {
       "alertTitle": "IndoBERT NLP + OCR Multi-Source Document & Note Analysis Model",
@@ -2625,6 +2630,7 @@
       "colRecommendedAction": "Recommended Action",
       "labelActualKPI": "Actual value",
       "labelForecast": "Model forecast (LSTM)",
+      "labelBand": "Confidence Interval",
       "labelUpperBound": "Upper Bound",
       "labelLowerBound": "Lower Bound",
       "axisKPIScore": "KPI Score (%)",
@@ -2635,7 +2641,42 @@
       "polarityHIB": "HIB (High Is Bad)",
       "syncNow": "Sync & Retrain Model",
       "syncing": "Syncing...",
-      "retrainSuccess": "AI models retrained and reloaded into memory successfully."
+      "retrainSuccess": "AI models retrained and reloaded into memory successfully.",
+      "selectKpi": "Select KPI",
+      "staleWarning": "Forecast data is from a past period. Sync & retrain the model to update projections.",
+      "dataAsOf": "Data as of {period}",
+      "horizon": "Forecast horizon: {range}",
+      "projectedBy": "Projected by {period}",
+      "noAtRisk": "No KPIs are currently projected to deteriorate."
+    },
+    "kpiForecast": {
+      "chart": {
+        "historical": "Historical",
+        "forecast": "Forecast"
+      }
+    },
+    "kpiAudit": {
+      "axis": {
+        "percent": "{kpi} (%)",
+        "score": "{kpi} (Score)",
+        "rupiah": "{kpi} (IDR)"
+      },
+      "kindHint": {
+        "nps": "Note: Net Promoter Score (NPS) is measured on a -100 to +100 index scale, not a percentage."
+      },
+      "actions": {
+        "generic": "Review underlying operational drivers and schedule targeted audit follow-up.",
+        "nps": "Audit customer complaint resolution SLA and branch service quality.",
+        "clv": "Review high-value customer retention controls and cross-sell governance.",
+        "aov": "Audit transaction ticket-size trends, pricing discounts, and fee leakage.",
+        "cac": "Audit marketing spend effectiveness, channel commissions, and onboarding conversion.",
+        "mrr": "Verify recurring revenue recognition, churn drivers, and contract renewals.",
+        "conversion": "Review sales pipeline controls, lead qualification, and approval bottlenecks.",
+        "gpm": "Audit cost-of-funds/COGS variances, margin compression, and pricing overrides.",
+        "retention": "Audit customer churn root causes, account closure logs, and retention programs.",
+        "roi": "Review capital allocation approvals, project realization, and benefit tracking.",
+        "turnover": "Audit key-person dependency, exit interview findings, and workload controls."
+      }
     }
   },
   "annualAudit": {

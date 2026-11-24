@@ -211,6 +211,8 @@ services:
       # start (and previously served every aggregate unauthenticated).
       <<: *tenant-env
       PYTHON_AI_URL: http://python-ai:8000
+      PYTHON_AI_API_KEY: ${PYTHON_AI_API_KEY:-auditsphere_ai_key_2026_k33f01}
+      INTERNAL_RETRAIN_TOKEN: ${INTERNAL_RETRAIN_TOKEN:-dev-internal-token}
     networks:
       - rb_audit_network
     restart: unless-stopped

@@ -417,9 +417,13 @@
                 <div class="flex items-center gap-2">
                   <UCheckbox
                     :model-value="isYearlySelected(node.id)"
+                    :disabled="isYearlyParentDisabled(node)"
                     @update:model-value="toggleYearlySelection(node.id)"
                   />
-                  <span class="font-bold text-sm text-slate-800 dark:text-slate-200">
+                  <span
+                    class="font-bold text-sm text-slate-800 dark:text-slate-200"
+                    :class="{ 'opacity-50': isYearlyParentDisabled(node) }"
+                  >
                     {{ node.name }}
                   </span>
                 </div>
@@ -429,9 +433,15 @@
                   <div v-for="sub in node.children" :key="sub.id" class="flex items-center gap-2">
                     <UCheckbox
                       :model-value="isYearlySelected(sub.id)"
+                      :disabled="isYearlySubDisabled(node, sub)"
                       @update:model-value="toggleYearlySelection(sub.id)"
                     />
-                    <span class="text-md text-slate-500">{{ sub.name }}</span>
+                    <span
+                      class="text-md text-slate-500"
+                      :class="{ 'opacity-50': isYearlySubDisabled(node, sub) }"
+                    >
+                      {{ sub.name }}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -783,13 +793,42 @@ const isYearlySelected = (id: string): boolean => {
   return selectedYearlyIDs.value.includes(id)
 }
 
+const hasSelectedYearlyChild = (node: any): boolean => {
+  return Array.isArray(node?.children) && node.children.some((sub: any) => isYearlySelected(sub.id))
+}
+
+const isYearlyParentDisabled = (node: any): boolean => {
+  return !isYearlySelected(node.id) && hasSelectedYearlyChild(node)
+}
+
+const isYearlySubDisabled = (parentNode: any, sub: any): boolean => {
+  return !isYearlySelected(sub.id) && isYearlySelected(parentNode.id)
+}
+
+const findCorporateNodeWithParent = (id: string) => {
+  for (const parent of corporateUniverse.value) {
+    if (parent.id === id) return { node: parent, parent: null }
+    const child = parent.children?.find((sub: any) => sub.id === id)
+    if (child) return { node: child, parent }
+  }
+  return null
+}
+
 const toggleYearlySelection = (id: string) => {
   const idx = selectedYearlyIDs.value.indexOf(id)
   if (idx >= 0) {
     selectedYearlyIDs.value.splice(idx, 1)
-  } else {
-    selectedYearlyIDs.value.push(id)
+    return
   }
+
+  // Prevent selecting both a parent entity and any of its sub-entities
+  const match = findCorporateNodeWithParent(id)
+  if (match) {
+    if (match.parent && isYearlySelected(match.parent.id)) return
+    if (!match.parent && hasSelectedYearlyChild(match.node)) return
+  }
+
+  selectedYearlyIDs.value.push(id)
 }
 
 const saveYearlyEstablishment = async () => {

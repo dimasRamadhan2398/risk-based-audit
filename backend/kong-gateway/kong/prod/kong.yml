@@ -627,6 +627,8 @@ services:
     host: analytics-service-upstream
     protocol: http
     port: 8084
+    read_timeout: 180000
+    write_timeout: 180000
 
     routes:
 
@@ -676,19 +678,36 @@ services:
               response_headers:
                 X-Cache-Status: true
 
+      - name: analytics-routes-retrain-status
+
+        paths:
+          - /api/analytics/retrain/status
+
+        strip_path: false
+
+        # Retrain status polling: no caching, generous rate limit for live UI polling
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 120
+              hour: 3600
+              policy: local
+              limit_by: ip
+
       - name: analytics-routes-retrain
 
         paths:
           - /api/analytics/retrain/auto
+          - /api/analytics/retrain/model
 
         strip_path: false
 
-        # Retrain endpoint: no caching (POST, state-changing)
+        # Retrain trigger endpoints: no caching (POST, state-changing)
         plugins:
           - name: rate-limiting
             config:
-              minute: 10
-              hour: 100
+              minute: 30
+              hour: 300
               policy: local
               limit_by: ip
 

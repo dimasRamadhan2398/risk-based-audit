@@ -80,6 +80,7 @@ func NewController(db *gorm.DB) *Controller {
 // Register mounts the routes on g, which must already require authentication
 func (ctl *Controller) Register(g *gin.RouterGroup) {
 	g.GET("", ctl.List)
+	g.GET("/anomaly-feed", ctl.AnomalyFeed)
 	g.GET("/permissions", ctl.MyPermissions)
 	g.GET("/:id", ctl.Get)
 	g.PUT("/:id", ctl.Update)
@@ -285,6 +286,7 @@ func (ctl *Controller) transition(c *gin.Context, id uuid.UUID, from []string, u
 		conflict(c, "The action taken report was changed by someone else; reload and try again")
 		return false
 	}
+	atrsvc.NotifyAnomalyEngineAsync("atr_mutation")
 	return true
 }
 
@@ -833,5 +835,34 @@ func (ctl *Controller) Delete(c *gin.Context) {
 		response.InternalServerError(c, "Failed to delete action taken report")
 		return
 	}
+	atrsvc.NotifyAnomalyEngineAsync("atr_deleted")
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Action taken report deleted successfully"})
+}
+
+// AnomalyFeed returns a flat, read-only list of all active Action Taken Reports
+// with computed overdue metrics for the Python AI Anomaly Detection engine.
+func (ctl *Controller) AnomalyFeed(c *gin.Context) {
+	var rows []models.ActionTakenReport
+	if err := ctl.DB.Model(&models.ActionTakenReport{}).
+		Order("updated_at DESC").Order("id ASC").
+		Limit(500).
+		Find(&rows).Error; err != nil {
+		response.InternalServerError(c, "Failed to fetch action taken report anomaly feed")
+		return
+	}
+	lhas, err := ctl.lhasFor(rows)
+	if err != nil {
+		response.InternalServerError(c, "Failed to fetch action taken report anomaly feed")
+		return
+	}
+	now := ctl.now()
+	sysActor := atrsvc.NewActor("00000000-0000-0000-0000-000000000000", "ai-system", []string{"ADMIN"})
+	items := make([]ATRResponse, 0, len(rows))
+	for i := range rows {
+		items = append(items, toResponse(&rows[i], sysActor, now, lhaOf(lhas, &rows[i])))
+	}
+	response.OK(c, "Action taken report anomaly feed fetched successfully", gin.H{
+		"items": items,
+		"total": len(items),
+	})
 }

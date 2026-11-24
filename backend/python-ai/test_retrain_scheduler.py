@@ -14,9 +14,16 @@ from resource_profile import get_resource_profile, select_training_tier
 from training_data_source import stratified_reservoir_sample_batches, iter_dataframe_batches
 from model_registry import (
     MODEL_KEYS,
+    MODEL_METADATA,
     read_raw_registry,
     write_raw_registry,
+    build_live_status_snapshot,
     validate_and_promote_artifacts,
+)
+from training_data_source import (
+    compute_entity_fingerprint,
+    compute_kpi_auditee_fingerprint,
+    compute_kpi_auditor_fingerprint,
 )
 from retrain_scheduler import RetrainScheduler
 from retrain_engine import AutoRetrainEngine
@@ -202,6 +209,170 @@ class MultiLaneSchedulerTests(unittest.TestCase):
         # Also verify anomaly_bundle.pkl was compacted (< 5 MB instead of 34 MB)
         anom_size_mb = os.path.getsize(anom_path) / (1024 * 1024)
         self.assertLess(anom_size_mb, 6.0, f"Expected compacted anomaly_bundle.pkl < 6 MB, got {anom_size_mb:.2f} MB")
+
+
+class KpiStatusSyncAndFailureIsolationTests(unittest.TestCase):
+    def _touch_all_artifacts(self, model_dir: str):
+        for meta in MODEL_METADATA.values():
+            for fname in meta.get("artifacts", []):
+                with open(os.path.join(model_dir, fname), "wb") as f:
+                    f.write(b"stub-artifact")
+
+    def test_kpi_auditee_and_auditor_hashes_do_not_trigger_false_plus_one_when_trained(self):
+        tmp_dir = tempfile.mkdtemp()
+        try:
+            self._touch_all_artifacts(tmp_dir)
+            sfile = os.path.join(tmp_dir, "retrain_status.json")
+            auditee_fp = compute_kpi_auditee_fingerprint()
+            auditor_fp = compute_kpi_auditor_fingerprint()
+            auditee_pool = auditee_fp["pool_hash"]
+            auditor_pool = auditor_fp["pool_hash"]
+
+            # Reproduce exact local registry state where top-level custom/live hashes match
+            # while model entries store server-side pool hashes.
+            write_raw_registry(
+                {
+                    "status": "completed",
+                    "finished_at": "2026-11-24T12:00:00+00:00",
+                    "trained_auditor_hash": "9916f8025661c2ff",
+                    "trained_auditee_pool_hash": auditee_pool,
+                    "trained_auditee_custom_hash": "238c5adbafd3bab0",
+                    "models": {
+                        "kpi_auditee": {
+                            "state": "trained",
+                            "trained_data_hash": auditee_pool,
+                            "trained_rows": auditee_fp["rows"],
+                        },
+                        "kpi_auditor": {
+                            "state": "trained",
+                            "trained_data_hash": auditor_pool,
+                            "trained_rows": auditor_fp["rows"],
+                        },
+                    },
+                },
+                status_file=sfile,
+            )
+
+            snap = build_live_status_snapshot(
+                auditor_hash="9916f8025661c2ff",
+                auditee_custom_hash="238c5adbafd3bab0",
+                status_file=sfile,
+            )
+            self.assertEqual(snap["models"]["kpi_auditee"]["state"], "trained")
+            self.assertFalse(snap["models"]["kpi_auditee"]["has_new_data"])
+            self.assertEqual(snap["models"]["kpi_auditee"]["new_rows"], 0)
+            self.assertEqual(snap["models"]["kpi_auditor"]["state"], "trained")
+            self.assertFalse(snap["models"]["kpi_auditor"]["has_new_data"])
+            self.assertEqual(snap["models"]["kpi_auditor"]["new_rows"], 0)
+
+            # Genuine change on Auditor live Strategic Audit Plan MUST flip ONLY kpi_auditor
+            snap_aud_new = build_live_status_snapshot(
+                auditor_hash="deadbeef12345678",
+                auditee_custom_hash="238c5adbafd3bab0",
+                status_file=sfile,
+            )
+            self.assertEqual(snap_aud_new["models"]["kpi_auditor"]["state"], "untrained_data")
+            self.assertTrue(snap_aud_new["models"]["kpi_auditor"]["has_new_data"])
+            self.assertTrue(snap_aud_new["has_untrained_auditor_data"])
+            self.assertEqual(snap_aud_new["models"]["kpi_auditee"]["state"], "trained")
+
+            # Genuine change on Auditee external DB custom items MUST flip ONLY kpi_auditee
+            snap_aee_new = build_live_status_snapshot(
+                auditor_hash="9916f8025661c2ff",
+                auditee_custom_hash="cafebabe12345678",
+                status_file=sfile,
+            )
+            self.assertEqual(snap_aee_new["models"]["kpi_auditee"]["state"], "untrained_data")
+            self.assertTrue(snap_aee_new["models"]["kpi_auditee"]["has_new_data"])
+            self.assertTrue(snap_aee_new["has_untrained_auditee_custom_data"])
+            self.assertEqual(snap_aee_new["models"]["kpi_auditor"]["state"], "trained")
+        finally:
+            shutil.rmtree(tmp_dir, ignore_errors=True)
+
+    def test_stale_global_failed_status_auto_heals_when_all_models_are_trained(self):
+        tmp_dir = tempfile.mkdtemp()
+        try:
+            self._touch_all_artifacts(tmp_dir)
+            sfile = os.path.join(tmp_dir, "retrain_status.json")
+            write_raw_registry(
+                {
+                    "status": "failed",
+                    "last_error": "Pelatihan Entity Prediction tidak memenuhi ambang validasi.",
+                    "finished_at": "2026-11-24T12:00:00+00:00",
+                    "models": {
+                        mk: {"state": "trained", "last_error": None}
+                        for mk in MODEL_KEYS
+                    },
+                },
+                status_file=sfile,
+            )
+
+            snap = build_live_status_snapshot(status_file=sfile)
+            self.assertNotEqual(snap["status"], "failed")
+            self.assertIsNone(snap["last_error"])
+            self.assertEqual(snap["failed_models"], [])
+        finally:
+            shutil.rmtree(tmp_dir, ignore_errors=True)
+
+    def test_skipped_empty_pool_and_quality_rollback_do_not_mark_failed(self):
+        from unittest.mock import patch
+
+        tmp_dir = tempfile.mkdtemp()
+        try:
+            self._touch_all_artifacts(tmp_dir)
+            sched = RetrainScheduler(
+                model_dir=tmp_dir,
+                auto_start_worker=False,
+                auto_start_detector=False,
+            )
+
+            # 1. Production fresh tenant with empty Entity pool -> skipped, NOT failed
+            ent_fp = compute_entity_fingerprint()
+            sched.enqueue_model("entity", trigger="auto_detector", priority="auto", force=True)
+            with patch.object(
+                AutoRetrainEngine,
+                "retrain_single_model",
+                return_value={
+                    "ok": True,
+                    "skipped": True,
+                    "promoted": False,
+                    "reason": "Belum ada data Audit Universe untuk Entity Prediction.",
+                    "fingerprint": ent_fp,
+                },
+            ):
+                sched.drain_queue_sync()
+
+            snap1 = sched.get_status()
+            self.assertEqual(snap1["models"]["entity"]["state"], "trained")
+            self.assertEqual(snap1["models"]["entity"]["last_result"], "skipped")
+            self.assertIsNone(snap1["last_error"])
+            self.assertNotEqual(snap1["status"], "failed")
+
+            # 2. Quality rollback preserves better production model -> stays 'trained', NOT 'failed'
+            aud_fp = compute_kpi_auditor_fingerprint()
+            sched.enqueue_model("kpi_auditor", trigger="auto_detector", priority="auto", force=True)
+            with patch.object(
+                AutoRetrainEngine,
+                "retrain_single_model",
+                return_value={
+                    "ok": False,
+                    "promoted": False,
+                    "reason": "Rollback otomatis: error rmse naik dari 0.0200 ke 0.0600. Model lama dipertahankan.",
+                    "fingerprint": aud_fp,
+                    "pool_hash": aud_fp["pool_hash"],
+                    "live_auditor_hash": "",
+                },
+            ):
+                sched.drain_queue_sync()
+
+            snap2 = sched.get_status()
+            self.assertEqual(snap2["models"]["kpi_auditor"]["state"], "trained")
+            self.assertEqual(snap2["models"]["kpi_auditor"]["last_result"], "rolled_back")
+            self.assertIsNone(snap2["models"]["kpi_auditor"]["last_error"])
+            self.assertIsNone(snap2["last_error"])
+            self.assertNotEqual(snap2["status"], "failed")
+        finally:
+            shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
 if __name__ == "__main__":

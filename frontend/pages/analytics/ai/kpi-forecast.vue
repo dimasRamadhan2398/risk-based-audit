@@ -107,6 +107,8 @@ const {
   checkingRetrainStatus,
   hasUntrainedNewData,
   untrainedDataReasons,
+  isKpiTrainingActive,
+  kpiRetrainError,
   canManualRetrain,
   formatNum,
   getRiskConfig,
@@ -126,7 +128,7 @@ let retrainPollTimer: ReturnType<typeof setInterval> | null = null
 let elapsedTickerTimer: ReturnType<typeof setInterval> | null = null
 let statusRetryTimer: ReturnType<typeof setInterval> | null = null
 
-const isTrainingActive = computed(() => Boolean(retrainStatus.value.isRunning || isRetraining.value))
+const isTrainingActive = computed(() => Boolean(isKpiTrainingActive.value || isRetraining.value))
 
 const updateElapsedSeconds = () => {
   const serverStart = retrainStatus.value.startedAt ? Date.parse(retrainStatus.value.startedAt) : NaN
@@ -240,6 +242,7 @@ const retrainButtonLabel = computed(() => {
       ? `Sedang Melatih (${trainingElapsedSec.value} dtk)...`
       : 'Sedang Melatih Model AI...'
   }
+  if (kpiRetrainError.value) return 'Coba Latih Ulang AI'
   if (hasUntrainedNewData.value) return 'Manual / Force Sync & Retrain'
   if (retrainStatus.value.statusFetchedOnce) return 'Model Sudah Terlatih'
   if (checkingRetrainStatus.value) return 'Memeriksa Status AI...'
@@ -249,6 +252,9 @@ const retrainButtonLabel = computed(() => {
 const retrainButtonTooltip = computed(() => {
   if (isTrainingActive.value) {
     return 'Model AI sedang aktif melatih ulang bobot PyTorch LSTM di server. Tunggu hingga proses pelatihan selesai.'
+  }
+  if (kpiRetrainError.value) {
+    return `Pelatihan KPI terakhir mengalami kendala (${kpiRetrainError.value}). Klik untuk mencoba melatih ulang model KPI.`
   }
   if (isManualRetrainAllowed.value) {
     const detail = untrainedDataReasons.value.length ? ` (${untrainedDataReasons.value.join(', ')})` : ''
@@ -702,16 +708,17 @@ const getStatusBadgeConfig = (status: string) => {
       <!-- Sync & Manual Force Retrain Button (Disabled until untrained data appears) -->
       <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
         <UBadge
-          :color="isTrainingActive ? 'info' : (hasUntrainedNewData ? 'warning' : (retrainStatus.statusFetchedOnce ? 'success' : 'neutral'))"
+          :color="isTrainingActive ? 'info' : (kpiRetrainError ? 'error' : (hasUntrainedNewData ? 'warning' : (retrainStatus.statusFetchedOnce ? 'success' : 'neutral')))"
           variant="subtle"
           size="sm"
           class="hidden md:flex items-center gap-1.5 text-xs"
         >
           <span
             class="size-2 rounded-full"
-            :class="isTrainingActive ? 'bg-sky-500 animate-ping' : (hasUntrainedNewData ? 'bg-amber-500 animate-pulse' : (retrainStatus.statusFetchedOnce ? 'bg-emerald-500' : 'bg-gray-400'))"
+            :class="isTrainingActive ? 'bg-sky-500 animate-ping' : (kpiRetrainError ? 'bg-rose-500' : (hasUntrainedNewData ? 'bg-amber-500 animate-pulse' : (retrainStatus.statusFetchedOnce ? 'bg-emerald-500' : 'bg-gray-400')))"
           />
           <span v-if="isTrainingActive">Sedang Melatih Model AI</span>
+          <span v-else-if="kpiRetrainError">Pelatihan KPI Gagal</span>
           <span v-else-if="hasUntrainedNewData">Ada Data Belum Dilatih</span>
           <span v-else-if="retrainStatus.statusFetchedOnce">Sudah Terlatih</span>
           <span v-else>Status AI Belum Terhubung</span>
@@ -719,8 +726,8 @@ const getStatusBadgeConfig = (status: string) => {
         <UButton
           :loading="isTrainingActive || checkingRetrainStatus"
           :disabled="!isManualRetrainAllowed"
-          :icon="isManualRetrainAllowed ? 'i-lucide-refresh-cw' : (isTrainingActive ? 'i-lucide-cpu' : (retrainStatus.statusFetchedOnce ? 'i-lucide-check' : 'i-lucide-wifi-off'))"
-          :color="isManualRetrainAllowed ? 'warning' : (retrainStatus.statusFetchedOnce ? 'success' : 'neutral')"
+          :icon="kpiRetrainError ? 'i-lucide-rotate-cw' : (isManualRetrainAllowed ? 'i-lucide-refresh-cw' : (isTrainingActive ? 'i-lucide-cpu' : (retrainStatus.statusFetchedOnce ? 'i-lucide-check' : 'i-lucide-wifi-off')))"
+          :color="kpiRetrainError ? 'error' : (isManualRetrainAllowed ? 'warning' : (retrainStatus.statusFetchedOnce ? 'success' : 'neutral'))"
           :variant="isManualRetrainAllowed ? 'solid' : 'soft'"
           size="sm"
           class="font-semibold rounded-xl disabled:opacity-75 disabled:cursor-not-allowed"
@@ -747,20 +754,20 @@ const getStatusBadgeConfig = (status: string) => {
       description="Proses pelatihan ulang model PyTorch LSTM sedang aktif berjalan di server AI. Anda tidak perlu menekan Manual / Force Sync — status akan otomatis berubah menjadi 'Model Sudah Terlatih' setelah pelatihan selesai."
     />
     <UAlert
+      v-else-if="kpiRetrainError"
+      color="error"
+      variant="subtle"
+      icon="i-lucide-alert-triangle"
+      title="Pelatihan Ulang Model AI Gagal"
+      :description="kpiRetrainError"
+    />
+    <UAlert
       v-else-if="hasUntrainedNewData"
       color="warning"
       variant="subtle"
       icon="i-lucide-alert-circle"
       title="Data Baru Belum Dilatih oleh Model AI"
       :description="`Terdeteksi pembaruan pada: ${untrainedDataReasons.join(' • ')}. Klik tombol 'Manual / Force Sync & Retrain' untuk melatih ulang model PyTorch LSTM dengan data tersebut.`"
-    />
-    <UAlert
-      v-else-if="retrainStatus.status === 'failed' && retrainStatus.lastError"
-      color="error"
-      variant="subtle"
-      icon="i-lucide-alert-triangle"
-      title="Pelatihan Ulang Model AI Gagal"
-      :description="retrainStatus.lastError"
     />
     <UAlert
       v-else-if="retrainStatus.statusFetchedOnce"

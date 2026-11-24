@@ -66,6 +66,9 @@ func (h *RouteHandler) RegisterRoutes() {
 	// Debug route to list all registered routes. Off unless ENABLE_DEBUG_ROUTES=true.
 	registerDebugRoutes(h.engine)
 
+	// Internal read-only anomaly feed for python-ai cross-service synchronization
+	h.engine.GET("/api/v1/internal/action-taken-reports/anomaly-feed", ctrlATR.NewController(h.db).AnomalyFeed)
+
 	// Every API route requires a valid JWT. Kong does not check tokens for
 	// this service, so without this the whole API was reachable anonymously.
 	apiV1 := h.engine.Group("/api/v1")

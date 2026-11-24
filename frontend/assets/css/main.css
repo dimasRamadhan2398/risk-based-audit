@@ -302,8 +302,61 @@ input[type="radio"]:disabled,
 [role="option"][aria-disabled="true"],
 [role="checkbox"][aria-disabled="true"],
 [role="radio"][aria-disabled="true"],
-[role="combobox"][aria-disabled="true"] {
+[role="combobox"][aria-disabled="true"],
+[role="combobox"][data-disabled] {
   cursor: not-allowed !important;
+}
+
+/* Disabled, read-only, and view-only form fields must use a darker surface so users
+   can immediately tell the field cannot be edited across all features. */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]):disabled,
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"])[readonly],
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"])[aria-readonly="true"],
+textarea:disabled,
+textarea[readonly],
+textarea[aria-readonly="true"],
+select:disabled,
+select[readonly],
+select[aria-readonly="true"],
+[role="combobox"][aria-disabled="true"],
+[role="combobox"][data-disabled],
+[role="combobox"][aria-readonly="true"],
+[role="spinbutton"]:disabled,
+[role="spinbutton"][aria-disabled="true"],
+[role="spinbutton"][readonly],
+[role="spinbutton"][aria-readonly="true"],
+.input-field:disabled,
+.input-field[readonly],
+.input-field[aria-readonly="true"] {
+  background-color: #e2e8f0 !important;
+  color: #475569 !important;
+  border-color: #cbd5e1;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+}
+
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]):disabled,
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"])[readonly],
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"])[aria-readonly="true"],
+.dark textarea:disabled,
+.dark textarea[readonly],
+.dark textarea[aria-readonly="true"],
+.dark select:disabled,
+.dark select[readonly],
+.dark select[aria-readonly="true"],
+.dark [role="combobox"][aria-disabled="true"],
+.dark [role="combobox"][data-disabled],
+.dark [role="combobox"][aria-readonly="true"],
+.dark [role="spinbutton"]:disabled,
+.dark [role="spinbutton"][aria-disabled="true"],
+.dark [role="spinbutton"][readonly],
+.dark [role="spinbutton"][aria-readonly="true"],
+.dark .input-field:disabled,
+.dark .input-field[readonly],
+.dark .input-field[aria-readonly="true"] {
+  background-color: #020617 !important;
+  color: #94a3b8 !important;
+  border-color: #334155;
 }
 
 /* Dashboard card chrome shared by every dashboard card (matches the KPI Forecasting / Anomaly cards) */
