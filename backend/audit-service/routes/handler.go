@@ -461,8 +461,11 @@ func (h *RouteHandler) RegisterRoutes() {
 		// ATR per finding (see services/action_taken_report.SyncFromReport)
 		// The report's department_id is copied from its letter's master
 		// department on every save (models.ApplyLetterDepartmentOn*)
-		auditResultReports.POST("", crud.CreateWithHooks(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }, models.ApplyLetterDepartmentOnCreate, syncReportAndExecutionsAfterCreate))
-		auditResultReports.PUT("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.AuditResultReport{} }, ctrlAuditExecution.LetterKeysOf, crud.UpdateWithHooks(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }, models.ApplyLetterDepartmentOnUpdate, SyncReportATRs)))
+		// Approving a report ("Final"/"Approved"/"Published") is limited to
+		// LHAApproverRoles (lhaApprovalGuard); auditors can still draft and edit
+		lhaGuard := lhaApprovalGuard(h.db)
+		auditResultReports.POST("", lhaGuard, crud.CreateWithHooks(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }, models.ApplyLetterDepartmentOnCreate, syncReportAndExecutionsAfterCreate))
+		auditResultReports.PUT("/:id", lhaGuard, ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.AuditResultReport{} }, ctrlAuditExecution.LetterKeysOf, crud.UpdateWithHooks(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }, models.ApplyLetterDepartmentOnUpdate, SyncReportATRs)))
 		auditResultReports.DELETE("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.AuditResultReport{} }, ctrlAuditExecution.LetterKeysOf, crud.Delete(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} })))
 	}
 
@@ -771,8 +774,11 @@ func (h *RouteHandler) downloadAuditResultReportDocx(c *gin.Context) {
 		h.db.Where("working_paper_id IN ?", altIDs).Find(&wpPlans)
 	}
 
+	// Only papers explicitly tied to this assignment letter; never the whole tenant library.
 	var importedWPs []models.ImportedWorkingPaper
-	h.db.Find(&importedWPs)
+	if len(altIDs) > 0 {
+		h.db.Where("assignment_letter_id IN ?", altIDs).Order("created_at ASC").Find(&importedWPs)
+	}
 
 	// Resolve Company Name dynamically from master-service / st / report
 	resolvedComp := masterclient.ResolveCompanyName(c.Request.Context(), c.GetHeader("Authorization"), report.CompanyID, report.CompanyName, st.CompanyID, st.CompanyName, st.WorkingUnit, report.Department)

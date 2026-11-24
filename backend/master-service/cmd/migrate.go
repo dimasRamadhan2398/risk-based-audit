@@ -8,6 +8,7 @@ import (
 	"master-service/models"
 	"master-service/pkg/config"
 	"master-service/pkg/database"
+	"master-service/pkg/database/officestructure"
 	"master-service/pkg/database/orgstructure"
 	"master-service/pkg/database/seeders"
 	"master-service/pkg/logger"
@@ -217,6 +218,11 @@ func migrateAll(db *gorm.DB) error {
 	if err := autoMigrate(db); err != nil {
 		return err
 	}
+	// Office structure (docs/office-structure-plan.md): every tenant, additive;
+	// also seeds the tenant default office levels when there are none.
+	if err := officestructure.Migrate(db); err != nil {
+		return err
+	}
 	flexible := cfg != nil && cfg.OrgStructure.FlexibleRequested()
 	if flexible {
 		fmt.Println("ORG_STRUCTURE_MODE=flexible: applying org structure schema")
@@ -385,6 +391,8 @@ func normalizeAnnualPlanStatuses(db *gorm.DB) error {
 
 func dropAllTables(db *gorm.DB) error {
 	return db.Migrator().DropTable(
+		&models.LocationCompany{},
+		&models.OfficeLevel{},
 		&models.DataSourceActivityLog{},
 		&models.DataSourceConnection{},
 		&models.VmgGoal{},

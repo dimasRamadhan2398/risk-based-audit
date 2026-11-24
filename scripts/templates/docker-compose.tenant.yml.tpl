@@ -15,6 +15,11 @@
 # "auth-service" would make cross-tenant routing a DNS coin flip.
 #
 # Build contexts are relative to this file's location: backend/tenants/__SLUG__/
+#
+# Images are named per tenant and tagged per build
+# (rb_audit_tenant___SLUG___<service>:${TENANT_IMAGE_TAG}, tag from .env).
+# Building this tenant therefore never replaces an image another tenant or the
+# control plane runs, and the previous tag stays available for a rollback.
 # =============================================================================
 
 name: rb_audit_tenant___SLUG__
@@ -56,7 +61,7 @@ services:
     build:
       context: ../../auth-service
       dockerfile: Dockerfile
-    image: rb_audit_auth_service:latest
+    image: rb_audit_tenant___SLUG___auth_service:__IMAGE_TAG__
     container_name: rb_audit___SLUG___auth_service
     environment:
       <<: *tenant-env
@@ -90,7 +95,7 @@ services:
     build:
       context: ../../audit-service
       dockerfile: Dockerfile
-    image: rb_audit_audit_service:latest
+    image: rb_audit_tenant___SLUG___audit_service:__IMAGE_TAG__
     container_name: rb_audit___SLUG___audit_service
     environment:
       <<: *tenant-env
@@ -143,7 +148,7 @@ services:
     build:
       context: ../../master-service
       dockerfile: Dockerfile
-    image: rb_audit_master_service:latest
+    image: rb_audit_tenant___SLUG___master_service:__IMAGE_TAG__
     container_name: rb_audit___SLUG___master_service
     environment:
       <<: *tenant-env
@@ -165,7 +170,7 @@ services:
     build:
       context: ../../risk-service
       dockerfile: Dockerfile
-    image: rb_audit_risk_service:latest
+    image: rb_audit_tenant___SLUG___risk_service:__IMAGE_TAG__
     container_name: rb_audit___SLUG___risk_service
     environment:
       <<: *tenant-env
@@ -198,7 +203,7 @@ services:
     build:
       context: ../../analytics-service
       dockerfile: Dockerfile
-    image: rb_audit_analytics_service:latest
+    image: rb_audit_tenant___SLUG___analytics_service:__IMAGE_TAG__
     container_name: rb_audit___SLUG___analytics_service
     environment:
       # analytics-service enforces the stack JWT too, so it needs the same
@@ -258,7 +263,7 @@ services:
     build:
       context: ../../../frontend
       dockerfile: Dockerfile
-    image: rb_audit_frontend:latest
+    image: rb_audit_tenant___SLUG___frontend:__IMAGE_TAG__
     container_name: rb_audit___SLUG___frontend
     depends_on:
       - kong-__SLUG__

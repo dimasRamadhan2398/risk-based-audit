@@ -40,6 +40,15 @@
               />
             </UFormField>
 
+            <UFormField :label="t('workingPaper.upload.assignmentLetter')" :hint="t('workingPaper.upload.assignmentLetterHint')">
+              <USelectMenu
+                v-model="form.assignmentLetterId"
+                :items="assignmentLetterOptions"
+                :placeholder="t('workingPaper.upload.assignmentLetterPlaceholder')"
+                class="w-full"
+              />
+            </UFormField>
+
             <!-- File Import Box -->
             <UFormField :label="t('workingPaper.upload.fileLabel')" required>
               <div 
@@ -196,6 +205,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useImportWorkingPaperStore } from '~/stores/import-working-paper'
+import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import { useI18n } from '~/composables/useI18n'
 import { useAppToast } from '~/composables/useAppToast'
 import TableEntities from '~/components/shared/TableEntities.vue'
@@ -203,9 +213,19 @@ import TableEntities from '~/components/shared/TableEntities.vue'
 const { t } = useI18n()
 const appToast = useAppToast()
 const store = useImportWorkingPaperStore()
+const assignmentLetterStore = useAssignmentLetterStore()
+
+const assignmentLetterOptions = computed(() =>
+  assignmentLetterStore.assignmentLetterList
+    .filter((st: any) => st.status === 'Published')
+    .map((st: any) => st.letterNumber)
+)
 
 onMounted(async () => {
-  await store.fetchImportedPapers()
+  await Promise.all([
+    store.fetchImportedPapers(),
+    assignmentLetterStore.fetchAssignmentLetters()
+  ])
 })
 
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -217,7 +237,8 @@ const form = ref({
   description: '',
   fileName: '',
   fileType: '',
-  file: null as any
+  file: null as any,
+  assignmentLetterId: ''
 })
 
 const columns = computed(() => [
@@ -278,12 +299,14 @@ const handleImport = async () => {
       description: form.value.description,
       fileName: form.value.fileName,
       fileType: form.value.fileType,
-      file: form.value.file
+      file: form.value.file,
+      assignmentLetterId: form.value.assignmentLetterId || ''
     })
-    
+
     // Reset Form
     form.value.title = ''
     form.value.description = ''
+    form.value.assignmentLetterId = ''
     clearFile()
   } catch (error) {
     // Error is handled in the store

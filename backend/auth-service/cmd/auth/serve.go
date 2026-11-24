@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	provisioningCtrl "auth-service/controllers/provisioning"
 	"auth-service/docs"
 	"auth-service/pkg/activitylog"
 	"auth-service/pkg/database"
@@ -232,6 +233,11 @@ func runServe(cmd *cobra.Command, args []string) error {
 		authMiddleware,
 	)
 	routeRegistry.SetController(controllerRegistry)
+	// Tenant provisioning proxy; disabled (503) unless PROVISIONER_URL is set.
+	routeRegistry.SetProvisioning(provisioningCtrl.NewController(cfg.Provisioner))
+	if cfg.Provisioner.URL != "" && cfg.Provisioner.Token == "" {
+		logger.Warn("PROVISIONER_URL is set but PROVISIONER_TOKEN is empty; the provisioner will reject every request")
+	}
 	routeRegistry.Serve()
 
 	// Start server

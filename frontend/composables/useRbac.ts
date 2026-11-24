@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 import { UserRole } from '~/types/auth'
-import { isViewerOnly, MASTER_DATA_WRITE_ROLES, QA_CONSULTING_WRITE_ROLES, AUDIT_UNIVERSE_WRITE_ROLES, AUDIT_UNIVERSE_OWN_DEPT_ROLES, isOwnDepartment } from '~/utils/viewerPolicy'
+import { isViewerOnly, MASTER_DATA_WRITE_ROLES, PLATFORM_ADMIN_ROLES, QA_CONSULTING_WRITE_ROLES, AUDIT_UNIVERSE_WRITE_ROLES, AUDIT_UNIVERSE_OWN_DEPT_ROLES, isOwnDepartment } from '~/utils/viewerPolicy'
 import { icRoleCaps } from '~/utils/icAssessment'
 
 // Module-level singleton to share active preview role across all components and pages
@@ -205,6 +205,8 @@ export const useRbac = () => {
   const canExport = computed(() => !isViewer.value)
   /** Master data create / edit / delete / import (ADMIN only). */
   const canWriteMasterData = computed(() => hasAnyRole(MASTER_DATA_WRITE_ROLES))
+  /** Platform admin: tenant provisioning (Site Generator). */
+  const isPlatformAdmin = computed(() => hasAnyRole(PLATFORM_ADMIN_ROLES))
   /** QA reports and consulting services add / edit / delete / import / upload. */
   const canWriteQaConsulting = computed(() => hasAnyRole(QA_CONSULTING_WRITE_ROLES))
   /** Audit universe establish / sync / add / rename / remove. */
@@ -401,6 +403,7 @@ export const useRbac = () => {
     getUserPermissions,
     hasPermission,
     canWriteMasterData,
+    isPlatformAdmin,
     canWriteQaConsulting,
     canWriteAuditUniverse,
     canWriteAuditUniverseFor,

@@ -1,0 +1,75 @@
+# /etc/systemd/system/auditsphere-provisioner.service
+#
+# AuditSphere tenant provisioner: runs Site Generator jobs
+# (scripts/onboard-tenant.sh) on the VPS host and streams their progress to
+# the control-plane auth-service. See docs/provisioning-job-contract.md and
+# docs/NEW_CLIENT_DOMAIN_PROVISIONING_GUIDE.md ("Site Generator provisioner").
+#
+# Runs on the host, not in a container, because onboarding needs the host's
+# docker, /etc/nginx, `systemctl reload nginx` and certbot. It therefore runs
+# as root. What keeps that contained:
+#   * it binds to the docker0 bridge address only (PROVISIONER_ADDR); the
+#     binary refuses wildcard and public addresses
+#   * every request needs X-Provisioner-Token
+#   * it execs the script with an argv array, never through a shell
+#
+# Install:
+#   install -m 0755 provisioner /opt/auditsphere/provisioner
+#   install -m 0600 provisioner.env.example /etc/auditsphere/provisioner.env  # then edit
+#   install -m 0644 auditsphere-provisioner.service /etc/systemd/system/
+#   systemctl daemon-reload && systemctl enable --now auditsphere-provisioner
+
+[Unit]
+Description=AuditSphere tenant provisioner (Site Generator jobs)
+Documentation=file:/app/rbia-repo/docs/provisioning-job-contract.md
+# docker0 (the bind address) only exists once Docker is up.
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+EnvironmentFile=/etc/auditsphere/provisioner.env
+ExecStart=/opt/auditsphere/provisioner
+WorkingDirectory=/
+
+# Jobs and event logs (PROVISIONER_DATA_DIR) live here, root-only. Created by
+# systemd on start.
+StateDirectory=auditsphere/provisioner
+StateDirectoryMode=0700
+
+# certbot may come from a package, pip (/usr/local/bin) or snap (/snap/bin).
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/snap/bin
+Environment=HOME=/root
+
+# Generated kong.yml and nginx vhosts must stay world-readable: the Kong
+# container reads its declarative config as a non-root user. The generator
+# tightens the tenant .env to 0600 on its own.
+UMask=0022
+
+Restart=on-failure
+RestartSec=5
+# A running job's process tree (docker compose build, certbot) is stopped with
+# the service. The provisioner marks such a job failed ("provisioner
+# restarted") on the next start; re-onboarding the slug from the CLI is
+# idempotent.
+KillMode=control-group
+TimeoutStopSec=30
+
+# Hardening that does not get in the way of docker, nginx or certbot.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=auditsphere-provisioner
+
+[Install]
+WantedBy=multi-user.target

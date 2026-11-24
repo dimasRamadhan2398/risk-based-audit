@@ -110,3 +110,16 @@ export function isQaConsultingWritePath(path: string): boolean {
   const p = (path || '').split('?')[0]!.replace(/\/+$/, '')
   return p === '/consulting-service/upload' || /^\/quality-assurance\/import(-[a-z-]+)?$/.test(p)
 }
+
+/**
+ * Platform admin: the only role allowed to provision tenants (Site Generator). Mirrors
+ * ProvisioningRoles in auth-service routes/registry.go, which enforces RequireRoles("ADMIN") on
+ * /api/v1/provisioning/*. Keep the two lists identical.
+ */
+export const PLATFORM_ADMIN_ROLES = ['ADMIN']
+
+/** Pages only a platform admin may open (tenant provisioning). */
+export function isPlatformAdminPath(path: string): boolean {
+  const p = (path || '').split('?')[0]!.replace(/\/+$/, '')
+  return p === '/site-generator' || p.startsWith('/site-generator/')
+}

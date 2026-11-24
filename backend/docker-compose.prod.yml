@@ -105,6 +105,15 @@ services:
       - SMTP_USERNAME=${SMTP_USERNAME:-}
       - SMTP_PASSWORD=${SMTP_PASSWORD:-}
       - SMTP_FROM=${SMTP_FROM:-}
+      # Site Generator: /api/v1/provisioning proxies to the host provisioner
+      # (deploy/provisioner/). Empty URL = provisioning unavailable (503).
+      # e.g. PROVISIONER_URL=http://host.docker.internal:8790
+      - PROVISIONER_URL=${PROVISIONER_URL:-}
+      - PROVISIONER_TOKEN=${PROVISIONER_TOKEN:-}
+    # host.docker.internal -> the docker0 gateway (172.17.0.1 by default),
+    # where the provisioner listens. Harmless when provisioning is not set up.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ${PG_CA_DIR:-./pg-ca}:/etc/rb-audit/pg-ca:ro
     command: sh -c "./auth --config ./pkg/config/config.yaml seed && ./auth --config ./pkg/config/config.yaml serve"

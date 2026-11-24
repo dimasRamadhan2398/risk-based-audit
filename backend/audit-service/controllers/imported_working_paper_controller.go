@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
 	"audit-service/models"
 	"audit-service/pkg/response"
@@ -60,14 +61,15 @@ func (ctrl *ImportedWorkingPaperController) Import(c *gin.Context) {
 
 	// Save metadata in database
 	paper := models.ImportedWorkingPaper{
-		ID:          uuid.New(),
-		Title:       title,
-		Description: description,
-		FileName:    name,
-		FilePath:    filePath,
-		FileSize:    int64(len(dec)),
-		FileContent: dec,
-		FileType:    fileType,
+		ID:                 uuid.New(),
+		Title:              title,
+		Description:        description,
+		AssignmentLetterID: strings.TrimSpace(c.PostForm("assignmentLetterId")),
+		FileName:           name,
+		FilePath:           filePath,
+		FileSize:           int64(len(dec)),
+		FileContent:        dec,
+		FileType:           fileType,
 	}
 
 	if err := ctrl.DB.Create(&paper).Error; err != nil {
@@ -81,7 +83,11 @@ func (ctrl *ImportedWorkingPaperController) Import(c *gin.Context) {
 
 func (ctrl *ImportedWorkingPaperController) List(c *gin.Context) {
 	var papers []models.ImportedWorkingPaper
-	if err := ctrl.DB.Order("created_at DESC").Find(&papers).Error; err != nil {
+	q := ctrl.DB.Order("created_at DESC")
+	if letterID := strings.TrimSpace(c.Query("assignmentLetterId")); letterID != "" {
+		q = q.Where("assignment_letter_id = ?", letterID)
+	}
+	if err := q.Find(&papers).Error; err != nil {
 		response.InternalServerError(c, "Failed to retrieve imported working papers: "+err.Error())
 		return
 	}

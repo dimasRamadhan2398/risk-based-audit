@@ -3,6 +3,8 @@ package routes
 import (
 	"auth-service/clients"
 	"auth-service/controllers"
+	provisioningCtrl "auth-service/controllers/provisioning"
+	"auth-service/pkg/config"
 	"auth-service/pkg/middleware"
 	"auth-service/pkg/validations"
 	"auth-service/services"
@@ -15,11 +17,15 @@ type Registry struct {
 	group         *gin.RouterGroup
 	authMiddleware *middleware.AuthMiddleware
 	client        clients.IClientRegistry
+	// provisioning proxies /provisioning to the host provisioner. nil means
+	// not configured: the routes exist and answer 503.
+	provisioning provisioningCtrl.ControllerInterface
 }
 
 type IRegistry interface {
 	Serve()
 	SetController(controller controllers.IControllerRegistry)
+	SetProvisioning(ctrl provisioningCtrl.ControllerInterface)
 }
 
 func NewRouteRegistry(
@@ -39,6 +45,11 @@ func NewControllerRegistry(service services.IServiceRegistry, validator *validat
 
 func (r *Registry) SetController(controller controllers.IControllerRegistry) {
 	r.controller = controller
+}
+
+// SetProvisioning sets the /provisioning proxy (see provisioningRoutes).
+func (r *Registry) SetProvisioning(ctrl provisioningCtrl.ControllerInterface) {
+	r.provisioning = ctrl
 }
 
 // viewerRoutes is the whole of auth-service a VIEWER-only account may use after
@@ -74,6 +85,7 @@ func (r *Registry) Serve() {
 	r.confidentiality()
 	r.resend()
 	r.systemLogs()
+	r.provisioningRoutes()
 }
 
 // auth registers auth routes
@@ -244,4 +256,31 @@ func (r *Registry) resend() {
 	// Must NOT use JWT Authenticate() middleware; signature/secret is checked by controller.
 	r.group.POST("/resend/webhook", r.controller.GetResend().HandleWebhook)
 
+}
+
+// ProvisioningRoles may use /provisioning (the Site Generator: start tenant
+// provisioning jobs on the host). ADMIN is the highest role auth-service
+// seeds; there is no separate platform/super admin role. Every tenant stack
+// also has an ADMIN, so the gate that keeps tenants out is configuration:
+// only the control-plane auth-service sets PROVISIONER_URL (tenants answer
+// 503) and only the control-plane Kong routes /api/v1/provisioning.
+var ProvisioningRoles = []string{"ADMIN"}
+
+// provisioningRoutes registers the tenant provisioning proxy
+// (docs/provisioning-job-contract.md). The SSE route streams unbuffered.
+func (r *Registry) provisioningRoutes() {
+	ctrl := r.provisioning
+	if ctrl == nil {
+		ctrl = provisioningCtrl.NewController(config.ProvisionerConfig{})
+	}
+	p := r.group.Group("/provisioning")
+	p.Use(r.authenticated()...)
+	p.Use(r.authMiddleware.RequireRoles(ProvisioningRoles...))
+	{
+		p.POST("/jobs", ctrl.CreateJob)
+		p.GET("/jobs", ctrl.ListJobs)
+		p.GET("/jobs/:id", ctrl.GetJob)
+		p.GET("/jobs/:id/events", ctrl.StreamEvents)
+		p.GET("/ports/next", ctrl.NextPorts)
+	}
 }

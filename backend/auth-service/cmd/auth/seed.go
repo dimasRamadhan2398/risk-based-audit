@@ -23,7 +23,11 @@ func init() {
 - Roles
 - Default users (admin, auditor, risk_manager)
 
-Default password for all seeded users: password123`,
+Default password for all seeded users: password123. The admin account reads
+ADMIN_NAME, ADMIN_EMAIL and ADMIN_PASSWORD when set (only when it is first created).
+The sample users (auditor, dept_head, new_dept_head, auditee, viewer) are
+seeded only when SEED_DEMO_USERS=true, or when SEED_DEMO_USERS and
+ADMIN_PASSWORD are both unset (dev/demo stacks).`,
 		RunE: runSeed,
 	}
 
@@ -88,9 +92,17 @@ func runSeed(cmd *cobra.Command, args []string) error {
 
 	logger.Info("Database seeding completed successfully")
 	logger.Info("Default credentials:")
-	logger.Info("  Username: admin    | Password: password123 | Role: ADMIN")
-	logger.Info("  Username: auditor  | Password: password123 | Role: AUDITOR")
-	logger.Info("  Username: risk_manager | Password: password123 | Role: RISK_MANAGER")
+	if admin := seeders.AdminSeedFromEnv(); admin.PasswordFromEnv {
+		// Never log the password itself.
+		logger.Info("  Username: admin    | Password: (from ADMIN_PASSWORD) | Role: ADMIN", logger.LogField("email", admin.Email))
+	} else {
+		logger.Info("  Username: admin    | Password: password123 | Role: ADMIN")
+	}
+	if seeders.SeedDemoUsers() {
+		logger.Info("  Sample users (auditor, dept_head, new_dept_head, auditee, viewer) | Password: password123")
+	} else {
+		logger.Info("  Sample users skipped (set SEED_DEMO_USERS=true to create them)")
+	}
 
 	return nil
 }

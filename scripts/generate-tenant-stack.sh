@@ -15,6 +15,13 @@
 #   TENANT_STORAGE_ROOT=/var/data/auditsphere/storage \
 #     ./scripts/generate-tenant-stack.sh <slug> <client_name> [options]
 #
+#   ./scripts/generate-tenant-stack.sh --next-ports
+#       Read-only. Prints the next free frontend and Kong (API) ports as one
+#       line of JSON, e.g. {"fe_port":3011,"api_port":8091}, skipping ports
+#       held in the registry and ports already listening on this host.
+#       Needs no other argument or env var and writes nothing. The
+#       provisioner uses it for GET /ports/next.
+#
 # The evidence silo is always <TENANT_STORAGE_ROOT>/<slug>. TENANT_STORAGE_ROOT
 # must be set to an absolute path; the generator refuses to run without it.
 #
@@ -23,7 +30,18 @@
 #   --fe-port <n>           Pin the frontend host port   (default: auto)
 #   --kong-port <n>         Pin the Kong proxy host port (default: auto)
 #   --kong-admin-port <n>   Pin the Kong admin host port (default: auto)
+#                           A pinned port is REJECTED (exit 1) when another
+#                           tenant holds it in the registry or something on
+#                           this host already listens on it. A tenant's own
+#                           registered ports are accepted even while its
+#                           stack is running.
 #   --base-domain <fqdn>    Parent domain for the tenant (default: auditsphere.app)
+#   --image-tag <tag>       Tag for this tenant's images, written to .env as
+#                           TENANT_IMAGE_TAG. Default: keep the tag already in
+#                           the tenant's .env, else <UTC timestamp>-<git sha>.
+#                           onboard-tenant.sh passes a fresh tag on every run.
+#   --no-preflight          Render even when the prebuilt binaries or
+#                           frontend/.output are missing (config-only)
 #   --ic-lha-due-days <n>   Internal control: audit report (LHA) due days, 1-365
 #                           (default: the tenant's current .env value, else 30)
 #   --ic-mgmt-response-due-days <n>
@@ -34,9 +52,10 @@
 # Example:
 #   ./scripts/generate-tenant-stack.sh accenture "Accenture" --fe-port 3010
 #
-# Regenerating an existing tenant reuses its allocated ports, Redis index and
-# secrets from the registry. Rotating JWT_SECRET would invalidate every live
-# session for that client, so it never happens implicitly.
+# Regenerating an existing tenant reuses its allocated ports, Redis index,
+# secrets and image tag from the registry and its .env. Rotating JWT_SECRET
+# would invalidate every live session for that client, so it never happens
+# implicitly.
 # =============================================================================
 
 set -euo pipefail
@@ -63,6 +82,62 @@ BASE_DOMAIN=${BASE_DOMAIN:-auditsphere.app}
 
 die() { echo "Error: $*" >&2; exit 1; }
 
+# ── Registry helpers ─────────────────────────────────────────────────────────
+# A TSV file is the interim registry. The tenant table in Postgres (step 3 of
+# the provisioning plan) replaces this; until then it is what stops two tenants
+# being handed the same host port or Redis index. A missing registry reads as
+# empty, so the read-only --next-ports mode never has to create it.
+
+registry_field() {  # registry_field <slug> <1-based column>
+    [ -f "$REGISTRY" ] || return 0
+    awk -F'\t' -v s="$1" -v c="$2" 'NR>1 && $1==s {print $c; exit}' "$REGISTRY"
+}
+
+registry_holder() { # registry_holder <port> <column> <excluding-slug>  -> slug or ""
+    [ -f "$REGISTRY" ] || return 0
+    awk -F'\t' -v p="$1" -v c="$2" -v s="$3" 'NR>1 && $1!=s && $c==p {print $1; exit}' "$REGISTRY"
+}
+
+port_taken() {      # port_taken <port> <column> <excluding-slug>
+    [ -n "$(registry_holder "$1" "$2" "$3")" ]
+}
+
+# Is anything listening on this TCP port on the host? Docker-published ports
+# show up here too (docker-proxy, or Docker Desktop's backend). Tries ss
+# (Linux), then netstat (also Git Bash on Windows), then a loopback connect.
+port_in_use_os() {  # port_in_use_os <port>
+    local p=$1
+    if command -v ss >/dev/null 2>&1; then
+        [ -n "$(ss -Htln "sport = :$p" 2>/dev/null)" ]
+    elif command -v netstat >/dev/null 2>&1; then
+        netstat -an 2>/dev/null \
+            | grep -Eq "[:.]${p}[[:space:]]+[^[:space:]]+[[:space:]]+LISTEN(ING)?([[:space:]]|\$)"
+    else
+        (exec 3<>"/dev/tcp/127.0.0.1/$p") 2>/dev/null
+    fi
+}
+
+next_free() {       # next_free <base> <column> <excluding-slug>
+    local candidate=$1
+    while port_taken "$candidate" "$2" "$3" || port_in_use_os "$candidate"; do
+        candidate=$((candidate + 1))
+    done
+    echo "$candidate"
+}
+
+# ── Read-only mode: --next-ports ─────────────────────────────────────────────
+# No slug, no storage root, no writes. The excluded slug is empty, so every
+# registered tenant counts. Not a reservation: the provisioner runs one job at
+# a time, and the real run checks the ports again.
+
+if [ "${1:-}" = "--next-ports" ]; then
+    [ $# -eq 1 ] || die "--next-ports takes no other arguments"
+    NEXT_FE=$(next_free "$BASE_FE_PORT" 5 "")
+    NEXT_API=$(next_free "$BASE_KONG_PORT" 6 "")
+    printf '{"fe_port":%d,"api_port":%d}\n' "$NEXT_FE" "$NEXT_API"
+    exit 0
+fi
+
 # ── Arguments ────────────────────────────────────────────────────────────────
 
 SLUG=${1:-}
@@ -73,9 +148,11 @@ shift 2
 
 IS_LOCAL=false
 FORCE=false
+PREFLIGHT=true
 FE_PORT=""
 KONG_PORT=""
 KONG_ADMIN_PORT=""
+IMAGE_TAG=""
 IC_LHA_DUE_DAYS=""
 IC_MGMT_RESPONSE_DUE_DAYS=""
 
@@ -86,10 +163,12 @@ while [ $# -gt 0 ]; do
     case $1 in
         --local)            IS_LOCAL=true ;;
         --force)            FORCE=true ;;
+        --no-preflight)     PREFLIGHT=false ;;
         --fe-port)          FE_PORT=${2:?"--fe-port needs a value"}; shift ;;
         --kong-port)        KONG_PORT=${2:?"--kong-port needs a value"}; shift ;;
         --kong-admin-port)  KONG_ADMIN_PORT=${2:?"--kong-admin-port needs a value"}; shift ;;
         --base-domain)      BASE_DOMAIN=${2:?"--base-domain needs a value"}; shift ;;
+        --image-tag)        IMAGE_TAG=${2:?"--image-tag needs a value"}; shift ;;
         --ic-lha-due-days)  IC_LHA_DUE_DAYS=${2:?"--ic-lha-due-days needs a value"}; shift ;;
         --ic-lha-due-days=*) IC_LHA_DUE_DAYS=${1#*=} ;;
         --ic-mgmt-response-due-days) IC_MGMT_RESPONSE_DUE_DAYS=${2:?"--ic-mgmt-response-due-days needs a value"}; shift ;;
@@ -111,6 +190,10 @@ valid_due_days() { [[ "$1" =~ ^[1-9][0-9]{0,2}$ ]] && [ "$1" -le 365 ]; }
     || die "--ic-lha-due-days must be a whole number of days between 1 and 365 (got '$IC_LHA_DUE_DAYS')"
 [ -z "$IC_MGMT_RESPONSE_DUE_DAYS" ] || valid_due_days "$IC_MGMT_RESPONSE_DUE_DAYS" \
     || die "--ic-mgmt-response-due-days must be a whole number of days between 1 and 365 (got '$IC_MGMT_RESPONSE_DUE_DAYS')"
+
+# Docker tag grammar.
+[ -z "$IMAGE_TAG" ] || [[ "$IMAGE_TAG" =~ ^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$ ]] \
+    || die "--image-tag '$IMAGE_TAG' is not a valid Docker tag"
 
 [ -d "$TEMPLATE_DIR" ] || die "template directory not found: $TEMPLATE_DIR"
 
@@ -135,34 +218,56 @@ else
     API_DOMAIN_HOST="api-${SLUG}.${BASE_DOMAIN}"
 fi
 
+# ── Preflight ────────────────────────────────────────────────────────────────
+# Both Dockerfiles copy pre-built artefacts rather than compiling, so a build
+# with a missing binary "succeeds" and the tenant only fails at container
+# start. Checked before anything is written, and fatal unless --no-preflight.
+
+echo "==> Preflight"
+MISSING=()
+for svc in auth audit master risk analytics; do
+    [ -f "$ROOT_DIR/backend/${svc}-service/${svc}" ] \
+        || MISSING+=("backend/${svc}-service/${svc}")
+done
+[ -d "$ROOT_DIR/frontend/.output" ] || MISSING+=("frontend/.output")
+if [ ${#MISSING[@]} -gt 0 ]; then
+    for m in "${MISSING[@]}"; do echo "    ! missing prebuilt artifact: $m" >&2; done
+    [ "$PREFLIGHT" = false ] \
+        || die "prebuilt artifacts missing: ${MISSING[*]} — build the Go binaries for linux/amd64 and run 'npm run build' in frontend/ (or pass --no-preflight to render config only)"
+    echo "    --no-preflight: rendering anyway; the stack cannot start until they exist"
+else
+    echo "    prebuilt artifacts present"
+fi
+docker network inspect rb_audit_network >/dev/null 2>&1 \
+    || echo "    ! the rb_audit_network bridge does not exist — start the control-plane stack (backend/docker-compose.yml) first"
+
 # ── Registry ─────────────────────────────────────────────────────────────────
-# A TSV file is the interim registry. The tenant table in Postgres (step 3 of
-# the provisioning plan) replaces this; until then it is what stops two tenants
-# being handed the same host port or Redis index.
 
 mkdir -p "$TENANTS_DIR"
 if [ ! -f "$REGISTRY" ]; then
     printf 'slug\tclient_name\tdomain\tapi_domain\tfe_port\tkong_port\tkong_admin_port\tredis_db\tcreated_at\n' > "$REGISTRY"
 fi
 
-registry_field() {  # registry_field <slug> <1-based column>
-    awk -F'\t' -v s="$1" -v c="$2" 'NR>1 && $1==s {print $c; exit}' "$REGISTRY"
-}
-
-port_taken() {      # port_taken <port> <column> <excluding-slug>
-    awk -F'\t' -v p="$1" -v c="$2" -v s="$3" 'NR>1 && $1!=s && $c==p {found=1} END{exit !found}' "$REGISTRY"
-}
-
-next_free() {       # next_free <base> <column> <excluding-slug>
-    local candidate=$1
-    while port_taken "$candidate" "$2" "$3"; do
-        candidate=$((candidate + 1))
-    done
-    echo "$candidate"
-}
-
 EXISTING=$(registry_field "$SLUG" 1)
 TENANT_DIR="$TENANTS_DIR/$SLUG"
+
+# Explicitly requested ports are validated before defaults are filled in, so
+# only a request can be rejected. A tenant's own registered port never counts
+# as "in use on the OS" against itself: its stack may well be running.
+check_requested_port() {  # check_requested_port <flag> <port> <registry-column>
+    local flag=$1 p=$2 col=$3 holder
+    [[ "$p" =~ ^[1-9][0-9]{3,4}$ ]] && [ "$p" -ge 1024 ] && [ "$p" -le 65535 ] \
+        || die "$flag '$p' must be a port number between 1024 and 65535"
+    holder=$(registry_holder "$p" "$col" "$SLUG")
+    [ -z "$holder" ] \
+        || die "$flag $p is already allocated to tenant '$holder' in backend/tenants/registry.tsv"
+    if [ "$p" != "$(registry_field "$SLUG" "$col")" ] && port_in_use_os "$p"; then
+        die "$flag $p is already in use on this host (something is listening on it)"
+    fi
+}
+[ -z "$FE_PORT" ]         || check_requested_port --fe-port "$FE_PORT" 5
+[ -z "$KONG_PORT" ]       || check_requested_port --kong-port "$KONG_PORT" 6
+[ -z "$KONG_ADMIN_PORT" ] || check_requested_port --kong-admin-port "$KONG_ADMIN_PORT" 7
 
 if [ -n "$EXISTING" ]; then
     # Reuse every allocation. Changing a live tenant's ports would break the
@@ -192,6 +297,8 @@ fi
 for p in "$FE_PORT" "$KONG_PORT" "$KONG_ADMIN_PORT"; do
     [[ "$p" =~ ^[0-9]+$ ]] || die "port '$p' is not numeric"
 done
+[ "$FE_PORT" != "$KONG_PORT" ] && [ "$FE_PORT" != "$KONG_ADMIN_PORT" ] && [ "$KONG_PORT" != "$KONG_ADMIN_PORT" ] \
+    || die "frontend, Kong and Kong admin ports must all differ (got $FE_PORT/$KONG_PORT/$KONG_ADMIN_PORT)"
 
 # The CORS origin must match what the browser sends in the Origin header,
 # which includes the port on localhost (there is no Nginx vhost in front of a
@@ -224,6 +331,15 @@ else
     echo "==> Reusing the existing JWT signing secret for '$SLUG' (rotating it would end all active sessions)."
 fi
 [ -n "$SIGNATURE_KEY" ] || SIGNATURE_KEY=$(openssl rand -hex 32)
+
+# Image tag: explicit flag > tag already in .env > a new versioned tag. Images
+# are named per tenant (rb_audit_tenant_<slug>_*), so building one tenant can
+# never replace the images another tenant runs, and the previous tag stays on
+# disk for a rollback (put the old TENANT_IMAGE_TAG back in .env, `up -d`).
+IMAGE_TAG=${IMAGE_TAG:-$(read_env_value TENANT_IMAGE_TAG)}
+if [ -z "$IMAGE_TAG" ]; then
+    IMAGE_TAG="$(date -u +%Y%m%d%H%M%S)-$(git -C "$ROOT_DIR" rev-parse --short=7 HEAD 2>/dev/null || echo nogit)"
+fi
 
 # Internal control thresholds: explicit flag > value already in .env > default.
 # Keeping the .env value makes a plain --force regeneration a no-op for them.
@@ -262,6 +378,10 @@ TENANT_SIGNATURE_KEY=$SIGNATURE_KEY
 # its settings table at migrate time if missing; ADMIN edits them in the app.
 TENANT_IC_LHA_DUE_DAYS=$IC_LHA_DUE_DAYS
 TENANT_IC_MGMT_RESPONSE_DUE_DAYS=$IC_MGMT_RESPONSE_DUE_DAYS
+
+# Tag of this tenant's own images (rb_audit_tenant_${SLUG}_*). Not a secret.
+# onboard-tenant.sh writes a new one on every run; set it back to roll back.
+TENANT_IMAGE_TAG=$IMAGE_TAG
 ENVEOF
 [ -n "$SMTP_LINES" ] && printf '%s\n' "$SMTP_LINES" >> "$ENV_FILE"
 chmod 600 "$ENV_FILE"
@@ -280,6 +400,7 @@ sed_escape() { printf '%s' "$1" | sed -e 's/[\\&|]/\\&/g'; }
 
 CLIENT_NAME_ESC=$(sed_escape "$CLIENT_NAME")
 STORAGE_DIR_ESC=$(sed_escape "$STORAGE_DIR")
+ENV_HINT="start this stack with --env-file $(basename "$ENV_FILE")"
 
 render() {  # render <template> <destination>
     sed \
@@ -294,8 +415,9 @@ render() {  # render <template> <destination>
         -e "s|__KONG_ADMIN_PORT__|${KONG_ADMIN_PORT}|g" \
         -e "s|__REDIS_DB__|${REDIS_DB}|g" \
         -e "s|__STORAGE_DIR__|${STORAGE_DIR_ESC}|g" \
-        -e "s|__JWT_SECRET__|\${TENANT_JWT_SECRET:?TENANT_JWT_SECRET missing — start this stack with --env-file $(basename "$ENV_FILE")}|g" \
-        -e "s|__SIGNATURE_KEY__|\${TENANT_SIGNATURE_KEY:?TENANT_SIGNATURE_KEY missing — start this stack with --env-file $(basename "$ENV_FILE")}|g" \
+        -e "s|__IMAGE_TAG__|\${TENANT_IMAGE_TAG:?TENANT_IMAGE_TAG missing — ${ENV_HINT}}|g" \
+        -e "s|__JWT_SECRET__|\${TENANT_JWT_SECRET:?TENANT_JWT_SECRET missing — ${ENV_HINT}}|g" \
+        -e "s|__SIGNATURE_KEY__|\${TENANT_SIGNATURE_KEY:?TENANT_SIGNATURE_KEY missing — ${ENV_HINT}}|g" \
         "$1" > "$2"
 }
 
@@ -312,25 +434,6 @@ printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
     >> "$TMP_REGISTRY"
 mv "$TMP_REGISTRY" "$REGISTRY"
 
-# ── Preflight ────────────────────────────────────────────────────────────────
-# Both Dockerfiles copy pre-built artefacts rather than compiling, so the build
-# succeeds with a stale or missing binary and only fails at container start.
-
-WARNINGS=0
-warn() { echo "    ! $*"; WARNINGS=$((WARNINGS + 1)); }
-
-echo ""
-echo "==> Preflight"
-for svc in auth audit master risk analytics; do
-    [ -f "$ROOT_DIR/backend/${svc}-service/${svc}" ] \
-        || warn "backend/${svc}-service/${svc} is missing — build it for linux/amd64 before starting the stack"
-done
-[ -d "$ROOT_DIR/frontend/.output" ] \
-    || warn "frontend/.output is missing — run 'npm run build' in frontend/ before starting the stack"
-docker network inspect rb_audit_network >/dev/null 2>&1 \
-    || warn "the rb_audit_network bridge does not exist — start the control-plane stack (backend/docker-compose.yml) first"
-[ "$WARNINGS" -eq 0 ] && echo "    all checks passed"
-
 # ── Summary ──────────────────────────────────────────────────────────────────
 
 cat <<SUMMARY
@@ -346,6 +449,7 @@ cat <<SUMMARY
  Storage silo  : $STORAGE_DIR
  Databases     : rb_audit_{auth,audit,master,risk}_$SLUG
  IC thresholds : LHA $IC_LHA_DUE_DAYS days, management response $IC_MGMT_RESPONSE_DUE_DAYS days
+ Images        : rb_audit_tenant_${SLUG}_*:$IMAGE_TAG
 
  Start it:
    docker compose --project-directory backend/tenants/$SLUG \\
