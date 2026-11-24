@@ -142,11 +142,6 @@ const years = computed(() => templateYears(plans.value))
 const soRows = computed(() => buildSoRows(plans.value, years.value, locale.value))
 const initiativeRows = computed(() => buildInitiativeRows(plans.value, years.value))
 
-// "1.1", "1.2"...: SO sequence, then the KPI's position inside its SO group.
-const kpiNumber = (idx: number): string => {
-  let head = idx
-  while (head > 0 && soRows.value[head]!.span === 0) head--
-  const soIndex = soRows.value.slice(0, head + 1).filter(r => r.span > 0).length
-  return `${soIndex}.${idx - head + 1}`
-}
+// Template numbers KPIs sequentially (1..11), independent of the SO grouping.
+const kpiNumber = (idx: number): string => String(idx + 1)
 </script>
