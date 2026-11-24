@@ -64,7 +64,11 @@ SMTP_USERNAME=resend
 resend() {
     local method=$1 path=$2 data=${3:-} out status
     out=$(mktemp)
+    # Bounded, so an unreachable Resend API fails the onboarding step instead
+    # of hanging the provisioning job. Override with RESEND_CURL_MAX_TIME.
     local args=(-sS -o "$out" -w '%{http_code}' -X "$method"
+        --connect-timeout "${RESEND_CURL_CONNECT_TIMEOUT:-10}"
+        --max-time "${RESEND_CURL_MAX_TIME:-30}"
         -H "Authorization: Bearer ${RESEND_MASTER_API_KEY}"
         -H "Content-Type: application/json")
     [ -n "$data" ] && args+=(-d "$data")

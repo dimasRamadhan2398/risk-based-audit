@@ -105,6 +105,15 @@ services:
       - SMTP_USERNAME=${SMTP_USERNAME:-}
       - SMTP_PASSWORD=${SMTP_PASSWORD:-}
       - SMTP_FROM=${SMTP_FROM:-}
+      # Site Generator: /api/v1/provisioning proxies to the host provisioner
+      # (deploy/provisioner/). Empty URL = provisioning unavailable (503).
+      # e.g. PROVISIONER_URL=http://host.docker.internal:8790
+      - PROVISIONER_URL=${PROVISIONER_URL:-}
+      - PROVISIONER_TOKEN=${PROVISIONER_TOKEN:-}
+    # host.docker.internal -> the docker0 gateway (172.17.0.1 by default),
+    # where the provisioner listens. Harmless when provisioning is not set up.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ${PG_CA_DIR:-./pg-ca}:/etc/rb-audit/pg-ca:ro
     command: sh -c "./auth --config ./pkg/config/config.yaml seed && ./auth --config ./pkg/config/config.yaml serve"
@@ -121,6 +130,7 @@ services:
       - JWT_SECRET=${JWT_SECRET:?JWT_SECRET missing - every service in the stack must share one signing secret; set it in the deploy env}
       - PYTHON_AI_URL=${PYTHON_AI_URL:-http://10.0.0.1:8000}
       - PYTHON_AI_API_KEY=${PYTHON_AI_API_KEY:-auditsphere_ai_key_2026_k33f01}
+      - INTERNAL_RETRAIN_TOKEN=${INTERNAL_RETRAIN_TOKEN:-dev-internal-token}
       - DATA_HUB_URL=${DATA_HUB_URL:-http://10.0.0.1:8100}
       - DATA_HUB_API_KEY=${DATA_HUB_API_KEY:-auditsphere_dh_key_2026_x87a9b}
       # Caches the dashboard's AI batch results and throttles /retrain/auto.
@@ -260,6 +270,8 @@ services:
       - "127.0.0.1:8000:8000"
     environment:
       - PYTHONUNBUFFERED=1
+      - API_KEY=${PYTHON_AI_API_KEY:-auditsphere_ai_key_2026_k33f01}
+      - INTERNAL_RETRAIN_TOKEN=${INTERNAL_RETRAIN_TOKEN:-dev-internal-token}
     volumes:
       - python_ai_models:/app/models
       - ../ai_model_training:/app/ai_model_training:ro

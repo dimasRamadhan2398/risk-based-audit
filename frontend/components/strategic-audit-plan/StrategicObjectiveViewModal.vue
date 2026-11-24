@@ -378,7 +378,7 @@ const multiYearData = computed(() => {
       if (objective.value.hibHig === 'HIG') {
         ratio = (actualNum / targetNum) * 100
       } else {
-        ratio = (targetNum / actualNum) * 100
+        ratio = (1 + (1 - actualNum / targetNum)) * 100
       }
       achievement = ratio.toFixed(2) + '%'
       if (ratio >= 100) status = 'Good'

@@ -114,11 +114,16 @@ func Collect(ctx context.Context, db *gorm.DB, exec *models.AuditExecution) (Sig
 		}
 		s.WorkingPaperRecords += int(n)
 	}
-	var causes int64
-	if err := db.Model(&models.WorkingPaperCause{}).Where(colWorkingPaperID+" IN ?", keys).Count(&causes).Error; err != nil {
+	var causes []models.WorkingPaperCause
+	if err := db.Where(colWorkingPaperID+" IN ?", keys).Find(&causes).Error; err != nil {
 		return s, nil, err
 	}
-	s.WorkingPaperCauses = int(causes)
+	s.WorkingPaperCauses = len(causes)
+	for _, c := range causes {
+		if strings.TrimSpace(c.ActionPlan) != "" && strings.TrimSpace(c.PIC) != "" {
+			s.WorkingPaperPlansComplete++
+		}
+	}
 
 	var plans []models.WorkingPaperPlan
 	if err := db.Where(colWorkingPaperID+" IN ?", keys).Find(&plans).Error; err != nil {

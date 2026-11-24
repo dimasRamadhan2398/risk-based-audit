@@ -24,12 +24,11 @@
           @keydown.down.prevent="isOpen = true"
           :class="[
             'block w-full rounded-md border text-sm transition-colors duration-150',
-            'bg-white dark:bg-gray-900',
-            'text-gray-900 dark:text-gray-100',
             'placeholder:text-gray-400 dark:placeholder:text-gray-500',
-            'border-gray-300 dark:border-gray-700',
             'focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none',
-            disabled ? 'opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-800' : 'cursor-text',
+            disabled
+              ? 'cursor-not-allowed bg-slate-200 dark:bg-slate-950/80 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-700'
+              : 'cursor-text bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700',
             sizeClasses,
             $attrs.class
           ]"

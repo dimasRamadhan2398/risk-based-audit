@@ -38,6 +38,16 @@ type Config struct {
 	MasterService    MasterServiceConfig `mapstructure:"master_service"`
 	ActivityLog      ActivityLogConfig   `mapstructure:"activity_log"`
 	MFA              MFAConfig           `mapstructure:"mfa"`
+	Provisioner      ProvisionerConfig   `mapstructure:"provisioner"`
+}
+
+// ProvisionerConfig points the /api/v1/provisioning proxy at the host
+// provisioner (backend/provisioner-service). Env: PROVISIONER_URL,
+// PROVISIONER_TOKEN. Empty URL means provisioning is not available on this
+// deployment and the routes answer 503.
+type ProvisionerConfig struct {
+	URL   string `mapstructure:"url"`
+	Token string `mapstructure:"token"`
 }
 
 // ActivityLogConfig controls the admin user activity log (pkg/activitylog).
@@ -246,6 +256,8 @@ func Load(configPath string) (*Config, error) {
 	_ = viper.BindEnv("mfa.encryption_key", MFAEncryptionKeyEnv)
 	_ = viper.BindEnv("mfa.encryption_key_old", MFAEncryptionKeyOldEnv)
 	_ = viper.BindEnv("mfa.encryption_required", MFAEncryptionRequiredEnv)
+	_ = viper.BindEnv("provisioner.url", "PROVISIONER_URL")
+	_ = viper.BindEnv("provisioner.token", "PROVISIONER_TOKEN")
 
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("failed to read config: %w", err)

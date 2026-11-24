@@ -16,12 +16,59 @@
               </div>
             </template>
 
+            <template #riskLevel-cell="{ row }">
+              <UBadge
+                v-if="row.original.riskLevel"
+                :color="getRiskLevelColor(row.original.riskLevel)"
+                variant="subtle"
+                size="sm"
+              >
+                Level {{ String(row.original.riskLevel).replace(/^level\s*/i, '') }}
+              </UBadge>
+              <span v-else class="text-gray-400">-</span>
+            </template>
+
             <template #criteria-cell="{ row }">
               <div
                 class="w-full min-w-0 whitespace-normal break-words leading-relaxed text-sm text-gray-600 dark:text-gray-300"
                 style="white-space: normal !important; word-break: break-word !important; overflow-wrap: anywhere !important;"
               >
                 {{ row.original.criteria || '-' }}
+              </div>
+            </template>
+
+            <template #recommendations-cell="{ row }">
+              <div v-if="Array.isArray(row.original.recommendations) && row.original.recommendations.length > 0" class="space-y-1 py-1">
+                <div
+                  v-for="(rec, idx) in row.original.recommendations"
+                  :key="rec.id || idx"
+                  class="text-xs leading-relaxed text-gray-700 dark:text-gray-300"
+                >
+                  <span class="font-semibold">{{ idx + 1 }}.</span> {{ typeof rec === 'string' ? rec : rec.recommendation }}
+                </div>
+              </div>
+              <span v-else class="text-gray-400">-</span>
+            </template>
+
+            <template #actionPlan-cell="{ row }">
+              <div class="space-y-1 text-xs text-gray-600 dark:text-gray-300">
+                <div class="whitespace-normal break-words leading-relaxed">
+                  {{ row.original.actionPlan || '-' }}
+                </div>
+                <div v-if="row.original.targetDate" class="text-[11px] text-gray-400">
+                  {{ t('workingPaper.causeTable.target') }}: {{ row.original.targetDate }}
+                </div>
+              </div>
+            </template>
+
+            <template #pic-cell="{ row }">
+              <div class="space-y-0.5 text-xs">
+                <div class="font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap">
+                  {{ store.formatEmployeeName(row.original.pic) }}
+                </div>
+                <div v-if="row.original.finalApprover" class="text-[11px] text-gray-400 whitespace-nowrap">
+                  {{ t('workingPaper.causeTable.approver') }}: {{ store.formatEmployeeName(row.original.finalApprover) }}
+                </div>
               </div>
             </template>
 
@@ -72,6 +119,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { useRbac } from '~/composables/useRbac'
 import { useWorkingPaperStore } from '~/stores/working-paper'
 import { useI18n } from '~/composables/useI18n'
@@ -80,4 +128,15 @@ const { t } = useI18n()
 const { canWrite } = useRbac()
 const store = useWorkingPaperStore()
 
+const getRiskLevelColor = (level?: string) => {
+  const num = String(level || '').replace(/^level\s*/i, '').trim()
+  if (num === '5' || num === '4') return 'error'
+  if (num === '3') return 'warning'
+  if (num === '2') return 'info'
+  return 'success'
+}
+
+onMounted(() => {
+  store.fetchEmployees?.()
+})
 </script>

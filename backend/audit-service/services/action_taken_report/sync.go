@@ -9,6 +9,9 @@
 package action_taken_report
 
 import (
+	"bytes"
+	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -18,6 +21,46 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
+
+// NotifyAnomalyEngineAsync fires a non-blocking webhook to python-ai so the
+// Anomaly Detection RetrainScheduler immediately syncs ATR findings and
+// queues a model retrain when findings are created or updated.
+func NotifyAnomalyEngineAsync(trigger string) {
+	if os.Getenv("DISABLE_AI_WEBHOOK") == "true" {
+		return
+	}
+	go func() {
+		baseURL := strings.TrimSpace(os.Getenv("PYTHON_AI_URL"))
+		if baseURL == "" {
+			if _, err := os.Stat("/.dockerenv"); err == nil {
+				baseURL = "http://python-ai:8000"
+			} else {
+				baseURL = "http://localhost:8000"
+			}
+		}
+		apiKey := strings.TrimSpace(os.Getenv("PYTHON_AI_API_KEY"))
+		if apiKey == "" {
+			apiKey = "dev-ai-api-key"
+		}
+		internalToken := strings.TrimSpace(os.Getenv("INTERNAL_RETRAIN_TOKEN"))
+		if internalToken == "" {
+			internalToken = "dev-internal-token"
+		}
+		payload := []byte(`{"trigger":"` + trigger + `","source":"audit-service"}`)
+		req, err := http.NewRequest(http.MethodPost, strings.TrimRight(baseURL, "/")+"/predict/anomaly/atr-webhook", bytes.NewReader(payload))
+		if err != nil {
+			return
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("X-API-Key", apiKey)
+		req.Header.Set("X-Internal-Token", internalToken)
+		client := &http.Client{Timeout: 1500 * time.Millisecond}
+		resp, err := client.Do(req)
+		if err == nil && resp != nil && resp.Body != nil {
+			_ = resp.Body.Close()
+		}
+	}()
+}
 
 // RemovedFindingNote is the review note set on an untouched (PLANNED) ATR
 // whose finding was removed from its LHA
@@ -81,8 +124,15 @@ func SyncFromReport(tx *gorm.DB, report *models.AuditResultReport, now time.Time
 			UpdateColumns(map[string]interface{}{
 				"finding_title":    strings.TrimSpace(f.Title),
 				"finding_category": strings.TrimSpace(f.Category),
-				"recommendation":   strings.TrimSpace(f.Action),
+				"recommendation":   findingRecommendation(f),
 			}).Error; err != nil {
+			return res, err
+		}
+		// ... and the action plan fields too, as long as the PIC has not
+		// submitted their own plan
+		if err := tx.Model(&models.ActionTakenReport{}).
+			Where("audit_result_report_id = ? AND finding_id = ? AND status = ? AND action_plan_submitted_at IS NULL", report.ID, f.ID, models.ATRStatusPlanned).
+			UpdateColumns(planColumns(f)).Error; err != nil {
 			return res, err
 		}
 	}
@@ -121,8 +171,12 @@ func SyncFromReport(tx *gorm.DB, report *models.AuditResultReport, now time.Time
 			ReportTitle:         reportTitle,
 			FindingTitle:        strings.TrimSpace(f.Title),
 			FindingCategory:     strings.TrimSpace(f.Category),
-			Recommendation:      strings.TrimSpace(f.Action),
+			Recommendation:      findingRecommendation(f),
 			Status:              models.ATRStatusPlanned,
+			PlannedActions:      cleanPlans(f.ActionPlans),
+			FinalApprover:       firstFinalApprover(f.ActionPlans),
+			PICName:             firstPIC(f.ActionPlans),
+			DueDate:             earliestTarget(f.ActionPlans),
 			CreatedAt:           now,
 			UpdatedAt:           now,
 		}
@@ -146,7 +200,10 @@ func AfterReportWrite(tx *gorm.DB, entity interface{}) error {
 	if !ok || report.ID == uuid.Nil {
 		return nil
 	}
-	_, err := SyncReportByID(tx, report.ID, time.Now())
+	res, err := SyncReportByID(tx, report.ID, time.Now())
+	if err == nil && (res.Created > 0 || res.Cancelled > 0 || models.IsLHAApproved(report.Status)) {
+		NotifyAnomalyEngineAsync("lha_sync")
+	}
 	return err
 }
 

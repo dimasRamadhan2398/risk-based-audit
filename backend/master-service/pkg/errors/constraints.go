@@ -34,6 +34,16 @@ var constraintRegistry = map[string]ConstraintInfo{
 	"uq_org_levels_name": {
 		Code: CodeOrgLevelNameAlreadyExists, Message: "An organisation level with this name already exists.", Field: "name",
 	},
+	// Office structure (pkg/database/officestructure). The services check
+	// these first (422); the index only catches concurrent writes.
+	"uq_locations_company_office_code": {
+		Code: CodeOfficeCodeTaken, Message: "This office code is already used in the company.", Field: "office_code",
+	},
+	"uq_locations_company_head_office": {
+		Code: CodeOfficeHeadOfficeExists, Message: "The company already has an active head office.", Field: "office_function",
+	},
+	"uq_office_levels_company_level": {Field: "level"},
+	"uq_office_levels_default_level": {Field: "level"},
 	"idx_companies_company_code": {
 		Code: CodeCompanyCodeAlreadyExists, Message: "A company with this code already exists.", Field: "code",
 	},
@@ -52,4 +62,7 @@ var constraintRegistry = map[string]ConstraintInfo{
 	"fk_departments_parent":        {Field: "parent_department_id"},
 	"fk_companies_location":        {Field: "location_id"},
 	"fk_companies_children":        {Field: "parent_id"},
+	"fk_locations_company":         {Field: "company_id"},
+	"fk_locations_parent":          {Field: "parent_location_id"},
+	"fk_location_companies_company": {Field: "shared_company_ids"},
 }

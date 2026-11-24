@@ -30,6 +30,12 @@ export const buildAnnualActivityPayload = (activity: AuditActivities, index: num
     totalMandays: toCount(activity.totalMandays, 0),
     supervisorName: activity.supervisorName || ''
   }
+  // Monthly schedule fields from imported plans (months[], durationDays, remarks): the form has no
+  // inputs for them, but the activities JSON is replaced as a whole, so keep them when present.
+  const extra = activity as unknown as Record<string, unknown>
+  for (const key of ['months', 'durationDays', 'remarks']) {
+    if (extra[key] !== undefined && extra[key] !== null) payload[key] = extra[key]
+  }
   if (activity.id) payload.id = activity.id
   if (activity.departmentId) payload.departmentId = activity.departmentId
   if (activity.auditUniverseId) payload.auditUniverseId = activity.auditUniverseId

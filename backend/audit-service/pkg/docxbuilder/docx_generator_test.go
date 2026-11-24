@@ -138,26 +138,14 @@ func TestGenerateAuditReportDocx_WithUpdatedSampleDataAndWorkingPaper(t *testing
 
 	require.NotEmpty(t, docXmlContent, "word/document.xml should be present in docx")
 
-	// Verify Fieldwork Sample Data: Document Name, Number, Date, Description, and Attachment
-	assert.True(t, strings.Contains(docXmlContent, "Bukti Pengeluaran Kas"))
-	assert.True(t, strings.Contains(docXmlContent, "BPK-2026-001"))
-	assert.True(t, strings.Contains(docXmlContent, "bukti_pengeluaran_kas_001.pdf"))
-
-	// Verify Working Paper Header: Business Process, Audit Purpose, Period, Location, Activities, Team Members
-	assert.True(t, strings.Contains(docXmlContent, "Procurement-to-Pay"))
-	assert.True(t, strings.Contains(docXmlContent, "Menilai kepatuhan prosedur pembayaran kas"))
-	assert.True(t, strings.Contains(docXmlContent, "Verifikasi dokumen voucher pembayaran kas"))
-	assert.True(t, strings.Contains(docXmlContent, "Zeta Ramadhani (Chairperson)"))
-	assert.True(t, strings.Contains(docXmlContent, "Rina Wulandari (Member)"))
-
-	// Verify Working Paper Test Sample: Population, Sample Size, Conclusion, Step1, Step2, Step3, Results
-	assert.True(t, strings.Contains(docXmlContent, "150 Transaksi"))
-	assert.True(t, strings.Contains(docXmlContent, "Voucher Pembayaran V-101"))
-	assert.True(t, strings.Contains(docXmlContent, "Bukti Pengeluaran Kas (BPK-2026-001)"))
-	assert.True(t, strings.Contains(docXmlContent, "Tidak Efektif")) // because L2 is false
-	assert.True(t, strings.Contains(docXmlContent, "Pengecekan Tanda Tangan Manager"))
-	assert.True(t, strings.Contains(docXmlContent, "Pass"))
-	assert.True(t, strings.Contains(docXmlContent, "Fail"))
+	// The LHA follows the agreed layout: fieldwork and test-sample dumps are
+	// no longer part of it; scope comes from the working paper activities.
+	assert.True(t, strings.Contains(docXmlContent, "1. Surat Tugas"))
+	assert.True(t, strings.Contains(docXmlContent, "ST-001/SKAI/2026"))
+	assert.True(t, strings.Contains(docXmlContent, "1. Verifikasi dokumen voucher pembayaran kas"))
+	assert.True(t, strings.Contains(docXmlContent, "2. Konfirmasi otorisasi pejabat berwenang"))
+	assert.True(t, strings.Contains(docXmlContent, "2026-03-01 s/d 2026-03-31"))
+	assert.False(t, strings.Contains(docXmlContent, "Bukti_pengeluaran"))
 }
 
 func TestGenerateAuditReportDocx_SignaturesBlockAndImages(t *testing.T) {

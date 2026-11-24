@@ -173,7 +173,7 @@ describe('Audit Result Report Store - Automated Findings Detection', () => {
 
   it('should dynamically generate Report Number (LHA ID) with auto-increment and dynamic month/year', async () => {
     const store = useAuditResultReportStore()
-    
+
     // When no reports exist, the first generated number should start at LHA-001
     store.reportList = []
     const dynamicNum = store.generateReportNumber('2026-10-15')
@@ -349,5 +349,77 @@ describe('Audit Result Report Store - saveReport requires an assignment letter',
     expect(store.reportForm.signaturePlace).toBe('Surabaya')
     expect(store.reportForm.signatures).toHaveLength(1)
     expect(store.reportForm.signatures[0].name).toBe('Rina Wulandari')
+  })
+})
+
+describe('Audit Result Report Store - rootCause and actionPlans', () => {
+  const rootCause = [{ id: 1, method: 'People', w1: 'Kurang pelatihan', w2: '', w3: '' }]
+  const actionPlans = [{ action: 'Perbarui SOP', targetDate: '2026-12-31', pic: 'Kepala Kas', finalApprover: 'Direktur', evidence: 'SOP v2' }]
+
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+    vi.mocked($fetch).mockResolvedValue({ data: { id: 'r-new' } })
+  })
+
+  it('sends id, rootCause and actionPlans and mirrors plan actions into legacy action', async () => {
+    const store = useAuditResultReportStore()
+    store.reportForm.assignmentLetterId = LETTER
+    store.reportForm.findings = [{
+      id: 'f-1', title: 'T', category: 'Significant', action: 'old', source: 'Manual',
+      rootCause: [...rootCause, { id: 2, method: 'Process', w1: '', w2: '', w3: '' }],
+      actionPlans: [...actionPlans, { action: 'Latih staf', targetDate: '', pic: '', finalApprover: '', evidence: '' }, { action: '', targetDate: '', pic: '', finalApprover: '', evidence: '' }]
+    }]
+    await store.saveReport()
+    const f = vi.mocked($fetch).mock.calls.find(c => c[1]?.method === 'POST')[1].body.findings[0]
+    expect(f.id).toBe('f-1')
+    expect(f.rootCause).toEqual(rootCause)
+    expect(f.actionPlans).toHaveLength(2)
+    expect(f.actionPlans[0]).toEqual(actionPlans[0])
+    expect(f.action).toBe('Perbarui SOP\nLatih staf')
+  })
+
+  it('still saves a legacy finding without the new keys in the old shape', async () => {
+    const store = useAuditResultReportStore()
+    store.reportForm.assignmentLetterId = LETTER
+    store.reportForm.findings = [{ title: 'Legacy', category: 'Significant', action: 'Do it', source: 'Manual' }]
+    await store.saveReport()
+    const f = vi.mocked($fetch).mock.calls.find(c => c[1]?.method === 'POST')[1].body.findings[0]
+    expect(f).not.toHaveProperty('rootCause')
+    expect(f).not.toHaveProperty('actionPlans')
+    expect(f).not.toHaveProperty('id')
+    expect(f.action).toBe('Do it')
+  })
+
+  it('copies cause.rootCause into auto-populated findings', async () => {
+    vi.mocked($fetch).mockRejectedValue(new Error('offline'))
+    seedAuditStores()
+    useWorkingPaperStore().dataF04[0].rootCause = rootCause
+    const findings = await useAuditResultReportStore().fetchAutoFindings(LETTER)
+    expect(findings[0].rootCause).toEqual(rootCause)
+    expect(findings[1].rootCause).toBeUndefined()
+  })
+
+  it('keeps user-entered rootCause/actionPlans and id when replacing on auto-detect', async () => {
+    vi.mocked($fetch).mockRejectedValue(new Error('offline'))
+    seedAuditStores()
+    const store = useAuditResultReportStore()
+    store.reportForm.assignmentLetterId = LETTER
+    store.reportForm.findings = [{
+      id: 'f-9', title: 'Rekonsiliasi kas harian terlambat', category: 'Significant', action: 'Perbarui SOP', source: 'Manual', rootCause, actionPlans
+    }]
+    await store.runAutoDetectFindings('replace')
+    const f = store.reportForm.findings.find(x => x.title === 'Rekonsiliasi kas harian terlambat')
+    expect(f.id).toBe('f-9')
+    expect(f.actionPlans).toEqual(actionPlans)
+    expect(f.rootCause).toEqual(rootCause)
+    expect(f.action).toBe('Perbarui SOP')
+  })
+
+  it('editReport round-trips rootCause and actionPlans', () => {
+    const store = useAuditResultReportStore()
+    store.editReport({ id: 'r1', reportNumber: 'LHA-001/SKAI/2026', assignmentLetterId: LETTER, reportTitle: 'x', executiveSummary: '', reportDate: '2026-01-01', status: 'Draft', findingsCount: 1, findings: [{ id: 'f', title: 'T', category: 'Significant', rootCause, actionPlans }] })
+    expect(store.reportForm.findings[0].rootCause).toEqual(rootCause)
+    expect(store.reportForm.findings[0].actionPlans).toEqual(actionPlans)
   })
 })

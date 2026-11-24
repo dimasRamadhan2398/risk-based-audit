@@ -331,6 +331,38 @@ services:
 
 
   # ==========================================================
+  # TENANT PROVISIONING (Site Generator)
+  #
+  # auth-service checks the JWT + platform-admin role and proxies to the
+  # host-side provisioner (docs/provisioning-job-contract.md). Its own service
+  # so the long read timeout applies here only: GET /jobs/{id}/events is an
+  # SSE stream that stays open for the whole job (a build alone can take
+  # minutes). Buffering is off for the route, on top of the global
+  # KONG_NGINX_PROXY_PROXY_BUFFERING=off. Control plane only: the tenant
+  # template has no such route.
+  # ==========================================================
+
+  - name: auth-service-provisioning
+    host: auth-service-upstream
+    protocol: http
+    port: 8001
+    connect_timeout: 10000
+    read_timeout: 3600000
+    write_timeout: 3600000
+
+    routes:
+
+      - name: provisioning-routes-v1
+
+        paths:
+          - /api/v1/provisioning
+
+        strip_path: false
+        response_buffering: false
+        request_buffering: true
+
+
+  # ==========================================================
   # LEGACY MFA
   # ==========================================================
 
@@ -595,6 +627,8 @@ services:
     host: analytics-service-upstream
     protocol: http
     port: 8084
+    read_timeout: 180000
+    write_timeout: 180000
 
     routes:
 
@@ -644,19 +678,36 @@ services:
               response_headers:
                 X-Cache-Status: true
 
+      - name: analytics-routes-retrain-status
+
+        paths:
+          - /api/analytics/retrain/status
+
+        strip_path: false
+
+        # Retrain status polling: no caching, generous rate limit for live UI polling
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 120
+              hour: 3600
+              policy: local
+              limit_by: ip
+
       - name: analytics-routes-retrain
 
         paths:
           - /api/analytics/retrain/auto
+          - /api/analytics/retrain/model
 
         strip_path: false
 
-        # Retrain endpoint: no caching (POST, state-changing)
+        # Retrain trigger endpoints: no caching (POST, state-changing)
         plugins:
           - name: rate-limiting
             config:
-              minute: 10
-              hour: 100
+              minute: 30
+              hour: 300
               policy: local
               limit_by: ip
 

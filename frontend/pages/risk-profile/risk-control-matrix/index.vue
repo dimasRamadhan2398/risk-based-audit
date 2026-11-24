@@ -1820,25 +1820,8 @@ const openAddModal = () => {
   selectedRiskId.value = ''
   selectedMitigationId.value = ''
 
-  const defaultRisks = riskOptionsForModal.value
-  const defaultRiskItem = defaultRisks.length > 0 && defaultRisks[0] ? riskProfileStore.getRiskById(defaultRisks[0].value) : (riskProfileStore.risks && riskProfileStore.risks.length > 0 ? riskProfileStore.risks[0] : undefined)
-  const defaultCode = defaultRiskItem ? riskProfileStore.getFormattedId(defaultRiskItem) : ''
-  const defaultEvent = defaultRiskItem ? defaultRiskItem.name : ''
-  const defaultDept = defaultRiskItem ? (defaultRiskItem.branch || defaultRiskItem.category || 'Head Office') : 'Head Office'
-
   // Dimension scores always start empty (null) for a new item; the user must pick all five.
-  formData.value = createEmptyRcmForm(rcmStore.selectedYear, {
-    risk_id: defaultRiskItem ? String(defaultRiskItem.id) : '',
-    risk_code: defaultCode,
-    risk_event: defaultEvent,
-    control_code: defaultCode ? 'CTL-' + defaultCode : '',
-    department: defaultDept
-  })
-
-  if (defaultRiskItem) {
-    selectedRiskId.value = String(defaultRiskItem.id)
-    onRiskSelected(String(defaultRiskItem.id))
-  }
+  formData.value = createEmptyRcmForm(rcmStore.selectedYear)
 
   isModalOpen.value = true
 }
@@ -1851,6 +1834,7 @@ const openEditModal = (item: RCMItem) => {
   rcmStore.fieldErrors = {}
   formData.value = rcmFormFromItem(item)
   selectedRiskId.value = item.risk_id || ''
+  selectedMitigationId.value = ''
   isModalOpen.value = true
 }
 

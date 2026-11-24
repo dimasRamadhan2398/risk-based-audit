@@ -2,6 +2,8 @@ package seeders
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	"auth-service/models"
 
@@ -219,11 +221,55 @@ func (s *Seeder) SeedRoles() error {
 	return nil
 }
 
+// Defaults for the initial admin account when the env vars are absent.
+const (
+	DefaultAdminName     = "System Administrator"
+	DefaultAdminEmail    = "admin@company.com"
+	DefaultAdminPassword = "password123"
+)
+
+// AdminSeed is the initial admin account (username "admin").
+type AdminSeed struct {
+	Name, Email, Password string
+	// PasswordFromEnv is true when ADMIN_PASSWORD supplied the password.
+	PasswordFromEnv bool
+}
+
+// AdminSeedFromEnv reads ADMIN_NAME, ADMIN_EMAIL and ADMIN_PASSWORD (set by
+// the tenant provisioning pipeline), each falling back to the old default
+// when absent or blank. The seeder only creates the account when it does not
+// exist yet, so changing these later does not touch an existing admin.
+func AdminSeedFromEnv() AdminSeed {
+	get := func(k, def string) (string, bool) {
+		if v := strings.TrimSpace(os.Getenv(k)); v != "" {
+			return v, true
+		}
+		return def, false
+	}
+	a := AdminSeed{}
+	a.Name, _ = get("ADMIN_NAME", DefaultAdminName)
+	a.Email, _ = get("ADMIN_EMAIL", DefaultAdminEmail)
+	// The password is not trimmed: surrounding spaces may be intended.
+	if v := os.Getenv("ADMIN_PASSWORD"); v != "" {
+		a.Password, a.PasswordFromEnv = v, true
+	} else {
+		a.Password = DefaultAdminPassword
+	}
+	return a
+}
+
 // SeedUsers seeds user data
 func (s *Seeder) SeedUsers() error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("password123"), bcrypt.DefaultCost)
 	if err != nil {
 		return fmt.Errorf("failed to hash password: %w", err)
+	}
+	admin := AdminSeedFromEnv()
+	adminHash := hashedPassword
+	if admin.Password != DefaultAdminPassword {
+		if adminHash, err = bcrypt.GenerateFromPassword([]byte(admin.Password), bcrypt.DefaultCost); err != nil {
+			return fmt.Errorf("failed to hash admin password: %w", err)
+		}
 	}
 
 	emp001 := "EMP-0013"
@@ -237,9 +283,9 @@ func (s *Seeder) SeedUsers() error {
 		{
 			EmployeeID:   &emp001,
 			Username:     "admin",
-			Email:        "admin@company.com",
-			PasswordHash: string(hashedPassword),
-			FullName:     "System Administrator",
+			Email:        admin.Email,
+			PasswordHash: string(adminHash),
+			FullName:     admin.Name,
 			Phone:        "+6281234567890",
 			Department:   "IT",
 			IsActive:     true,
@@ -296,6 +342,20 @@ func (s *Seeder) SeedUsers() error {
 		},
 	}
 
+	// The sample accounts share password123, so they are only created for
+	// demo stacks (SeedDemoUsers). The admin is always created.
+	if !SeedDemoUsers() {
+		users = users[:1]
+	}
+	roleOf := map[string]string{
+		"admin":         "ADMIN",
+		"auditor":       "AUDITOR",
+		"dept_head":     "DEPARTMENT_HEAD",
+		"new_dept_head": "DEPARTMENT_HEAD",
+		"auditee":       "AUDITEE",
+		"viewer":        "VIEWER",
+	}
+
 	// Create users if they don't exist
 	for i := range users {
 		var existing models.User
@@ -307,76 +367,38 @@ func (s *Seeder) SeedUsers() error {
 		}
 	}
 
-	// Fetch all roles
-	var (
-		adminRole     models.Role
-		auditorRole   models.Role
-		deptHeadRole  models.Role
-		auditeeRole   models.Role
-		viewerRole    models.Role
-		executiveRole models.Role
-	)
-
-	roles := map[string]*models.Role{
-		"ADMIN":           &adminRole,
-		"AUDITOR":         &auditorRole,
-		"DEPARTMENT_HEAD": &deptHeadRole,
-		"AUDITEE":         &auditeeRole,
-		"VIEWER":          &viewerRole,
-		"EXECUTIVE":       &executiveRole,
-	}
-
-	for name, role := range roles {
-		if err := s.DB.Where("name = ?", name).First(role).Error; err != nil {
-			return fmt.Errorf("failed to find role %s: %w", name, err)
+	// Assign roles to the seeded users (Append is a no-op for an existing link)
+	for _, u := range users {
+		var role models.Role
+		if err := s.DB.Where("name = ?", roleOf[u.Username]).First(&role).Error; err != nil {
+			return fmt.Errorf("failed to find role %s: %w", roleOf[u.Username], err)
 		}
-	}
-
-	// Fetch all users
-	var (
-		adminUser       models.User
-		auditorUser     models.User
-		deptHeadUser    models.User
-		newDeptHeadUser models.User
-		auditeeUser     models.User
-		viewerUser      models.User
-	)
-
-	userRoleMap := map[string]*models.User{
-		"admin":         &adminUser,
-		"auditor":       &auditorUser,
-		"dept_head":     &deptHeadUser,
-		"new_dept_head": &newDeptHeadUser,
-		"auditee":       &auditeeUser,
-		"viewer":        &viewerUser,
-	}
-
-	for username, user := range userRoleMap {
-		if err := s.DB.Where("username = ?", username).First(user).Error; err != nil {
-			return fmt.Errorf("failed to find user %s: %w", username, err)
+		var user models.User
+		if err := s.DB.Where("username = ?", u.Username).First(&user).Error; err != nil {
+			return fmt.Errorf("failed to find user %s: %w", u.Username, err)
 		}
-	}
-
-	// Assign roles to users
-	assignments := []struct {
-		user *models.User
-		role *models.Role
-	}{
-		{&adminUser, &adminRole},
-		{&auditorUser, &auditorRole},
-		{&deptHeadUser, &deptHeadRole},
-		{&newDeptHeadUser, &deptHeadRole},
-		{&auditeeUser, &auditeeRole},
-		{&viewerUser, &viewerRole},
-	}
-
-	for _, a := range assignments {
-		if err := s.DB.Model(a.user).Association("Roles").Append(a.role); err != nil {
-			return fmt.Errorf("failed to assign role to user %s: %w", a.user.Username, err)
+		if err := s.DB.Model(&user).Association("Roles").Append(&role); err != nil {
+			return fmt.Errorf("failed to assign role to user %s: %w", user.Username, err)
 		}
 	}
 
 	return nil
+}
+
+// SeedDemoUsers reports whether the sample accounts (auditor, dept_head,
+// new_dept_head, auditee, viewer; all password123) are seeded.
+// SEED_DEMO_USERS=true/false decides explicitly. When it is unset they are
+// seeded only when ADMIN_PASSWORD is unset too: the dev/demo compose stacks
+// keep their sample users, while a provisioned tenant (which always sets
+// ADMIN_PASSWORD) gets none unless onboard-tenant.sh asks for demo data.
+func SeedDemoUsers() bool {
+	switch strings.ToLower(strings.TrimSpace(os.Getenv("SEED_DEMO_USERS"))) {
+	case "true", "1", "yes":
+		return true
+	case "false", "0", "no":
+		return false
+	}
+	return os.Getenv("ADMIN_PASSWORD") == ""
 }
 
 // SeedRbacMatrix seeds the AuditSphere RBAC matrix permissions feature set

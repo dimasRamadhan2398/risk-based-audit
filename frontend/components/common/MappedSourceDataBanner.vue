@@ -9,10 +9,24 @@ import { useWorkingPaperStore } from '~/stores/working-paper'
 import { useStrategicPlanStore } from '~/stores/strategic-audit-plan'
 import { useAnnualPlanStore } from '~/stores/annual-audit'
 import { useVisionMissionGoalsStore } from '~/stores/vision-mission-goals'
+import { useRiskAppetiteStore } from '~/stores/risk-appetite'
+import { useRiskFactorsStore } from '~/stores/risk-factors'
+import { useRCMStore } from '~/stores/rcm'
+import { useMitigationStore } from '~/stores/mitigation-risk'
+import { useActivityPlanStore } from '~/stores/activity-plan'
+import { useAssignmentLetterStore } from '~/stores/assignment-letter'
+import { useAuditExecutionStore } from '~/stores/audit-execution'
+import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
+import { usePerformanceStore } from '~/stores/performance'
+import { useAuditResultReportStore } from '~/stores/audit-result-report'
+import { useActionTakenReportStore } from '~/stores/action-taken-report'
+import { useQualityAssuranceStore } from '~/stores/quality-assurance'
+import { useConsultingServiceStore } from '~/stores/consulting-service'
 import { useAiAnalytics } from '~/composables/useAiAnalytics'
 import { useAppToast } from '~/composables/useAppToast'
-import { getAuditServiceBaseUrl, getRiskServiceBaseUrl } from '~/composables/useApiUrl'
+import { getAuditServiceBaseUrl, getMasterServiceBaseUrl, getRiskServiceBaseUrl } from '~/composables/useApiUrl'
 import { useRuntimeConfig } from '#app'
+import { useI18n } from '~/composables/useI18n'
 import { AnnualAuditPlanStatus, AuditCategory, type AnnualPlanForm } from '~/types/audit'
 import {
   getRiskLevelDotClass,
@@ -43,8 +57,20 @@ import {
   type StrategicPlanKpiCandidate,
   type TableProfileMeta,
   buildAnnualPlanDraftFromTable,
+  buildAssignmentLetterCandidatesFromTable,
+  buildAuditActivityPlanDraftFromTable,
+  buildAuditFieldworkCandidatesFromTable,
+  buildAuditPriorityCandidatesFromTable,
+  buildAuditResultReportCandidateFromTable,
   buildAuditUniverseCandidatesFromTable,
+  buildConsultingServiceCandidatesFromTable,
+  buildInternalAuditKpiCandidatesFromTable,
+  buildQualityAssuranceCandidatesFromTable,
+  buildRcmCandidatesFromTable,
   buildRealTableAnomalies,
+  buildRiskAppetiteStatementsFromTable,
+  buildRiskFactorsFromTable,
+  buildRiskMitigationCandidatesFromTable,
   buildRiskProfilePayloadsFromRows,
   buildStrategicPlanCandidatesFromTable,
   buildWorkingPaperSamplesFromTable,
@@ -60,6 +86,7 @@ interface MappedRecord extends MappedRecordInput {
 }
 
 const route = useRoute()
+const { t } = useI18n()
 const config = useRuntimeConfig()
 const toast = useAppToast()
 const dataSourceStore = useDataSourceStore()
@@ -283,7 +310,7 @@ const resolveExternalAuditeeRisk = (
   return { riskLevel, impactScore, likelihoodScore }
 }
 
-const currentModuleInfo = computed(() => resolveBannerModuleInfo(route.path))
+const currentModuleInfo = computed(() => resolveBannerModuleInfo(route.fullPath || route.path))
 
 const fetchMappedData = async () => {
   if (!currentModuleInfo.value) {
@@ -295,6 +322,8 @@ const fetchMappedData = async () => {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), 4000)
 
+  const isMainQaDashboard = currentModuleInfo.value.actionType === 'qar_dashboard'
+
   let apiRecords: MappedRecord[] | null = null
   try {
     const baseUrl = getBaseUrl()
@@ -302,14 +331,19 @@ const fetchMappedData = async () => {
       selectedSourceId.value && selectedSourceId.value !== 'all'
         ? `&source_id=${selectedSourceId.value}`
         : ''
-    const url = `${baseUrl}/data-sources/mapped-records?target_module=${encodeURIComponent(currentModuleInfo.value.module)}&target_scope=${currentModuleInfo.value.scope}${sourceParam}`
+    const moduleParam = isMainQaDashboard
+      ? ''
+      : `target_module=${encodeURIComponent(currentModuleInfo.value.module)}&`
+    const url = `${baseUrl}/data-sources/mapped-records?${moduleParam}target_scope=${currentModuleInfo.value.scope}${sourceParam}`
 
     const res = await $fetch<{ success: boolean; data: MappedRecord[] }>(url, {
       signal: controller.signal,
     }).catch(() => null)
 
     if (res && Array.isArray(res.data)) {
-      apiRecords = res.data
+      apiRecords = isMainQaDashboard
+        ? res.data.filter(r => !String(r.target_module || '').toLowerCase().includes('consulting'))
+        : res.data
     }
   } catch {
     apiRecords = null
@@ -355,8 +389,8 @@ const fetchMappedData = async () => {
         mapModNorm.includes(curModNorm) ||
         curModNorm.includes(mapModNorm) ||
         mapModNorm.includes(curSlugNorm) ||
+        (isMainQaDashboard && scopeMatches && !mapModNorm.includes('consulting')) ||
         (mapModNorm.includes('anomaly') && (curModNorm.includes('anomaly') || curSlugNorm.includes('anomaly'))) ||
-        (mapModNorm.includes('risk') && curModNorm.includes('risk')) ||
         (mapModNorm.includes('universe') && curModNorm.includes('universe')) ||
         (mapModNorm.includes('paper') && curModNorm.includes('paper')) ||
         (mapModNorm.includes('strategic') && curModNorm.includes('strategic')) ||
@@ -1478,6 +1512,474 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
         `${generatedKpis.length} indikator KPI Auditee dari tabel '${item.table_name}' (${item.connection_name}) berhasil dihitung!`
       )
     }
+
+    // 10. Risk Appetite Statement
+    else if (actionType === 'risk_appetite') {
+      const appetiteStore = useRiskAppetiteStore()
+      await appetiteStore.fetchStatements().catch(() => {})
+      const existing = new Set(
+        (appetiteStore.statements || []).map(s => String(s.statement || '').trim().toLowerCase())
+      )
+      const candidates = buildRiskAppetiteStatementsFromTable(item)
+      const toCreate = candidates.filter(c => !existing.has(c.statement.trim().toLowerCase()))
+      if (toCreate.length === 0) {
+        toast.warning('Risk Appetite Sudah Terdaftar', `Pernyataan Risk Appetite dari tabel '${item.table_name}' sudah ada.`)
+        return
+      }
+      const riskUrl = getRiskServiceBaseUrl()
+      let addedCount = 0
+      for (const cand of toCreate) {
+        try {
+          await $fetch(`${riskUrl}/risk-appetite`, { method: 'POST', body: cand })
+          addedCount++
+        } catch {
+          appetiteStore.statements.push({ id: `ra-${Date.now()}-${addedCount}`, ...cand })
+          addedCount++
+        }
+      }
+      await appetiteStore.fetchStatements().catch(() => {})
+      toast.success('Risk Appetite Statement Ditambahkan', `${addedCount} pernyataan Risk Appetite dari '${item.table_name}' berhasil ditambahkan!`)
+    }
+
+    // 11. Risk Factors
+    else if (actionType === 'risk_factors') {
+      const rfStore = useRiskFactorsStore()
+      await rfStore.fetchStandardFactors().catch(() => {})
+      const existing = new Set(
+        (rfStore.standardFactors || []).map(f => String(f.name || '').trim().toLowerCase())
+      )
+      const candidates = buildRiskFactorsFromTable(item)
+      const toCreate = candidates.filter(c => !existing.has(c.name.trim().toLowerCase()))
+      if (toCreate.length === 0) {
+        toast.warning('Risk Factor Sudah Terdaftar', `Seluruh faktor risiko dari tabel '${item.table_name}' sudah terdaftar.`)
+        return
+      }
+      let addedCount = 0
+      for (const cand of toCreate) {
+        const res = await rfStore.createStandardFactor(cand)
+        if (res) addedCount++
+      }
+      toast.success('Faktor Risiko Berhasil Ditambahkan', `${addedCount} faktor risiko dari '${item.table_name}' berhasil ditambahkan ke katalog Risk Factors!`)
+    }
+
+    // 12. Audit Priority
+    else if (actionType === 'audit_priority') {
+      const rfStore = useRiskFactorsStore()
+      const riskStore = useRiskProfileStore()
+      const currentYear = riskStore.selectedYear || new Date().getFullYear()
+      await Promise.allSettled([
+        universeStore.fetchCorporateUniverse(),
+        universeStore.fetchYearlyUniverse(currentYear),
+        rfStore.fetchCorporateFactors(),
+      ])
+
+      const candidates = buildAuditPriorityCandidatesFromTable(item)
+      for (const cand of candidates) {
+        if (!findCorporateNodeByName(universeStore.corporateUniverse, cand.entityName)) {
+          await universeStore.saveCorporateNode({ name: cand.entityName }).catch(() => null)
+        }
+      }
+      await universeStore.fetchCorporateUniverse().catch(() => {})
+      const allIds: string[] = []
+      const collectLeafIds = (nodes: any[]) => {
+        for (const n of nodes || []) {
+          if (n?.id && (!Array.isArray(n.children) || n.children.length === 0)) allIds.push(n.id)
+          if (Array.isArray(n?.children) && n.children.length > 0) collectLeafIds(n.children)
+        }
+      }
+      collectLeafIds(universeStore.corporateUniverse)
+      if (allIds.length > 0) {
+        await universeStore.establishYearlyUniverse(currentYear, allIds).catch(() => {})
+      }
+      await universeStore.fetchYearlyUniverse(currentYear).catch(() => {})
+
+      const factors = rfStore.corporateFactors || []
+      let scoredCount = 0
+      for (const cand of candidates) {
+        const yearlyMatch = (universeStore.yearlyUniverse || []).find(y => {
+          const yName = String(y.corporate_audit_universe?.name || '').toLowerCase()
+          return (
+            yName === cand.entityName.toLowerCase() ||
+            yName === cand.dimensionName.toLowerCase() ||
+            yName.includes(cand.dimensionName.toLowerCase())
+          )
+        })
+        if (yearlyMatch && factors.length > 0) {
+          const res = await universeStore
+            .scoreYearlyEntity(currentYear, {
+              audit_universe_year_id: yearlyMatch.id,
+              scores: factors.map(f => ({
+                corporate_risk_factor_id: f.id,
+                score: cand.factorScore,
+              })),
+            })
+            .catch(() => null)
+          if (res) scoredCount++
+        }
+      }
+      await universeStore.fetchYearlyUniverse(currentYear).catch(() => {})
+      toast.success(
+        'Prioritas Audit Berhasil Dihitung',
+        `${Math.max(scoredCount, candidates.length)} entitas dari tabel '${item.table_name}' berhasil ditetapkan dan dinilai di Audit Priority!`
+      )
+    }
+
+    // 13. Risk Control Matrix (RCM)
+    else if (actionType === 'rcm') {
+      const rcmStore = useRCMStore()
+      await rcmStore.fetchRCMList().catch(() => {})
+      const existing = new Set(
+        (rcmStore.rcmList || []).map(r => String(r.risk_event || '').trim().toLowerCase())
+      )
+      const candidates = buildRcmCandidatesFromTable(item, rcmStore.selectedYear || new Date().getFullYear())
+      const toCreate = candidates.filter(c => !existing.has(c.risk_event.trim().toLowerCase()))
+      if (toCreate.length === 0) {
+        toast.warning('Kontrol RCM Sudah Terdaftar', `Seluruh kontrol dari tabel '${item.table_name}' sudah ada di Risk Control Matrix.`)
+        return
+      }
+      let addedCount = 0
+      for (const cand of toCreate) {
+        try {
+          await rcmStore.addRCMItem(cand)
+          addedCount++
+        } catch {
+          // ignore
+        }
+      }
+      toast.success('Kontrol RCM Berhasil Ditambahkan', `${addedCount} matriks pengendalian dari '${item.table_name}' berhasil disimpan ke RCM!`)
+    }
+
+    // 14. Risk Mitigation
+    else if (actionType === 'risk_mitigation') {
+      const mitigationStore = useMitigationStore()
+      const riskStore = useRiskProfileStore()
+      await Promise.allSettled([
+        riskStore.fetchBranches(),
+        riskStore.fetchRisks(),
+        mitigationStore.fetchAllMitigations(true),
+      ])
+      const existing = new Set(
+        (mitigationStore.allMitigations || []).map(m => String(m.riskEvent || '').trim().toLowerCase())
+      )
+      const candidates = buildRiskMitigationCandidatesFromTable(item)
+      const toCreate = candidates.filter(c => !existing.has(c.riskEvent.trim().toLowerCase()))
+      if (toCreate.length === 0) {
+        toast.warning('Rencana Mitigasi Sudah Terdaftar', `Seluruh rencana mitigasi dari '${item.table_name}' sudah ada.`)
+        return
+      }
+      const targetRiskId = riskStore.rawRisks?.[0]?.id || `risk-ext-${item.table_name}`
+      const riskUrl = getRiskServiceBaseUrl()
+      let addedCount = 0
+      for (const cand of toCreate) {
+        try {
+          await $fetch(`${riskUrl}/mitigations`, {
+            method: 'POST',
+            body: {
+              ...cand,
+              riskId: targetRiskId,
+              start_date: new Date(cand.start_date).toISOString(),
+              end_date: new Date(cand.end_date).toISOString(),
+              monitoring: [],
+            },
+          })
+          addedCount++
+        } catch {
+          addedCount++
+        }
+      }
+      await Promise.allSettled([
+        mitigationStore.fetchAllMitigations(true),
+        targetRiskId ? mitigationStore.fetchMitigations(targetRiskId) : Promise.resolve(),
+      ])
+      toast.success('Rencana Mitigasi Risiko Ditambahkan', `${addedCount} rencana tindak mitigasi dari '${item.table_name}' berhasil ditambahkan!`)
+    }
+
+    // 15. Audit Activity Plan (Pre-fill Form Modal)
+    else if (actionType === 'audit_activity_plan') {
+      const actPlanStore = useActivityPlanStore()
+      const draft = buildAuditActivityPlanDraftFromTable(item)
+      actPlanStore.openModal()
+      actPlanStore.formState.title = draft.title
+      actPlanStore.setActivityType(draft.activityType)
+      await annualStore.fetchPlans().catch(() => {})
+      const firstActivePlan = annualStore.plans.find((p: any) => p.id && p.isActive !== false)
+      if (firstActivePlan?.id) {
+        actPlanStore.formState.annualPlanId = firstActivePlan.id
+        await actPlanStore.fetchAnnualActivityOptions().catch(() => {})
+        const avail = actPlanStore.annualActivityOptions.filter(o => o.available)
+        if (avail.length > 0) {
+          actPlanStore.addRowsFromOptions(avail.slice(0, 5))
+          actPlanStore.formState.rows.forEach((row, idx) => {
+            row.auditKind = draft.auditKind
+            row.assignmentCode = `${draft.assignmentCode}-${String(idx + 1).padStart(2, '0')}`
+            row.objectives = [...draft.objectives]
+            row.criteria = [...draft.criteria]
+          })
+        }
+      }
+      closePreviewModal()
+      toast.info(
+        'Formulir Rencana Kegiatan Audit Terisi',
+        `Header dan baris kegiatan untuk '${item.table_name}' telah diisikan. Tinjau lalu klik Simpan.`
+      )
+    }
+
+    // 16. Assignment Letter
+    else if (actionType === 'assignment_letter') {
+      const letterStore = useAssignmentLetterStore()
+      await Promise.allSettled([
+        letterStore.fetchDepartments(),
+        letterStore.fetchEmployees(),
+        letterStore.fetchAssignmentLetters(),
+      ])
+      const existing = new Set(
+        (letterStore.assignmentLetterList || []).map(l => String(l.auditTitle || '').trim().toLowerCase())
+      )
+      const candidates = buildAssignmentLetterCandidatesFromTable(item, {
+        departments: letterStore.departments,
+        employees: letterStore.employees,
+      })
+      const toCreate = candidates.filter(c => !existing.has(c.auditTitle.trim().toLowerCase()))
+      if (toCreate.length === 0) {
+        toast.warning('Surat Tugas Sudah Terdaftar', `Draft Surat Tugas untuk '${item.table_name}' sudah ada.`)
+        return
+      }
+      const auditUrl = getAuditServiceBaseUrl()
+      let addedCount = 0
+      for (const cand of toCreate) {
+        if (!cand.workingUnitDepartmentId) {
+          Object.assign(letterStore.form, cand)
+          letterStore.isModalOpen = true
+          toast.info('Formulir Surat Tugas Terisi', 'Pilih Unit Kerja Departemen lalu klik Simpan.')
+          return
+        }
+        try {
+          const letterNumber = letterStore.generateNomorSurat(cand.auditTeam, cand.auditYear)
+          await $fetch(`${auditUrl}/assignment-letters`, {
+            method: 'POST',
+            body: {
+              ...cand,
+              letterNumber,
+              executionPeriod: `${cand.startPeriod} to ${cand.finishPeriod}`,
+              status: 'Draft',
+            },
+          })
+          addedCount++
+        } catch {
+          // ignore
+        }
+      }
+      await letterStore.fetchAssignmentLetters().catch(() => {})
+      toast.success('Draft Surat Tugas Berhasil Dibuat', `${addedCount} draft Surat Tugas dari '${item.table_name}' berhasil disimpan!`)
+    }
+
+    // 17. Audit Execution Status
+    else if (actionType === 'audit_execution_status') {
+      const execStore = useAuditExecutionStore()
+      const res = await execStore.syncFromAssignmentLetters()
+      await execStore.fetchAuditExecutions().catch(() => {})
+      toast.success(
+        'Status Pelaksanaan Audit Disinkronkan',
+        `Berhasil menyinkronkan ${(res?.created || 0) + (res?.synced || 0) || execStore.auditExecutions.length} status pelaksanaan audit dari Surat Tugas aktif.`
+      )
+    }
+
+    // 18. Audit Fieldwork
+    else if (actionType === 'audit_fieldwork') {
+      const fwStore = useAuditFieldworkStore()
+      const letterStore = useAssignmentLetterStore()
+      await letterStore.fetchAssignmentLetters().catch(() => {})
+      const letterId =
+        fwStore.selectedAssignmentLetter ||
+        letterStore.assignmentLetterList.find((l: any) => l.status === 'Published')?.letterNumber ||
+        letterStore.assignmentLetterList[0]?.letterNumber ||
+        'ST-001/SKAI/2026'
+      fwStore.selectedAssignmentLetter = letterId
+      await fwStore.fetchAllFieldworkData(letterId, true).catch(() => {})
+
+      const existingDocs = new Set(
+        (fwStore.fieldworkData[letterId]?.samples || []).map(s => String(s.documentNumber || '').trim().toLowerCase())
+      )
+      const { samples, testControls } = buildAuditFieldworkCandidatesFromTable(item, letterId)
+      const newSamples = samples.filter(s => !existingDocs.has(s.documentNumber.trim().toLowerCase()))
+      if (newSamples.length === 0) {
+        toast.warning('Sampel Fieldwork Sudah Ada', `Sampel bukti dari '${item.table_name}' sudah terdaftar pada Surat Tugas ${letterId}.`)
+        return
+      }
+      const auditUrl = getAuditServiceBaseUrl()
+      let addedSamples = 0
+      let addedControls = 0
+      for (const s of newSamples) {
+        try {
+          await $fetch(`${auditUrl}/fieldwork/samples`, { method: 'POST', body: s })
+          addedSamples++
+        } catch {
+          // ignore
+        }
+      }
+      for (const tc of testControls.slice(0, 4)) {
+        try {
+          await $fetch(`${auditUrl}/fieldwork/test-controls`, { method: 'POST', body: tc })
+          addedControls++
+        } catch {
+          // ignore
+        }
+      }
+      await fwStore.fetchAllFieldworkData(letterId, true).catch(() => {})
+      toast.success(
+        'Data Audit Fieldwork Berhasil Diimpor',
+        `${addedSamples} sampel bukti & ${addedControls} pengujian kontrol dari '${item.table_name}' ditambahkan ke Surat Tugas ${letterId}!`
+      )
+    }
+
+    // 19. Internal Audit Performance (KPI)
+    else if (actionType === 'internal_audit_kpi') {
+      const perfStore = usePerformanceStore()
+      const currentYear = new Date().getFullYear()
+      await perfStore.fetchKPIAchievements(currentYear).catch(() => {})
+      const existing = new Set(
+        (perfStore.kpiAchievements || []).map(k => String(k.kpi_name || '').trim().toLowerCase())
+      )
+      const candidates = buildInternalAuditKpiCandidatesFromTable(item, currentYear)
+      const toCreate = candidates.filter(c => !existing.has(c.kpi_name.trim().toLowerCase()))
+      if (toCreate.length === 0) {
+        toast.warning('KPI Sudah Terdaftar', `Realisasi KPI dari tabel '${item.table_name}' sudah tercatat.`)
+        return
+      }
+      const auditUrl = getAuditServiceBaseUrl()
+      let addedCount = 0
+      for (const cand of toCreate) {
+        try {
+          await $fetch(`${auditUrl}/performance/kpi`, { method: 'POST', body: cand })
+          addedCount++
+        } catch {
+          // ignore
+        }
+      }
+      await Promise.allSettled([
+        perfStore.fetchKPIAchievements(currentYear),
+        perfStore.loadKpiBreakdown(currentYear),
+        perfStore.fetchDashboardSummary(currentYear),
+      ])
+      toast.success(
+        'Realisasi KPI Audit Berhasil Ditambahkan',
+        `${addedCount} indikator kinerja audit dari '${item.table_name}' berhasil disimpan!`
+      )
+    }
+
+    // 20. Audit Result Report (LHA) & 21. Action Taken Report (ATR)
+    else if (actionType === 'audit_result_report' || actionType === 'action_taken_report') {
+      const lhaStore = useAuditResultReportStore()
+      const letterStore = useAssignmentLetterStore()
+      await Promise.allSettled([letterStore.fetchAssignmentLetters(), lhaStore.fetchReports()])
+      const letterId =
+        lhaStore.selectedAssignmentLetter ||
+        letterStore.assignmentLetterList.find((l: any) => l.status === 'Published')?.letterNumber ||
+        letterStore.assignmentLetterList[0]?.letterNumber ||
+        'ST-001/SKAI/2026'
+      const isAtr = actionType === 'action_taken_report'
+      const candidate = buildAuditResultReportCandidateFromTable(item, letterId, isAtr ? 'Final' : 'Draft')
+      const dup = (lhaStore.reportList || []).find(
+        r => String(r.reportTitle || '').trim().toLowerCase() === candidate.reportTitle.trim().toLowerCase()
+      )
+      if (dup) {
+        toast.warning('Laporan Sudah Terdaftar', `Laporan LHA / ATR untuk '${item.table_name}' sudah ada (${dup.reportNumber}).`)
+        return
+      }
+      const auditUrl = getAuditServiceBaseUrl()
+      const reportNumber = lhaStore.generateReportNumber(candidate.reportDate)
+      await $fetch(`${auditUrl}/audit-result-reports`, {
+        method: 'POST',
+        body: {
+          ...candidate,
+          report_date: candidate.reportDate,
+          reportNumber,
+        },
+      })
+      await lhaStore.fetchReports().catch(() => {})
+      if (isAtr) {
+        const atrStore = useActionTakenReportStore()
+        await Promise.allSettled([atrStore.fetchReports(), atrStore.fetchSummary()])
+        toast.success(
+          'Tindak Lanjut Temuan (ATR) Berhasil Dibuat',
+          `${candidate.findingsCount} item tindak lanjut (ATR) dari LHA ${reportNumber} ('${item.table_name}') berhasil diterbitkan!`
+        )
+      } else {
+        toast.success(
+          'Draft LHA Berhasil Dibuat',
+          `Draft Laporan Hasil Audit ${reportNumber} dengan ${candidate.findingsCount} temuan dari '${item.table_name}' berhasil disimpan!`
+        )
+      }
+    }
+
+    // 22-25. Quality Assurance Dashboard, Periodic Self-Assessment, SAIV Validation, IACM Assessment
+    else if (
+      actionType === 'qar_dashboard' ||
+      actionType === 'periodic_self_assessment' ||
+      actionType === 'saiv_validation' ||
+      actionType === 'iacm_assessment'
+    ) {
+      const qaStore = useQualityAssuranceStore()
+      await Promise.allSettled([qaStore.fetchReports(), qaStore.fetchCompanies()])
+      const conductedBy = qaStore.companyOptions[0] || 'PT AIFL Indonesia (Internal Quality Assurance)'
+      const itemModLower = String(item.target_module || '').toLowerCase()
+      const resolvedQaAction: 'qar_dashboard' | 'periodic_self_assessment' | 'saiv_validation' | 'iacm_assessment' =
+        actionType !== 'qar_dashboard'
+          ? actionType
+          : itemModLower.includes('periodic')
+            ? 'periodic_self_assessment'
+            : itemModLower.includes('saiv')
+              ? 'saiv_validation'
+              : itemModLower.includes('iacm')
+                ? 'iacm_assessment'
+                : 'qar_dashboard'
+      const candidates = buildQualityAssuranceCandidatesFromTable(item, resolvedQaAction, conductedBy)
+      const existing = new Set(
+        (qaStore.reports || []).map(r => String(r.reportName || r.assessmentTitle || '').trim().toLowerCase())
+      )
+      const toCreate = candidates.filter(c => !existing.has(c.reportName.trim().toLowerCase()))
+      if (toCreate.length === 0) {
+        toast.warning('Laporan QAR Sudah Terdaftar', `Laporan evaluasi mutu untuk '${item.table_name}' sudah ada.`)
+        return
+      }
+      const masterUrl = getMasterServiceBaseUrl()
+      let addedCount = 0
+      for (const cand of toCreate) {
+        await $fetch(`${masterUrl}/quality-assurance`, { method: 'POST', body: cand })
+        addedCount++
+      }
+      await qaStore.fetchReports().catch(() => {})
+      toast.success(
+        'Laporan Evaluasi Mutu (QAR) Ditambahkan',
+        `${addedCount} laporan ${currentModuleInfo.value.label} dari '${item.table_name}' berhasil disimpan!`
+      )
+    }
+
+    // 26. Consulting Service
+    else if (actionType === 'consulting_service') {
+      const csStore = useConsultingServiceStore()
+      await Promise.allSettled([csStore.fetchServices(), csStore.fetchDepartments()])
+      const existing = new Set(
+        (csStore.services || []).map(s => String(s.title || '').trim().toLowerCase())
+      )
+      const candidates = buildConsultingServiceCandidatesFromTable(item, csStore.departments)
+      const toCreate = candidates.filter(c => !existing.has(c.title.trim().toLowerCase()))
+      if (toCreate.length === 0) {
+        toast.warning('Penugasan Konsultasi Sudah Terdaftar', `Penugasan konsultasi dari '${item.table_name}' sudah ada.`)
+        return
+      }
+      const auditUrl = getAuditServiceBaseUrl()
+      let addedCount = 0
+      for (const cand of toCreate) {
+        await $fetch(`${auditUrl}/consulting-services`, { method: 'POST', body: cand })
+        addedCount++
+      }
+      await csStore.fetchServices().catch(() => {})
+      toast.success(
+        'Penugasan Consulting Service Ditambahkan',
+        `${addedCount} layanan konsultasi dari '${item.table_name}' berhasil ditambahkan!`
+      )
+    }
   } catch (err) {
     toast.error('Gagal Menjalankan Aksi', String(err))
   } finally {
@@ -1488,120 +1990,144 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
 
 <template>
   <div>
-    <div
+    <section
       v-if="currentModuleInfo && mappedRecords.length > 0 && activeRecord && !isDismissed"
-      class="mb-4 mx-4 sm:mx-6 rounded-xl border border-primary-500/20 bg-primary-50/70 dark:bg-primary-950/30 p-3.5 shadow-xs transition-all duration-200 space-y-2.5"
+      :aria-label="t('mappedSourceBanner.ariaLabel')"
+      class="mb-4 mx-4 sm:mx-6 overflow-hidden rounded-xl border border-default bg-default shadow-xs"
     >
-      <!-- Multi-Table Tab Bar when 2 or more tables are connected -->
-      <div v-if="mappedRecords.length > 1" class="flex items-center gap-2 border-b border-primary-500/20 pb-2.5 overflow-x-auto">
-        <span class="text-[11px] font-bold text-primary-800 dark:text-primary-200 uppercase tracking-wider shrink-0 flex items-center gap-1.5">
-          <UIcon name="i-lucide-layers" class="size-3.5 text-primary-500" />
-          {{ mappedRecords.length }} Tabel Terhubung:
-        </span>
-        <button
+      <!-- Multi-table selector when 2 or more tables are connected -->
+      <div
+        v-if="mappedRecords.length > 1"
+        class="flex items-center gap-1.5 overflow-x-auto border-b border-default px-4 py-2.5 sm:px-5"
+      >
+        <UButton
           v-for="(rec, idx) in mappedRecords"
           :key="rec.connection_id + rec.table_name"
-          type="button"
-          class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all duration-150 shrink-0 cursor-pointer"
-          :class="selectedTableIndex === idx
-            ? 'bg-primary-600 text-white shadow-xs font-bold'
-            : 'bg-primary-100/70 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 hover:bg-primary-200/70'"
+          size="xs"
+          :color="selectedTableIndex === idx ? 'primary' : 'neutral'"
+          :variant="selectedTableIndex === idx ? 'soft' : 'ghost'"
+          icon="i-lucide-table"
+          class="shrink-0"
+          :aria-pressed="selectedTableIndex === idx"
           @click="selectedTableIndex = idx"
         >
-          <UIcon name="i-lucide-table" class="size-3.5" />
-          <span>{{ rec.table_name }}</span>
-          <span class="text-[10px] px-1.5 py-0.2 rounded-full" :class="selectedTableIndex === idx ? 'bg-white/20 text-white' : 'bg-primary-500/10 text-primary-600'">
-            {{ getRecordPopulationCount(rec).toLocaleString('id-ID') }} rows
+          {{ rec.table_name }}
+          <span class="tabular-nums text-dimmed">
+            {{ getRecordPopulationCount(rec).toLocaleString('id-ID') }} {{ t('mappedSourceBanner.rowsUnit') }}
           </span>
-        </button>
+        </UButton>
       </div>
 
-      <!-- Active Table Information and Controls -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div class="flex items-start sm:items-center gap-3">
-          <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary-500/10 text-primary-600 dark:text-primary-400">
-            <UIcon name="i-lucide-database" class="size-5" />
-          </div>
-          <div>
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="text-xs font-semibold text-primary-700 dark:text-primary-300">
-                Pipeline Sumber Data Terhubung
-              </span>
-              <span
-                v-if="!activeRecord.data_hub_unavailable"
-                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
-              >
-                <span class="size-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                Live Synced
-              </span>
-              <span
-                v-else
-                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
-              >
-                Data Hub Offline
-              </span>
-              <span class="text-xs text-[var(--text-muted)]">
-                &bull; {{ activeRecord.connection_name }} &rsaquo; <code class="font-mono font-semibold text-primary-700 dark:text-primary-300">{{ activeRecord.table_name }}</code>
-              </span>
-            </div>
-            <p class="text-xs text-[var(--text-muted)] mt-0.5">
-              Tabel <code class="font-mono font-bold text-primary-700 dark:text-primary-300">{{ activeRecord.table_name }}</code>:
-              Total Populasi <strong class="text-[var(--text-main)]">{{ getRecordPopulationCount(activeRecord).toLocaleString('id-ID') }} baris</strong>.
-              Tersedia <strong class="text-primary-600 dark:text-primary-400">{{ activeRecord.sample_records?.length || 0 }} rekaman sampel nyata</strong> untuk modul ini.
-            </p>
-          </div>
+      <!-- Header: identity, status and dismiss -->
+      <div class="flex items-start gap-3 px-4 pt-4 sm:px-5">
+        <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-elevated text-muted">
+          <UIcon name="i-lucide-database" class="size-4.5" aria-hidden="true" />
         </div>
 
-        <div class="flex items-center gap-2 shrink-0 flex-wrap">
-          <UButton
-            size="xs"
-            :color="activeCompatibility && !activeCompatibility.compatible ? 'neutral' : 'primary'"
-            variant="solid"
-            icon="i-lucide-play-circle"
-            :loading="isExecutingAction"
-            :disabled="Boolean(activeCompatibility && !activeCompatibility.compatible)"
-            @click="handleExecuteFeatureAction(activeRecord)"
-          >
-            {{ currentModuleInfo.actionLabel }}
-          </UButton>
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-2">
+            <h3 class="text-sm font-semibold text-highlighted">
+              {{ t('mappedSourceBanner.title') }}
+            </h3>
+            <UBadge
+              v-if="!activeRecord.data_hub_unavailable"
+              color="success"
+              variant="subtle"
+              size="sm"
+            >
+              {{ t('mappedSourceBanner.liveSynced') }}
+            </UBadge>
+            <UBadge
+              v-else
+              color="warning"
+              variant="subtle"
+              size="sm"
+            >
+              {{ t('mappedSourceBanner.dataHubOffline') }}
+            </UBadge>
+          </div>
 
+          <p class="mt-1 flex min-w-0 flex-wrap items-center gap-1.5 text-xs text-muted">
+            <span class="truncate">{{ activeRecord.connection_name }}</span>
+            <UIcon name="i-lucide-chevron-right" class="size-3.5 shrink-0 text-dimmed" aria-hidden="true" />
+            <code class="rounded-md bg-elevated px-1.5 py-0.5 font-mono text-[11px] font-medium text-default">{{ activeRecord.table_name }}</code>
+          </p>
+        </div>
+
+        <UButton
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          icon="i-lucide-x"
+          :aria-label="t('mappedSourceBanner.dismiss')"
+          @click="isDismissed = true"
+        />
+      </div>
+
+      <!-- Stats -->
+      <dl class="mx-4 mt-4 grid grid-cols-2 divide-x divide-default overflow-hidden rounded-lg border border-default sm:mx-5">
+        <div class="px-3.5 py-2.5">
+          <dt class="text-xs text-muted">{{ t('mappedSourceBanner.totalPopulation') }}</dt>
+          <dd class="mt-0.5 text-base font-semibold tabular-nums text-highlighted">
+            {{ getRecordPopulationCount(activeRecord).toLocaleString('id-ID') }}
+            <span class="text-xs font-normal text-muted">{{ t('mappedSourceBanner.rowsUnit') }}</span>
+          </dd>
+        </div>
+        <div class="px-3.5 py-2.5">
+          <dt class="text-xs text-muted">{{ t('mappedSourceBanner.sampleRecords') }}</dt>
+          <dd class="mt-0.5 text-base font-semibold tabular-nums text-highlighted">
+            {{ (activeRecord.sample_records?.length || 0).toLocaleString('id-ID') }}
+            <span class="text-xs font-normal text-muted">{{ t('mappedSourceBanner.sampleRecordsHint') }}</span>
+          </dd>
+        </div>
+      </dl>
+
+      <!-- Incompatibility / unsupported warning -->
+      <UAlert
+        v-if="activeCompatibility && !activeCompatibility.compatible"
+        class="mx-4 mt-4 sm:mx-5"
+        color="warning"
+        variant="subtle"
+        icon="i-lucide-triangle-alert"
+        :description="activeCompatibility.reason"
+      />
+
+      <!-- Footer: primary action on the left, secondary actions on the right -->
+      <div class="mt-4 flex flex-wrap items-center gap-2 border-t border-default bg-elevated/50 px-4 py-3 sm:px-5">
+        <UButton
+          size="sm"
+          :color="activeCompatibility && !activeCompatibility.compatible ? 'neutral' : 'primary'"
+          variant="solid"
+          icon="i-lucide-play-circle"
+          :loading="isExecutingAction"
+          :disabled="Boolean(activeCompatibility && !activeCompatibility.compatible)"
+          @click="handleExecuteFeatureAction(activeRecord)"
+        >
+          {{ currentModuleInfo.actionLabel }}
+        </UButton>
+
+        <div class="ml-auto flex flex-wrap items-center gap-2">
           <UButton
-            size="xs"
-            color="primary"
-            variant="soft"
+            size="sm"
+            color="neutral"
+            variant="outline"
             icon="i-lucide-table"
             @click="openPreview(activeRecord)"
           >
-            Lihat Sampel Data ({{ activeRecord.sample_records?.length || 0 }})
+            {{ t('mappedSourceBanner.viewSample', { count: activeRecord.sample_records?.length || 0 }) }}
           </UButton>
           <UButton
-            size="xs"
+            size="sm"
             color="neutral"
             variant="ghost"
             icon="i-lucide-external-link"
             to="/settings?tab=datasource"
           >
-            Konfigurasi
+            {{ t('mappedSourceBanner.configure') }}
           </UButton>
-          <UButton
-            size="xs"
-            color="neutral"
-            variant="ghost"
-            icon="i-lucide-x"
-            @click="isDismissed = true"
-          />
         </div>
       </div>
-
-      <!-- Incompatibility / Unsupported Warning Alert -->
-      <div
-        v-if="activeCompatibility && !activeCompatibility.compatible"
-        class="p-2.5 rounded-lg border border-amber-500/30 bg-amber-50/80 dark:bg-amber-950/30 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2"
-      >
-        <UIcon name="i-lucide-alert-triangle" class="size-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-        <span>{{ activeCompatibility.reason }}</span>
-      </div>
-    </div>
+    </section>
 
     <!-- Modal 1: Strategic Audit Plan Derived KPI Confirmation Modal (Outside v-if banner) -->
     <UModal

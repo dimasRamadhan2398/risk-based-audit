@@ -18,8 +18,10 @@ import (
 )
 
 var (
-	seedDrop          bool
-	seedStrategicOnly bool
+	seedDrop           bool
+	seedStrategicOnly  bool
+	seedStrategicCSUL  bool
+	seedReplaceGeneric bool
 )
 
 func init() {
@@ -34,6 +36,9 @@ func init() {
 
 	seedCmd.Flags().BoolVar(&seedDrop, "drop", false, "Drop all tables before seeding (WARNING: destructive)")
 	seedCmd.Flags().BoolVar(&seedStrategicOnly, "strategic-only", false, "Only seed strategic audit plans (100 items)")
+
+	seedCmd.Flags().BoolVar(&seedStrategicCSUL, "strategic-csul", false, "Only seed the CSUL Strategic Plan Audit Internal (9 SO, 11 KPI, 11 initiatives, 2026-2030)")
+	seedCmd.Flags().BoolVar(&seedReplaceGeneric, "replace-generic", false, "With --strategic-csul: soft-delete generic demo rows that reuse SO-IA01..SO-IA09 with other KPIs")
 
 	rootCmd.AddCommand(seedCmd)
 }
@@ -50,6 +55,19 @@ func runSeed(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		logger.Fatal("Failed to connect to database", logger.LogField("error", err))
 		return err
+	}
+
+	if seedStrategicCSUL {
+		if err := db.AutoMigrate(&models.StrategicPlan{}); err != nil {
+			logger.Fatal("Failed to auto-migrate strategic_plans table", logger.LogField("error", err))
+			return err
+		}
+		if err := seedStrategicPlansCSUL(db, seedReplaceGeneric); err != nil {
+			logger.Fatal("Failed to seed CSUL strategic plan", logger.LogField("error", err))
+			return err
+		}
+		logger.Info("CSUL strategic plan seeded: " + csulSummary(csulStrategicPlans()))
+		return nil
 	}
 
 	if seedStrategicOnly {

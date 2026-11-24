@@ -10,8 +10,8 @@ import (
 	ctrlATR "audit-service/controllers/action_taken_report"
 	ctrlActivityPlan "audit-service/controllers/activity_plan"
 	ctrlAnnualPlan "audit-service/controllers/annual_plan"
-	ctrlAuditExecution "audit-service/controllers/audit_execution"
 	ctrlAssignmentLetter "audit-service/controllers/assignment_letter"
+	ctrlAuditExecution "audit-service/controllers/audit_execution"
 	"audit-service/controllers/crud"
 	ctrlExecutiveSummary "audit-service/controllers/executive_summary"
 	ctrlFieldwork "audit-service/controllers/fieldwork"
@@ -65,6 +65,9 @@ func (h *RouteHandler) SetRegistry(registry *RouteRegistry) {
 func (h *RouteHandler) RegisterRoutes() {
 	// Debug route to list all registered routes. Off unless ENABLE_DEBUG_ROUTES=true.
 	registerDebugRoutes(h.engine)
+
+	// Internal read-only anomaly feed for python-ai cross-service synchronization
+	h.engine.GET("/api/v1/internal/action-taken-reports/anomaly-feed", ctrlATR.NewController(h.db).AnomalyFeed)
 
 	// Every API route requires a valid JWT. Kong does not check tokens for
 	// this service, so without this the whole API was reachable anonymously.
@@ -461,8 +464,11 @@ func (h *RouteHandler) RegisterRoutes() {
 		// ATR per finding (see services/action_taken_report.SyncFromReport)
 		// The report's department_id is copied from its letter's master
 		// department on every save (models.ApplyLetterDepartmentOn*)
-		auditResultReports.POST("", crud.CreateWithHooks(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }, models.ApplyLetterDepartmentOnCreate, syncReportAndExecutionsAfterCreate))
-		auditResultReports.PUT("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.AuditResultReport{} }, ctrlAuditExecution.LetterKeysOf, crud.UpdateWithHooks(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }, models.ApplyLetterDepartmentOnUpdate, SyncReportATRs)))
+		// Approving a report ("Final"/"Approved"/"Published") is limited to
+		// LHAApproverRoles (lhaApprovalGuard); auditors can still draft and edit
+		lhaGuard := lhaApprovalGuard(h.db)
+		auditResultReports.POST("", lhaGuard, crud.CreateWithHooks(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }, models.ApplyLetterDepartmentOnCreate, syncReportAndExecutionsAfterCreate))
+		auditResultReports.PUT("/:id", lhaGuard, ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.AuditResultReport{} }, ctrlAuditExecution.LetterKeysOf, crud.UpdateWithHooks(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} }, models.ApplyLetterDepartmentOnUpdate, SyncReportATRs)))
 		auditResultReports.DELETE("/:id", ctrlAuditExecution.SyncOnWrite(h.db, func() interface{} { return &models.AuditResultReport{} }, ctrlAuditExecution.LetterKeysOf, crud.Delete(h.db, "AuditResultReport", func() interface{} { return &models.AuditResultReport{} })))
 	}
 
@@ -626,12 +632,20 @@ func (h *RouteHandler) deleteAuditGuideline(c *gin.Context) {
 }
 
 type AutoFindingItem struct {
-	Title    string `json:"title"`
-	Category string `json:"category"`
-	Action   string `json:"action"`
-	Source   string `json:"source"`
-	Impact   string `json:"impact,omitempty"`
-	Criteria string `json:"criteria,omitempty"`
+	Title                string                     `json:"title"`
+	Category             string                     `json:"category"`
+	Action               string                     `json:"action"`
+	Source               string                     `json:"source"`
+	Impact               string                     `json:"impact,omitempty"`
+	Criteria             string                     `json:"criteria,omitempty"`
+	RiskEvent            string                     `json:"riskEvent,omitempty"`
+	Cause                string                     `json:"cause,omitempty"`
+	RiskLevel            string                     `json:"riskLevel,omitempty"`
+	MitigationPlanOption string                     `json:"mitigationPlanOption,omitempty"`
+	Recommendations      []string                   `json:"recommendations,omitempty"`
+	AuditeeResponse      string                     `json:"auditeeResponse,omitempty"`
+	RootCause            []models.RootCauseItem     `json:"rootCause,omitempty"`
+	ActionPlans          []models.FindingActionPlan `json:"actionPlans,omitempty"`
 }
 
 func (h *RouteHandler) getAutoFindings(c *gin.Context) {
@@ -656,12 +670,20 @@ func (h *RouteHandler) getAutoFindings(c *gin.Context) {
 	var findings []AutoFindingItem
 	for _, f := range ctrlFindings.Derive(src) {
 		findings = append(findings, AutoFindingItem{
-			Title:    f.Title,
-			Category: f.Category,
-			Action:   f.Action,
-			Source:   f.Source,
-			Impact:   f.Impact,
-			Criteria: f.Criteria,
+			Title:                f.Title,
+			Category:             f.Category,
+			Action:               f.Action,
+			Source:               f.Source,
+			Impact:               f.Impact,
+			Criteria:             f.Criteria,
+			RiskEvent:            f.RiskEvent,
+			Cause:                f.Cause,
+			RiskLevel:            f.RiskLevel,
+			MitigationPlanOption: f.MitigationPlanOption,
+			Recommendations:      f.Recommendations,
+			AuditeeResponse:      f.AuditeeResponse,
+			RootCause:            f.RootCause,
+			ActionPlans:          f.ActionPlans,
 		})
 	}
 
@@ -771,8 +793,11 @@ func (h *RouteHandler) downloadAuditResultReportDocx(c *gin.Context) {
 		h.db.Where("working_paper_id IN ?", altIDs).Find(&wpPlans)
 	}
 
+	// Only papers explicitly tied to this assignment letter; never the whole tenant library.
 	var importedWPs []models.ImportedWorkingPaper
-	h.db.Find(&importedWPs)
+	if len(altIDs) > 0 {
+		h.db.Where("assignment_letter_id IN ?", altIDs).Order("created_at ASC").Find(&importedWPs)
+	}
 
 	// Resolve Company Name dynamically from master-service / st / report
 	resolvedComp := masterclient.ResolveCompanyName(c.Request.Context(), c.GetHeader("Authorization"), report.CompanyID, report.CompanyName, st.CompanyID, st.CompanyName, st.WorkingUnit, report.Department)

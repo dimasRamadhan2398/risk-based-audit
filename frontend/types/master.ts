@@ -14,6 +14,7 @@ export interface Company {
   tax_id?: string
   company_type: CompanyType
   parent_id?: string
+  /** @deprecated read-only; the head office is the owner office with office_function = head_office */
   location_id?: string
   phone?: string
   email?: string
@@ -31,7 +32,6 @@ export interface CompanyFormState {
   tax_id?: string
   company_type: CompanyType
   parent_id?: string
-  location_id?: string
   phone?: string
   email?: string
   website?: string
@@ -46,7 +46,6 @@ export interface CreateCompanyRequest {
   tax_id?: string
   company_type: CompanyType
   parent_id?: string
-  location_id?: string
   phone?: string
   email?: string
   website?: string
@@ -60,7 +59,6 @@ export interface UpdateCompanyRequest {
   tax_id?: string
   company_type?: CompanyType
   parent_id?: string
-  location_id?: string
   phone?: string
   email?: string
   website?: string
@@ -296,7 +294,24 @@ export interface UpdateJobRoleRequest {
   is_active?: boolean
 }
 
-// ============= Location Types =============
+// ============= Location (Office) Types =============
+//
+// A location is an office (docs/office-structure-plan.md): it belongs to one
+// owner company, sits in that company's office tree and can be shared with
+// other companies. Risk, RCM, ICA and employees keep referencing it by id.
+
+export const OFFICE_FUNCTIONS = ['head_office', 'rnd', 'operational', 'warehouse', 'data_center', 'other'] as const
+export type OfficeFunction = typeof OFFICE_FUNCTIONS[number]
+
+/** Preset keys for level names; the UI shows a translated name for them. */
+export const OFFICE_LEVEL_NAME_KEYS = ['head_office', 'regional_office', 'area_office', 'branch', 'sub_branch', 'unit'] as const
+export type OfficeLevelNameKey = typeof OFFICE_LEVEL_NAME_KEYS[number]
+
+export interface OfficePathItem {
+  id: string
+  name: string
+  level?: number | null
+}
 
 export interface Location {
   id: string
@@ -306,10 +321,34 @@ export interface Location {
   province?: string
   postal_code?: string
   country?: string
+  latitude?: number | null
+  longitude?: number | null
   is_active: boolean
   created_at?: string
   updated_at?: string
+
+  // Office fields (null until backfilled for legacy rows)
+  company_id?: string | null
+  company_name?: string | null
+  parent_location_id?: string | null
+  level?: number | null
+  level_name?: string | null
+  level_name_key?: string | null
+  office_code?: string | null
+  office_function?: OfficeFunction | string
+  head_employee_id?: string | null
+  head_employee_name?: string | null
+  shared_company_ids?: string[]
+  /** Root office down to the parent; excludes the office itself. */
+  path?: OfficePathItem[]
+  children_count?: number
+  /** Set by GET /locations?company_id=X when the office is shared with X, not owned. */
+  shared?: boolean
+  /** Only with GET /locations?tree=true */
+  children?: Location[]
 }
+
+export type Office = Location
 
 export interface LocationFormState {
   name: string
@@ -318,7 +357,18 @@ export interface LocationFormState {
   province?: string
   postal_code?: string
   country?: string
+  /** Kept as text so an empty input stays empty; parsed on submit. */
+  latitude: string
+  longitude: string
   is_active: boolean
+  company_id: string
+  parent_location_id: string
+  /** '' = no level */
+  level: number | ''
+  office_code: string
+  office_function: OfficeFunction
+  head_employee_id: string
+  shared_company_ids: string[]
 }
 
 export interface CreateLocationRequest {
@@ -328,9 +378,19 @@ export interface CreateLocationRequest {
   province?: string
   postal_code?: string
   country?: string
+  latitude?: number | null
+  longitude?: number | null
   is_active: boolean
+  company_id: string
+  parent_location_id?: string | null
+  level?: number | null
+  office_code?: string | null
+  office_function?: OfficeFunction
+  head_employee_id?: string | null
+  shared_company_ids?: string[]
 }
 
+/** Partial: only changed fields, plus company_id (required by the backend on update). */
 export interface UpdateLocationRequest {
   name?: string
   address?: string
@@ -338,7 +398,56 @@ export interface UpdateLocationRequest {
   province?: string
   postal_code?: string
   country?: string
+  latitude?: number | null
+  longitude?: number | null
   is_active?: boolean
+  company_id?: string
+  parent_location_id?: string | null
+  level?: number | null
+  office_code?: string | null
+  office_function?: OfficeFunction
+  head_employee_id?: string | null
+  shared_company_ids?: string[]
+}
+
+/** GET /locations query (all optional). */
+export interface LocationListQuery {
+  company_id?: string
+  level?: number
+  office_function?: string
+  /** 'root' = top level offices */
+  parent_id?: string
+  q?: string
+  is_active?: boolean
+  tree?: boolean
+}
+
+// ============= Office Level Types =============
+
+export interface OfficeLevel {
+  id?: string
+  /** null = tenant default scheme */
+  company_id?: string | null
+  level: number
+  name: string
+  name_key?: string | null
+  is_active: boolean
+}
+
+export interface OfficeLevelInput {
+  id?: string
+  level: number
+  name: string
+  name_key?: string | null
+  is_active: boolean
+}
+
+/** GET /companies/:id/office-levels: the company's effective scheme. */
+export interface OfficeLevelScheme {
+  /** Company whose levels these are; null = tenant default. */
+  source_company_id: string | null
+  inherited: boolean
+  levels: OfficeLevel[]
 }
 
 // ============= Pagination Types =============

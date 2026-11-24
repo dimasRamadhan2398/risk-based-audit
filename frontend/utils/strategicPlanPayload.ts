@@ -10,7 +10,7 @@ export type StrategicPlanCategory = typeof STRATEGIC_PLAN_CATEGORIES[number] | '
 // is left out so a save never writes back server-managed columns.
 const STRATEGIC_PLAN_FORM_FIELDS = [
   'code', 'goalId', 'strategicObjective', 'kpi', 'unit', 'category', 'hibHig', 'periodType',
-  'selectedPeriod', 'yearStart', 'yearEnd', 'kpiTargets', 'kpiActuals', 'internalAuditSO',
+  'selectedPeriod', 'yearStart', 'yearEnd', 'kpiTargets', 'kpiActuals', 'initiative', 'initiativeYears', 'targetNotes', 'internalAuditSO',
   'actual', 'target', 'calculation', 'status'
 ] as const satisfies ReadonlyArray<keyof StrategicAuditPlan>
 

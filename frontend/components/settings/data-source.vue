@@ -1298,7 +1298,11 @@ const standardAnomalyRules = [
   'Rapid Turnover in Dormant Account',
   'High Frequency Velocity (Rapid Bursts)',
   'Split Transactions Below Limit (Smurfing)',
-  'Sudden Balance Depletion (>80% Outflow)'
+  'Sudden Balance Depletion (>80% Outflow)',
+  'Overdue Action Plan (>30 Days)',
+  'Stagnant Finding Progress (<25% Near Due Date)',
+  'High Significance Finding Unresolved (Very Significant)',
+  'Repeated Audit Finding Pattern'
 ]
 
 export interface ActivityLog {
@@ -2409,17 +2413,21 @@ async function trainModelForMapping(table: SchemaTable, mIdx: number) {
   isTrainingModel.value[key] = true
   try {
     const combinedRules = [
-      ...presetRules.map((r, i) => ({
-        id: `preset-${Date.now()}-${i}`,
-        name: r,
-        field: 'amount',
-        operator: '>',
-        threshold: 100000000,
-        severity: 'HIGH',
-        category: getCanonicalCategory(table.tableName),
-        description: `Deteksi anomali aturan standar: ${r}`,
-        isActive: true
-      })),
+      ...presetRules.map((r, i) => {
+        const rl = r.toLowerCase()
+        const isFindingRule = rl.includes('overdue') || rl.includes('finding') || rl.includes('significance') || rl.includes('action plan')
+        return {
+          id: `preset-${Date.now()}-${i}`,
+          name: r,
+          field: rl.includes('overdue') ? 'overdue_days' : (rl.includes('progress') ? 'progress' : (isFindingRule ? 'finding_category' : 'amount')),
+          operator: rl.includes('progress') ? '<' : '>',
+          threshold: rl.includes('overdue') ? 30 : (rl.includes('progress') ? 25 : 100000000),
+          severity: (rl.includes('very significant') || rl.includes('overdue')) ? 'HIGH' : (isFindingRule ? 'MODERATE_HIGH' : 'HIGH'),
+          category: isFindingRule ? 'Audit Findings' : getCanonicalCategory(table.tableName),
+          description: `Deteksi anomali aturan standar: ${r}`,
+          isActive: true
+        }
+      }),
       ...customRules
     ]
 

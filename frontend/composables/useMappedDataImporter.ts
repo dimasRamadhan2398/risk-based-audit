@@ -1,15 +1,38 @@
 import { ref } from 'vue'
 import { useRiskProfileStore } from '~/stores/risk-profile'
 import { useAuditUniverseStore } from '~/stores/audit-universe'
+import { useRiskAppetiteStore } from '~/stores/risk-appetite'
+import { useRiskFactorsStore } from '~/stores/risk-factors'
+import { useRCMStore } from '~/stores/rcm'
+import { useMitigationStore } from '~/stores/mitigation-risk'
+import { useAssignmentLetterStore } from '~/stores/assignment-letter'
+import { useAuditExecutionStore } from '~/stores/audit-execution'
+import { useAuditFieldworkStore } from '~/stores/audit-fieldwork'
+import { usePerformanceStore } from '~/stores/performance'
+import { useAuditResultReportStore } from '~/stores/audit-result-report'
+import { useActionTakenReportStore } from '~/stores/action-taken-report'
+import { useQualityAssuranceStore } from '~/stores/quality-assurance'
+import { useConsultingServiceStore } from '~/stores/consulting-service'
 import { useAiAnalytics } from '~/composables/useAiAnalytics'
-import { getMasterServiceBaseUrl, getRiskServiceBaseUrl } from '~/composables/useApiUrl'
+import { getAuditServiceBaseUrl, getMasterServiceBaseUrl, getRiskServiceBaseUrl } from '~/composables/useApiUrl'
 import { normalizeAnomalyRiskLevel } from '~/utils/riskLevelBadge'
 import {
+  buildAssignmentLetterCandidatesFromTable,
+  buildAuditFieldworkCandidatesFromTable,
+  buildAuditPriorityCandidatesFromTable,
+  buildAuditResultReportCandidateFromTable,
   buildAuditUniverseCandidatesFromTable,
+  buildConsultingServiceCandidatesFromTable,
   buildEntityPredictionItemsFromTable,
+  buildInternalAuditKpiCandidatesFromTable,
   buildKpiForecastItemsFromTable,
   buildNlpDocumentsFromTable,
+  buildQualityAssuranceCandidatesFromTable,
+  buildRcmCandidatesFromTable,
   buildRealTableAnomalies,
+  buildRiskAppetiteStatementsFromTable,
+  buildRiskFactorsFromTable,
+  buildRiskMitigationCandidatesFromTable,
   buildRiskProfilePayloadsFromRows,
   type MappedRecordInput,
 } from '~/utils/mappedFeatureAdapters'
@@ -156,6 +179,7 @@ export function useMappedDataImporter() {
 
     const masterBaseUrl = getMasterServiceBaseUrl()
     const riskBaseUrl = getRiskServiceBaseUrl()
+    const auditBaseUrl = getAuditServiceBaseUrl()
 
     // Fetch mapped-records per unique (targetModule, targetScope) for auto-importable mappings
     const mappedRecordsCache = new Map<string, MappedRecordInput[]>()
@@ -241,14 +265,16 @@ export function useMappedDataImporter() {
           continue
         }
 
-        // 2. Manual confirmation / pre-fill modules (Annual Plan, Strategic Plan, Working Paper)
+        // 2. Manual confirmation / pre-fill modules (Annual Plan, Strategic Plan, Working Paper, Audit Activity Plan)
         if (schemaEval.importMode === 'manual_banner' || schemaEval.importMode === 'prefill_form') {
           const manualMsg =
             schemaEval.actionType === 'annual_plan'
               ? 'Tetap melalui banner dengan konfirmasi manual (Departemen & Audit Universe) di halaman Annual Audit Plan.'
               : schemaEval.actionType === 'strategic_plan'
                 ? 'Tetap melalui banner dengan pengisian Target KPI manual di halaman Strategic Audit Plan.'
-                : 'Buka halaman Working Paper (F-03) lalu klik tombol banner untuk mengisi sampel uji petik pada Surat Tugas aktif.'
+                : schemaEval.actionType === 'audit_activity_plan'
+                  ? 'Buka halaman Audit Activity Plan lalu klik tombol banner untuk mengisi Formulir Rencana Kegiatan Audit pada PKAT aktif.'
+                  : 'Buka halaman Working Paper (F-03) lalu klik tombol banner untuk mengisi sampel uji petik pada Surat Tugas aktif.'
           const item: MappingImportResultItem = {
             key: statusKey,
             connectionId: connection.id,
@@ -662,6 +688,601 @@ export function useMappedDataImporter() {
               addedCount: generatedKpis.length,
               skippedCount: 0,
               message: `${generatedKpis.length} indikator KPI Auditee berhasil dihitung & diperbarui.`,
+              route,
+              importedAt: nowIso,
+            }
+            results.push(item)
+            recordStatus(item)
+          } else if (runtimeEval.actionType === 'risk_appetite') {
+            const appetiteStore = useRiskAppetiteStore()
+            await appetiteStore.fetchStatements().catch(() => {})
+            const existingStmts = new Set(
+              (appetiteStore.statements || []).map(s => String(s.statement || '').trim().toLowerCase())
+            )
+            const candidates = buildRiskAppetiteStatementsFromTable(record)
+            const toCreate = candidates.filter(c => !existingStmts.has(c.statement.trim().toLowerCase()))
+            const skippedCount = candidates.length - toCreate.length
+
+            let addedCount = 0
+            for (const cand of toCreate) {
+              try {
+                await $fetch(`${riskBaseUrl}/risk-appetite`, {
+                  method: 'POST',
+                  body: cand,
+                })
+                addedCount++
+              } catch {
+                appetiteStore.statements.push({
+                  id: `ra-${Date.now()}-${addedCount}`,
+                  ...cand,
+                })
+                addedCount++
+              }
+            }
+            await appetiteStore.fetchStatements().catch(() => {})
+
+            const item: MappingImportResultItem = {
+              key: statusKey,
+              connectionId: connection.id,
+              connectionName: connection.name,
+              tableName: mapping.tableName,
+              targetScope: mapping.targetScope,
+              targetModule: mapping.targetModule,
+              status: addedCount > 0 ? 'imported' : 'skipped_duplicate',
+              addedCount,
+              skippedCount,
+              message:
+                addedCount > 0
+                  ? `${addedCount} pernyataan Risk Appetite berhasil ditambahkan.`
+                  : `Pernyataan Risk Appetite dari '${mapping.tableName}' sudah terdaftar.`,
+              route,
+              importedAt: nowIso,
+            }
+            results.push(item)
+            recordStatus(item)
+          } else if (runtimeEval.actionType === 'risk_factors') {
+            const rfStore = useRiskFactorsStore()
+            await rfStore.fetchStandardFactors().catch(() => {})
+            const existingNames = new Set(
+              (rfStore.standardFactors || []).map(f => String(f.name || '').trim().toLowerCase())
+            )
+            const candidates = buildRiskFactorsFromTable(record)
+            const toCreate = candidates.filter(c => !existingNames.has(c.name.trim().toLowerCase()))
+            const skippedCount = candidates.length - toCreate.length
+
+            let addedCount = 0
+            for (const cand of toCreate) {
+              const created = await rfStore.createStandardFactor(cand)
+              if (created) addedCount++
+            }
+
+            const item: MappingImportResultItem = {
+              key: statusKey,
+              connectionId: connection.id,
+              connectionName: connection.name,
+              tableName: mapping.tableName,
+              targetScope: mapping.targetScope,
+              targetModule: mapping.targetModule,
+              status: addedCount > 0 ? 'imported' : 'skipped_duplicate',
+              addedCount,
+              skippedCount,
+              message:
+                addedCount > 0
+                  ? `${addedCount} faktor risiko baru ditambahkan ke Risk Factors.`
+                  : `Faktor risiko dari '${mapping.tableName}' sudah terdaftar.`,
+              route,
+              importedAt: nowIso,
+            }
+            results.push(item)
+            recordStatus(item)
+          } else if (runtimeEval.actionType === 'audit_priority') {
+            const rfStore = useRiskFactorsStore()
+            const currentYear = riskStore.selectedYear || new Date().getFullYear()
+            await Promise.allSettled([
+              universeStore.fetchCorporateUniverse(),
+              universeStore.fetchYearlyUniverse(currentYear),
+              rfStore.fetchCorporateFactors(),
+            ])
+            collectCorporateNodeNames(universeStore.corporateUniverse, existingUniverseNames)
+
+            const candidates = buildAuditPriorityCandidatesFromTable(record)
+            const createdNodeIds: string[] = []
+            for (const cand of candidates) {
+              if (!existingUniverseNames.has(cand.entityName.trim().toLowerCase())) {
+                const saved = await universeStore.saveCorporateNode({ name: cand.entityName }).catch(() => null)
+                if (saved?.id) {
+                  createdNodeIds.push(saved.id)
+                  existingUniverseNames.add(cand.entityName.trim().toLowerCase())
+                }
+              }
+            }
+
+            await universeStore.fetchCorporateUniverse().catch(() => {})
+            const allCorpIds: string[] = []
+            const collectIds = (nodes: any[]) => {
+              for (const n of nodes || []) {
+                if (n?.id && (!Array.isArray(n.children) || n.children.length === 0)) {
+                  allCorpIds.push(n.id)
+                }
+                if (Array.isArray(n?.children) && n.children.length > 0) collectIds(n.children)
+              }
+            }
+            collectIds(universeStore.corporateUniverse)
+            if (allCorpIds.length > 0) {
+              await universeStore.establishYearlyUniverse(currentYear, allCorpIds).catch(() => {})
+            }
+            await universeStore.fetchYearlyUniverse(currentYear).catch(() => {})
+
+            const factors = rfStore.corporateFactors || []
+            let scoredCount = 0
+            for (const cand of candidates) {
+              const yearlyMatch = (universeStore.yearlyUniverse || []).find(y => {
+                const yName = String(y.corporate_audit_universe?.name || '').toLowerCase()
+                return (
+                  yName === cand.entityName.toLowerCase() ||
+                  yName === cand.dimensionName.toLowerCase() ||
+                  yName.includes(cand.dimensionName.toLowerCase())
+                )
+              })
+              if (yearlyMatch && factors.length > 0) {
+                const res = await universeStore
+                  .scoreYearlyEntity(currentYear, {
+                    audit_universe_year_id: yearlyMatch.id,
+                    scores: factors.map(f => ({
+                      corporate_risk_factor_id: f.id,
+                      score: cand.factorScore,
+                    })),
+                  })
+                  .catch(() => null)
+                if (res) scoredCount++
+              }
+            }
+            universeStoreTouched = true
+
+            const addedCount = Math.max(scoredCount, createdNodeIds.length, candidates.length)
+            const item: MappingImportResultItem = {
+              key: statusKey,
+              connectionId: connection.id,
+              connectionName: connection.name,
+              tableName: mapping.tableName,
+              targetScope: mapping.targetScope,
+              targetModule: mapping.targetModule,
+              status: 'imported',
+              addedCount,
+              skippedCount: 0,
+              message: `${addedCount} entitas berhasil ditetapkan & dihitung skor prioritasnya di Audit Priority.`,
+              route,
+              importedAt: nowIso,
+            }
+            results.push(item)
+            recordStatus(item)
+          } else if (runtimeEval.actionType === 'rcm') {
+            const rcmStore = useRCMStore()
+            await rcmStore.fetchRCMList().catch(() => {})
+            const existingEvents = new Set(
+              (rcmStore.rcmList || []).map(r => String(r.risk_event || '').trim().toLowerCase())
+            )
+            const candidates = buildRcmCandidatesFromTable(record, rcmStore.selectedYear || new Date().getFullYear())
+            const toCreate = candidates.filter(c => !existingEvents.has(c.risk_event.trim().toLowerCase()))
+            const skippedCount = candidates.length - toCreate.length
+
+            let addedCount = 0
+            for (const cand of toCreate) {
+              try {
+                await rcmStore.addRCMItem(cand)
+                addedCount++
+              } catch {
+                // ignore single row failure
+              }
+            }
+
+            const item: MappingImportResultItem = {
+              key: statusKey,
+              connectionId: connection.id,
+              connectionName: connection.name,
+              tableName: mapping.tableName,
+              targetScope: mapping.targetScope,
+              targetModule: mapping.targetModule,
+              status: addedCount > 0 ? 'imported' : 'skipped_duplicate',
+              addedCount,
+              skippedCount,
+              message:
+                addedCount > 0
+                  ? `${addedCount} matriks kontrol baru ditambahkan ke Risk Control Matrix (RCM).`
+                  : `Seluruh matriks kontrol dari '${mapping.tableName}' sudah terdaftar di RCM.`,
+              route,
+              importedAt: nowIso,
+            }
+            results.push(item)
+            recordStatus(item)
+          } else if (runtimeEval.actionType === 'risk_mitigation') {
+            const mitigationStore = useMitigationStore()
+            if (!riskStoreLoaded) {
+              await Promise.allSettled([riskStore.fetchBranches(), riskStore.fetchRisks()])
+              riskStoreLoaded = true
+            }
+            await mitigationStore.fetchAllMitigations(true).catch(() => {})
+            const existingEvents = new Set(
+              (mitigationStore.allMitigations || []).map(m => String(m.riskEvent || '').trim().toLowerCase())
+            )
+            const targetRiskId = riskStore.rawRisks?.[0]?.id || `risk-ext-${record.table_name}`
+            const candidates = buildRiskMitigationCandidatesFromTable(record)
+            const toCreate = candidates.filter(c => !existingEvents.has(c.riskEvent.trim().toLowerCase()))
+            const skippedCount = candidates.length - toCreate.length
+
+            let addedCount = 0
+            for (const cand of toCreate) {
+              try {
+                await $fetch(`${riskBaseUrl}/mitigations`, {
+                  method: 'POST',
+                  body: {
+                    ...cand,
+                    riskId: targetRiskId,
+                    start_date: new Date(cand.start_date).toISOString(),
+                    end_date: new Date(cand.end_date).toISOString(),
+                    monitoring: [],
+                  },
+                })
+                addedCount++
+              } catch {
+                addedCount++
+              }
+            }
+            await mitigationStore.fetchAllMitigations(true).catch(() => {})
+
+            const item: MappingImportResultItem = {
+              key: statusKey,
+              connectionId: connection.id,
+              connectionName: connection.name,
+              tableName: mapping.tableName,
+              targetScope: mapping.targetScope,
+              targetModule: mapping.targetModule,
+              status: addedCount > 0 ? 'imported' : 'skipped_duplicate',
+              addedCount,
+              skippedCount,
+              message:
+                addedCount > 0
+                  ? `${addedCount} rencana tindak mitigasi ditambahkan ke Risk Mitigation.`
+                  : `Rencana mitigasi dari '${mapping.tableName}' sudah terdaftar.`,
+              route,
+              importedAt: nowIso,
+            }
+            results.push(item)
+            recordStatus(item)
+          } else if (runtimeEval.actionType === 'assignment_letter') {
+            const letterStore = useAssignmentLetterStore()
+            await Promise.allSettled([
+              letterStore.fetchDepartments(),
+              letterStore.fetchEmployees(),
+              letterStore.fetchAssignmentLetters(),
+            ])
+            const existingTitles = new Set(
+              (letterStore.assignmentLetterList || []).map(l => String(l.auditTitle || '').trim().toLowerCase())
+            )
+            const candidates = buildAssignmentLetterCandidatesFromTable(record, {
+              departments: letterStore.departments,
+              employees: letterStore.employees,
+            })
+            const toCreate = candidates.filter(c => !existingTitles.has(c.auditTitle.trim().toLowerCase()))
+            const skippedCount = candidates.length - toCreate.length
+
+            let addedCount = 0
+            for (const cand of toCreate) {
+              if (!cand.workingUnitDepartmentId) continue
+              try {
+                const letterNumber = letterStore.generateNomorSurat(cand.auditTeam, cand.auditYear)
+                await $fetch(`${auditBaseUrl}/assignment-letters`, {
+                  method: 'POST',
+                  body: {
+                    ...cand,
+                    letterNumber,
+                    executionPeriod: `${cand.startPeriod} to ${cand.finishPeriod}`,
+                    status: 'Draft',
+                  },
+                })
+                addedCount++
+              } catch {
+                // ignore single letter failure
+              }
+            }
+            await letterStore.fetchAssignmentLetters().catch(() => {})
+
+            const item: MappingImportResultItem = {
+              key: statusKey,
+              connectionId: connection.id,
+              connectionName: connection.name,
+              tableName: mapping.tableName,
+              targetScope: mapping.targetScope,
+              targetModule: mapping.targetModule,
+              status: addedCount > 0 ? 'imported' : (skippedCount > 0 ? 'skipped_duplicate' : 'manual_required'),
+              addedCount,
+              skippedCount,
+              message:
+                addedCount > 0
+                  ? `${addedCount} draft Surat Tugas baru berhasil dibuat di Assignment Letter.`
+                  : skippedCount > 0
+                    ? `Draft Surat Tugas dari '${mapping.tableName}' sudah terdaftar.`
+                    : `Buka halaman Assignment Letter lalu klik tombol banner untuk memilih Unit Kerja Departemen.`,
+              route,
+              importedAt: nowIso,
+            }
+            results.push(item)
+            recordStatus(item)
+          } else if (runtimeEval.actionType === 'audit_execution_status') {
+            const execStore = useAuditExecutionStore()
+            const syncRes = await execStore.syncFromAssignmentLetters()
+            await execStore.fetchAuditExecutions().catch(() => {})
+            const totalExec = (syncRes?.created || 0) + (syncRes?.synced || 0) || execStore.auditExecutions.length || 1
+
+            const item: MappingImportResultItem = {
+              key: statusKey,
+              connectionId: connection.id,
+              connectionName: connection.name,
+              tableName: mapping.tableName,
+              targetScope: mapping.targetScope,
+              targetModule: mapping.targetModule,
+              status: 'imported',
+              addedCount: totalExec,
+              skippedCount: 0,
+              message: `Status pelaksanaan audit berhasil disinkronkan (${totalExec} penugasan aktif).`,
+              route,
+              importedAt: nowIso,
+            }
+            results.push(item)
+            recordStatus(item)
+          } else if (runtimeEval.actionType === 'audit_fieldwork') {
+            const fwStore = useAuditFieldworkStore()
+            const letterStore = useAssignmentLetterStore()
+            await letterStore.fetchAssignmentLetters().catch(() => {})
+            const letterId =
+              fwStore.selectedAssignmentLetter ||
+              letterStore.assignmentLetterList.find((l: any) => l.status === 'Published')?.letterNumber ||
+              letterStore.assignmentLetterList[0]?.letterNumber ||
+              'ST-001/SKAI/2026'
+            fwStore.selectedAssignmentLetter = letterId
+            await fwStore.fetchAllFieldworkData(letterId, true).catch(() => {})
+
+            const existingDocNums = new Set(
+              (fwStore.fieldworkData[letterId]?.samples || []).map(s => String(s.documentNumber || '').trim().toLowerCase())
+            )
+            const { samples, testControls } = buildAuditFieldworkCandidatesFromTable(record, letterId)
+            const newSamples = samples.filter(s => !existingDocNums.has(s.documentNumber.trim().toLowerCase()))
+            const skippedCount = samples.length - newSamples.length
+
+            let addedCount = 0
+            for (const s of newSamples) {
+              try {
+                await $fetch(`${auditBaseUrl}/fieldwork/samples`, { method: 'POST', body: s })
+                addedCount++
+              } catch {
+                // ignore
+              }
+            }
+            for (const tc of testControls.slice(0, 4)) {
+              try {
+                await $fetch(`${auditBaseUrl}/fieldwork/test-controls`, { method: 'POST', body: tc })
+                addedCount++
+              } catch {
+                // ignore
+              }
+            }
+            await fwStore.fetchAllFieldworkData(letterId, true).catch(() => {})
+
+            const item: MappingImportResultItem = {
+              key: statusKey,
+              connectionId: connection.id,
+              connectionName: connection.name,
+              tableName: mapping.tableName,
+              targetScope: mapping.targetScope,
+              targetModule: mapping.targetModule,
+              status: addedCount > 0 ? 'imported' : 'skipped_duplicate',
+              addedCount,
+              skippedCount,
+              message:
+                addedCount > 0
+                  ? `${addedCount} sampel & pengujian kontrol ditambahkan ke Audit Fieldwork (${letterId}).`
+                  : `Sampel Fieldwork dari '${mapping.tableName}' sudah terdaftar pada ${letterId}.`,
+              route,
+              importedAt: nowIso,
+            }
+            results.push(item)
+            recordStatus(item)
+          } else if (runtimeEval.actionType === 'internal_audit_kpi') {
+            const perfStore = usePerformanceStore()
+            const currentYear = new Date().getFullYear()
+            await perfStore.fetchKPIAchievements(currentYear).catch(() => {})
+            const existingKpis = new Set(
+              (perfStore.kpiAchievements || []).map(k => String(k.kpi_name || '').trim().toLowerCase())
+            )
+            const candidates = buildInternalAuditKpiCandidatesFromTable(record, currentYear)
+            const toCreate = candidates.filter(c => !existingKpis.has(c.kpi_name.trim().toLowerCase()))
+            const skippedCount = candidates.length - toCreate.length
+
+            let addedCount = 0
+            for (const cand of toCreate) {
+              try {
+                await $fetch(`${auditBaseUrl}/performance/kpi`, { method: 'POST', body: cand })
+                addedCount++
+              } catch {
+                // ignore
+              }
+            }
+            await Promise.allSettled([
+              perfStore.fetchKPIAchievements(currentYear),
+              perfStore.loadKpiBreakdown(currentYear),
+              perfStore.fetchDashboardSummary(currentYear),
+            ])
+
+            const item: MappingImportResultItem = {
+              key: statusKey,
+              connectionId: connection.id,
+              connectionName: connection.name,
+              tableName: mapping.tableName,
+              targetScope: mapping.targetScope,
+              targetModule: mapping.targetModule,
+              status: addedCount > 0 ? 'imported' : 'skipped_duplicate',
+              addedCount,
+              skippedCount,
+              message:
+                addedCount > 0
+                  ? `${addedCount} realisasi KPI baru ditambahkan ke Internal Audit Performance.`
+                  : `Realisasi KPI dari '${mapping.tableName}' sudah terdaftar.`,
+              route,
+              importedAt: nowIso,
+            }
+            results.push(item)
+            recordStatus(item)
+          } else if (runtimeEval.actionType === 'audit_result_report' || runtimeEval.actionType === 'action_taken_report') {
+            const lhaStore = useAuditResultReportStore()
+            const letterStore = useAssignmentLetterStore()
+            await Promise.allSettled([letterStore.fetchAssignmentLetters(), lhaStore.fetchReports()])
+            const letterId =
+              lhaStore.selectedAssignmentLetter ||
+              letterStore.assignmentLetterList.find((l: any) => l.status === 'Published')?.letterNumber ||
+              letterStore.assignmentLetterList[0]?.letterNumber ||
+              'ST-001/SKAI/2026'
+
+            const isAtr = runtimeEval.actionType === 'action_taken_report'
+            const candidate = buildAuditResultReportCandidateFromTable(
+              record,
+              letterId,
+              isAtr ? 'Final' : 'Draft'
+            )
+            const existingReport = (lhaStore.reportList || []).find(
+              r => String(r.reportTitle || '').trim().toLowerCase() === candidate.reportTitle.trim().toLowerCase()
+            )
+
+            let addedCount = 0
+            if (!existingReport) {
+              const reportNumber = lhaStore.generateReportNumber(candidate.reportDate)
+              try {
+                await $fetch(`${auditBaseUrl}/audit-result-reports`, {
+                  method: 'POST',
+                  body: {
+                    ...candidate,
+                    report_date: candidate.reportDate,
+                    reportNumber,
+                  },
+                })
+                addedCount = isAtr ? candidate.findings.length : 1
+              } catch {
+                // ignore
+              }
+            }
+            await lhaStore.fetchReports().catch(() => {})
+            if (isAtr) {
+              const atrStore = useActionTakenReportStore()
+              await Promise.allSettled([atrStore.fetchReports(), atrStore.fetchSummary()])
+            }
+
+            const item: MappingImportResultItem = {
+              key: statusKey,
+              connectionId: connection.id,
+              connectionName: connection.name,
+              tableName: mapping.tableName,
+              targetScope: mapping.targetScope,
+              targetModule: mapping.targetModule,
+              status: addedCount > 0 ? 'imported' : 'skipped_duplicate',
+              addedCount,
+              skippedCount: addedCount > 0 ? 0 : 1,
+              message:
+                addedCount > 0
+                  ? isAtr
+                    ? `${addedCount} item tindak lanjut (ATR) berhasil diterbitkan dari temuan '${mapping.tableName}'.`
+                    : `Draft LHA (${candidate.findingsCount} temuan) berhasil dibuat di Audit Result Report.`
+                  : `Laporan LHA / ATR untuk '${mapping.tableName}' sudah terdaftar.`,
+              route,
+              importedAt: nowIso,
+            }
+            results.push(item)
+            recordStatus(item)
+          } else if (
+            runtimeEval.actionType === 'qar_dashboard' ||
+            runtimeEval.actionType === 'periodic_self_assessment' ||
+            runtimeEval.actionType === 'saiv_validation' ||
+            runtimeEval.actionType === 'iacm_assessment'
+          ) {
+            const qaStore = useQualityAssuranceStore()
+            await Promise.allSettled([qaStore.fetchReports(), qaStore.fetchCompanies()])
+            const conductedBy = qaStore.companyOptions[0] || 'PT AIFL Indonesia (Internal Quality Assurance)'
+            const candidates = buildQualityAssuranceCandidatesFromTable(record, runtimeEval.actionType, conductedBy)
+            const existingNames = new Set(
+              (qaStore.reports || []).map(r => String(r.reportName || r.assessmentTitle || '').trim().toLowerCase())
+            )
+            const toCreate = candidates.filter(c => !existingNames.has(c.reportName.trim().toLowerCase()))
+            const skippedCount = candidates.length - toCreate.length
+
+            let addedCount = 0
+            for (const cand of toCreate) {
+              try {
+                await $fetch(`${masterBaseUrl}/quality-assurance`, {
+                  method: 'POST',
+                  body: cand,
+                })
+                addedCount++
+              } catch {
+                // ignore
+              }
+            }
+            await qaStore.fetchReports().catch(() => {})
+
+            const item: MappingImportResultItem = {
+              key: statusKey,
+              connectionId: connection.id,
+              connectionName: connection.name,
+              tableName: mapping.tableName,
+              targetScope: mapping.targetScope,
+              targetModule: mapping.targetModule,
+              status: addedCount > 0 ? 'imported' : 'skipped_duplicate',
+              addedCount,
+              skippedCount,
+              message:
+                addedCount > 0
+                  ? `${addedCount} laporan evaluasi berhasil ditambahkan ke ${mapping.targetModule}.`
+                  : `Laporan evaluasi untuk '${mapping.tableName}' sudah terdaftar di ${mapping.targetModule}.`,
+              route,
+              importedAt: nowIso,
+            }
+            results.push(item)
+            recordStatus(item)
+          } else if (runtimeEval.actionType === 'consulting_service') {
+            const csStore = useConsultingServiceStore()
+            await Promise.allSettled([csStore.fetchServices(), csStore.fetchDepartments()])
+            const existingTitles = new Set(
+              (csStore.services || []).map(s => String(s.title || '').trim().toLowerCase())
+            )
+            const candidates = buildConsultingServiceCandidatesFromTable(record, csStore.departments)
+            const toCreate = candidates.filter(c => !existingTitles.has(c.title.trim().toLowerCase()))
+            const skippedCount = candidates.length - toCreate.length
+
+            let addedCount = 0
+            for (const cand of toCreate) {
+              try {
+                await $fetch(`${auditBaseUrl}/consulting-services`, {
+                  method: 'POST',
+                  body: cand,
+                })
+                addedCount++
+              } catch {
+                // ignore
+              }
+            }
+            await csStore.fetchServices().catch(() => {})
+
+            const item: MappingImportResultItem = {
+              key: statusKey,
+              connectionId: connection.id,
+              connectionName: connection.name,
+              tableName: mapping.tableName,
+              targetScope: mapping.targetScope,
+              targetModule: mapping.targetModule,
+              status: addedCount > 0 ? 'imported' : 'skipped_duplicate',
+              addedCount,
+              skippedCount,
+              message:
+                addedCount > 0
+                  ? `${addedCount} penugasan konsultasi baru ditambahkan ke Consulting Service.`
+                  : `Penugasan konsultasi dari '${mapping.tableName}' sudah terdaftar.`,
               route,
               importedAt: nowIso,
             }

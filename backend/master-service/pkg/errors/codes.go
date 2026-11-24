@@ -65,6 +65,24 @@ const (
 	CodeOrgLevelsVersionConflict          = "ORG_LEVELS_VERSION_CONFLICT"
 	CodeOrgLevelChangeInvalid             = "ORG_LEVEL_CHANGE_INVALID"
 
+	// Office structure (all tenants, docs/office-structure-plan.md 2.4). 422
+	// unless noted.
+	CodeOfficeCompanyRequired    = "OFFICE_COMPANY_REQUIRED"
+	CodeOfficeParentOtherCompany = "OFFICE_PARENT_OTHER_COMPANY"
+	CodeOfficeParentLevel        = "OFFICE_PARENT_LEVEL"
+	CodeOfficeCycle              = "OFFICE_CYCLE"
+	CodeOfficeDepth              = "OFFICE_DEPTH"
+	CodeOfficeLevelUnknown       = "OFFICE_LEVEL_UNKNOWN"
+	CodeOfficeHeadOfficeExists   = "OFFICE_HEAD_OFFICE_EXISTS"
+	CodeOfficeCodeTaken          = "OFFICE_CODE_TAKEN"
+	CodeOfficeHasChildren        = "OFFICE_HAS_CHILDREN"
+	// CodeOfficeLevelInUse (409): a scheme change would leave offices on a
+	// level their company's effective scheme no longer has.
+	CodeOfficeLevelInUse = "OFFICE_LEVEL_IN_USE"
+	// CodeCompanyTypeRetired: company_type=branch is no longer accepted on
+	// create/update (branches are offices now, D6).
+	CodeCompanyTypeRetired = "COMPANY_TYPE_RETIRED"
+
 	// Step-up (re-entered password) for privileged changes
 	CodeStepUpRequired    = "STEP_UP_REQUIRED"
 	CodeStepUpInvalid     = "STEP_UP_INVALID"

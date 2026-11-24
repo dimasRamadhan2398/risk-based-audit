@@ -14,6 +14,7 @@ export interface ImportedWorkingPaper {
   filePath: string
   fileSize: number
   fileType: string
+  assignmentLetterId?: string
   created_at: string
   updated_at: string
 }
@@ -56,6 +57,7 @@ export const useImportWorkingPaperStore = defineStore('import-working-paper', ()
     fileName: string
     fileType: string
     file: File
+    assignmentLetterId?: string
   }) => {
     loading.value = true
     errorMsg.value = ''

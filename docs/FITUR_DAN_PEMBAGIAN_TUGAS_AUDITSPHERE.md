@@ -41,6 +41,22 @@ Dokumen ini memuat daftar lengkap seluruh fitur pada ekosistem **AuditSphere**, 
 * **Kontributor**: **RauMomo (Qiko)** *(Lead)*, didukung oleh Dimas Saifullah Ramadhan.
 * **Lokasi Kode**: `backend/master-service/`, `scripts/onboard-tenant.sh`, `frontend/stores/department.ts`, `frontend/stores/employee.ts`
 
+### 1.4 Site Generator (Provisioning Tenant) — status
+*Diverifikasi terhadap kode pada 2026-11-24 (branch `staging`, perubahan belum di-commit). Cek ulang sebelum dipakai sebagai acuan.*
+
+* **Alur**: ADMIN membuka `/site-generator` (tidak ada di sidebar; tautan dari Settings → Email; route dijaga `utils/viewerPolicy.ts` `isPlatformAdminPath`) → wizard 4 langkah → `POST /api/v1/provisioning/jobs` di auth-service control plane (`RequireRoles("ADMIN")`, `routes/registry.go`) → proxy ke `backend/provisioner-service` (binary host, systemd, `X-Provisioner-Token`) → `scripts/onboard-tenant.sh --progress` (9 langkah) → progres via SSE (fallback polling 2 detik) → hasil: URL tenant dan password awal admin yang hanya tampil sekali.
+* **Sudah jalan (terbukti di kode dan unit test)**: job nyata dengan antrean satu-per-satu, riwayat job tersimpan di disk, re-attach ke job yang sedang berjalan, retry slug yang gagal, validasi slug/port/email di UI + provisioner + script, port otomatis lewat `GET /ports/next`, mode dry run (`--dry-run`, termasuk simulasi gagal). Animasi `setTimeout`, `TenantProvisionModal.vue` dan panggilan `/api/v1/resend/provision` sudah dihapus; endpoint itu juga sudah tidak ada di auth-service. Email tenant kini langkah 6 script.
+* **Belum diverifikasi di host Docker nyata** (tugas `auditsphere-devops` + `auditsphere-qa`):
+  1. Langkah 2-9 (databases, build, migrate, storage, email, start, health, ingress) baru diuji dalam dry run.
+  2. Kill process-group di Linux (`proc_unix.go`: SIGTERM ke grup, SIGKILL 10 detik kemudian) saat job dibatalkan atau service di-stop, termasuk `docker compose build` yang sedang berjalan.
+  3. Auth-service (container) → host `172.17.0.1:8790` melewati firewall (firewalld: bridge docker di zona `docker`), tanpa membuka 8790 ke publik.
+  4. Mapping `host.docker.internal:host-gateway` di `backend/docker-compose.prod.yml` benar-benar mengarah ke alamat docker0 tempat provisioner listen.
+  5. Streaming SSE end-to-end lewat nginx snippet (`deploy/nginx/auditsphere-provisioning-sse.conf`) dan Kong (`read_timeout` 1 jam).
+* **Keputusan terbuka — batas hari internal control**: input "LHA due days" (default 30) dan "management response due days" (default 14) sudah dihapus dari wizard karena kontrak job tidak punya field-nya. Script dan generator tetap mendukung `--ic-lha-due-days` / `--ic-mgmt-response-due-days` (ditulis ke `.env` tenant, di-seed ke settings audit-service hanya jika belum ada), tetapi provisioner tidak meneruskannya. Akibatnya tenant dari UI selalu 30/14. Pilihan: (a) tambah field opsional ke `docs/provisioning-job-contract.md`, provisioner dan wizard; atau (b) tetap 30/14 saat onboarding dan ubah per tenant setelahnya (perlu dicek apakah ada UI pengaturan untuk itu). Key i18n `lhaDueDays`/`mgmtResponseDueDays` masih tersisa di `frontend/locales/*/common.json`.
+* **Batasan lain dari UI**: provisioner tidak meneruskan `--allow-no-tls`, `--health-timeout` dan `--skip-start`, sehingga job produksi gagal di langkah 9 bila DNS/certbot belum siap (selesaikan lewat CLI). `--org-preset` (lihat `docs/org-structure-model-plan.md` bagian 7) belum ada di kontrak, script maupun UI.
+* **Dokumen**: `docs/provisioning-job-contract.md` (kontrak), `docs/NEW_CLIENT_DOMAIN_PROVISIONING_GUIDE.md` Phase 6 dan 6b (runbook), `deploy/provisioner/` (unit systemd dan env).
+* **Lokasi Kode**: `frontend/pages/site-generator/index.vue`, `frontend/components/site-generator/ProvisioningJobView.vue`, `frontend/composables/useProvisioning.ts`, `frontend/utils/provisioning.ts`, `backend/auth-service/controllers/provisioning/`, `backend/provisioner-service/`, `scripts/onboard-tenant.sh`, `scripts/generate-tenant-stack.sh`
+
 ---
 
 ## 2. Modul Artificial Intelligence & Advanced Analytics

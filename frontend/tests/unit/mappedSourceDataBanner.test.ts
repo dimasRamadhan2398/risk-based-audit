@@ -11,6 +11,18 @@ import {
   buildRiskProfilePayloadsFromRows,
   buildAuditUniverseCandidatesFromTable,
   buildRealTableAnomalies,
+  buildRiskAppetiteStatementsFromTable,
+  buildRiskFactorsFromTable,
+  buildAuditPriorityCandidatesFromTable,
+  buildRcmCandidatesFromTable,
+  buildRiskMitigationCandidatesFromTable,
+  buildAuditActivityPlanDraftFromTable,
+  buildAssignmentLetterCandidatesFromTable,
+  buildAuditFieldworkCandidatesFromTable,
+  buildInternalAuditKpiCandidatesFromTable,
+  buildAuditResultReportCandidateFromTable,
+  buildQualityAssuranceCandidatesFromTable,
+  buildConsultingServiceCandidatesFromTable,
   calculateQuartersFromMonths,
   isRowAnomalousOrFlagged,
   type MappedRecordInput,
@@ -506,5 +518,79 @@ describe('MappedSourceDataBanner & mappedFeatureAdapters Logic', () => {
     expect(result.anomalies[0].description).toContain('Transaksi di luar jam operasional')
     expect(result.normalPoints).toHaveLength(1)
     expect(result.normalPoints[0].label).toBe('TRX-2026-00001')
+  })
+
+  it('resolves banner info and builds adapter payloads for all 17 newly supported Risk, Audit, and QAR modules', () => {
+    const newRoutes = [
+      ['/risk-appetite', 'Risk Appetite Statement', 'risk_appetite'],
+      ['/risk-profile/risk-factors', 'Risk Factors', 'risk_factors'],
+      ['/risk-profile/audit-priority', 'Audit Priority', 'audit_priority'],
+      ['/risk-profile/risk-control-matrix', 'Risk Control Matrix (RCM)', 'rcm'],
+      ['/mitigation', 'Risk Mitigation', 'risk_mitigation'],
+      ['/audit-activity-plan', 'Audit Activity Plan', 'audit_activity_plan'],
+      ['/assignment-letter', 'Assignment Letter', 'assignment_letter'],
+      ['/audit-execution-status', 'Audit Execution Status', 'audit_execution_status'],
+      ['/audit-fieldwork', 'Audit Fieldwork', 'audit_fieldwork'],
+      ['/kpi-performance', 'Internal Audit Performance (KPI)', 'internal_audit_kpi'],
+      ['/audit-result-report', 'Audit Result Report (LHA)', 'audit_result_report'],
+      ['/action-taken-report', 'Action Taken Report (ATR)', 'action_taken_report'],
+      ['/quality-assurance', 'Quality Assurance Dashboard', 'qar_dashboard'],
+      ['/quality-assurance/import-periodic-self-assessment', 'Periodic Self-Assessment', 'periodic_self_assessment'],
+      ['/quality-assurance/import-saiv', 'SAIV Validation', 'saiv_validation'],
+      ['/quality-assurance/import-iacm', 'IACM Assessment', 'iacm_assessment'],
+      ['/consulting-service', 'Consulting Service', 'consulting_service'],
+    ] as const
+
+    for (const [path, expectedModule, expectedAction] of newRoutes) {
+      const info = resolveBannerModuleInfo(path)
+      expect(info).not.toBeNull()
+      expect(info?.supported).toBe(true)
+      expect(info?.module).toBe(expectedModule)
+      expect(info?.actionType).toBe(expectedAction)
+      expect(info?.actionLabel).not.toContain('Belum Didukung')
+    }
+
+    const sampleRecord: MappedRecordInput = {
+      connection_id: 'conn-1',
+      connection_name: 'Nusantara Finance DB',
+      table_name: 'audit_risk_incidents',
+      target_scope: 'risk_management',
+      target_module: 'Risk Control Matrix (RCM)',
+      audit_field: 'incident_id',
+      total_rows: 40,
+      sample_records: [
+        {
+          incident_id: 1,
+          incident_code: 'INC-2026-0001',
+          entity_unit: 'KC Jakarta Sudirman',
+          risk_category: 'Compliance',
+          severity_score: 88,
+          exposure_value: 750000000,
+          finding_summary: 'Override otorisasi kredit tanpa persetujuan komite',
+          control_weakness: 'Verifikasi dual-control dinonaktifkan',
+          reported_at: '2026-02-10',
+        },
+      ],
+    }
+
+    expect(buildRiskAppetiteStatementsFromTable(sampleRecord).length).toBeGreaterThanOrEqual(1)
+    expect(buildRiskFactorsFromTable(sampleRecord).length).toBeGreaterThanOrEqual(1)
+    expect(buildAuditPriorityCandidatesFromTable(sampleRecord)[0].prioritized).toBe(true)
+    expect(buildRcmCandidatesFromTable(sampleRecord, 2026)[0].control_code).toContain('CTL-')
+    expect(buildRiskMitigationCandidatesFromTable(sampleRecord)[0].riskControlId).toContain('MIT-')
+    expect(buildAuditActivityPlanDraftFromTable(sampleRecord).objectives.length).toBe(2)
+    expect(
+      buildAssignmentLetterCandidatesFromTable(sampleRecord, {
+        departments: [{ id: 'd1', department_name: 'KC Jakarta Sudirman', department_code: 'JKT' }],
+        employees: [{ full_name: 'Budi Santoso', employee_code: 'EMP-01' }],
+      })[0].workingUnitDepartmentId
+    ).toBe('d1')
+    const fw = buildAuditFieldworkCandidatesFromTable(sampleRecord, 'ST-001/SKAI/2026')
+    expect(fw.samples).toHaveLength(1)
+    expect(fw.testControls).toHaveLength(1)
+    expect(buildInternalAuditKpiCandidatesFromTable(sampleRecord, 2026)).toHaveLength(2)
+    expect(buildAuditResultReportCandidateFromTable(sampleRecord, 'ST-001/SKAI/2026').findingsCount).toBe(1)
+    expect(buildQualityAssuranceCandidatesFromTable(sampleRecord, 'saiv_validation')[0].type).toContain('SAIV')
+    expect(buildConsultingServiceCandidatesFromTable(sampleRecord)[0].title).toContain('audit_risk_incidents')
   })
 })

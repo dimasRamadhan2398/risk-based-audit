@@ -208,17 +208,33 @@ type RootCauseItem struct {
 	W3     string `json:"w3"`
 }
 
+type WorkingPaperRecommendation struct {
+	ID             int64  `json:"id"`
+	Recommendation string `json:"recommendation"`
+}
+
 type WorkingPaperCause struct {
-	ID             uuid.UUID       `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	WorkingPaperID string          `gorm:"type:varchar(100);index" json:"workingPaperId"`
-	Condition      string          `gorm:"type:text" json:"condition"`
-	Criteria       string          `gorm:"type:text" json:"criteria"`
-	Impact         string          `gorm:"type:text" json:"impact"`
-	RootCause      []RootCauseItem `gorm:"serializer:json" json:"rootCause"`
-	EvidenceFile   string          `gorm:"type:varchar(255)" json:"evidenceFile"`
-	CreatedAt      time.Time       `json:"created_at"`
-	UpdatedAt      time.Time       `json:"updated_at"`
-	DeletedAt      gorm.DeletedAt  `gorm:"index" json:"-"`
+	ID                   uuid.UUID                    `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
+	WorkingPaperID       string                       `gorm:"type:varchar(100);index" json:"workingPaperId"`
+	Condition            string                       `gorm:"type:text" json:"condition"`
+	RiskEvent            string                       `gorm:"type:text" json:"riskEvent"`
+	Cause                string                       `gorm:"type:text" json:"cause"`
+	RiskLevel            string                       `gorm:"type:varchar(50)" json:"riskLevel"`
+	MitigationPlanOption string                       `gorm:"type:text" json:"mitigationPlanOption"`
+	Criteria             string                       `gorm:"type:text" json:"criteria"`
+	Impact               string                       `gorm:"type:text" json:"impact"`
+	RootCause            []RootCauseItem              `gorm:"serializer:json" json:"rootCause"`
+	Recommendations      []WorkingPaperRecommendation `gorm:"serializer:json" json:"recommendations"`
+	AuditeeResponse      string                       `gorm:"type:text" json:"auditeeResponse"`
+	ActionPlan           string                       `gorm:"type:text" json:"actionPlan"`
+	TargetDate           string                       `gorm:"type:varchar(100)" json:"targetDate"`
+	ActionEvidence       string                       `gorm:"type:text" json:"actionEvidence"`
+	PIC                  string                       `gorm:"type:varchar(200)" json:"pic"`
+	FinalApprover        string                       `gorm:"type:varchar(200)" json:"finalApprover"`
+	EvidenceFile         string                       `gorm:"type:varchar(255)" json:"evidenceFile"`
+	CreatedAt            time.Time                    `json:"created_at"`
+	UpdatedAt            time.Time                    `json:"updated_at"`
+	DeletedAt            gorm.DeletedAt               `gorm:"index" json:"-"`
 }
 
 func (WorkingPaperCause) TableName() string {

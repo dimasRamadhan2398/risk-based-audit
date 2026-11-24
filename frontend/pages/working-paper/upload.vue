@@ -46,6 +46,15 @@
               />
             </UFormField>
 
+            <UFormField :label="t('workingPaper.upload.assignmentLetter')" :hint="t('workingPaper.upload.assignmentLetterHint')">
+              <USelectMenu
+                v-model="form.assignmentLetterId"
+                :items="assignmentLetterOptions"
+                :placeholder="t('workingPaper.upload.assignmentLetterPlaceholder')"
+                class="w-full"
+              />
+            </UFormField>
+
             <!-- File Upload Box -->
             <UFormField :label="t('workingPaper.upload.fileLabel')">
               <div 
@@ -216,6 +225,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useImportWorkingPaperStore } from '~/stores/import-working-paper'
+import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { useI18n } from '~/composables/useI18n'
 import TableEntities from '~/components/shared/TableEntities.vue'
@@ -223,9 +233,17 @@ import TableEntities from '~/components/shared/TableEntities.vue'
 const { t } = useI18n()
 const store = useImportWorkingPaperStore()
 const toast = useToastNotification()
+const assignmentLetterStore = useAssignmentLetterStore()
+
+const assignmentLetterOptions = computed(() =>
+  assignmentLetterStore.assignmentLetterList
+    .filter((st: any) => st.status === 'Published')
+    .map((st: any) => st.letterNumber)
+)
 
 onMounted(() => {
   store.fetchImportedPapers()
+  assignmentLetterStore.fetchAssignmentLetters()
 })
 
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -237,7 +255,8 @@ const form = ref({
   description: '',
   fileName: '',
   fileType: '',
-  file: null as any
+  file: null as any,
+  assignmentLetterId: ''
 })
 
 const columns = computed(() => [
@@ -298,11 +317,13 @@ const handleImport = async () => {
       description: form.value.description,
       fileName: form.value.fileName,
       fileType: form.value.fileType,
-      file: form.value.file
+      file: form.value.file,
+      assignmentLetterId: form.value.assignmentLetterId || ''
     })
-    
+
     form.value.title = ''
     form.value.description = ''
+    form.value.assignmentLetterId = ''
     clearFile()
   } catch (error: any) {
     // Error toast is shown by the store

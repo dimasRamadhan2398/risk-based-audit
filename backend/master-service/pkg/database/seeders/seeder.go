@@ -1741,6 +1741,34 @@ func (s *Seeder) SeedVisionMissionGoals() error {
 		},
 	}
 
+	// Renstra Audit Internal 5 tahun (template CSUL). Draft so that it does not
+	// replace the published VMG above; publish it from the UI when it is the one in use.
+	seeds = append(seeds, models.VisionMissionGoals{
+		CompanyID:     company.ID,
+		Period:        "2026 - 2030",
+		EffectiveDate: timePtr(time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)),
+		Vision:        "Menjadi mitra strategis dalam mewujudkan visi, misi, tujuan, sasaran strategis organisasi, dan target kinerja perusahaan",
+		Mission: "a) Memperkuat kemampuan perusahaan untuk menciptakan, melindungi, dan mempertahankan nilai dengan memberikan layanan assurance dan konsultansi, wawasan, dan pandangan ke depan kepada jajaran Direksi dan manajemen secara objektif, independen, dan berbasis risiko\n" +
+			"b) Membantu Direktur Utama untuk meningkatkan pemahaman dan komitmen manajemen untuk secara terus menerus mengembangkan dan menerapkan sistem pengendalian internal yang efektif\n" +
+			"c) Mendorong terciptanya budaya Good Corporate Governance (GCG) dalam pelaksanaan kegiatan perusahaan\n" +
+			"d) Meningkatkan efisiensi dan efektivitas pelaksanaan audit internal\n" +
+			"e) Memastikan terkelolanya risiko dan mencegah, mendeteksi, dan mengungkapkan terjadinya kerugian dan praktik kecurangan\n" +
+			"f) Mengembangkan kompetensi auditor internal dalam melaksanakan layanan assurance dan konsultansi sesuai dengan Global Internal Audit Standard (GIAS) untuk mewujudkan tujuan perusahaan",
+		Version:    "v1.0",
+		Status:     models.VmgStatusDraft,
+		Notes:      "Strategic Plan Audit Internal 2026-2030. Semua fitur Risk-Based Internal Audit berdasarkan GIAS dan perhitungan KPI, residual risk, effectiveness control, emerging risk, continuous auditing ada pada software milik kami AuditSphere yang mulai diperkenalkan ke pasar tahun 2026",
+		CreatedBy:  "System",
+		ModifiedBy: "System",
+		Goals: []models.VmgGoal{
+			{
+				GoalCode:    "G-001",
+				GoalName:    "Kredibel dalam memberikan asurans risiko sebagai lini ketiga",
+				GoalDescription: "Kredibel dalam memberikan asurans risiko sebagai lini ketiga",
+				Unit:        "%",
+			},
+		},
+	})
+
 	// Seeder 2: Published VMG dari periode sebelumnya
 	effectiveDate := timePtr(time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC))
 	seeds = append(seeds, models.VisionMissionGoals{

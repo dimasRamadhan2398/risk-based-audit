@@ -89,6 +89,15 @@ describe('Risk Control Matrix modal', () => {
   it('catches delete failures', () => {
     expect(src).toMatch(/try \{\s*await rcmStore\.deleteRCMItem\(id\)/)
   })
+
+  it('starts with empty Select Risk Name in Add modal and preserves it in Edit modal', () => {
+    const addBlock = src.match(/const openAddModal = \(\) => \{[\s\S]*?\n\}/)?.[0] || ''
+    const editBlock = src.match(/const openEditModal = \(item: RCMItem\) => \{[\s\S]*?\n\}/)?.[0] || ''
+    expect(addBlock).toContain("selectedRiskId.value = ''")
+    expect(addBlock).not.toContain('defaultRiskItem')
+    expect(addBlock).not.toContain('onRiskSelected(')
+    expect(editBlock).toContain("selectedRiskId.value = item.risk_id || ''")
+  })
 })
 
 describe('Stores that must hold no seed data', () => {

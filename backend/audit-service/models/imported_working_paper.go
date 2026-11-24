@@ -8,17 +8,20 @@ import (
 )
 
 type ImportedWorkingPaper struct {
-	ID          uuid.UUID      `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
-	Title       string         `gorm:"type:varchar(255);not null" json:"title"`
-	Description string         `gorm:"type:text" json:"description"`
-	FileName    string         `gorm:"type:varchar(255);not null" json:"fileName"`
-	FilePath    string         `gorm:"type:varchar(500);not null" json:"filePath"`
-	FileSize    int64          `gorm:"type:bigint" json:"fileSize"`
-	FileType    string         `gorm:"type:varchar(100)" json:"fileType"`
-	FileContent []byte         `gorm:"type:bytea" json:"-"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
-	DeletedAt   gorm.DeletedAt `gorm:"index" json:"-"`
+	ID          uuid.UUID `gorm:"type:uuid;primary_key;default:gen_random_uuid()" json:"id"`
+	Title       string    `gorm:"type:varchar(255);not null" json:"title"`
+	Description string    `gorm:"type:text" json:"description"`
+	// AssignmentLetterID scopes the paper to one assignment letter (letter number or UUID).
+	// Empty means unscoped; unscoped papers are never embedded in an LHA export.
+	AssignmentLetterID string         `gorm:"type:varchar(100);index" json:"assignmentLetterId"`
+	FileName           string         `gorm:"type:varchar(255);not null" json:"fileName"`
+	FilePath           string         `gorm:"type:varchar(500);not null" json:"filePath"`
+	FileSize           int64          `gorm:"type:bigint" json:"fileSize"`
+	FileType           string         `gorm:"type:varchar(100)" json:"fileType"`
+	FileContent        []byte         `gorm:"type:bytea" json:"-"`
+	CreatedAt          time.Time      `json:"created_at"`
+	UpdatedAt          time.Time      `json:"updated_at"`
+	DeletedAt          gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
 func (ImportedWorkingPaper) TableName() string {

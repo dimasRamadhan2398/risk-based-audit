@@ -57,6 +57,9 @@
       class="mb-4"
     />
 
+    <!-- Template view: Sasaran Strategis + Program/Kegiatan Utama -->
+    <StrategicPlanTemplateView />
+
     <!-- Strategic Plan Table -->
     <StrategicPlanTable />
 
@@ -66,6 +69,7 @@
 <script setup lang="ts">
 
 import StrategicPlanForm from "~/components/strategic-audit-plan/StrategicPlanForm.vue";
+import StrategicPlanTemplateView from "~/components/strategic-audit-plan/StrategicPlanTemplateView.vue";
 import StrategicPlanTable from "~/components/strategic-audit-plan/StrategicPlanTable.vue";
 import StrategicObjectiveViewModal from "~/components/strategic-audit-plan/StrategicObjectiveViewModal.vue";
 import VisionMissionCard from "~/components/strategic-audit-plan/VisionMissionCard.vue";

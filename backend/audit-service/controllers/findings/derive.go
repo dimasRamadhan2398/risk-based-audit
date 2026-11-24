@@ -21,13 +21,21 @@ const (
 // Finding is one derived finding. Date is the updated_at (falling back to
 // created_at) of the row it was derived from.
 type Finding struct {
-	Title    string
-	Category string
-	Action   string
-	Source   string
-	Impact   string
-	Criteria string
-	Date     time.Time
+	Title                string
+	Category             string
+	Action               string
+	Source               string
+	Impact               string
+	Criteria             string
+	RiskEvent            string
+	Cause                string
+	RiskLevel            string
+	MitigationPlanOption string
+	Recommendations      []string
+	AuditeeResponse      string
+	RootCause            []models.RootCauseItem
+	ActionPlans          []models.FindingActionPlan
+	Date                 time.Time
 }
 
 // LiveSources holds the rows of ONE assignment letter that findings are
@@ -54,6 +62,21 @@ func planAction(p models.WorkingPaperPlan) string {
 	return p.Recommendation
 }
 
+func categoryFromRiskLevel(riskLevel string) (string, bool) {
+	switch strings.ToLower(strings.TrimSpace(riskLevel)) {
+	case "5", "level 5", "4", "level 4":
+		return "Very Significant", true
+	case "3", "level 3":
+		return "Significant", true
+	case "2", "level 2":
+		return "Quite Significant", true
+	case "1", "level 1":
+		return "Not Significant", true
+	default:
+		return "", false
+	}
+}
+
 // Derive builds the live findings of one assignment letter, deduplicated by
 // lower-cased title (first occurrence wins: KKA, then fieldwork).
 // This is the logic behind GET /audit-result-reports/auto-findings.
@@ -71,7 +94,7 @@ func Derive(src LiveSources) []Finding {
 		}
 	}
 
-	// 1. KKA F04 causes (condition = finding), paired with F05 plans by position
+	// 1. KKA F04 causes (condition = finding), paired with embedded action plan (or legacy F05 plans by position)
 	for idx, cause := range src.Causes {
 		cond := strings.TrimSpace(cause.Condition)
 		if cond == "" {
@@ -83,26 +106,65 @@ func Derive(src LiveSources) []Finding {
 		}
 		seen[key] = true
 
-		action := ""
-		if idx < len(src.Plans) {
-			action = planAction(src.Plans[idx])
-		} else if len(src.Plans) > 0 {
-			action = planAction(src.Plans[0])
+		var recommendations []string
+		for _, rec := range cause.Recommendations {
+			if r := strings.TrimSpace(rec.Recommendation); r != "" {
+				recommendations = append(recommendations, r)
+			}
 		}
 
-		cat := defaultCategory
-		if strings.Contains(key, "kritis") || strings.Contains(key, "critical") || strings.Contains(key, "tidak sesuai") || strings.Contains(key, "override") || strings.Contains(key, "mfa") {
-			cat = "Very Significant"
+		var actionPlans []models.FindingActionPlan
+		hasEmbeddedPlan := strings.TrimSpace(cause.ActionPlan) != "" ||
+			strings.TrimSpace(cause.TargetDate) != "" ||
+			strings.TrimSpace(cause.PIC) != "" ||
+			strings.TrimSpace(cause.FinalApprover) != "" ||
+			strings.TrimSpace(cause.ActionEvidence) != ""
+		if hasEmbeddedPlan {
+			actionPlans = append(actionPlans, models.FindingActionPlan{
+				Action:        strings.TrimSpace(cause.ActionPlan),
+				TargetDate:    strings.TrimSpace(cause.TargetDate),
+				PIC:           strings.TrimSpace(cause.PIC),
+				FinalApprover: strings.TrimSpace(cause.FinalApprover),
+				Evidence:      strings.TrimSpace(cause.ActionEvidence),
+			})
+		}
+
+		action := strings.TrimSpace(cause.ActionPlan)
+		if action == "" && len(recommendations) > 0 {
+			action = strings.Join(recommendations, "\n")
+		}
+		if action == "" {
+			if idx < len(src.Plans) {
+				action = planAction(src.Plans[idx])
+			} else if len(src.Plans) > 0 {
+				action = planAction(src.Plans[0])
+			}
+		}
+
+		cat, ok := categoryFromRiskLevel(cause.RiskLevel)
+		if !ok {
+			cat = defaultCategory
+			if strings.Contains(key, "kritis") || strings.Contains(key, "critical") || strings.Contains(key, "tidak sesuai") || strings.Contains(key, "override") || strings.Contains(key, "mfa") {
+				cat = "Very Significant"
+			}
 		}
 
 		out = append(out, Finding{
-			Title:    cond,
-			Category: cat,
-			Action:   action,
-			Source:   SourceWorkingPaper,
-			Impact:   cause.Impact,
-			Criteria: cause.Criteria,
-			Date:     rowDate(cause.UpdatedAt, cause.CreatedAt),
+			Title:                cond,
+			Category:             cat,
+			Action:               action,
+			Source:               SourceWorkingPaper,
+			Impact:               cause.Impact,
+			Criteria:             cause.Criteria,
+			RiskEvent:            cause.RiskEvent,
+			Cause:                cause.Cause,
+			RiskLevel:            cause.RiskLevel,
+			MitigationPlanOption: cause.MitigationPlanOption,
+			Recommendations:      recommendations,
+			AuditeeResponse:      cause.AuditeeResponse,
+			RootCause:            cause.RootCause,
+			ActionPlans:          actionPlans,
+			Date:                 rowDate(cause.UpdatedAt, cause.CreatedAt),
 		})
 	}
 

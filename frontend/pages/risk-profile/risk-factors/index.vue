@@ -544,7 +544,7 @@
               <div class="flex items-center justify-between">
                 <div>
                   <label class="text-md font-bold text-[var(--text-main)] uppercase tracking-wider block">
-                    {{ t('riskFactors.weighting.guidelinesSection') }}
+                    {{ t('riskFactors.weighting.guidelinesSection') }} <span class="text-error-500">*</span>
                   </label>
                   <p class="text-[11px] text-[var(--text-muted)] mt-0.5">
                     {{ t('riskFactors.weighting.guidelinesSubtitle') }}
@@ -573,9 +573,18 @@
                     <UInput
                       v-model="scoreItem.desc"
                       size="sm"
-                      :placeholder="t('riskFactors.weighting.scoreDescPlaceholder', { score: scoreItem.score })"
+                      :placeholder="getScorePlaceholder(scoreItem.score)"
+                      :color="factorFormSubmitted && !scoreItem.desc.trim() ? 'error' : undefined"
+                      :highlight="factorFormSubmitted && !scoreItem.desc.trim()"
+                      required
                       class="w-full"
                     />
+                    <p
+                      v-if="factorFormSubmitted && !scoreItem.desc.trim()"
+                      class="text-xs text-error-500 mt-1"
+                    >
+                      {{ t('riskFactors.messages.scoreGuidelineRequired', { score: scoreItem.score }) }}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -716,6 +725,7 @@ const factorModalOpen = ref(false)
 const isEditingFactor = ref(false)
 const editingFactorId = ref<string | null>(null)
 const factorSubmitting = ref(false)
+const factorFormSubmitted = ref(false)
 const factorForm = ref({
   name: '',
   description: '',
@@ -1001,16 +1011,17 @@ const saveChanges = async () => {
 }
 
 const getDefaultScores = () => [
-  { score: 5, desc: 'High – Major contributor to enterprise risk' },
-  { score: 4, desc: 'Medium to High – Significant risk affecting key operations' },
-  { score: 3, desc: 'Medium – Moderate risk exposure with limited enterprise impact' },
-  { score: 2, desc: 'Low to Medium – Low risk operations with minimal impact' },
-  { score: 1, desc: 'Low – Administrative or routine activity with minimal risk' }
+  { score: 5, desc: '' },
+  { score: 4, desc: '' },
+  { score: 3, desc: '' },
+  { score: 2, desc: '' },
+  { score: 1, desc: '' }
 ]
 
 const openAddFactorModal = () => {
   isEditingFactor.value = false
   editingFactorId.value = null
+  factorFormSubmitted.value = false
   factorForm.value = {
     name: '',
     description: '',
@@ -1022,6 +1033,7 @@ const openAddFactorModal = () => {
 const openEditFactorModal = (factor: any) => {
   isEditingFactor.value = true
   editingFactorId.value = factor.id
+  factorFormSubmitted.value = false
   let parsedScores = getDefaultScores()
   if (factor.score_guidelines) {
     try {
@@ -1049,8 +1061,14 @@ const openEditFactorModal = (factor: any) => {
 }
 
 const saveFactorForm = async () => {
+  factorFormSubmitted.value = true
   if (!factorForm.value.name.trim()) {
     toast.showError(t('riskFactors.messages.nameRequired'))
+    return
+  }
+
+  if (factorForm.value.scores.some(s => !s.desc.trim())) {
+    toast.showError(t('riskFactors.messages.guidelinesRequired'))
     return
   }
 
@@ -1141,6 +1159,14 @@ const getScoreLabel = (score: number) => {
   const labelKey = `riskFactors.scoreLabels.${score}`
   const label = t(labelKey)
   return label !== labelKey ? label : ''
+}
+
+const getScorePlaceholder = (score: number) => {
+  const defaultKey = `riskFactors.defaultScores.${score}`
+  const defaultText = t(defaultKey)
+  return defaultText !== defaultKey
+    ? defaultText
+    : t('riskFactors.weighting.scoreDescPlaceholder', { score })
 }
 
 

@@ -19,8 +19,17 @@ from retrain_engine import (
     AutoRetrainEngine,
     reload_fastapi_models,
     compute_auditee_pool_hash,
+    compute_auditor_items_hash,
+    compute_auditee_custom_items_hash,
     read_retrain_status,
     write_retrain_status,
+    map_finding_significance,
+    upsert_atr_findings_pool,
+    invalidate_anomaly_redis_cache,
+)
+from training_data_source import (
+    load_atr_findings_pool,
+    compute_atr_findings_hash,
 )
 from model_registry import resolve_model_keys, MODEL_KEYS
 from retrain_scheduler import get_retrain_scheduler
@@ -1057,6 +1066,8 @@ def get_metric_x_value(atype: str, amt: float, hour: int, idx: int, deviasi: flo
         return round(float(deviasi if deviasi > 0 else 15.5 + (idx * 11) % 85), 2)
     elif atype == 'IT Control':
         return float(gagal_login if gagal_login > 0 else max(1, (idx % 8)))
+    elif atype == 'Audit Findings':
+        return round(float(deviasi if deviasi > 0 else (amt if amt > 0 else max(1.0, float((idx * 5) % 60)))), 1)
 
     # Legacy Operational Categories
     elif atype == 'Fieldwork':
@@ -1078,6 +1089,261 @@ def get_metric_x_value(atype: str, amt: float, hour: int, idx: int, deviasi: flo
         elif gagal_login > 0:
             return float(gagal_login)
         return round(float(25.0 + (idx * 3) % 50), 2)
+
+def _evaluate_atr_findings_for_anomaly() -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], int]:
+    """
+    Evaluate Action Taken Report (ATR) findings using the Multi-Model Tournament winner
+    (`anomaly_bundle['findings_model']`).
+    Returns (atr_anomalies_list, atr_scatter_points, total_atr_scanned).
+    """
+    atr_items = load_atr_findings_pool()
+    if not atr_items:
+        try:
+            sync_res = AutoRetrainEngine(model_dir=MODEL_DIR, ai_training_dir=AI_TRAINING_DIR).sync_atr_findings_for_anomaly()
+            atr_items = sync_res.get("items") or []
+        except Exception:
+            atr_items = []
+
+    findings_model = anomaly_bundle.get("findings_model") if isinstance(anomaly_bundle, dict) else None
+    winner_name = (findings_model or {}).get("winner_name", "XGBoost") if isinstance(findings_model, dict) else "XGBoost"
+
+    # Deduplicate identical ATR rows by (report_number, normalized_title, status, progress, due_date)
+    # while counting repeat occurrences across reports
+    title_freq: Dict[str, int] = {}
+    for raw_it in atr_items:
+        if not isinstance(raw_it, dict):
+            continue
+        t_clean = str(raw_it.get("finding_title") or "").strip().lower()
+        if t_clean:
+            title_freq[t_clean] = title_freq.get(t_clean, 0) + 1
+
+    dedup_items: List[Dict[str, Any]] = []
+    seen_sigs = set()
+    for raw_it in atr_items:
+        if not isinstance(raw_it, dict):
+            continue
+        status_u = str(raw_it.get("status") or "PLANNED").upper()
+        if status_u == "CANCELLED":
+            continue
+        rnum = str(raw_it.get("report_number") or "LHA-ATR/SKAI/2026").strip()
+        t_clean = str(raw_it.get("finding_title") or "").strip()
+        if not t_clean:
+            continue
+        sig_key = f"{rnum}|{t_clean.lower()}|{status_u}|{raw_it.get('progress')}|{raw_it.get('due_date')}"
+        if sig_key in seen_sigs:
+            continue
+        seen_sigs.add(sig_key)
+        item_copy = dict(raw_it)
+        item_copy["repeat_count"] = max(int(raw_it.get("repeat_count") or 0), max(0, title_freq.get(t_clean.lower(), 1) - 1))
+        dedup_items.append(item_copy)
+
+    atr_anomalies: List[Dict[str, Any]] = []
+    atr_scatter: List[Dict[str, Any]] = []
+
+    for idx, atr_it in enumerate(dedup_items):
+        status_u = str(atr_it.get("status") or "PLANNED").upper()
+        rnum = str(atr_it.get("report_number") or "LHA-ATR/SKAI/2026").strip()
+        raw_title = str(atr_it.get("finding_title") or "").strip()
+        display_title = raw_title if len(raw_title) > 3 else f"Temuan Audit {rnum} ({raw_title.upper()})"
+        sig_label, sig_sc = map_finding_significance(atr_it.get("significance_label") or atr_it.get("finding_category"))
+        if atr_it.get("significance_score"):
+            try:
+                sig_sc = int(atr_it["significance_score"])
+            except Exception:
+                pass
+        ov_d = float(atr_it.get("overdue_days") or 0.0)
+        el_d = float(atr_it.get("elapsed_days") or ov_d)
+        prog_p = float(atr_it.get("progress") if atr_it.get("progress") is not None else (100.0 if status_u == "COMPLETED" else 0.0))
+        if status_u == "COMPLETED" and prog_p == 0.0:
+            prog_p = 100.0
+        rep_c = float(atr_it.get("repeat_count") or 0.0)
+        has_plan = bool(str(atr_it.get("action_plan") or "").strip())
+        is_ov = 1 if (bool(atr_it.get("is_overdue")) or ov_d > 0) and status_u != "COMPLETED" else 0
+        eff_delay = ov_d if ov_d > 0 else (el_d if status_u != "COMPLETED" and prog_p < 50.0 else float(3 + (idx * 4) % 18))
+        if eff_delay <= 0:
+            eff_delay = float(5 + (idx * 7) % 25)
+        is_stag = 1 if (status_u != "COMPLETED" and prog_p < 25.0 and (is_ov == 1 or sig_sc >= 3)) else 0
+        unjust = 1 if (status_u != "COMPLETED" and ((ov_d > 14 and prog_p < 30.0) or (not has_plan and sig_sc >= 3))) else 0
+        dsi = float(sig_sc * np.log1p(max(0.0, eff_delay) + max(0.0, 100.0 - prog_p) * 0.25))
+
+        prob = 0.18
+        imp_idx = max(1, min(5, sig_sc + (1 if is_ov else 0)))
+        lik_idx = 4 if (is_ov or rep_c >= 1) else (1 if status_u == "COMPLETED" else 3)
+
+        if isinstance(findings_model, dict) and findings_model.get("classifier") is not None and findings_model.get("scaler") is not None:
+            try:
+                f_vec = np.array([[
+                    float(sig_sc),
+                    float(eff_delay),
+                    float(prog_p),
+                    float(rep_c),
+                    float(is_ov),
+                    float(is_stag),
+                    float(unjust),
+                    float(dsi),
+                ]], dtype=np.float32)
+                X_f_scaled = findings_model["scaler"].transform(f_vec)
+                f_clf = findings_model["classifier"]
+                f_iso = findings_model.get("isolation_forest")
+                prob_sup = float(f_clf.predict_proba(X_f_scaled)[0, 1]) if hasattr(f_clf, "predict_proba") else float(f_clf.predict(X_f_scaled)[0])
+                if f_iso is not None:
+                    raw_iso = float(f_iso.decision_function(X_f_scaled)[0])
+                    unsup = float(1.0 / (1.0 + np.exp(raw_iso * 4.0)))
+                    prob = float(0.70 * prob_sup + 0.30 * unsup)
+                else:
+                    prob = prob_sup
+                if findings_model.get("impact_classifier") is not None:
+                    imp_idx = int(findings_model["impact_classifier"].predict(X_f_scaled)[0]) + 1
+                if findings_model.get("likelihood_classifier") is not None:
+                    lik_idx = int(findings_model["likelihood_classifier"].predict(X_f_scaled)[0]) + 1
+            except Exception:
+                pass
+
+        rule_is_anom = (
+            status_u != "COMPLETED"
+            and (
+                is_ov == 1
+                or (sig_sc >= 4 and prog_p < 60.0)
+                or (sig_sc >= 3 and prog_p < 25.0 and (not has_plan or rep_c >= 1))
+                or (rep_c >= 2 and prog_p < 75.0)
+            )
+        )
+        thresh = float((findings_model or {}).get("best_threshold", 0.42))
+        is_anom = False if status_u == "COMPLETED" else bool(rule_is_anom or prob >= thresh)
+
+        if is_anom:
+            prob = max(prob, 0.78 if sig_sc >= 4 else 0.68)
+            if sig_sc >= 4:
+                imp_idx = max(imp_idx, 5 if (is_ov or rep_c >= 1) else 4)
+                lik_idx = max(lik_idx, 4)
+            elif sig_sc == 3:
+                imp_idx = max(imp_idx, 4 if is_ov else 3)
+                lik_idx = max(lik_idx, 4 if is_ov else 3)
+        else:
+            prob = min(prob, 0.25)
+            imp_idx = min(imp_idx, 2)
+            lik_idx = min(lik_idx, 2)
+
+        # Strictly resolve to the 5 canonical Risk Levels (never CRITICAL)
+        raw_code = matrix_risk_level(lik_idx, imp_idx)
+        risk_code, sev_label, _, _ = normalize_anomaly_risk_level(raw_code, default_code="MODERATE")
+
+        x_val = round(float(max(1.0, eff_delay)), 1)
+        # Map progress & finding significance into 0..23.0 Y-axis coordinate for scatter plot
+        base_hour = (prog_p / 100.0) * 17.5 + (sig_sc * 1.1) + ((idx % 5) * 0.25)
+        y_val = round(min(23.0, max(0.5, base_hour)), 2)
+
+        raw_id = str(atr_it.get("id") or f"{idx+1:03d}").split("-")[0].upper()
+        rec_id = f"ATR-{raw_id}" if not raw_id.startswith("ATR-") else raw_id
+        entity_name = str(atr_it.get("department") or atr_it.get("report_title") or "Unit Auditee").strip()
+        due_txt = f", Due: {atr_it['due_date']}" if atr_it.get("due_date") else ""
+        ov_txt = f"Overdue {int(ov_d)} Hari" if is_ov else f"Usia Tindak Lanjut {int(eff_delay)} Hari"
+        rep_txt = f", Berulang {int(rep_c) + 1}x" if rep_c >= 1 else ""
+        desc = (
+            f"[{rnum}] {display_title} — Signifikansi: {sig_label} | "
+            f"Status: {status_u} (Progress {int(prog_p)}%, {ov_txt}{due_txt}{rep_txt})"
+        )
+
+        atr_scatter.append({
+            "x": x_val,
+            "y": y_val,
+            "type": "Audit Findings",
+            "is_anomaly": bool(is_anom),
+            "label": rec_id,
+        })
+
+        if is_anom:
+            atr_anomalies.append({
+                "id": rec_id,
+                "entity": entity_name,
+                "type": "Audit Findings",
+                "category": "Audit Findings",
+                "finding_significance": sig_label,
+                "significance_score": int(sig_sc),
+                "report_number": rnum,
+                "status": status_u,
+                "progress": int(prog_p),
+                "overdue_days": int(eff_delay),
+                "anomaly_score": round(float(prob), 4),
+                "description": desc,
+                "severity": sev_label,
+                "date": str(atr_it.get("due_date") or atr_it.get("updated_at", "")[:10] or "2026-06-01"),
+                "amount": round(float(eff_delay), 1),
+                "is_anomaly": True,
+                "predicted_impact": int(imp_idx),
+                "predicted_likelihood": int(lik_idx),
+                "risk_level": risk_code,
+                "xMetric": x_val,
+                "hour": y_val,
+                "hour_of_day": int(round(y_val)),
+                "winner_model": winner_name,
+                "target_timeline": get_current_target_timeline(),
+            })
+
+    # Supplement normal baseline points (Blue points) for 'Audit Findings' from mitigation_overdue_data.csv
+    mit_csv = os.path.join(AI_TRAINING_DIR, "anomaly_prediction", "mitigation_overdue_data.csv")
+    seed_scanned = 0
+    if os.path.exists(mit_csv):
+        try:
+            df_mit = pd.read_csv(mit_csv)
+            seed_scanned = int(len(df_mit))
+            mit_normal = df_mit[df_mit["TARGET: is_anomaly"].astype(str).str.strip() != "Ya (Anomali)"].head(45)
+            for idx, mrow in mit_normal.iterrows():
+                ov_d = float(pd.to_numeric(mrow.get("overdue_days", 5.0), errors="coerce") or 5.0)
+                prog_p = float(pd.to_numeric(mrow.get("mitigation_progress_pct", 75.0), errors="coerce") or 75.0)
+                x_val = round(max(1.0, min(60.0, ov_d * 0.35)), 1)
+                y_val = round(min(23.9, max(0.5, (prog_p / 100.0) * 20.0 + ((idx % 6) * 0.25))), 2)
+                atr_scatter.append({
+                    "x": x_val,
+                    "y": y_val,
+                    "type": "Audit Findings",
+                    "is_anomaly": False,
+                    "label": str(mrow.get("ID Mitigasi", f"MIT-{idx+1:04d}")),
+                })
+        except Exception as e:
+            print(f"[ATR-Batch] Error loading mitigation baseline scatter points: {e}")
+
+    return atr_anomalies, atr_scatter, int(len(dedup_items) + seed_scanned)
+
+
+class ATRSyncWebhookRequest(BaseModel):
+    trigger: Optional[str] = "atr_webhook"
+    source: Optional[str] = "audit-service"
+    force_retrain: Optional[bool] = False
+    items: Optional[List[Dict[str, Any]]] = None
+
+
+@app.post("/predict/anomaly/atr-webhook")
+@app.post("/predict/anomaly/sync-atr")
+def sync_atr_findings_webhook(req: Optional[ATRSyncWebhookRequest] = Body(default=None)):
+    """
+    Automatic webhook & sync endpoint for Action Taken Report (ATR) findings.
+    Pulls/merges live ATR findings into the anomaly training pool, invalidates Redis cache,
+    and triggers RetrainScheduler change detection so the Anomaly Multi-Model Tournament
+    automatically retrains and promotes the highest-accuracy model when findings change.
+    """
+    payload = req or ATRSyncWebhookRequest()
+    engine = AutoRetrainEngine(model_dir=MODEL_DIR, ai_training_dir=AI_TRAINING_DIR)
+    sync_res = engine.sync_atr_findings_for_anomaly(pushed_items=payload.items)
+    changed = bool(sync_res.get("changed")) or bool(payload.force_retrain)
+
+    invalidate_anomaly_redis_cache()
+    retrain_queue_res = None
+    if changed:
+        try:
+            scheduler = get_retrain_scheduler(app)
+            retrain_queue_res = scheduler.detect_and_enqueue_changes_once(sync_remote=False)
+        except Exception as e:
+            print(f"[ATR-Webhook] Scheduler notify warning: {e}")
+
+    return {
+        "status": "success",
+        "changed": changed,
+        "atr_count": int(sync_res.get("count", 0)),
+        "atr_pool_hash": str(sync_res.get("hash", "")),
+        "retrain_scheduler": retrain_queue_res,
+    }
+
 
 @app.get("/predict/anomaly/batch")
 def get_anomaly_batch():
@@ -1215,15 +1481,24 @@ def get_anomaly_batch():
             except Exception as e:
                 print(f"Error loading general transaction scatter data: {e}")
 
+        # Integrate live Action Taken Report (ATR) Findings + Findings Multi-Model Tournament predictions
+        atr_anomalies, atr_scatter, atr_scanned_count = _evaluate_atr_findings_for_anomaly()
+        if atr_anomalies:
+            anomalies_list.extend(atr_anomalies)
+        if atr_scatter:
+            scatter_data.extend(atr_scatter)
+
         cat_counts = anom_df['Kategori'].value_counts()
         top_cat = cat_counts.index[0] if len(cat_counts) > 0 else (detected_categories[0] if detected_categories else "Funding")
 
-        all_categories = list(dict.fromkeys(detected_categories + ['Transaction']))
+        all_categories = list(dict.fromkeys(detected_categories + ['Audit Findings', 'Transaction']))
+        total_scanned = int(len(df) + atr_scanned_count)
+        total_anoms = int(len(anomalies_list))
 
         summary = {
-            "totalScanned": len(df),
-            "anomaliesFound": len(anom_df),
-            "contaminationRate": round(len(anom_df) / max(len(df), 1), 3),
+            "totalScanned": total_scanned,
+            "anomaliesFound": total_anoms,
+            "contaminationRate": round(total_anoms / max(total_scanned, 1), 3),
             "topCategory": str(top_cat),
             "categories": all_categories
         }
@@ -1325,6 +1600,7 @@ def train_anomaly_with_rules(req: AnomalyRuleTrainRequest):
     conn_name = req.connection_name or "Connected DB"
 
     new_training_rows = []
+    new_atr_rule_items = []
     ts = int(time.time())
 
     for idx, r_item in enumerate(req.rules or []):
@@ -1347,6 +1623,33 @@ def train_anomaly_with_rules(req: AnomalyRuleTrainRequest):
 
         # Normalize rule severity strictly to the 5 canonical risk levels (never CRITICAL)
         rule_code, rule_label, imp, lik = normalize_anomaly_risk_level(rule_sev_raw, default_code="HIGH")
+        lower_name = rule_name.lower()
+        is_finding_rule = (
+            rule_cat == "Audit Findings"
+            or any(k in lower_name for k in ("overdue", "action plan", "stagnant", "finding", "significance", "very significant", "repeated"))
+            or any(k in rule_field for k in ("overdue", "progress", "finding", "significance", "due_date"))
+        )
+        if is_finding_rule:
+            rule_cat = "Audit Findings"
+            sig_cat = "Very Significant" if ("very significant" in lower_name or rule_code == "HIGH") else (
+                "Significant" if rule_code in ("MODERATE_HIGH", "MODERATE") else "Quite Significant"
+            )
+            ov_days = 45 if "overdue" in lower_name else (22 if "stagnant" in lower_name else 18)
+            prog_val = 10 if "stagnant" in lower_name else (0 if "unresolved" in lower_name else 15)
+            new_atr_rule_items.append({
+                "id": f"RULE-ATR-{ts % 10000}-{idx+1}",
+                "report_number": f"LHA-RULE/{conn_name[:12].upper()}/2026",
+                "report_title": f"Audit {table_name} ({conn_name})",
+                "department": f"Unit Kerja {conn_name}",
+                "finding_title": f"{rule_desc} [Rule: {rule_name}]",
+                "finding_category": sig_cat,
+                "action_plan": "" if "unresolved" in lower_name else f"Tindak lanjut mitigasi {table_name}",
+                "progress": prog_val,
+                "status": "IN_PROGRESS" if prog_val > 0 else "PLANNED",
+                "is_overdue": True,
+                "overdue_days": ov_days,
+                "due_date": "2026-04-01",
+            })
 
         # Generate 3 targeted anomaly samples embodying this rule
         for s_idx in range(3):
@@ -1480,7 +1783,13 @@ def train_anomaly_with_rules(req: AnomalyRuleTrainRequest):
             'Alasan Anomali': '-'
         })
 
-    # Append to training CSV if present and enqueue ONLY the anomaly model into the scheduler
+    if new_atr_rule_items:
+        try:
+            upsert_atr_findings_pool(new_atr_rule_items, replace=False)
+        except Exception as e:
+            print(f"[AutomatedRules] Warning upserting ATR rule items: {e}")
+
+    # Append to training CSV if writable
     retrained = False
     retrain_info = None
     if os.path.exists(bank_csv) and new_training_rows:
@@ -1491,7 +1800,11 @@ def train_anomaly_with_rules(req: AnomalyRuleTrainRequest):
             df_new = pd.DataFrame(new_training_rows)
             df_combined = pd.concat([df_existing, df_new], ignore_index=True)
             df_combined.to_csv(bank_csv, index=False)
+        except Exception as e:
+            print(f"[AutomatedRules] CSV write skipped (read-only volume or error): {e}")
 
+    if new_training_rows or new_atr_rule_items:
+        try:
             scheduler = get_retrain_scheduler(app)
             retrain_info = scheduler.enqueue_model(
                 "anomaly",
@@ -1504,13 +1817,8 @@ def train_anomaly_with_rules(req: AnomalyRuleTrainRequest):
         except Exception as e:
             print(f"[AutomatedRules] Error enqueueing anomaly suite: {e}")
 
-    # Flush Redis cache key if available
-    try:
-        import redis
-        r = redis.Redis(host=os.getenv("REDIS_HOST", "localhost"), port=int(os.getenv("REDIS_PORT", 6379)), db=0)
-        r.delete("audit:analytics:batch:anomaly")
-    except Exception:
-        pass
+    # Flush Redis cache key via raw socket (no redis-py dependency needed)
+    invalidate_anomaly_redis_cache()
 
     batch_data = get_anomaly_batch()
     q_pos = (retrain_info or {}).get("queue_position")
@@ -2820,11 +3128,15 @@ def trigger_model_retrain(
     )
     if is_wait and enq.get("models_enqueued"):
         scheduler.drain_queue_sync()
-        snap = scheduler.get_status()
+        aud_h = compute_auditor_items_hash(auditor_items) if auditor_items else None
+        cus_h = compute_auditee_custom_items_hash(auditee_items) if auditee_items else None
+        snap = scheduler.get_status(auditor_hash=aud_h, auditee_custom_hash=cus_h)
         return {
             **enq,
-            "status": "completed",
+            "status": snap.get("status", "completed"),
             "is_running": bool(snap.get("is_running")),
+            "last_error": snap.get("last_error"),
+            "failed_models": snap.get("failed_models", []),
             "models": snap.get("models"),
             "queue": snap.get("queue"),
         }
@@ -2862,10 +3174,12 @@ def trigger_auto_retrain(
     )
     if is_wait and enq.get("models_enqueued"):
         scheduler.drain_queue_sync()
-        snap = scheduler.get_status()
+        aud_h = compute_auditor_items_hash(auditor_items) if auditor_items else None
+        cus_h = compute_auditee_custom_items_hash(auditee_items) if auditee_items else None
+        snap = scheduler.get_status(auditor_hash=aud_h, auditee_custom_hash=cus_h)
         return {
             **snap,
-            "status": "completed",
+            "status": snap.get("status", "completed"),
             "scope": retrain_scope,
             "models_enqueued": enq.get("models_enqueued", []),
         }

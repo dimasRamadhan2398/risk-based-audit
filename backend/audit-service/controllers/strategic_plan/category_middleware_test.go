@@ -133,7 +133,7 @@ const spTable = `CREATE TABLE strategic_plans (
 	unit TEXT, hib_hig TEXT, period_type TEXT, selected_period TEXT,
 	year_start INTEGER, year_end INTEGER, kpi_targets TEXT, kpi_actuals TEXT,
 	internal_audit_so TEXT, actual TEXT, target TEXT, calculation TEXT, status TEXT,
-	category TEXT DEFAULT '',
+	category TEXT DEFAULT '', initiative TEXT, initiative_years TEXT, target_notes TEXT,
 	created_at DATETIME, updated_at DATETIME, deleted_at DATETIME)`
 
 func spRouter(t *testing.T) (*gin.Engine, *gorm.DB) {

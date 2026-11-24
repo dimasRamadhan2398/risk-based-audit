@@ -87,6 +87,16 @@ onMounted(() => {
   fetchAiAnalytics()
 })
 
+// Auto-refresh Anomaly Detection predictions whenever background RetrainScheduler / Multi-Model Tournament completes
+watch(
+  () => anomalyModelState.value?.state,
+  (newState, oldState) => {
+    if (newState === 'trained' && (oldState === 'training' || oldState === 'queued')) {
+      fetchAiAnalytics(true, { skipAutoRetrain: true })
+    }
+  }
+)
+
 const anomalyTypeConfigs = computed<Record<string, AnomalyTypeConfig>>(() => createAnomalyTypeConfigs(t, locale.value))
 
 const selectedAnomalyType = ref('Funding')
@@ -205,6 +215,7 @@ const getCategoryBadgeColor = (type: string) => {
     case 'Payment': return 'warning'
     case 'KYC': return 'secondary'
     case 'IT Control': return 'info'
+    case 'Audit Findings': return 'warning'
     case 'Transaction': return 'error'
     case 'Procurement': return 'primary'
     case 'Expense Report': return 'warning'

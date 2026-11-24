@@ -123,6 +123,30 @@ services:
 
 
   # ----------------------------------------------------------
+  # TENANT PROVISIONING (Site Generator)
+  # Long read timeout and no response buffering: GET
+  # /api/v1/provisioning/jobs/{id}/events is an SSE stream that stays open
+  # for the whole job. See docs/provisioning-job-contract.md.
+  # ----------------------------------------------------------
+
+  - name: auth-service-provisioning
+    url: http://auth-service:8001
+    connect_timeout: 10000
+    read_timeout: 3600000
+    write_timeout: 3600000
+
+    routes:
+
+      - name: provisioning-routes-v1
+        paths:
+          - /api/v1/provisioning
+
+        strip_path: false
+        response_buffering: false
+        request_buffering: true
+
+
+  # ----------------------------------------------------------
   # LEGACY MFA
   # ----------------------------------------------------------
 

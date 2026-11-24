@@ -123,6 +123,7 @@ def default_model_entry(model_key: str, model_dir: Optional[str] = None) -> Dict
         "current_rows": 0,
         "trained_rows": 0,
         "trained_data_hash": "",
+        "trained_pool_hash": "",
         "current_data_hash": "",
         "trained_at": mtime_iso,
         "duration_seconds": None,
@@ -239,16 +240,18 @@ def bootstrap_trained_hashes_if_empty(status_file: Optional[str] = None) -> Dict
         for mk in MODEL_KEYS:
             entry = reg["models"].get(mk, {})
             fp = fps.get(mk, {})
-            cur_hash = fp.get("hash", "")
-            cur_rows = int(fp.get("rows", 0))
+            cur_hash = str(fp.get("hash") or "")
+            cur_pool = str(fp.get("pool_hash") or cur_hash)
+            cur_rows = int(fp.get("rows") or 0)
             exists = _artifact_exists(mk, model_dir=mdir)
 
             if exists and not entry.get("trained_data_hash") and cur_hash:
                 mtime_iso = entry.get("trained_at") or _artifact_mtime_iso(mk, model_dir=mdir) or datetime.now(timezone.utc).isoformat()
                 models_patch[mk] = {
                     "state": "trained",
-                    "trained_data_hash": cur_hash,
-                    "current_data_hash": cur_hash,
+                    "trained_data_hash": cur_pool,
+                    "trained_pool_hash": cur_pool,
+                    "current_data_hash": cur_pool,
                     "trained_rows": cur_rows,
                     "current_rows": cur_rows,
                     "samples": entry.get("samples") or cur_rows,
@@ -260,11 +263,33 @@ def bootstrap_trained_hashes_if_empty(status_file: Optional[str] = None) -> Dict
                 }
                 changed = True
                 if mk == "kpi_auditee" and not reg.get("trained_auditee_pool_hash"):
-                    top_patch["trained_auditee_pool_hash"] = fp.get("pool_hash", cur_hash)
+                    top_patch["trained_auditee_pool_hash"] = cur_pool
                     top_patch["trained_auditee_count"] = cur_rows
                 elif mk == "kpi_auditor" and not reg.get("trained_auditor_hash"):
-                    top_patch["trained_auditor_hash"] = cur_hash
+                    top_patch["trained_auditor_hash"] = cur_pool
                     top_patch["trained_auditor_count"] = cur_rows
+            elif exists and mk == "kpi_auditee" and cur_pool:
+                # Heal legacy registries where trained_data_hash stored sha256(pool|custom)
+                reg_pool = str(reg.get("trained_auditee_pool_hash") or "")
+                if reg_pool == cur_pool and (entry.get("trained_data_hash") != cur_pool or entry.get("trained_pool_hash") != cur_pool):
+                    models_patch[mk] = {
+                        "trained_data_hash": cur_pool,
+                        "trained_pool_hash": cur_pool,
+                        "current_data_hash": cur_pool,
+                    }
+                    changed = True
+            elif exists and mk == "kpi_auditor" and cur_pool:
+                # Heal legacy registries where trained_data_hash stored live_auditor_hash instead of pool_hash
+                if not entry.get("trained_pool_hash"):
+                    trained_d = str(entry.get("trained_data_hash") or "")
+                    reg_aud = str(reg.get("trained_auditor_hash") or "")
+                    healed_pool = cur_pool if (reg_aud and trained_d == reg_aud) else (trained_d or cur_pool)
+                    models_patch[mk] = {
+                        "trained_data_hash": healed_pool,
+                        "trained_pool_hash": healed_pool,
+                        "current_data_hash": cur_pool,
+                    }
+                    changed = True
 
         if changed:
             return write_raw_registry({"models": models_patch, **top_patch}, status_file=sfile)
@@ -307,22 +332,43 @@ def build_live_status_snapshot(
         entry = dict(reg["models"].get(mk) or default_model_entry(mk, model_dir=mdir))
         fp = fps.get(mk, {})
         cur_hash = str(fp.get("hash") or "")
+        cur_pool_hash = str(fp.get("pool_hash") or cur_hash)
         cur_rows = int(fp.get("rows") or 0)
         trained_hash = str(entry.get("trained_data_hash") or "")
         trained_rows = int(entry.get("trained_rows") or 0)
         exists = _artifact_exists(mk, model_dir=mdir)
 
-        has_new = bool(cur_hash and cur_hash != trained_hash)
-        if mk == "kpi_auditee" and auditee_custom_hash:
-            if auditee_custom_hash != str(reg.get("trained_auditee_custom_hash") or ""):
-                has_new = True
-        if mk == "kpi_auditor" and auditor_hash:
-            if auditor_hash != str(reg.get("trained_auditor_hash") or ""):
-                has_new = True
+        # Evaluate change detection without mixing server pool hashes and client live/custom hashes
+        if mk == "kpi_auditee":
+            trained_auditee_pool = str(
+                reg.get("trained_auditee_pool_hash")
+                or entry.get("trained_pool_hash")
+                or trained_hash
+                or ""
+            )
+            has_pool_new = bool(cur_pool_hash and cur_pool_hash != trained_auditee_pool)
+            has_custom_new = bool(
+                auditee_custom_hash
+                and auditee_custom_hash != str(reg.get("trained_auditee_custom_hash") or "")
+            )
+            has_new = has_pool_new or has_custom_new
+            cur_hash = cur_pool_hash
+        elif mk == "kpi_auditor":
+            trained_auditor_pool = str(entry.get("trained_pool_hash") or trained_hash or "")
+            trained_auditor_live = str(reg.get("trained_auditor_hash") or "")
+            if auditor_hash:
+                # Frontend supplied authoritative live Strategic Audit Plan / Performance KPI fingerprint
+                has_new = bool(auditor_hash != trained_auditor_live)
+            else:
+                # Background detector checks server-side pool changes only
+                has_new = bool(cur_pool_hash and cur_pool_hash != trained_auditor_pool)
+            cur_hash = cur_pool_hash
+        else:
+            has_new = bool(cur_hash and cur_hash != trained_hash)
 
         new_rows = max(0, cur_rows - trained_rows) if has_new else 0
         if has_new and new_rows == 0 and cur_rows > 0:
-            # Rows were modified in-place or custom items updated
+            # Rows were modified in-place or custom/live items updated
             new_rows = max(1, cur_rows - trained_rows) if cur_rows != trained_rows else 1
 
         q_job = queued_by_model.get(mk)
@@ -387,23 +433,42 @@ def build_live_status_snapshot(
 
     any_running = len(running_models) > 0
     any_queued = any(m["state"] == "queued" for m in models_out.values())
+    failed_models = [mk for mk, m in models_out.items() if m["state"] == "failed"]
+    any_failed = len(failed_models) > 0
 
     auditee_fp = fps.get("kpi_auditee", {})
     pool_hash = str(auditee_fp.get("pool_hash") or auditee_fp.get("hash") or "")
     pool_count = int(auditee_fp.get("rows") or 0)
-    trained_pool_hash = str(reg.get("trained_auditee_pool_hash") or models_out["kpi_auditee"].get("trained_data_hash") or "")
+    trained_pool_hash = str(
+        reg.get("trained_auditee_pool_hash")
+        or models_out["kpi_auditee"].get("trained_pool_hash")
+        or models_out["kpi_auditee"].get("trained_data_hash")
+        or ""
+    )
     has_untrained_pool = bool(pool_hash and pool_hash != trained_pool_hash)
     has_untrained_auditor = bool(auditor_hash and auditor_hash != str(reg.get("trained_auditor_hash") or ""))
     has_untrained_custom = bool(auditee_custom_hash and auditee_custom_hash != str(reg.get("trained_auditee_custom_hash") or ""))
 
-    top_status = "running" if any_running else ("queued" if any_queued else str(reg.get("status") or "idle"))
-    if top_status == "running" and not any_running:
+    if any_running:
+        top_status = "running"
+        top_last_error = None
+    elif any_queued:
+        top_status = "queued"
+        top_last_error = None
+    elif any_failed:
+        top_status = "failed"
+        top_last_error = models_out[failed_models[0]].get("last_error") or reg.get("last_error")
+    else:
+        # Auto-heal stale top-level failed/last_error once all models are healthy
         top_status = "completed" if reg.get("finished_at") else "idle"
+        top_last_error = None
 
     out = {
         **reg,
         "status": top_status,
         "is_running": bool(any_running),
+        "last_error": top_last_error,
+        "failed_models": failed_models,
         "current_auditee_pool_hash": pool_hash,
         "current_auditee_pool_count": pool_count,
         "has_untrained_auditee_pool_data": has_untrained_pool,

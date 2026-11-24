@@ -57,8 +57,8 @@ COPY . .
 # Backup pre-baked models to avoid them being shadowed by empty mounted volumes
 RUN mkdir -p /app/pretrained_models && cp -r models/* /app/pretrained_models/ || true
 
-# Setup entrypoint script
-RUN chmod +x entrypoint.sh
+# Setup entrypoint script (strip Windows CRLF defensively)
+RUN sed -i 's/\r$//' entrypoint.sh && chmod +x entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]
 
 EXPOSE 8000

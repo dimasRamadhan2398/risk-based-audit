@@ -51,4 +51,33 @@ describe('Standard Risk Factors CRUD Feature', () => {
     expect(idCommon.riskFactors.messages.factorUpdated).toBeDefined()
     expect(idCommon.riskFactors.messages.factorDeleted).toBeDefined()
   })
+
+  it('requires all scoring scale guidelines (1-5) and uses placeholders instead of pre-filled text', () => {
+    const filePath = path.join(rootDir, 'pages/risk-profile/risk-factors/index.vue')
+    const content = fs.readFileSync(filePath, 'utf8')
+
+    // Default scores should be empty strings (not pre-filled text)
+    expect(content).toContain("{ score: 5, desc: '' }")
+    expect(content).toContain("{ score: 4, desc: '' }")
+    expect(content).toContain("{ score: 3, desc: '' }")
+    expect(content).toContain("{ score: 2, desc: '' }")
+    expect(content).toContain("{ score: 1, desc: '' }")
+
+    // Placeholder helper and required validation
+    expect(content).toContain('getScorePlaceholder(scoreItem.score)')
+    expect(content).toContain("t('riskFactors.messages.guidelinesRequired')")
+    expect(content).toContain("t('riskFactors.messages.scoreGuidelineRequired'")
+
+    const enCommon = JSON.parse(fs.readFileSync(path.join(rootDir, 'locales/en/common.json'), 'utf8'))
+    const idCommon = JSON.parse(fs.readFileSync(path.join(rootDir, 'locales/id/common.json'), 'utf8'))
+
+    for (const score of ['1', '2', '3', '4', '5']) {
+      expect(enCommon.riskFactors.defaultScores[score]).toBeTruthy()
+      expect(idCommon.riskFactors.defaultScores[score]).toBeTruthy()
+    }
+    expect(enCommon.riskFactors.messages.guidelinesRequired).toBeTruthy()
+    expect(idCommon.riskFactors.messages.guidelinesRequired).toBeTruthy()
+    expect(enCommon.riskFactors.messages.scoreGuidelineRequired).toBeTruthy()
+    expect(idCommon.riskFactors.messages.scoreGuidelineRequired).toBeTruthy()
+  })
 })

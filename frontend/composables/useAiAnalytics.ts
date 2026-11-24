@@ -608,6 +608,7 @@ const liveAuditorPayloadItems = ref<AuditorPayloadItem[]>([])
 const customAuditeeVersion = ref(0)
 const checkingRetrainStatus = ref(false)
 const lastRetrainScheduledAt = ref(0)
+const manualKpiRetrainError = ref<string | null>(null)
 const retrainStatus = ref({
   status: 'idle' as 'idle' | 'running' | 'completed' | 'failed',
   isRunning: false,
@@ -624,6 +625,8 @@ const retrainStatus = ref({
   modelUpdatedAt: null as string | null,
   message: '',
   lastError: null as string | null,
+  failedModels: [] as string[],
+  hasModelBreakdown: false,
   statusFetchedOnce: false
 })
 
@@ -687,11 +690,12 @@ const timeseriesState = ref<any>({
   }
 })
 
-const CACHE_KEY = 'auditsphere_real_analytics_cache_v19'
+const CACHE_KEY = 'auditsphere_real_analytics_cache_v20'
 
 const clearLegacyAnalyticsCaches = () => {
   if (typeof window === 'undefined') return
   const legacyKeys = [
+    'auditsphere_real_analytics_cache_v19',
     'auditsphere_real_analytics_cache_v18',
     'auditsphere_real_analytics_cache_v17',
     'auditsphere_real_analytics_cache_v16',
@@ -1069,8 +1073,34 @@ export const useAiAnalytics = () => {
     return reasons
   })
 
+  const isKpiTrainingActive = computed(() => {
+    const audSt = modelStatuses.value.kpi_auditor?.state
+    const aeeSt = modelStatuses.value.kpi_auditee?.state
+    if (audSt === 'training' || audSt === 'queued' || aeeSt === 'training' || aeeSt === 'queued') {
+      return true
+    }
+    return Boolean(retrainStatus.value.isRunning)
+  })
+
+  // KPI-scoped error ONLY: never let an unrelated model failure (e.g. entity/nlp/anomaly)
+  // or a stale global last_error contradict 'Sudah Terlatih' on the KPI Forecast page.
+  const kpiRetrainError = computed<string | null>(() => {
+    if (isKpiTrainingActive.value) return null
+    const aud = modelStatuses.value.kpi_auditor
+    const aee = modelStatuses.value.kpi_auditee
+    if (aud?.state === 'failed' && aud?.last_error) return String(aud.last_error)
+    if (aee?.state === 'failed' && aee?.last_error) return String(aee.last_error)
+    if (manualKpiRetrainError.value) return manualKpiRetrainError.value
+    // Legacy backend fallback (no per-model `models` breakdown): only surface failure
+    // if KPI data is still untrained or server has not completed a healthy model state.
+    if (!retrainStatus.value.hasModelBreakdown && retrainStatus.value.status === 'failed' && retrainStatus.value.lastError) {
+      return retrainStatus.value.lastError
+    }
+    return null
+  })
+
   const canManualRetrain = computed(() =>
-    retrainStatus.value.statusFetchedOnce && !retrainStatus.value.isRunning && hasUntrainedNewData.value
+    retrainStatus.value.statusFetchedOnce && !isKpiTrainingActive.value && (hasUntrainedNewData.value || Boolean(kpiRetrainError.value))
   )
 
   const applyRetrainPayload = (raw: any) => {
@@ -1081,39 +1111,91 @@ export const useAiAnalytics = () => {
       ? d.is_running
       : (st === 'running' || st === 'scheduled' || st === 'already_running')
 
+    const nextTrainedAuditorHash = d.trained_auditor_hash !== undefined ? String(d.trained_auditor_hash || '') : retrainStatus.value.trainedAuditorHash
+    const nextTrainedAuditeePoolHash = d.trained_auditee_pool_hash !== undefined ? String(d.trained_auditee_pool_hash || '') : retrainStatus.value.trainedAuditeePoolHash
+    const nextTrainedAuditeeCustomHash = d.trained_auditee_custom_hash !== undefined ? String(d.trained_auditee_custom_hash || '') : retrainStatus.value.trainedAuditeeCustomHash
+    const nextHasUntrainedPool = d.has_untrained_auditee_pool_data !== undefined
+      ? Boolean(d.has_untrained_auditee_pool_data)
+      : (running ? retrainStatus.value.hasUntrainedAuditeePoolData : false)
+
+    const hasModelsObj = Boolean(d.models && typeof d.models === 'object')
+    const updatedModels = { ...modelStatuses.value }
+    if (hasModelsObj) {
+      for (const [mk, mv] of Object.entries(d.models)) {
+        if (mv && typeof mv === 'object') {
+          updatedModels[mk] = {
+            ...(updatedModels[mk] || createDefaultModelEntry(mk, mk)),
+            ...(mv as any)
+          }
+        }
+      }
+
+      // Reconcile KPI Auditee & Auditor model entries with authoritative top-level hashes so
+      // AiModelStatusBadge never shows stale '+1 pembaruan' while top-level status is 'Sudah Terlatih'.
+      const auditeeCustomMatched = !currentAuditeeCustomHash.value || currentAuditeeCustomHash.value === nextTrainedAuditeeCustomHash
+      if (updatedModels.kpi_auditee && updatedModels.kpi_auditee.state === 'untrained_data' && !nextHasUntrainedPool && auditeeCustomMatched) {
+        updatedModels.kpi_auditee = {
+          ...updatedModels.kpi_auditee,
+          state: 'trained',
+          has_new_data: false,
+          new_rows: 0,
+          message: `Model ${updatedModels.kpi_auditee.label} siap digunakan (${updatedModels.kpi_auditee.samples || updatedModels.kpi_auditee.trained_rows || updatedModels.kpi_auditee.current_rows} sampel).`
+        }
+      }
+      const auditorLiveMatched = liveAuditorPayloadItems.value.length === 0 || (Boolean(currentAuditorHash.value) && currentAuditorHash.value === nextTrainedAuditorHash)
+      if (updatedModels.kpi_auditor && updatedModels.kpi_auditor.state === 'untrained_data' && auditorLiveMatched) {
+        updatedModels.kpi_auditor = {
+          ...updatedModels.kpi_auditor,
+          state: 'trained',
+          has_new_data: false,
+          new_rows: 0,
+          message: `Model ${updatedModels.kpi_auditor.label} siap digunakan (${updatedModels.kpi_auditor.samples || updatedModels.kpi_auditor.trained_rows || updatedModels.kpi_auditor.current_rows} sampel).`
+        }
+      }
+      modelStatuses.value = updatedModels
+    }
+
+    const derivedFailedModels: string[] = Array.isArray(d.failed_models)
+      ? d.failed_models
+      : (hasModelsObj
+        ? Object.values(updatedModels).filter((m: any) => m?.state === 'failed' && m?.last_error).map((m: any) => String(m.key))
+        : [])
+
+    const anyModelFailed = hasModelsObj ? derivedFailedModels.length > 0 : (st === 'failed' && Boolean(d.last_error))
+    const resolvedStatus: 'idle' | 'running' | 'completed' | 'failed' = running
+      ? 'running'
+      : (anyModelFailed
+        ? 'failed'
+        : (st === 'completed' || (d.finished_at && st !== 'idle') ? 'completed' : (st === 'failed' && !hasModelsObj ? 'failed' : (retrainStatus.value.status === 'failed' ? 'completed' : retrainStatus.value.status))))
+    const resolvedLastError = running
+      ? null
+      : (anyModelFailed ? (d.last_error ?? null) : null)
+
+    if (!anyModelFailed || (updatedModels.kpi_auditor?.state === 'trained' && updatedModels.kpi_auditee?.state === 'trained')) {
+      manualKpiRetrainError.value = null
+    }
+
     retrainStatus.value = {
-      status: running ? 'running' : (st === 'failed' ? 'failed' : (st === 'completed' ? 'completed' : retrainStatus.value.status)),
+      status: resolvedStatus,
       isRunning: running,
       trigger: d.trigger || retrainStatus.value.trigger,
       startedAt: d.started_at ?? retrainStatus.value.startedAt,
       finishedAt: d.finished_at ?? retrainStatus.value.finishedAt,
       durationSeconds: d.duration_seconds !== undefined ? Number(d.duration_seconds) : retrainStatus.value.durationSeconds,
-      trainedAuditorHash: d.trained_auditor_hash !== undefined ? String(d.trained_auditor_hash || '') : retrainStatus.value.trainedAuditorHash,
-      trainedAuditeePoolHash: d.trained_auditee_pool_hash !== undefined ? String(d.trained_auditee_pool_hash || '') : retrainStatus.value.trainedAuditeePoolHash,
-      trainedAuditeeCustomHash: d.trained_auditee_custom_hash !== undefined ? String(d.trained_auditee_custom_hash || '') : retrainStatus.value.trainedAuditeeCustomHash,
+      trainedAuditorHash: nextTrainedAuditorHash,
+      trainedAuditeePoolHash: nextTrainedAuditeePoolHash,
+      trainedAuditeeCustomHash: nextTrainedAuditeeCustomHash,
       trainedAuditorCount: d.trained_auditor_count !== undefined ? Number(d.trained_auditor_count || 0) : retrainStatus.value.trainedAuditorCount,
       trainedAuditeeCount: d.trained_auditee_count !== undefined ? Number(d.trained_auditee_count || 0) : retrainStatus.value.trainedAuditeeCount,
-      hasUntrainedAuditeePoolData: d.has_untrained_auditee_pool_data !== undefined
-        ? Boolean(d.has_untrained_auditee_pool_data)
-        : (running ? retrainStatus.value.hasUntrainedAuditeePoolData : false),
+      hasUntrainedAuditeePoolData: nextHasUntrainedPool,
       modelUpdatedAt: d.model_updated_at ?? retrainStatus.value.modelUpdatedAt,
       message: d.message ?? retrainStatus.value.message,
-      lastError: d.last_error ?? null,
+      lastError: resolvedLastError,
+      failedModels: derivedFailedModels,
+      hasModelBreakdown: hasModelsObj || retrainStatus.value.hasModelBreakdown,
       statusFetchedOnce: true
     }
 
-    if (d.models && typeof d.models === 'object') {
-      const updated = { ...modelStatuses.value }
-      for (const [mk, mv] of Object.entries(d.models)) {
-        if (mv && typeof mv === 'object') {
-          updated[mk] = {
-            ...(updated[mk] || createDefaultModelEntry(mk, mk)),
-            ...(mv as any)
-          }
-        }
-      }
-      modelStatuses.value = updated
-    }
     if (Array.isArray(d.queue)) {
       retrainQueue.value = d.queue
     }
@@ -2200,19 +2282,39 @@ export const useAiAnalytics = () => {
   }
 
   const triggerManualForceRetrain = async () => {
-    if (retrainStatus.value.isRunning) {
+    if (isKpiTrainingActive.value) {
       return { ...retrainStatus.value, status: 'already_running' }
     }
-    if (!hasUntrainedNewData.value && retrainStatus.value.statusFetchedOnce) {
+    if (!hasUntrainedNewData.value && !kpiRetrainError.value && retrainStatus.value.statusFetchedOnce) {
       return { ...retrainStatus.value, status: 'up_to_date' }
     }
 
+    manualKpiRetrainError.value = null
     retrainStatus.value = {
       ...retrainStatus.value,
       status: 'running',
       isRunning: true,
+      lastError: null,
       trigger: 'user_manual_force_sync',
       message: 'Memulai Manual / Force Sync & melatih ulang model PyTorch LSTM dengan data terbaru...'
+    }
+
+    const recoverFromServerProbe = async (fallbackErr: string) => {
+      // Production reverse proxies (e.g. Kong/Nginx) may time out waiting for synchronous training
+      // even though Python AI already started or completed the job in the background.
+      const probed = await fetchRetrainStatus().catch(() => null)
+      if (probed?.isRunning || isKpiTrainingActive.value) {
+        return { ...retrainStatus.value, status: 'already_running' }
+      }
+      if (probed && !hasUntrainedNewData.value && !kpiRetrainError.value) {
+        await fetchAiAnalytics(true, { skipAutoRetrain: true })
+        return { ...retrainStatus.value, status: 'completed' }
+      }
+      retrainStatus.value.isRunning = false
+      retrainStatus.value.status = 'failed'
+      retrainStatus.value.lastError = fallbackErr
+      manualKpiRetrainError.value = fallbackErr
+      return { ...retrainStatus.value, status: 'failed', lastError: fallbackErr }
     }
 
     try {
@@ -2230,10 +2332,7 @@ export const useAiAnalytics = () => {
       })
 
       if (!res) {
-        retrainStatus.value.isRunning = false
-        retrainStatus.value.status = 'failed'
-        retrainStatus.value.lastError = 'Layanan AI retrain tidak dapat dihubungi.'
-        return { ...retrainStatus.value, status: 'failed' }
+        return await recoverFromServerProbe('Layanan AI retrain tidak dapat dihubungi.')
       }
 
       applyRetrainPayload(res)
@@ -2243,10 +2342,7 @@ export const useAiAnalytics = () => {
       }
       return { ...retrainStatus.value, status: d?.status || retrainStatus.value.status }
     } catch (err: any) {
-      retrainStatus.value.isRunning = false
-      retrainStatus.value.status = 'failed'
-      retrainStatus.value.lastError = err?.message || 'Gagal melatih ulang model AI'
-      return { ...retrainStatus.value, status: 'failed' }
+      return await recoverFromServerProbe(err?.message || 'Gagal melatih ulang model AI')
     }
   }
 
@@ -2571,6 +2667,8 @@ export const useAiAnalytics = () => {
     hasUntrainedAuditeeData,
     hasUntrainedNewData,
     untrainedDataReasons,
+    isKpiTrainingActive,
+    kpiRetrainError,
     canManualRetrain,
     fetchRetrainStatus,
     retrainModel,

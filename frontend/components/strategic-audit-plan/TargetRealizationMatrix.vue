@@ -167,8 +167,8 @@ function getPeriodCalculation(periodKey: string): string {
     if (target === 0) return '-'
     result = (actual / target) * 100
   } else {
-    if (actual === 0) return '-'
-    result = (target / actual) * 100
+    if (target === 0) return '-'
+    result = (1 + (1 - actual / target)) * 100
   }
   return `${result.toFixed(2)}%`
 }

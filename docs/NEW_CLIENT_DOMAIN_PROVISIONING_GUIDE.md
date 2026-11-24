@@ -16,6 +16,7 @@ To illustrate every step concretely, this guide uses **Client A: Accenture** wit
 6. [Phase 4: Backend Microservices & Kong Gateway Setup](#phase-4-backend-microservices--kong-gateway-setup)
 7. [Phase 5: Frontend (Nuxt 4) Deployment & Branding](#phase-5-frontend-nuxt-4-deployment--branding)
 8. [Phase 6: Automated Tenant Onboarding Script](#phase-6-automated-tenant-onboarding-script)
+   - [Phase 6b: Site Generator Provisioner (host service)](#phase-6b-site-generator-provisioner-host-service)
 9. [Phase 7: Verification & Smoke Testing Checklist](#phase-7-verification--smoke-testing-checklist)
 10. [Phase 8: Maintenance, Backup & Data Compliance (UU PDP / GDPR)](#phase-8-maintenance-backup--data-compliance-uu-pdp--gdpr)
 
@@ -260,7 +261,7 @@ in [Phase 6](#phase-6-automated-tenant-onboarding-script). In particular
 never exits.
 
 > [!NOTE]
-> The auth seeder automatically initializes standard roles: `Super Admin`, `Chief Audit Executive (CAE)`, `Audit Team Leader`, `Auditor`, and `Auditee`, ready for the Accenture internal audit team. It also creates the default `admin` / `password123` account — rotate it before handover.
+> The auth seeder creates the roles `ADMIN`, `AUDITOR`, `EXECUTIVE`, `AUDITEE`, `VIEWER` and `DEPARTMENT_HEAD` with their permissions, and the `admin` user. Run by hand like this, without `ADMIN_PASSWORD` and `SEED_DEMO_USERS`, it falls back to `admin` / `password123` **and** creates the demo sample users. Use `onboard-tenant.sh` instead, which generates the admin password (see Phase 6, "First admin"). Verified against code on 2026-11-24 (`backend/auth-service/pkg/database/seeders/seeder.go`).
 
 ---
 
@@ -331,10 +332,12 @@ Two things in the tenant config are worth knowing about:
 `audit-service-<slug>` and so on, so the gateway has no route that could reach
 another tenant's services even though all containers share one bridge network.
 
-**`/api/v1/resend` is deliberately absent.** Minting Resend sending domains is a
-control-plane privilege; a tenant gateway exposing it would let one client
-provision email for any domain. The tenant's `auth-service` also runs with an
-empty `RESEND_MASTER_API_KEY` as a second lock.
+**`/api/v1/resend` and `/api/v1/provisioning` are deliberately absent.** Creating
+Resend keys and provisioning tenants are control-plane privileges. Since
+2026-11-24 the old `POST /api/v1/resend/provision` API no longer exists at all
+(tenant keys come from `scripts/provision-tenant-email.sh`, Phase 6 step 6). The
+tenant's `auth-service` also runs with an empty `RESEND_MASTER_API_KEY` and no
+`PROVISIONER_URL` (its `/provisioning` routes answer 503) as a second lock.
 
 CORS is set to the tenant's own origin only. It is not on the hot path — the
 frontend calls `/api/v1` same-origin and the Nuxt server proxies to the gateway —
@@ -420,42 +423,70 @@ To customize the logo and brand for Accenture in `frontend/components/Logo.vue`:
 
 ## Phase 6: Automated Tenant Onboarding Script
 
+> Verified against code on 2026-11-24 (`scripts/onboard-tenant.sh`,
+> `scripts/generate-tenant-stack.sh`, `backend/provisioner-service`,
+> `backend/auth-service/routes/registry.go`). Re-check after changes to them.
+
 `scripts/onboard-tenant.sh` runs the whole pipeline. It calls the stack
 generator from Phase 4 first, so the ports and secrets exist before anything
-needs them.
+needs them. There are two ways to run it, and both run the same 9 steps:
+
+- **From the CLI on the VPS**, as below.
+- **From the Site Generator** (`/site-generator`, role `ADMIN`, control plane
+  only). The UI starts a job on the host provisioner, which runs this script
+  with `--progress` and streams the steps to the browser. Installing that host
+  service and the script flags it uses are in Phase 6b.
 
 ```bash
 chmod +x scripts/onboard-tenant.sh scripts/generate-tenant-stack.sh
 
-# Production
-./scripts/onboard-tenant.sh accenture "Accenture" 3010 8090
+# Production: options first, then --, then <slug> <client name>
+./scripts/onboard-tenant.sh --domain accenture.auditsphere.app \
+    --admin-name "Siti CAE" --admin-email cae@accenture.example -- accenture "Accenture"
 
-# Local development — <slug>.localhost, plain HTTP, no Nginx or Certbot
-./scripts/onboard-tenant.sh accenture "Accenture" 3010 8090 --local --empty-data
+# Local development: <slug>.localhost, plain HTTP, no email, Nginx or Certbot
+./scripts/onboard-tenant.sh --local --empty-data -- accenture "Accenture"
 ```
+
+The older positional form (`<slug> <client name> [fe_port] [kong_port]` with the
+flags after it) still works.
 
 | Flag | Effect |
 | :--- | :--- |
-| `--local` | Target `<slug>.localhost` over HTTP; skip the Nginx vhost and Certbot |
-| `--empty-data` | Migrate only — no demo records (**default**) |
-| `--with-demo-data` | Also run the demo seeders for audit, master and risk |
-| `--skip-start` | Provision everything but leave the stack stopped |
+| `--local` | Target `<slug>.localhost` over HTTP; skip email (step 6) and the Nginx vhost and Certbot (step 9) |
+| `--empty-data` | Migrate only, no demo records (**default**) |
+| `--with-demo-data` | Also run the demo seeders for audit, master and risk, and the sample login users (all `password123`) |
+| `--skip-start` | Provision everything but leave the stack stopped (steps 7 and 8 are `skipped`) |
+| `--ic-lha-due-days`, `--ic-mgmt-response-due-days` | Internal-control due days for the audit report (LHA, default 30) and the management response (default 14), 1-365. Written to the tenant `.env` and seeded into audit-service's settings only if the setting is missing. CLI only: the Site Generator cannot set them (see the status note in `docs/FITUR_DAN_PEMBAGIAN_TUGAS_AUDITSPHERE.md`, 1.4) |
 
-The port arguments are requests, not guarantees: if another tenant already holds
-a port, the generator takes the next free one and the script reports what was
-actually allocated. `backend/tenants/registry.tsv` is the source of truth.
+The other flags (`--domain`, `--fe-port`/`--api-port`, `--admin-name`/`--admin-email`,
+`--skip-email`, `--health-timeout`, `--allow-no-tls`, `--progress`, `--dry-run`)
+are listed in Phase 6b, "Script options added for the provisioner".
+
+**Ports.** If you give no ports, the generator takes the next free pair: not in
+`backend/tenants/registry.tsv` and not listening on the host
+(`generate-tenant-stack.sh` `next_free`). If you request a port (`--fe-port`,
+`--api-port`, or the positional form) and another tenant holds it in the
+registry or something is listening on it, step 1 **fails**. The script no longer
+moves a requested port to the next free one. Re-onboarding an existing slug
+keeps its registered ports. `backend/tenants/registry.tsv` is the source of truth.
 
 ### What each step does
 
-| Step | Action |
-| :--- | :--- |
-| 1 | Generate the tenant's compose stack and Kong config; allocate ports, Redis index, secrets |
-| 2 | Create `rb_audit_{auth,audit,master,risk}_<slug>`, skipping any that already exist |
-| 3 | Build the tenant service images |
-| 4 | Run migrations and the role seeder **inside the containers** |
-| 5 | Create the dedicated evidence storage silo |
-| 6 | Start the stack (5 services + Kong + frontend) |
-| 7 | Write the Nginx vhost and issue certificates (production only) |
+The keys are the ones in the `@@PROGRESS` lines and in the Site Generator's job view
+(`STEP_KEYS` in `onboard-tenant.sh`; `docs/provisioning-job-contract.md`).
+
+| Step | Key | Action |
+| :--- | :--- | :--- |
+| 1 | `generate` | Validate input; preflight (docker, compose v2, prebuilt binaries and `frontend/.output`, `rb_audit_network`, a running Postgres, nginx/certbot in production); generate the compose stack and Kong config; allocate ports, Redis index, secrets and a per-run image tag |
+| 2 | `databases` | Create `rb_audit_{auth,audit,master,risk}_<slug>`, skipping any that already exist |
+| 3 | `build` | Build the 6 tenant images (5 services + frontend), tagged `<UTC timestamp>-<git sha>` |
+| 4 | `migrate` | Run migrations, the auth seeder (roles, permissions, first admin) and the risk reference catalogs **inside the containers**; demo seeders only with `--with-demo-data` |
+| 5 | `storage` | Create the dedicated evidence storage silo |
+| 6 | `email` | Create a sending-only Resend key for the tenant (`scripts/provision-tenant-email.sh tenant ... --no-restart`). Skipped in local mode, with `--skip-email`, or when `/etc/auditsphere/email.env` is missing. Never fatal: a Resend error is reported as `skipped` ("Email provisioning FAILED") |
+| 7 | `start` | Start the 7 containers (5 services, Kong, frontend) |
+| 8 | `health` | Wait (default 120 s, `--health-timeout`) until Kong is healthy, auth-service answers `/health`, a request through the tenant's Kong reaches auth-service, and the frontend answers on its port |
+| 9 | `ingress` | Production only: write the Nginx vhosts (previous config restored if `nginx -t` rejects it), reload nginx, then issue TLS with certbot. Fails if DNS does not resolve or certbot fails, unless `--allow-no-tls` |
 
 There is no `rb_audit_analytics_<slug>` database. `analytics-service` is
 stateless — `cmd/main.go` starts a gin server and opens no database handle; it
@@ -484,20 +515,186 @@ The migrate verbs differ per service and are **not** interchangeable:
 `set -e` that hangs the script indefinitely rather than erroring.
 
 The auth seeder is not optional even for an empty-data tenant: it creates the
-roles and permissions required to log in.
+roles and permissions required to log in, and the first admin. Step 4 also runs
+`./risk seed --catalog-only` (standard risk factors and audit universe); on a
+risk image without that flag the step finishes with "WARNING: risk catalogs missing".
+
+**First admin.** For a new tenant the script generates a random 20-character
+password and passes it to `./auth seed` as `ADMIN_PASSWORD`, through the
+environment only. The username is always `admin`; `--admin-name` and
+`--admin-email` set the name and email. The password appears **only** in the
+final `@@RESULT` line, and the Site Generator shows it once, to the admin who
+started the job. When the tenant already has an `admin` (re-onboarding), its
+password is left unchanged and `@@RESULT` reports `null`. If the tenant's
+auth-service image does not support `ADMIN_PASSWORD` (`./auth seed --help`),
+step 4 fails rather than create the shared default password.
 
 > [!WARNING]
-> **Rotate the default admin before handing over the instance.** The auth seeder
-> creates `admin` / `password123`, identical on every tenant.
+> **Hand over the generated password securely and have the client change it at
+> first login.** MFA is not enforced for the first admin. With `--with-demo-data`
+> the sample users (`auditor`, `dept_head`, `new_dept_head`, `auditee`, `viewer`)
+> are also created, all with `password123`: never use demo data on a client
+> instance that will hold real data.
 
 > [!IMPORTANT]
 > Back up `backend/tenants/<slug>/.env` alongside the tenant's database. It
 > holds the JWT signing secret and is not in git; losing it signs out every
 > auditor on that instance.
 
-Resend sending-domain provisioning is **not** part of this script — run it from
-the Site Generator, which calls `POST /api/v1/resend/provision` on the
-control-plane auth-service.
+**Email.** Tenant email is step 6 of this script. There is no email API any more:
+`POST /api/v1/resend/provision` has been removed from auth-service (only the
+Resend webhook `POST /api/v1/resend/webhook` remains, `routes/registry.go`), and
+the Site Generator does not call it. The shared sending domain is set up once
+with `scripts/provision-tenant-email.sh setup-domain` / `verify-domain`. A tenant
+whose step 6 was skipped or failed can get its key later with
+`./scripts/provision-tenant-email.sh tenant <slug> "<Client Name>"`, the command
+the step prints.
+
+
+---
+
+## Phase 6b: Site Generator Provisioner (host service)
+
+The Site Generator runs `scripts/onboard-tenant.sh` as a real background job
+on the VPS and streams its progress to the browser. The chain is:
+browser → Kong → control-plane auth-service (`/api/v1/provisioning/*`, JWT +
+platform-admin check) → **provisioner** on the host (`X-Provisioner-Token`) →
+`onboard-tenant.sh --progress`. The interface is defined in
+`docs/provisioning-job-contract.md`. Phase 6 describes the script and its 9
+steps; this section covers installing the host side once.
+
+> Verified against code on 2026-11-24 (`backend/provisioner-service`,
+> `backend/auth-service/controllers/provisioning`, `deploy/`, Kong prod config,
+> `frontend/pages/site-generator`). Steps 2-9 have so far only been exercised as
+> a dry run; the open checks on a real Docker host are listed in
+> `docs/FITUR_DAN_PEMBAGIAN_TUGAS_AUDITSPHERE.md`, 1.4.
+
+What the provisioner passes to the script (`ScriptArgs` in
+`internal/provisioner/validate.go`): `--progress`, `--dry-run`, `--local` or
+`--domain`, the two ports (only when both were given), `--admin-name`,
+`--admin-email`, `--with-demo-data`/`--empty-data` and `--skip-email`. It does
+**not** pass `--allow-no-tls`, `--health-timeout`, `--skip-start` or the
+`--ic-*` due-days flags. So a production job started from the UI fails at step 9
+when DNS or certbot is not ready; finish such a tenant from the CLI. A
+production job without a domain uses `<slug>.auditsphere.app` (or the
+provisioner's `BASE_DOMAIN` environment, if set).
+
+### Prerequisites on the VPS
+
+- The control-plane stack is running (`rb_audit_network`, `rb_audit_postgres`).
+- The checkout the provisioner uses (`PROVISIONER_REPO_DIR`, default
+  `/app/rbia-repo`) holds the prebuilt artifacts that the tenant images copy:
+  `backend/{auth,audit,master,risk,analytics}-service/<binary>` (linux/amd64)
+  and `frontend/.output`. Step 1 fails if any of them is missing. Tenant
+  images are built from whatever is in that checkout, so refresh those
+  artifacts before onboarding.
+- `curl`, `nginx`, `certbot` (or `--allow-no-tls`, see below), and
+  `/etc/auditsphere/email.env` for email (optional; step 6 is skipped without it).
+- `backend/tenants/registry.tsv` in that checkout is the port registry. Never
+  `git reset --hard` or `git checkout` that file on the VPS, or the tenants
+  onboarded since the last commit lose their port reservations.
+
+### Install
+
+```bash
+# 1. Build the binary (workstation or CI; static, linux/amd64)
+cd backend/provisioner-service
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o provisioner ./cmd/provisioner
+
+# 2. On the VPS, as root
+install -d -m 0755 /opt/auditsphere /etc/auditsphere
+install -m 0755 provisioner /opt/auditsphere/provisioner
+install -m 0600 deploy/provisioner/provisioner.env.example /etc/auditsphere/provisioner.env
+openssl rand -hex 32            # paste as PROVISIONER_TOKEN in /etc/auditsphere/provisioner.env
+ip -4 addr show docker0         # PROVISIONER_ADDR must be this address (the env example sets 172.17.0.1:8790;
+                                # the binary's own default is 127.0.0.1:8790, which containers cannot reach)
+install -m 0644 deploy/provisioner/auditsphere-provisioner.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable --now auditsphere-provisioner
+journalctl -u auditsphere-provisioner -n 20 --no-pager
+
+# 3. Liveness, from the host and from the auth-service container
+curl -s http://172.17.0.1:8790/healthz                                   # {"status":"ok"}
+docker exec rb_audit_auth_service wget -qO- http://host.docker.internal:8790/healthz
+```
+
+The service runs as root, because onboarding writes `/etc/nginx`, reloads
+nginx and runs certbot and docker. It binds to the docker0 address only, and
+the binary refuses wildcard and public addresses. Do not open 8790 in the
+firewall. If the container cannot reach it (step 3, second command) under
+firewalld, check that the docker bridges are in the `docker` zone
+(`firewall-cmd --get-active-zones`).
+
+### Wire auth-service, Kong and nginx
+
+1. **auth-service**: set `PROVISIONER_URL=http://host.docker.internal:8790`
+   and `PROVISIONER_TOKEN=<same token>` in the control-plane env file
+   (`backend/.env`, see `backend/.env.example`). `backend/docker-compose.prod.yml`
+   passes both through and maps `host.docker.internal` to the docker0 gateway.
+   Recreate auth-service through the normal deploy. With the URL empty, the
+   provisioning routes answer 503. Tenant stacks never get these variables.
+2. **Kong**: `backend/kong-gateway/kong/prod/kong.yml` has the service
+   `auth-service-provisioning` (route `/api/v1/provisioning`,
+   `read_timeout` 1 h, `response_buffering: false`). Apply it with
+   `scripts/sync-kong.sh`. The tenant Kong template has no such route.
+3. **nginx (SSE)**: copy `deploy/nginx/auditsphere-provisioning-sse.conf` to
+   `/etc/nginx/snippets/` and `include` it in the `server { }` block of the
+   control-plane vhost(s). It sends only
+   `/api/v1/provisioning/jobs/<id>/events` straight to Kong (127.0.0.1:8080)
+   with buffering off and a 1 h read timeout. Then run `nginx -t && systemctl reload nginx`.
+   Without it the UI still works, because it falls back to polling `GET /jobs/{id}`.
+
+### Script options added for the provisioner
+
+| Flag | Effect |
+| :--- | :--- |
+| `--progress` | Print `@@PROGRESS {json}` lines for the 9 steps (`running`/`done`/`skipped`/`failed`) |
+| `--dry-run` | Validate, then emit the whole sequence and a fake `@@RESULT`. No side effects. Every message starts `[dry run]` |
+| `--dry-run-fail <step>` | Dry run only: simulate a failure at that step |
+| `--domain <slug>.<base>` | Tenant domain. The API is `api-<slug>.<base>` |
+| `--fe-port`, `--api-port` | Pin ports. Rejected if another tenant holds them or they are in use on the host |
+| `--admin-name`, `--admin-email` | First admin (username `admin`). The password is generated and printed **only** in `@@RESULT` |
+| `--skip-email` / `--no-email` | Skip step 6 |
+| `--health-timeout <s>` | Step 8 wait (default 120 s) for Kong, auth-service `/health`, Kong→auth routing and the frontend |
+| `--allow-no-tls` | Production: when DNS or certbot is unavailable, report step 9 `skipped` and finish on HTTP instead of failing |
+
+```bash
+# Try the UI flow without touching anything
+./scripts/onboard-tenant.sh --dry-run --progress --local -- demo "Demo Client"
+# Next free ports (what GET /ports/next returns)
+./scripts/generate-tenant-stack.sh --next-ports      # {"fe_port":3011,"api_port":8091}
+```
+
+A job that fails after step 1 leaves a partly provisioned tenant, and its slug
+is in the registry. Fix the cause, then re-run the same command from the CLI:
+onboarding is idempotent (existing databases, secrets and ports are kept; an
+existing admin keeps its password, and `@@RESULT` then reports the password as
+`null`).
+
+### Per-tenant image tags (and migrating existing tenants)
+
+Tenant images are now named `rb_audit_tenant_<slug>_<service>:<tag>`, with
+the tag in the tenant's `.env` as `TENANT_IMAGE_TAG`. Every onboarding run
+writes a new tag (`<UTC timestamp>-<git sha>`). Onboarding one tenant
+therefore no longer overwrites the shared `rb_audit_*:latest` images that
+other tenants use. To roll a tenant back, put the previous tag back in its
+`.env` and run `docker compose ... up -d`. Remove old tags with
+`docker image ls 'rb_audit_tenant_<slug>_*'` and `docker image rm`.
+
+Stacks generated before this change keep `image: rb_audit_*:latest` and run
+unchanged until they are regenerated. When it suits you, migrate each one:
+
+```bash
+TENANT_STORAGE_ROOT=/var/data/auditsphere/storage \
+  ./scripts/generate-tenant-stack.sh <slug> "<Client Name>" --force   # add --local for local tenants
+docker compose --project-directory backend/tenants/<slug> \
+  --env-file backend/tenants/<slug>/.env up -d --build
+```
+
+This keeps ports, secrets and data and runs no seeders. Note that it builds
+from the current checkout. No compose file in the repo other than old tenant
+stacks names `rb_audit_*:latest`. Once every tenant is migrated, those images
+are unused and can be removed.
 
 
 ---

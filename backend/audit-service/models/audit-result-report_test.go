@@ -155,3 +155,33 @@ func TestFindingsCountHookViaCrud(t *testing.T) {
 		t.Fatalf("after empty findings PUT: count %d, findings %d", c, n)
 	}
 }
+
+func TestAuditReportFindingJSONRoundTripKeepsRootCauseAndActionPlans(t *testing.T) {
+	in := []models.AuditReportFinding{{
+		ID: uuid.NewString(), Title: "T", Category: "Significant", Action: "legacy",
+		RootCause:   []models.RootCauseItem{{ID: 1, Method: "People", W1: "a", W2: "b", W3: "c"}},
+		ActionPlans: []models.FindingActionPlan{{Action: "x", TargetDate: "2026-12-31", PIC: "p", FinalApprover: "f", Evidence: "e"}},
+	}}
+	raw, err := json.Marshal(in)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, k := range []string{`"rootCause"`, `"actionPlans"`, `"targetDate"`, `"finalApprover"`} {
+		if !strings.Contains(string(raw), k) {
+			t.Fatalf("missing %s in %s", k, raw)
+		}
+	}
+	var out []models.AuditReportFinding
+	if err := json.Unmarshal(raw, &out); err != nil {
+		t.Fatal(err)
+	}
+	merged := models.AssignFindingIDs(out, nil)
+	if len(merged[0].RootCause) != 1 || merged[0].RootCause[0].W3 != "c" || len(merged[0].ActionPlans) != 1 || merged[0].ActionPlans[0].FinalApprover != "f" {
+		t.Fatalf("lost data: %+v", merged[0])
+	}
+	// omitempty keeps the legacy shape
+	legacy, _ := json.Marshal(models.AuditReportFinding{ID: "1", Title: "t"})
+	if strings.Contains(string(legacy), "rootCause") || strings.Contains(string(legacy), "actionPlans") {
+		t.Fatalf("legacy shape changed: %s", legacy)
+	}
+}
