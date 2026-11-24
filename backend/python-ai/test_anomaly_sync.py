@@ -90,8 +90,14 @@ def run_tests():
     # Check categories covered
     detected_cats = {a.get('type') for a in anomalies}
     print(f"       Categories detected in batch: {detected_cats}")
-    for cat in ['Funding', 'Lending', 'Treasury', 'Payment', 'KYC', 'IT Control']:
-        assert cat in detected_cats, f"Expected bank category {cat} in batch anomalies, got {detected_cats}"
+    for cat in ['Funding', 'Lending', 'Treasury', 'Payment', 'KYC', 'IT Control', 'Audit Findings']:
+        assert cat in detected_cats, f"Expected category {cat} in batch anomalies, got {detected_cats}"
+
+    af_anoms = [a for a in anomalies if a.get('type') == 'Audit Findings']
+    af_scatter = [s for s in scatter if s.get('type') == 'Audit Findings']
+    assert len(af_anoms) > 0, "Expected at least 1 Audit Findings anomaly from Action Taken Report"
+    assert len([s for s in af_scatter if not s.get('is_anomaly')]) > 0, "Expected normal baseline scatter points for Audit Findings"
+    print(f"[PASS] Action Taken Report -> Audit Findings: {len(af_anoms)} anomalies, {len(af_scatter)} scatter points")
 
     # Verify Y coordinates are in bounds (0.0 - 24.0) and no synthetic 25+ clipping values
     for pt in scatter:

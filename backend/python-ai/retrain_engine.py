@@ -8,6 +8,8 @@ import math
 import pickle
 import random
 import hashlib
+import hmac
+import base64
 import threading
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional, Callable
@@ -17,7 +19,8 @@ import torch
 import torch.nn as nn
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, MinMaxScaler, LabelEncoder
-from sklearn.ensemble import IsolationForest, GradientBoostingClassifier, RandomForestClassifier
+from sklearn.ensemble import IsolationForest, GradientBoostingClassifier, RandomForestClassifier, ExtraTreesClassifier
+from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression, SGDClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer, HashingVectorizer
 from sklearn.metrics import f1_score, accuracy_score, average_precision_score, mean_squared_error, mean_absolute_error
@@ -63,6 +66,9 @@ from resource_profile import (
     lower_current_process_priority,
 )
 from training_data_source import (
+    ATR_FINDINGS_POOL_FILE,
+    compute_atr_findings_hash,
+    load_atr_findings_pool,
     compute_all_model_fingerprints,
     compute_entity_fingerprint,
     compute_anomaly_fingerprint,
@@ -239,9 +245,12 @@ except ImportError:
     import urllib.request
 
     class _RequestsFallback:
-        def get(self, url, timeout=3):
+        def get(self, url, timeout=3, headers=None):
             try:
-                req = urllib.request.Request(url, headers={"User-Agent": "AuditSphere-AI"})
+                hdrs = {"User-Agent": "AuditSphere-AI"}
+                if isinstance(headers, dict):
+                    hdrs.update(headers)
+                req = urllib.request.Request(url, headers=hdrs)
                 with urllib.request.urlopen(req, timeout=timeout) as resp:
                     class _Resp:
                         status_code = resp.status
@@ -255,6 +264,210 @@ except ImportError:
                         return {}
                 return _FailedResp()
     requests = _RequestsFallback()
+
+
+def _build_internal_service_jwt() -> str:
+    """Mint a short-lived HS256 internal system JWT for cross-service audit-service calls."""
+    secret = os.getenv(
+        "JWT_SECRET",
+        "6958c455ba7378688fac7200001d6bca8048fa66a28447ecc69f3b74b7ded4fa",
+    )
+    now_ts = int(time.time())
+    header = {"alg": "HS256", "typ": "JWT"}
+    payload = {
+        "user_id": "00000000-0000-0000-0000-000000000000",
+        "username": "ai-system",
+        "roles": ["ADMIN"],
+        "iat": now_ts,
+        "exp": now_ts + 300,
+    }
+    b64 = lambda obj: base64.urlsafe_b64encode(
+        json.dumps(obj, separators=(",", ":")).encode("utf-8")
+    ).rstrip(b"=").decode("ascii")
+    signing_input = f"{b64(header)}.{b64(payload)}"
+    sig = hmac.new(secret.encode("utf-8"), signing_input.encode("ascii"), hashlib.sha256).digest()
+    sig_b64 = base64.urlsafe_b64encode(sig).rstrip(b"=").decode("ascii")
+    return f"{signing_input}.{sig_b64}"
+
+
+def map_finding_significance(raw_category: Any) -> tuple:
+    """
+    Map finding_category / significance string into canonical
+    (significance_label, significance_score 1..4).
+    """
+    s = str(raw_category or "").strip().lower()
+    if any(k in s for k in ("very significant", "sangat signifikan", "kritis", "critical", "major", "special audit", "investigation")):
+        return ("Very Significant", 4)
+    if any(k in s for k in ("quite significant", "cukup signifikan", "sedang", "moderate", "medium", "consulting")):
+        return ("Quite Significant", 2)
+    if any(k in s for k in ("not significant", "tidak signifikan", "rendah", "low", "minor")):
+        return ("Not Significant", 1)
+    if any(k in s for k in ("significant", "signifikan", "tinggi", "high", "assurance", "technology")):
+        return ("Significant", 3)
+    return ("Significant", 3)
+
+
+def _normalize_atr_finding_item(item: Dict[str, Any], idx: int = 0) -> Optional[Dict[str, Any]]:
+    if not isinstance(item, dict):
+        return None
+    title = str(item.get("finding_title") or item.get("findingTitle") or item.get("title") or "").strip()
+    if not title:
+        return None
+    fid = str(item.get("id") or item.get("finding_id") or item.get("findingId") or f"ATR-{idx+1:04d}").strip()
+    lha = item.get("lha") if isinstance(item.get("lha"), dict) else {}
+    report_number = str(
+        item.get("report_number")
+        or item.get("reportNumber")
+        or lha.get("report_number")
+        or lha.get("reportNumber")
+        or "LHA-ATR/SKAI/2026"
+    ).strip()
+    report_title = str(
+        item.get("report_title")
+        or item.get("reportTitle")
+        or lha.get("report_title")
+        or lha.get("reportTitle")
+        or "Laporan Hasil Audit"
+    ).strip()
+    department = str(
+        item.get("department")
+        or lha.get("department")
+        or item.get("entity")
+        or item.get("audit_object")
+        or lha.get("audit_object")
+        or "Unit Auditee"
+    ).strip()
+    raw_cat = str(
+        item.get("finding_category")
+        or item.get("findingCategory")
+        or item.get("category")
+        or item.get("significance")
+        or "Significant"
+    ).strip()
+    sig_label, sig_score = map_finding_significance(raw_cat)
+    recommendation = str(item.get("recommendation") or item.get("action") or "").strip()
+    action_plan = str(item.get("action_plan") or item.get("actionPlan") or "").strip()
+    pic_name = str(item.get("pic_name") or item.get("picName") or "").strip()
+    status = str(item.get("status") or "PLANNED").strip().upper()
+    try:
+        progress = int(max(0, min(100, round(float(item.get("progress") or 0)))))
+    except Exception:
+        progress = 0
+    if status == "COMPLETED" and progress == 0:
+        progress = 100
+
+    due_raw = str(item.get("due_date") or item.get("dueDate") or "").strip()
+    due_str = due_raw[:10] if len(due_raw) >= 10 else ""
+    is_overdue = bool(item.get("is_overdue") if item.get("is_overdue") is not None else item.get("isOverdue", False))
+    try:
+        overdue_days = int(max(0, round(float(item.get("overdue_days") if item.get("overdue_days") is not None else (item.get("overdueDays") or 0)))))
+    except Exception:
+        overdue_days = 0
+
+    if due_str and status not in ("COMPLETED", "CANCELLED") and overdue_days == 0:
+        try:
+            due_dt = datetime.strptime(due_str, "%Y-%m-%d").date()
+            today_dt = datetime.now(timezone.utc).date()
+            if today_dt > due_dt:
+                overdue_days = int((today_dt - due_dt).days)
+                is_overdue = overdue_days > 0
+        except Exception:
+            pass
+
+    created_raw = str(item.get("created_at") or item.get("createdAt") or "").strip()
+    elapsed_days = overdue_days
+    if elapsed_days == 0 and created_raw[:10]:
+        try:
+            c_dt = datetime.strptime(created_raw[:10], "%Y-%m-%d").date()
+            today_dt = datetime.now(timezone.utc).date()
+            elapsed_days = max(1, int((today_dt - c_dt).days))
+        except Exception:
+            elapsed_days = 0
+
+    return {
+        "id": fid,
+        "audit_result_report_id": str(item.get("audit_result_report_id") or item.get("auditResultReportId") or ""),
+        "report_number": report_number,
+        "report_title": report_title,
+        "department": department,
+        "finding_id": str(item.get("finding_id") or item.get("findingId") or ""),
+        "finding_title": title,
+        "finding_category": raw_cat or sig_label,
+        "significance_label": sig_label,
+        "significance_score": int(sig_score),
+        "recommendation": recommendation,
+        "action_plan": action_plan,
+        "pic_name": pic_name,
+        "due_date": due_str,
+        "progress": int(progress),
+        "status": status,
+        "is_overdue": bool(is_overdue),
+        "overdue_days": int(overdue_days),
+        "elapsed_days": int(elapsed_days),
+        "created_at": created_raw,
+        "updated_at": str(item.get("updated_at") or item.get("updatedAt") or ""),
+    }
+
+
+def upsert_atr_findings_pool(items: List[Dict[str, Any]], replace: bool = False) -> Dict[str, Any]:
+    """
+    Normalize and persist Action Taken Report finding records into ATR_FINDINGS_POOL_FILE.
+    Writes to disk ONLY when the canonical hash actually changes so unchanged 60s polls do not alter file mtime.
+    """
+    existing = [] if replace else load_atr_findings_pool()
+    old_hash, old_count = compute_atr_findings_hash(existing)
+
+    merged_by_key: Dict[str, Dict[str, Any]] = {}
+    for idx, it in enumerate(existing):
+        norm = _normalize_atr_finding_item(it, idx=idx)
+        if norm:
+            key = norm["id"] or f"{norm['report_number']}|{norm['finding_title'].lower()}"
+            merged_by_key[key] = norm
+
+    for idx, it in enumerate(items or []):
+        norm = _normalize_atr_finding_item(it, idx=idx)
+        if norm:
+            key = norm["id"] or f"{norm['report_number']}|{norm['finding_title'].lower()}"
+            merged_by_key[key] = norm
+
+    merged_list = list(merged_by_key.values())
+    # Compute repeat_count per normalized finding title across reports
+    title_counts: Dict[str, int] = {}
+    for row in merged_list:
+        t_key = row["finding_title"].strip().lower()
+        title_counts[t_key] = title_counts.get(t_key, 0) + 1
+    for row in merged_list:
+        t_key = row["finding_title"].strip().lower()
+        row["repeat_count"] = max(0, title_counts.get(t_key, 1) - 1)
+
+    new_hash, new_count = compute_atr_findings_hash(merged_list)
+    changed = (new_hash != old_hash) or (new_count != old_count) or not os.path.exists(ATR_FINDINGS_POOL_FILE)
+    if changed and merged_list:
+        try:
+            os.makedirs(os.path.dirname(ATR_FINDINGS_POOL_FILE), exist_ok=True)
+            tmp_path = ATR_FINDINGS_POOL_FILE + ".tmp"
+            with open(tmp_path, "w", encoding="utf-8") as f:
+                json.dump(
+                    {
+                        "updated_at": datetime.now(timezone.utc).isoformat(),
+                        "pool_hash": new_hash,
+                        "count": new_count,
+                        "items": merged_list,
+                    },
+                    f,
+                    ensure_ascii=False,
+                    indent=2,
+                )
+            os.replace(tmp_path, ATR_FINDINGS_POOL_FILE)
+        except Exception as e:
+            print(f"[RetrainEngine] Failed writing ATR findings pool: {e}")
+    return {
+        "changed": bool(changed),
+        "old_hash": old_hash,
+        "hash": new_hash,
+        "count": new_count,
+        "items": merged_list,
+    }
 
 
 def _current_rss_mb() -> float:
@@ -515,7 +728,56 @@ class AutoRetrainEngine:
             except Exception:
                 pass
 
+        # 5. Action Taken Report (ATR) Findings for Anomaly Detection
+        if "anomaly" in target_keys:
+            try:
+                atr_sync = self.sync_atr_findings_for_anomaly()
+                synced_counts["atr_findings"] = int(atr_sync.get("count", 0))
+                synced_counts["atr_changed"] = bool(atr_sync.get("changed", False))
+            except Exception:
+                pass
+
         return synced_counts
+
+    def sync_atr_findings_for_anomaly(self, pushed_items: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
+        """
+        Pull live Action Taken Report (ATR) findings from audit-service and/or merge pushed items
+        into ATR_FINDINGS_POOL_FILE (`models/atr_findings_pool.json`).
+        """
+        if pushed_items is not None and isinstance(pushed_items, list) and len(pushed_items) > 0:
+            return upsert_atr_findings_pool(pushed_items, replace=False)
+
+        jwt_token = _build_internal_service_jwt()
+        headers = {"Authorization": f"Bearer {jwt_token}"}
+        candidate_urls = list(dict.fromkeys([
+            self.audit_service_url,
+            "http://audit-service:8001",
+            "http://localhost:8002",
+            "http://localhost:8080",
+        ]))
+        endpoints = [
+            "/api/v1/internal/action-taken-reports/anomaly-feed",
+            "/api/v1/action-taken-reports/anomaly-feed",
+            "/api/v1/action-taken-reports?page=1&page_size=100",
+        ]
+        for base_url in candidate_urls:
+            if not base_url:
+                continue
+            for ep in endpoints:
+                try:
+                    r = requests.get(f"{base_url.rstrip('/')}{ep}", headers=headers, timeout=2)
+                    if r.status_code == 200:
+                        payload = r.json()
+                        data = payload.get("data", payload) if isinstance(payload, dict) else payload
+                        items = data.get("items", data) if isinstance(data, dict) else data
+                        if isinstance(items, list) and len(items) > 0:
+                            return upsert_atr_findings_pool(items, replace=True)
+                except Exception:
+                    continue
+
+        existing = load_atr_findings_pool()
+        cur_hash, cur_count = compute_atr_findings_hash(existing)
+        return {"changed": False, "hash": cur_hash, "count": cur_count, "items": existing}
 
     # ------------------------------------------------------------------
     # 1. ANOMALY DETECTION TRAINER (Batched, Tiered T1-T3, Compact Bundle)
@@ -784,7 +1046,259 @@ class AutoRetrainEngine:
                         "known_categories": detected_categories,
                     }
 
-            total_samples = int(len(df) + bank_samples)
+            # ------------------------------------------------------------------
+            # Audit Findings (Action Taken Report + Seed Datasets) Sub-Suite
+            # Multi-Model Tournament: XGBoost vs RandomForest vs ExtraTrees
+            # ------------------------------------------------------------------
+            findings_model_bundle = None
+            findings_samples = 0
+            findings_val_acc = 0.0
+            findings_val_f1 = 0.0
+            findings_val_pr_auc = 0.0
+
+            try:
+                findings_num_cols = [
+                    "significance_score",
+                    "overdue_days",
+                    "mitigation_progress_pct",
+                    "repeat_count",
+                    "is_overdue",
+                    "is_stagnant",
+                    "is_unjustified_delay",
+                    "delay_severity_index",
+                ]
+                find_rows: List[Dict[str, Any]] = []
+
+                mit_csv = os.path.join(self.ai_training_dir, "anomaly_prediction", "mitigation_overdue_data.csv")
+                if os.path.exists(mit_csv):
+                    df_mit = pd.read_csv(mit_csv)
+                    for _, mrow in df_mit.iterrows():
+                        _, sig_sc = map_finding_significance(mrow.get("Tingkat Keparahan Temuan"))
+                        ov_d = float(pd.to_numeric(mrow.get("overdue_days", 0), errors="coerce") or 0.0)
+                        prog_p = float(pd.to_numeric(mrow.get("mitigation_progress_pct", 0), errors="coerce") or 0.0)
+                        rep_c = float(pd.to_numeric(mrow.get("repeated_overdue_count", 0), errors="coerce") or 0.0)
+                        unjust = int(pd.to_numeric(mrow.get("is_unjustified_delay (1=Ya, 0=Tidak)", 0), errors="coerce") or 0)
+                        is_ov = 1 if ov_d > 0 else 0
+                        is_stag = 1 if (prog_p < 25.0 and ov_d > 0) else 0
+                        dsi = float(sig_sc * np.log1p(max(0.0, ov_d) + max(0.0, 100.0 - prog_p) * 0.25))
+                        is_anom = 1 if str(mrow.get("TARGET: is_anomaly", "")).strip() == "Ya (Anomali)" else 0
+                        imp_t = int(np.clip(int(pd.to_numeric(mrow.get("TARGET: Impact (1-5)", 3), errors="coerce") or 3) - 1, 0, 4))
+                        lik_t = int(np.clip(int(pd.to_numeric(mrow.get("TARGET: Likelihood (1-5)", 3), errors="coerce") or 3) - 1, 0, 4))
+                        find_rows.append({
+                            "significance_score": float(sig_sc),
+                            "overdue_days": ov_d,
+                            "mitigation_progress_pct": prog_p,
+                            "repeat_count": rep_c,
+                            "is_overdue": float(is_ov),
+                            "is_stagnant": float(is_stag),
+                            "is_unjustified_delay": float(unjust),
+                            "delay_severity_index": dsi,
+                            "is_anomaly": is_anom,
+                            "impact": imp_t,
+                            "likelihood": lik_t,
+                        })
+
+                rep_csv = os.path.join(self.ai_training_dir, "anomaly_prediction", "repeat_finding_data.csv")
+                if os.path.exists(rep_csv):
+                    df_rep = pd.read_csv(rep_csv)
+                    for _, rrow in df_rep.iterrows():
+                        _, sig_sc = map_finding_significance(rrow.get("severity_category"))
+                        rep_c = float(pd.to_numeric(rrow.get("repeat_count_last_year", 0), errors="coerce") or 0.0)
+                        sim_pct = float(pd.to_numeric(rrow.get("finding_similarity_pct", 50.0), errors="coerce") or 50.0)
+                        same_root = int(pd.to_numeric(rrow.get("is_same_root_cause (1=Ya, 0=Tidak)", 0), errors="coerce") or 0)
+                        prev_closed = int(pd.to_numeric(rrow.get("is_previously_closed (1=Ya, 0=Tidak)", 0), errors="coerce") or 0)
+                        ov_d = float(rep_c * 15.0 + same_root * 20.0)
+                        prog_p = float(max(0.0, min(100.0, 100.0 - sim_pct * 0.7)))
+                        is_ov = 1 if ov_d > 15.0 else 0
+                        is_stag = 1 if (prog_p < 30.0 and rep_c >= 1) else 0
+                        unjust = 1 if (same_root == 1 and prev_closed == 1) else 0
+                        dsi = float(sig_sc * np.log1p(max(0.0, ov_d) + max(0.0, 100.0 - prog_p) * 0.25))
+                        is_anom = 1 if str(rrow.get("TARGET: is_anomaly", "")).strip() == "Ya (Anomali)" else 0
+                        imp_t = int(np.clip(int(pd.to_numeric(rrow.get("TARGET: Impact (1-5)", 3), errors="coerce") or 3) - 1, 0, 4))
+                        lik_t = int(np.clip(int(pd.to_numeric(rrow.get("TARGET: Likelihood (1-5)", 3), errors="coerce") or 3) - 1, 0, 4))
+                        find_rows.append({
+                            "significance_score": float(sig_sc),
+                            "overdue_days": ov_d,
+                            "mitigation_progress_pct": prog_p,
+                            "repeat_count": rep_c,
+                            "is_overdue": float(is_ov),
+                            "is_stagnant": float(is_stag),
+                            "is_unjustified_delay": float(unjust),
+                            "delay_severity_index": dsi,
+                            "is_anomaly": is_anom,
+                            "impact": imp_t,
+                            "likelihood": lik_t,
+                        })
+
+                atr_live_items = load_atr_findings_pool()
+                for atr_it in atr_live_items:
+                    if not isinstance(atr_it, dict):
+                        continue
+                    status_u = str(atr_it.get("status") or "PLANNED").upper()
+                    if status_u == "CANCELLED":
+                        continue
+                    sig_sc = int(atr_it.get("significance_score") or map_finding_significance(atr_it.get("finding_category"))[1])
+                    ov_d = float(atr_it.get("overdue_days") or 0.0)
+                    el_d = float(atr_it.get("elapsed_days") or ov_d)
+                    prog_p = float(atr_it.get("progress") if atr_it.get("progress") is not None else (100.0 if status_u == "COMPLETED" else 0.0))
+                    rep_c = float(atr_it.get("repeat_count") or 0.0)
+                    has_plan = bool(str(atr_it.get("action_plan") or "").strip())
+                    is_ov = 1 if (bool(atr_it.get("is_overdue")) or ov_d > 0) and status_u != "COMPLETED" else 0
+                    eff_delay = ov_d if ov_d > 0 else (el_d if status_u != "COMPLETED" and prog_p < 25.0 else 0.0)
+                    is_stag = 1 if (status_u != "COMPLETED" and prog_p < 25.0 and (is_ov == 1 or sig_sc >= 3)) else 0
+                    unjust = 1 if (status_u != "COMPLETED" and ((ov_d > 14 and prog_p < 30.0) or (not has_plan and sig_sc >= 3))) else 0
+                    dsi = float(sig_sc * np.log1p(max(0.0, eff_delay) + max(0.0, 100.0 - prog_p) * 0.25))
+
+                    is_anom_live = 1 if (
+                        status_u != "COMPLETED"
+                        and (
+                            is_ov == 1
+                            or (sig_sc >= 4 and prog_p < 60.0)
+                            or (sig_sc >= 3 and prog_p < 25.0 and (not has_plan or rep_c >= 1))
+                            or (rep_c >= 2 and prog_p < 75.0)
+                        )
+                    ) else 0
+                    imp_live = int(np.clip(sig_sc + (1 if (ov_d >= 30 or sig_sc >= 4) else 0) - 1, 0, 4))
+                    lik_base = 4 if (is_ov == 1 and ov_d >= 30) else (3 if (is_anom_live == 1 or rep_c >= 1) else (1 if status_u == "COMPLETED" else 2))
+                    lik_live = int(np.clip(lik_base, 0, 4))
+
+                    live_row = {
+                        "significance_score": float(sig_sc),
+                        "overdue_days": float(eff_delay),
+                        "mitigation_progress_pct": float(prog_p),
+                        "repeat_count": float(rep_c),
+                        "is_overdue": float(is_ov),
+                        "is_stagnant": float(is_stag),
+                        "is_unjustified_delay": float(unjust),
+                        "delay_severity_index": dsi,
+                        "is_anomaly": int(is_anom_live),
+                        "impact": imp_live,
+                        "likelihood": lik_live,
+                    }
+                    # Weight live ATR records 5x so operational findings actively steer the tournament
+                    for _ in range(5):
+                        find_rows.append(dict(live_row))
+
+                if len(find_rows) >= 20:
+                    df_find = pd.DataFrame(find_rows)
+                    findings_samples = int(len(df_find))
+                    X_find_raw = df_find[findings_num_cols].astype(np.float32).values
+                    find_scaler = StandardScaler()
+                    X_find_scaled = find_scaler.fit_transform(X_find_raw).astype(np.float32)
+
+                    y_find_is = df_find["is_anomaly"].astype(int).values
+                    y_find_imp = df_find["impact"].astype(int).values
+                    y_find_lik = df_find["likelihood"].astype(int).values
+
+                    f_pos = max(1, int((y_find_is == 1).sum()))
+                    f_neg = max(1, int((y_find_is == 0).sum()))
+                    f_scale_pos = float(f_neg / f_pos)
+
+                    strat_y = y_find_is if len(np.unique(y_find_is)) > 1 and min(f_pos, f_neg) >= 2 else None
+                    X_tr, X_val, y_tr, y_val = train_test_split(
+                        X_find_scaled, y_find_is, test_size=0.20, random_state=42, stratify=strat_y
+                    )
+
+                    candidates = {
+                        "XGBoost": XGBClassifier(
+                            n_estimators=100,
+                            max_depth=4,
+                            learning_rate=0.06,
+                            scale_pos_weight=f_scale_pos,
+                            eval_metric="logloss",
+                            tree_method="hist",
+                            n_jobs=n_threads,
+                            random_state=42,
+                        ),
+                        "RandomForest": RandomForestClassifier(
+                            n_estimators=120,
+                            max_depth=8,
+                            class_weight="balanced",
+                            n_jobs=n_threads,
+                            random_state=42,
+                        ),
+                        "ExtraTrees": ExtraTreesClassifier(
+                            n_estimators=120,
+                            max_depth=8,
+                            class_weight="balanced",
+                            n_jobs=n_threads,
+                            random_state=42,
+                        ),
+                    }
+
+                    tournament_results: Dict[str, Dict[str, float]] = {}
+                    winner_name = "XGBoost"
+                    winner_clf = candidates["XGBoost"]
+                    best_score = -1.0
+
+                    for c_name, c_clf in candidates.items():
+                        try:
+                            c_clf.fit(X_tr, y_tr)
+                            val_prob = c_clf.predict_proba(X_val)[:, 1] if hasattr(c_clf, "predict_proba") else c_clf.predict(X_val).astype(float)
+                            val_pred = (val_prob >= 0.42).astype(int)
+                            c_acc = float(accuracy_score(y_val, val_pred))
+                            c_f1 = float(f1_score(y_val, val_pred, zero_division=0))
+                            c_prauc = float(average_precision_score(y_val, val_prob)) if len(np.unique(y_val)) > 1 else c_acc
+                            comp = round(0.45 * c_acc + 0.30 * c_f1 + 0.25 * c_prauc, 4)
+                            tournament_results[c_name] = {
+                                "accuracy": round(c_acc, 4),
+                                "f1": round(c_f1, 4),
+                                "pr_auc": round(c_prauc, 4),
+                                "composite_score": comp,
+                            }
+                            if comp > best_score:
+                                best_score = comp
+                                winner_name = c_name
+                                winner_clf = c_clf
+                                findings_val_acc = c_acc
+                                findings_val_f1 = c_f1
+                                findings_val_pr_auc = c_prauc
+                        except Exception as te:
+                            print(f"[RetrainEngine] Findings tournament candidate {c_name} failed: {te}")
+
+                    # Refit winning classifier on 100% of findings dataset
+                    winner_clf.fit(X_find_scaled, y_find_is)
+
+                    find_iso = IsolationForest(
+                        contamination=max(0.05, min(0.45, float(y_find_is.mean()))),
+                        max_samples="auto",
+                        n_jobs=n_threads,
+                        random_state=42,
+                    )
+                    find_iso.fit(X_find_scaled)
+
+                    find_imp_clf = RandomForestClassifier(
+                        n_estimators=60, max_depth=6, class_weight="balanced", n_jobs=n_threads, random_state=42
+                    )
+                    find_imp_clf.fit(X_find_scaled, y_find_imp)
+
+                    find_lik_clf = RandomForestClassifier(
+                        n_estimators=60, max_depth=6, class_weight="balanced", n_jobs=n_threads, random_state=42
+                    )
+                    find_lik_clf.fit(X_find_scaled, y_find_lik)
+
+                    findings_model_bundle = {
+                        "classifier": winner_clf,
+                        "winner_name": winner_name,
+                        "tournament_results": tournament_results,
+                        "isolation_forest": find_iso,
+                        "impact_classifier": find_imp_clf,
+                        "likelihood_classifier": find_lik_clf,
+                        "scaler": find_scaler,
+                        "num_cols": findings_num_cols,
+                        "best_threshold": 0.42,
+                        "atr_live_rows": len(atr_live_items),
+                        "total_rows": findings_samples,
+                    }
+                    print(
+                        f"[RetrainEngine] Findings Multi-Model Tournament winner: {winner_name} "
+                        f"(acc={findings_val_acc:.4f}, f1={findings_val_f1:.4f}, pr_auc={findings_val_pr_auc:.4f}, "
+                        f"live_atr={len(atr_live_items)}, total_rows={findings_samples})"
+                    )
+            except Exception as fe:
+                print(f"[RetrainEngine] Findings model sub-suite warning: {fe}")
+
+            total_samples = int(len(df) + bank_samples + findings_samples)
             bundle = {
                 "classifier": anom_clf,
                 "anomaly_classifier": anom_clf,
@@ -799,6 +1313,7 @@ class AutoRetrainEngine:
                 "known_entitas": sorted(df["Entitas"].unique().tolist()) if "Entitas" in df.columns else [],
                 "known_deskripsi": sorted(df["Deskripsi"].unique().tolist()) if "Deskripsi" in df.columns else [],
                 "bank_model": bank_model_bundle,
+                "findings_model": findings_model_bundle,
                 "sub_models": {},  # Stripped 28.6 MB dead weight; keeps bundle ~2.5 MB
                 "data_samples": total_samples,
             }
@@ -812,6 +1327,10 @@ class AutoRetrainEngine:
                 "primary": round(pr_auc, 4),
                 "pr_auc": round(pr_auc, 4),
                 "f1": round(f1_val, 4),
+                "findings_winner": findings_model_bundle.get("winner_name") if findings_model_bundle else None,
+                "findings_accuracy": round(findings_val_acc, 4) if findings_model_bundle else None,
+                "findings_f1": round(findings_val_f1, 4) if findings_model_bundle else None,
+                "findings_pr_auc": round(findings_val_pr_auc, 4) if findings_model_bundle else None,
                 "samples": total_samples,
             }
             promo = validate_and_promote_artifacts(
@@ -2127,6 +2646,22 @@ class AutoRetrainEngine:
         }
 
 
+def invalidate_anomaly_redis_cache():
+    """Clear analytics-service Redis cache (`audit:analytics:batch:anomaly`) using raw RESP over socket."""
+    import socket
+
+    redis_host = os.getenv("REDIS_HOST", "redis" if os.path.exists("/.dockerenv") else "localhost")
+    redis_port = int(os.getenv("REDIS_PORT", "6379"))
+    key = "audit:analytics:batch:anomaly"
+    cmd = f"*2\r\n$3\r\nDEL\r\n${len(key)}\r\n{key}\r\n".encode("utf-8")
+    try:
+        with socket.create_connection((redis_host, redis_port), timeout=1.0) as sock:
+            sock.sendall(cmd)
+            _ = sock.recv(64)
+    except Exception:
+        pass
+
+
 def reload_fastapi_models(fastapi_app=None, only_models: Optional[List[str]] = None):
     """
     Seamlessly hot-reload in-memory model bundles in FastAPI app and module-level globals.
@@ -2193,6 +2728,9 @@ def reload_fastapi_models(fastapi_app=None, only_models: Optional[List[str]] = N
                 for k, v in loaded_bundles.items():
                     if hasattr(mod, k):
                         setattr(mod, k, v)
+
+        if "anomaly" in targets:
+            invalidate_anomaly_redis_cache()
 
         print(f"Hot-reloaded AI model bundles ({', '.join(sorted(targets))}) into memory successfully.")
         return True

@@ -1529,6 +1529,13 @@
     "guidelines": {
       "modalTitle": "Panduan Skala Penilaian: {name}"
     },
+    "defaultScores": {
+      "1": "Rendah – Aktivitas administratif atau rutin dengan risiko minimal",
+      "2": "Rendah ke Sedang – Operasi berisiko rendah dengan dampak minimal",
+      "3": "Sedang – Eksposur risiko moderat dengan dampak perusahaan yang terbatas",
+      "4": "Sedang ke Tinggi – Risiko signifikan yang memengaruhi operasi utama",
+      "5": "Tinggi – Kontributor utama terhadap risiko perusahaan"
+    },
     "messages": {
       "scoresSaved": "Skor risiko berhasil disimpan dan prioritas telah dihitung.",
       "scoresSaveFailed": "Gagal menyimpan skor risiko.",
@@ -1544,6 +1551,8 @@
       "factorDeleteFailed": "Gagal menghapus faktor risiko standar.",
     "factorRemoved": "Faktor berhasil dihapus dari daftar korporat.",
     "nameRequired": "Nama faktor wajib diisi.",
+    "guidelinesRequired": "Semua panduan skala penilaian (1 - 5) wajib diisi.",
+    "scoreGuidelineRequired": "Panduan skor {score} wajib diisi.",
     "operationFailed": "Operasi gagal.",
     "deleteFailed": "Gagal menghapus faktor."
     },

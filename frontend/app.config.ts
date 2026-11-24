@@ -512,7 +512,7 @@ export default defineAppConfig({
         disabled: {
           true: {
             root: "opacity-75",
-            base: "cursor-not-allowed",
+            base: "cursor-not-allowed bg-slate-200 dark:bg-slate-950/80 ring-slate-300 dark:ring-slate-700",
             label: "cursor-not-allowed",
             description: "cursor-not-allowed",
           },
@@ -719,7 +719,7 @@ export default defineAppConfig({
         disabled: {
           true: {
             item: "opacity-75 cursor-not-allowed",
-            base: "cursor-not-allowed",
+            base: "cursor-not-allowed bg-slate-200 dark:bg-slate-950/80 ring-slate-300 dark:ring-slate-700",
             label: "cursor-not-allowed",
             description: "cursor-not-allowed",
           },
@@ -1220,7 +1220,7 @@ export default defineAppConfig({
       slots: {
         root: 'relative inline-flex items-center w-full flex flex-1',
         base: [
-          'w-full rounded-md border-0 appearance-none placeholder:text-dimmed focus:outline-none disabled:cursor-not-allowed disabled:opacity-75',
+          'w-full rounded-md border-0 appearance-none placeholder:text-dimmed focus:outline-none disabled:cursor-not-allowed disabled:opacity-100 disabled:bg-slate-200 dark:disabled:bg-slate-950/80 disabled:text-slate-600 dark:disabled:text-slate-400 disabled:ring-slate-300 dark:disabled:ring-slate-700 read-only:cursor-not-allowed read-only:bg-slate-200 dark:read-only:bg-slate-950/80 read-only:text-slate-600 dark:read-only:text-slate-400 read-only:ring-slate-300 dark:read-only:ring-slate-700',
           'transition-colors'
         ],
         leading: 'absolute inset-y-0 start-0 flex items-center',
@@ -2024,7 +2024,7 @@ export default defineAppConfig({
         disabled: {
           true: {
             root: 'opacity-75',
-            base: 'cursor-not-allowed',
+            base: 'cursor-not-allowed bg-slate-300 dark:bg-slate-950/80',
             label: 'cursor-not-allowed',
             description: 'cursor-not-allowed'
           }
@@ -2287,15 +2287,39 @@ export default defineAppConfig({
         color: 'primary'
       }
     },
+    textarea: {
+      slots: {
+        base: 'disabled:cursor-not-allowed disabled:opacity-100 disabled:bg-slate-200 dark:disabled:bg-slate-950/80 disabled:text-slate-600 dark:disabled:text-slate-400 disabled:ring-slate-300 dark:disabled:ring-slate-700 read-only:cursor-not-allowed read-only:bg-slate-200 dark:read-only:bg-slate-950/80 read-only:text-slate-600 dark:read-only:text-slate-400 read-only:ring-slate-300 dark:read-only:ring-slate-700'
+      }
+    },
+    inputNumber: {
+      slots: {
+        base: 'disabled:cursor-not-allowed disabled:opacity-100 disabled:bg-slate-200 dark:disabled:bg-slate-950/80 disabled:text-slate-600 dark:disabled:text-slate-400 disabled:ring-slate-300 dark:disabled:ring-slate-700 read-only:cursor-not-allowed read-only:bg-slate-200 dark:read-only:bg-slate-950/80 read-only:text-slate-600 dark:read-only:text-slate-400 read-only:ring-slate-300 dark:read-only:ring-slate-700'
+      }
+    },
+    inputMenu: {
+      slots: {
+        base: 'disabled:cursor-not-allowed disabled:opacity-100 disabled:bg-slate-200 dark:disabled:bg-slate-950/80 disabled:text-slate-600 dark:disabled:text-slate-400 disabled:ring-slate-300 dark:disabled:ring-slate-700 read-only:cursor-not-allowed read-only:bg-slate-200 dark:read-only:bg-slate-950/80 read-only:text-slate-600 dark:read-only:text-slate-400 read-only:ring-slate-300 dark:read-only:ring-slate-700'
+      }
+    },
+    fileUpload: {
+      variants: {
+        disabled: {
+          true: {
+            base: 'cursor-not-allowed opacity-75 bg-slate-200 dark:bg-slate-950/80 border-slate-300 dark:border-slate-700'
+          }
+        }
+      }
+    },
     selectMenu: {
       slots: {
-        base: 'data-[state=open]:ring-2 data-[state=open]:ring-primary focus:ring-accented',
+        base: 'data-[state=open]:ring-2 data-[state=open]:ring-primary focus:ring-accented disabled:cursor-not-allowed disabled:opacity-100 disabled:bg-slate-200 dark:disabled:bg-slate-950/80 disabled:text-slate-600 dark:disabled:text-slate-400 disabled:ring-slate-300 dark:disabled:ring-slate-700 data-[disabled]:cursor-not-allowed data-[disabled]:opacity-100 data-[disabled]:bg-slate-200 dark:data-[disabled]:bg-slate-950/80 data-[disabled]:text-slate-600 dark:data-[disabled]:text-slate-400 data-[disabled]:ring-slate-300 dark:data-[disabled]:ring-slate-700',
         content: 'z-[9999]'
       }
     },
     select: {
       slots: {
-        base: 'data-[state=open]:ring-2 data-[state=open]:ring-primary focus:ring-accented',
+        base: 'data-[state=open]:ring-2 data-[state=open]:ring-primary focus:ring-accented disabled:cursor-not-allowed disabled:opacity-100 disabled:bg-slate-200 dark:disabled:bg-slate-950/80 disabled:text-slate-600 dark:disabled:text-slate-400 disabled:ring-slate-300 dark:disabled:ring-slate-700 data-[disabled]:cursor-not-allowed data-[disabled]:opacity-100 data-[disabled]:bg-slate-200 dark:data-[disabled]:bg-slate-950/80 data-[disabled]:text-slate-600 dark:data-[disabled]:text-slate-400 data-[disabled]:ring-slate-300 dark:data-[disabled]:ring-slate-700',
         content: 'z-[9999]'
       }
     },

@@ -38,6 +38,54 @@ from nlp_taxonomy import (
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.getenv("MODEL_DIR", os.path.join(BASE_DIR, "models"))
+ATR_FINDINGS_POOL_FILE = os.path.join(MODEL_DIR, "atr_findings_pool.json")
+
+
+def compute_atr_findings_hash(items: List[Dict[str, Any]]) -> Tuple[str, int]:
+    """Deterministic SHA-256[:16] fingerprint and count over canonical Action Taken Report finding attributes."""
+    if not items or not isinstance(items, list):
+        return ("", 0)
+    rows: List[str] = []
+    for it in items:
+        if not isinstance(it, dict):
+            continue
+        fid = str(it.get("id") or it.get("finding_id") or "").strip()
+        rnum = str(it.get("report_number") or "").strip()
+        title = str(it.get("finding_title") or it.get("title") or "").strip().lower()
+        cat = str(it.get("finding_category") or it.get("category") or "").strip().lower()
+        status = str(it.get("status") or "PLANNED").strip().upper()
+        try:
+            prog = int(float(it.get("progress") or 0))
+        except Exception:
+            prog = 0
+        due = str(it.get("due_date") or "")[:10]
+        is_ov = "1" if bool(it.get("is_overdue")) else "0"
+        try:
+            ov_days = int(float(it.get("overdue_days") or 0))
+        except Exception:
+            ov_days = 0
+        rows.append(f"{fid}|{rnum}|{title}|{cat}|{status}|{prog}|{due}|{is_ov}|{ov_days}")
+    if not rows:
+        return ("", 0)
+    rows.sort()
+    digest = hashlib.sha256("\n".join(rows).encode("utf-8")).hexdigest()[:16]
+    return (digest, len(rows))
+
+
+def load_atr_findings_pool() -> List[Dict[str, Any]]:
+    """Load persisted Action Taken Report findings pool from MODEL_DIR."""
+    if not os.path.exists(ATR_FINDINGS_POOL_FILE):
+        return []
+    try:
+        with open(ATR_FINDINGS_POOL_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if isinstance(data, dict) and isinstance(data.get("items"), list):
+            return data["items"]
+        if isinstance(data, list):
+            return data
+    except Exception:
+        pass
+    return []
 
 
 def _fast_file_stat_token(path: str) -> Tuple[str, int]:
@@ -120,16 +168,33 @@ def compute_entity_fingerprint() -> Dict[str, Any]:
 
 
 def compute_anomaly_fingerprint() -> Dict[str, Any]:
-    """Compute combined fingerprint and row count for Anomaly Detection (core + bank transaction datasets)."""
+    """Compute combined fingerprint and row count for Anomaly Detection (core + bank transaction + ATR findings datasets)."""
     ai_dir = resolve_ai_training_dir()
     anom_csv = os.path.join(ai_dir, "anomaly_prediction", "anomaly_data.csv")
     bank_csv = os.path.join(ai_dir, "anomaly_prediction", "bank_transaction_anomaly_data.csv")
+    repeat_csv = os.path.join(ai_dir, "anomaly_prediction", "repeat_finding_data.csv")
+    mit_csv = os.path.join(ai_dir, "anomaly_prediction", "mitigation_overdue_data.csv")
     tok1, rows1 = _fast_file_stat_token(anom_csv)
     tok2, rows2 = _fast_file_stat_token(bank_csv)
-    if not tok1 and not tok2:
+    tok3, rows3 = _fast_file_stat_token(repeat_csv)
+    tok4, rows4 = _fast_file_stat_token(mit_csv)
+    atr_items = load_atr_findings_pool()
+    atr_hash, atr_rows = compute_atr_findings_hash(atr_items)
+    if not tok1 and not tok2 and not atr_hash:
         return {"hash": "", "rows": 0, "source": "anomaly_csv"}
-    combined = hashlib.sha256(f"{tok1}:{rows1}|{tok2}:{rows2}".encode("utf-8")).hexdigest()[:16]
-    return {"hash": combined, "rows": int(rows1 + rows2), "source": "anomaly_suite", "core_rows": rows1, "bank_rows": rows2}
+    combined = hashlib.sha256(
+        f"{tok1}:{rows1}|{tok2}:{rows2}|{tok3}:{rows3}|{tok4}:{rows4}|{atr_hash}:{atr_rows}".encode("utf-8")
+    ).hexdigest()[:16]
+    return {
+        "hash": combined,
+        "rows": int(rows1 + rows2 + rows3 + rows4 + atr_rows),
+        "source": "anomaly_suite",
+        "core_rows": rows1,
+        "bank_rows": rows2,
+        "findings_seed_rows": int(rows3 + rows4),
+        "atr_live_rows": int(atr_rows),
+        "atr_pool_hash": atr_hash,
+    }
 
 
 def compute_nlp_fingerprint() -> Dict[str, Any]:

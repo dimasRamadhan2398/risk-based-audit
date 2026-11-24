@@ -9,6 +9,9 @@
 package action_taken_report
 
 import (
+	"bytes"
+	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -18,6 +21,46 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
+
+// NotifyAnomalyEngineAsync fires a non-blocking webhook to python-ai so the
+// Anomaly Detection RetrainScheduler immediately syncs ATR findings and
+// queues a model retrain when findings are created or updated.
+func NotifyAnomalyEngineAsync(trigger string) {
+	if os.Getenv("DISABLE_AI_WEBHOOK") == "true" {
+		return
+	}
+	go func() {
+		baseURL := strings.TrimSpace(os.Getenv("PYTHON_AI_URL"))
+		if baseURL == "" {
+			if _, err := os.Stat("/.dockerenv"); err == nil {
+				baseURL = "http://python-ai:8000"
+			} else {
+				baseURL = "http://localhost:8000"
+			}
+		}
+		apiKey := strings.TrimSpace(os.Getenv("PYTHON_AI_API_KEY"))
+		if apiKey == "" {
+			apiKey = "dev-ai-api-key"
+		}
+		internalToken := strings.TrimSpace(os.Getenv("INTERNAL_RETRAIN_TOKEN"))
+		if internalToken == "" {
+			internalToken = "dev-internal-token"
+		}
+		payload := []byte(`{"trigger":"` + trigger + `","source":"audit-service"}`)
+		req, err := http.NewRequest(http.MethodPost, strings.TrimRight(baseURL, "/")+"/predict/anomaly/atr-webhook", bytes.NewReader(payload))
+		if err != nil {
+			return
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("X-API-Key", apiKey)
+		req.Header.Set("X-Internal-Token", internalToken)
+		client := &http.Client{Timeout: 1500 * time.Millisecond}
+		resp, err := client.Do(req)
+		if err == nil && resp != nil && resp.Body != nil {
+			_ = resp.Body.Close()
+		}
+	}()
+}
 
 // RemovedFindingNote is the review note set on an untouched (PLANNED) ATR
 // whose finding was removed from its LHA
@@ -146,7 +189,10 @@ func AfterReportWrite(tx *gorm.DB, entity interface{}) error {
 	if !ok || report.ID == uuid.Nil {
 		return nil
 	}
-	_, err := SyncReportByID(tx, report.ID, time.Now())
+	res, err := SyncReportByID(tx, report.ID, time.Now())
+	if err == nil && (res.Created > 0 || res.Cancelled > 0 || models.IsLHAApproved(report.Status)) {
+		NotifyAnomalyEngineAsync("lha_sync")
+	}
 	return err
 }
 

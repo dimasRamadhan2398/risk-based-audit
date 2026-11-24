@@ -121,14 +121,14 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
         to: '/internal-control-assessment'
       },
       {
-        label: t('navigation.riskFactors'),
-        icon: 'i-lucide-activity',
-        to: '/risk-profile/risk-factors'
-      },
-      {
         label: t('navigation.auditUniverse'),
         icon: 'i-lucide-globe',
         to: '/risk-profile/audit-universe'
+      },
+      {
+        label: t('navigation.riskFactors'),
+        icon: 'i-lucide-activity',
+        to: '/risk-profile/risk-factors'
       },
       {
         label: t('navigation.auditPriority'),

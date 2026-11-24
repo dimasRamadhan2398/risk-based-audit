@@ -31,7 +31,7 @@ RUN pip install --upgrade pip setuptools wheel && \
         fsspec \
         mpmath \
         pillow \
-        numpy==1.26.4
+        numpy==2.2.6
 
 # ------------------------------------------------------------------
 # Layer 2: install torch CPU wheels via --find-links.
@@ -40,11 +40,11 @@ RUN pip install --upgrade pip setuptools wheel && \
 # PyPI. --no-deps means torch itself won't trigger more resolution.
 # ------------------------------------------------------------------
 RUN pip install \
-        torch==2.2.2+cpu \
-        torchvision==0.17.2+cpu \
-        torchaudio==2.2.2+cpu \
+        torch==2.4.1+cpu \
+        torchvision==0.19.1+cpu \
+        torchaudio==2.4.1+cpu \
         --no-deps \
-        --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
+        --index-url https://download.pytorch.org/whl/cpu
 
 # ------------------------------------------------------------------
 # Layer 3: app dependencies

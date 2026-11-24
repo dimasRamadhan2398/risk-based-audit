@@ -520,7 +520,7 @@ class RetrainScheduler:
 
         try:
             engine = AutoRetrainEngine(model_dir=self.model_dir, ai_training_dir=self.ai_training_dir)
-            sync_sources = "manual" not in str(trigger).lower() or model_key in ("entity", "nlp", "kpi_auditor", "kpi_auditee")
+            sync_sources = "manual" not in str(trigger).lower() or model_key in ("entity", "anomaly", "nlp", "kpi_auditor", "kpi_auditee")
             res = engine.retrain_single_model(
                 model_key=model_key,
                 trigger=trigger,

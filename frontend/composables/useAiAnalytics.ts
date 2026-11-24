@@ -687,11 +687,12 @@ const timeseriesState = ref<any>({
   }
 })
 
-const CACHE_KEY = 'auditsphere_real_analytics_cache_v19'
+const CACHE_KEY = 'auditsphere_real_analytics_cache_v20'
 
 const clearLegacyAnalyticsCaches = () => {
   if (typeof window === 'undefined') return
   const legacyKeys = [
+    'auditsphere_real_analytics_cache_v19',
     'auditsphere_real_analytics_cache_v18',
     'auditsphere_real_analytics_cache_v17',
     'auditsphere_real_analytics_cache_v16',

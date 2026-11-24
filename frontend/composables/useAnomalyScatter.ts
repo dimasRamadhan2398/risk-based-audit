@@ -71,6 +71,16 @@ export const createAnomalyTypeConfigs = (t: Translate, locale: AppLocale = 'id')
       formatX: (val) => `${val} ${t('analytics.isolation.anomalyTypes.itControlUnit')}`,
       colors: anomalyColors('crossRot')
     },
+    'Audit Findings': {
+      xAxisTitle: t('analytics.isolation.anomalyTypes.auditFindingsXAxis') !== 'analytics.isolation.anomalyTypes.auditFindingsXAxis'
+        ? t('analytics.isolation.anomalyTypes.auditFindingsXAxis')
+        : (locale === 'en' ? 'Follow-up Delay / Elapsed Days' : 'Keterlambatan / Usia Tindak Lanjut (Hari)'),
+      unit: t('analytics.isolation.anomalyTypes.auditFindingsUnit') !== 'analytics.isolation.anomalyTypes.auditFindingsUnit'
+        ? t('analytics.isolation.anomalyTypes.auditFindingsUnit')
+        : (locale === 'en' ? 'Days' : 'Hari'),
+      formatX: (val) => `${val} ${t('analytics.isolation.anomalyTypes.auditFindingsUnit') !== 'analytics.isolation.anomalyTypes.auditFindingsUnit' ? t('analytics.isolation.anomalyTypes.auditFindingsUnit') : (locale === 'en' ? 'Days' : 'Hari')}`,
+      colors: anomalyColors('rectRot')
+    },
     'Fieldwork': {
       xAxisTitle: t('analytics.isolation.anomalyTypes.fieldworkXAxis'),
       unit: t('analytics.isolation.anomalyTypes.fieldworkUnit'),
@@ -191,7 +201,8 @@ export interface AnomalyScatterSeries {
 /** X fallbacks for categories whose metric is not a rupiah amount. */
 const X_FALLBACK_BY_TYPE: Record<string, number> = {
   KYC: 25,
-  'IT Control': 4
+  'IT Control': 4,
+  'Audit Findings': 14
 }
 
 const X_FALLBACK_DEFAULT = 15
@@ -203,6 +214,7 @@ export const DEFAULT_ANOMALY_TYPES = [
   'Payment',
   'KYC',
   'IT Control',
+  'Audit Findings',
   'Transaction',
   'Procurement',
   'Expense Report'
@@ -217,6 +229,19 @@ export const getCanonicalCategory = (rawCategoryOrTableName: any): string => {
   const s = String(rawCategoryOrTableName || '').trim()
   if (!s) return 'Transaction'
   const clean = s.toLowerCase().replace(/[\s_-]+/g, '')
+  if (
+    clean === 'auditfindings' ||
+    clean === 'auditfinding' ||
+    clean === 'findings' ||
+    clean === 'finding' ||
+    clean === 'temuan' ||
+    clean === 'temuanaudit' ||
+    clean === 'atr' ||
+    clean === 'actiontakenreport' ||
+    clean === 'actiontakenreports'
+  ) {
+    return 'Audit Findings'
+  }
   if (clean === 'gltransaction' || clean === 'gltransactions' || clean === 'transaction' || clean === 'transactions') {
     return 'Transaction'
   }

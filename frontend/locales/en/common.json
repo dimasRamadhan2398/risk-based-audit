@@ -1641,6 +1641,8 @@
       "factorDeleteFailed": "Failed to delete standard risk factor.",
       "factorRemoved": "Factor successfully removed from corporate list.",
       "nameRequired": "Factor name is required.",
+      "guidelinesRequired": "All scoring scale guidelines (1 - 5) are required.",
+      "scoreGuidelineRequired": "Score {score} guideline is required.",
       "operationFailed": "Operation failed.",
       "deleteFailed": "Failed to delete factor."
     },
