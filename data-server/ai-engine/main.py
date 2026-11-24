@@ -2802,7 +2802,78 @@ def get_retrain_status(
     status["has_untrained_auditee_pool_data"] = has_untrained_pool
     status["has_untrained_auditor_data"] = has_untrained_auditor
     status["has_untrained_auditee_custom_data"] = has_untrained_custom
+
+    auditee_has_new = bool(has_untrained_pool or has_untrained_custom)
+    auditor_has_new = bool(has_untrained_auditor)
+    is_run = bool(status.get("is_running"))
+    is_failed = status.get("status") == "failed" and bool(status.get("last_error"))
+
+    status["models"] = {
+        "kpi_auditee": {
+            "key": "kpi_auditee",
+            "label": "KPI Forecast (Auditee)",
+            "state": "training" if is_run else ("untrained_data" if auditee_has_new else "trained"),
+            "has_new_data": auditee_has_new,
+            "new_rows": 1 if auditee_has_new else 0,
+            "current_rows": pool_count,
+            "trained_rows": int(status.get("trained_auditee_count") or pool_count),
+            "trained_at": status.get("model_updated_at"),
+            "duration_seconds": status.get("duration_seconds"),
+            "samples": int(status.get("trained_auditee_count") or pool_count),
+            "tier": "T1",
+            "last_error": None,
+            "message": (
+                "Ada data baru pada KPI Forecast (Auditee) yang belum dilatih."
+                if auditee_has_new
+                else f"Model KPI Forecast (Auditee) siap digunakan ({pool_count} sampel)."
+            ),
+        },
+        "kpi_auditor": {
+            "key": "kpi_auditor",
+            "label": "KPI Forecast (Auditor)",
+            "state": "training" if is_run else ("untrained_data" if auditor_has_new else "trained"),
+            "has_new_data": auditor_has_new,
+            "new_rows": 1 if auditor_has_new else 0,
+            "current_rows": int(status.get("trained_auditor_count") or 0),
+            "trained_rows": int(status.get("trained_auditor_count") or 0),
+            "trained_at": status.get("model_updated_at"),
+            "duration_seconds": status.get("duration_seconds"),
+            "samples": int(status.get("trained_auditor_count") or 0),
+            "tier": "T1",
+            "last_error": None,
+            "message": (
+                "Ada data baru pada KPI Forecast (Auditor) yang belum dilatih."
+                if auditor_has_new
+                else "Model KPI Forecast (Auditor) siap digunakan."
+            ),
+        },
+    }
+    status["failed_models"] = ["all"] if is_failed else []
     return status
+
+
+@app.post("/retrain/model/{model}")
+def trigger_model_retrain(
+    model: str,
+    request: Request,
+    background_tasks: BackgroundTasks,
+    force: bool = False,
+    wait: bool = False,
+    req: Optional[RetrainAutoRequest] = Body(default=None),
+):
+    if INTERNAL_RETRAIN_TOKEN and not internal_call_allowed(request, lambda: INTERNAL_RETRAIN_TOKEN):
+        return unauthorized("Internal token required")
+    merged_req = req or RetrainAutoRequest()
+    merged_req.scope = model
+    if not merged_req.trigger:
+        merged_req.trigger = f"manual_{model}"
+    return trigger_auto_retrain(
+        request=request,
+        background_tasks=background_tasks,
+        force=force,
+        wait=wait,
+        req=merged_req,
+    )
 
 
 @app.post("/retrain/auto")

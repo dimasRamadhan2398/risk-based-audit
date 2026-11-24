@@ -19,6 +19,8 @@ from retrain_engine import (
     AutoRetrainEngine,
     reload_fastapi_models,
     compute_auditee_pool_hash,
+    compute_auditor_items_hash,
+    compute_auditee_custom_items_hash,
     read_retrain_status,
     write_retrain_status,
     map_finding_significance,
@@ -3126,11 +3128,15 @@ def trigger_model_retrain(
     )
     if is_wait and enq.get("models_enqueued"):
         scheduler.drain_queue_sync()
-        snap = scheduler.get_status()
+        aud_h = compute_auditor_items_hash(auditor_items) if auditor_items else None
+        cus_h = compute_auditee_custom_items_hash(auditee_items) if auditee_items else None
+        snap = scheduler.get_status(auditor_hash=aud_h, auditee_custom_hash=cus_h)
         return {
             **enq,
-            "status": "completed",
+            "status": snap.get("status", "completed"),
             "is_running": bool(snap.get("is_running")),
+            "last_error": snap.get("last_error"),
+            "failed_models": snap.get("failed_models", []),
             "models": snap.get("models"),
             "queue": snap.get("queue"),
         }
@@ -3168,10 +3174,12 @@ def trigger_auto_retrain(
     )
     if is_wait and enq.get("models_enqueued"):
         scheduler.drain_queue_sync()
-        snap = scheduler.get_status()
+        aud_h = compute_auditor_items_hash(auditor_items) if auditor_items else None
+        cus_h = compute_auditee_custom_items_hash(auditee_items) if auditee_items else None
+        snap = scheduler.get_status(auditor_hash=aud_h, auditee_custom_hash=cus_h)
         return {
             **snap,
-            "status": "completed",
+            "status": snap.get("status", "completed"),
             "scope": retrain_scope,
             "models_enqueued": enq.get("models_enqueued", []),
         }

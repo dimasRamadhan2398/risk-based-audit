@@ -532,9 +532,10 @@ class RetrainScheduler:
 
             finished_iso = datetime.now(timezone.utc).isoformat()
             ok = bool(res.get("ok"))
+            skipped = bool(res.get("skipped"))
             promoted = bool(res.get("promoted", ok))
             fp = res.get("fingerprint") or compute_all_model_fingerprints().get(model_key, {})
-            new_hash = str(fp.get("hash") or "")
+            new_hash = str(fp.get("pool_hash") or fp.get("hash") or "")
             new_rows = int(fp.get("rows") or res.get("samples") or 0)
             dur = float(res.get("duration_seconds") or 0.0)
             metrics = res.get("metrics") or {}
@@ -542,9 +543,66 @@ class RetrainScheduler:
             peak_ram = res.get("peak_ram_mb")
 
             reg_curr = read_raw_registry(status_file=self.status_file)
-            prev_ver = int((reg_curr.get("models", {}).get(model_key) or {}).get("version") or 0)
+            prev_entry = reg_curr.get("models", {}).get(model_key) or {}
+            prev_ver = int(prev_entry.get("version") or 0)
+            has_existing_artifact = all(
+                os.path.exists(os.path.join(self.model_dir, a))
+                for a in MODEL_METADATA.get(model_key, {}).get("artifacts", [])
+            )
+            is_quality_rollback = (
+                not promoted
+                and has_existing_artifact
+                and "rollback otomatis" in str(res.get("reason") or "").lower()
+            )
 
-            if ok and promoted:
+            def _build_kpi_top_hashes() -> Dict[str, Any]:
+                patch: Dict[str, Any] = {}
+                if model_key == "kpi_auditee":
+                    patch["auditee_retrained"] = True
+                    pool_h = str(res.get("auditee_pool_hash") or fp.get("pool_hash") or new_hash)
+                    if pool_h:
+                        patch["trained_auditee_pool_hash"] = pool_h
+                    if res.get("auditee_custom_hash"):
+                        patch["trained_auditee_custom_hash"] = str(res.get("auditee_custom_hash"))
+                    if new_rows > 0:
+                        patch["trained_auditee_count"] = new_rows
+                elif model_key == "kpi_auditor":
+                    patch["auditor_retrained"] = True
+                    live_h = str(res.get("live_auditor_hash") or "")
+                    if live_h:
+                        patch["trained_auditor_hash"] = live_h
+                        patch["trained_auditor_count"] = len(job.get("auditor_items") or []) or int(res.get("kpis") or new_rows)
+                    elif not reg_curr.get("trained_auditor_hash") and new_hash:
+                        patch["trained_auditor_hash"] = new_hash
+                        patch["trained_auditor_count"] = int(res.get("kpis") or new_rows)
+                return patch
+
+            if skipped:
+                keep_state = "trained" if has_existing_artifact else "never_trained"
+                skip_msg = str(res.get("reason") or f"Pelatihan {label} dilewati karena belum ada data baru.")
+                m_patch = {
+                    "state": keep_state,
+                    "has_new_data": False,
+                    "new_rows": 0,
+                    "trained_data_hash": new_hash if has_existing_artifact else str(prev_entry.get("trained_data_hash") or ""),
+                    "trained_pool_hash": new_hash if has_existing_artifact else str(prev_entry.get("trained_pool_hash") or ""),
+                    "current_data_hash": new_hash,
+                    "trained_rows": new_rows if has_existing_artifact else int(prev_entry.get("trained_rows") or 0),
+                    "current_rows": new_rows,
+                    "progress": None,
+                    "queue_position": None,
+                    "waiting_reason": None,
+                    "last_result": "skipped",
+                    "last_error": None,
+                    "message": skip_msg,
+                }
+                top_patch = {
+                    "finished_at": finished_iso,
+                    "message": skip_msg,
+                    **_build_kpi_top_hashes(),
+                }
+                update_model_entry(model_key, m_patch, top_patch=top_patch, status_file=self.status_file)
+            elif ok and promoted:
                 # Selectively hot-reload ONLY the newly trained model bundle
                 reload_fastapi_models(self.fastapi_app, only_models=[model_key])
                 m_patch = {
@@ -552,6 +610,7 @@ class RetrainScheduler:
                     "has_new_data": False,
                     "new_rows": 0,
                     "trained_data_hash": new_hash,
+                    "trained_pool_hash": new_hash,
                     "current_data_hash": new_hash,
                     "trained_rows": new_rows,
                     "current_rows": new_rows,
@@ -572,23 +631,45 @@ class RetrainScheduler:
                         f"({int(res.get('samples') or new_rows)} sampel, {metrics.get('primary_name','score')}={metrics.get('primary','-')})."
                     ),
                 }
-                top_patch: Dict[str, Any] = {
+                top_patch = {
                     "finished_at": finished_iso,
                     "duration_seconds": dur,
                     "model_updated_at": finished_iso,
                     "message": m_patch["message"],
                     "last_error": None,
+                    **_build_kpi_top_hashes(),
                 }
-                if model_key == "kpi_auditee":
-                    top_patch["auditee_retrained"] = True
-                    top_patch["trained_auditee_pool_hash"] = str(res.get("auditee_pool_hash") or fp.get("pool_hash") or new_hash)
-                    if res.get("auditee_custom_hash"):
-                        top_patch["trained_auditee_custom_hash"] = str(res.get("auditee_custom_hash"))
-                    top_patch["trained_auditee_count"] = new_rows
-                elif model_key == "kpi_auditor":
-                    top_patch["auditor_retrained"] = True
-                    top_patch["trained_auditor_hash"] = str(res.get("auditor_hash") or new_hash)
-                    top_patch["trained_auditor_count"] = int(res.get("kpis") or new_rows)
+                update_model_entry(model_key, m_patch, top_patch=top_patch, status_file=self.status_file)
+            elif is_quality_rollback:
+                # Quality validation kept the better existing production model intact — keep state 'trained'
+                # and advance data hashes so the 60s auto-detector does not loop forever on the same dataset.
+                rb_reason = str(res.get("reason") or f"Model {label} lama dipertahankan (kualitas sudah optimal).")
+                m_patch = {
+                    "state": "trained",
+                    "has_new_data": False,
+                    "new_rows": 0,
+                    "trained_data_hash": new_hash,
+                    "trained_pool_hash": new_hash,
+                    "current_data_hash": new_hash,
+                    "trained_rows": new_rows,
+                    "current_rows": new_rows,
+                    "duration_seconds": dur,
+                    "tier": tier,
+                    "last_result": "rolled_back",
+                    "progress": None,
+                    "queue_position": None,
+                    "waiting_reason": None,
+                    "peak_ram_mb": peak_ram,
+                    "last_error": None,
+                    "message": rb_reason,
+                }
+                top_patch = {
+                    "finished_at": finished_iso,
+                    "duration_seconds": dur,
+                    "message": rb_reason,
+                    "last_error": None,
+                    **_build_kpi_top_hashes(),
+                }
                 update_model_entry(model_key, m_patch, top_patch=top_patch, status_file=self.status_file)
             else:
                 err_reason = str(res.get("reason") or res.get("error") or f"Pelatihan {label} tidak memenuhi ambang validasi.")
@@ -597,7 +678,7 @@ class RetrainScheduler:
                     "progress": None,
                     "queue_position": None,
                     "duration_seconds": dur,
-                    "last_result": "rolled_back" if res.get("reason") else "failed",
+                    "last_result": "failed",
                     "last_error": err_reason,
                     "message": err_reason,
                 }
@@ -605,10 +686,7 @@ class RetrainScheduler:
                     model_key,
                     m_patch,
                     top_patch={
-                        "status": "failed",
                         "finished_at": finished_iso,
-                        "last_error": err_reason,
-                        "message": err_reason,
                     },
                     status_file=self.status_file,
                 )
@@ -626,10 +704,7 @@ class RetrainScheduler:
                     "message": err_msg,
                 },
                 top_patch={
-                    "status": "failed",
                     "finished_at": finished_iso,
-                    "last_error": str(e),
-                    "message": err_msg,
                 },
                 status_file=self.status_file,
             )
@@ -641,10 +716,15 @@ class RetrainScheduler:
                 any_still_queued = any(j.get("state") == "queued" for j in self._jobs)
                 if not any_still_running and not any_still_queued:
                     reg_now = read_raw_registry(status_file=self.status_file)
+                    failed_entries = [
+                        m for m in (reg_now.get("models") or {}).values()
+                        if isinstance(m, dict) and m.get("state") == "failed" and m.get("last_error")
+                    ]
                     write_raw_registry(
                         {
                             "is_running": False,
-                            "status": "failed" if reg_now.get("last_error") else "completed",
+                            "status": "failed" if failed_entries else "completed",
+                            "last_error": failed_entries[0].get("last_error") if failed_entries else None,
                         },
                         status_file=self.status_file,
                     )

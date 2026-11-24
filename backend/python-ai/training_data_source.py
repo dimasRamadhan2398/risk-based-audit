@@ -214,7 +214,11 @@ def compute_nlp_fingerprint() -> Dict[str, Any]:
 
 
 def compute_kpi_auditee_fingerprint(custom_hash: Optional[str] = None) -> Dict[str, Any]:
-    """Compute fingerprint and row count for KPI Auditee training pool."""
+    """
+    Compute server-side pool fingerprint and row count for KPI Auditee training pool.
+    Always keeps `hash` equal to the pure server-side `pool_hash` so background auto-detection
+    and frontend status checks (which pass `custom_hash` separately) never conflict.
+    """
     try:
         df = load_auditee_training_dataframe()
         if df is not None and not df.empty and "Nama KPI" in df.columns:
@@ -225,18 +229,31 @@ def compute_kpi_auditee_fingerprint(custom_hash: Optional[str] = None) -> Dict[s
             sub = sub.sort_values(["Nama KPI", "Periode"])
             lines = [f"{r[0]}|{r[1]}|{r[2]:.4f}" for r in zip(sub["Nama KPI"], sub["Periode"], sub["_val"])]
             pool_digest = hashlib.sha256("\n".join(lines).encode("utf-8")).hexdigest()[:16]
-            final_hash = pool_digest
-            if custom_hash:
-                final_hash = hashlib.sha256(f"{pool_digest}|{custom_hash}".encode("utf-8")).hexdigest()[:16]
-            return {"hash": final_hash, "pool_hash": pool_digest, "rows": int(len(df)), "source": "auditee_pool"}
+            return {
+                "hash": pool_digest,
+                "pool_hash": pool_digest,
+                "custom_hash": str(custom_hash or ""),
+                "rows": int(len(df)),
+                "source": "auditee_pool",
+            }
     except Exception:
         pass
     tok, rows = _fast_file_stat_token(AUDITEE_PARQUET_FILE)
-    return {"hash": tok, "pool_hash": tok, "rows": rows, "source": "auditee_parquet"}
+    return {
+        "hash": tok,
+        "pool_hash": tok,
+        "custom_hash": str(custom_hash or ""),
+        "rows": rows,
+        "source": "auditee_parquet",
+    }
 
 
 def compute_kpi_auditor_fingerprint(live_auditor_hash: Optional[str] = None) -> Dict[str, Any]:
-    """Compute fingerprint and row count for KPI Auditor (Strategic Audit Plan) training pool."""
+    """
+    Compute server-side pool fingerprint and row count for KPI Auditor training pool.
+    Always keeps `hash` equal to the pure server-side `pool_hash` and tracks `live_hash`
+    separately so live Strategic Audit Plan hashes never collide with Parquet pool hashes.
+    """
     try:
         df = load_auditor_training_dataframe()
         if df is not None and not df.empty and "Kode SO" in df.columns:
@@ -247,12 +264,23 @@ def compute_kpi_auditor_fingerprint(live_auditor_hash: Optional[str] = None) -> 
             sub = sub.sort_values(["Kode SO", "Periode"])
             lines = [f"{r[0]}|{r[1]}|{r[2]:.4f}" for r in zip(sub["Kode SO"], sub["Periode"], sub["_val"])]
             pool_digest = hashlib.sha256("\n".join(lines).encode("utf-8")).hexdigest()[:16]
-            final_hash = live_auditor_hash or pool_digest
-            return {"hash": final_hash, "pool_hash": pool_digest, "rows": int(len(df)), "source": "auditor_pool"}
+            return {
+                "hash": pool_digest,
+                "pool_hash": pool_digest,
+                "live_hash": str(live_auditor_hash or ""),
+                "rows": int(len(df)),
+                "source": "auditor_pool",
+            }
     except Exception:
         pass
     tok, rows = _fast_file_stat_token(AUDITOR_PARQUET_FILE)
-    return {"hash": live_auditor_hash or tok, "pool_hash": tok, "rows": rows, "source": "auditor_parquet"}
+    return {
+        "hash": tok,
+        "pool_hash": tok,
+        "live_hash": str(live_auditor_hash or ""),
+        "rows": rows,
+        "source": "auditor_parquet",
+    }
 
 
 def compute_all_model_fingerprints(

@@ -799,7 +799,14 @@ class AutoRetrainEngine:
 
             csv_path = os.path.join(self.ai_training_dir, "anomaly_prediction", "anomaly_data.csv")
             if not os.path.exists(csv_path):
-                return False
+                self.last_model_results["anomaly"] = {
+                    "ok": True,
+                    "skipped": True,
+                    "promoted": False,
+                    "reason": "Dataset pelatihan Anomaly Detection belum tersedia; model pre-trained dipertahankan.",
+                    "fingerprint": compute_anomaly_fingerprint(),
+                }
+                return True
 
             fp_info = compute_anomaly_fingerprint()
             total_est_rows = max(1, int(fp_info.get("rows") or 1000))
@@ -1380,14 +1387,28 @@ class AutoRetrainEngine:
 
             df = load_entity_prediction_training_dataframe()
             if df.empty:
-                return False
+                self.last_model_results["entity"] = {
+                    "ok": True,
+                    "skipped": True,
+                    "promoted": False,
+                    "reason": "Belum ada data Audit Universe / Risk Profile untuk Entity Prediction; model pre-trained dipertahankan.",
+                    "fingerprint": compute_entity_fingerprint(),
+                }
+                return True
 
             if "source_id" in df.columns:
                 df = df[df["source_id"] != "baseline_dataset"]
             if "entity" in df.columns:
                 df = df[~df["entity"].astype(str).str.contains("Legal & Compliance", case=False, na=False)]
             if df.empty:
-                return False
+                self.last_model_results["entity"] = {
+                    "ok": True,
+                    "skipped": True,
+                    "promoted": False,
+                    "reason": "Belum ada entitas aktif untuk pelatihan Entity Prediction; model pre-trained dipertahankan.",
+                    "fingerprint": compute_entity_fingerprint(),
+                }
+                return True
 
             tier_info = select_training_tier(len(df), est_bytes_per_row=256, profile=prof)
             tier = tier_info["tier"]
@@ -1800,7 +1821,14 @@ class AutoRetrainEngine:
 
             samples = harvest_all_live_nlp_training_data()
             if not samples or len(samples) < 3:
-                return False
+                self.last_model_results["nlp"] = {
+                    "ok": True,
+                    "skipped": True,
+                    "promoted": False,
+                    "reason": "Belum cukup dokumen NLP untuk pelatihan ulang (< 3 sampel); model pre-trained dipertahankan.",
+                    "fingerprint": compute_nlp_fingerprint(),
+                }
+                return True
 
             sanitized_samples = [sanitize_nlp_corpus_item(s) for s in samples if isinstance(s, dict)]
             df = pd.DataFrame(sanitized_samples)
@@ -2178,7 +2206,17 @@ class AutoRetrainEngine:
 
             df = load_auditor_training_dataframe()
             if df is None or df.empty or "TARGET: Nilai Aktual" not in df.columns:
-                return {"ok": False, "rows": 0, "kpis": 0, "hash": live_hash}
+                fp_empty = compute_kpi_auditor_fingerprint()
+                self.last_model_results["kpi_auditor"] = {
+                    "ok": True,
+                    "skipped": True,
+                    "promoted": False,
+                    "reason": "Belum ada data KPI Auditor untuk pelatihan ulang; model pre-trained dipertahankan.",
+                    "fingerprint": fp_empty,
+                    "live_auditor_hash": live_hash,
+                    "pool_hash": str(fp_empty.get("pool_hash") or ""),
+                }
+                return {"ok": True, "skipped": True, "rows": 0, "kpis": 0, "hash": live_hash}
 
             tier_info = select_training_tier(len(df), est_bytes_per_row=200, profile=prof)
             tier = tier_info["tier"]
@@ -2320,6 +2358,7 @@ class AutoRetrainEngine:
             _clear_checkpoint("kpi_auditor")
             elapsed = round(time.perf_counter() - t0, 2)
             fp = compute_kpi_auditor_fingerprint(live_auditor_hash=live_hash or None)
+            pool_hash_val = str(fp.get("pool_hash") or fp.get("hash") or "")
             self.last_model_results["kpi_auditor"] = {
                 "ok": bool(promo.get("promoted", True)),
                 "promoted": bool(promo.get("promoted", True)),
@@ -2332,7 +2371,9 @@ class AutoRetrainEngine:
                 "peak_ram_mb": peak_ram,
                 "metrics": metrics,
                 "fingerprint": fp,
-                "auditor_hash": live_hash or fp.get("hash", ""),
+                "pool_hash": pool_hash_val,
+                "live_auditor_hash": live_hash,
+                "auditor_hash": live_hash,
             }
             del df, df_feat, X_class, X_c_scaled
             gc.collect()
@@ -2341,7 +2382,8 @@ class AutoRetrainEngine:
                 "rows": int(len(X_seqs)),
                 "samples": total_samples,
                 "kpis": len(auditor_scalers),
-                "hash": live_hash or fp.get("hash", ""),
+                "hash": live_hash,
+                "pool_hash": pool_hash_val,
                 "final_loss": round(final_loss, 6),
                 "rmse": round(rmse_val, 4),
             }
@@ -2367,7 +2409,18 @@ class AutoRetrainEngine:
 
             df = load_auditee_training_dataframe()
             if df.empty or "TARGET: Nilai Aktual (%)" not in df.columns:
-                return False
+                fp_empty = compute_kpi_auditee_fingerprint()
+                self.last_model_results["kpi_auditee"] = {
+                    "ok": True,
+                    "skipped": True,
+                    "promoted": False,
+                    "reason": "Belum ada data KPI Auditee untuk pelatihan ulang; model pre-trained dipertahankan.",
+                    "fingerprint": fp_empty,
+                    "auditee_pool_hash": str(fp_empty.get("pool_hash") or ""),
+                    "auditee_custom_hash": auditee_custom_hash,
+                    "auditee_count": int(fp_empty.get("rows") or 0),
+                }
+                return True
 
             tier_info = select_training_tier(len(df), est_bytes_per_row=200, profile=prof)
             tier = tier_info["tier"]
