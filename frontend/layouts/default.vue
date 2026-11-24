@@ -115,11 +115,11 @@ const rawItems = computed<NavigationMenuItem[][]>(() => [[
         icon: 'i-lucide-grid',
         to: '/risk-profile/risk-control-matrix'
       },
-      {
-        label: t('navigation.internalControlAssessment'),
-        icon: 'i-lucide-shield-check',
-        to: '/internal-control-assessment'
-      },
+      // {
+      //   label: t('navigation.internalControlAssessment'),
+      //   icon: 'i-lucide-shield-check',
+      //   to: '/internal-control-assessment'
+      // },
       {
         label: t('navigation.auditUniverse'),
         icon: 'i-lucide-globe',

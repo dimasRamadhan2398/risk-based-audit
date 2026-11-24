@@ -138,6 +138,58 @@
                 </div>
               </UFormField>
 
+              <!-- 4 Field Tambahan pada Section Kondisi -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <UFormField
+                  :label="t('workingPaper.causeForm.riskEvent')"
+                  name="riskEvent"
+                >
+                  <UTextarea
+                    v-model="store.causeForm.riskEvent"
+                    :rows="3"
+                    :placeholder="t('workingPaper.causeForm.riskEventPlaceholder')"
+                    class="w-full"
+                  />
+                </UFormField>
+
+                <UFormField
+                  :label="t('workingPaper.causeForm.cause')"
+                  name="cause"
+                >
+                  <UTextarea
+                    v-model="store.causeForm.cause"
+                    :rows="3"
+                    :placeholder="t('workingPaper.causeForm.causePlaceholder')"
+                    class="w-full"
+                  />
+                </UFormField>
+
+                <UFormField
+                  :label="t('workingPaper.causeForm.riskLevel')"
+                  name="riskLevel"
+                >
+                  <USelectMenu
+                    v-model="store.causeForm.riskLevel"
+                    :items="riskLevelItems"
+                    value-key="value"
+                    :placeholder="t('workingPaper.causeForm.riskLevelPlaceholder')"
+                    class="w-full"
+                  />
+                </UFormField>
+
+                <UFormField
+                  :label="t('workingPaper.causeForm.mitigationPlanOption')"
+                  name="mitigationPlanOption"
+                >
+                  <UTextarea
+                    v-model="store.causeForm.mitigationPlanOption"
+                    :rows="3"
+                    :placeholder="t('workingPaper.causeForm.mitigationPlanOptionPlaceholder')"
+                    class="w-full"
+                  />
+                </UFormField>
+              </div>
+
               <!-- Upload Evidence -->
               <div class="space-y-2">
                 <label class="block font-semibold text-sm text-[var(--text-main)]">
@@ -282,6 +334,203 @@
                 </div>
               </div>
             </UCard>
+
+            <!-- Section Rekomendasi (lebih dari satu rekomendasi) -->
+            <UCard
+              :ui="{ body: 'p-4 sm:p-6 space-y-5' }"
+              class="border border-[var(--border-main)]"
+            >
+              <template #header>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <div class="flex items-center gap-2">
+                    <UIcon
+                      name="i-heroicons-light-bulb"
+                      class="h-5 w-5 text-primary-500"
+                    />
+                    <h3 class="text-base sm:text-lg font-bold text-[var(--text-main)]">
+                      {{ t('workingPaper.causeForm.recommendations') }}
+                    </h3>
+                    <UBadge
+                      color="secondary"
+                      variant="subtle"
+                      size="sm"
+                    >
+                      {{ store.causeForm.recommendations?.length || 0 }}
+                    </UBadge>
+                  </div>
+                  <UButton
+                    color="primary"
+                    icon="i-heroicons-plus"
+                    variant="soft"
+                    size="sm"
+                    :label="t('workingPaper.causeForm.addRecommendation')"
+                    @click="store.addRecommendation"
+                  />
+                </div>
+              </template>
+
+              <div
+                v-if="!store.causeForm.recommendations || store.causeForm.recommendations.length === 0"
+                class="text-center py-6 bg-secondary-50/40 dark:bg-secondary-950/30 rounded-xl border border-dashed border-secondary-200 dark:border-secondary-900/50 space-y-2"
+              >
+                <p class="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                  {{ t('workingPaper.causeForm.emptyRecommendations') }}
+                </p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+                  {{ t('workingPaper.causeForm.emptyRecommendationsHint') }}
+                </p>
+                <div class="pt-2">
+                  <UButton
+                    color="primary"
+                    icon="i-heroicons-plus"
+                    variant="soft"
+                    size="sm"
+                    :label="t('workingPaper.causeForm.addRecommendation')"
+                    @click="store.addRecommendation"
+                  />
+                </div>
+              </div>
+
+              <div v-else class="space-y-3">
+                <div
+                  v-for="(rec, index) in store.causeForm.recommendations"
+                  :key="rec.id || index"
+                  class="border border-gray-200 dark:border-gray-800 rounded-xl p-4 bg-gray-50/50 dark:bg-gray-800/40 space-y-3"
+                >
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-bold text-[var(--text-main)]">
+                      {{ t('workingPaper.causeForm.recommendationIndex', { index: index + 1 }) }}
+                    </span>
+                    <UButton
+                      icon="i-heroicons-trash"
+                      color="error"
+                      variant="ghost"
+                      size="sm"
+                      @click="store.removeRecommendation(index)"
+                    />
+                  </div>
+                  <UTextarea
+                    v-model="rec.recommendation"
+                    :rows="2"
+                    :placeholder="t('workingPaper.causeForm.recommendationPlaceholder')"
+                    class="w-full"
+                  />
+                </div>
+              </div>
+            </UCard>
+          </div>
+
+          <!-- Step 3: Tab Baru — Tanggapan Auditee & Rencana Aksi -->
+          <div v-show="currentStep === 2" class="space-y-5">
+            <UCard
+              :ui="{ body: 'p-4 sm:p-6 space-y-5' }"
+              class="border border-[var(--border-main)]"
+            >
+              <template #header>
+                <div class="flex items-center gap-2">
+                  <UIcon
+                    name="i-heroicons-clipboard-document-check"
+                    class="h-5 w-5 text-secondary-500"
+                  />
+                  <h3 class="text-base sm:text-lg font-bold text-[var(--text-main)]">
+                    {{ t('workingPaper.causeForm.stepper.responseAndActionPlan') }}
+                  </h3>
+                </div>
+              </template>
+
+              <!-- Tanggapan Auditee -->
+              <UFormField
+                :label="t('workingPaper.causeForm.auditeeResponse')"
+                name="auditeeResponse"
+              >
+                <UTextarea
+                  v-model="store.causeForm.auditeeResponse"
+                  :rows="3"
+                  :placeholder="t('workingPaper.causeForm.auditeeResponsePlaceholder')"
+                  class="w-full"
+                />
+              </UFormField>
+
+              <!-- Rencana Aksi -->
+              <UFormField
+                :label="t('workingPaper.causeForm.actionPlan')"
+                name="actionPlan"
+              >
+                <UTextarea
+                  v-model="store.causeForm.actionPlan"
+                  :rows="3"
+                  :placeholder="t('workingPaper.causeForm.actionPlanPlaceholder')"
+                  class="w-full"
+                />
+              </UFormField>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Target Penyelesaian -->
+                <UFormField
+                  :label="t('workingPaper.causeForm.targetDate')"
+                  name="targetDate"
+                >
+                  <AppDatePicker
+                    v-model="store.causeForm.targetDate"
+                    class="w-full"
+                  />
+                </UFormField>
+
+                <!-- Evidence -->
+                <UFormField
+                  :label="t('workingPaper.causeForm.actionEvidence')"
+                  name="actionEvidence"
+                >
+                  <UInput
+                    v-model="store.causeForm.actionEvidence"
+                    :placeholder="t('workingPaper.causeForm.actionEvidencePlaceholder')"
+                    class="w-full"
+                  />
+                </UFormField>
+
+                <!-- PIC (diisi Manager/Supervisor) -->
+                <UFormField
+                  :label="t('workingPaper.causeForm.pic')"
+                  name="pic"
+                >
+                  <USelectMenu
+                    v-model="store.causeForm.pic"
+                    icon="i-heroicons-magnifying-glass"
+                    :items="store.picOptions"
+                    :loading="store.employeesLoading"
+                    :placeholder="t('workingPaper.causeForm.picPlaceholder')"
+                    class="w-full"
+                    create-item
+                    @create="(val: string) => { store.causeForm.pic = val.trim() }"
+                  >
+                    <template #empty>
+                      {{ store.employeesLoading ? t('common.loading') : (store.employeesError || t('masterData.employee.empty')) }}
+                    </template>
+                  </USelectMenu>
+                </UFormField>
+
+                <!-- Final Approver (diisi GM/Manager Unit/VP/EVP/Direktur) -->
+                <UFormField
+                  :label="t('workingPaper.causeForm.finalApprover')"
+                  name="finalApprover"
+                >
+                  <USelectMenu
+                    v-model="store.causeForm.finalApprover"
+                    icon="i-heroicons-magnifying-glass"
+                    :items="store.finalApproverOptions"
+                    :loading="store.employeesLoading"
+                    :placeholder="t('workingPaper.causeForm.finalApproverPlaceholder')"
+                    class="w-full"
+                    create-item
+                    @create="(val: string) => { store.causeForm.finalApprover = val.trim() }"
+                  >
+                    <template #empty>
+                      {{ store.employeesLoading ? t('common.loading') : (store.employeesError || t('masterData.employee.empty')) }}
+                    </template>
+                  </USelectMenu>
+                </UFormField>
+              </div>
+            </UCard>
           </div>
         </div>
 
@@ -331,10 +580,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { useI18n } from '~/composables/useI18n'
 import { useWorkingPaperStore } from '~/stores/working-paper'
 import LocalizedFileInput from '~/components/shared/LocalizedFileInput.vue'
+import AppDatePicker from '~/components/shared/AppDatePicker.vue'
 
 const { t } = useI18n()
 const store = useWorkingPaperStore()
@@ -343,9 +593,18 @@ const currentStep = ref(0)
 const bodyRef = ref<HTMLElement | null>(null)
 const formErrorMessage = ref('')
 
+const riskLevelItems = computed(() => [
+  { label: t('workingPaper.causeForm.riskLevelOptions.level1'), value: '1' },
+  { label: t('workingPaper.causeForm.riskLevelOptions.level2'), value: '2' },
+  { label: t('workingPaper.causeForm.riskLevelOptions.level3'), value: '3' },
+  { label: t('workingPaper.causeForm.riskLevelOptions.level4'), value: '4' },
+  { label: t('workingPaper.causeForm.riskLevelOptions.level5'), value: '5' }
+])
+
 const steps = computed(() => [
   { key: 'conditionAndImpact', label: t('workingPaper.causeForm.stepper.conditionAndImpact') || 'Kondisi & Dampak' },
-  { key: 'rootCauseAnalysis', label: t('workingPaper.causeForm.stepper.rootCauseAnalysis') || 'Analisis Akar Masalah' }
+  { key: 'rootCauseAnalysis', label: t('workingPaper.causeForm.stepper.rootCauseAnalysis') || 'Analisis Akar Masalah' },
+  { key: 'responseAndActionPlan', label: t('workingPaper.causeForm.stepper.responseAndActionPlan') || 'Tanggapan & Rencana Aksi' }
 ])
 
 const validateStep = (idx: number): boolean => {
@@ -419,12 +678,17 @@ const handleSave = () => {
   store.handleSubmitF04()
 }
 
+onMounted(() => {
+  store.fetchEmployees?.()
+})
+
 watch(
   () => store.showModalF04,
   (open) => {
     if (open) {
       currentStep.value = 0
       formErrorMessage.value = ''
+      store.fetchEmployees?.()
     }
   }
 )

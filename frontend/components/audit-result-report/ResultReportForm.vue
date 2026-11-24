@@ -106,7 +106,10 @@
           />
 
           <!-- Step 1: Report Information -->
-          <div v-show="currentStep === 0" class="space-y-5">
+          <div
+            v-show="currentStep === 0"
+            class="space-y-5"
+          >
             <UCard
               :ui="{ body: 'p-4 sm:p-6' }"
               class="border border-[var(--border-main)]"
@@ -124,7 +127,12 @@
               </template>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
-                <UFormField :label="t('auditResultReport.editor.form.reportNumber')" name="reportNumber" required class="md:col-span-2">
+                <UFormField
+                  :label="t('auditResultReport.editor.form.reportNumber')"
+                  name="reportNumber"
+                  required
+                  class="md:col-span-2"
+                >
                   <div class="flex gap-2 items-center">
                     <UInput
                       v-model="store.reportForm.reportNumber"
@@ -140,7 +148,11 @@
                   </p>
                 </UFormField>
 
-                <UFormField :label="t('auditResultReport.editor.form.company')" name="companyId" class="md:col-span-2">
+                <UFormField
+                  :label="t('auditResultReport.editor.form.company')"
+                  name="companyId"
+                  class="md:col-span-2"
+                >
                   <USelectMenu
                     v-model="store.reportForm.companyId"
                     :items="companySelectItems"
@@ -153,7 +165,12 @@
                   />
                 </UFormField>
 
-                <UFormField :label="t('auditResultReport.dashboard.columns.reportTitle')" name="reportTitle" required class="md:col-span-2">
+                <UFormField
+                  :label="t('auditResultReport.dashboard.columns.reportTitle')"
+                  name="reportTitle"
+                  required
+                  class="md:col-span-2"
+                >
                   <UInput
                     v-model="store.reportForm.reportTitle"
                     :placeholder="t('auditResultReport.editor.form.titleExample')"
@@ -189,7 +206,10 @@
                     class="w-full"
                     :disabled="!canPublishLha"
                   />
-                  <p v-if="!canPublishLha" class="text-[11px] text-amber-600 dark:text-amber-400 mt-1">
+                  <p
+                    v-if="!canPublishLha"
+                    class="text-[11px] text-amber-600 dark:text-amber-400 mt-1"
+                  >
                     {{ t('auditResultReport.editor.form.statusLocked') }}
                   </p>
                 </UFormField>
@@ -198,7 +218,10 @@
           </div>
 
           <!-- Step 2: Audit Findings -->
-          <div v-show="currentStep === 1" class="space-y-5">
+          <div
+            v-show="currentStep === 1"
+            class="space-y-5"
+          >
             <UCard
               :ui="{ body: 'p-4 sm:p-6 space-y-5' }"
               class="border border-[var(--border-main)]"
@@ -345,18 +368,280 @@
                         </div>
                       </UFormField>
 
+                      <!-- AOI Synced Condition Details -->
                       <UFormField
-                        :label="t('auditResultReport.editor.form.action')"
+                        :label="t('workingPaper.causeForm.riskEvent')"
+                        size="sm"
+                        class="md:col-span-1"
+                      >
+                        <UTextarea
+                          v-model="finding.riskEvent"
+                          :placeholder="t('workingPaper.causeForm.riskEventPlaceholder')"
+                          :rows="2"
+                          :disabled="lhaLocked"
+                          class="w-full"
+                        />
+                      </UFormField>
+
+                      <UFormField
+                        :label="t('workingPaper.causeForm.cause')"
+                        size="sm"
+                        class="md:col-span-1"
+                      >
+                        <UTextarea
+                          v-model="finding.cause"
+                          :placeholder="t('workingPaper.causeForm.causePlaceholder')"
+                          :rows="2"
+                          :disabled="lhaLocked"
+                          class="w-full"
+                        />
+                      </UFormField>
+
+                      <UFormField
+                        :label="t('workingPaper.causeForm.riskLevel')"
+                        size="sm"
+                        class="md:col-span-1"
+                      >
+                        <USelectMenu
+                          v-model="finding.riskLevel"
+                          :items="aoiRiskLevelItems"
+                          value-key="value"
+                          :placeholder="t('workingPaper.causeForm.riskLevelPlaceholder')"
+                          :disabled="lhaLocked"
+                          class="w-full"
+                        />
+                      </UFormField>
+
+                      <UFormField
+                        :label="t('workingPaper.causeForm.mitigationPlanOption')"
+                        size="sm"
+                        class="md:col-span-1"
+                      >
+                        <UTextarea
+                          v-model="finding.mitigationPlanOption"
+                          :placeholder="t('workingPaper.causeForm.mitigationPlanOptionPlaceholder')"
+                          :rows="2"
+                          :disabled="lhaLocked"
+                          class="w-full"
+                        />
+                      </UFormField>
+
+                      <!-- Rekomendasi (multiple) -->
+                      <div class="md:col-span-2 space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                          <p class="text-sm font-semibold text-[var(--text-main)]">
+                            {{ t('workingPaper.causeForm.recommendations') }}
+                          </p>
+                          <UButton
+                            :label="t('workingPaper.causeForm.addRecommendation')"
+                            size="xs"
+                            color="neutral"
+                            variant="outline"
+                            icon="i-heroicons-plus"
+                            :disabled="lhaLocked"
+                            @click="addFindingRecommendation(finding)"
+                          />
+                        </div>
+                        <div
+                          v-for="(_, rIdx) in finding.recommendations || []"
+                          :key="rIdx"
+                          class="flex items-start gap-2"
+                        >
+                          <span class="mt-2 w-5 shrink-0 text-xs font-bold text-secondary-700 dark:text-secondary-300">
+                            {{ rIdx + 1 }}.
+                          </span>
+                          <UTextarea
+                            v-model="finding.recommendations![rIdx]"
+                            :rows="2"
+                            :placeholder="t('workingPaper.causeForm.recommendationPlaceholder')"
+                            :disabled="lhaLocked"
+                            class="w-full"
+                          />
+                          <UButton
+                            color="error"
+                            variant="ghost"
+                            icon="i-heroicons-trash"
+                            size="xs"
+                            :disabled="lhaLocked"
+                            @click="removeFindingRecommendation(finding, rIdx)"
+                          />
+                        </div>
+                      </div>
+
+                      <!-- Tanggapan Auditee -->
+                      <UFormField
+                        :label="t('workingPaper.causeForm.auditeeResponse')"
                         size="sm"
                         class="md:col-span-2"
                       >
                         <UTextarea
-                          v-model="finding.action"
-                          :placeholder="t('auditResultReport.editor.form.actionExample')"
+                          v-model="finding.auditeeResponse"
+                          :placeholder="t('workingPaper.causeForm.auditeeResponsePlaceholder')"
                           :rows="2"
+                          :disabled="lhaLocked"
                           class="w-full"
                         />
                       </UFormField>
+
+                      <!-- Root Cause (5 Whys per category) -->
+                      <div class="md:col-span-2 space-y-2">
+                        <div>
+                          <p class="text-sm font-semibold text-[var(--text-main)]">
+                            {{ t('auditResultReport.editor.form.rootCause.title') }}
+                          </p>
+                          <p class="text-xs text-[var(--text-muted)]">
+                            {{ t('auditResultReport.editor.form.rootCause.hint') }}
+                          </p>
+                        </div>
+                        <div class="space-y-2">
+                          <div
+                            v-for="method in ROOT_CAUSE_METHODS"
+                            :key="method"
+                            class="grid grid-cols-1 sm:grid-cols-[7rem_1fr_1fr_1fr] gap-2 items-center rounded-lg border border-secondary-100 dark:border-secondary-900/40 bg-white/60 dark:bg-gray-900/40 p-2"
+                          >
+                            <span class="text-xs font-semibold text-secondary-700 dark:text-secondary-300">
+                              {{ t(`auditResultReport.editor.form.rootCause.${method}`) }}
+                            </span>
+                            <UInput
+                              v-for="w in WHY_KEYS"
+                              :key="w"
+                              :model-value="getWhy(finding, method, w)"
+                              :placeholder="t(`auditResultReport.editor.form.rootCause.${WHY_LABELS[w]}`)"
+                              :aria-label="`${t(`auditResultReport.editor.form.rootCause.${method}`)} ${t(`auditResultReport.editor.form.rootCause.${WHY_LABELS[w]}`)}`"
+                              :disabled="lhaLocked"
+                              size="sm"
+                              class="w-full"
+                              @update:model-value="setWhy(finding, method, w, String($event ?? ''))"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Rencana Aksi -->
+                      <div class="md:col-span-2 space-y-2">
+                        <div class="flex items-start justify-between gap-2">
+                          <div>
+                            <p class="text-sm font-semibold text-[var(--text-main)]">
+                              {{ t('auditResultReport.editor.form.actionPlan.title') }}
+                            </p>
+                            <p class="text-xs text-[var(--text-muted)]">
+                              {{ t('auditResultReport.editor.form.actionPlan.hint') }}
+                            </p>
+                          </div>
+                          <UButton
+                            :label="t('auditResultReport.editor.form.actionPlan.add')"
+                            size="xs"
+                            color="neutral"
+                            variant="outline"
+                            icon="i-heroicons-plus"
+                            :disabled="lhaLocked"
+                            @click="addActionPlan(finding)"
+                          />
+                        </div>
+
+                        <div
+                          v-if="!finding.actionPlans || finding.actionPlans.length === 0"
+                          class="space-y-2"
+                        >
+                          <p class="text-xs text-center py-3 rounded-lg border border-dashed border-secondary-200 dark:border-secondary-900/50 text-[var(--text-muted)]">
+                            {{ t('auditResultReport.editor.form.actionPlan.empty') }}
+                          </p>
+                          <UFormField
+                            v-if="finding.action"
+                            :label="t('auditResultReport.editor.form.action')"
+                            :help="t('auditResultReport.editor.form.actionLegacyHint')"
+                            size="sm"
+                          >
+                            <UTextarea
+                              v-model="finding.action"
+                              :placeholder="t('auditResultReport.editor.form.actionExample')"
+                              :rows="2"
+                              :disabled="lhaLocked"
+                              class="w-full"
+                            />
+                          </UFormField>
+                        </div>
+
+                        <div
+                          v-for="(plan, pIdx) in finding.actionPlans || []"
+                          :key="pIdx"
+                          class="rounded-lg border border-secondary-100 dark:border-secondary-900/40 bg-white/60 dark:bg-gray-900/40 p-3"
+                        >
+                          <div class="flex items-start gap-2">
+                            <span class="mt-1.5 w-6 shrink-0 text-xs font-bold text-secondary-700 dark:text-secondary-300">
+                              {{ pIdx + 1 }}.
+                            </span>
+                            <div class="grid flex-1 grid-cols-1 sm:grid-cols-2 gap-2">
+                              <UFormField
+                                :label="t('auditResultReport.editor.form.actionPlan.action')"
+                                size="sm"
+                                class="sm:col-span-2"
+                              >
+                                <UTextarea
+                                  v-model="plan.action"
+                                  :placeholder="t('auditResultReport.editor.form.actionPlan.actionPlaceholder')"
+                                  :rows="2"
+                                  :disabled="lhaLocked"
+                                  class="w-full"
+                                  @update:model-value="syncLegacyAction(finding)"
+                                />
+                              </UFormField>
+                              <UFormField
+                                :label="t('auditResultReport.editor.form.actionPlan.targetDate')"
+                                size="sm"
+                              >
+                                <UInput
+                                  v-model="plan.targetDate"
+                                  type="date"
+                                  :disabled="lhaLocked"
+                                  class="w-full"
+                                />
+                              </UFormField>
+                              <UFormField
+                                :label="t('auditResultReport.editor.form.actionPlan.pic')"
+                                size="sm"
+                              >
+                                <UInput
+                                  v-model="plan.pic"
+                                  :disabled="lhaLocked"
+                                  class="w-full"
+                                />
+                              </UFormField>
+                              <UFormField
+                                :label="t('auditResultReport.editor.form.actionPlan.finalApprover')"
+                                size="sm"
+                              >
+                                <UInput
+                                  v-model="plan.finalApprover"
+                                  :disabled="lhaLocked"
+                                  class="w-full"
+                                />
+                              </UFormField>
+                              <UFormField
+                                :label="t('auditResultReport.editor.form.actionPlan.evidence')"
+                                size="sm"
+                              >
+                                <UInput
+                                  v-model="plan.evidence"
+                                  :disabled="lhaLocked"
+                                  class="w-full"
+                                />
+                              </UFormField>
+                            </div>
+                            <UTooltip :text="t('auditResultReport.editor.form.actionPlan.remove')">
+                              <UButton
+                                color="error"
+                                variant="ghost"
+                                icon="i-heroicons-trash"
+                                size="xs"
+                                :disabled="lhaLocked"
+                                :aria-label="t('auditResultReport.editor.form.actionPlan.remove')"
+                                @click="removeActionPlan(finding, pIdx)"
+                              />
+                            </UTooltip>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -470,7 +755,8 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
-import { useAuditResultReportStore, type MemberSignature } from '~/stores/audit-result-report'
+import { useAuditResultReportStore, ROOT_CAUSE_METHODS, emptyActionPlan, type MemberSignature, type FindingItem } from '~/stores/audit-result-report'
+import { isLhaApproved } from '~/utils/actionTakenReport'
 import { useMasterOptionsStore } from '~/stores/master-options'
 import { useI18n } from '~/composables/useI18n'
 import { useRbac } from '~/composables/useRbac'
@@ -503,6 +789,25 @@ const categoryItems = computed(() => [
   { label: t('auditResultReport.dashboard.categories.quiteSignificant'), value: 'Quite Significant' },
   { label: t('auditResultReport.dashboard.categories.notSignificant'), value: 'Not Significant' }
 ])
+
+const aoiRiskLevelItems = computed(() => [
+  { label: t('workingPaper.causeForm.riskLevelOptions.level1'), value: '1' },
+  { label: t('workingPaper.causeForm.riskLevelOptions.level2'), value: '2' },
+  { label: t('workingPaper.causeForm.riskLevelOptions.level3'), value: '3' },
+  { label: t('workingPaper.causeForm.riskLevelOptions.level4'), value: '4' },
+  { label: t('workingPaper.causeForm.riskLevelOptions.level5'), value: '5' }
+])
+
+const addFindingRecommendation = (finding: FindingItem) => {
+  if (!Array.isArray(finding.recommendations)) {
+    finding.recommendations = []
+  }
+  finding.recommendations.push('')
+}
+
+const removeFindingRecommendation = (finding: FindingItem, idx: number) => {
+  finding.recommendations?.splice(idx, 1)
+}
 
 const isFinalStatus = computed(() => {
   const s = (store.reportForm.status || '').toLowerCase().trim()
@@ -649,6 +954,45 @@ const getSourceIcon = (source?: string) => {
   if (source.includes('Fieldwork')) return 'i-heroicons-shield-check'
   if (source.includes('ATR') || source.includes('Action Taken')) return 'i-heroicons-arrow-path'
   return 'i-heroicons-pencil'
+}
+
+// An approved LHA is read-only: the persisted status decides, not the form's status dropdown.
+const lhaLocked = computed(() => {
+  if (!store.isEditing || !store.editingId) return false
+  const saved = store.reportList.find(r => r.id === store.editingId)
+  return isLhaApproved(saved?.status)
+})
+
+const WHY_KEYS = ['w1', 'w2', 'w3'] as const
+const WHY_LABELS = { w1: 'why1', w2: 'why2', w3: 'why3' } as const
+
+const getWhy = (finding: FindingItem, method: string, key: 'w1' | 'w2' | 'w3') =>
+  (finding.rootCause || []).find(r => String(r.method).toLowerCase() === method.toLowerCase())?.[key] || ''
+
+const setWhy = (finding: FindingItem, method: string, key: 'w1' | 'w2' | 'w3', value: string) => {
+  if (!finding.rootCause) finding.rootCause = []
+  let row = finding.rootCause.find(r => String(r.method).toLowerCase() === method.toLowerCase())
+  if (!row) {
+    row = { id: ROOT_CAUSE_METHODS.indexOf(method as any) + 1, method, w1: '', w2: '', w3: '' }
+    finding.rootCause.push(row)
+  }
+  row[key] = value
+}
+
+// Keep the legacy single `action` showing the plans' action texts.
+const syncLegacyAction = (finding: FindingItem) => {
+  const texts = (finding.actionPlans || []).map(p => (p.action || '').trim()).filter(Boolean)
+  finding.action = texts.join('\n')
+}
+
+const addActionPlan = (finding: FindingItem) => {
+  if (!finding.actionPlans) finding.actionPlans = []
+  finding.actionPlans.push(emptyActionPlan())
+}
+
+const removeActionPlan = (finding: FindingItem, idx: number) => {
+  finding.actionPlans?.splice(idx, 1)
+  syncLegacyAction(finding)
 }
 
 const addManualFinding = () => {

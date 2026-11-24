@@ -103,8 +103,8 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             if (target === 0) return '';
             result = (actual / target) * 100;
         } else {
-            if (actual === 0) return '';
-            result = (target / actual) * 100;
+            if (target === 0) return '';
+            result = (1 + (1 - actual / target)) * 100;
         }
 
         return `${result.toFixed(2)}%`;
@@ -120,8 +120,8 @@ export const useStrategicPlanStore = defineStore('strategic-audit-plan', () => {
             if (target === 0) return '';
             ratio = actual / target;
         } else {
-            if (actual === 0) return '';
-            ratio = target / actual;
+            if (target === 0) return '';
+            ratio = 1 + (1 - actual / target);
         }
 
         if (ratio >= 1) return 'Good';

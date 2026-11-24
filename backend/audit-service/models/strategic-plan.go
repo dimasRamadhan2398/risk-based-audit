@@ -29,6 +29,14 @@ type StrategicPlan struct {
 	// Category is one of StrategicPlanCategories, or "" for uncategorised
 	// (existing rows). Validated on POST/PUT by controllers/strategic_plan.
 	Category           string         `gorm:"type:varchar(50);default:''" json:"category"`
+	// Initiative is the main program/activity (Program/Kegiatan Utama) that
+	// supports this KPI. InitiativeYears says, per year key (same keys as
+	// KPITargets), whether it is carried out that year: "√" yes, "-" no.
+	Initiative         string            `gorm:"type:text" json:"initiative"`
+	InitiativeYears    map[string]string `gorm:"serializer:json" json:"initiativeYears"`
+	// TargetNotes holds a free-text remark per year key, e.g. "PC" for a target
+	// that is only assessed periodically (external assessment).
+	TargetNotes        map[string]string `gorm:"serializer:json" json:"targetNotes"`
 	CreatedAt         time.Time      `json:"created_at"`
 	UpdatedAt          time.Time      `json:"updated_at"`
 	DeletedAt          gorm.DeletedAt `gorm:"index" json:"-"`

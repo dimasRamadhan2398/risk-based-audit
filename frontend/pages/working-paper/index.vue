@@ -107,26 +107,6 @@
 
         <WorkingPaperCauseForm />
       </template>
-
-      <template #f05>
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-6">
-          <div>
-            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ t('workingPaper.index.sections.planTitle') }}</h1>
-          </div>
-          <UButton v-if="canWrite" 
-            :label="t('workingPaper.index.createButton')" 
-            icon="i-heroicons-plus" 
-            color="primary" 
-            size="lg" 
-            class="font-bold shadow-md w-full sm:w-auto justify-center"
-            @click="store.openModalF05()" 
-          />
-        </div>
-
-        <WorkingPaperPlanTable />
-
-        <WorkingPaperPlanForm />
-      </template>
     </UStepper>
   </div>
 </template>
@@ -141,8 +121,6 @@ import WorkingPaperCauseForm from '~/components/working-paper/WorkingPaperCauseF
 import WorkingPaperCauseTable from '~/components/working-paper/WorkingPaperCauseTable.vue';
 import WorkingPaperHeaderForm from '~/components/working-paper/WorkingPaperHeaderForm.vue';
 import WorkingPaperHeaderTable from '~/components/working-paper/WorkingPaperHeaderTable.vue';
-import WorkingPaperPlanForm from '~/components/working-paper/WorkingPaperPlanForm.vue';
-import WorkingPaperPlanTable from '~/components/working-paper/WorkingPaperPlanTable.vue';
 import WorkingPaperRiskForm from '~/components/working-paper/WorkingPaperRiskForm.vue';
 import WorkingPaperRiskTable from '~/components/working-paper/WorkingPaperRiskTable.vue';
 import WorkingPaperSampleForm from '~/components/working-paper/WorkingPaperSampleForm.vue';
@@ -185,12 +163,6 @@ const stepItems = computed<StepperItem[]>(() => [
     title: t('workingPaper.index.steps.aoiRca.title'),
     description: t('workingPaper.index.steps.aoiRca.description'),
     icon: 'i-lucide-file-search'
-  },
-  {
-    slot: 'f05' as const,
-    title: t('workingPaper.index.steps.actionPlan.title'),
-    description: t('workingPaper.index.steps.actionPlan.description'),
-    icon: 'i-lucide-check'
   }
 ])
 
@@ -198,8 +170,7 @@ const stepMap: Record<string, number> = {
   f01: 0,
   f02: 1,
   f03: 2,
-  f04: 3,
-  f05: 4
+  f04: 3
 }
 
 const getInitialStep = () => {

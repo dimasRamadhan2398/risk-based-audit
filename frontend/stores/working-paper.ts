@@ -138,8 +138,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     { label: t('workingPaper.index.steps.header.title'), slot: 'f01', icon: 'i-heroicons-document-text' },
     { label: t('workingPaper.index.steps.riskProfile.title'), slot: 'f02', icon: 'i-heroicons-shield-exclamation' },
     { label: t('workingPaper.index.steps.testSample.title'), slot: 'f03', icon: 'i-heroicons-table-cells' },
-    { label: t('workingPaper.index.steps.aoiRca.title'), slot: 'f04', icon: 'i-heroicons-magnifying-glass-circle' },
-    { label: t('workingPaper.index.steps.actionPlan.title'), slot: 'f05', icon: 'i-heroicons-check-badge' }
+    { label: t('workingPaper.index.steps.aoiRca.title'), slot: 'f04', icon: 'i-heroicons-magnifying-glass-circle' }
   ])
 
   const workingItems = computed(() => [
@@ -163,11 +162,6 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       title: t('workingPaper.index.steps.aoiRca.title'),
       description: t('workingPaper.index.steps.aoiRca.description'),
       icon: 'i-lucide-file-search'
-    }, {
-      slot: 'f05' as const,
-      title: t('workingPaper.index.steps.actionPlan.title'),
-      description: t('workingPaper.index.steps.actionPlan.description'),
-      icon: 'i-lucide-check'
     }
   ] satisfies StepperItem[])
 
@@ -224,19 +218,23 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       key: 'condition',
       accessorKey: 'condition',
       header: t('workingPaper.columns.condition'),
-      class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
+      class: 'w-72 min-w-[220px] max-w-sm !whitespace-normal break-words',
       tdClass: '!whitespace-normal break-words'
     },
+    { key: 'riskLevel', accessorKey: 'riskLevel', header: t('workingPaper.causeForm.riskLevel'), class: 'w-32 min-w-[110px]' },
     {
       key: 'criteria',
       accessorKey: 'criteria',
       header: t('workingPaper.columns.criteria'),
-      class: 'w-80 min-w-[240px] max-w-sm !whitespace-normal break-words',
+      class: 'w-64 min-w-[200px] max-w-sm !whitespace-normal break-words',
       tdClass: '!whitespace-normal break-words'
     },
-    { key: 'impact', accessorKey: 'impact', header: t('workingPaper.columns.impact'), class: 'w-56 min-w-[180px]' },
-    { key: 'rootCause', accessorKey: 'rootCause', header: t('workingPaper.columns.rootCause'), class: 'min-w-[220px]' },
-    { key: 'evidenceFile', accessorKey: 'evidenceFile', header: t('workingPaper.columns.evidenceDocument'), class: 'w-48 min-w-[160px]' },
+    { key: 'impact', accessorKey: 'impact', header: t('workingPaper.columns.impact'), class: 'w-52 min-w-[160px]' },
+    { key: 'rootCause', accessorKey: 'rootCause', header: t('workingPaper.columns.rootCause'), class: 'min-w-[200px]' },
+    { key: 'recommendations', accessorKey: 'recommendations', header: t('workingPaper.causeForm.recommendations'), class: 'min-w-[200px]' },
+    { key: 'actionPlan', accessorKey: 'actionPlan', header: t('workingPaper.causeForm.actionPlan'), class: 'min-w-[200px]' },
+    { key: 'pic', accessorKey: 'pic', header: t('workingPaper.columns.pic'), class: 'w-44 min-w-[140px]' },
+    { key: 'evidenceFile', accessorKey: 'evidenceFile', header: t('workingPaper.columns.evidenceDocument'), class: 'w-40 min-w-[140px]' },
     { key: 'actions', accessorKey: 'actions', header: t('workingPaper.columns.actions'), class: 'w-24 min-w-[90px] whitespace-nowrap text-center' }
   ])
 
@@ -291,10 +289,10 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
   const toTeamMembers = (letter: AssignmentLetter) =>
     Array.isArray(letter.membersList)
       ? letter.membersList.map((m, idx) => ({
-          id: Date.now() + idx,
-          name: m.name || '',
-          role: m.role || 'Member'
-        }))
+        id: Date.now() + idx,
+        name: m.name || '',
+        role: m.role || 'Member'
+      }))
       : []
 
   const syncFromAssignmentLetter = (letterNumberOrId: string) => {
@@ -371,12 +369,23 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   const causeForm = reactive<WorkingPaperCauseForm>({
     condition: '',
+    riskEvent: '',
+    cause: '',
+    riskLevel: '',
+    mitigationPlanOption: '',
     criteria: '',
     impact: '',
     evidenceFile: null,
     rootCause: [
       { id: Date.now(), method: 'People', w1: '', w2: '', w3: '' }
-    ]
+    ],
+    recommendations: [],
+    auditeeResponse: '',
+    actionPlan: '',
+    targetDate: '',
+    actionEvidence: '',
+    pic: '',
+    finalApprover: ''
   })
 
   const planForm = reactive<WorkingPaperPlanForm>({
@@ -437,6 +446,12 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
       if (planForm.pic) {
         planForm.pic = resolveEmployeeOption(planForm.pic)
       }
+      if (causeForm.pic) {
+        causeForm.pic = resolveEmployeeOption(causeForm.pic)
+      }
+      if (causeForm.finalApprover) {
+        causeForm.finalApprover = resolveEmployeeOption(causeForm.finalApprover)
+      }
     } catch (error: any) {
       console.error('Failed to fetch employees for working paper action plan:', error)
       employeesError.value = extractErrorMessage(error, 'Gagal memuat data karyawan.')
@@ -452,6 +467,17 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     const list = employees.value.map(e => e.employee_code ? `${e.full_name} (${e.employee_code})` : e.full_name)
     if (planForm.pic && !list.includes(planForm.pic)) {
       list.unshift(planForm.pic)
+    }
+    if (causeForm.pic && !list.includes(causeForm.pic)) {
+      list.unshift(causeForm.pic)
+    }
+    return list
+  })
+
+  const finalApproverOptions = computed(() => {
+    const list = employees.value.map(e => e.employee_code ? `${e.full_name} (${e.employee_code})` : e.full_name)
+    if (causeForm.finalApprover && !list.includes(causeForm.finalApprover)) {
+      list.unshift(causeForm.finalApprover)
     }
     return list
   })
@@ -472,14 +498,14 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     errorMsg.value = ''
     try {
       if (assignmentLetterStore.assignmentLetterList.length <= 3) {
-        assignmentLetterStore.fetchAssignmentLetters().catch(() => {})
+        assignmentLetterStore.fetchAssignmentLetters().catch(() => { })
       }
       if (locationStore.locations.length === 0) {
-        locationStore.fetchLocations().catch(() => {})
+        locationStore.fetchLocations().catch(() => { })
       }
       if (riskProfileStore.rawRisks.length === 0) {
-        riskProfileStore.fetchRisks().catch(() => {})
-        riskProfileStore.fetchBranches().catch(() => {})
+        riskProfileStore.fetchRisks().catch(() => { })
+        riskProfileStore.fetchBranches().catch(() => { })
       }
       const baseUrl = getAuditServiceBaseUrl()
 
@@ -497,7 +523,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
       const resF05: any = await $fetch(`${baseUrl}/working-papers/plans`, { method: 'GET' })
       dataF05.value = extractItems(resF05)
-      fetchEmployees().catch(() => {})
+      fetchEmployees().catch(() => { })
     } catch (error) {
       console.error('Failed to fetch working papers:', error)
       errorMsg.value = extractErrorMessage(error, t('workingPaper.messages.loadFailed'))
@@ -711,7 +737,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     editingIdF01.value = null
 
     if (locationStore.locations.length === 0) {
-      locationStore.fetchLocations().catch(() => {})
+      locationStore.fetchLocations().catch(() => { })
     }
 
     // The form has no assignment letter field: a new working paper always
@@ -763,7 +789,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     editingIdF01.value = header.id
 
     if (locationStore.locations.length === 0) {
-      locationStore.fetchLocations().catch(() => {})
+      locationStore.fetchLocations().catch(() => { })
     }
 
     let start = ''
@@ -858,8 +884,8 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     editingIdF02.value = null
 
     if (riskProfileStore.rawRisks.length === 0) {
-      riskProfileStore.fetchRisks().catch(() => {})
-      riskProfileStore.fetchBranches().catch(() => {})
+      riskProfileStore.fetchRisks().catch(() => { })
+      riskProfileStore.fetchBranches().catch(() => { })
     }
 
     // Reset Form
@@ -893,8 +919,8 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     editingIdF02.value = risk.id
 
     if (riskProfileStore.rawRisks.length === 0) {
-      riskProfileStore.fetchRisks().catch(() => {})
-      riskProfileStore.fetchBranches().catch(() => {})
+      riskProfileStore.fetchRisks().catch(() => { })
+      riskProfileStore.fetchBranches().catch(() => { })
     }
 
     riskForm.risk = risk.risk
@@ -1012,9 +1038,9 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
     const letter = headerForm.assignmentLetterId || fieldworkStore.selectedAssignmentLetter
     if (letter && typeof (fieldworkStore as any).fetchSamples === 'function') {
-      (fieldworkStore as any).fetchSamples(letter).catch(() => {})
+      (fieldworkStore as any).fetchSamples(letter).catch(() => { })
     } else if (letter && typeof fieldworkStore.fetchAllFieldworkData === 'function') {
-      fieldworkStore.fetchAllFieldworkData(letter).catch(() => {})
+      fieldworkStore.fetchAllFieldworkData(letter).catch(() => { })
     }
 
     showModalF03.value = true
@@ -1058,23 +1084,23 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     sampleForm.samples = parsedSamples.length > 0
       ? convertBooleanToTestResult(parsedSamples)
       : [{
-          id: Date.now(),
-          fieldworkDocument: '',
-          document: '',
-          step1: '',
-          l1: undefined,
-          step2: '',
-          l2: undefined,
-          step3: '',
-          l3: undefined
-        }]
+        id: Date.now(),
+        fieldworkDocument: '',
+        document: '',
+        step1: '',
+        l1: undefined,
+        step2: '',
+        l2: undefined,
+        step3: '',
+        l3: undefined
+      }]
     sampleForm.conclusion = sample.conclusion
 
     const letter = headerForm.assignmentLetterId || fieldworkStore.selectedAssignmentLetter
     if (letter && typeof (fieldworkStore as any).fetchSamples === 'function') {
-      (fieldworkStore as any).fetchSamples(letter).catch(() => {})
+      (fieldworkStore as any).fetchSamples(letter).catch(() => { })
     } else if (letter && typeof fieldworkStore.fetchAllFieldworkData === 'function') {
-      fieldworkStore.fetchAllFieldworkData(letter).catch(() => {})
+      fieldworkStore.fetchAllFieldworkData(letter).catch(() => { })
     }
 
     showModalF03.value = true
@@ -1093,10 +1119,21 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     const newCause = {
       workingPaperId: fieldworkStore.selectedAssignmentLetter,
       condition: causeForm.condition,
+      riskEvent: causeForm.riskEvent,
+      cause: causeForm.cause,
+      riskLevel: causeForm.riskLevel,
+      mitigationPlanOption: causeForm.mitigationPlanOption,
       criteria: causeForm.criteria,
       impact: causeForm.impact,
       evidenceFile: causeForm.evidenceFile ? causeForm.evidenceFile.name : null,
-      rootCause: causeForm.rootCause
+      rootCause: causeForm.rootCause,
+      recommendations: (causeForm.recommendations || []).filter(r => r.recommendation?.trim()),
+      auditeeResponse: causeForm.auditeeResponse,
+      actionPlan: causeForm.actionPlan,
+      targetDate: causeForm.targetDate,
+      actionEvidence: causeForm.actionEvidence,
+      pic: causeForm.pic,
+      finalApprover: causeForm.finalApprover
     }
     const baseUrl = getAuditServiceBaseUrl()
     await $fetch(`${baseUrl}/working-papers/causes`, {
@@ -1110,10 +1147,21 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     const payload = {
       workingPaperId: fieldworkStore.selectedAssignmentLetter,
       condition: updatedData.condition,
+      riskEvent: updatedData.riskEvent,
+      cause: updatedData.cause,
+      riskLevel: updatedData.riskLevel,
+      mitigationPlanOption: updatedData.mitigationPlanOption,
       criteria: updatedData.criteria,
       impact: updatedData.impact,
       evidenceFile: updatedData.evidenceFile ? updatedData.evidenceFile.name : null,
-      rootCause: updatedData.rootCause
+      rootCause: updatedData.rootCause,
+      recommendations: (updatedData.recommendations || []).filter(r => r.recommendation?.trim()),
+      auditeeResponse: updatedData.auditeeResponse,
+      actionPlan: updatedData.actionPlan,
+      targetDate: updatedData.targetDate,
+      actionEvidence: updatedData.actionEvidence,
+      pic: updatedData.pic,
+      finalApprover: updatedData.finalApprover
     }
     const baseUrl = getAuditServiceBaseUrl()
     await $fetch(`${baseUrl}/working-papers/causes/${id}`, {
@@ -1182,12 +1230,24 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     // Reset Form
     Object.assign(causeForm, {
       condition: '',
+      riskEvent: '',
+      cause: '',
+      riskLevel: '',
+      mitigationPlanOption: '',
       criteria: '',
       impact: '',
       evidenceFile: null,
-      rootCause: []
+      rootCause: [],
+      recommendations: [],
+      auditeeResponse: '',
+      actionPlan: '',
+      targetDate: '',
+      actionEvidence: '',
+      pic: '',
+      finalApprover: ''
     })
     fetchSopOptions()
+    fetchEmployees()
     showModalF04.value = true
   }
 
@@ -1211,13 +1271,31 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     isEditingF04.value = true
     editingIdF04.value = cause.id
 
-    causeForm.condition = cause.condition
-    causeForm.criteria = cause.criteria
-    causeForm.impact = cause.impact
+    causeForm.condition = cause.condition || ''
+    causeForm.riskEvent = cause.riskEvent || ''
+    causeForm.cause = cause.cause || ''
+    causeForm.riskLevel = cause.riskLevel || ''
+    causeForm.mitigationPlanOption = cause.mitigationPlanOption || ''
+    causeForm.criteria = cause.criteria || ''
+    causeForm.impact = cause.impact || ''
     causeForm.evidenceFile = cause.evidenceFile ? new File([], cause.evidenceFile) : null
     causeForm.rootCause = cause.rootCause ? cause.rootCause.map((rca: any) => ({ ...rca })) : []
+    causeForm.recommendations = Array.isArray(cause.recommendations)
+      ? cause.recommendations.map((rec: any, idx: number) => (
+        typeof rec === 'string'
+          ? { id: Date.now() + idx, recommendation: rec }
+          : { id: rec.id || Date.now() + idx, recommendation: rec.recommendation || '' }
+      ))
+      : []
+    causeForm.auditeeResponse = cause.auditeeResponse || ''
+    causeForm.actionPlan = cause.actionPlan || ''
+    causeForm.targetDate = cause.targetDate || ''
+    causeForm.actionEvidence = cause.actionEvidence || ''
+    causeForm.pic = resolveEmployeeOption(cause.pic)
+    causeForm.finalApprover = resolveEmployeeOption(cause.finalApprover)
 
     fetchSopOptions()
+    fetchEmployees()
     showModalF04.value = true
   }
 
@@ -1367,7 +1445,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     return true
   }
 
-  // --- ACTIONS: Root Cause (F-04) ---
+  // --- ACTIONS: Root Cause & Recommendations (F-04) ---
   const addRootCause = () => {
     causeForm.rootCause.push({
       id: Date.now(),
@@ -1380,6 +1458,17 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
 
   const removeRootCause = (index: number) => {
     causeForm.rootCause.splice(index, 1)
+  }
+
+  const addRecommendation = () => {
+    causeForm.recommendations.push({
+      id: Date.now() + Math.floor(Math.random() * 1000),
+      recommendation: ''
+    })
+  }
+
+  const removeRecommendation = (index: number) => {
+    causeForm.recommendations.splice(index, 1)
   }
 
   const addTeamMember = () => {
@@ -1495,7 +1584,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     handleSubmitF01, handleSubmitF02, handleSubmitF03, handleSubmitF04, handleSubmitF05,
     handleEditF01, handleEditF02, handleEditF03, handleEditF04, handleEditF05,
     handleDeleteF01, handleDeleteF02, handleDeleteF03, handleDeleteF04, handleDeleteF05,
-    addSample, removeSample, addRootCause, removeRootCause, triggerUpload, onFileChange,
+    addSample, removeSample, addRootCause, removeRootCause, addRecommendation, removeRecommendation, triggerUpload, onFileChange,
     checkSampleStatus, addTeamMember, removeTeamMember, getAvailableMembers, removeFile,
     addActivity, removeActivity,
     syncFromAssignmentLetter,
@@ -1512,6 +1601,7 @@ export const useWorkingPaperStore = defineStore('working-paper', () => {
     resolveEmployeeOption,
     formatEmployeeName,
     picOptions,
+    finalApproverOptions,
     loading, errorMsg, fetchAllData
   }
 })

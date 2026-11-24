@@ -425,15 +425,31 @@ export interface WorkingPaperSampleForm {
   conclusion: string;
 }
 
+export interface WorkingPaperRecommendation {
+  id: number;
+  recommendation: string;
+}
+
 export interface WorkingPaperCause {
   id?: string;
   workingPaperId?: string;
   assignmentLetterId?: string;
   condition: string;
+  riskEvent?: string;
+  cause?: string;
+  riskLevel?: string;
+  mitigationPlanOption?: string;
   criteria: string;
   impact: string;
   evidenceFile?: File | any | null;
   rootCause: RootCauseItem[];
+  recommendations?: WorkingPaperRecommendation[];
+  auditeeResponse?: string;
+  actionPlan?: string;
+  targetDate?: string;
+  actionEvidence?: string;
+  pic?: string;
+  finalApprover?: string;
 }
 
 export interface WorkingPaperCauseForm {
@@ -441,10 +457,21 @@ export interface WorkingPaperCauseForm {
   workingPaperId?: string;
   assignmentLetterId?: string;
   condition: string;
+  riskEvent: string;
+  cause: string;
+  riskLevel: string;
+  mitigationPlanOption: string;
   criteria: string;
   impact: string;
   evidenceFile?: File | any | null;
   rootCause: RootCauseItem[];
+  recommendations: WorkingPaperRecommendation[];
+  auditeeResponse: string;
+  actionPlan: string;
+  targetDate: string;
+  actionEvidence: string;
+  pic: string;
+  finalApprover: string;
 }
 
 export interface WorkingPaperPlan {
@@ -796,6 +823,12 @@ export interface StrategicAuditPlan {
   yearEnd?: number;
   kpiTargets: Record<string | number, string>;
   kpiActuals?: Record<string | number, string>;
+  /** Program/Kegiatan Utama of the KPI. */
+  initiative?: string;
+  /** Year -> "√" (planned) or "-". */
+  initiativeYears?: Record<string | number, string>;
+  /** Year -> note shown beside the target, e.g. "PC". */
+  targetNotes?: Record<string | number, string>;
   internalAuditSO: string;
   actual: string;
   target: string;

@@ -1242,6 +1242,17 @@
     }
   },
   "strategicPlan": {
+    "template": {
+      "objectivesTitle": "Sasaran Strategis",
+      "initiativesTitle": "Program/Kegiatan Utama",
+      "soNo": "No SO",
+      "strategicObjective": "Strategic Objective",
+      "kpiNo": "No KPI",
+      "kpi": "KPI",
+      "dataType": "Sifat Data (HIG/HIB)",
+      "year": "Year {n}",
+      "initiative": "Strategic Initiative"
+    },
     "extra": {
       "quarters": "Kuartal (",
       "quarterRange": "{count} kuartal ({start}–{end})",
@@ -2657,7 +2668,16 @@
       "columns": {
         "activity": "Aktivitas",
         "riskName": "Nama Risiko",
-        "riskLevel": "Tingkat Risiko"
+        "riskLevel": "Tingkat Risiko",
+        "activities": "Kegiatan",
+        "riskSummary": "Risiko"
+      },
+      "summary": {
+        "activities": "{count} kegiatan",
+        "mandays": "{count} hari kerja",
+        "auditors": "{count} auditor",
+        "riskLinked": "{linked}/{total} terhubung ke risiko",
+        "none": "Belum ada kegiatan"
       },
       "empty": "Belum ada data rencana audit.",
       "viewTooltip": "Lihat rencana audit",
@@ -4078,9 +4098,25 @@
       "submit": "Kirim"
     },
     "causeForm": {
-      "title": "Analisis Akar Penyebab",
+      "title": "Analisis Akar Penyebab (AOI & RCA)",
+      "editTitle": "Edit AOI & RCA",
       "condition": "Kondisi (Dampak di Lapangan)",
       "conditionPlaceholder": "Contoh: Ditemukan dokumen PO tanpa tanda tangan Manager terkait pada tanggal...",
+      "riskEvent": "Kejadian Risiko",
+      "riskEventPlaceholder": "Contoh: Risiko pembayaran fiktif akibat tidak adanya otorisasi...",
+      "cause": "Penyebab",
+      "causePlaceholder": "Contoh: Belum adanya validasi otorisasi berjenjang pada sistem...",
+      "riskLevel": "Tingkat Risiko",
+      "riskLevelPlaceholder": "Pilih tingkat risiko (Level 1 - 5)",
+      "riskLevelOptions": {
+        "level1": "Level 1 - Sangat Rendah",
+        "level2": "Level 2 - Rendah",
+        "level3": "Level 3 - Sedang",
+        "level4": "Level 4 - Tinggi",
+        "level5": "Level 5 - Sangat Tinggi"
+      },
+      "mitigationPlanOption": "Opsi Rencana Mitigasi",
+      "mitigationPlanOptionPlaceholder": "Contoh: Implementasi approval matrix otomatis dan rekonsiliasi berkala...",
       "uploadEvidence": "Unggah bukti temuan/foto",
       "criteria": "Kriteria (Aturan/SOP Terkait)",
       "criteriaPlaceholder": "Pilih peraturan internal / SOP",
@@ -4100,11 +4136,29 @@
       "why3Placeholder": "-",
       "why3Validation": "Why 3 maksimal 100 karakter dan wajib diisi",
       "addRootCause": "Tambah Analisa Akar Masalah",
+      "recommendations": "Rekomendasi",
+      "recommendationIndex": "Rekomendasi {index}",
+      "recommendationPlaceholder": "Masukkan rekomendasi perbaikan untuk auditee...",
+      "addRecommendation": "Tambah Rekomendasi",
+      "emptyRecommendations": "Belum ada rekomendasi",
+      "emptyRecommendationsHint": "Klik tombol Tambah Rekomendasi untuk menambahkan satu atau lebih rekomendasi.",
+      "auditeeResponse": "Tanggapan Auditee",
+      "auditeeResponsePlaceholder": "Masukkan tanggapan manajemen / auditee...",
+      "actionPlan": "Rencana Aksi",
+      "actionPlanPlaceholder": "Masukkan rencana aksi tindak lanjut...",
+      "targetDate": "Target Penyelesaian",
+      "actionEvidence": "Evidence",
+      "actionEvidencePlaceholder": "Contoh: Dokumen SOP revisi, berita acara implementasi, screenshot sistem...",
+      "pic": "PIC (Manager/Supervisor)",
+      "picPlaceholder": "Pilih dari karyawan atau ketik nama PIC (Manager/Supervisor)...",
+      "finalApprover": "Final Approver (GM/Manager Unit/VP/EVP/Direktur)",
+      "finalApproverPlaceholder": "Pilih dari karyawan atau ketik nama Final Approver (GM/Manager Unit/VP/EVP/Direktur)...",
       "updateData": "Perbarui Data",
       "submit": "Kirim",
       "stepper": {
         "conditionAndImpact": "Kondisi & Dampak",
-        "rootCauseAnalysis": "Analisis Akar Masalah"
+        "rootCauseAnalysis": "Analisis Akar Masalah",
+        "responseAndActionPlan": "Tanggapan & Rencana Aksi"
       },
       "conditionRequired": "Kondisi (Dampak di Lapangan) wajib diisi",
       "criteriaRequired": "Kriteria (Aturan/SOP Terkait) wajib dipilih",
@@ -4581,6 +4635,34 @@
         "findingExample": "Contoh: Keterlambatan rekonsiliasi kas harian",
         "action": "Tindakan / Rekomendasi Tindak Lanjut",
         "actionExample": "Contoh: Evaluasi SOP dan pelatihan ulang tim kasir",
+        "actionLegacyHint": "Tindakan tunggal (lama). Akan digantikan oleh baris Rencana Aksi di bawah setelah Anda menambahkannya.",
+        "rootCause": {
+          "title": "Penyebab Utama (Root Cause)",
+          "hint": "Isi 5 Whys untuk tiap kategori; kosongkan kategori yang tidak relevan.",
+          "category": "Kategori",
+          "why1": "Why-1",
+          "why2": "Why-2",
+          "why3": "Why-3",
+          "People": "People",
+          "Process": "Process",
+          "Policy": "Policy",
+          "System": "System",
+          "Eksternal": "Eksternal"
+        },
+        "actionPlan": {
+          "title": "Rencana Aksi",
+          "hint": "Action Taken Report (ATR) dibentuk dari baris ini saat LHA disetujui.",
+          "no": "No",
+          "action": "Rencana Aksi",
+          "actionPlaceholder": "Contoh: Perbarui SOP rekonsiliasi kas",
+          "targetDate": "Target Penyelesaian",
+          "pic": "PIC",
+          "finalApprover": "Final Approver",
+          "evidence": "Evidence",
+          "add": "Tambah Rencana Aksi",
+          "remove": "Hapus Rencana Aksi",
+          "empty": "Belum ada rencana aksi. Tambahkan minimal satu agar ATR dapat dibuat."
+        },
         "deleteFinding": "Hapus Temuan",
         "empty": "Belum ada temuan audit dalam laporan ini",
         "click": "Klik",
@@ -5730,6 +5812,19 @@
     "defaults": {
       "mitigationDescPrefix": "Aktivitas mitigasi & pengawasan internal untuk "
     }
+  },
+  "mappedSourceBanner": {
+    "ariaLabel": "Pipeline sumber data terhubung",
+    "title": "Pipeline Sumber Data Terhubung",
+    "liveSynced": "Live Synced",
+    "dataHubOffline": "Data Hub Offline",
+    "rowsUnit": "baris",
+    "totalPopulation": "Total Populasi",
+    "sampleRecords": "Rekaman Sampel",
+    "sampleRecordsHint": "tersedia untuk modul ini",
+    "viewSample": "Lihat Sampel Data ({count})",
+    "configure": "Konfigurasi",
+    "dismiss": "Tutup"
   },
   "errors": {
     "network": "Tidak dapat terhubung ke server. Periksa koneksi internet Anda, lalu coba lagi.",

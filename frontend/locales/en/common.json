@@ -1288,6 +1288,17 @@
     }
   },
   "strategicPlan": {
+    "template": {
+      "objectivesTitle": "Strategic Objectives",
+      "initiativesTitle": "Main Programs / Activities",
+      "soNo": "SO No.",
+      "strategicObjective": "Strategic Objective",
+      "kpiNo": "KPI No.",
+      "kpi": "KPI",
+      "dataType": "Data Type (HIG/HIB)",
+      "year": "Year {n}",
+      "initiative": "Strategic Initiative"
+    },
     "extra": {
       "quarters": "Quarters (",
       "quarterRange": "{count} quarters ({start}–{end})",
@@ -2707,7 +2718,16 @@
       "columns": {
         "activity": "Activity",
         "riskName": "Risk Name",
-        "riskLevel": "Risk Level"
+        "riskLevel": "Risk Level",
+        "activities": "Activities",
+        "riskSummary": "Risk"
+      },
+      "summary": {
+        "activities": "{count} activities",
+        "mandays": "{count} mandays",
+        "auditors": "{count} auditors",
+        "riskLinked": "{linked}/{total} linked to risk",
+        "none": "No activities"
       },
       "empty": "No audit plans yet.",
       "viewTooltip": "View audit plan",
@@ -4129,9 +4149,25 @@
       "submit": "Submit"
     },
     "causeForm": {
-      "title": "Root Cause Analysis",
+      "title": "Root Cause Analysis (AOI & RCA)",
+      "editTitle": "Edit AOI & RCA",
       "condition": "Condition (Field Impact)",
       "conditionPlaceholder": "Ex: Found PO document without relevant Manager's signature on date...",
+      "riskEvent": "Risk Event",
+      "riskEventPlaceholder": "Ex: Risk of fictitious payment due to missing authorization...",
+      "cause": "Cause",
+      "causePlaceholder": "Ex: Lack of tiered authorization validation in the system...",
+      "riskLevel": "Risk Level",
+      "riskLevelPlaceholder": "Select risk level (Level 1 - 5)",
+      "riskLevelOptions": {
+        "level1": "Level 1 - Very Low",
+        "level2": "Level 2 - Low",
+        "level3": "Level 3 - Medium",
+        "level4": "Level 4 - High",
+        "level5": "Level 5 - Very High"
+      },
+      "mitigationPlanOption": "Mitigation Plan Option",
+      "mitigationPlanOptionPlaceholder": "Ex: Implement automated approval matrix and periodic reconciliation...",
       "uploadEvidence": "Upload evidence/photo",
       "criteria": "Criteria (Related Rules/SOP)",
       "criteriaPlaceholder": "Select an internal regulation / SOP",
@@ -4151,11 +4187,29 @@
       "why3Placeholder": "-",
       "why3Validation": "Why 3 must be at most 100 characters and is required",
       "addRootCause": "Add Root Cause Analysis",
+      "recommendations": "Recommendations",
+      "recommendationIndex": "Recommendation {index}",
+      "recommendationPlaceholder": "Enter improvement recommendation for auditee...",
+      "addRecommendation": "Add Recommendation",
+      "emptyRecommendations": "No recommendations added yet",
+      "emptyRecommendationsHint": "Click Add Recommendation to add one or more recommendations.",
+      "auditeeResponse": "Auditee Response",
+      "auditeeResponsePlaceholder": "Enter management / auditee response...",
+      "actionPlan": "Action Plan",
+      "actionPlanPlaceholder": "Enter follow-up action plan...",
+      "targetDate": "Target Completion",
+      "actionEvidence": "Evidence",
+      "actionEvidencePlaceholder": "Ex: Revised SOP document, implementation minutes, system screenshot...",
+      "pic": "PIC (Manager/Supervisor)",
+      "picPlaceholder": "Select an employee or type PIC name (Manager/Supervisor)...",
+      "finalApprover": "Final Approver (GM/Unit Manager/VP/EVP/Director)",
+      "finalApproverPlaceholder": "Select an employee or type Final Approver name (GM/Unit Manager/VP/EVP/Director)...",
       "updateData": "Update Data",
       "submit": "Submit",
       "stepper": {
         "conditionAndImpact": "Condition & Impact",
-        "rootCauseAnalysis": "Root Cause Analysis"
+        "rootCauseAnalysis": "Root Cause Analysis",
+        "responseAndActionPlan": "Response & Action Plan"
       },
       "conditionRequired": "Condition (Field Impact) is required",
       "criteriaRequired": "Criteria (Related Rules/SOP) is required",
@@ -4636,6 +4690,34 @@
         "findingExample": "e.g. Delayed daily cash reconciliation",
         "action": "Action / Follow-up Recommendation",
         "actionExample": "e.g. Review procedures and retrain the cashier team",
+        "actionLegacyHint": "Legacy single action. It is replaced by the Action Plan rows below once you add them.",
+        "rootCause": {
+          "title": "Root Cause",
+          "hint": "Fill in the 5 Whys for each category; leave blank the categories that do not apply.",
+          "category": "Category",
+          "why1": "Why-1",
+          "why2": "Why-2",
+          "why3": "Why-3",
+          "People": "People",
+          "Process": "Process",
+          "Policy": "Policy",
+          "System": "System",
+          "Eksternal": "External"
+        },
+        "actionPlan": {
+          "title": "Action Plan",
+          "hint": "The Action Taken Report (ATR) is derived from these rows when the LHA is approved.",
+          "no": "No",
+          "action": "Action Plan",
+          "actionPlaceholder": "e.g. Update the cash reconciliation SOP",
+          "targetDate": "Target Completion",
+          "pic": "PIC",
+          "finalApprover": "Final Approver",
+          "evidence": "Evidence",
+          "add": "Add Action Plan",
+          "remove": "Remove Action Plan",
+          "empty": "No action plans yet. Add at least one so the ATR can be created."
+        },
         "deleteFinding": "Delete Finding",
         "empty": "This report has no audit findings yet",
         "click": "Click",
@@ -5787,6 +5869,19 @@
     "defaults": {
       "mitigationDescPrefix": "Internal control & mitigation activities for "
     }
+  },
+  "mappedSourceBanner": {
+    "ariaLabel": "Connected source data pipeline",
+    "title": "Connected Data Pipeline",
+    "liveSynced": "Live Synced",
+    "dataHubOffline": "Data Hub Offline",
+    "rowsUnit": "rows",
+    "totalPopulation": "Total population",
+    "sampleRecords": "Sample records",
+    "sampleRecordsHint": "available for this module",
+    "viewSample": "View sample data ({count})",
+    "configure": "Configure",
+    "dismiss": "Dismiss"
   },
   "errors": {
     "network": "Unable to reach the server. Please check your internet connection and try again.",

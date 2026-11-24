@@ -734,13 +734,8 @@ export function computeStrategicKpiMetrics(
     if (target === 0) return { calculation: '', status: '' }
     ratio = actual / target
   } else {
-    if (actual === 0) {
-      ratio = target >= 0 ? 1 : 0
-    } else if (target === 0) {
-      ratio = 0
-    } else {
-      ratio = target / actual
-    }
+    if (target === 0) return { calculation: '', status: '' }
+    ratio = 1 + (1 - actual / target)
   }
 
   const calculation = `${(ratio * 100).toFixed(2)}%`

@@ -60,6 +60,33 @@ type AuditReportFinding struct {
 	Title    string `json:"title"`
 	Category string `json:"category"`
 	Action   string `json:"action"`
+	// Source, Impact, Criteria and AOI fields are stored with the finding so
+	// they survive a save/reload of the LHA (they come from the working paper AOI & RCA).
+	Source               string   `json:"source,omitempty"`
+	Impact               string   `json:"impact,omitempty"`
+	Criteria             string   `json:"criteria,omitempty"`
+	RiskEvent            string   `json:"riskEvent,omitempty"`
+	Cause                string   `json:"cause,omitempty"`
+	RiskLevel            string   `json:"riskLevel,omitempty"`
+	MitigationPlanOption string   `json:"mitigationPlanOption,omitempty"`
+	Recommendations      []string `json:"recommendations,omitempty"`
+	AuditeeResponse      string   `json:"auditeeResponse,omitempty"`
+	// RootCause is the RCA table copied from the working paper (Method is the
+	// category People/Process/Policy/System/Eksternal, W1-W3 the why chain).
+	RootCause []RootCauseItem `json:"rootCause,omitempty"`
+	// ActionPlans are the agreed action plans (Rencana Aksi). When empty the
+	// legacy single Action string is rendered as one row.
+	ActionPlans []FindingActionPlan `json:"actionPlans,omitempty"`
+}
+
+// FindingActionPlan is one row of the "Rencana Aksi" table of a finding.
+// TargetDate is free text (e.g. "2026-12-31" or "Q4 2026").
+type FindingActionPlan struct {
+	Action        string `json:"action"`
+	TargetDate    string `json:"targetDate,omitempty"`
+	PIC           string `json:"pic,omitempty"`
+	FinalApprover string `json:"finalApprover,omitempty"`
+	Evidence      string `json:"evidence,omitempty"`
 }
 
 func (r *AuditResultReport) UnmarshalJSON(data []byte) error {

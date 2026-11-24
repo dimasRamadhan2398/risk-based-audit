@@ -15,6 +15,40 @@ export type FindingCategory = 'Very Significant' | 'Significant' | 'Quite Signif
 
 export const FINDING_CATEGORIES: FindingCategory[] = ['Very Significant', 'Significant', 'Quite Significant', 'Not Significant']
 
+export const ROOT_CAUSE_METHODS = ['People', 'Process', 'Policy', 'System', 'Eksternal'] as const
+export type RootCauseMethod = typeof ROOT_CAUSE_METHODS[number]
+
+export interface RootCauseItem {
+  id: number
+  method: RootCauseMethod | string
+  w1: string
+  w2: string
+  w3: string
+}
+
+export interface ActionPlanItem {
+  action: string
+  targetDate: string
+  pic: string
+  finalApprover: string
+  evidence: string
+}
+
+export const emptyActionPlan = (): ActionPlanItem => ({ action: '', targetDate: '', pic: '', finalApprover: '', evidence: '' })
+
+/** The 5 fixed root-cause rows, filled from any matching saved rows (matched by method, case-insensitive). */
+export const buildRootCauseRows = (saved?: RootCauseItem[] | null): RootCauseItem[] =>
+  ROOT_CAUSE_METHODS.map((method, i) => {
+    const hit = (saved || []).find(r => String(r?.method || '').trim().toLowerCase() === method.toLowerCase())
+    return { id: i + 1, method, w1: hit?.w1 || '', w2: hit?.w2 || '', w3: hit?.w3 || '' }
+  })
+
+const rootCauseHasContent = (r: Partial<RootCauseItem>) => !!(r.w1?.trim() || r.w2?.trim() || r.w3?.trim())
+const actionPlanHasContent = (p: Partial<ActionPlanItem>) =>
+  !!(p.action?.trim() || p.targetDate?.trim() || p.pic?.trim() || p.finalApprover?.trim() || p.evidence?.trim())
+
+const cloneJson = <T>(v: T): T => JSON.parse(JSON.stringify(v))
+
 export interface FindingItem {
   /** Stable id from the backend; ATRs are bound to it, so it must be sent back unchanged on save. */
   id?: string
@@ -24,6 +58,43 @@ export interface FindingItem {
   source?: string
   impact?: string
   criteria?: string
+  riskEvent?: string
+  cause?: string
+  riskLevel?: string
+  mitigationPlanOption?: string
+  recommendations?: string[]
+  auditeeResponse?: string
+  /** Root cause (5 Whys per category); same shape as the working-paper cause rootCause. */
+  rootCause?: RootCauseItem[]
+  /** Rencana Aksi rows; the ATR is derived from these on LHA approval. */
+  actionPlans?: ActionPlanItem[]
+}
+
+/** Build the finding sent to the backend; new keys are omitted when empty (old shape). */
+export const serializeFinding = (f: FindingItem) => {
+  const rootCause = (f.rootCause || []).filter(rootCauseHasContent)
+  const actionPlans = (f.actionPlans || []).filter(actionPlanHasContent)
+  const recommendations = (f.recommendations || []).map(r => String(r || '').trim()).filter(Boolean)
+  const planActions = actionPlans.map(p => (p.action || '').trim()).filter(Boolean)
+  return {
+    // Keep the finding id: the ATRs created on approval point at it.
+    ...(f.id ? { id: f.id } : {}),
+    title: f.title,
+    category: f.category,
+    // Legacy single action stays populated for older views.
+    action: planActions.length > 0 ? planActions.join('\n') : (f.action || ''),
+    source: f.source || 'Audit Features',
+    impact: f.impact || '',
+    criteria: f.criteria || '',
+    ...(f.riskEvent?.trim() ? { riskEvent: f.riskEvent.trim() } : {}),
+    ...(f.cause?.trim() ? { cause: f.cause.trim() } : {}),
+    ...(f.riskLevel?.trim() ? { riskLevel: f.riskLevel.trim() } : {}),
+    ...(f.mitigationPlanOption?.trim() ? { mitigationPlanOption: f.mitigationPlanOption.trim() } : {}),
+    ...(recommendations.length > 0 ? { recommendations } : {}),
+    ...(f.auditeeResponse?.trim() ? { auditeeResponse: f.auditeeResponse.trim() } : {}),
+    ...(rootCause.length > 0 ? { rootCause } : {}),
+    ...(actionPlans.length > 0 ? { actionPlans } : {})
+  }
 }
 
 export interface MemberSignature {
@@ -336,6 +407,15 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       }
     }
 
+    const categoryFromRiskLevel = (riskLevel?: string): FindingCategory | null => {
+      const normalized = String(riskLevel || '').trim().toLowerCase()
+      if (normalized === '5' || normalized === 'level 5' || normalized === '4' || normalized === 'level 4') return 'Very Significant'
+      if (normalized === '3' || normalized === 'level 3') return 'Significant'
+      if (normalized === '2' || normalized === 'level 2') return 'Quite Significant'
+      if (normalized === '1' || normalized === 'level 1') return 'Not Significant'
+      return null
+    }
+
     stCauses.forEach((cause: any, idx: number) => {
       const cond = (cause.condition || '').trim()
       if (!cond) return
@@ -343,17 +423,47 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       if (existingTitles.has(key)) return
       existingTitles.add(key)
 
-      let action = ''
-      if (stPlans[idx]) {
-        action = stPlans[idx]?.actionDescription || stPlans[idx]?.recommendation || ''
-      } else if (stPlans.length > 0 && stPlans[0]) {
-        action = stPlans[0]?.actionDescription || stPlans[0]?.recommendation || ''
+      const recommendations: string[] = Array.isArray(cause.recommendations)
+        ? cause.recommendations
+          .map((r: any) => (typeof r === 'string' ? r : r?.recommendation || '').trim())
+          .filter(Boolean)
+        : []
+
+      const hasEmbeddedPlan = !!(
+        cause.actionPlan?.trim()
+        || cause.targetDate?.trim()
+        || cause.pic?.trim()
+        || cause.finalApprover?.trim()
+        || cause.actionEvidence?.trim()
+      )
+      const actionPlans: ActionPlanItem[] = hasEmbeddedPlan
+        ? [{
+          action: (cause.actionPlan || '').trim(),
+          targetDate: (cause.targetDate || '').trim(),
+          pic: (cause.pic || '').trim(),
+          finalApprover: (cause.finalApprover || '').trim(),
+          evidence: (cause.actionEvidence || '').trim()
+        }]
+        : []
+
+      let action = (cause.actionPlan || '').trim()
+      if (!action && recommendations.length > 0) {
+        action = recommendations.join('\n')
+      }
+      if (!action) {
+        if (stPlans[idx]) {
+          action = stPlans[idx]?.actionDescription || stPlans[idx]?.recommendation || ''
+        } else if (stPlans.length > 0 && stPlans[0]) {
+          action = stPlans[0]?.actionDescription || stPlans[0]?.recommendation || ''
+        }
       }
 
-      let cat = defaultCat
-      const condLower = cond.toLowerCase()
-      if (condLower.includes('kritis') || condLower.includes('overhaul') || condLower.includes('mfa') || condLower.includes('override') || condLower.includes('transisi')) {
-        cat = 'Very Significant'
+      let cat = categoryFromRiskLevel(cause.riskLevel) || defaultCat
+      if (!categoryFromRiskLevel(cause.riskLevel)) {
+        const condLower = cond.toLowerCase()
+        if (condLower.includes('kritis') || condLower.includes('overhaul') || condLower.includes('mfa') || condLower.includes('override') || condLower.includes('transisi')) {
+          cat = 'Very Significant'
+        }
       }
 
       findings.push({
@@ -362,7 +472,15 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
         action,
         source: 'Digital Working Paper (KKA - AOI & RCA)',
         impact: cause.impact || '',
-        criteria: cause.criteria || ''
+        criteria: cause.criteria || '',
+        ...(cause.riskEvent ? { riskEvent: cause.riskEvent } : {}),
+        ...(cause.cause ? { cause: cause.cause } : {}),
+        ...(cause.riskLevel ? { riskLevel: cause.riskLevel } : {}),
+        ...(cause.mitigationPlanOption ? { mitigationPlanOption: cause.mitigationPlanOption } : {}),
+        ...(recommendations.length > 0 ? { recommendations } : {}),
+        ...(cause.auditeeResponse ? { auditeeResponse: cause.auditeeResponse } : {}),
+        ...(Array.isArray(cause.rootCause) && cause.rootCause.length > 0 ? { rootCause: cloneJson(cause.rootCause) } : {}),
+        ...(actionPlans.length > 0 ? { actionPlans } : {})
       })
     })
 
@@ -428,7 +546,15 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
           action: f.action || '',
           source: f.source || 'Audit Features',
           impact: f.impact || '',
-          criteria: f.criteria || ''
+          criteria: f.criteria || '',
+          ...(f.riskEvent ? { riskEvent: f.riskEvent } : {}),
+          ...(f.cause ? { cause: f.cause } : {}),
+          ...(f.riskLevel ? { riskLevel: f.riskLevel } : {}),
+          ...(f.mitigationPlanOption ? { mitigationPlanOption: f.mitigationPlanOption } : {}),
+          ...(Array.isArray(f.recommendations) && f.recommendations.length > 0 ? { recommendations: f.recommendations } : {}),
+          ...(f.auditeeResponse ? { auditeeResponse: f.auditeeResponse } : {}),
+          ...(Array.isArray(f.rootCause) && f.rootCause.length > 0 ? { rootCause: f.rootCause } : {}),
+          ...(Array.isArray(f.actionPlans) && f.actionPlans.length > 0 ? { actionPlans: f.actionPlans } : {})
         }))
       }
     } catch (err) {
@@ -473,14 +599,22 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
       return
     }
 
-    const existingIdByTitle = new Map(
+    const existingByTitle = new Map(
       (reportForm.findings || [])
         .filter(f => f.id)
-        .map(f => [f.title.trim().toLowerCase(), f.id])
+        .map(f => [f.title.trim().toLowerCase(), cloneJson(f)] as const)
     )
+    // Keep the id and any user-entered rootCause/actionPlans of the finding with the same title.
     const attachExistingId = (f: FindingItem): FindingItem => {
-      const matchId = existingIdByTitle.get(f.title.trim().toLowerCase())
-      return matchId ? { ...f, id: matchId } : { ...f }
+      const match = existingByTitle.get(f.title.trim().toLowerCase())
+      if (!match) return { ...f }
+      const merged: FindingItem = match.id ? { ...f, id: match.id } : { ...f }
+      if ((match.rootCause || []).some(rootCauseHasContent)) merged.rootCause = match.rootCause
+      if ((match.actionPlans || []).some(actionPlanHasContent)) {
+        merged.actionPlans = match.actionPlans
+        merged.action = match.action ?? merged.action
+      }
+      return merged
     }
 
     if (mode === 'replace' || !reportForm.findings || reportForm.findings.length === 0) {
@@ -548,7 +682,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     })
   }
 
-  const getTeamMembersForLetter = (targetLetter?: string): { name: string; role: string }[] => {
+  const getTeamMembersForLetter = (targetLetter?: string): { name: string, role: string }[] => {
     const letter = targetLetter || reportForm.assignmentLetterId || selectedAssignmentLetter.value
     if (!letter) return []
     const st = assignmentLetterStore.assignmentLetterList.find(
@@ -591,14 +725,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
         report_date: reportForm.reportDate,
         reportNumber: reportForm.reportNumber,
         findingsCount: Number(reportForm.findings?.length || reportForm.findingsCount || 0),
-        findings: (reportForm.findings || []).map(f => ({
-          // Keep the finding id: the ATRs created on approval point at it.
-          ...(f.id ? { id: f.id } : {}),
-          title: f.title,
-          category: f.category,
-          action: f.action || '',
-          source: (f as any).source || 'Audit Features'
-        })),
+        findings: (reportForm.findings || []).map(serializeFinding),
         status: reportForm.status
       }
       if (reportForm.companyId) {
@@ -745,7 +872,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
 
   const syncExecutiveSummaryField = async (reportNumber: string, narrative: string, findingsCount?: number) => {
     const normTarget = normalizeReportNumber(reportNumber)
-    const found = reportList.value.find(r => {
+    const found = reportList.value.find((r) => {
       const num = r.reportNumber || (r as any).report_number
       return num === reportNumber || normalizeReportNumber(num) === normTarget
     })
@@ -771,7 +898,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
 
   const clearExecutiveSummaryField = async (reportNumber: string) => {
     const normTarget = normalizeReportNumber(reportNumber)
-    const found = reportList.value.find(r => {
+    const found = reportList.value.find((r) => {
       const num = r.reportNumber || (r as any).report_number
       return num === reportNumber || normalizeReportNumber(num) === normTarget
     })
@@ -796,6 +923,7 @@ export const useAuditResultReportStore = defineStore('audit-result-report', () =
     reportList,
     showModal,
     isEditing,
+    editingId,
     reportForm,
     formErrors,
     publishedAssignmentLetters,

@@ -26,6 +26,7 @@ import { useAiAnalytics } from '~/composables/useAiAnalytics'
 import { useAppToast } from '~/composables/useAppToast'
 import { getAuditServiceBaseUrl, getMasterServiceBaseUrl, getRiskServiceBaseUrl } from '~/composables/useApiUrl'
 import { useRuntimeConfig } from '#app'
+import { useI18n } from '~/composables/useI18n'
 import { AnnualAuditPlanStatus, AuditCategory, type AnnualPlanForm } from '~/types/audit'
 import {
   getRiskLevelDotClass,
@@ -85,6 +86,7 @@ interface MappedRecord extends MappedRecordInput {
 }
 
 const route = useRoute()
+const { t } = useI18n()
 const config = useRuntimeConfig()
 const toast = useAppToast()
 const dataSourceStore = useDataSourceStore()
@@ -1988,120 +1990,144 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
 
 <template>
   <div>
-    <div
+    <section
       v-if="currentModuleInfo && mappedRecords.length > 0 && activeRecord && !isDismissed"
-      class="mb-4 mx-4 sm:mx-6 rounded-xl border border-primary-500/20 bg-primary-50/70 dark:bg-primary-950/30 p-3.5 shadow-xs transition-all duration-200 space-y-2.5"
+      :aria-label="t('mappedSourceBanner.ariaLabel')"
+      class="mb-4 mx-4 sm:mx-6 overflow-hidden rounded-xl border border-default bg-default shadow-xs"
     >
-      <!-- Multi-Table Tab Bar when 2 or more tables are connected -->
-      <div v-if="mappedRecords.length > 1" class="flex items-center gap-2 border-b border-primary-500/20 pb-2.5 overflow-x-auto">
-        <span class="text-[11px] font-bold text-primary-800 dark:text-primary-200 uppercase tracking-wider shrink-0 flex items-center gap-1.5">
-          <UIcon name="i-lucide-layers" class="size-3.5 text-primary-500" />
-          {{ mappedRecords.length }} Tabel Terhubung:
-        </span>
-        <button
+      <!-- Multi-table selector when 2 or more tables are connected -->
+      <div
+        v-if="mappedRecords.length > 1"
+        class="flex items-center gap-1.5 overflow-x-auto border-b border-default px-4 py-2.5 sm:px-5"
+      >
+        <UButton
           v-for="(rec, idx) in mappedRecords"
           :key="rec.connection_id + rec.table_name"
-          type="button"
-          class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all duration-150 shrink-0 cursor-pointer"
-          :class="selectedTableIndex === idx
-            ? 'bg-primary-600 text-white shadow-xs font-bold'
-            : 'bg-primary-100/70 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 hover:bg-primary-200/70'"
+          size="xs"
+          :color="selectedTableIndex === idx ? 'primary' : 'neutral'"
+          :variant="selectedTableIndex === idx ? 'soft' : 'ghost'"
+          icon="i-lucide-table"
+          class="shrink-0"
+          :aria-pressed="selectedTableIndex === idx"
           @click="selectedTableIndex = idx"
         >
-          <UIcon name="i-lucide-table" class="size-3.5" />
-          <span>{{ rec.table_name }}</span>
-          <span class="text-[10px] px-1.5 py-0.2 rounded-full" :class="selectedTableIndex === idx ? 'bg-white/20 text-white' : 'bg-primary-500/10 text-primary-600'">
-            {{ getRecordPopulationCount(rec).toLocaleString('id-ID') }} rows
+          {{ rec.table_name }}
+          <span class="tabular-nums text-dimmed">
+            {{ getRecordPopulationCount(rec).toLocaleString('id-ID') }} {{ t('mappedSourceBanner.rowsUnit') }}
           </span>
-        </button>
+        </UButton>
       </div>
 
-      <!-- Active Table Information and Controls -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div class="flex items-start sm:items-center gap-3">
-          <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary-500/10 text-primary-600 dark:text-primary-400">
-            <UIcon name="i-lucide-database" class="size-5" />
-          </div>
-          <div>
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="text-xs font-semibold text-primary-700 dark:text-primary-300">
-                Pipeline Sumber Data Terhubung
-              </span>
-              <span
-                v-if="!activeRecord.data_hub_unavailable"
-                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
-              >
-                <span class="size-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                Live Synced
-              </span>
-              <span
-                v-else
-                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
-              >
-                Data Hub Offline
-              </span>
-              <span class="text-xs text-[var(--text-muted)]">
-                &bull; {{ activeRecord.connection_name }} &rsaquo; <code class="font-mono font-semibold text-primary-700 dark:text-primary-300">{{ activeRecord.table_name }}</code>
-              </span>
-            </div>
-            <p class="text-xs text-[var(--text-muted)] mt-0.5">
-              Tabel <code class="font-mono font-bold text-primary-700 dark:text-primary-300">{{ activeRecord.table_name }}</code>:
-              Total Populasi <strong class="text-[var(--text-main)]">{{ getRecordPopulationCount(activeRecord).toLocaleString('id-ID') }} baris</strong>.
-              Tersedia <strong class="text-primary-600 dark:text-primary-400">{{ activeRecord.sample_records?.length || 0 }} rekaman sampel nyata</strong> untuk modul ini.
-            </p>
-          </div>
+      <!-- Header: identity, status and dismiss -->
+      <div class="flex items-start gap-3 px-4 pt-4 sm:px-5">
+        <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-elevated text-muted">
+          <UIcon name="i-lucide-database" class="size-4.5" aria-hidden="true" />
         </div>
 
-        <div class="flex items-center gap-2 shrink-0 flex-wrap">
-          <UButton
-            size="xs"
-            :color="activeCompatibility && !activeCompatibility.compatible ? 'neutral' : 'primary'"
-            variant="solid"
-            icon="i-lucide-play-circle"
-            :loading="isExecutingAction"
-            :disabled="Boolean(activeCompatibility && !activeCompatibility.compatible)"
-            @click="handleExecuteFeatureAction(activeRecord)"
-          >
-            {{ currentModuleInfo.actionLabel }}
-          </UButton>
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-2">
+            <h3 class="text-sm font-semibold text-highlighted">
+              {{ t('mappedSourceBanner.title') }}
+            </h3>
+            <UBadge
+              v-if="!activeRecord.data_hub_unavailable"
+              color="success"
+              variant="subtle"
+              size="sm"
+            >
+              {{ t('mappedSourceBanner.liveSynced') }}
+            </UBadge>
+            <UBadge
+              v-else
+              color="warning"
+              variant="subtle"
+              size="sm"
+            >
+              {{ t('mappedSourceBanner.dataHubOffline') }}
+            </UBadge>
+          </div>
 
+          <p class="mt-1 flex min-w-0 flex-wrap items-center gap-1.5 text-xs text-muted">
+            <span class="truncate">{{ activeRecord.connection_name }}</span>
+            <UIcon name="i-lucide-chevron-right" class="size-3.5 shrink-0 text-dimmed" aria-hidden="true" />
+            <code class="rounded-md bg-elevated px-1.5 py-0.5 font-mono text-[11px] font-medium text-default">{{ activeRecord.table_name }}</code>
+          </p>
+        </div>
+
+        <UButton
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          icon="i-lucide-x"
+          :aria-label="t('mappedSourceBanner.dismiss')"
+          @click="isDismissed = true"
+        />
+      </div>
+
+      <!-- Stats -->
+      <dl class="mx-4 mt-4 grid grid-cols-2 divide-x divide-default overflow-hidden rounded-lg border border-default sm:mx-5">
+        <div class="px-3.5 py-2.5">
+          <dt class="text-xs text-muted">{{ t('mappedSourceBanner.totalPopulation') }}</dt>
+          <dd class="mt-0.5 text-base font-semibold tabular-nums text-highlighted">
+            {{ getRecordPopulationCount(activeRecord).toLocaleString('id-ID') }}
+            <span class="text-xs font-normal text-muted">{{ t('mappedSourceBanner.rowsUnit') }}</span>
+          </dd>
+        </div>
+        <div class="px-3.5 py-2.5">
+          <dt class="text-xs text-muted">{{ t('mappedSourceBanner.sampleRecords') }}</dt>
+          <dd class="mt-0.5 text-base font-semibold tabular-nums text-highlighted">
+            {{ (activeRecord.sample_records?.length || 0).toLocaleString('id-ID') }}
+            <span class="text-xs font-normal text-muted">{{ t('mappedSourceBanner.sampleRecordsHint') }}</span>
+          </dd>
+        </div>
+      </dl>
+
+      <!-- Incompatibility / unsupported warning -->
+      <UAlert
+        v-if="activeCompatibility && !activeCompatibility.compatible"
+        class="mx-4 mt-4 sm:mx-5"
+        color="warning"
+        variant="subtle"
+        icon="i-lucide-triangle-alert"
+        :description="activeCompatibility.reason"
+      />
+
+      <!-- Footer: primary action on the left, secondary actions on the right -->
+      <div class="mt-4 flex flex-wrap items-center gap-2 border-t border-default bg-elevated/50 px-4 py-3 sm:px-5">
+        <UButton
+          size="sm"
+          :color="activeCompatibility && !activeCompatibility.compatible ? 'neutral' : 'primary'"
+          variant="solid"
+          icon="i-lucide-play-circle"
+          :loading="isExecutingAction"
+          :disabled="Boolean(activeCompatibility && !activeCompatibility.compatible)"
+          @click="handleExecuteFeatureAction(activeRecord)"
+        >
+          {{ currentModuleInfo.actionLabel }}
+        </UButton>
+
+        <div class="ml-auto flex flex-wrap items-center gap-2">
           <UButton
-            size="xs"
-            color="primary"
-            variant="soft"
+            size="sm"
+            color="neutral"
+            variant="outline"
             icon="i-lucide-table"
             @click="openPreview(activeRecord)"
           >
-            Lihat Sampel Data ({{ activeRecord.sample_records?.length || 0 }})
+            {{ t('mappedSourceBanner.viewSample', { count: activeRecord.sample_records?.length || 0 }) }}
           </UButton>
           <UButton
-            size="xs"
+            size="sm"
             color="neutral"
             variant="ghost"
             icon="i-lucide-external-link"
             to="/settings?tab=datasource"
           >
-            Konfigurasi
+            {{ t('mappedSourceBanner.configure') }}
           </UButton>
-          <UButton
-            size="xs"
-            color="neutral"
-            variant="ghost"
-            icon="i-lucide-x"
-            @click="isDismissed = true"
-          />
         </div>
       </div>
-
-      <!-- Incompatibility / Unsupported Warning Alert -->
-      <div
-        v-if="activeCompatibility && !activeCompatibility.compatible"
-        class="p-2.5 rounded-lg border border-amber-500/30 bg-amber-50/80 dark:bg-amber-950/30 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2"
-      >
-        <UIcon name="i-lucide-alert-triangle" class="size-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-        <span>{{ activeCompatibility.reason }}</span>
-      </div>
-    </div>
+    </section>
 
     <!-- Modal 1: Strategic Audit Plan Derived KPI Confirmation Modal (Outside v-if banner) -->
     <UModal

@@ -38,6 +38,13 @@ type ActionTakenReport struct {
 	DueDate    *time.Time `json:"due_date"`
 	Progress   int        `gorm:"not null;default:0" json:"progress"`
 	Status     string     `gorm:"type:varchar(50);default:'PLANNED';index" json:"status"`
+	// PlannedActions are the agreed action plans (Rencana Aksi) copied from the
+	// LHA finding's actionPlans: the LHA is the source of truth, the ATR
+	// monitors their execution. FinalApprover is the first plan's final
+	// approver. Both are refreshed from the LHA while the ATR is still PLANNED
+	// and the PIC has not submitted a plan.
+	PlannedActions []FindingActionPlan `gorm:"type:text;serializer:json" json:"planned_actions"`
+	FinalApprover  string              `gorm:"type:varchar(200)" json:"final_approver"`
 	// ActionPlanSubmittedAt is set once, the first time the PIC saves a
 	// non-empty action plan (PUT /action-taken-reports/:id/action-plan).
 	// NULL on history; the COSO management-response signal skips such rows.

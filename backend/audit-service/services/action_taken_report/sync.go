@@ -124,8 +124,15 @@ func SyncFromReport(tx *gorm.DB, report *models.AuditResultReport, now time.Time
 			UpdateColumns(map[string]interface{}{
 				"finding_title":    strings.TrimSpace(f.Title),
 				"finding_category": strings.TrimSpace(f.Category),
-				"recommendation":   strings.TrimSpace(f.Action),
+				"recommendation":   findingRecommendation(f),
 			}).Error; err != nil {
+			return res, err
+		}
+		// ... and the action plan fields too, as long as the PIC has not
+		// submitted their own plan
+		if err := tx.Model(&models.ActionTakenReport{}).
+			Where("audit_result_report_id = ? AND finding_id = ? AND status = ? AND action_plan_submitted_at IS NULL", report.ID, f.ID, models.ATRStatusPlanned).
+			UpdateColumns(planColumns(f)).Error; err != nil {
 			return res, err
 		}
 	}
@@ -164,8 +171,12 @@ func SyncFromReport(tx *gorm.DB, report *models.AuditResultReport, now time.Time
 			ReportTitle:         reportTitle,
 			FindingTitle:        strings.TrimSpace(f.Title),
 			FindingCategory:     strings.TrimSpace(f.Category),
-			Recommendation:      strings.TrimSpace(f.Action),
+			Recommendation:      findingRecommendation(f),
 			Status:              models.ATRStatusPlanned,
+			PlannedActions:      cleanPlans(f.ActionPlans),
+			FinalApprover:       firstFinalApprover(f.ActionPlans),
+			PICName:             firstPIC(f.ActionPlans),
+			DueDate:             earliestTarget(f.ActionPlans),
 			CreatedAt:           now,
 			UpdatedAt:           now,
 		}
