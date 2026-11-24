@@ -4191,6 +4191,10 @@
       "picRequired": "PIC (Penanggung Jawab) wajib dipilih",
       "periodActionRequired": "Periode Perencanaan wajib dipilih"
     },
+    "causeTable": {
+      "target": "Target",
+      "approver": "Approver"
+    },
     "sampleTable": {
       "emptyState": "Belum ada data tersimpan.",
       "pass": "Lulus",

@@ -56,7 +56,7 @@
                   {{ row.original.actionPlan || '-' }}
                 </div>
                 <div v-if="row.original.targetDate" class="text-[11px] text-gray-400">
-                  Target: {{ row.original.targetDate }}
+                  {{ t('workingPaper.causeTable.target') }}: {{ row.original.targetDate }}
                 </div>
               </div>
             </template>
@@ -67,7 +67,7 @@
                   {{ store.formatEmployeeName(row.original.pic) }}
                 </div>
                 <div v-if="row.original.finalApprover" class="text-[11px] text-gray-400 whitespace-nowrap">
-                  Approver: {{ store.formatEmployeeName(row.original.finalApprover) }}
+                  {{ t('workingPaper.causeTable.approver') }}: {{ store.formatEmployeeName(row.original.finalApprover) }}
                 </div>
               </div>
             </template>

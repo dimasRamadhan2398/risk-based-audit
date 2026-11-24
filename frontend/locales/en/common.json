@@ -4242,6 +4242,10 @@
       "picRequired": "PIC is required",
       "periodActionRequired": "Planning Period is required"
     },
+    "causeTable": {
+      "target": "Target",
+      "approver": "Approver"
+    },
     "sampleTable": {
       "emptyState": "No data saved yet.",
       "pass": "Pass",
