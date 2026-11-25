@@ -40,9 +40,9 @@ RUN pip install --upgrade pip setuptools wheel && \
 # PyPI. --no-deps means torch itself won't trigger more resolution.
 # ------------------------------------------------------------------
 RUN pip install \
-        torch==2.4.1+cpu \
-        torchvision==0.19.1+cpu \
-        torchaudio==2.4.1+cpu \
+        torch==2.4.1 \
+        torchvision==0.19.1 \
+        torchaudio==2.4.1 \
         --no-deps \
         --index-url https://download.pytorch.org/whl/cpu
 

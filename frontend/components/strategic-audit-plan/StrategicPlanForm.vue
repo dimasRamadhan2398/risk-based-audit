@@ -3,13 +3,13 @@
   <UModal
     :open="store.isAddModalOpen"
     :ui="{
-      content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+      content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl min-h-[60vh] max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
       overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
     }"
     @update:open="(open: boolean) => { if (!open) store.closeModal() }"
   >
     <template #content>
-      <div class="relative flex max-h-[90vh] flex-col transition-colors duration-300">
+      <div class="relative flex min-h-[60vh] max-h-[90vh] flex-col transition-colors duration-300">
         <!-- Header -->
         <div class="flex items-center justify-between border-b border-[var(--border-main)] bg-[var(--bg-surface)] p-4 sm:p-5">
           <h3 class="text-lg sm:text-xl font-bold text-[var(--text-main)]">
@@ -26,8 +26,8 @@
         </div>
 
         <!-- Stepper -->
-        <div class="w-full overflow-x-auto border-b border-[var(--border-main)] bg-[var(--bg-surface)] px-4 py-3 sm:px-6 sm:py-4 scrollbar-thin">
-          <div class="flex min-w-max items-center justify-center gap-3 px-1 sm:gap-4">
+        <div class="shrink-0 w-full border-b border-[var(--border-main)] bg-[var(--bg-surface)] px-4 py-3 sm:px-6 sm:py-4">
+          <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 px-1 sm:gap-x-4">
             <template
               v-for="(step, idx) in steps"
               :key="step.key"
@@ -75,7 +75,7 @@
         <!-- Body -->
         <div
           ref="bodyRef"
-          class="flex-1 overflow-y-auto p-4 sm:p-6 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+          class="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
         >
           <UForm
             :state="store.form"
@@ -229,7 +229,7 @@
         </div>
 
         <!-- Footer -->
-        <div class="flex flex-col-reverse items-stretch justify-between gap-3 border-t border-[var(--border-main)] bg-[var(--bg-surface)] p-4 sm:flex-row sm:items-center">
+        <div class="shrink-0 flex flex-col-reverse items-stretch justify-between gap-3 border-t border-[var(--border-main)] bg-[var(--bg-surface)] p-4 sm:flex-row sm:items-center">
           <UButton
             :label="t('strategicPlan.form.cancel')"
             color="neutral"

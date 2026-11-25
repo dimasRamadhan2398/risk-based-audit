@@ -289,7 +289,7 @@ func getAdditionalAnnualPlanSeeds() []models.AuditAnnual {
 				{
 					ItemNumber: "1", ActivityCode: "SPC-2026-001", Name: "Review Kesiapan BCP, DRP, dan Crisis Management",
 					Category: "Special Audit", Department: "Information Technology", RiskName: "Business Continuity and Technology Resilience", RiskLevel: "Medium to High",
-					Justification:  "Hasil simulasi terakhir menunjukkan target pemulihan dua aplikasi kritikal belum tercapai dan bukti uji vendor belum lengkap.",
+					Justification:  "Hasil uji terakhir menunjukkan target pemulihan dua aplikasi kritikal belum tercapai dan bukti uji vendor belum lengkap.",
 					AuditObjective: "Menilai kesiapan organisasi mempertahankan layanan kritikal dan memulihkan teknologi dalam batas toleransi yang disetujui.",
 					AuditFocus:     "BIA, crisis governance, call tree, backup restore, DR test, RTO/RPO, alternate site, dan third-party continuity.",
 					TimelineText:   "5 Oktober - 13 November 2026", AuditorCount: 3, TotalMandays: 42, SupervisorName: "Arif Nugroho",
