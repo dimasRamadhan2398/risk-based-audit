@@ -333,7 +333,6 @@ import { useRbac } from '~/composables/useRbac'
 import type { StrategicAuditPlan } from '~/types/audit'
 import { formatUnitValue } from '~/utils/numberInput'
 import { kpiValueLabel } from '~/utils/kpiPerformanceLabels'
-import TableEntities from '~/components/shared/TableEntities.vue'
 
 const { t, locale } = useI18n()
 const store = useStrategicPlanStore()
