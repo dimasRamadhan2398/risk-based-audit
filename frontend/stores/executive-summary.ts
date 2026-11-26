@@ -5,7 +5,23 @@ import { extractErrorMessage } from '~/utils/error'
 import { getAuditServiceBaseUrl } from '~/composables/useApiUrl'
 import { useAuditResultReportStore } from './audit-result-report'
 import { useI18n } from '~/composables/useI18n'
-import { buildDefaultNarrative, formatQuarterPeriod } from '~/utils/executiveSummaryNarrative'
+import {
+  buildDefaultNarrative,
+  buildSyncedNarrative,
+  deriveNarrativeSyncData,
+  formatQuarterPeriod,
+  isAutoSyncableNarrative,
+  type NarrativeSourceInput
+} from '~/utils/executiveSummaryNarrative'
+import {
+  canGenerateExecutiveSummaryDocx,
+  executiveSummaryDocxFilename,
+  generateExecutiveSummaryDocxBytes,
+  isCompilationDocNumber,
+  resolveExecutiveSummaryVariant,
+  type ExecutiveSummaryDocxContext,
+  type ExecutiveSummaryDocxVariant
+} from '~/utils/executiveSummaryDocx'
 import type { ExecutiveSummaryApprovePayload } from '~/types/signature'
 import { useDepartmentApi } from '~/composables/useDepartmentApi'
 import type { Department } from '~/types/master'
@@ -200,9 +216,49 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
 
   // Default narrative template, starting with the period ("Periode Januari 2026, SPI telah menerbitkan ...").
   // period is the full label (e.g. "Januari – Maret 2026", "Kuartal 4 2026"); an optional year is appended to it.
-  // Without a period the narrative starts with the template body.
-  const defaultNarrativeTemplate = (period: string = '', tahun?: number | string) => {
-    return buildDefaultNarrative(t, [period, tahun].filter(Boolean).join(' '))
+  // Without a period the narrative starts with the synchronized body derived from the active form and linked LHA.
+  const resolveFormNarrativeSource = (extra?: Partial<NarrativeSourceInput>): NarrativeSourceInput => {
+    const isCompilation = extra?.isCompilation ?? isCompilationDocNumber(form.nomorDokumen)
+    let linkedLha = extra?.linkedLha
+    if (!isCompilation && !linkedLha && form.nomorDokumen) {
+      try {
+        const auditReportStore = useAuditResultReportStore()
+        linkedLha = auditReportStore.reportList.find(
+          r => (r.reportNumber || (r as any).report_number) === form.nomorDokumen
+        ) as any
+      } catch {
+        // ignore when report store is unavailable
+      }
+    }
+    return {
+      isCompilation,
+      nomorDokumen: form.nomorDokumen,
+      jumlahLaporan: form.jumlahLaporan,
+      risikoHigh: form.risikoHigh,
+      risikoModerateHigh: form.risikoModerateHigh,
+      risikoModerate: form.risikoModerate,
+      risikoLowModerate: form.risikoLowModerate,
+      risikoLow: form.risikoLow,
+      jumlahRekomendasi: form.jumlahRekomendasi,
+      followUpTable: form.followUpTable,
+      topFindings: form.topFindings,
+      matriksKompilasi: form.matriksKompilasi,
+      akarMasalah: form.akarMasalah,
+      linkedLha,
+      formatDepartmentName,
+      ...extra
+    }
+  }
+
+  const defaultNarrativeTemplate = (period: string = '', tahun?: number | string, extra?: Partial<NarrativeSourceInput>) => {
+    const fullPeriod = [period, tahun].filter(Boolean).join(' ')
+    const syncData = deriveNarrativeSyncData(resolveFormNarrativeSource(extra))
+    return buildSyncedNarrative(t, fullPeriod, syncData)
+  }
+
+  const syncFormNarrative = (period: string = '', extra?: Partial<NarrativeSourceInput>, force: boolean = false) => {
+    if (!force && !isAutoSyncableNarrative(t, form.narrative)) return
+    form.narrative = defaultNarrativeTemplate(period, undefined, extra)
   }
 
   // Active form data
@@ -316,14 +372,27 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     errorMsg.value = ''
     try {
       const baseUrl = getAuditServiceBaseUrl()
-      const response: any = await $fetch(`${baseUrl}/executive-summaries`, { method: 'GET' })
-      let items: any[] = []
-      if (response && response.data && Array.isArray(response.data.items)) {
-        items = response.data.items
-      } else if (response && Array.isArray(response.items)) {
-        items = response.items
-      } else if (Array.isArray(response)) {
-        items = response
+      const extractItems = (res: any): any[] => {
+        if (res && res.data && Array.isArray(res.data.items)) return res.data.items
+        if (res && Array.isArray(res.items)) return res.items
+        if (Array.isArray(res)) return res
+        return []
+      }
+
+      const firstPage: any = await $fetch(`${baseUrl}/executive-summaries`, {
+        method: 'GET',
+        params: { page: 1, page_size: 100 }
+      })
+      const items: any[] = [...extractItems(firstPage)]
+      const totalPages = Number(firstPage?.data?.pagination?.total_pages || firstPage?.pagination?.total_pages || 1)
+      if (totalPages > 1) {
+        for (let page = 2; page <= totalPages; page++) {
+          const nextRes: any = await $fetch(`${baseUrl}/executive-summaries`, {
+            method: 'GET',
+            params: { page, page_size: 100 }
+          })
+          items.push(...extractItems(nextRes))
+        }
       }
 
       const isExcluded = (doc?: string) =>
@@ -363,7 +432,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
   }
 
   const parseSummaryFromBackend = (item: any): ExecutiveSummary => {
-    return {
+    const parsed: ExecutiveSummary = {
       ...item,
       assignmentLetterId: item.assignmentLetterId || item.assignment_letter_id || '',
       executiveNote: item.executiveNote || item.executive_note || '',
@@ -382,6 +451,18 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       topFindings: item.topFindings ? (typeof item.topFindings === 'string' ? JSON.parse(item.topFindings) : item.topFindings) : [],
       matriksKompilasi: item.matriksKompilasi ? (typeof item.matriksKompilasi === 'string' ? JSON.parse(item.matriksKompilasi) : item.matriksKompilasi) : []
     }
+    if (!parsed.narrative || parsed.narrative.includes('....') || parsed.narrative.includes('….')) {
+      const isComp = isCompilationDocNumber(parsed.nomorDokumen)
+      const period = isComp
+        ? formatQuarterPeriod(t, parsed.quarter || 1, parsed.tahun || 2026)
+        : [parsed.periodeBulan, parsed.periodeBulan?.includes(String(parsed.tahun)) ? '' : parsed.tahun].filter(Boolean).join(' ')
+      parsed.narrative = buildSyncedNarrative(t, period, deriveNarrativeSyncData({
+        isCompilation: isComp,
+        ...parsed,
+        formatDepartmentName
+      }))
+    }
+    return parsed
   }
 
   const serializeSummaryForBackend = (data: Omit<ExecutiveSummary, 'id'> | ExecutiveSummary) => {
@@ -389,15 +470,15 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     const payload: any = {
       ...data,
       assignmentLetterId: (data as any).assignmentLetterId || '',
-      quarter: Number(data.quarter),
-      tahun: Number(data.tahun),
-      jumlahLaporan: Number(data.jumlahLaporan),
+      quarter: Number(data.quarter) || 1,
+      tahun: Number(data.tahun) || 2026,
+      jumlahLaporan: Number(data.jumlahLaporan) || 0,
       risikoHigh: Number(data.risikoHigh) || 0,
       risikoModerateHigh: Number(data.risikoModerateHigh) || 0,
       risikoModerate: Number(data.risikoModerate) || 0,
       risikoLowModerate: Number(data.risikoLowModerate) || 0,
       risikoLow: Number(data.risikoLow) || 0,
-      jumlahRekomendasi: Number(data.jumlahRekomendasi),
+      jumlahRekomendasi: Number(data.jumlahRekomendasi) || 0,
       followUpTable: typeof data.followUpTable === 'string' ? data.followUpTable : JSON.stringify(data.followUpTable || []),
       topFindings: typeof data.topFindings === 'string' ? data.topFindings : JSON.stringify(data.topFindings || []),
       matriksKompilasi: typeof data.matriksKompilasi === 'string' ? data.matriksKompilasi : JSON.stringify(data.matriksKompilasi || [])
@@ -405,6 +486,19 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     if (!isValidUuid(rawId)) {
       delete payload.id
     }
+    // Strip server-managed timestamp and approval fields: sending "" for approvedAt/created_at/updated_at
+    // breaks Go's RFC3339 time.Time JSON unmarshaler ("parsing time \"\" as \"2006-01-02T15:04:05Z07:00\"").
+    delete payload.approvedAt
+    delete payload.approved_at
+    delete payload.created_at
+    delete payload.updated_at
+    delete payload.deleted_at
+    delete payload.signatureImage
+    delete payload.signatureName
+    delete payload.signatureRole
+    delete payload.approvedBy
+    delete payload.approvedByUserId
+    delete payload.approvedByRole
     return payload
   }
 
@@ -527,6 +621,13 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
         else if (f.risiko === 'Rendah') f.risiko = 'Not Significant'
       })
     }
+    if (!form.narrative || form.narrative.includes('....') || form.narrative.includes('….')) {
+      const isComp = isCompilationDocNumber(form.nomorDokumen)
+      const period = isComp
+        ? formatQuarterPeriod(t, form.quarter || 1, form.tahun || 2026)
+        : [form.periodeBulan, form.periodeBulan?.includes(String(form.tahun)) ? '' : form.tahun].filter(Boolean).join(' ')
+      syncFormNarrative(period, { isCompilation: isComp }, true)
+    }
     if (!departmentsLoaded.value && !departmentsLoading.value) {
       fetchDepartments().catch(() => {})
     }
@@ -551,13 +652,27 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
         else if (f.risiko === 'Rendah') f.risiko = 'Not Significant'
       })
     }
+    if (!form.narrative || form.narrative.includes('....') || form.narrative.includes('….')) {
+      const isComp = isCompilationDocNumber(form.nomorDokumen)
+      const period = isComp
+        ? formatQuarterPeriod(t, form.quarter || 1, form.tahun || 2026)
+        : [form.periodeBulan, form.periodeBulan?.includes(String(form.tahun)) ? '' : form.tahun].filter(Boolean).join(' ')
+      syncFormNarrative(period, { isCompilation: isComp }, true)
+    }
     if (!departmentsLoaded.value && !departmentsLoading.value) {
       fetchDepartments().catch(() => {})
     }
     showModal.value = true
   }
 
-  const saveForm = async () => {
+  const saveForm = async (opts?: { requireLha?: boolean }): Promise<boolean> => {
+    if (opts?.requireLha && (!form.nomorDokumen || isCompilationDocNumber(form.nomorDokumen))) {
+      const msg = t('executiveSummaryForm.validation.lhaRequired')
+      errorMsg.value = msg
+      toast.showError(msg)
+      return false
+    }
+
     loading.value = true
     errorMsg.value = ''
     try {
@@ -570,43 +685,53 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       const baseUrl = getAuditServiceBaseUrl()
       const payload = serializeSummaryForBackend(form)
 
+      let savedId = ''
       if (isEditing.value && currentSummary.value) {
-        if (isValidUuid(currentSummary.value.id)) {
-          await $fetch(`${baseUrl}/executive-summaries/${currentSummary.value.id}`, {
+        const existingByDoc = summaryList.value.find(
+          s => !!form.nomorDokumen && s.nomorDokumen === form.nomorDokumen && isValidUuid(s.id)
+        )
+        const targetId = isValidUuid(currentSummary.value.id) ? currentSummary.value.id : existingByDoc?.id
+        if (targetId) {
+          const res: any = await $fetch(`${baseUrl}/executive-summaries/${targetId}`, {
             method: 'PUT',
             body: payload
           })
+          savedId = res?.data?.id || targetId
+          currentSummary.value = { ...currentSummary.value, ...JSON.parse(JSON.stringify(form)), id: savedId }
         } else {
           const res: any = await $fetch(`${baseUrl}/executive-summaries`, {
             method: 'POST',
             body: payload
           })
-          if (res && res.data && res.data.id) {
-            currentSummary.value.id = res.data.id
+          if (res?.data?.id) {
+            savedId = res.data.id
+            currentSummary.value = parseSummaryFromBackend(res.data)
           }
         }
       } else {
         // Prevent duplicate creation: if summary with same nomorDokumen exists, update it!
         const existingItem = summaryList.value.find(s => form.nomorDokumen && s.nomorDokumen === form.nomorDokumen)
         if (existingItem && isValidUuid(existingItem.id)) {
-          await $fetch(`${baseUrl}/executive-summaries/${existingItem.id}`, {
+          const res: any = await $fetch(`${baseUrl}/executive-summaries/${existingItem.id}`, {
             method: 'PUT',
             body: payload
           })
-          currentSummary.value = existingItem
+          savedId = res?.data?.id || existingItem.id
+          currentSummary.value = { ...existingItem, ...JSON.parse(JSON.stringify(form)), id: savedId }
         } else {
           const res: any = await $fetch(`${baseUrl}/executive-summaries`, {
             method: 'POST',
             body: payload
           })
-          if (res && res.data && res.data.id) {
-            if (currentSummary.value) currentSummary.value.id = res.data.id
+          if (res?.data?.id) {
+            savedId = res.data.id
+            currentSummary.value = parseSummaryFromBackend(res.data)
           }
         }
       }
 
       savePersistedExecutiveSummaryOverride(
-        [form.nomorDokumen, currentSummary.value?.id],
+        [form.nomorDokumen, savedId || currentSummary.value?.id],
         { ...form }
       )
 
@@ -622,50 +747,15 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       } catch (errSync) {
         console.warn('Sync to AuditResultReport failed:', errSync)
       }
+
+      toast.showSuccess(t('toasts.executiveSummary.saved'))
+      return true
     } catch (error: any) {
-      console.error('Failed to save summary to backend, simulating local save:', error)
+      console.error('Failed to save summary to backend:', error)
       const detail = extractErrorMessage(error, t('toasts.executiveSummary.saveFailed'))
       errorMsg.value = detail
       toast.showError(t('toasts.executiveSummary.saveFailed'), detail)
-
-      // Simulating save in state for offline capabilities
-      const targetDoc = form.nomorDokumen
-      const idx = summaryList.value.findIndex(s => 
-        (currentSummary.value && s.id === currentSummary.value.id) || 
-        (targetDoc && s.nomorDokumen === targetDoc)
-      )
-      if (idx !== -1) {
-        summaryList.value[idx] = {
-          ...summaryList.value[idx],
-          ...JSON.parse(JSON.stringify(form))
-        }
-        currentSummary.value = summaryList.value[idx] || null
-      } else {
-        const newSummary: ExecutiveSummary = {
-          id: `ES-Q${form.quarter}-2026-${Math.floor(100 + Math.random() * 900)}`,
-          ...JSON.parse(JSON.stringify(form))
-        }
-        summaryList.value.push(newSummary)
-        currentSummary.value = newSummary
-      }
-
-      savePersistedExecutiveSummaryOverride(
-        [form.nomorDokumen, currentSummary.value?.id],
-        { ...form }
-      )
-
-      showModal.value = false
-
-      // 2-Way Sync: Update matching AuditResultReport item in Result Reports store
-      try {
-        const auditReportStore = useAuditResultReportStore()
-        if (form.nomorDokumen && form.narrative) {
-          await auditReportStore.syncExecutiveSummaryField(form.nomorDokumen, form.narrative, form.jumlahRekomendasi)
-        }
-      } catch (errSync) {
-        console.warn('Sync to AuditResultReport failed:', errSync)
-      }
-      toast.showSuccess(t('toasts.executiveSummary.saved'))
+      return false
     } finally {
       loading.value = false
     }
@@ -798,12 +888,64 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     }
   }
 
+  // Ensures the current Draft summary has a real UUID row on the server before approving.
+  // Needed for virtual Individual cards derived from an LHA (id = "ES-<lhaId>") that have
+  // not yet been persisted to the executive_summaries table.
+  const ensureSavedOnServer = async (): Promise<boolean> => {
+    const target = currentSummary.value
+    if (!target) return false
+    if (isValidUuid(target.id)) return true
+
+    const existing = summaryList.value.find(
+      s => !!target.nomorDokumen && s.nomorDokumen === target.nomorDokumen && isValidUuid(s.id)
+    )
+    if (existing) {
+      currentSummary.value = { ...target, id: existing.id }
+      return true
+    }
+
+    loading.value = true
+    errorMsg.value = ''
+    try {
+      const baseUrl = getAuditServiceBaseUrl()
+      const draftData: Omit<ExecutiveSummary, 'id'> = {
+        ...JSON.parse(JSON.stringify(form)),
+        status: 'Draft',
+        followUpTable: withAllFollowUpRows(form.followUpTable)
+      }
+      const res: any = await $fetch(`${baseUrl}/executive-summaries`, {
+        method: 'POST',
+        body: serializeSummaryForBackend(draftData)
+      })
+      const createdId = res?.data?.id
+      if (!isValidUuid(createdId)) {
+        toast.showError(t('executiveSummaryForm.approval.errors.saveFirst'))
+        return false
+      }
+      const created: ExecutiveSummary = res?.data ? parseSummaryFromBackend(res.data) : { ...target, ...draftData, id: createdId }
+      currentSummary.value = created
+      await fetchSummaries()
+      return true
+    } catch (error: any) {
+      const fallback = t('toasts.executiveSummary.saveFailed')
+      const detail = extractErrorMessage(error, fallback)
+      errorMsg.value = detail
+      toast.showError(fallback, detail)
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
   // Approval with a signature: the only way to move a Draft to Approved. The backend refuses a PUT that sets
   // status Approved (APPROVE_REQUIRES_SIGNATURE), so the status change happens in POST /:id/approve instead.
   const approveWithSignature = async (payload: ExecutiveSummaryApprovePayload): Promise<boolean> => {
     const target = currentSummary.value
     if (!target) return false
-    if (!isValidUuid(target.id)) {
+    const resolvedId = isValidUuid(target.id)
+      ? target.id
+      : summaryList.value.find(s => !!target.nomorDokumen && s.nomorDokumen === target.nomorDokumen && isValidUuid(s.id))?.id
+    if (!resolvedId) {
       toast.showError(t('executiveSummaryForm.approval.errors.saveFirst'))
       return false
     }
@@ -812,7 +954,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     errorMsg.value = ''
     try {
       const baseUrl = getAuditServiceBaseUrl()
-      await $fetch(`${baseUrl}/executive-summaries/${target.id}/approve`, {
+      await $fetch(`${baseUrl}/executive-summaries/${resolvedId}/approve`, {
         method: 'POST',
         body: payload
       })
@@ -831,25 +973,27 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
       status: 'Approved',
       approvedAt: new Date().toISOString(),
       signatureTempat: payload.signaturePlace,
-      signatureTanggal: payload.signatureDate
+      signatureTanggal: payload.signatureDate,
+      signatureNamaKepala: payload.signerName
     }
-    const idx = summaryList.value.findIndex(s => s.id === target.id)
+    const idx = summaryList.value.findIndex(s => s.id === resolvedId)
     if (idx !== -1) {
       summaryList.value[idx] = { ...summaryList.value[idx]!, ...approvedFields }
     }
     summaryList.value = [...summaryList.value]
-    currentSummary.value = { ...target, ...approvedFields }
+    currentSummary.value = { ...target, id: resolvedId, ...approvedFields }
     form.status = 'Approved'
     form.approvedAt = approvedFields.approvedAt
     form.signatureTempat = payload.signaturePlace
     form.signatureTanggal = payload.signatureDate
-    savePersistedExecutiveSummaryOverride([target.nomorDokumen, target.id], { status: 'Approved' })
+    form.signatureNamaKepala = payload.signerName
+    savePersistedExecutiveSummaryOverride([target.nomorDokumen, resolvedId], { status: 'Approved' })
 
     // The backend freezes the follow-up figures on approval; show its snapshot instead of the local draft values
     try {
       await fetchSummaries()
-      const frozen = summaryList.value.find(s => s.id === target.id)
-      if (frozen && currentSummary.value?.id === target.id) {
+      const frozen = summaryList.value.find(s => s.id === resolvedId)
+      if (frozen && currentSummary.value?.id === resolvedId) {
         if (frozen.approvedAt) form.approvedAt = frozen.approvedAt
         if (frozen.followUpTable?.length) form.followUpTable = JSON.parse(JSON.stringify(frozen.followUpTable))
         if (frozen.topFindings?.length) form.topFindings = JSON.parse(JSON.stringify(frozen.topFindings))
@@ -975,6 +1119,118 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     return parseFollowUpStatus(response)
   }
 
+  /**
+   * Generates and downloads a Microsoft Word (.docx) document for an Approved Executive Summary:
+   * - Compilation: "Executive Summary Compilation Hasil Audit Triwulanan" template (Sections I–VII + Lampiran Matriks Induk)
+   * - Individual: Executive Summary Individual template adapted to the individual LHA data
+   * Refuses generation when the summary status is not 'Approved' (e.g. still 'Draft').
+   */
+  const downloadDocx = async (
+    targetSummary?: ExecutiveSummary | Omit<ExecutiveSummary, 'id'> | null,
+    context: ExecutiveSummaryDocxContext = {}
+  ): Promise<boolean> => {
+    const rawTarget = targetSummary || currentSummary.value || form
+    if (!canGenerateExecutiveSummaryDocx(rawTarget)) {
+      const msg = t('executiveSummaryForm.docx.onlyApproved')
+      errorMsg.value = msg
+      toast.showError(msg)
+      return false
+    }
+
+    const summary: ExecutiveSummary = {
+      id: (rawTarget as ExecutiveSummary).id || currentSummary.value?.id || '',
+      ...JSON.parse(JSON.stringify(rawTarget))
+    }
+    const variant: ExecutiveSummaryDocxVariant = resolveExecutiveSummaryVariant(summary, context.variant)
+    const resolvedContext: ExecutiveSummaryDocxContext = {
+      ...context,
+      variant,
+      formatDepartmentName
+    }
+
+    let linkedLha: any = null
+    try {
+      const auditReportStore = useAuditResultReportStore()
+      if (summary.nomorDokumen) {
+        linkedLha = auditReportStore.reportList.find(
+          r => (r.reportNumber || (r as any).report_number) === summary.nomorDokumen
+        )
+      }
+    } catch {
+      // ignore if store not initialized
+    }
+
+    if (linkedLha) {
+      if (!resolvedContext.reportTitle) resolvedContext.reportTitle = linkedLha.reportTitle
+      if (!resolvedContext.auditObject) resolvedContext.auditObject = (linkedLha as any).auditObject || linkedLha.reportTitle
+      if (!resolvedContext.department) resolvedContext.department = linkedLha.department
+      if (!summary.assignmentLetterId && linkedLha.assignmentLetterId) {
+        summary.assignmentLetterId = linkedLha.assignmentLetterId
+      }
+    }
+
+    if (!summary.narrative || summary.narrative.includes('....') || summary.narrative.includes('….')) {
+      const period = variant === 'compilation'
+        ? formatQuarterPeriod(t, summary.quarter || 1, summary.tahun || 2026)
+        : [summary.periodeBulan, summary.periodeBulan?.includes(String(summary.tahun)) ? '' : summary.tahun].filter(Boolean).join(' ')
+      summary.narrative = buildSyncedNarrative(t, period, deriveNarrativeSyncData({
+        isCompilation: variant === 'compilation',
+        ...summary,
+        linkedLha,
+        formatDepartmentName
+      }))
+    }
+
+    const filename = executiveSummaryDocxFilename(summary, variant)
+    let blob: Blob | null = null
+
+    const backendId = isValidUuid(summary.id)
+      ? summary.id
+      : summaryList.value.find(s => !!summary.nomorDokumen && s.nomorDokumen === summary.nomorDokumen && isValidUuid(s.id))?.id
+
+    if (backendId) {
+      try {
+        const baseUrl = getAuditServiceBaseUrl()
+        const fetched = await $fetch<Blob>(`${baseUrl}/executive-summaries/${backendId}/download-docx`, {
+          method: 'GET',
+          params: { variant },
+          responseType: 'blob'
+        })
+        if (fetched instanceof Blob && fetched.size > 0) {
+          blob = fetched
+        }
+      } catch {
+        // Fallback to local docx builder when offline or when approval is persisted in localStorage
+      }
+    }
+
+    try {
+      if (!blob) {
+        const bytes = generateExecutiveSummaryDocxBytes(summary, resolvedContext)
+        blob = new Blob([bytes], {
+          type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        })
+      }
+      if (typeof window !== 'undefined' && typeof document !== 'undefined' && window.URL?.createObjectURL) {
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = filename
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        window.URL.revokeObjectURL(url)
+      }
+      return true
+    } catch (err: any) {
+      console.error('Failed to generate/download Executive Summary docx:', err)
+      const detail = extractErrorMessage(err, t('executiveSummaryForm.docx.downloadFailed'))
+      errorMsg.value = detail
+      toast.showError(t('executiveSummaryForm.docx.downloadFailed'), detail)
+      return false
+    }
+  }
+
   // Load initially
   fetchSummaries()
 
@@ -996,10 +1252,13 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     saveExecutiveNote,
     deleteSummary,
     updateStatus,
+    ensureSavedOnServer,
     approveWithSignature,
     fetchFollowUpStatus,
     fetchSummaries,
     defaultNarrativeTemplate,
+    syncFormNarrative,
+    downloadDocx,
     generateEscDocNumber,
     departments,
     departmentsLoading,

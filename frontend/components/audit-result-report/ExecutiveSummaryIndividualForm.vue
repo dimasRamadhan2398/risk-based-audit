@@ -76,7 +76,11 @@
           </div>
 
           <div class="w-full">
-            <UFormField :label="t('executiveSummaryForm.upload.lhaLabel')">
+            <UFormField
+              :label="t('executiveSummaryForm.upload.lhaLabel')"
+              required
+              :error="lhaValidationError"
+            >
               <USelectMenu
                 v-model="selectedLhaId"
                 :items="lhaDropdownOptions"
@@ -310,61 +314,6 @@
               />
             </UFormField>
           </div>
-
-          <!-- Electronic Signatures -->
-          <div class="p-6 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-200 dark:border-gray-800 space-y-4">
-            <h4 class="text-md font-extrabold uppercase tracking-wider text-gray-400">{{ t('executiveSummaryForm.signature.title') }}</h4>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <UFormField :label="t('executiveSummaryForm.signature.place')" required>
-                <UInput
-                  v-model="store.form.signatureTempat"
-                  :placeholder="t('executiveSummaryForm.signature.placePlaceholder')"
-                  :disabled="isLocked"
-                  maxlength="50"
-                  @invalid="($event.target as any)?.setCustomValidity(t('executiveSummaryForm.validation.signaturePlace'))"
-                  @input="($event.target as any)?.setCustomValidity('')"
-                />
-                <div class="text-xs text-gray-500 mt-1 text-right">
-                  {{ store.form.signatureTempat ? store.form.signatureTempat.length : 0 }}/50
-                </div>
-              </UFormField>
-
-              <UFormField :label="t('executiveSummaryForm.signature.date')" required>
-                <AppDatePicker
-                  v-model="store.form.signatureTanggal"
-                  :disabled="isLocked"
-                />
-              </UFormField>
-
-              <UFormField :label="t('executiveSummaryForm.signature.headName')" required>
-                <UInput
-                  v-model="store.form.signatureNamaKepala"
-                  :placeholder="t('executiveSummaryForm.signature.headNamePlaceholder')"
-                  :disabled="isLocked"
-                  maxlength="50"
-                  @invalid="($event.target as any)?.setCustomValidity(t('executiveSummaryForm.validation.signatureName'))"
-                  @input="($event.target as any)?.setCustomValidity('')"
-                />
-                <div class="text-xs text-gray-500 mt-1 text-right">
-                  {{ store.form.signatureNamaKepala ? store.form.signatureNamaKepala.length : 0 }}/50
-                </div>
-              </UFormField>
-
-              <UFormField :label="t('executiveSummaryForm.signature.headNik')" required>
-                <UInput
-                  v-model="store.form.signatureNIK"
-                  :placeholder="t('executiveSummaryForm.signature.headNikPlaceholder')"
-                  :disabled="isLocked"
-                  maxlength="50"
-                  @invalid="($event.target as any)?.setCustomValidity(t('executiveSummaryForm.validation.signatureNik'))"
-                  @input="($event.target as any)?.setCustomValidity('')"
-                />
-                <div class="text-xs text-gray-500 mt-1 text-right">
-                  {{ store.form.signatureNIK ? store.form.signatureNIK.length : 0 }}/50
-                </div>
-              </UFormField>
-            </div>
-          </div>
         </section>
 
         <!-- Catatan Executive untuk Auditor -->
@@ -453,6 +402,16 @@
         <!-- Locked/Unlocked Overrides -->
         <template v-else>
           <UButton
+            v-if="isLocked && canExport"
+            color="success"
+            variant="soft"
+            icon="i-lucide-file-down"
+            :label="t('executiveSummaryForm.actions.generateIndividualDocx')"
+            class="font-bold px-5"
+            data-testid="es-individual-download-docx"
+            @click="downloadIndividualDocx"
+          />
+          <UButton
             v-if="isDraft && canApprove"
             color="success"
             variant="solid"
@@ -501,12 +460,15 @@ import { useAppToast } from '~/composables/useAppToast'
 import {
   auditPeriodFromAssignmentLetter,
   formatAuditPeriod,
+  isAutoSyncableNarrative,
+  parseExecutionPeriod,
+  parseMonthYear,
   prefixNarrative,
   refreshNarrativePeriod
 } from '~/utils/executiveSummaryNarrative'
 const store = useExecutiveSummaryStore()
 const authStore = useAuthStore()
-const { canReviewExecutiveSummary, canViewLiveFollowUpStatus } = useRbac()
+const { canReviewExecutiveSummary, canViewLiveFollowUpStatus, canExport } = useRbac()
 const { t, locale } = useI18n()
 const { warning, error: errorToast } = useAppToast()
 
@@ -547,6 +509,26 @@ const isLocked = computed(() => {
 
 const resetNarrativeToDefault = () => {
   store.form.narrative = store.defaultNarrativeTemplate(narrativePeriod.value)
+}
+
+const syncIndividualNarrative = (force = false) => {
+  if (isLocked.value) return
+  store.syncFormNarrative(narrativePeriod.value, {
+    isCompilation: false,
+    linkedLha: linkedLhaReport.value as any
+  }, force)
+}
+
+const downloadIndividualDocx = () => {
+  if (!isLocked.value) return
+  const lha = linkedLhaReport.value as any
+  store.downloadDocx(store.currentSummary || store.form, {
+    variant: 'individual',
+    reportTitle: lha?.reportTitle,
+    auditObject: lha?.auditObject || lha?.reportTitle,
+    department: lha?.department,
+    reportDate: lha?.reportDate
+  })
 }
 
 // File Upload Handler (with corrupted file simulation & validation)
@@ -607,20 +589,44 @@ const requireLhaThen = (sync: () => void) => {
   sync()
 }
 
+const submitAttempted = ref(false)
+
+const hasSelectedLha = computed(() => {
+  const val = typeof selectedLhaId.value === 'object'
+    ? (selectedLhaId.value as any)?.value
+    : selectedLhaId.value
+  return Boolean(String(val || store.form.nomorDokumen || '').trim())
+})
+
+const lhaValidationError = computed(() => {
+  if (!submitAttempted.value || hasSelectedLha.value) return undefined
+  return t('executiveSummaryForm.validation.lhaRequired')
+})
+
+watch(() => store.showModal, (isOpen) => {
+  if (isOpen) submitAttempted.value = false
+})
+
 const saveReportDraft = async () => {
-  if (!store.form.nomorDokumen) {
-    warning(t('executiveSummaryForm.messages.docNumberRequired'))
-    return
+  submitAttempted.value = true
+  if (!hasSelectedLha.value) {
+    activeSection.value = 'sec-upload'
+    scrollContainer.value?.scrollTo({ top: 0 })
+    warning(t('executiveSummaryForm.validation.lhaRequired'))
+    return false
   }
   if (!store.form.dokumenPath) {
+    activeSection.value = 'sec-upload'
     warning(t('executiveSummaryForm.messages.documentRequired'))
-    return
+    return false
   }
-  
+
   // Set status Draft
   store.form.status = 'Draft'
-  await store.saveForm()
+  return await store.saveForm({ requireLha: true })
 }
+
+defineExpose({ saveReportDraft })
 
 // Approval is signed: the signature box in ExecutiveSummaryApproveModal is required before the backend accepts it
 const showApproveModal = ref(false)
@@ -652,6 +658,7 @@ const goToStep = (idx: number) => {
 // Assignment Letter & LHA Stores Integration for 2-Way Sync
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
+import { filterAvailableIndividualLhas } from '~/utils/executiveSummaryFilter'
 
 const auditReportStore = useAuditResultReportStore()
 const assignmentLetterStore = useAssignmentLetterStore()
@@ -668,13 +675,24 @@ if (!store.departmentsLoaded && !store.departmentsLoading) {
 }
 
 // Audit period of an LHA from its assignment letter dates: "Januari 2026", "Januari – Maret 2026"; '' when unknown
-const auditPeriodForReport = (report?: { assignmentLetterId?: string } | null): string => {
+const auditPeriodForReport = (report?: { assignmentLetterId?: string, auditPeriod?: string, reportDate?: string } | null): string => {
   const letterRef = report?.assignmentLetterId
-  if (!letterRef) return ''
-  const letter = assignmentLetterStore.assignmentLetterList.find(
-    (st: any) => st.letterNumber === letterRef || st.id === letterRef
-  )
-  return formatAuditPeriod(t, auditPeriodFromAssignmentLetter(letter))
+  if (letterRef) {
+    const letter = assignmentLetterStore.assignmentLetterList.find(
+      (st: any) => st.letterNumber === letterRef || st.id === letterRef
+    )
+    const fromLetter = formatAuditPeriod(t, auditPeriodFromAssignmentLetter(letter))
+    if (fromLetter) return fromLetter
+  }
+  if (report?.auditPeriod) {
+    const fromAuditPeriod = formatAuditPeriod(t, parseExecutionPeriod(report.auditPeriod))
+    if (fromAuditPeriod) return fromAuditPeriod
+  }
+  if (report?.reportDate) {
+    const my = parseMonthYear(report.reportDate)
+    if (my) return formatAuditPeriod(t, { start: my, end: my })
+  }
+  return ''
 }
 
 const assignmentLetterDropdownOptions = computed(() => {
@@ -774,18 +792,10 @@ const linkedLhaReport = computed(() => {
 const narrativePeriod = computed(() => auditPeriodForReport(linkedLhaReport.value))
 
 const lhaDropdownOptions: Ref<Array<{ label: string; value: string; report: any }>> = computed(() => {
-  return auditReportStore.reportList
-    .filter(r => {
-      const num = r.reportNumber || (r as any).report_number
-      return (
-        num &&
-        num !== 'DOC-EXSUM-Q1-2026' &&
-        num !== '020/LHA/01/KS IAD/2023' &&
-        num !== '019/LHA/01/KS IAD/2025' &&
-        num !== 'LHA-020/SKAI/2023' &&
-        num !== 'LHA-019/SKAI/2025'
-      )
-    })
+  const editingOwnDoc = (store.isEditing || store.isViewing)
+    ? (store.currentSummary?.nomorDokumen || store.form.nomorDokumen)
+    : undefined
+  return filterAvailableIndividualLhas(auditReportStore.reportList, store.summaryList, editingOwnDoc)
     .map(r => ({
       label: `${r.reportNumber || (r as any).report_number} - ${r.reportTitle}`,
       value: r.reportNumber || (r as any).report_number,
@@ -828,11 +838,13 @@ function followUpFindingsFor(item: { id?: string, reportNumber?: string }) {
 
 const applyFollowUpToForm = (data: FollowUpStatusResult) => {
   store.form.followUpTable = followUpRowsFromStats(data.buckets, store.form.followUpTable)
-  if (data.findingsRestricted) return
-  applyFollowUpToTopFindings(store.form.topFindings, data.findings)
-  // A finding taken from the LHA whose ATR was cancelled is not counted, so it leaves the Top 5
-  const ids = new Set(data.findings.map(f => f.findingId))
-  store.form.topFindings = store.form.topFindings.filter(f => !f.findingId || ids.has(f.findingId))
+  if (!data.findingsRestricted) {
+    applyFollowUpToTopFindings(store.form.topFindings, data.findings)
+    // A finding taken from the LHA whose ATR was cancelled is not counted, so it leaves the Top 5
+    const ids = new Set(data.findings.map(f => f.findingId))
+    store.form.topFindings = store.form.topFindings.filter(f => !f.findingId || ids.has(f.findingId))
+  }
+  syncIndividualNarrative()
 }
 
 const refreshFollowUp = async () => {
@@ -870,7 +882,17 @@ const followUpEmptyHint = computed(() => {
 watch(narrativePeriod, (period) => {
   if (store.isViewing || store.isEditing || isLocked.value) return
   store.form.narrative = refreshNarrativePeriod(t, store.form.narrative, period)
+  syncIndividualNarrative()
 })
+
+watch(
+  () => [store.form.followUpTable, store.form.topFindings, store.form.jumlahRekomendasi, store.form.akarMasalah],
+  () => {
+    if (isLocked.value) return
+    syncIndividualNarrative()
+  },
+  { deep: true }
+)
 
 const onAssignmentLetterSelect = (val: any) => {
   if (!val) return
@@ -899,14 +921,15 @@ const syncFindingsFromLha = (lhaItem?: any) => {
   if (!item) return
 
   store.form.nomorDokumen = item.reportNumber || (item as any).report_number
+  store.form.jumlahLaporan = 1
   if (item.assignmentLetterId) {
     store.form.assignmentLetterId = item.assignmentLetterId
     const found = assignmentLetterDropdownOptions.value.find(o => o.value === item.assignmentLetterId)
     if (found) selectedAssignmentLetter.value = found
   }
-  if (item.executiveSummary) {
-    // The narrative starts with the audit period: "Periode Januari 2026, ..."
-    store.form.narrative = prefixNarrative(t, item.executiveSummary, auditPeriodForReport(item))
+  const periodForItem = auditPeriodForReport(item)
+  if (periodForItem) {
+    store.form.periodeBulan = periodForItem
   }
 
   const findings = item.findings || []
@@ -953,7 +976,14 @@ const syncFindingsFromLha = (lhaItem?: any) => {
     store.form.risikoLow = findings.filter((f: any) => f.category === 'Not Significant').length
   }
 
-  if (item.findingsCount) {
+  const countedRecs = findings.reduce((sum: number, f: any) => {
+    if (Array.isArray(f.recommendations) && f.recommendations.length > 0) return sum + f.recommendations.length
+    if (Array.isArray(f.actionPlans) && f.actionPlans.length > 0) return sum + f.actionPlans.length
+    return sum + 1
+  }, 0)
+  if (countedRecs > 0) {
+    store.form.jumlahRekomendasi = countedRecs
+  } else if (item.findingsCount) {
     store.form.jumlahRekomendasi = item.findingsCount
   } else if (findings.length > 0) {
     store.form.jumlahRekomendasi = findings.length
@@ -970,6 +1000,16 @@ const syncFindingsFromLha = (lhaItem?: any) => {
     store.form.kesimpulan = (item as any).conclusion
   } else if (!store.form.kesimpulan && item.reportTitle) {
     store.form.kesimpulan = `Tata kelola dan pengendalian internal pada ${item.reportTitle} berjalan cukup memadai dengan prioritas penyelesaian rekomendasi temuan signifikan.`
+  }
+
+  if (item.executiveSummary && !isAutoSyncableNarrative(t, item.executiveSummary)) {
+    // The narrative starts with the audit period: "Periode Januari 2026, ..."
+    store.form.narrative = prefixNarrative(t, item.executiveSummary, auditPeriodForReport(item))
+  } else {
+    store.syncFormNarrative(periodForItem || narrativePeriod.value, {
+      isCompilation: false,
+      linkedLha: item
+    }, true)
   }
 
   selectedLhaId.value = lhaDropdownOptions.value.find(o => o.value === store.form.nomorDokumen)
@@ -1010,6 +1050,8 @@ watch(() => store.form.nomorDokumen, (newDoc) => {
         syncFindingsFromLha(match)
       }
     }
+  } else {
+    selectedLhaId.value = undefined
   }
 }, { immediate: true })
 

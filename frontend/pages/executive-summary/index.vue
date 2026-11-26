@@ -164,6 +164,17 @@
             </div>
             
             <div class="flex gap-2 shrink-0">
+              <UTooltip v-if="item.status === 'Approved' && canExport" :text="t('executiveSummaryForm.actions.generateIndividualDocx')">
+                <UButton
+                  color="success"
+                  variant="soft"
+                  icon="i-lucide-file-down"
+                  size="sm"
+                  label="Docx"
+                  data-testid="card-individual-download-docx"
+                  @click="store.downloadDocx(item, { variant: 'individual' })"
+                />
+              </UTooltip>
               <UTooltip :text="t('executiveSummaryIndividual.card.viewDetail')">
                 <UButton 
                   color="neutral" 
@@ -280,15 +291,6 @@
 
             <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
               <UButton
-                v-if="!store.isViewing && store.form.status !== 'Approved'"
-                color="primary"
-                icon="i-lucide-save"
-                :label="t('executiveSummaryForm.actions.saveReport')"
-                class="font-bold flex-1 sm:flex-none justify-center" 
-                :loading="store.loading"
-                @click="store.saveForm"
-              />
-              <UButton
                 color="neutral"
                 variant="ghost"
                 icon="i-lucide-x"
@@ -301,7 +303,7 @@
 
           <!-- Form Component Body -->
           <div class="flex-1 min-h-0 overflow-hidden">
-            <ExecutiveSummaryIndividualForm />
+            <ExecutiveSummaryIndividualForm ref="individualFormRef" />
           </div>
         </div>
       </template>
@@ -317,9 +319,11 @@ import { useI18n } from '~/composables/useI18n'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import ExecutiveSummaryIndividualForm from '~/components/audit-result-report/ExecutiveSummaryIndividualForm.vue'
+import { buildSyncedNarrative, deriveNarrativeSyncData } from '~/utils/executiveSummaryNarrative'
+import { filterIndividualSummaries, isExcludedLegacyDoc, isIndividualSummaryDoc } from '~/utils/executiveSummaryFilter'
 
 const { t } = useI18n()
-const { canWrite } = useRbac()
+const { canWrite, canExport } = useRbac()
 
 definePageMeta({
   middleware: 'auth'
@@ -330,6 +334,15 @@ const auditReportStore = useAuditResultReportStore()
 const assignmentLetterStore = useAssignmentLetterStore()
 const searchQuery = ref('')
 const selectedLhaNumber = ref('')
+const individualFormRef = ref<InstanceType<typeof ExecutiveSummaryIndividualForm> | null>(null)
+
+const handleHeaderSaveReport = () => {
+  if (individualFormRef.value?.saveReportDraft) {
+    individualFormRef.value.saveReportDraft()
+  } else {
+    store.saveForm({ requireLha: true })
+  }
+}
 
 if (!store.departmentsLoaded && !store.departmentsLoading) {
   store.fetchDepartments().catch(() => {})
@@ -342,14 +355,6 @@ const totalHandling = computed(() => {
 })
 
 const lhaNumberOptions = computed(() => {
-  const isExcluded = (num: string) =>
-    num === 'DOC-EXSUM-Q1-2026' ||
-    num === '020/LHA/01/KS IAD/2023' ||
-    num === '019/LHA/01/KS IAD/2025' ||
-    num === 'LHA-020/SKAI/2023' ||
-    num === 'LHA-019/SKAI/2025' ||
-    num.startsWith('ESC-')
-
   const numsFromReports = auditReportStore.reportList
     .map((r: any) => r.reportNumber || r.report_number)
     .filter(Boolean)
@@ -361,11 +366,11 @@ const lhaNumberOptions = computed(() => {
     .filter(Boolean)
 
   const combined = Array.from(new Set([
-    ...numsFromReports, 
-    ...numsFromSummaries, 
+    ...numsFromReports,
+    ...numsFromSummaries,
     ...numsFromSynced
   ]))
-    .filter(num => !isExcluded(num))
+    .filter(num => isIndividualSummaryDoc(num))
     .sort()
 
   return ['Semua Nomor LHA', ...combined]
@@ -391,14 +396,8 @@ const syncedSummaries = computed(() => {
   const overrides = loadPersistedExecutiveSummaryOverrides()
   const rawList: (ExecutiveSummary & { assignmentLetterId?: string })[] = JSON.parse(JSON.stringify(store.summaryList))
 
-  // Filter out any dummy / non-standard legacy documents
-  const filteredRaw = rawList.filter(s => 
-    s.nomorDokumen !== 'DOC-EXSUM-Q1-2026' &&
-    s.nomorDokumen !== '020/LHA/01/KS IAD/2023' &&
-    s.nomorDokumen !== '019/LHA/01/KS IAD/2025' &&
-    s.nomorDokumen !== 'LHA-020/SKAI/2023' &&
-    s.nomorDokumen !== 'LHA-019/SKAI/2025'
-  )
+  // Filter out dummy/legacy documents AND Compilation documents (ESC-*, EXSUM-KOMP-*, KOMPILASI-*)
+  const filteredRaw = filterIndividualSummaries(rawList)
 
   // Map to deduplicate strictly by nomorDokumen
   const docMap = new Map<string, ExecutiveSummary & { assignmentLetterId?: string }>()
@@ -418,12 +417,7 @@ const syncedSummaries = computed(() => {
   // Synchronize with LHA items from auditReportStore
   auditReportStore.reportList.forEach(lha => {
     const lhaNum = lha.reportNumber || (lha as any).report_number
-    if (!lhaNum ||
-      lhaNum === 'DOC-EXSUM-Q1-2026' ||
-      lhaNum === '020/LHA/01/KS IAD/2023' ||
-      lhaNum === '019/LHA/01/KS IAD/2025' ||
-      lhaNum === 'LHA-020/SKAI/2023' ||
-      lhaNum === 'LHA-019/SKAI/2025') return
+    if (!lhaNum || isExcludedLegacyDoc(lhaNum) || !isIndividualSummaryDoc(lhaNum)) return
 
     if (docMap.has(lhaNum)) {
       const existing = docMap.get(lhaNum)!
@@ -460,33 +454,53 @@ const syncedSummaries = computed(() => {
         }
 
         const fallbackSt = lha.assignmentLetterId || ''
+        const highCount = (lha.findings || []).filter(f => ['Very Significant', 'Significant'].includes(f.category)).length || 0
+        const medCount = (lha.findings || []).filter(f => f.category === 'Quite Significant').length || 0
+        const lowCount = (lha.findings || []).filter(f => f.category === 'Not Significant').length || 0
+        const recCount = lha.findingsCount || (lha.findings?.length || 0)
+        const periodLabel = `${mo} ${yr}`
+        const derivedTopFindings = (lha.findings || []).map(f => ({
+          unitDivision: store.resolveDepartmentOption(lha.department || (lha.reportTitle.includes('Keuangan') ? 'FIN' : 'OPS')) || (lha.reportTitle.includes('Keuangan') ? 'Finance' : 'Operasi'),
+          judulTemuan: f.title,
+          risiko: f.category || 'Significant',
+          statusTL: 'In Progress' as const,
+          usulan: 'Rekomendasi Perbaikan'
+        }))
+        const syncedNarrative = (lha.executiveSummary && !lha.executiveSummary.includes('....') && !lha.executiveSummary.includes('….'))
+          ? lha.executiveSummary
+          : buildSyncedNarrative(t, periodLabel, deriveNarrativeSyncData({
+              isCompilation: false,
+              nomorDokumen: lhaNum,
+              jumlahLaporan: 1,
+              risikoHigh: highCount,
+              risikoModerate: medCount,
+              risikoLow: lowCount,
+              jumlahRekomendasi: recCount,
+              topFindings: derivedTopFindings,
+              linkedLha: lha as any,
+              formatDepartmentName: store.formatDepartmentName
+            }))
 
         docMap.set(lhaNum, {
           id: `ES-${lha.id}`,
           assignmentLetterId: fallbackSt,
           quarter: mo === 'Januari' || mo === 'Februari' || mo === 'Maret' ? 1 : mo === 'April' || mo === 'Mei' || mo === 'Juni' ? 2 : 3,
-          periodeBulan: `${mo} ${yr}`,
+          periodeBulan: periodLabel,
           tahun: yr,
           nomorDokumen: lhaNum,
           dokumenPath: `Executive_Summary_${lhaNum.replace(/[\/\s]/g, '_')}.pdf`,
           status: itemStatus,
           executiveNote: itemNote,
-          narrative: lha.executiveSummary || `Executive Summary untuk ${lha.reportTitle} (${lhaNum}).`,
+          narrative: syncedNarrative,
           jumlahLaporan: 1,
-          risikoHigh: (lha.findings || []).filter(f => ['Very Significant', 'Significant'].includes(f.category)).length || 0,
+          risikoHigh: highCount,
           risikoModerateHigh: 0,
-          risikoModerate: (lha.findings || []).filter(f => f.category === 'Quite Significant').length || 0,
+          risikoModerate: medCount,
           risikoLowModerate: 0,
-          risikoLow: (lha.findings || []).filter(f => f.category === 'Not Significant').length || 0,
-          jumlahRekomendasi: lha.findingsCount || (lha.findings?.length || 0),
+          risikoLow: lowCount,
+          jumlahRekomendasi: recCount,
           followUpTable: [],
-          topFindings: (lha.findings || []).map(f => ({
-            unitDivision: store.resolveDepartmentOption(lha.department || (lha.reportTitle.includes('Keuangan') ? 'FIN' : 'OPS')) || (lha.reportTitle.includes('Keuangan') ? 'Finance' : 'Operasi'),
-            judulTemuan: f.title,
-            risiko: f.category || 'Significant',
-            statusTL: 'In Progress',
-            usulan: 'Rekomendasi Perbaikan'
-          })),
+          topFindings: derivedTopFindings,
           matriksKompilasi: [],
           akarMasalah: 'Penguatan sistem pengendalian internal dan efektivitas otomatisasi SOP.',
           kesimpulan: 'Tata kelola dan pengendalian internal berjalan baik dengan rekomendasi perbaikan berkala.',

@@ -3599,7 +3599,8 @@
       "periodPrefix": "For the period of {period},",
       "quarterPeriod": "Q{quarter} {year}",
       "quarterPeriodNoYear": "Q{quarter}",
-      "templateBody": "SPI has issued .... LHA. Total findings …. with .... recommendations. On-time completion rate 95%. There are 5 overdue/late high-risk findings related to .... that require direction from the Board of Directors. The most frequently recurring findings are in the …………….. process."
+      "templateBody": "SPI has issued .... LHA. Total findings …. with .... recommendations. On-time completion rate 95%. There are 5 overdue/late high-risk findings related to .... that require direction from the Board of Directors. The most frequently recurring findings are in the …………….. process.",
+      "syncedBody": "SPI has issued {lhaCount} LHA. Total findings {totalFindings} with {recommendationCount} recommendations. On-time completion rate {onTimeRate}%. There are {overdueHighRiskCount} overdue/late high-risk findings related to {overdueTopic} that require direction from the Board of Directors. The most frequently recurring findings are in the {recurringProcess} process."
     },
     "followUp": {
       "title": "Follow-up Status",
@@ -3690,6 +3691,7 @@
       "headNikPlaceholder": "e.g. SPI-77621"
     },
     "validation": {
+      "lhaRequired": "Select Assignment Letter / LHA is required.",
       "findingTitle": "Finding title is required and must be at most 100 characters.",
       "signaturePlace": "Signing place is required and must be at most 20 characters.",
       "signatureName": "Head of SPI name is required and must be at most 100 characters.",
@@ -3715,7 +3717,14 @@
       "saveDraft": "Save Draft",
       "saveReport": "Save Report",
       "approve": "Approve",
+      "generateDocx": "Generate Word (.docx)",
+      "generateCompilationDocx": "Download Compilation Word (.docx)",
+      "generateIndividualDocx": "Download Individual Word (.docx)",
       "close": "Close"
+    },
+    "docx": {
+      "onlyApproved": "Word (.docx) documents can only be generated for Approved Executive Summaries.",
+      "downloadFailed": "Failed to download Word (.docx) document."
     },
     "defaults": {
       "auditAssignment": "Audit Assignment"

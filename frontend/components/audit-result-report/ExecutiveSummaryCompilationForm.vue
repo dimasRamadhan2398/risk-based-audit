@@ -501,61 +501,6 @@
               />
             </UFormField>
           </div>
-
-          <!-- Electronic Signatures -->
-          <div class="p-6 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-200 dark:border-gray-800 space-y-4">
-            <h4 class="text-md font-extrabold uppercase tracking-wider text-gray-400">{{ t('executiveSummaryForm.signature.title') }}</h4>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <UFormField :label="t('executiveSummaryForm.signature.place')" required>
-                <UInput
-                  v-model="store.form.signatureTempat"
-                  :placeholder="t('executiveSummaryForm.signature.placePlaceholder')"
-                  :disabled="isLocked"
-                  maxlength="50"
-                  @invalid="($event.target as any)?.setCustomValidity(t('executiveSummaryForm.validation.signaturePlace'))"
-                  @input="($event.target as any)?.setCustomValidity('')"
-                />
-                <div class="text-xs text-gray-500 mt-1 text-right">
-                  {{ store.form.signatureTempat ? store.form.signatureTempat.length : 0 }}/50
-                </div>
-              </UFormField>
-
-              <UFormField :label="t('executiveSummaryForm.signature.date')" required>
-                <AppDatePicker
-                  v-model="store.form.signatureTanggal"
-                  :disabled="isLocked"
-                />
-              </UFormField>
-
-              <UFormField :label="t('executiveSummaryForm.signature.headName')" required>
-                <UInput
-                  v-model="store.form.signatureNamaKepala"
-                  :placeholder="t('executiveSummaryForm.signature.headNamePlaceholder')"
-                  :disabled="isLocked"
-                  maxlength="50"
-                  @invalid="($event.target as any)?.setCustomValidity(t('executiveSummaryForm.validation.signatureName'))"
-                  @input="($event.target as any)?.setCustomValidity('')"
-                />
-                <div class="text-xs text-gray-500 mt-1 text-right">
-                  {{ store.form.signatureNamaKepala ? store.form.signatureNamaKepala.length : 0 }}/50
-                </div>
-              </UFormField>
-
-              <UFormField :label="t('executiveSummaryForm.signature.headNik')" required>
-                <UInput
-                  v-model="store.form.signatureNIK"
-                  :placeholder="t('executiveSummaryForm.signature.headNikPlaceholder')"
-                  :disabled="isLocked"
-                  maxlength="50"
-                  @invalid="($event.target as any)?.setCustomValidity(t('executiveSummaryForm.validation.signatureNik'))"
-                  @input="($event.target as any)?.setCustomValidity('')"
-                />
-                <div class="text-xs text-gray-500 mt-1 text-right">
-                  {{ store.form.signatureNIK ? store.form.signatureNIK.length : 0 }}/50
-                </div>
-              </UFormField>
-            </div>
-          </div>
         </section>
 
         <!-- 7. Section Matriks Kompilasi LHA Individual -->
@@ -712,6 +657,16 @@
         <!-- Locked/Unlocked Overrides -->
         <template v-else>
           <UButton
+            v-if="isLocked && canExport"
+            color="success"
+            variant="soft"
+            icon="i-lucide-file-down"
+            :label="t('executiveSummaryForm.actions.generateCompilationDocx')"
+            class="font-bold px-5"
+            data-testid="es-compilation-download-docx"
+            @click="downloadCompilationDocx"
+          />
+          <UButton
             v-if="isDraft && canApprove"
             color="success"
             variant="solid"
@@ -776,7 +731,7 @@ const store = useExecutiveSummaryStore()
 const authStore = useAuthStore()
 const auditReportStore = useAuditResultReportStore()
 const assignmentLetterStore = useAssignmentLetterStore()
-const { canReviewExecutiveSummary, canViewLiveFollowUpStatus } = useRbac()
+const { canReviewExecutiveSummary, canViewLiveFollowUpStatus, canExport } = useRbac()
 const { t, locale } = useI18n()
 const appToast = useAppToast()
 const { loading: sourcesLoading, error: sourcesError, fetchCompilationStats } = useExecutiveSummarySources()
@@ -1003,11 +958,44 @@ const resetNarrativeToDefault = () => {
   store.form.narrative = store.defaultNarrativeTemplate(narrativePeriod.value)
 }
 
+const syncCompilationNarrative = (force = false) => {
+  if (isLocked.value) return
+  store.syncFormNarrative(narrativePeriod.value, {
+    isCompilation: true,
+    totalTemuan: totalTemuanSummary.value,
+    quarterlyLhas: quarterlyLhas.value as any
+  }, force)
+}
+
+const downloadCompilationDocx = () => {
+  if (!isLocked.value) return
+  store.downloadDocx(store.currentSummary || store.form, {
+    variant: 'compilation'
+  })
+}
+
 // A new quarter or year updates the generated period prefix; free text written by the user is kept.
 watch(narrativePeriod, (period) => {
   if (store.isViewing || store.isEditing || isLocked.value) return
   store.form.narrative = refreshNarrativePeriod(t, store.form.narrative, period)
+  syncCompilationNarrative()
 })
+
+watch(
+  () => [
+    store.form.followUpTable,
+    store.form.topFindings,
+    store.form.matriksKompilasi,
+    store.form.jumlahLaporan,
+    store.form.jumlahRekomendasi,
+    totalTemuanSummary.value
+  ],
+  () => {
+    if (isLocked.value) return
+    syncCompilationNarrative()
+  },
+  { deep: true }
+)
 
 // File Upload Handler (with corrupted file simulation & validation)
 const handleFileUpload = (e: Event) => {
@@ -1138,12 +1126,14 @@ const refreshFollowUpStatus = async () => {
   followUpLoadedKey.value = key
   if (key !== currentStatsKey.value || isLocked.value) return
   store.form.followUpTable = followUpRowsFromStats(data.buckets, store.form.followUpTable)
-  if (data.findingsRestricted) return
-  store.form.matriksKompilasi = buildMatrix(data)
-  applyFollowUpToTopFindings(store.form.topFindings, data.findings)
-  // A finding whose ATR was cancelled is not counted, so it leaves the Top 5
-  const ids = new Set(data.findings.map(f => f.findingId))
-  store.form.topFindings = store.form.topFindings.filter(f => !f.findingId || ids.has(f.findingId))
+  if (!data.findingsRestricted) {
+    store.form.matriksKompilasi = buildMatrix(data)
+    applyFollowUpToTopFindings(store.form.topFindings, data.findings)
+    // A finding whose ATR was cancelled is not counted, so it leaves the Top 5
+    const ids = new Set(data.findings.map(f => f.findingId))
+    store.form.topFindings = store.form.topFindings.filter(f => !f.findingId || ids.has(f.findingId))
+  }
+  syncCompilationNarrative()
 }
 
 // Automatic compilation synchronization for the selected year and quarter.
@@ -1197,7 +1187,8 @@ const syncFromIndividualLha = async () => {
     // Older follow-up counts from the statistics, when the backend sent a usable table
     if (stats?.followUp) store.form.followUpTable = followUpRowsFromStats(stats.followUp, store.form.followUpTable)
   }
-  // Narrative, root cause and conclusion are written by the user; the sync does not generate text.
+  // Auto-sync Summary Narrative Text with the synchronized compilation statistics, follow-up table, top findings and matrix
+  syncCompilationNarrative()
 }
 
 // Form submission & workflow helpers
@@ -1277,6 +1268,7 @@ watch(() => auditReportStore.reportList.length, (newLen) => {
   const data = currentFollowUp.value
   if (newLen > 0 && data && !data.findingsRestricted && !isLocked.value) {
     store.form.matriksKompilasi = buildMatrix(data)
+    syncCompilationNarrative()
   }
 })
 

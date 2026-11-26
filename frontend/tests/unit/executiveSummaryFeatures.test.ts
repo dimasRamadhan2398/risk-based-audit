@@ -6,6 +6,11 @@ import { useAuthStore } from '../../stores/auth'
 import { useExecutiveSummaryStore } from '../../stores/executive-summary'
 import { useRbac } from '../../composables/useRbac'
 import { UserRole } from '../../types/auth'
+import {
+  filterAvailableIndividualLhas,
+  filterCompilationSummaries,
+  filterIndividualSummaries
+} from '../../utils/executiveSummaryFilter'
 
 const read = (relativePath: string) => fs.readFileSync(path.resolve(__dirname, '../../', relativePath), 'utf8')
 
@@ -577,6 +582,46 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       // openNewCompilationForm assigns the auto-generated ESC number
       store.openNewCompilationForm(1)
       expect(store.form.nomorDokumen).toBe('ESC-002/2026')
+    })
+
+    it('isolates Compilation and Individual summaries across pages and filters out already-selected LHAs from Individual dropdown', () => {
+      const mixedSummaries = [
+        { id: '1', nomorDokumen: 'ESC-001/2026', status: 'Draft' },
+        { id: '2', nomorDokumen: 'EXSUM-KOMP-Q1-2026', status: 'Approved' },
+        { id: '3', nomorDokumen: 'KOMPILASI-Q2-2026', status: 'Draft' },
+        { id: '4', nomorDokumen: 'LHA-001/SKAI/2026', status: 'Approved' },
+        { id: '5', nomorDokumen: 'LHA-002/SKAI/2026', status: 'Draft' },
+        { id: '6', nomorDokumen: 'DOC-EXSUM-Q1-2026', status: 'Draft' }
+      ]
+
+      const individuals = filterIndividualSummaries(mixedSummaries)
+      expect(individuals.map(s => s.nomorDokumen)).toEqual(['LHA-001/SKAI/2026', 'LHA-002/SKAI/2026'])
+
+      const compilations = filterCompilationSummaries(mixedSummaries)
+      expect(compilations.map(s => s.nomorDokumen)).toEqual(['ESC-001/2026', 'EXSUM-KOMP-Q1-2026', 'KOMPILASI-Q2-2026'])
+
+      const reports = [
+        { reportNumber: 'LHA-001/SKAI/2026', reportTitle: 'Audit Keuangan' },
+        { reportNumber: '002/LHA/01/KS IAD/2026', reportTitle: 'Audit Operasional' },
+        { reportNumber: 'LHA-003/SKAI/2026', reportTitle: 'Audit TI' }
+      ]
+
+      // Create mode: LHA-001 and LHA-002 (normalized from 002/LHA/...) are already in Individual summaries
+      const availableForCreate = filterAvailableIndividualLhas(reports, mixedSummaries)
+      expect(availableForCreate.map(r => r.reportNumber)).toEqual(['LHA-003/SKAI/2026'])
+
+      // Edit mode for LHA-001: keeps LHA-001 visible while hiding LHA-002
+      const availableForEdit = filterAvailableIndividualLhas(reports, mixedSummaries, 'LHA-001/SKAI/2026')
+      expect(availableForEdit.map(r => r.reportNumber)).toEqual(['LHA-001/SKAI/2026', 'LHA-003/SKAI/2026'])
+
+      // Pages and form wire the separation and LHA filtering
+      const indPage = read('pages/executive-summary/index.vue')
+      const compPage = read('pages/executive-summary-compilation/index.vue')
+      const indForm = read('components/audit-result-report/ExecutiveSummaryIndividualForm.vue')
+      expect(indPage).toContain('filterIndividualSummaries')
+      expect(compPage).toContain('filterCompilationSummaries')
+      expect(compPage).toContain('compilationSummaries.length')
+      expect(indForm).toContain('filterAvailableIndividualLhas')
     })
   })
 })

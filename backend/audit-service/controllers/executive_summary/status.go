@@ -33,6 +33,7 @@ var serverManagedColumns = []string{
 	"signature_name",
 	"signature_role",
 	"approved_by",
+	"approved_by_user_id",
 	"approved_by_role",
 	"approved_at",
 }

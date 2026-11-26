@@ -3548,7 +3548,8 @@
       "periodPrefix": "Periode {period},",
       "quarterPeriod": "Kuartal {quarter} {year}",
       "quarterPeriodNoYear": "Kuartal {quarter}",
-      "templateBody": "SPI telah menerbitkan .... LHA. Total temuan …. dengan .... rekomendasi. Tingkat penyelesaian on-time 95%. Terdapat 5 temuan risiko tinggi overdue/terlambat terkait .... yang perlu arahan Direksi. Temuan berulang tertinggi pada proses …………….."
+      "templateBody": "SPI telah menerbitkan .... LHA. Total temuan …. dengan .... rekomendasi. Tingkat penyelesaian on-time 95%. Terdapat 5 temuan risiko tinggi overdue/terlambat terkait .... yang perlu arahan Direksi. Temuan berulang tertinggi pada proses ……………..",
+      "syncedBody": "SPI telah menerbitkan {lhaCount} LHA. Total temuan {totalFindings} dengan {recommendationCount} rekomendasi. Tingkat penyelesaian on-time {onTimeRate}%. Terdapat {overdueHighRiskCount} temuan risiko tinggi overdue/terlambat terkait {overdueTopic} yang perlu arahan Direksi. Temuan berulang tertinggi pada proses {recurringProcess}."
     },
     "followUp": {
       "title": "Status Tindak Lanjut",
@@ -3639,6 +3640,7 @@
       "headNikPlaceholder": "Contoh: SPI-77621"
     },
     "validation": {
+      "lhaRequired": "Pilih Surat Tugas (Assignment Letter) / LHA wajib diisi.",
       "findingTitle": "Judul maksimal 100 karakter dan wajib diisi",
       "signaturePlace": "Tempat TTD maksimal 20 karakter dan wajib diisi",
       "signatureName": "Nama Kepala SPI maksimal 100 karakter dan wajib diisi",
@@ -3664,7 +3666,14 @@
       "saveDraft": "Simpan Draft",
       "saveReport": "Simpan Laporan",
       "approve": "Setujui (Approve)",
+      "generateDocx": "Buat Word (.docx)",
+      "generateCompilationDocx": "Unduh Word Kompilasi (.docx)",
+      "generateIndividualDocx": "Unduh Word Individual (.docx)",
       "close": "Tutup"
+    },
+    "docx": {
+      "onlyApproved": "Dokumen Word (.docx) hanya dapat dibuat untuk Executive Summary yang sudah berstatus Approved.",
+      "downloadFailed": "Gagal mengunduh dokumen Word (.docx)."
     },
     "defaults": {
       "auditAssignment": "Penugasan Audit"

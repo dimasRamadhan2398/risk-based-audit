@@ -496,6 +496,8 @@ func (h *RouteHandler) RegisterRoutes() {
 		// Follow-up (ATR) status of the findings of one LHA or of a year/quarter.
 		// Counts for any caller; the finding list needs ATR view_all.
 		executiveSummaries.GET("/follow-up-status", ctrlExecutiveSummary.FollowUpStatusHandler(h.db))
+		// Word (.docx) generator: only allowed when the summary status is Approved
+		executiveSummaries.GET("/:id/download-docx", ctrlExecutiveSummary.DownloadDocxHandler(h.db))
 		executiveSummaries.GET("/:id", crud.GetByID(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }))
 		// A summary cannot be created as Approved, see GuardCreateHook
 		executiveSummaries.POST("", crud.CreateWithHook(h.db, "ExecutiveSummary", func() interface{} { return &models.ExecutiveSummary{} }, ctrlExecutiveSummary.GuardCreateHook))

@@ -211,17 +211,18 @@ func ApproveHandler(db *gorm.DB) gin.HandlerFunc {
 
 		approvedBy := callerName(c)
 		updates := map[string]interface{}{
-			"status":              StatusApproved,
-			"signature_tempat":    place,
-			"signature_tanggal":   date,
-			"signature_image":     image,
-			"signature_name":      signerName,
-			"signature_role":      signerRole,
-			"approved_by":         approvedBy,
-			"approved_by_user_id": callerUserID(c),
-			"approved_by_role":    approverRole,
-			"approved_at":         now,
-			"updated_at":          now,
+			"status":                StatusApproved,
+			"signature_tempat":      place,
+			"signature_tanggal":     date,
+			"signature_nama_kepala": signerName,
+			"signature_image":       image,
+			"signature_name":        signerName,
+			"signature_role":        signerRole,
+			"approved_by":           approvedBy,
+			"approved_by_user_id":   callerUserID(c),
+			"approved_by_role":      approverRole,
+			"approved_at":           now,
+			"updated_at":            now,
 		}
 		for col, v := range frozen {
 			updates[col] = v

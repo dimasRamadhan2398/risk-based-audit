@@ -79,12 +79,14 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useAuthStore } from '~/stores/auth'
 import { useExecutiveSummaryStore } from '~/stores/executive-summary'
 import { useGlobalModalStore } from '~/stores/global-modal'
 import SignatureBox from '~/components/shared/SignatureBox.vue'
 import type { ExecutiveSummaryApprovePayload, SignatureBoxValue } from '~/types/signature'
 
 const { t } = useI18n()
+const authStore = useAuthStore()
 const store = useExecutiveSummaryStore()
 
 const props = defineProps<{
@@ -113,9 +115,14 @@ const todayIso = (): string => {
 
 // Every opening starts from the summary's own signing details; the drawn signature is never reused
 const reset = () => {
-  place.value = props.initialPlace || ''
+  place.value = props.initialPlace || 'Jakarta'
   date.value = props.initialDate || todayIso()
-  signature.value = { image: '', name: props.initialSignerName || '', title: '', signedAt: '' }
+  signature.value = {
+    image: '',
+    name: props.initialSignerName || authStore.user?.fullName || '',
+    title: authStore.user?.position || '',
+    signedAt: ''
+  }
 }
 
 watch(() => props.open, (isOpen) => {
@@ -135,6 +142,11 @@ const submit = async () => {
     confirmLabel: t('executiveSummaryForm.approval.confirm')
   })
   if (!confirmed) return
+
+  // If this Draft is an LHA-derived card not yet persisted in executive_summaries,
+  // persist it to the server first so POST /:id/approve has a real server UUID.
+  const ready = await store.ensureSavedOnServer()
+  if (!ready) return
 
   const payload: ExecutiveSummaryApprovePayload = {
     signaturePlace: place.value.trim(),

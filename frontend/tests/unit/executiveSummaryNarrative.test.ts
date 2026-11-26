@@ -8,14 +8,23 @@ import { useExecutiveSummaryStore } from '../../stores/executive-summary'
 import {
   auditPeriodFromAssignmentLetter,
   buildDefaultNarrative,
+  buildSyncedNarrative,
+  deriveNarrativeSyncData,
   formatAuditPeriod,
   formatQuarterPeriod,
+  isAutoSyncableNarrative,
   parseExecutionPeriod,
   parseMonthYear,
   prefixNarrative,
   refreshNarrativePeriod,
   type Translate
 } from '../../utils/executiveSummaryNarrative'
+import {
+  buildExecutiveSummaryDocumentXml,
+  canGenerateExecutiveSummaryDocx,
+  executiveSummaryDocxFilename,
+  generateExecutiveSummaryDocxBytes
+} from '../../utils/executiveSummaryDocx'
 
 const read = (relativePath: string) => fs.readFileSync(path.resolve(__dirname, '../../', relativePath), 'utf8')
 
@@ -187,7 +196,303 @@ describe('Executive summary narrative period', () => {
         expect(narrative.quarterPeriod).toContain('{year}')
         expect(narrative.quarterPeriodNoYear).toContain('{quarter}')
         expect(narrative.templateBody).toContain('SPI')
+        expect(narrative.syncedBody).toContain('{lhaCount}')
+        expect(narrative.syncedBody).toContain('{totalFindings}')
+        expect(narrative.syncedBody).toContain('{recommendationCount}')
+        expect(narrative.syncedBody).toContain('{onTimeRate}')
+        expect(narrative.syncedBody).toContain('{overdueHighRiskCount}')
+        expect(narrative.syncedBody).toContain('{overdueTopic}')
+        expect(narrative.syncedBody).toContain('{recurringProcess}')
       }
+    })
+
+    it('synchronizes every narrative field automatically from Individual and Compilation data without dots', () => {
+      const compData = deriveNarrativeSyncData({
+        isCompilation: true,
+        jumlahLaporan: 4,
+        totalTemuan: 12,
+        jumlahRekomendasi: 15,
+        risikoHigh: 3,
+        risikoModerate: 5,
+        risikoLow: 4,
+        followUpTable: [
+          { status: 'Closed', jumlah: 9, persentase: 75 },
+          { status: 'In Progress', jumlah: 2, persentase: 16.7 },
+          { status: 'Overdue', jumlah: 1, persentase: 8.3 }
+        ],
+        matriksKompilasi: [
+          {
+            nomor: '001/SPI/2026',
+            division: 'IT',
+            unitKerja: 'Division IT',
+            prosesBisnis: 'Keamanan Sistem & TI',
+            judulTemuan: 'Celah Otentikasi Aplikasi RAS',
+            nilaiRisiko: 'Very Significant',
+            rekomendasi: 'Patch otentikasi',
+            status: 'Overdue'
+          },
+          {
+            nomor: '002/SPI/2026',
+            division: 'IT',
+            unitKerja: 'Division IT',
+            prosesBisnis: 'Keamanan Sistem & TI',
+            judulTemuan: 'Backup Server Terlambat',
+            nilaiRisiko: 'Significant',
+            rekomendasi: 'Otomasi backup',
+            status: 'Closed'
+          }
+        ]
+      })
+
+      expect(compData).toEqual({
+        lhaCount: 4,
+        totalFindings: 12,
+        recommendationCount: 15,
+        onTimeRate: 75,
+        overdueHighRiskCount: 1,
+        overdueTopic: 'Celah Otentikasi Aplikasi RAS',
+        recurringProcess: 'Keamanan Sistem & TI'
+      })
+
+      const enText = buildSyncedNarrative(tEn, 'October – November 2026', compData)
+      expect(enText).toBe(
+        'For the period of October – November 2026, SPI has issued 4 LHA. Total findings 12 with 15 recommendations. On-time completion rate 75%. There are 1 overdue/late high-risk findings related to Celah Otentikasi Aplikasi RAS that require direction from the Board of Directors. The most frequently recurring findings are in the Keamanan Sistem & TI process.'
+      )
+      expect(enText).not.toContain('....')
+      expect(enText).not.toContain('….')
+
+      const idText = buildSyncedNarrative(tId, 'Kuartal 4 2026', compData)
+      expect(idText).toBe(
+        'Periode Kuartal 4 2026, SPI telah menerbitkan 4 LHA. Total temuan 12 dengan 15 rekomendasi. Tingkat penyelesaian on-time 75%. Terdapat 1 temuan risiko tinggi overdue/terlambat terkait Celah Otentikasi Aplikasi RAS yang perlu arahan Direksi. Temuan berulang tertinggi pada proses Keamanan Sistem & TI.'
+      )
+      expect(isAutoSyncableNarrative(tEn, enText)).toBe(true)
+      expect(isAutoSyncableNarrative(tId, idText)).toBe(true)
+      expect(isAutoSyncableNarrative(tId, 'Catatan khusus auditor independen.')).toBe(false)
+    })
+  })
+
+  describe('Word (.docx) generator for Approved Compilation and Individual summaries', () => {
+    const baseSummary: any = {
+      id: '6f1c2d3e-4b5a-4c7d-8e9f-0a1b2c3d4e5f',
+      assignmentLetterId: 'ST-001/SKAI/2026',
+      quarter: 1,
+      periodeBulan: 'Maret',
+      tahun: 2026,
+      nomorDokumen: 'ESC-001/2026',
+      dokumenPath: 'Compilation_Q1_2026.pdf',
+      status: 'Approved',
+      narrative: 'Periode Kuartal 1 2026, SPI telah menerbitkan 3 LHA. Total temuan 6 dengan 8 rekomendasi.',
+      jumlahLaporan: 3,
+      risikoHigh: 2,
+      risikoModerateHigh: 0,
+      risikoModerate: 3,
+      risikoLowModerate: 0,
+      risikoLow: 1,
+      jumlahRekomendasi: 8,
+      followUpTable: [
+        { status: 'Closed', jumlah: 4, persentase: 66.7, keterangan: 'Telah divalidasi SPI' },
+        { status: 'In Progress', jumlah: 1, persentase: 16.7, keterangan: 'On track' },
+        { status: 'Overdue', jumlah: 1, persentase: 16.7, keterangan: '1 Risiko Tinggi' }
+      ],
+      topFindings: [
+        {
+          unitDivision: 'TI',
+          judulTemuan: 'Celah Otentikasi Aplikasi RAS',
+          risiko: 'Very Significant',
+          statusTL: 'Overdue',
+          usulan: 'Eskalasi Direksi'
+        }
+      ],
+      matriksKompilasi: [
+        {
+          nomor: '001/SPI/2026',
+          division: 'OP',
+          unitKerja: 'Division Operation Personnel',
+          prosesBisnis: 'O&M',
+          judulTemuan: 'Kalibrasi Alat Ukur Gas Terlambat',
+          nilaiRisiko: 'Significant',
+          rekomendasi: 'Lakukan kalibrasi Q2',
+          dueDate: '30/06/2026',
+          picUnit: 'Manager O&M',
+          progres: 60,
+          status: 'In Progress',
+          buktiTL: 'BA Kalibrasi 1'
+        }
+      ],
+      akarMasalah: 'Tema berulang periode ini: 1. Pengelolaan Aset Tetap; 2. Kepatuhan Kontrak.',
+      kesimpulan: 'Secara umum pengendalian membaik, indikator on-time di atas target.',
+      signatureTempat: 'Jakarta',
+      signatureTanggal: '2026-03-31',
+      signatureNamaKepala: 'Budi Santoso, CIA',
+      signatureNIK: 'SPI-77621'
+    }
+
+    it('blocks Word (.docx) generation when status is Draft and allows it only when Approved', async () => {
+      setActivePinia(createPinia())
+      const store = useExecutiveSummaryStore()
+
+      const draftSummary = { ...baseSummary, status: 'Draft' }
+      expect(canGenerateExecutiveSummaryDocx(draftSummary)).toBe(false)
+      expect(() => buildExecutiveSummaryDocumentXml(draftSummary)).toThrow(/Approved/)
+
+      const okDraft = await store.downloadDocx(draftSummary)
+      expect(okDraft).toBe(false)
+
+      expect(canGenerateExecutiveSummaryDocx(baseSummary)).toBe(true)
+    })
+
+    it('renders the Compilation Word template with Sections I-VII and Lampiran Matriks Induk Kompilasi Temuan', () => {
+      const xml = buildExecutiveSummaryDocumentXml(baseSummary, { variant: 'compilation' })
+      expect(xml).toContain('EXECUTIVE SUMMARY COMPILATION')
+      expect(xml).toContain('HASIL AUDIT TRIWULANAN')
+      expect(xml).toContain('II. STATISTIK KOMPILASI')
+      expect(xml).toContain('Jumlah Laporan: Internal 3 LHA.')
+      expect(xml).toContain('III. STATUS TINDAK LANJUT')
+      expect(xml).toContain('IV. TOP 5 TEMUAN SIGNIFIKAN')
+      expect(xml).toContain('Celah Otentikasi Aplikasi RAS')
+      expect(xml).toContain('V. ANALISIS TEMUAN BERULANG')
+      expect(xml).toContain('VI. TREN &amp; GRAFIK')
+      expect(xml).toContain('VII. KESIMPULAN &amp; REKOMENDASI UNTUK MANAJEMEN')
+      expect(xml).toContain('MATRIKS INDUK KOMPILASI TEMUAN')
+      expect(xml).toContain('Kalibrasi Alat Ukur Gas Terlambat')
+      expect(xml).toContain('Budi Santoso, CIA')
+
+      const zipBytes = generateExecutiveSummaryDocxBytes(baseSummary, { variant: 'compilation' })
+      // PK\x03\x04 ZIP magic bytes
+      expect(zipBytes[0]).toBe(0x50)
+      expect(zipBytes[1]).toBe(0x4b)
+      expect(executiveSummaryDocxFilename(baseSummary, 'compilation')).toBe('Executive_Summary_Compilation_ESC-001_2026.docx')
+    })
+
+    it('renders the Individual Word template tailored to Individual LHA data without Compilation matrix attachment', () => {
+      const indSummary = {
+        ...baseSummary,
+        nomorDokumen: 'LHA-001/SKAI/2026',
+        jumlahLaporan: 1,
+        matriksKompilasi: []
+      }
+      const xml = buildExecutiveSummaryDocumentXml(indSummary, {
+        variant: 'individual',
+        reportTitle: 'Laporan Hasil Audit Operasional Keuangan',
+        department: 'Finance (FIN)'
+      })
+      expect(xml).toContain('EXECUTIVE SUMMARY INDIVIDUAL')
+      expect(xml).toContain('LAPORAN HASIL AUDIT (LHA)')
+      expect(xml).toContain('Nomor LHA: LHA-001/SKAI/2026')
+      expect(xml).toContain('Nomor Surat Tugas: ST-001/SKAI/2026')
+      expect(xml).toContain('Judul Laporan / Objek Audit: Laporan Hasil Audit Operasional Keuangan')
+      expect(xml).toContain('II. INFORMASI &amp; STATISTIK LHA INDIVIDUAL')
+      expect(xml).toContain('III. STATUS TINDAK LANJUT')
+      expect(xml).toContain('IV. TOP 5 TEMUAN SIGNIFIKAN')
+      expect(xml).toContain('V. ANALISIS TEMUAN BERULANG &amp; AKAR MASALAH')
+      expect(xml).toContain('VI. KESIMPULAN &amp; REKOMENDASI UNTUK MANAJEMEN')
+      expect(xml).not.toContain('MATRIKS INDUK KOMPILASI TEMUAN')
+      expect(executiveSummaryDocxFilename(indSummary, 'individual')).toBe('Executive_Summary_Individual_LHA-001_SKAI_2026.docx')
+    })
+
+    it('only renders the Word generator buttons in UI when status is Approved', () => {
+      const indPage = read('pages/executive-summary/index.vue')
+      const compPage = read('pages/executive-summary-compilation/index.vue')
+      const indForm = read('components/audit-result-report/ExecutiveSummaryIndividualForm.vue')
+      const compForm = read('components/audit-result-report/ExecutiveSummaryCompilationForm.vue')
+
+      expect(indPage).toContain('v-if="item.status === \'Approved\' && canExport"')
+      expect(compPage).toContain('v-if="item.status === \'Approved\' && canExport"')
+      expect(indForm).toContain('v-if="isLocked && canExport"')
+      expect(compForm).toContain('v-if="isLocked && canExport"')
+    })
+  })
+
+  describe('Executive Summary form cleanup, LHA validation, persistence and approval', () => {
+    it('removes redundant SPI Electronic Signature block from Recurring Findings & Conclusion in both forms', () => {
+      const indForm = read('components/audit-result-report/ExecutiveSummaryIndividualForm.vue')
+      const compForm = read('components/audit-result-report/ExecutiveSummaryCompilationForm.vue')
+
+      expect(indForm).not.toContain("t('executiveSummaryForm.signature.title')")
+      expect(compForm).not.toContain("t('executiveSummaryForm.signature.title')")
+      expect(indForm).not.toContain('v-model="store.form.signatureNIK"')
+      expect(compForm).not.toContain('v-model="store.form.signatureNIK"')
+    })
+
+    it('enforces required Select Assignment Letter / LHA validation in Individual form and page header', () => {
+      const indForm = read('components/audit-result-report/ExecutiveSummaryIndividualForm.vue')
+      const indPage = read('pages/executive-summary/index.vue')
+
+      expect(indForm).toContain(':label="t(\'executiveSummaryForm.upload.lhaLabel\')"')
+      expect(indForm).toContain(':error="lhaValidationError"')
+      expect(indForm).toContain('t(\'executiveSummaryForm.validation.lhaRequired\')')
+      expect(indForm).toContain('store.saveForm({ requireLha: true })')
+      expect(indPage).toContain('ref="individualFormRef"')
+      expect(indPage).toContain('@click="handleHeaderSaveReport"')
+      expect(indPage).not.toContain('@click="store.saveForm"')
+    })
+
+    it('strips empty approvedAt/timestamp fields on save so backend RFC3339 parsing never fails, and supports ensureSavedOnServer before approval', async () => {
+      localStorage.clear()
+      setActivePinia(createPinia())
+      const sentBodies: any[] = []
+      const createdIds = [
+        '7a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d',
+        '8b3c4d5e-6f7a-4b8c-9d0e-1f2a3b4c5d6e'
+      ]
+      let nextIdIdx = 0
+      const savedRows: any[] = []
+
+      ;(globalThis as any).$fetch = async (url: string, opts?: any) => {
+        if (opts?.method === 'POST' && url.endsWith('/executive-summaries')) {
+          sentBodies.push(opts.body)
+          const id = createdIds[nextIdIdx++]!
+          const row = { ...opts.body, id }
+          savedRows.push(row)
+          return { success: true, data: row }
+        }
+        const approveMatch = opts?.method === 'POST' && url.match(/\/executive-summaries\/([^/]+)\/approve$/)
+        if (approveMatch) {
+          const targetRow = savedRows.find(r => r.id === approveMatch[1])
+          if (targetRow) targetRow.status = 'Approved'
+          return { success: true }
+        }
+        return { data: { items: [...savedRows] } }
+      }
+
+      const store = useExecutiveSummaryStore()
+
+      // Individual form save without LHA is rejected
+      store.openNewForm(1)
+      const rejected = await store.saveForm({ requireLha: true })
+      expect(rejected).toBe(false)
+      expect(sentBodies).toHaveLength(0)
+
+      // Compilation form save strips approvedAt and persists cleanly
+      store.openNewCompilationForm(2, 2026)
+      store.form.dokumenPath = 'Compilation_Q2_2026.pdf'
+      const savedOk = await store.saveForm()
+      expect(savedOk).toBe(true)
+      expect(sentBodies).toHaveLength(1)
+      expect(sentBodies[0]).not.toHaveProperty('approvedAt')
+      expect(sentBodies[0]).not.toHaveProperty('created_at')
+      expect(sentBodies[0]).not.toHaveProperty('updated_at')
+      expect(store.summaryList.some(s => s.id === createdIds[0] && s.nomorDokumen === 'ESC-001/2026')).toBe(true)
+
+      // LHA-derived virtual Draft card (ES-...) gets persisted via ensureSavedOnServer before approve
+      store.openView({
+        ...store.form,
+        id: 'ES-virtual-lha-id',
+        nomorDokumen: 'LHA-099/SKAI/2026',
+        status: 'Draft'
+      })
+      const ensured = await store.ensureSavedOnServer()
+      expect(ensured).toBe(true)
+      expect(store.currentSummary?.id).toBe(createdIds[1])
+      const approved = await store.approveWithSignature({
+        signaturePlace: 'Jakarta',
+        signatureDate: '2026-06-30',
+        signatureImage: 'data:image/png;base64,iVBORw0KGgo=',
+        signerName: 'Kepala SPI',
+        signerRole: 'CAE'
+      })
+      expect(approved).toBe(true)
+      expect(store.currentSummary?.status).toBe('Approved')
     })
   })
 })

@@ -40,7 +40,7 @@
               {{ t('executiveSummary.stats.total') }}
             </span>
             <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
-              {{ store.summaryList.length }}
+              {{ compilationSummaries.length }}
             </h4>
           </div>
           <div class="shrink-0 rounded-xl bg-indigo-50 p-2.5 flex items-center justify-center dark:bg-indigo-500/10">
@@ -57,7 +57,7 @@
               {{ t('executiveSummary.stats.approved') }}
             </span>
             <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
-              {{ store.summaryList.filter(s => s.status === 'Approved').length }}
+              {{ compilationSummaries.filter(s => s.status === 'Approved').length }}
             </h4>
           </div>
           <div class="shrink-0 rounded-xl bg-emerald-50 p-2.5 flex items-center justify-center dark:bg-emerald-500/10">
@@ -74,7 +74,7 @@
               {{ t('executiveSummary.stats.draft') }}
             </span>
             <h4 class="text-2xl font-bold text-slate-900 dark:text-white mt-1.5 tabular-nums">
-              {{ store.summaryList.filter(s => s.status === 'Draft').length }}
+              {{ compilationSummaries.filter(s => s.status === 'Draft').length }}
             </h4>
           </div>
           <div class="shrink-0 rounded-xl bg-amber-50 p-2.5 flex items-center justify-center dark:bg-amber-500/10">
@@ -184,6 +184,17 @@
             </div>
             
             <div class="flex gap-2 shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
+              <UButton
+                v-if="item.status === 'Approved' && canExport"
+                color="success"
+                variant="soft"
+                icon="i-lucide-file-down"
+                size="sm"
+                label="Docx"
+                :title="t('executiveSummaryForm.actions.generateCompilationDocx')"
+                data-testid="card-compilation-download-docx"
+                @click="store.downloadDocx(item, { variant: 'compilation' })"
+              />
               <UButton color="neutral" variant="ghost" icon="i-lucide-eye" size="sm" @click="store.openView(item)" :title="t('executiveSummary.actions.view')" />
               <UButton v-if="canWrite && (item.status !== 'Approved' || isHigherAuthority)" color="primary" variant="ghost" icon="i-lucide-edit" size="sm" @click="store.openEditForm(item as any)" :title="t('executiveSummary.actions.edit')" />
               <UButton v-if="canWrite && (item.status !== 'Approved' || isHigherAuthority)" color="error" variant="ghost" icon="i-lucide-trash-2" size="sm" @click="store.deleteSummary(item.id)" :title="t('executiveSummary.actions.delete')" />
@@ -300,8 +311,8 @@
 
 <script setup lang="ts">
 import { useRbac } from '~/composables/useRbac'
-import { ref, computed } from 'vue'
-import { useExecutiveSummaryStore, loadPersistedExecutiveSummaryOverrides } from '~/stores/executive-summary'
+import { ref, computed, watch } from 'vue'
+import { useExecutiveSummaryStore, loadPersistedExecutiveSummaryOverrides, type ExecutiveSummary } from '~/stores/executive-summary'
 import { useAuthStore } from '~/stores/auth'
 import { useI18n } from '~/composables/useI18n'
 import { UserRole } from '~/types/auth'
@@ -309,6 +320,8 @@ import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import ExecutiveSummaryCompilationForm from '~/components/audit-result-report/ExecutiveSummaryCompilationForm.vue'
 import { followUpClosedPercent } from '~/utils/executiveSummaryFollowUp'
+import { isCompilationDocNumber } from '~/utils/executiveSummaryDocx'
+import { filterCompilationSummaries, isCompilationSummaryDoc } from '~/utils/executiveSummaryFilter'
 import { RISK_LEVELS, RISK_LEVEL_STYLE, riskFieldsToBreakdown, riskBreakdownTotal, riskLevelI18nKey } from '~/utils/executiveSummaryCompilation'
 
 definePageMeta({
@@ -316,7 +329,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
-const { canWrite } = useRbac()
+const { canWrite, canExport } = useRbac()
 const store = useExecutiveSummaryStore()
 const authStore = useAuthStore()
 const assignmentLetterStore = useAssignmentLetterStore()
@@ -326,37 +339,49 @@ const activeQuarter = ref(1)
 const searchQuery = ref('')
 const selectedCompilationDoc = ref('')
 
+// Ensure latest summaries and LHAs are loaded from backend on page visit/refresh
+if (!store.loading) {
+  store.fetchSummaries()
+}
+if (!auditReportStore.loading) {
+  auditReportStore.fetchReports()
+}
+
+// Keep active quarter tab aligned with a newly saved compilation summary
+watch(() => store.showModal, (isOpen, wasOpen) => {
+  if (wasOpen && !isOpen && !store.isViewing && isCompilationDocNumber(store.form.nomorDokumen)) {
+    const q = Number(store.form.quarter)
+    if (q >= 1 && q <= 4) {
+      activeQuarter.value = q
+    }
+  }
+})
+
 const compilationDocOptions = computed(() => {
   const overrides = loadPersistedExecutiveSummaryOverrides()
-  const isExcluded = (num: string) =>
-    num === 'DOC-EXSUM-Q1-2026' ||
-    num === '020/LHA/01/KS IAD/2023' ||
-    num === '019/LHA/01/KS IAD/2025' ||
-    num === 'LHA-020/SKAI/2023' ||
-    num === 'LHA-019/SKAI/2025'
 
-  const docsFromStore = store.summaryList
+  const docsFromStore = compilationSummaries.value
     .map(s => s.nomorDokumen)
     .filter(Boolean)
   const docsFromOverrides = Object.values(overrides)
     .map(o => o.nomorDokumen)
     .filter((d): d is string => Boolean(d))
   const overrideKeys = Object.keys(overrides)
-    .filter(k => k.startsWith('ESC-') || k.startsWith('EXSUM-KOMP-'))
+    .filter(k => isCompilationSummaryDoc(k))
 
   const combined = Array.from(new Set([
-    ...docsFromStore, 
-    ...docsFromOverrides, 
+    ...docsFromStore,
+    ...docsFromOverrides,
     ...overrideKeys
   ]))
-    .filter(doc => !isExcluded(doc) && (doc.startsWith('ESC-') || doc.startsWith('EXSUM-KOMP-') || doc.startsWith('KOMPILASI-') || !doc.startsWith('LHA-')))
+    .filter(doc => isCompilationSummaryDoc(doc))
     .sort()
 
   return ['Semua Dokumen Kompilasi', ...combined]
 })
 
 const totalHandling = computed(() => {
-  return store.summaryList.reduce((total, summary) => {
+  return compilationSummaries.value.reduce((total, summary) => {
     return total + (summary.followUpTable || []).reduce((count, row) => count + Number(row.jumlah || 0), 0)
   }, 0)
 })
@@ -381,26 +406,21 @@ const getStatusColor = (status: string) => {
   }
 }
 
-const filteredSummaries = computed(() => {
+// Strictly keep only Compilation summaries (ESC-*, EXSUM-KOMP-*, KOMPILASI-*); Individual summaries are excluded
+const compilationSummaries = computed(() => {
   const overrides = loadPersistedExecutiveSummaryOverrides()
-  const rawSummaries = store.summaryList.filter(s => 
-    s.nomorDokumen !== 'DOC-EXSUM-Q1-2026' &&
-    s.nomorDokumen !== '020/LHA/01/KS IAD/2023' &&
-    s.nomorDokumen !== '019/LHA/01/KS IAD/2025' &&
-    s.nomorDokumen !== 'LHA-020/SKAI/2023' &&
-    s.nomorDokumen !== 'LHA-019/SKAI/2025'
-  )
+  const rawSummaries = filterCompilationSummaries(store.summaryList)
 
   const docMap = new Map<string, ExecutiveSummary>()
   rawSummaries.forEach(s => {
     const override = overrides[s.nomorDokumen] || overrides[s.id]
     const updated = override ? { ...s, ...override } : { ...s }
-    if (updated.nomorDokumen) {
+    if (updated.nomorDokumen && isCompilationSummaryDoc(updated.nomorDokumen)) {
       docMap.set(updated.nomorDokumen, updated)
     }
   })
 
-  const summaries = Array.from(docMap.values()).map(updated => {
+  return Array.from(docMap.values()).map(updated => {
     // Synchronize jumlahLaporan with individual LHAs count matching quarter or assignment letter
     const matchingIndividualLhas = auditReportStore.reportList.filter(r => {
       if (r.reportNumber === '020/LHA/01/KS IAD/2023' ||
@@ -422,8 +442,10 @@ const filteredSummaries = computed(() => {
 
     return updated
   })
+})
 
-  return summaries.filter(s => {
+const filteredSummaries = computed(() => {
+  return compilationSummaries.value.filter(s => {
     const qMatches = s.quarter === activeQuarter.value
     const docMatches = !selectedCompilationDoc.value ||
       selectedCompilationDoc.value === 'Semua Dokumen Kompilasi' ||

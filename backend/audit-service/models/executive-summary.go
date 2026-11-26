@@ -1,6 +1,8 @@
 package models
 
 import (
+	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -75,6 +77,30 @@ func (e *ExecutiveSummary) BeforeCreate(tx *gorm.DB) (err error) {
 	}
 	e.SyncRiskCounts()
 	return
+}
+
+// UnmarshalJSON treats empty strings for timestamp fields (approvedAt,
+// created_at, updated_at) and id as omitted so POST payloads from forms do not
+// fail time.Time ("cannot parse \"\" as \"2006\"") or uuid.UUID parsing.
+func (e *ExecutiveSummary) UnmarshalJSON(data []byte) error {
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	for _, key := range []string{"id", "approvedAt", "approved_at", "created_at", "updated_at"} {
+		if v, ok := raw[key]; ok {
+			trimmed := strings.TrimSpace(string(v))
+			if trimmed == `""` || trimmed == "null" {
+				delete(raw, key)
+			}
+		}
+	}
+	cleaned, err := json.Marshal(raw)
+	if err != nil {
+		return err
+	}
+	type Alias ExecutiveSummary
+	return json.Unmarshal(cleaned, (*Alias)(e))
 }
 
 // Five-level and legacy risk count columns of executive_summaries
