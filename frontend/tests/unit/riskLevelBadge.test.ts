@@ -142,7 +142,7 @@ describe('Features render risk level and effectiveness badges through the shared
     ['pages/dashboard/index.vue', ['getRiskLevelColorClass(level)', 'getControlEffectivenessColorClass(ratingLabel)']],
     ['pages/risk-appetite/index.vue', ['getRiskLevelBadgeColorClass(row.original)', 'getRiskLevelDotClass(']],
     ['pages/risk-profile/risk-control-matrix/index.vue', ['getControlEffectivenessColorClass(ratingLabel)', 'getControlEffectivenessColorClass(\'Highly Effective\')', 'getControlEffectivenessColorClass(\'Ineffective\')']],
-    ['components/annual-audit/AnnualAuditTable.vue', ['getRiskLevelColorClass(act.riskLevel)']],
+    ['components/annual-audit/AnnualAuditTable.vue', ['getRiskLevelColorClass(item.level)']],
     ['components/annual-audit/AnnualAuditDetail.vue', ['getRiskLevelColorClass(activity.riskLevel)']],
     ['components/annual-audit/AnnualAuditForm.vue', ['getRiskLevelColorClass(activity.riskLevel)', 'getRiskLevelDotClass(item.riskLevel)']],
     ['components/audit-activity-plan/AnnualActivityPicker.vue', ['getRiskLevelColorClass(option.auditUniverse?.riskLevel)']],

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Bar } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -117,6 +117,14 @@ const dqChartOptions = computed(() => ({
     y: { min: 90, max: 100, title: { display: true, text: t('analytics.caattUi.dataQuality.qualityAxis') } }
   }
 }))
+
+const mobilePage = ref(1)
+const mobilePageSize = ref(10)
+
+const paginatedRecords = computed<any[]>(() => {
+  const start = (mobilePage.value - 1) * mobilePageSize.value
+  return (dqState.value?.records || []).slice(start, start + mobilePageSize.value)
+})
 </script>
 
 <template>
@@ -278,11 +286,12 @@ const dqChartOptions = computed(() => ({
         <UCard class="lg:col-span-2 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 divide-gray-200 dark:divide-gray-800">
           <template #header>
             <div class="flex items-center gap-2">
-              <UIcon name="i-heroicons-table-cells" class="text-indigo-500" />
+              <UIcon name="i-heroicons-table-cells" class="text-primary-500" />
               <h3 class="font-bold">{{ t('analytics.caattUi.dataQuality.metrics') }}</h3>
             </div>
           </template>
-          <div class="overflow-x-auto">
+          <!-- Desktop View: Table -->
+          <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
@@ -300,7 +309,7 @@ const dqChartOptions = computed(() => ({
                 <tr v-for="r in dqState.records" :key="r.tableName" class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
                   <td class="py-3 px-3">
                     <div class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                      <UIcon :name="getTableIcon(r.tableName)" class="w-4 h-4 text-indigo-500 shrink-0" />
+                      <UIcon :name="getTableIcon(r.tableName)" class="w-4 h-4 text-primary-500 shrink-0" />
                       <span>{{ getTableFriendlyName(r.tableName) }}</span>
                     </div>
                     <div class="text-[11px] text-gray-400 font-mono mt-0.5 pl-6" :title="`${t('analytics.caattUi.dataQuality.technicalTable')}: ${r.tableName}`">
@@ -312,11 +321,11 @@ const dqChartOptions = computed(() => ({
                       {{ r.zone }}
                     </UBadge>
                   </td>
-                  <td class="text-right py-3 px-3 tabular-nums">{{ Number(r.totalRows).toLocaleString('id-ID') }}</td>
-                  <td class="text-right py-3 px-3 tabular-nums font-bold text-emerald-500">{{ r.completenessPct }}%</td>
-                  <td class="text-right py-3 px-3 tabular-nums font-bold text-indigo-500">{{ r.accuracyPct }}%</td>
-                  <td class="text-right py-3 px-3 tabular-nums text-gray-500">{{ r.timelinessDays }} h</td>
-                  <td class="text-right py-3 px-3 tabular-nums" :class="r.duplicateCount > 0 ? 'text-rose-500 font-bold' : 'text-gray-400'">
+                  <td class="text-right py-3 px-3 font-mono tabular-nums">{{ Number(r.totalRows).toLocaleString('id-ID') }}</td>
+                  <td class="text-right py-3 px-3 font-mono tabular-nums font-bold text-emerald-500">{{ r.completenessPct }}%</td>
+                  <td class="text-right py-3 px-3 font-mono tabular-nums font-bold text-primary-600 dark:text-primary-400">{{ r.accuracyPct }}%</td>
+                  <td class="text-right py-3 px-3 font-mono tabular-nums text-gray-500">{{ r.timelinessDays }} h</td>
+                  <td class="text-right py-3 px-3 font-mono tabular-nums" :class="r.duplicateCount > 0 ? 'text-rose-500 font-bold' : 'text-gray-400'">
                     {{ r.duplicateCount }}
                   </td>
                   <td class="text-center py-3 px-3">
@@ -327,6 +336,86 @@ const dqChartOptions = computed(() => ({
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Mobile View: Card List -->
+          <div class="block md:hidden">
+            <div v-if="!paginatedRecords.length" class="text-center py-8 text-gray-400">
+              <UIcon name="i-heroicons-inbox" class="w-10 h-10 mx-auto mb-2 text-gray-300 dark:text-gray-600" />
+              <p class="text-sm">{{ t('common.noData') }}</p>
+            </div>
+            <div v-else class="space-y-3">
+              <div
+                v-for="(r, index) in paginatedRecords"
+                :key="r.tableName"
+                class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3"
+              >
+                <!-- Card Header -->
+                <div class="flex items-start justify-between gap-2">
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-1.5 font-semibold text-gray-900 dark:text-gray-100 text-sm">
+                      <UIcon :name="getTableIcon(r.tableName)" class="w-4 h-4 text-primary-500 shrink-0" />
+                      <span class="truncate">{{ getTableFriendlyName(r.tableName) }}</span>
+                    </div>
+                    <div class="text-[11px] text-gray-400 font-mono mt-0.5 truncate">
+                      {{ r.tableName }}
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1.5 shrink-0">
+                    <UBadge :color="r.zone === 'Gold' ? 'warning' : r.zone === 'Silver' ? 'neutral' : 'primary'" variant="solid" size="xs">
+                      {{ r.zone }}
+                    </UBadge>
+                    <UBadge :color="r.status === 'EXCELLENT' ? 'success' : r.status === 'GOOD' ? 'primary' : 'warning'" variant="subtle" size="xs">
+                      {{ r.status }}
+                    </UBadge>
+                  </div>
+                </div>
+
+                <!-- Metrics Grid -->
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  <div class="dashboard-subcard p-2 space-y-0.5 min-w-0 overflow-hidden">
+                    <span class="text-slate-400 block text-[10px] uppercase font-bold truncate">{{ t('analytics.caattUi.dataQuality.totalRows') }}</span>
+                    <span class="font-mono font-bold text-xs sm:text-sm text-gray-900 dark:text-gray-100 break-words leading-tight block">{{ Number(r.totalRows).toLocaleString('id-ID') }}</span>
+                  </div>
+                  <div class="dashboard-subcard p-2 space-y-0.5 min-w-0 overflow-hidden">
+                    <span class="text-slate-400 block text-[10px] uppercase font-bold truncate">{{ t('analytics.caattUi.dataQuality.latency') }}</span>
+                    <span class="font-mono font-semibold text-xs sm:text-sm text-slate-600 dark:text-slate-300 break-words leading-tight block">{{ r.timelinessDays }} h</span>
+                  </div>
+                  <div class="dashboard-subcard p-2 space-y-0.5 min-w-0 overflow-hidden">
+                    <span class="text-slate-400 block text-[10px] uppercase font-bold truncate">{{ t('analytics.caattUi.dataQuality.completeness') }}</span>
+                    <span class="font-mono font-bold text-xs sm:text-sm text-emerald-500 break-words leading-tight block">{{ r.completenessPct }}%</span>
+                  </div>
+                  <div class="dashboard-subcard p-2 space-y-0.5 min-w-0 overflow-hidden">
+                    <span class="text-slate-400 block text-[10px] uppercase font-bold truncate">{{ t('analytics.caattUi.dataQuality.accuracy') }}</span>
+                    <span class="font-mono font-bold text-xs sm:text-sm text-primary-600 dark:text-primary-400 break-words leading-tight block">{{ r.accuracyPct }}%</span>
+                  </div>
+                </div>
+
+                <!-- Duplicates Indicator -->
+                <div class="flex items-center justify-between text-xs px-2.5 py-1.5 dashboard-subcard min-w-0 overflow-hidden">
+                  <span class="text-slate-400 text-[10px] uppercase font-bold shrink-0">{{ t('analytics.caattUi.dataQuality.duplicates') }}</span>
+                  <span class="font-mono font-bold text-xs sm:text-sm ml-1" :class="r.duplicateCount > 0 ? 'text-rose-500' : 'text-slate-500'">
+                    {{ Number(r.duplicateCount).toLocaleString('id-ID') }}
+                  </span>
+                </div>
+
+                <!-- Card Footer -->
+                <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800 text-[11px] text-gray-400">
+                  <span>#{{ (mobilePage - 1) * mobilePageSize + Number(index) + 1 }}</span>
+                  <span>{{ r.zone }} Zone</span>
+                </div>
+              </div>
+
+              <!-- Mobile Pagination -->
+              <div v-if="(dqState.records?.length || 0) > mobilePageSize" class="mt-4 flex justify-center">
+                <UPagination
+                  v-model="mobilePage"
+                  :page-count="mobilePageSize"
+                  :total="dqState.records?.length || 0"
+                  size="md"
+                />
+              </div>
+            </div>
           </div>
         </UCard>
       </div>

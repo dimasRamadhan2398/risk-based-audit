@@ -135,3 +135,106 @@ func TestAssignmentLetterPublishRoles(t *testing.T) {
 		}
 	})
 }
+
+// DELETE /api/v1/assignment-letters/:id is strictly limited to ADMIN; all other
+// roles must receive 403 Forbidden and leave the record intact.
+func TestAssignmentLetterDeleteRoles(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	logger.Log = zap.NewNop()
+	const secret = "test-secret"
+	db := testdb.New(t,
+		&models.AuditExecution{},
+		&models.AuditActivity{},
+		&models.AssignmentLetter{},
+		&models.FieldworkInterview{},
+		&models.FieldworkObservation{},
+		&models.FieldworkDocument{},
+		&models.FieldworkSample{},
+		&models.FieldworkTestControl{},
+		&models.WorkingPaperHeader{},
+		&models.WorkingPaperRisk{},
+		&models.WorkingPaperSample{},
+		&models.WorkingPaperCause{},
+		&models.WorkingPaperPlan{},
+		&models.AuditResultReport{},
+	)
+	engine := gin.New()
+	h := NewRouteHandler(engine, middleware.NewAuthMiddleware(secret), db, nil)
+	registry := NewRouteRegistry()
+	registry.SetAuditCharterController(stubCharterCtrl{})
+	registry.SetAuditMandateController(stubMandateCtrl{})
+	registry.SetAuditAssignmentController(stubAssignmentCtrl{})
+	registry.SetAuditActivityController(stubActivityCtrl{})
+	h.SetRegistry(registry)
+	h.RegisterRoutes()
+
+	tokenFor := func(roles ...string) string {
+		tok := jwt.NewWithClaims(jwt.SigningMethodHS256, &middleware.Claims{
+			UserID:   "u1",
+			Username: "tester",
+			Roles:    roles,
+			RegisteredClaims: jwt.RegisteredClaims{
+				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+			},
+		})
+		s, err := tok.SignedString([]byte(secret))
+		if err != nil {
+			t.Fatal(err)
+		}
+		return s
+	}
+
+	newDraft := func(t *testing.T) string {
+		t.Helper()
+		l := &models.AssignmentLetter{ID: uuid.New(), LetterNumber: "ST-" + uuid.NewString()[:8], Status: "Draft", AuditTeam: "SKAI", AuditYear: "2026"}
+		if err := db.Create(l).Error; err != nil {
+			t.Fatal(err)
+		}
+		return l.ID.String()
+	}
+
+	del := func(id string, roles ...string) *httptest.ResponseRecorder {
+		req := httptest.NewRequest(http.MethodDelete, "/api/v1/assignment-letters/"+id, nil)
+		req.Header.Set("Authorization", "Bearer "+tokenFor(roles...))
+		w := httptest.NewRecorder()
+		engine.ServeHTTP(w, req)
+		return w
+	}
+
+	cases := []struct {
+		name  string
+		roles []string
+		want  int
+	}{
+		{"admin", []string{"ADMIN"}, http.StatusOK},
+		{"admin lowercase", []string{"admin"}, http.StatusOK},
+		{"executive", []string{"EXECUTIVE"}, http.StatusForbidden},
+		{"chief audit executive", []string{"CHIEF_AUDIT_EXECUTIVE"}, http.StatusForbidden},
+		{"audit manager", []string{"AUDIT_MANAGER"}, http.StatusForbidden},
+		{"auditor", []string{"AUDITOR"}, http.StatusForbidden},
+		{"department head", []string{"DEPARTMENT_HEAD"}, http.StatusForbidden},
+		{"auditee", []string{"AUDITEE"}, http.StatusForbidden},
+		{"viewer", []string{"VIEWER"}, http.StatusForbidden},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			id := newDraft(t)
+			w := del(id, tc.roles...)
+			if w.Code != tc.want {
+				t.Fatalf("status = %d, want %d; body = %s", w.Code, tc.want, w.Body.String())
+			}
+			var count int64
+			if err := db.Model(&models.AssignmentLetter{}).Where("id = ?", id).Count(&count).Error; err != nil {
+				t.Fatal(err)
+			}
+			wantCount := int64(1)
+			if tc.want == http.StatusOK {
+				wantCount = 0
+			}
+			if count != wantCount {
+				t.Errorf("remaining count = %d, want %d", count, wantCount)
+			}
+		})
+	}
+}

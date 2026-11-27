@@ -1,6 +1,7 @@
 import { ref, watch } from 'vue'
 import { useActiveDataSource } from '~/composables/useActiveDataSource'
 import { useDataSourceStore } from '~/stores/data-source'
+import { getAnalyticsServiceBaseUrl } from '~/composables/useApiUrl'
 
 export interface BenfordDigitRecord {
   digit: number
@@ -158,10 +159,9 @@ const dqState = ref<any>({
 })
 
 export const useCaattAnalytics = () => {
-  const config = useRuntimeConfig()
   const store = useDataSourceStore()
   const { selectedSourceId, sources } = useActiveDataSource()
-  const getAnalyticsUrl = () => config.public.analyticsApiBase || '/api/analytics'
+  const getAnalyticsUrl = () => getAnalyticsServiceBaseUrl()
 
   const setSelectedSourceId = (id: string) => {
     store.setSelectedSourceId(id || 'all')

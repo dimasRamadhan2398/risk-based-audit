@@ -8,6 +8,7 @@ import { extractErrorMessage } from '~/utils/error'
 import { getFiscalYearStrings } from '~/composables/useFiscalYear'
 import { viewDocumentInNewTab, openDocumentTab, renderDocumentInTab } from '~/utils/documentViewer'
 import { useI18n } from '~/composables/useI18n'
+import { getMasterServiceBaseUrl as resolveMasterServiceBaseUrl } from '~/composables/useApiUrl'
 
 export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const loading = ref(false)
@@ -16,8 +17,7 @@ export const useQualityAssuranceStore = defineStore('quality-assurance', () => {
   const { t } = useI18n()
 
   const getMasterServiceBaseUrl = () => {
-    const config = useRuntimeConfig()
-    return config.public.masterServiceBaseUrl || config.public.apiBase || '/api/v1'
+    return resolveMasterServiceBaseUrl()
   }
 
   const columns = computed(() => [

@@ -201,7 +201,8 @@ func (h *RouteHandler) RegisterRoutes() {
 		assignmentLetters.POST("", letterStatusGuard, workingUnit, crud.CreateWithHooks(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }, nil, ctrlAuditExecution.SyncLetterAfterCreate()))
 		// auditPurpose echoed back from purposeList is not frozen into the column, see controllers/assignment_letter
 		assignmentLetters.PUT("/:id", letterStatusGuard, workingUnit, ctrlAuditExecution.SyncLetterOnWrite(h.db, crud.UpdateWithHook(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} }, ctrlAssignmentLetter.NormalizePurposeOnUpdate)))
-		assignmentLetters.DELETE("/:id", ctrlAuditExecution.SyncLetterOnWrite(h.db, crud.Delete(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} })))
+		// Only ADMIN may delete an assignment letter
+		assignmentLetters.DELETE("/:id", middleware.RequireAnyRole("ADMIN"), ctrlAuditExecution.SyncLetterOnWrite(h.db, crud.Delete(h.db, "AssignmentLetter", func() interface{} { return &models.AssignmentLetter{} })))
 	}
 
 	// 5. Audit Execution

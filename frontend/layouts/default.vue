@@ -702,7 +702,7 @@ const userDropdownItems = computed(() => [
 </script>
 
 <template>
-  <UDashboardGroup>
+  <UDashboardGroup storage="local">
     <UDashboardSidebar
       id="main-sidebar-final"
       collapsible
@@ -819,7 +819,7 @@ const userDropdownItems = computed(() => [
       </template>
     </UDashboardSidebar>
 
-    <UDashboardPanel>
+    <UDashboardPanel id="main-panel">
       <template #header>
         <div class="flex items-center justify-between px-3 sm:px-6 py-2.5 sm:py-4 border-b border-[var(--border-main)] bg-[var(--bg-main)] gap-2 sm:gap-3">
           <div class="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -833,8 +833,8 @@ const userDropdownItems = computed(() => [
             <Logo class="shrink-0" text-class="text-base sm:text-xl" />
           </div>
           <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
-            <!-- Language Switcher Toggle -->
-            <div class="flex items-center gap-0.5 sm:gap-1 bg-[var(--bg-surface)] p-0.5 sm:p-1 rounded-xl border border-[var(--border-main)] shadow-xs">
+            <!-- Language Switcher Toggle (Desktop) -->
+            <div class="hidden sm:flex items-center gap-0.5 sm:gap-1 bg-[var(--bg-surface)] p-0.5 sm:p-1 rounded-xl border border-[var(--border-main)] shadow-xs">
               <button
                 type="button"
                 class="px-1.5 sm:px-2 py-0.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1"
@@ -852,7 +852,7 @@ const userDropdownItems = computed(() => [
                 <span>EN</span>
               </button>
             </div>
-            <UColorModeButton />
+            <UColorModeButton class="hidden sm:inline-flex" />
             <UButton
               v-if="!authStore.isLoggedIn"
               to="/auth/login"
@@ -955,6 +955,37 @@ const userDropdownItems = computed(() => [
               orientation="vertical"
               class="w-full"
             />
+          </div>
+
+          <!-- Mobile Drawer Footer: Language Switcher & Dark Mode Toggle -->
+          <div class="p-3 border-t border-[var(--border-main)] shrink-0 flex items-center justify-between gap-3 bg-[var(--bg-surface)]">
+            <!-- Language Switcher Toggle -->
+            <div class="flex items-center gap-1 bg-[var(--bg-main)] p-1 rounded-xl border border-[var(--border-main)] shadow-xs">
+              <button
+                type="button"
+                class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1"
+                :class="locale === 'id' ? 'bg-primary-500 text-white shadow-xs' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
+                @click="setLocale('id')"
+              >
+                <span>ID</span>
+              </button>
+              <button
+                type="button"
+                class="px-2.5 py-1 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1"
+                :class="locale === 'en' ? 'bg-primary-500 text-white shadow-xs' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'"
+                @click="setLocale('en')"
+              >
+                <span>EN</span>
+              </button>
+            </div>
+
+            <!-- Theme Toggle -->
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-medium text-[var(--text-muted)]">
+                {{ locale === 'id' ? 'Tema' : 'Theme' }}
+              </span>
+              <UColorModeButton />
+            </div>
           </div>
         </div>
       </template>

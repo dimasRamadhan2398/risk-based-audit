@@ -51,6 +51,7 @@
 import QRCode from 'qrcode'
 import type { TableColumn } from '@nuxt/ui'
 import { extractErrorMessage } from '~/utils/error'
+import { getAuthServiceBaseUrl } from '~/composables/useApiUrl'
 
 interface Device {
   id: string
@@ -59,7 +60,6 @@ interface Device {
   created_at: string
 }
 
-const config = useRuntimeConfig()
 const devices = ref<Device[]>([])
 const showQRModal = ref(false)
 const qrData = ref<any>(null)
@@ -80,7 +80,7 @@ const formatDateTime = (value: string) => new Date(value).toLocaleString(dateLoc
 
 const fetchDevices = async () => {
   try {
-    const { data } = await $fetch<any>(`${config.public.apiBase}/devices`)
+    const { data } = await $fetch<any>(`${getAuthServiceBaseUrl()}/devices`)
     devices.value = data
   } catch (err: any) {
     console.error('Failed to fetch devices:', err)
@@ -89,7 +89,7 @@ const fetchDevices = async () => {
 
 const handleGenerateQR = async () => {
   try {
-    const { data } = await $fetch<any>(`${config.public.apiBase}/devices/enroll`, { method: 'POST' })
+    const { data } = await $fetch<any>(`${getAuthServiceBaseUrl()}/devices/enroll`, { method: 'POST' })
     qrData.value = data
     if (qrData.value?.qr_code_url) {
       qrCodeDataURL.value = await QRCode.toDataURL(qrData.value.qr_code_url)
@@ -104,7 +104,7 @@ const handleRemove = async (id: string) => {
   if (!await useGlobalModalStore().confirmDelete({ description: t('settings.devices.removeConfirm') })) return
 
   try {
-    await $fetch(`${config.public.apiBase}/devices/${id}`, { method: 'DELETE' })
+    await $fetch(`${getAuthServiceBaseUrl()}/devices/${id}`, { method: 'DELETE' })
     toast.add({ title: t('settings.devices.removed') })
     await fetchDevices()
   } catch (err: any) {

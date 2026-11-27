@@ -5,6 +5,7 @@ import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { extractErrorMessage } from '~/utils/error';
 import { getAuditServiceBaseUrl as resolveAuditUrl } from '~/composables/useApiUrl';
 import { useI18n } from '~/composables/useI18n';
+import { useRbac } from '~/composables/useRbac';
 import { getFiscalYearStrings } from '~/composables/useFiscalYear';
 import { useEmployeeApi } from '~/composables/useEmployeeApi';
 import { useDepartmentApi } from '~/composables/useDepartmentApi';
@@ -714,6 +715,13 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
     },
 
     async deleteSuratTugas(id: string) {
+      if (!useRbac().isAdmin.value) {
+        useToastNotification().showError(
+          useI18n().t('toasts.assignmentLetter.deleteFailed'),
+          'Only ADMIN can delete assignment letters.'
+        )
+        return
+      }
       if (!await useGlobalModalStore().confirmDelete({ description: "Are you sure you want to delete this assignment letter?" })) return
       this.loading = true
       try {

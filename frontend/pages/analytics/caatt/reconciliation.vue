@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Bar } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -50,6 +50,14 @@ const reconChartOptions = computed(() => ({
     y: { min: 95, max: 100, title: { display: true, text: t('analytics.caattUi.reconciliation.matchRateAxis') } }
   }
 }))
+
+const mobilePage = ref(1)
+const mobilePageSize = ref(10)
+
+const paginatedRecords = computed<any[]>(() => {
+  const start = (mobilePage.value - 1) * mobilePageSize.value
+  return (reconState.value?.records || []).slice(start, start + mobilePageSize.value)
+})
 </script>
 
 <template>
@@ -171,11 +179,12 @@ const reconChartOptions = computed(() => ({
         <UCard class="lg:col-span-2 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 divide-gray-200 dark:divide-gray-800">
           <template #header>
             <div class="flex items-center gap-2">
-              <UIcon name="i-heroicons-table-cells" class="text-indigo-500" />
+              <UIcon name="i-heroicons-table-cells" class="text-primary-500" />
               <h3 class="font-bold">{{ t('analytics.caattUi.reconciliation.status') }}</h3>
             </div>
           </template>
-          <div class="overflow-x-auto">
+          <!-- Desktop View (>= md): Full Table -->
+          <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
@@ -208,6 +217,105 @@ const reconChartOptions = computed(() => ({
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Mobile & Tablet View (< md): Stacked Cards List -->
+          <div class="block md:hidden">
+            <!-- Empty State -->
+            <div
+              v-if="!reconState.records.length"
+              class="py-8 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+            >
+              <UIcon name="i-heroicons-table-cells" class="size-8 mx-auto text-gray-400 mb-2" />
+              <p class="text-xs text-[var(--text-muted)]">{{ t('analytics.caattUi.reconciliation.empty') || 'Tidak ada data rekonsiliasi' }}</p>
+            </div>
+
+            <!-- Cards List -->
+            <div v-else class="space-y-3">
+              <div
+                v-for="(r, index) in paginatedRecords"
+                :key="r.module || index"
+                class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3"
+              >
+                <!-- Card Header: Systems & Status Badge -->
+                <div class="flex items-center justify-between gap-2">
+                  <span class="font-bold text-sm text-gray-900 dark:text-white">
+                    {{ r.systemA.split(' ')[0] }} ↔ {{ r.systemB.split(' ')[0] }}
+                  </span>
+                  <UBadge :color="r.status === 'PERFECT_MATCH' || r.status === 'BALANCED' ? 'success' : 'warning'" variant="solid" size="sm">
+                    {{ r.status }}
+                  </UBadge>
+                </div>
+
+                <!-- Module Label -->
+                <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                  <UIcon name="i-lucide-layers" class="size-3.5 text-slate-400 shrink-0" />
+                  <span class="font-semibold text-gray-700 dark:text-gray-300">{{ r.module }}</span>
+                </div>
+
+                <!-- Stat Grid: Trx A vs Trx B -->
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                  <div class="dashboard-subcard p-2.5 space-y-0.5 min-w-0 overflow-hidden">
+                    <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block truncate">{{ t('analytics.caattUi.reconciliation.transactionsA') }}</span>
+                    <div class="font-mono font-bold text-xs sm:text-sm text-gray-900 dark:text-white break-words leading-tight">
+                      {{ Number(r.totalRecordsA).toLocaleString('id-ID') }}
+                    </div>
+                  </div>
+                  <div class="dashboard-subcard p-2.5 space-y-0.5 min-w-0 overflow-hidden">
+                    <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block truncate">{{ t('analytics.caattUi.reconciliation.transactionsB') }}</span>
+                    <div class="font-mono font-bold text-xs sm:text-sm text-gray-900 dark:text-white break-words leading-tight">
+                      {{ Number(r.totalRecordsB).toLocaleString('id-ID') }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Matched Rate & Records Row -->
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  <div class="flex items-center justify-between px-2.5 py-1.5 bg-emerald-50/70 dark:bg-emerald-950/20 rounded-md border border-emerald-100 dark:border-emerald-900/40 min-w-0 overflow-hidden">
+                    <span class="text-[11px] text-emerald-700 dark:text-emerald-400 truncate">{{ t('analytics.caattUi.reconciliation.matched') }}</span>
+                    <span class="font-mono font-bold text-xs sm:text-sm text-emerald-700 dark:text-emerald-400 ml-1">{{ Number(r.matchedRecords).toLocaleString('id-ID') }}</span>
+                  </div>
+                  <div class="flex items-center justify-between px-2.5 py-1.5 bg-emerald-50/70 dark:bg-emerald-950/20 rounded-md border border-emerald-100 dark:border-emerald-900/40 min-w-0 overflow-hidden">
+                    <span class="text-[11px] text-emerald-700 dark:text-emerald-400 truncate">{{ t('analytics.caattUi.reconciliation.matchPercent') }}</span>
+                    <span class="font-mono font-bold text-xs sm:text-sm text-emerald-700 dark:text-emerald-400 ml-1">{{ r.matchRatePct }}%</span>
+                  </div>
+                </div>
+
+                <!-- Difference (if any) -->
+                <div v-if="r.totalDifference > 0" class="flex items-center justify-between px-2.5 py-1.5 bg-rose-50/70 dark:bg-rose-950/20 rounded-md border border-rose-100 dark:border-rose-900/40 text-xs min-w-0 overflow-hidden">
+                  <span class="text-[11px] text-rose-600 dark:text-rose-400 font-medium shrink-0">{{ t('analytics.caattUi.reconciliation.differenceCurrency') }}</span>
+                  <span class="font-mono font-bold text-xs sm:text-sm text-rose-600 dark:text-rose-400 break-words text-right">{{ formatIDR(r.totalDifference) }}</span>
+                </div>
+
+                <!-- Card Footer: Index & Module -->
+                <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800/80 text-xs text-slate-500 dark:text-slate-400">
+                  <span class="text-xs text-slate-400 font-mono">
+                    #{{ (mobilePage - 1) * mobilePageSize + Number(index) + 1 }}
+                  </span>
+                  <span class="text-[11px] text-gray-400">{{ r.module }}</span>
+                </div>
+              </div>
+
+              <!-- Mobile Pagination Controls -->
+              <div
+                v-if="reconState.records.length > mobilePageSize"
+                class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800"
+              >
+                <span class="text-xs text-slate-500 dark:text-slate-400">
+                  {{ (mobilePage - 1) * mobilePageSize + 1 }}-{{ Math.min(mobilePage * mobilePageSize, reconState.records.length) }} of {{ reconState.records.length }}
+                </span>
+                <UPagination
+                  v-model:page="mobilePage"
+                  :items-per-page="mobilePageSize"
+                  :total="reconState.records.length"
+                  size="md"
+                  active-color="primary"
+                  color="neutral"
+                  variant="outline"
+                  class="max-w-full overflow-x-auto"
+                />
+              </div>
+            </div>
           </div>
         </UCard>
       </div>

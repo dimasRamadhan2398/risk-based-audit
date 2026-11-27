@@ -539,7 +539,8 @@
       },
       "calendar": {
         "title": "Tanggal penting",
-        "description": "Tanggal mulai dan selesai penugasan, serta tenggat ATR untuk penugasan yang Anda ikuti.",
+        "description": "Periode Surat Tugas, tanggal rencana pekerjaan lapangan, tenggat PBC dan uji pengendalian, serta tenggat ATR.",
+        "scope": "Menampilkan semua Surat Tugas yang terbit sampai penyaringan per tim tersedia. Tanggal pekerjaan lapangan ditampilkan untuk Surat Tugas yang dimuat di halaman ini.",
         "notConnected": "Kalender belum terhubung.",
         "notLinked": "Akun Anda belum terhubung ke data pegawai, sehingga tanggal penugasan belum dapat difilter untuk Anda."
       },
@@ -781,7 +782,6 @@
     },
     "profile": {
       "avatarAlt": "Avatar",
-      "emailPlaceholder": "Masukkan email Anda",
       "title": "Profil Saya",
       "subtitle": "Kelola detail akun pribadi dan preferensi Anda.",
       "changePhoto": "Ubah Foto",
@@ -1538,7 +1538,7 @@
       "riskIndex": "Indeks Risiko",
       "riskLevel": "Tingkat Risiko",
       "auditPriorityCol": "Prioritas Audit*",
-      "priorityBadge": "√ Prioritas",
+      "priorityBadge": "Prioritas",
       "noEntities": "Belum ada entitas auditee yang ditetapkan untuk tahun {year}.",
       "sortedNote": "Diurutkan berdasarkan Indeks Risiko (menurun); entitas yang belum dinilai ditampilkan paling akhir",
       "notScoredBadge": "Belum dinilai",
@@ -2014,6 +2014,13 @@
       "titleDefault": "Edit Risiko",
       "desc": "Ubah detail risiko dan sesuaikan penilaian kuartalan.",
       "updateBtn": "Perbarui Risiko"
+    },
+    "moveModal": {
+      "title": "Pindahkan Posisi Risiko",
+      "desc": "Pilih nilai Dampak dan Kemungkinan baru untuk memindahkan posisi risiko ini pada heat map.",
+      "buttonTooltip": "Pindahkan Posisi",
+      "targetCell": "Target Sel",
+      "saveBtn": "Pindahkan Posisi"
     },
     "riskLevelLabels": {
       "low": "Rendah",
@@ -3946,7 +3953,8 @@
       "activePlan": "Aktif ({count} Rencana)",
       "done": "Selesai",
       "viewMitigation": "Lihat Mitigasi",
-      "addMitigation": "Tambah Mitigasi"
+      "addMitigation": "Tambah Mitigasi",
+      "empty": "Tidak ada risiko yang sesuai dengan filter kepatuhan ini."
     },
     "statements": {
       "title": "Manajemen Pernyataan Selera Risiko",
@@ -4414,6 +4422,7 @@
         "close": "Tutup"
       },
       "noFile": "Tidak ada file",
+      "emptyFiltered": "Tidak ada layanan konsultasi yang cocok dengan kriteria filter.",
       "form": {
         "editTitle": "Edit Penugasan Konsultasi",
         "newTitle": "Penugasan Konsultasi Baru",
@@ -5745,8 +5754,8 @@
         "cosoNone": "Belum dipetakan"
       },
       "actions": {
-        "edit": "Edit Control",
-        "delete": "Hapus Control"
+        "edit": "Ubah",
+        "delete": "Hapus"
       }
     },
     "modal": {

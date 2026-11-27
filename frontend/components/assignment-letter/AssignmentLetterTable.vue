@@ -110,7 +110,7 @@
                 @click="store.openEditModal(row.original)"
               />
             </UTooltip>
-            <UTooltip v-if="canWrite" :text="t('assignmentLetter.formExtra.delete')">
+            <UTooltip v-if="isAdmin" :text="t('assignmentLetter.formExtra.delete')">
               <UButton
                 size="md"
                 color="error"
@@ -196,6 +196,7 @@ const resetFilters = () => {
 }
 
 // Publishing is limited to the roles in the RBAC matrix ("Create / Publish Letter")
-const { canManageAssignmentLetter, canWrite } = useRbac()
+// Deleting is restricted strictly to ADMIN.
+const { canManageAssignmentLetter, canWrite, isAdmin } = useRbac()
 
 </script>

@@ -42,6 +42,7 @@
                     v-model="store.form.name"
                     type="text"
                     :placeholder="t('masterData.location.fieldNamePlaceholder')"
+                    class="w-full"
                     required
                   />
                 </UFormField>
@@ -52,6 +53,7 @@
                     :placeholder="t('masterData.location.fieldAddressPlaceholder')"
                     :rows="2"
                     autoresize
+                    class="w-full"
                     required
                   />
                 </UFormField>
@@ -61,6 +63,7 @@
                     v-model="store.form.city"
                     type="text"
                     :placeholder="t('masterData.location.fieldCityPlaceholder')"
+                    class="w-full"
                     required
                   />
                 </UFormField>
@@ -70,15 +73,16 @@
                     v-model="store.form.province"
                     type="text"
                     :placeholder="t('masterData.location.fieldProvincePlaceholder')"
+                    class="w-full"
                   />
                 </UFormField>
 
                 <UFormField :label="t('masterData.location.fieldPostalCode')" size="lg">
-                  <UInput v-model="store.form.postal_code" type="text" placeholder="60234" />
+                  <UInput v-model="store.form.postal_code" type="text" placeholder="60234" class="w-full" />
                 </UFormField>
 
                 <UFormField :label="t('masterData.location.fieldCountry')" size="lg">
-                  <UInput v-model="store.form.country" type="text" placeholder="Indonesia" />
+                  <UInput v-model="store.form.country" type="text" placeholder="Indonesia" class="w-full" />
                 </UFormField>
               </div>
 
@@ -112,15 +116,15 @@
             <UButton
               :label="t('common.cancel')"
               color="neutral"
-              variant="soft"
-              class="w-full sm:w-auto"
+              variant="ghost"
+              class="w-full sm:w-auto justify-center text-center"
               @click="store.closeModal"
             />
             <UButton
               :label="store.isEditing ? t('common.update') : t('common.create')"
               color="primary"
               :loading="store.loading"
-              class="w-full sm:w-auto font-bold"
+              class="w-full sm:w-auto font-bold justify-center text-center"
               type="submit"
             />
           </div>

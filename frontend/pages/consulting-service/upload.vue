@@ -116,90 +116,194 @@
       </div>
 
       <!-- Imported Documents Table -->
-      <div class="w-full">
-        <UCard :ui="{ root: 'bg-transparent!', body: 'p-4 bg-transparent!' }" class="shadow-sm border border-gray-200 dark:border-gray-800 h-full">
-          <template #header>
-            <div class="flex justify-between items-center">
-              <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <UIcon name="i-lucide-list" class="w-5 h-5 text-primary" />
-                {{ t('consultingService.upload.tableTitle') }}
-              </h3>
-              <UBadge color="primary" variant="subtle">
-                {{ t('consultingService.upload.documentsCount', { count: store.uploadedDocuments.length }) }}
-              </UBadge>
-            </div>
-          </template>
+      <div class="w-full min-w-0 p-4 sm:p-6 dashboard-card">
+        <div class="flex items-center justify-between gap-2 mb-4">
+          <h3 class="text-base font-bold text-slate-900 tracking-tight dark:text-white flex items-center gap-2">
+            <UIcon name="i-lucide-list" class="size-5 text-primary-500" />
+            {{ t('consultingService.upload.tableTitle') }}
+          </h3>
+          <UBadge color="primary" variant="subtle" size="sm" class="font-semibold tabular-nums">
+            {{ t('consultingService.upload.documentsCount', { count: store.uploadedDocuments.length }) }}
+          </UBadge>
+        </div>
 
-          <TableEntities
-            :data="store.uploadedDocuments"
-            :columns="columns"
-            :loading="store.loading"
-            :empty-state="{
-              icon: 'i-lucide-folder-open',
-              label: t('consultingService.upload.emptyTitle'),
-              description: t('consultingService.upload.emptyDesc')
-            }"
-          >
-            <template #title-cell="{ row }">
-              <div>
-                <div class="font-bold text-gray-900 dark:text-white text-sm">{{ row.original.title }}</div>
-                <div class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1" v-if="row.original.description">
-                  {{ row.original.description }}
+        <!-- Desktop View (>= md): Full Table Entities -->
+        <div class="hidden md:block">
+          <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ root: 'bg-transparent!', body: 'p-0 bg-transparent!' }">
+            <TableEntities
+              :data="store.uploadedDocuments"
+              :columns="columns"
+              :loading="store.loading"
+              :empty-state="{
+                icon: 'i-lucide-folder-open',
+                label: t('consultingService.upload.emptyTitle'),
+                description: t('consultingService.upload.emptyDesc')
+              }"
+              class="w-full"
+            >
+              <template #title-cell="{ row }">
+                <div class="py-1 min-w-0">
+                  <div class="font-semibold text-gray-900 dark:text-white text-sm line-clamp-1">
+                    {{ row.original.title }}
+                  </div>
+                  <div class="text-xs text-[var(--text-muted)] mt-0.5 line-clamp-1" v-if="row.original.description">
+                    {{ row.original.description }}
+                  </div>
                 </div>
+              </template>
+
+              <template #fileName-cell="{ row }">
+                <div class="flex items-center gap-2 py-1 min-w-0">
+                  <span class="inline-flex items-center justify-center size-7 rounded-lg bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400 border border-primary-200/50 dark:border-primary-800/40 shrink-0">
+                    <UIcon name="i-lucide-file-text" class="size-3.5" />
+                  </span>
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate max-w-[200px] block" :title="row.original.fileName">
+                    {{ row.original.fileName }}
+                  </span>
+                </div>
+              </template>
+
+              <template #created_at-cell="{ row }">
+                <span class="text-xs font-medium text-[var(--text-muted)] tabular-nums">
+                  {{ formatDate(row.original.created_at) }}
+                </span>
+              </template>
+
+              <template #actions-cell="{ row }">
+                <div class="flex items-center gap-1">
+                  <UTooltip :text="t('consultingService.upload.actions.view')">
+                    <UButton 
+                      icon="i-lucide-eye" 
+                      color="info" 
+                      variant="ghost" 
+                      size="xs" 
+                      class="hover:bg-info-50 dark:hover:bg-info-950/30"
+                      :title="t('consultingService.upload.actions.view')" 
+                      @click="store.viewDocument(row.original.id, row.original.fileName)" 
+                    />
+                  </UTooltip>
+
+                  <UTooltip :text="t('consultingService.upload.actions.download')">
+                    <UButton 
+                      icon="i-lucide-download" 
+                      color="primary" 
+                      variant="ghost" 
+                      size="xs" 
+                      class="hover:bg-primary-50 dark:hover:bg-primary-950/30"
+                      :title="t('consultingService.upload.actions.download')" 
+                      @click="store.downloadDocument(row.original.id, row.original.fileName)" 
+                    />
+                  </UTooltip>
+
+                  <UTooltip :text="t('consultingService.upload.actions.delete')">
+                    <UButton 
+                      icon="i-lucide-trash-2" 
+                      color="error" 
+                      variant="ghost" 
+                      size="xs" 
+                      class="hover:bg-error-50 dark:hover:bg-error-950/30"
+                      :title="t('consultingService.upload.actions.delete')" 
+                      @click="handleDelete(row.original.id)" 
+                    />
+                  </UTooltip>
+                </div>
+              </template>
+            </TableEntities>
+          </UCard>
+        </div>
+
+        <!-- Mobile & Tablet View (< md): Stacked Cards List -->
+        <div class="block md:hidden">
+          <!-- Loading State Skeleton -->
+          <div v-if="store.loading" class="space-y-3">
+            <div v-for="i in 3" :key="i" class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] animate-pulse space-y-2.5">
+              <div class="flex justify-between items-center">
+                <div class="h-4 w-28 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div class="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
               </div>
-            </template>
+              <div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              <div class="h-8 bg-gray-100 dark:bg-gray-800 rounded-lg"></div>
+            </div>
+          </div>
 
-            <template #fileName-cell="{ row }">
-              <div class="flex items-center gap-2">
-                <UIcon name="i-lucide-file-text" class="w-4 h-4 text-gray-400" />
-                <span class="text-sm text-gray-700 dark:text-gray-300 truncate max-w-[200px] block">{{ row.original.fileName }}</span>
+          <!-- Empty State -->
+          <div
+            v-else-if="!store.uploadedDocuments.length"
+            class="py-8 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+          >
+            <UIcon name="i-lucide-folder-open" class="size-8 mx-auto text-gray-400 mb-2" />
+            <p class="text-xs font-semibold text-[var(--text-main)]">{{ t('consultingService.upload.emptyTitle') }}</p>
+            <p class="text-xs text-[var(--text-muted)] mt-1">{{ t('consultingService.upload.emptyDesc') }}</p>
+          </div>
+
+          <!-- Cards List -->
+          <div v-else class="space-y-3">
+            <div
+              v-for="(doc, idx) in store.uploadedDocuments"
+              :key="doc.id"
+              class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3"
+            >
+              <!-- Card Header: Index Badge & Date Badge -->
+              <div class="flex items-center justify-between gap-2">
+                <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/40 px-2 py-0.5 rounded-md border border-primary-200/50 dark:border-primary-800/40 tabular-nums">
+                  <UIcon name="i-lucide-file-text" class="size-3" />
+                  #{{ idx + 1 }}
+                </span>
+                <span class="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--text-muted)] tabular-nums">
+                  <UIcon name="i-lucide-calendar" class="size-3 text-gray-400" />
+                  {{ formatDate(doc.created_at) }}
+                </span>
               </div>
-            </template>
 
-            <template #created_at-cell="{ row }">
-              <span class="text-sm text-gray-500 dark:text-gray-400">
-                {{ formatDate(row.original.created_at) }}
-              </span>
-            </template>
-
-            <template #actions-cell="{ row }">
-              <div class="flex items-center gap-1">
-                <UTooltip :text="t('consultingService.upload.actions.view')">
-                <UButton 
-                  icon="i-lucide-eye" 
-                  color="info" 
-                  variant="ghost" 
-                  size="md" 
-                  :title="t('consultingService.upload.actions.view')" 
-                  @click="store.viewDocument(row.original.id, row.original.fileName)" 
-                />
-                </UTooltip>
-
-                <UTooltip :text="t('consultingService.upload.actions.download')">
-                <UButton 
-                  icon="i-lucide-download" 
-                  color="primary" 
-                  variant="ghost" 
-                  size="md" 
-                  :title="t('consultingService.upload.actions.download')" 
-                  @click="store.downloadDocument(row.original.id, row.original.fileName)" 
-                />
-                </UTooltip>
-
-                <UTooltip :text="t('consultingService.upload.actions.delete')">
-                <UButton 
-                  icon="i-lucide-trash-2" 
-                  color="error" 
-                  variant="ghost" 
-                  size="md" 
-                  :title="t('consultingService.upload.actions.delete')" 
-                  @click="handleDelete(row.original.id)" 
-                />
-                </UTooltip>
+              <!-- Card Body: Title and Description -->
+              <div>
+                <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-snug">
+                  {{ doc.title }}
+                </h4>
+                <p v-if="doc.description" class="text-xs text-[var(--text-muted)] mt-1 line-clamp-2">
+                  {{ doc.description }}
+                </p>
               </div>
-            </template>
-          </TableEntities>
-        </UCard>
+
+              <!-- Attachment Info Chip -->
+              <div class="flex items-center gap-2 p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 text-xs">
+                <UIcon name="i-lucide-paperclip" class="w-3.5 h-3.5 text-primary-500 shrink-0" />
+                <span class="truncate font-medium text-gray-700 dark:text-gray-300 flex-1">{{ doc.fileName }}</span>
+              </div>
+
+              <!-- Card Footer: Actions -->
+              <div class="flex items-center justify-end gap-1 pt-2 border-t border-gray-100 dark:border-gray-800/80">
+                <UButton
+                  icon="i-lucide-eye"
+                  color="info"
+                  variant="ghost"
+                  size="md"
+                  :title="t('consultingService.upload.actions.view')"
+                  :aria-label="t('consultingService.upload.actions.view')"
+                  @click="store.viewDocument(doc.id, doc.fileName)"
+                />
+                <UButton
+                  icon="i-lucide-download"
+                  color="primary"
+                  variant="ghost"
+                  size="md"
+                  :title="t('consultingService.upload.actions.download')"
+                  :aria-label="t('consultingService.upload.actions.download')"
+                  @click="store.downloadDocument(doc.id, doc.fileName)"
+                />
+                <UButton
+                  icon="i-lucide-trash-2"
+                  color="error"
+                  variant="ghost"
+                  size="md"
+                  :title="t('consultingService.upload.actions.delete')"
+                  :aria-label="t('consultingService.upload.actions.delete')"
+                  @click="handleDelete(doc.id)"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -233,10 +337,10 @@ const form = ref({
 })
 
 const columns = computed(() => [
-  { accessorKey: 'title', header: t('consultingService.upload.columns.title'), class: 'w-[50%]' },
-  { accessorKey: 'fileName', header: t('consultingService.upload.columns.file'), class: 'w-[24%]' },
-  { accessorKey: 'created_at', header: t('consultingService.upload.columns.date'), class: 'w-[16%]' },
-  { accessorKey: 'actions', header: t('consultingService.upload.columns.actions'), class: 'w-[10%]' }
+  { accessorKey: 'title', header: t('consultingService.upload.columns.title'), class: 'min-w-[200px] w-[45%]' },
+  { accessorKey: 'fileName', header: t('consultingService.upload.columns.file'), class: 'min-w-[160px] w-[25%]' },
+  { accessorKey: 'created_at', header: t('consultingService.upload.columns.date'), class: 'min-w-[120px] w-[18%]' },
+  { accessorKey: 'actions', header: t('consultingService.upload.columns.actions'), class: 'min-w-[110px] w-[12%]' }
 ])
 
 const triggerFileSelect = () => {

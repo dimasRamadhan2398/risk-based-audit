@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { Bar } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -26,6 +26,7 @@ const {
   modelStatuses,
   formatNum,
   getRiskConfig,
+  riskCategoryColor,
   fetchAiAnalytics,
   fetchRetrainStatus,
   retrainModel,
@@ -57,15 +58,27 @@ const handleSyncWithProfile = async () => {
     await retrainModel('entity', { force: true, trigger: 'manual_entity_sync' }).catch(() => null)
     await fetchRetrainStatus().catch(() => null)
     if (res && res.predictions) {
-      toast.success(
-        'Sinkronisasi & Antrian Pelatihan AI',
-        `Model Entity Prediction dijadwalkan melatih ulang ${res.predictions.length} auditable entity dari Audit Universe secara spesifik (tanpa melatih model fitur lain).`
-      )
+      toast.add({
+        title: 'Sinkronisasi & Antrian Pelatihan AI',
+        description: `Model Entity Prediction dijadwalkan melatih ulang ${res.predictions.length} auditable entity dari Audit Universe secara spesifik (tanpa melatih model fitur lain).`,
+        color: 'success',
+        icon: 'i-lucide-check-circle'
+      })
     } else {
-      toast.info('Sinkronisasi Selesai', 'Data auditable entity telah diperbarui dan masuk antrian pelatihan AI.')
+      toast.add({
+        title: 'Sinkronisasi Selesai',
+        description: 'Data auditable entity telah diperbarui dan masuk antrian pelatihan AI.',
+        color: 'info',
+        icon: 'i-lucide-info'
+      })
     }
   } catch (err: any) {
-    toast.error('Gagal Sinkronisasi', err?.message || String(err))
+    toast.add({
+      title: 'Gagal Sinkronisasi',
+      description: err?.message || String(err),
+      color: 'error',
+      icon: 'i-lucide-alert-triangle'
+    })
   } finally {
     isSyncing.value = false
   }
@@ -217,6 +230,18 @@ const featureBarOptions = computed(() => ({
     x: { beginAtZero: true, max: 40, title: { display: true, text: t('analytics.xgboost.axisImportancePct') } }
   }
 }))
+
+const mobilePage = ref(1)
+const mobilePageSize = ref(10)
+
+watch(searchQuery, () => {
+  mobilePage.value = 1
+})
+
+const paginatedPredictions = computed<any[]>(() => {
+  const start = (mobilePage.value - 1) * mobilePageSize.value
+  return filteredPredictions.value.slice(start, start + mobilePageSize.value)
+})
 </script>
 
 <template>
@@ -379,7 +404,8 @@ const featureBarOptions = computed(() => ({
             </span>
           </div>
         </template>
-        <div class="overflow-x-auto">
+        <!-- Desktop View (>= md): Full Table -->
+        <div class="hidden md:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
               <tr class="bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
@@ -429,6 +455,128 @@ const featureBarOptions = computed(() => ({
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Mobile & Tablet View (< md): Stacked Cards List -->
+        <div class="block md:hidden">
+          <!-- Empty State -->
+          <div
+            v-if="!filteredPredictions.length"
+            class="py-8 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+          >
+            <UIcon name="i-heroicons-table-cells" class="size-8 mx-auto text-gray-400 mb-2" />
+            <p class="text-xs text-[var(--text-muted)]">{{ t('analytics.xgboost.empty') || 'Tidak ada data prediksi' }}</p>
+          </div>
+
+          <!-- Cards List -->
+          <div v-else class="space-y-3">
+            <div
+              v-for="(row, index) in paginatedPredictions"
+              :key="row.entity || index"
+              class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3"
+            >
+              <!-- Card Header: Entity & Predicted Risk Level Badge -->
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <UIcon name="i-lucide-building-2" class="size-4 text-slate-400 shrink-0" />
+                  <span class="font-bold text-gray-900 dark:text-white text-sm truncate">{{ row.entity }}</span>
+                </div>
+                <UBadge
+                  :class="getRiskConfig(row.predictedRiskLevel).badgeClass"
+                  variant="solid"
+                  size="sm"
+                  class="font-bold shrink-0"
+                >
+                  {{ getRiskConfig(row.predictedRiskLevel).label }}
+                </UBadge>
+              </div>
+
+              <!-- Badges Row: Type, Risk Category, Target Period -->
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <UBadge v-if="row.type" :color="row.type === 'Branch' ? 'primary' : 'warning'" variant="subtle" size="sm">
+                  {{ row.type }}
+                </UBadge>
+                <UBadge v-if="row.riskCategory" :color="riskCategoryColor(row.riskCategory)" variant="subtle" size="sm">
+                  {{ row.riskCategory }}
+                </UBadge>
+                <UBadge color="info" variant="subtle" size="sm" class="font-bold">
+                  {{ row.targetTimeline || 'FY 2026' }}
+                </UBadge>
+              </div>
+
+              <!-- Card Body: Actual vs Predicted Comparison -->
+              <div class="grid grid-cols-2 gap-2 pt-1">
+                <div class="p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800 space-y-1">
+                  <span class="text-[10px] uppercase font-bold tracking-wider text-gray-400 block">{{ t('analytics.xgboost.colActual') }}</span>
+                  <div class="flex items-center justify-between gap-1 flex-wrap">
+                    <span class="text-sm font-mono font-bold text-gray-900 dark:text-white">{{ formatNum(row.actualScore, 1) }}</span>
+                    <UBadge
+                      :class="getRiskConfig(row.actualRiskLevel).badgeClass"
+                      variant="solid"
+                      size="xs"
+                      class="font-bold"
+                    >
+                      {{ getRiskConfig(row.actualRiskLevel).label }}
+                    </UBadge>
+                  </div>
+                </div>
+                <div class="p-2.5 rounded-lg bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 space-y-1">
+                  <span class="text-[10px] uppercase font-bold tracking-wider text-indigo-600 dark:text-indigo-400 block">{{ t('analytics.xgboost.colPredScore') }}</span>
+                  <div class="flex items-center justify-between gap-1 flex-wrap">
+                    <span class="text-sm font-mono font-bold text-indigo-600 dark:text-indigo-400">{{ formatNum(row.predictedScore, 1) }}</span>
+                    <UBadge
+                      :class="getRiskConfig(row.predictedRiskLevel).badgeClass"
+                      variant="solid"
+                      size="xs"
+                      class="font-bold"
+                    >
+                      {{ getRiskConfig(row.predictedRiskLevel).label }}
+                    </UBadge>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Predicted Likelihood & Impact -->
+              <div class="grid grid-cols-2 gap-2 text-xs text-slate-500 dark:text-slate-400">
+                <div class="flex items-center justify-between px-2.5 py-1.5 bg-gray-50/80 dark:bg-gray-800/40 rounded-md border border-gray-100 dark:border-gray-800">
+                  <span class="text-[11px]">{{ t('analytics.xgboost.colPredLikelihood') }}</span>
+                  <span class="font-mono font-bold text-gray-700 dark:text-gray-300">{{ formatNum(row.predictedLikelihood, 1) }}</span>
+                </div>
+                <div class="flex items-center justify-between px-2.5 py-1.5 bg-gray-50/80 dark:bg-gray-800/40 rounded-md border border-gray-100 dark:border-gray-800">
+                  <span class="text-[11px]">{{ t('analytics.xgboost.colPredImpact') }}</span>
+                  <span class="font-mono font-bold text-gray-700 dark:text-gray-300">{{ formatNum(row.predictedImpact, 1) }}</span>
+                </div>
+              </div>
+
+              <!-- Card Footer: Index & Target Timeline -->
+              <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800/80 text-xs text-slate-500 dark:text-slate-400">
+                <span class="text-xs text-slate-400 font-mono">
+                  #{{ (mobilePage - 1) * mobilePageSize + Number(index) + 1 }}
+                </span>
+                <span class="text-[11px] text-gray-400">{{ row.targetTimeline || 'Q3 2026' }}</span>
+              </div>
+            </div>
+
+            <!-- Mobile Pagination Controls -->
+            <div
+              v-if="filteredPredictions.length > mobilePageSize"
+              class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800"
+            >
+              <span class="text-xs text-slate-500 dark:text-slate-400">
+                {{ (mobilePage - 1) * mobilePageSize + 1 }}-{{ Math.min(mobilePage * mobilePageSize, filteredPredictions.length) }} of {{ filteredPredictions.length }}
+              </span>
+              <UPagination
+                v-model:page="mobilePage"
+                :items-per-page="mobilePageSize"
+                :total="filteredPredictions.length"
+                size="md"
+                active-color="primary"
+                color="neutral"
+                variant="outline"
+                class="max-w-full overflow-x-auto"
+              />
+            </div>
+          </div>
         </div>
       </UCard>
     </div>

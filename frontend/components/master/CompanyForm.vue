@@ -175,8 +175,8 @@
             <UButton
               :label="t('masterData.company.cancel')"
               color="neutral"
-              variant="soft"
-              class="w-full sm:w-auto"
+              variant="ghost"
+              class="w-full sm:w-auto justify-center text-center"
               type="button"
               @click="store.closeModal"
             />
@@ -184,7 +184,7 @@
               :label="store.isEditing ? t('masterData.company.update') : t('masterData.company.create')"
               color="primary"
               :loading="store.loading"
-              class="w-full sm:w-auto font-bold"
+              class="w-full sm:w-auto font-bold justify-center text-center"
               type="submit"
             />
           </div>

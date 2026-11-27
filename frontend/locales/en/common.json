@@ -563,7 +563,8 @@
       },
       "calendar": {
         "title": "Important dates",
-        "description": "Engagement start and end dates, and ATR due dates for engagements you are on.",
+        "description": "Surat Tugas periods, planned fieldwork dates, PBC and test-of-controls due dates, and ATR due dates.",
+        "scope": "Shows every published Surat Tugas until team scoping is available. Fieldwork dates are shown for the Surat Tugas loaded on this page.",
         "notConnected": "Calendar is not connected yet.",
         "notLinked": "Your account is not linked to an employee record yet, so engagement dates cannot be filtered to you."
       },
@@ -807,7 +808,6 @@
     },
     "profile": {
       "avatarAlt": "Avatar",
-      "emailPlaceholder": "Enter your email",
       "title": "My Profile",
       "subtitle": "Manage your personal account details and preferences.",
       "changePhoto": "Change Photo",
@@ -1584,7 +1584,7 @@
       "riskIndex": "Risk Index",
       "riskLevel": "Risk Level",
       "auditPriorityCol": "Audit Priority*",
-      "priorityBadge": "√ Priority",
+      "priorityBadge": "Priority",
       "noEntities": "No established auditable entities for year {year}.",
       "sortedNote": "Sorted by Risk Index (descending); entities not scored yet are listed last",
       "notScoredBadge": "Not scored",
@@ -2064,6 +2064,13 @@
       "titleDefault": "Edit Risk",
       "desc": "Modify risk details and adjust quarterly assessments.",
       "updateBtn": "Update Risk"
+    },
+    "moveModal": {
+      "title": "Move Risk Position",
+      "desc": "Select the new Impact and Likelihood values to reposition this risk on the heat map.",
+      "buttonTooltip": "Move Position",
+      "targetCell": "Target Cell",
+      "saveBtn": "Move Position"
     },
     "riskLevelLabels": {
       "low": "Low",
@@ -3997,7 +4004,8 @@
       "activePlan": "Active ({count} Plan)",
       "done": "Completed",
       "viewMitigation": "View Mitigation",
-      "addMitigation": "Add Mitigation"
+      "addMitigation": "Add Mitigation",
+      "empty": "No risks match the selected compliance filter."
     },
     "statements": {
       "title": "Appetite Statements Management",
@@ -4465,6 +4473,7 @@
         "close": "Close"
       },
       "noFile": "No file",
+      "emptyFiltered": "No consulting services match your filter criteria.",
       "form": {
         "editTitle": "Edit Consulting Assignment",
         "newTitle": "New Consulting Assignment",
@@ -5802,8 +5811,8 @@
         "cosoNone": "Not mapped"
       },
       "actions": {
-        "edit": "Edit Control",
-        "delete": "Delete Control"
+        "edit": "Edit",
+        "delete": "Delete"
       }
     },
     "modal": {

@@ -16,14 +16,14 @@
           variant="outline"
           :label="t('consultingService.dashboard.importDocument')"
           icon="i-lucide-upload"
-          class="px-5 py-2.5 font-bold rounded-lg shadow w-full sm:w-auto"
+          class="px-5 py-2.5 font-bold rounded-lg shadow w-full sm:w-auto justify-center text-center"
           to="/consulting-service/upload"
         />
         <UButton v-if="canWriteQaConsulting"
           color="primary"
           :label="t('consultingService.dashboard.newAssignment')"
           icon="i-lucide-plus"
-          class="px-6 py-2.5 font-bold rounded-lg shadow-lg w-full sm:w-auto"
+          class="px-6 py-2.5 font-bold rounded-lg shadow-lg w-full sm:w-auto justify-center text-center"
           @click="store.openForm()"
         />
       </div>
@@ -100,9 +100,10 @@
       </div>
     </div>
 
-    <!-- Filters -->
-    <UCard class="shadow-sm">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Consulting Services Section (Filters + Table/Cards in 1 Card) -->
+    <UCard class="shadow-sm border border-gray-200 dark:border-gray-800" :ui="{ body: 'p-4 sm:p-6 space-y-4' }">
+      <!-- Filters -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pb-4 border-b border-gray-100 dark:border-gray-800">
         <UFormField :label="t('consultingService.dashboard.filters.searchTitle')">
           <CommonSearchInput v-model="filters.search" :placeholder="t('consultingService.dashboard.filters.searchPlaceholder')" class="w-full" />
         </UFormField>
@@ -116,79 +117,209 @@
           <USelectMenu v-model="filters.dept" :items="departmentFilterOptions" value-key="value" :placeholder="t('consultingService.dashboard.filters.selectDepartment')" class="w-full" />
         </UFormField>
       </div>
-    </UCard>
 
-    <!-- Data Table -->
-    <div>
-      <TableEntities :data="filteredServices" :columns="columns" :ui="frozenTableUi" class="w-full">
-        <!-- Status Cell -->
-        <template #status-cell="{ row }">
-          <UBadge :color="store.getStatusColor((row.original as any).status)" variant="subtle" size="md">
-            {{ getStatusLabel((row.original as any).status) }}
-          </UBadge>
-        </template>
+      <!-- Desktop View (>= md): Full Table Entities -->
+      <div class="hidden md:block">
+        <TableEntities
+          v-model:page="currentPage"
+          :data="filteredServices"
+          :columns="columns"
+          :items-per-page="itemsPerPage"
+          :show-pagination="true"
+          :ui="frozenTableUi"
+          class="w-full"
+        >
+          <!-- Status Cell -->
+          <template #status-cell="{ row }">
+            <UBadge :color="store.getStatusColor((row.original as any).status)" variant="subtle" size="md">
+              {{ getStatusLabel((row.original as any).status) }}
+            </UBadge>
+          </template>
 
-        <!-- Requestor Department Cell -->
-        <template #requestorDept-cell="{ row }">
-          {{ store.formatDepartmentName((row.original as any).requestorDept) }}
-        </template>
+          <!-- Requestor Department Cell -->
+          <template #requestorDept-cell="{ row }">
+            {{ store.formatDepartmentName((row.original as any).requestorDept) }}
+          </template>
 
-        <template #category-cell="{ row }">
-          {{ getCategoryLabel((row.original as any).category) }}
-        </template>
+          <template #category-cell="{ row }">
+            {{ getCategoryLabel((row.original as any).category) }}
+          </template>
 
-        <!-- Attachment Cell -->
-        <template #attachment-cell="{ row }">
-          <span v-if="(row.original as any).attachment && !canAccessFiles" class="text-md">{{ (row.original as any).attachment.name }}</span>
-          <div v-else-if="(row.original as any).attachment" class="flex items-center gap-1.5">
-            <UButton
-              icon="i-lucide-download"
-              color="primary"
-              variant="ghost"
+          <!-- Attachment Cell -->
+          <template #attachment-cell="{ row }">
+            <span v-if="(row.original as any).attachment && !canAccessFiles" class="text-md">{{ (row.original as any).attachment.name }}</span>
+            <div v-else-if="(row.original as any).attachment" class="flex items-center gap-1.5">
+              <UButton
+                icon="i-lucide-download"
+                color="primary"
+                variant="ghost"
+                size="sm"
+                :label="(row.original as any).attachment.name"
+                @click="store.viewAttachment((row.original as any).id, (row.original as any).attachment.name)"
+              />
+            </div>
+            <span v-else class="text-gray-400 italic text-md">{{ t('consultingService.dashboard.noFile') }}</span>
+          </template>
+
+          <!-- Actions Cell -->
+          <template #actions-cell="{ row }">
+            <div class="flex items-center gap-1">
+              <UTooltip :text="t('consultingService.dashboard.actions.viewDetails')">
+                <UButton
+                  icon="i-lucide-eye"
+                  color="neutral"
+                  variant="ghost"
+                  size="md"
+                  @click="store.openDetail(row.original as any)"
+                />
+              </UTooltip>
+
+              <UTooltip v-if="canWriteQaConsulting" :text="t('consultingService.dashboard.actions.edit')">
+                <UButton
+                  icon="i-lucide-edit"
+                  color="warning"
+                  variant="ghost"
+                  size="md"
+                  @click="store.editService(row.original as any)"
+                />
+              </UTooltip>
+
+              <UTooltip v-if="canWriteQaConsulting" :text="t('consultingService.dashboard.actions.delete')">
+                <UButton
+                  icon="i-lucide-trash-2"
+                  color="error"
+                  variant="ghost"
+                  size="md"
+                  @click="confirmDelete(row.original as any)"
+                />
+              </UTooltip>
+            </div>
+          </template>
+        </TableEntities>
+      </div>
+
+      <!-- Mobile & Tablet View (< md): Stacked Cards List -->
+      <div class="block md:hidden space-y-3">
+        <!-- Empty State -->
+        <div
+          v-if="!filteredServices.length"
+          class="py-8 px-4 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+        >
+          <UIcon name="i-lucide-inbox" class="size-8 mx-auto text-gray-400 mb-2" />
+          <p class="text-sm font-medium text-slate-700 dark:text-slate-200">
+            {{ t('consultingService.dashboard.emptyFiltered') }}
+          </p>
+        </div>
+
+        <!-- Cards List -->
+        <div v-else class="space-y-3">
+          <div
+            v-for="(service, index) in paginatedServices"
+            :key="service.id || index"
+            class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3"
+          >
+            <!-- Card Header: Category & Status Badge -->
+            <div class="flex items-center justify-between gap-2">
+              <span class="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700">
+                <UIcon name="i-lucide-tag" class="size-3 text-primary-500" />
+                {{ getCategoryLabel(service.category) }}
+              </span>
+              <UBadge :color="store.getStatusColor(service.status)" variant="subtle" size="sm" class="font-semibold">
+                {{ getStatusLabel(service.status) }}
+              </UBadge>
+            </div>
+
+            <!-- Card Body: Title & Period -->
+            <div class="space-y-1">
+              <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-snug">
+                {{ service.title }}
+              </h4>
+              <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                <UIcon name="i-lucide-calendar" class="size-3.5 text-slate-400 shrink-0" />
+                <span>{{ service.period }}</span>
+              </div>
+            </div>
+
+            <!-- Metadata: Department & Consultant Lead -->
+            <div class="flex flex-wrap items-center justify-between gap-2 text-xs pt-2 border-t border-gray-100 dark:border-gray-800/80 text-slate-600 dark:text-slate-400">
+              <div class="flex items-center gap-1.5 min-w-0">
+                <UIcon name="i-lucide-building-2" class="size-3.5 text-gray-400 shrink-0" />
+                <span class="truncate font-medium text-gray-700 dark:text-gray-300">{{ store.formatDepartmentName(service.requestorDept) || service.requestorDept }}</span>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <UIcon name="i-lucide-user" class="size-3.5 text-gray-400 shrink-0" />
+                <span>{{ service.consultantName }}</span>
+              </div>
+            </div>
+
+            <!-- Attachment if exists -->
+            <div v-if="service.attachment" class="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 text-xs">
+              <div class="flex items-center gap-1.5 truncate pr-2">
+                <UIcon name="i-lucide-paperclip" class="size-3.5 text-primary-500 shrink-0" />
+                <span class="truncate text-gray-700 dark:text-gray-300 font-medium">{{ service.attachment.name }}</span>
+              </div>
+              <UButton
+                v-if="canAccessFiles"
+                icon="i-lucide-download"
+                color="primary"
+                variant="ghost"
+                size="xs"
+                @click="store.viewAttachment(service.id, service.attachment.name)"
+              />
+            </div>
+
+            <!-- Card Footer: Index & Action Buttons -->
+            <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
+              <span class="text-xs text-slate-400 font-mono">
+                #{{ (currentPage - 1) * itemsPerPage + index + 1 }}
+              </span>
+              <div class="flex items-center gap-1">
+                <UButton
+                  icon="i-lucide-eye"
+                  color="neutral"
+                  variant="ghost"
+                  size="md"
+                  @click="store.openDetail(service)"
+                />
+                <UButton
+                  v-if="canWriteQaConsulting"
+                  icon="i-lucide-edit"
+                  color="warning"
+                  variant="ghost"
+                  size="md"
+                  @click="store.editService(service)"
+                />
+                <UButton
+                  v-if="canWriteQaConsulting"
+                  icon="i-lucide-trash-2"
+                  color="error"
+                  variant="ghost"
+                  size="md"
+                  @click="confirmDelete(service)"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Mobile Pagination Controls -->
+          <div v-if="filteredServices.length > itemsPerPage" class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <span class="text-xs text-slate-500 dark:text-slate-400">
+              {{ (currentPage - 1) * itemsPerPage + 1 }}-{{ Math.min(currentPage * itemsPerPage, filteredServices.length) }} of {{ filteredServices.length }}
+            </span>
+            <UPagination
+              v-model:page="currentPage"
+              :items-per-page="itemsPerPage"
+              :total="filteredServices.length"
               size="sm"
-              :label="(row.original as any).attachment.name"
-              @click="store.viewAttachment((row.original as any).id, (row.original as any).attachment.name)"
+              active-color="primary"
+              color="neutral"
+              variant="outline"
+              class="max-w-full overflow-x-auto"
             />
           </div>
-          <span v-else class="text-gray-400 italic text-md">{{ t('consultingService.dashboard.noFile') }}</span>
-        </template>
-
-        <!-- Actions Cell -->
-        <template #actions-cell="{ row }">
-          <div class="flex items-center gap-1">
-            <UTooltip :text="t('consultingService.dashboard.actions.viewDetails')" >
-              <UButton
-                icon="i-lucide-eye"
-                color="neutral"
-                variant="ghost"
-                size="md"
-                @click="store.openDetail(row.original as any)"
-              />
-            </UTooltip>
-
-            <UTooltip v-if="canWriteQaConsulting" :text="t('consultingService.dashboard.actions.edit')">
-              <UButton
-                icon="i-lucide-edit"
-                color="warning"
-                variant="ghost"
-                size="md"
-              @click="store.editService(row.original as any)"
-            />
-            </UTooltip>
-
-            <UTooltip v-if="canWriteQaConsulting" :text="t('consultingService.dashboard.actions.delete')">
-              <UButton
-                icon="i-lucide-trash-2"
-                color="error"
-                variant="ghost"
-                size="md"
-                @click="confirmDelete(row.original as any)"
-              />
-            </UTooltip>
-          </div>
-        </template>
-      </TableEntities>
-    </div>
+        </div>
+      </div>
+    </UCard>
 
     <!-- Form Modal -->
     <UModal
@@ -230,14 +361,14 @@
           </div>
 
           <!-- Stepper -->
-          <div class="w-full overflow-x-auto border-b border-[var(--border-main)] bg-[var(--bg-surface)] px-4 py-3 sm:px-6 sm:py-4 scrollbar-thin">
-            <div class="flex min-w-max items-center gap-3 px-1 sm:gap-4">
+          <div class="w-full border-b border-[var(--border-main)] bg-[var(--bg-surface)] px-3 py-3 sm:px-6 sm:py-4">
+            <div class="flex w-full items-center justify-center gap-2 sm:gap-4">
               <template
                 v-for="(step, idx) in steps"
                 :key="step.key"
               >
                 <div
-                  class="group flex shrink-0 cursor-pointer select-none items-center gap-2 sm:gap-2.5"
+                  class="group flex min-w-0 shrink cursor-pointer select-none items-center gap-1.5 sm:gap-2.5"
                   data-testid="form-step"
                   @click="goToStep(idx)"
                 >
@@ -257,7 +388,7 @@
                     <span v-else>{{ idx + 1 }}</span>
                   </div>
                   <span
-                    class="whitespace-nowrap text-xs font-semibold transition-colors"
+                    class="text-[11px] sm:text-xs font-semibold transition-colors truncate sm:whitespace-nowrap"
                     :class="currentStep === idx
                       ? 'text-primary font-bold'
                       : currentStep > idx
@@ -269,7 +400,7 @@
                 </div>
                 <div
                   v-if="idx < steps.length - 1"
-                  class="h-0.5 w-8 shrink-0 rounded transition-all duration-300 sm:w-12"
+                  class="h-0.5 w-4 sm:w-8 shrink-0 rounded transition-all duration-300"
                   :class="currentStep > idx ? 'bg-secondary' : 'bg-gray-200 dark:bg-gray-800'"
                 />
               </template>
@@ -429,27 +560,18 @@
                 :label="t('common.cancel')"
                 color="neutral"
                 variant="ghost"
-                class="w-full sm:w-auto"
+                class="w-full sm:w-auto justify-center text-center"
                 @click="store.closeForm"
               />
             </div>
 
             <div class="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-3">
               <UButton
-                v-if="currentStep > 0"
-                icon="i-heroicons-arrow-left"
-                :label="t('auditActivityPlan.stepper.previous')"
-                color="neutral"
-                variant="outline"
-                class="flex-1 sm:flex-none"
-                @click="() => { currentStep-- }"
-              />
-              <UButton
                 v-if="currentStep < steps.length - 1"
                 trailing-icon="i-heroicons-arrow-right"
                 :label="t('auditActivityPlan.stepper.next')"
                 color="primary"
-                class="flex-1 sm:flex-none font-bold shadow-md shadow-primary/20"
+                class="flex-1 sm:flex-none font-bold shadow-md shadow-primary/20 justify-center text-center"
                 @click="handleNext"
               />
               <UButton
@@ -457,7 +579,7 @@
                 icon="i-heroicons-check"
                 :label="store.isEditing ? t('common.updateData') : t('consultingService.dashboard.form.save')"
                 color="primary"
-                class="flex-1 sm:flex-none font-bold shadow-md shadow-primary/20"
+                class="flex-1 sm:flex-none font-bold shadow-md shadow-primary/20 text-center justify-center"
                 :loading="store.loading"
                 @click="handleSave"
               />
@@ -563,9 +685,10 @@
 </template>
 
 <script setup lang="ts">
-import { useRbac } from '~/composables/useRbac'
 import { ref, reactive, computed, watch, nextTick } from 'vue'
+import { useRbac } from '~/composables/useRbac'
 import { useConsultingServiceStore } from '~/stores/consulting-service'
+import { useGlobalModalStore } from '~/stores/global-modal'
 
 const store = useConsultingServiceStore()
 const { t } = useI18n()
@@ -744,6 +867,18 @@ const filteredServices = computed(() => {
     return matchesSearch && matchesCategory && matchesStatus && matchesDept
   })
 })
+
+const currentPage = ref(1)
+const itemsPerPage = ref(10)
+
+const paginatedServices = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  return filteredServices.value.slice(start, start + itemsPerPage.value)
+})
+
+watch(() => [filters.search, filters.category, filters.status, filters.dept], () => {
+  currentPage.value = 1
+}, { deep: true })
 
 const confirmDelete = async (service: any) => {
   if (await useGlobalModalStore().confirmDelete({ description: t('consultingService.dashboard.deleteConfirm') })) {

@@ -59,6 +59,7 @@ const isAnalyzingDoc = ref(false)
 const isReadingFile = ref(false)
 const isSyncingSources = ref(false)
 const isDeletingDoc = ref(false)
+const isSavingTaxonomy = ref(false)
 const actionFeedback = ref<string>('')
 const isDragging = ref(false)
 const activeTaxonomyTab = ref<'categories' | 'indicators'>('categories')
@@ -285,7 +286,7 @@ const categoryDoughnutData = computed(() => {
     const c = d.autoCategory || 'Operational'
     counts[c] = (counts[c] || 0) + 1
   })
-  const labels = Object.keys(counts).filter(k => counts[k] > 0 || ['Financial', 'Operational', 'Compliance', 'Technology'].includes(k))
+  const labels = Object.keys(counts).filter(k => (counts[k] ?? 0) > 0 || ['Financial', 'Operational', 'Compliance', 'Technology'].includes(k))
   return {
     labels,
     datasets: [{
@@ -339,7 +340,7 @@ const sentimentOrIndicatorDoughnutData = computed(() => {
   return {
     labels,
     datasets: [{
-      data: labels.map(l => indCounts[l]),
+      data: labels.map(l => indCounts[l] ?? 0),
       backgroundColor: indColors,
       borderWidth: 2,
       borderColor: 'rgba(255,255,255,0.1)',
@@ -867,7 +868,7 @@ const copyToClipboard = async (text: string) => {
                 <UButton
                   v-if="hasManualImports"
                   icon="i-heroicons-trash"
-                  color="rose"
+                  color="error"
                   variant="soft"
                   size="xs"
                   class="font-medium"
@@ -985,8 +986,9 @@ const copyToClipboard = async (text: string) => {
           <UButton color="neutral" variant="soft" size="xs" @click="resetAllFilters">Reset Semua Filter</UButton>
         </div>
 
-        <!-- 1. DESKTOP TABLE VIEW (Visible on md+ screens when viewMode === 'table') -->
-        <div v-else-if="viewMode === 'table'" class="hidden md:block overflow-x-auto">
+        <template v-else>
+          <!-- 1. DESKTOP TABLE VIEW (Visible on md+ screens when viewMode === 'table') -->
+          <div v-if="viewMode === 'table'" class="hidden md:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
               <tr class="bg-gray-50/80 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800 text-[11px] uppercase tracking-wider text-gray-500 dark:text-gray-400">
@@ -1117,82 +1119,83 @@ const copyToClipboard = async (text: string) => {
               </tr>
             </tbody>
           </table>
-        </div>
+          </div>
 
-        <!-- 2. RESPONSIVE CARD VIEW (Visible on mobile/tablet or when cards viewMode is selected) -->
-        <div v-else class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div
-            v-for="doc in paginatedDocuments"
-            :key="doc.docId"
-            class="p-4 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/90 shadow-xs hover:border-indigo-400 dark:hover:border-indigo-600 transition-all cursor-pointer flex flex-col justify-between space-y-3"
-            @click="openDocumentDetail(doc)"
-          >
-            <!-- Card Header -->
-            <div class="space-y-2">
-              <div class="flex items-center justify-between gap-2 flex-wrap">
-                <div class="flex items-center gap-2">
-                  <span class="font-mono font-bold text-xs text-indigo-600 dark:text-indigo-400">{{ doc.docId }}</span>
-                  <UBadge color="neutral" variant="soft" size="xs">{{ doc.fileType || 'PDF' }}</UBadge>
+          <!-- 2. RESPONSIVE CARD VIEW (Visible on mobile/tablet or when cards viewMode is selected) -->
+          <div :class="viewMode === 'cards' ? 'p-4 grid grid-cols-1 md:grid-cols-2 gap-4' : 'block md:hidden p-4 grid grid-cols-1 gap-4'">
+            <div
+              v-for="doc in paginatedDocuments"
+              :key="doc.docId"
+              class="p-4 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/90 shadow-xs hover:border-indigo-400 dark:hover:border-indigo-600 transition-all cursor-pointer flex flex-col justify-between space-y-3"
+              @click="openDocumentDetail(doc)"
+            >
+              <!-- Card Header -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                  <div class="flex items-center gap-2">
+                    <span class="font-mono font-bold text-xs text-indigo-600 dark:text-indigo-400">{{ doc.docId }}</span>
+                    <UBadge color="neutral" variant="soft" size="xs">{{ doc.fileType || 'PDF' }}</UBadge>
+                  </div>
+                  <UBadge
+                    :class="getRiskConfig(doc.riskLevel).badgeClass"
+                    variant="solid"
+                    size="xs"
+                    class="font-bold"
+                  >
+                    {{ getRiskConfig(doc.riskLevel).label }}
+                  </UBadge>
                 </div>
-                <UBadge
-                  :class="getRiskConfig(doc.riskLevel).badgeClass"
-                  variant="solid"
-                  size="xs"
-                  class="font-bold"
-                >
-                  {{ getRiskConfig(doc.riskLevel).label }}
+
+                <!-- Title -->
+                <h4 class="font-bold text-sm text-gray-900 dark:text-white leading-snug">
+                  {{ doc.title }}
+                </h4>
+
+                <!-- Source & Date -->
+                <div class="flex items-center gap-2 text-[11px] text-gray-500">
+                  <UBadge :color="sourceTypeBadgeColor(doc.sourceType)" variant="subtle" size="xs">
+                    {{ doc.source }}
+                  </UBadge>
+                  <span>•</span>
+                  <span>{{ doc.date }}</span>
+                </div>
+              </div>
+
+              <!-- Category & Indicator Pills -->
+              <div class="flex flex-wrap items-center gap-1.5 pt-1">
+                <UBadge :color="riskCategoryColor(doc.autoCategory)" variant="subtle" size="xs" class="font-semibold">
+                  {{ doc.autoCategory }}
+                </UBadge>
+                <UBadge :color="controlIndicatorColor(doc.controlIndicator)" variant="solid" size="xs" class="font-bold">
+                  {{ doc.controlIndicator }}
+                </UBadge>
+                <UBadge :color="sentimentColor(doc.sentiment)" variant="subtle" size="xs">
+                  {{ doc.sentiment }} ({{ doc.severityScore }}/100)
                 </UBadge>
               </div>
 
-              <!-- Title -->
-              <h4 class="font-bold text-sm text-gray-900 dark:text-white leading-snug">
-                {{ doc.title }}
-              </h4>
-
-              <!-- Source & Date -->
-              <div class="flex items-center gap-2 text-[11px] text-gray-500">
-                <UBadge :color="sourceTypeBadgeColor(doc.sourceType)" variant="subtle" size="xs">
-                  {{ doc.source }}
-                </UBadge>
-                <span>•</span>
-                <span>{{ doc.date }}</span>
+              <!-- Finding Snippet -->
+              <div class="p-2.5 rounded-xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200/60 dark:border-rose-800/40 text-xs">
+                <div class="flex items-center gap-1 font-bold text-rose-700 dark:text-rose-300 text-[10px] uppercase">
+                  <UIcon name="i-heroicons-exclamation-triangle" class="w-3.5 h-3.5" />
+                  <span>{{ t('analytics.nlp.findingLabel') }}</span>
+                </div>
+                <p class="text-gray-700 dark:text-gray-300 line-clamp-2 mt-1 leading-snug">
+                  {{ doc.extractedFinding || doc.excerpt }}
+                </p>
               </div>
-            </div>
 
-            <!-- Category & Indicator Pills -->
-            <div class="flex flex-wrap items-center gap-1.5 pt-1">
-              <UBadge :color="riskCategoryColor(doc.autoCategory)" variant="subtle" size="xs" class="font-semibold">
-                {{ doc.autoCategory }}
-              </UBadge>
-              <UBadge :color="controlIndicatorColor(doc.controlIndicator)" variant="solid" size="xs" class="font-bold">
-                {{ doc.controlIndicator }}
-              </UBadge>
-              <UBadge :color="sentimentColor(doc.sentiment)" variant="subtle" size="xs">
-                {{ doc.sentiment }} ({{ doc.severityScore }}/100)
-              </UBadge>
-            </div>
-
-            <!-- Finding Snippet -->
-            <div class="p-2.5 rounded-xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200/60 dark:border-rose-800/40 text-xs">
-              <div class="flex items-center gap-1 font-bold text-rose-700 dark:text-rose-300 text-[10px] uppercase">
-                <UIcon name="i-heroicons-exclamation-triangle" class="w-3.5 h-3.5" />
-                <span>{{ t('analytics.nlp.findingLabel') }}</span>
-              </div>
-              <p class="text-gray-700 dark:text-gray-300 line-clamp-2 mt-1 leading-snug">
-                {{ doc.extractedFinding || doc.excerpt }}
-              </p>
-            </div>
-
-            <!-- Footer Action -->
-            <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800 text-xs text-indigo-600 dark:text-indigo-400 font-semibold">
-              <span class="text-[11px] text-gray-400">Akurasi AI: {{ Math.round((doc.confidence || 0.92) * 100) }}%</span>
-              <div class="flex items-center gap-1">
-                <span>Lihat Detail</span>
-                <UIcon name="i-heroicons-arrow-right" class="w-3.5 h-3.5" />
+              <!-- Footer Action -->
+              <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800 text-xs text-indigo-600 dark:text-indigo-400 font-semibold">
+                <span class="text-[11px] text-gray-400">Akurasi AI: {{ Math.round((doc.confidence || 0.92) * 100) }}%</span>
+                <div class="flex items-center gap-1">
+                  <span>Lihat Detail</span>
+                  <UIcon name="i-heroicons-arrow-right" class="w-3.5 h-3.5" />
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </template>
 
         <!-- Responsive Pagination Footer -->
         <template #footer>
@@ -1654,7 +1657,7 @@ const copyToClipboard = async (text: string) => {
 
         <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
           <UButton
-            color="rose"
+            color="error"
             variant="ghost"
             size="sm"
             icon="i-heroicons-trash"

@@ -880,6 +880,7 @@ export const useAiAnalytics = () => {
     } catch (e1) {
       let pyEndpoint = endpoint
       if (endpoint === '/risk-score') pyEndpoint = '/predict/risk-score'
+      else if (endpoint === '/risk-score/sync-profile') pyEndpoint = '/predict/risk-score/sync-profile'
       else if (endpoint === '/anomaly') pyEndpoint = '/predict/anomaly'
       else if (endpoint === '/text-analysis') pyEndpoint = '/predict/text-analysis'
       else if (endpoint === '/performance-trend') pyEndpoint = '/predict/performance-trend'
@@ -957,7 +958,7 @@ export const useAiAnalytics = () => {
     if (map[cat]) return map[cat]
     const dynamicPalette: BadgeColor[] = ['primary', 'info', 'warning', 'success', 'error']
     const hash = Array.from(cat || '').reduce((acc, ch) => acc + ch.charCodeAt(0), 0)
-    return dynamicPalette[hash % dynamicPalette.length]
+    return dynamicPalette[hash % dynamicPalette.length] ?? 'primary'
   }
 
   const controlIndicatorColor = (ind?: string): BadgeColor => {
@@ -975,7 +976,7 @@ export const useAiAnalytics = () => {
     if (val.toLowerCase().includes('adequate') || val.toLowerCase().includes('effective')) return 'success'
     const dynamicPalette: BadgeColor[] = ['warning', 'info', 'primary', 'error']
     const hash = Array.from(val).reduce((acc, ch) => acc + ch.charCodeAt(0), 0)
-    return dynamicPalette[hash % dynamicPalette.length]
+    return dynamicPalette[hash % dynamicPalette.length] ?? 'warning'
   }
 
   const recalculateNlpDistributions = () => {
@@ -2557,17 +2558,10 @@ export const useAiAnalytics = () => {
         trigger_retrain: triggerRetrain
       }
 
-      let res: any = await safeApiFetch('/predict/risk-score/sync-profile', {
+      const res: any = await safeApiFetch('/risk-score/sync-profile', {
         method: 'POST',
         body: payload
-      }, 'python').catch(() => null)
-
-      if (!res) {
-        res = await safeApiFetch('/api/analytics/risk-score/sync-profile', {
-          method: 'POST',
-          body: payload
-        }, 'go').catch(() => null)
-      }
+      }).catch(() => null)
 
       const resData = res?.data || res
       if (resData?.predictions && resData.predictions.length > 0) {

@@ -1,8 +1,8 @@
-export const useApi = () => {
-  const config = useRuntimeConfig();
+import { getAuthServiceBaseUrl } from '~/composables/useApiUrl';
 
+export const useApi = () => {
   const apiFetch = $fetch.create({
-    baseURL: config.public.apiBase as string,
+    baseURL: getAuthServiceBaseUrl(),
     onRequest({ options }) {
       // Add headers if needed (e.g., auth token)
       // options.headers = {

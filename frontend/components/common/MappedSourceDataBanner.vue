@@ -252,7 +252,7 @@ onBeforeUnmount(() => {
 })
 
 const getBaseUrl = (): string => {
-  return (config.public?.masterServiceBaseUrl as string) || '/api/v1'
+  return getMasterServiceBaseUrl()
 }
 
 const CANONICAL_ENTITY_UI_PAIRS: Record<string, [number, number]> = {

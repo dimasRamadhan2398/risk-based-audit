@@ -109,19 +109,23 @@
             color="primary"
             variant="solid"
             size="md"
-            class="w-full sm:w-auto font-bold"
+            class="w-full sm:w-auto min-w-[120px] font-bold justify-center text-center"
           >
-            {{ store.isEditing ? t('auditCharter.guidelineForm.saveChanges') : t('auditCharter.guidelineForm.addGuideline') }}
+            <span class="w-full text-center">
+              {{ store.isEditing ? t('auditCharter.guidelineForm.saveChanges') : t('auditCharter.guidelineForm.addGuideline') }}
+            </span>
           </UButton>
           <UButton
             type="button"
             color="neutral"
             variant="outline"
             size="md"
-            class="w-full sm:w-auto font-bold"
+            class="w-full sm:w-auto min-w-[120px] font-bold justify-center text-center"
             @click="store.closeModal"
           >
-            {{ t('auditCharter.guidelineForm.cancel') }}
+            <span class="w-full text-center">
+              {{ t('auditCharter.guidelineForm.cancel') }}
+            </span>
           </UButton>
         </div>
       </UForm>

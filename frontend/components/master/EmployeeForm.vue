@@ -239,18 +239,19 @@
           </div>
 
           <!-- Footer -->
-          <div class="px-6 py-4 bg-[var(--bg-surface)] border-t border-[var(--border-main)] rounded-b-xl flex justify-end gap-3">
+          <div class="px-4 sm:px-6 py-4 bg-[var(--bg-surface)] border-t border-[var(--border-main)] rounded-b-xl flex flex-col-reverse sm:flex-row justify-end gap-3">
             <UButton
               :label="t('masterData.employee.form.cancel')"
               color="neutral"
-              variant="soft"
-              type="button"
+              variant="ghost"
+              class="w-full sm:w-auto justify-center text-center"
               @click="store.closeModal"
             />
             <UButton
               :label="store.isEditing ? 'Update' : 'Create'"
               color="primary"
               :loading="store.loading"
+              class="w-full sm:w-auto font-bold justify-center text-center"
               type="submit"
             />
           </div>

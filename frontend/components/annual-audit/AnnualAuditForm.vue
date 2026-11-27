@@ -2,7 +2,7 @@
   <UModal
     :open="store.showModal"
     :ui="{
-      content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-5xl max-h-[92vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+      content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-5xl min-h-[60vh] max-h-[92vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
       overlay: 'bg-gray-900/50 dark:bg-black/80 backdrop-blur-md'
     }"
     @update:open="(open: boolean) => { if (!open) store.closeModal() }"
@@ -10,7 +10,7 @@
     <template #content>
       <UForm
         :state="store.form"
-        class="relative flex max-h-[92vh] flex-col transition-colors duration-300"
+        class="relative flex min-h-[60vh] max-h-[92vh] flex-col transition-colors duration-300"
         @submit.prevent="store.handleSubmit"
       >
         <!-- Header -->
@@ -34,8 +34,8 @@
         </div>
 
         <!-- Stepper -->
-        <div class="w-full overflow-x-auto border-b border-[var(--border-main)] bg-[var(--bg-surface)] px-4 py-3 sm:px-6 sm:py-4 scrollbar-thin">
-          <div class="flex min-w-max items-center gap-3 px-1 sm:gap-4">
+        <div class="shrink-0 w-full border-b border-[var(--border-main)] bg-[var(--bg-surface)] px-4 py-3 sm:px-6 sm:py-4">
+          <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 px-1 sm:gap-x-4">
             <template
               v-for="(step, idx) in steps"
               :key="step.key"

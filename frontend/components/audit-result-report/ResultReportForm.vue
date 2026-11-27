@@ -41,8 +41,8 @@
         </div>
 
         <!-- Stepper -->
-        <div class="w-full overflow-x-auto border-b border-[var(--border-main)] bg-[var(--bg-surface)] px-4 py-3 sm:px-6 sm:py-4 scrollbar-thin">
-          <div class="flex min-w-max items-center gap-3 px-1 sm:gap-4">
+        <div class="w-full border-b border-[var(--border-main)] bg-[var(--bg-surface)] px-4 py-3 sm:px-6 sm:py-4">
+          <div class="flex items-center justify-center gap-3 px-1 sm:gap-4">
             <template
               v-for="(step, idx) in steps"
               :key="step.key"
@@ -693,25 +693,25 @@
         </div>
 
         <!-- Footer Actions -->
-        <div class="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 border-t border-[var(--border-main)] bg-[var(--bg-surface)] p-4 sm:p-5">
-          <div class="flex w-full items-center justify-start gap-2 sm:w-auto">
+        <div class="flex flex-col-reverse sm:flex-row items-center justify-center gap-3 border-t border-[var(--border-main)] bg-[var(--bg-surface)] p-4 sm:p-5">
+          <div class="flex w-full sm:w-auto items-center justify-center">
             <UButton
               :label="t('auditResultReport.editor.form.cancel')"
               color="neutral"
               variant="ghost"
-              class="w-full sm:w-auto"
+              class="w-full sm:w-auto justify-center"
               @click="store.closeModal"
             />
           </div>
 
-          <div class="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-3">
+          <div class="flex w-full sm:w-auto items-center justify-center gap-2 sm:gap-3">
             <UButton
               v-if="currentStep > 0"
               icon="i-heroicons-arrow-left"
               :label="t('auditActivityPlan.stepper.previous')"
               color="neutral"
               variant="outline"
-              class="flex-1 sm:flex-none"
+              class="flex-1 sm:flex-none justify-center sm:min-w-[100px]"
               @click="() => { currentStep-- }"
             />
             <UButton
@@ -719,7 +719,7 @@
               trailing-icon="i-heroicons-arrow-right"
               :label="t('auditActivityPlan.stepper.next')"
               color="primary"
-              class="flex-1 sm:flex-none font-bold shadow-md shadow-primary/20"
+              class="flex-1 sm:flex-none justify-center font-bold shadow-md shadow-primary/20 sm:min-w-[120px]"
               @click="handleNext"
             />
             <UButton
@@ -727,7 +727,7 @@
               :icon="isFinalStatus ? 'i-heroicons-pencil-square' : 'i-heroicons-check'"
               :label="submitButtonLabel"
               color="primary"
-              class="flex-1 sm:flex-none font-bold shadow-md shadow-primary/20"
+              class="flex-1 sm:flex-none justify-center font-bold shadow-md shadow-primary/20 sm:min-w-[120px]"
               :loading="store.loading"
               @click="onFormSubmit"
             />

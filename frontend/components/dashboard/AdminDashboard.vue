@@ -896,7 +896,7 @@ import {
   Filler
 } from "chart.js";
 import { useAiAnalytics } from "~/composables/useAiAnalytics";
-import { normalizeAnomalyRiskLevel, getRiskLevelColorClass } from "~/utils/riskLevelBadge";
+import { normalizeAnomalyRiskLevel, getControlEffectivenessColorClass, getRiskLevelColorClass } from "~/utils/riskLevelBadge";
 import {
   buildAnomalyScatterPoints,
   createAnomalyTypeConfigs,
@@ -906,7 +906,6 @@ import {
 } from "~/composables/useAnomalyScatter";
 import { useI18n } from "~/composables/useI18n";
 import { useRiskProfileStore, riskLevelConfig } from "~/stores/risk-profile";
-import { getControlEffectivenessColorClass, getRiskLevelColorClass } from "~/utils/riskLevelBadge";
 import { useAnnualPlanStore } from "~/stores/annual-audit";
 import { AnnualAuditPlanStatus } from "~/types/audit";
 import { useActionTakenReportStore } from "~/stores/action-taken-report";

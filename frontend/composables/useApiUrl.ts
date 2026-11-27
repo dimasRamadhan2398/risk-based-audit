@@ -4,27 +4,12 @@ const isRemoteUrl = (val: unknown): val is string =>
 const getDynamicApiUrl = (fallbackConfigKey: string, fallbackPath: string) => {
   const configured = useRuntimeConfig().public[fallbackConfigKey as keyof ReturnType<typeof useRuntimeConfig>['public']];
   // An absolute non-localhost URL from .env (e.g. https://api.auditsphere.app/api/v1) wins,
-  // so local dev can target a remote API. Relative values keep the behaviour below.
+  // so local dev can target a remote API directly.
   if (isRemoteUrl(configured)) {
     return configured;
   }
-  if (process.client) {
-    const hostname = window.location.hostname;
-    if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
-      return fallbackPath;
-    } else {
-      if (fallbackPath.includes('python-ai')) {
-        return 'http://localhost:8000';
-      }
-      const port = fallbackPath.includes('analytics') ? '8084' : '8080';
-      return `http://localhost:${port}${fallbackPath}`;
-    }
-  }
-  const config = useRuntimeConfig();
-  const val = config.public[fallbackConfigKey as keyof typeof config.public];
-  if (val && typeof val === 'string' && !val.includes('localhost')) {
-    return val;
-  }
+  // Otherwise stay same-origin: the Nuxt routeRules proxy forwards to the local stack
+  // or to the *_BASE_URL_SERVER targets in .env.
   return fallbackPath;
 };
 

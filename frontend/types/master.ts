@@ -8,6 +8,8 @@ export interface Company {
   id: string
   company_code: string
   company_name: string
+  code?: string
+  name?: string
   legal_name?: string
   tax_id?: string
   company_type: CompanyType

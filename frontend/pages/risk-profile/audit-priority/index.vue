@@ -177,85 +177,110 @@
         </div>
       </template>
 
-      <!-- Table Content -->
-      <!-- Table Content -->
-      <TableEntities
-        :columns="priorityColumns"
-        :data="priorityPage.items"
-        :loading="loading"
-        :show-pagination="false"
-      >
-        <template #no-cell="{ row }">
-          <span class="text-slate-500 font-medium">{{ pageFrom + row.index }}</span>
-        </template>
+      <!-- Desktop View (>= md): Full Table Entities -->
+      <div class="hidden md:block">
+        <TableEntities
+          :columns="priorityColumns"
+          :data="priorityPage.items"
+          :loading="loading"
+          :show-pagination="false"
+        >
+          <template #no-cell="{ row }">
+            <span class="text-slate-500 font-medium">{{ pageFrom + row.index }}</span>
+          </template>
 
-        <template #name-cell="{ row }">
-          <span class="font-bold text-slate-800 dark:text-slate-200">{{ row.original.corporate_audit_universe?.name || 'Unnamed Entity' }}</span>
-        </template>
+          <template #name-cell="{ row }">
+            <span class="font-bold text-slate-800 dark:text-slate-200">{{ row.original.corporate_audit_universe?.name || 'Unnamed Entity' }}</span>
+          </template>
 
-        <template #risk_index-cell="{ row }">
-          <span class="font-semibold text-slate-700 dark:text-slate-300">{{ isUniverseYearScored(row.original) && typeof row.original.risk_index === 'number' ? row.original.risk_index.toFixed(1) + '%' : '–' }}</span>
-        </template>
+          <template #risk_index-cell="{ row }">
+            <span class="font-semibold text-slate-700 dark:text-slate-300">{{ isUniverseYearScored(row.original) && typeof row.original.risk_index === 'number' ? row.original.risk_index.toFixed(1) + '%' : '–' }}</span>
+          </template>
 
-        <template #risk_level-cell="{ row }">
-          <span
-            v-if="!isUniverseYearScored(row.original)"
-            :class="getRiskLevelBadgeClass(null)"
-            :title="t('riskFactors.priority.notScoredHint')"
-          >{{ t('riskFactors.priority.notScoredBadge') }}</span>
-          <span
-            v-else
-            :class="getRiskLevelBadgeClass(row.original.risk_level)"
-          >{{ formatRiskLevel(row.original.risk_level) }}</span>
-        </template>
+          <template #risk_level-cell="{ row }">
+            <span
+              v-if="!isUniverseYearScored(row.original)"
+              :class="getRiskLevelBadgeClass(null)"
+              :title="t('riskFactors.priority.notScoredHint')"
+            >{{ t('riskFactors.priority.notScoredBadge') }}</span>
+            <span v-else :class="getRiskLevelBadgeClass(row.original.risk_level)">{{ formatRiskLevel(row.original.risk_level) }}</span>
+          </template>
 
-        <template #audit_priority-cell="{ row }">
+          <template #audit_priority-cell="{ row }">
+            <div v-if="isUniverseYearPrioritized(row.original)" class="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+              <UIcon name="i-lucide-check-circle" class="w-4 h-4 text-emerald-500" />
+              <span>{{ t('riskFactors.priority.priorityBadge') }}</span>
+            </div>
+            <span v-else class="text-slate-400 text-sm">-</span>
+          </template>
+
+          <template #loading>
+            <div class="text-center py-12 text-slate-400 text-sm">
+              <UIcon name="i-lucide-loader-2" class="w-8 h-8 mx-auto text-primary-500 animate-spin mb-2" />
+              <p>{{ t('auditPriority.loadingYear', { year: selectedYear }) }}</p>
+            </div>
+          </template>
+
+          <template #empty>
+            <div v-if="yearlyUniverse.length > 0" class="text-center py-10 text-slate-400 text-sm">
+              <UIcon name="i-lucide-filter-x" class="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+              <p>{{ t('auditPriority.emptyFiltered') }}</p>
+            </div>
+            <div v-else class="text-center py-12 text-slate-400 text-sm">
+              <UIcon name="i-lucide-inbox" class="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+              <p class="font-medium text-slate-600 dark:text-slate-300">
+                {{ t('riskFactors.priority.noEntities', { year: selectedYear }) }}
+              </p>
+              <p class="text-xs text-slate-400 mt-1 mb-4">
+                {{ t('auditPriority.establishFirst') }}
+              </p>
+              <UButton
+                to="/risk-profile/audit-universe?tab=establish"
+                icon="i-lucide-plus"
+                color="primary"
+                variant="subtle"
+                size="sm"
+              >
+                {{ t('auditPriority.establishYear', { year: selectedYear }) }}
+              </UButton>
+            </div>
+          </template>
+        </TableEntities>
+      </div>
+
+      <!-- Mobile & Tablet View (< md): Stacked Cards List -->
+      <div class="block md:hidden">
+        <!-- Loading State Skeleton -->
+        <div v-if="loading" class="space-y-3">
           <div
-            v-if="isUniverseYearPrioritized(row.original)"
-            class="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold"
+            v-for="i in 3"
+            :key="i"
+            class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] animate-pulse space-y-2.5"
           >
-            <UIcon
-              name="i-lucide-check-circle"
-              class="w-5 h-5 text-emerald-500"
-            />
-            <span>{{ t('riskFactors.priority.priorityBadge') }}</span>
+            <div class="flex justify-between items-center">
+              <div class="h-4 w-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              <div class="h-5 w-20 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+            </div>
+            <div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div class="flex justify-between items-center pt-2">
+              <div class="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              <div class="h-4 w-28 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            </div>
           </div>
-          <span
-            v-else
-            class="text-slate-400 text-sm"
-          >-</span>
-        </template>
+        </div>
 
-        <template #loading>
-          <div class="text-center py-12 text-slate-400 text-sm">
-            <UIcon
-              name="i-lucide-loader-2"
-              class="w-8 h-8 mx-auto text-primary-500 animate-spin mb-2"
-            />
-            <p>{{ t('auditPriority.loadingYear', { year: selectedYear }) }}</p>
+        <!-- Empty State -->
+        <div
+          v-else-if="!filteredYearlyUniverse.length"
+          class="py-8 px-4 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+        >
+          <div v-if="yearlyUniverse.length > 0">
+            <UIcon name="i-lucide-filter-x" class="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+            <p class="text-xs text-[var(--text-muted)]">{{ t('auditPriority.emptyFiltered') }}</p>
           </div>
-        </template>
-
-        <template #empty>
-          <div
-            v-if="yearlyUniverse.length > 0"
-            class="text-center py-10 text-slate-400 text-sm"
-          >
-            <UIcon
-              name="i-lucide-filter-x"
-              class="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600 mb-2"
-            />
-            <p>{{ t('auditPriority.emptyFiltered') }}</p>
-          </div>
-          <div
-            v-else
-            class="text-center py-12 text-slate-400 text-sm"
-          >
-            <UIcon
-              name="i-lucide-inbox"
-              class="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-2"
-            />
-            <p class="font-medium text-slate-600 dark:text-slate-300">
+          <div v-else>
+            <UIcon name="i-lucide-inbox" class="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+            <p class="text-sm font-medium text-slate-600 dark:text-slate-300">
               {{ t('riskFactors.priority.noEntities', { year: selectedYear }) }}
             </p>
             <p class="text-xs text-slate-400 mt-1 mb-4">
@@ -271,8 +296,63 @@
               {{ t('auditPriority.establishYear', { year: selectedYear }) }}
             </UButton>
           </div>
-        </template>
-      </TableEntities>
+        </div>
+
+        <!-- Cards List -->
+        <div v-else class="space-y-3">
+          <div
+            v-for="(row, index) in priorityPage.items"
+            :key="row.id || index"
+            class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs"
+          >
+            <!-- Card Header: No. & Risk Level Badge -->
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="inline-flex items-center justify-center font-mono text-[11px] font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-200/80 dark:border-slate-700">
+                #{{ pageFrom + index }}
+              </span>
+              <span
+                v-if="!isUniverseYearScored(row)"
+                :class="getRiskLevelBadgeClass(null)"
+                :title="t('riskFactors.priority.notScoredHint')"
+              >
+                {{ t('riskFactors.priority.notScoredBadge') }}
+              </span>
+              <span
+                v-else
+                :class="getRiskLevelBadgeClass(row.risk_level)"
+              >
+                {{ formatRiskLevel(row.risk_level) }}
+              </span>
+            </div>
+
+            <!-- Card Body: Auditable Entity Name -->
+            <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-snug mb-3">
+              {{ row.corporate_audit_universe?.name || 'Unnamed Entity' }}
+            </h4>
+
+            <!-- Card Footer: Risk Index (%) & Audit Priority Status -->
+            <div class="flex items-center justify-between gap-2 pt-2.5 border-t border-gray-100 dark:border-gray-800/80 text-xs">
+              <!-- Risk Index -->
+              <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                <UIcon name="i-lucide-activity" class="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                <span class="text-[var(--text-muted)]">{{ t('riskFactors.priority.riskIndex') }}:</span>
+                <span class="font-semibold text-slate-800 dark:text-slate-200">
+                  {{ isUniverseYearScored(row) && typeof row.risk_index === 'number' ? row.risk_index.toFixed(1) + '%' : '–' }}
+                </span>
+              </div>
+
+              <!-- Audit Priority Status -->
+              <div class="flex items-center">
+                <div v-if="isUniverseYearPrioritized(row)" class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold">
+                  <UIcon name="i-lucide-check" class="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>{{ t('riskFactors.priority.priorityBadge') }}</span>
+                </div>
+                <span v-else class="text-slate-400 font-medium">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div
         v-if="priorityPage.totalPages > 1"
@@ -300,27 +380,22 @@
     </UCard>
 
     <!-- Corporate Risk Index Level Information Reference -->
-    <UCard class="shadow-sm border border-[var(--border-main)] bg-slate-50/50 dark:bg-slate-900/30">
-      <template #header>
-        <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-          <UIcon
-            name="i-lucide-book-open"
-            class="w-4 h-4 text-slate-500"
-          />
-          {{ t('riskFactors.priority.levelInfoTitle') }}
-        </h3>
-      </template>
-      <div class="overflow-x-auto">
+    <div class="space-y-3">
+      <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+        <UIcon name="i-lucide-book-open" class="w-4 h-4 text-slate-500" />
+        {{ t('riskFactors.priority.levelInfoTitle') }}
+      </h3>
+      <div class="overflow-x-auto border border-[var(--border-main)] rounded-xl overflow-hidden bg-white dark:bg-slate-900/60 shadow-xs">
         <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-sm text-center">
           <thead class="bg-slate-100 dark:bg-slate-800">
             <tr>
-              <th class="px-4 py-2 font-semibold text-slate-700 dark:text-slate-300 text-center">
+              <th class="px-4 py-2.5 font-semibold text-slate-700 dark:text-slate-300 text-center w-1/3">
                 {{ t('riskFactors.priority.riskIndex') }}
               </th>
-              <th class="px-4 py-2 font-semibold text-slate-700 dark:text-slate-300 text-center">
+              <th class="px-4 py-2.5 font-semibold text-slate-700 dark:text-slate-300 text-center w-1/3">
                 {{ t('riskFactors.priority.riskLevel') }}
               </th>
-              <th class="px-4 py-2 font-semibold text-slate-700 dark:text-slate-300 text-center">
+              <th class="px-4 py-2.5 font-semibold text-slate-700 dark:text-slate-300 text-center w-1/3">
                 {{ t('riskFactors.priority.auditPriorityCol') }}
               </th>
             </tr>
@@ -338,11 +413,11 @@
                   {{ formatRiskLevel(row.level) }}
                 </span>
               </td>
-              <td
-                v-if="row.prioritized"
-                class="px-4 py-2.5 text-center text-xs font-bold text-emerald-600 dark:text-emerald-400"
-              >
-                √ {{ t('riskFactors.scoring.priorityYes') }}
+              <td v-if="row.prioritized" class="px-4 py-2.5 text-center text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                <div class="inline-flex items-center justify-center gap-1">
+                  <UIcon name="i-lucide-check" class="w-3.5 h-3.5" />
+                  <span>{{ t('riskFactors.scoring.priorityYes') }}</span>
+                </div>
               </td>
               <td
                 v-else
@@ -354,7 +429,7 @@
           </tbody>
         </table>
       </div>
-    </UCard>
+    </div>
   </div>
 </template>
 

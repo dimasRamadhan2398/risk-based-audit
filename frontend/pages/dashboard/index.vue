@@ -697,19 +697,76 @@
         </div>
 
         <!-- Registered Risks Table on the right -->
-        <div class="lg:col-span-7 min-w-0 rounded-xl p-3 dashboard-subcard">
-          <h4 class="text-sm font-semibold text-slate-700 mb-3 dark:text-slate-200">{{ t('dashboard.overview.registeredRisks') }}</h4>
-          <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ root: 'bg-transparent!', body: 'p-0 bg-transparent!' }">
-            <TableEntities
-              :data="registeredRiskHeatMap"
-              :columns="registeredRiskColumns"
-              :empty-state="{
-                icon: 'i-heroicons-circle-stack-20-solid',
-                label: t('dashboard.registeredRisks.empty'),
-              }"
-              class="w-full"
-            />
-          </UCard>
+        <div class="lg:col-span-7 min-w-0 rounded-2xl p-4 sm:p-6 dashboard-subcard">
+          <div class="flex items-center justify-between gap-2 mb-4">
+            <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-200">{{ t('dashboard.overview.registeredRisks') }}</h4>
+            <UButton to="/risk-profile" variant="ghost" color="neutral" size="sm" class="text-xs">
+              {{ t('dashboard.overview.viewAllRiskProfiles') }}
+            </UButton>
+          </div>
+
+          <!-- Desktop View (>= md): Full Table Entities -->
+          <div class="hidden md:block">
+            <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ root: 'bg-transparent!', body: 'p-0 bg-transparent!' }">
+              <TableEntities
+                :data="registeredRiskHeatMap"
+                :columns="registeredRiskColumns"
+                :empty-state="{
+                  icon: 'i-heroicons-circle-stack-20-solid',
+                  label: t('dashboard.registeredRisks.empty'),
+                }"
+                class="w-full"
+              />
+            </UCard>
+          </div>
+
+          <!-- Mobile & Tablet View (< md): Stacked Cards List -->
+          <div class="block md:hidden">
+            <!-- Empty State -->
+            <div
+              v-if="!registeredRiskHeatMap.length"
+              class="py-8 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+            >
+              <UIcon name="i-heroicons-circle-stack-20-solid" class="size-8 mx-auto text-gray-400 mb-2" />
+              <p class="text-xs text-[var(--text-muted)]">{{ t('dashboard.registeredRisks.empty') }}</p>
+            </div>
+
+            <!-- Cards List -->
+            <div v-else class="space-y-3">
+              <NuxtLink
+                v-for="risk in registeredRiskHeatMap"
+                :key="risk.id"
+                to="/risk-profile"
+                class="block p-3.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs"
+              >
+                <!-- Card Header: Score Badge & Risk Level Badge -->
+                <div class="flex items-center justify-between gap-2 mb-2">
+                  <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-200/80 dark:border-slate-700">
+                    <UIcon name="i-lucide-activity" class="size-3 text-indigo-500" />
+                    Score: {{ risk.impact * risk.likelihood }}
+                  </span>
+                  <span
+                    class="inline-block px-2.5 py-1 rounded text-[10px] font-black tracking-tight"
+                    :class="getRiskDisplayLevel(risk).colorClass"
+                  >
+                    {{ getRiskDisplayLevel(risk).label }}
+                  </span>
+                </div>
+
+                <!-- Card Body: Risk Name -->
+                <h4 class="text-sm font-bold text-gray-900 dark:text-white line-clamp-2 leading-snug mb-3">
+                  {{ risk.name }}
+                </h4>
+
+                <!-- Card Footer: Category Metadata -->
+                <div class="flex items-center gap-1.5 pt-2 border-t border-gray-100 dark:border-gray-800/80 text-xs text-[var(--text-muted)]">
+                  <UIcon name="i-lucide-tag" class="size-3.5 shrink-0 text-gray-400" />
+                  <span class="truncate font-medium text-gray-700 dark:text-gray-300">{{ risk.category || '-' }}</span>
+                </div>
+              </NuxtLink>
+            </div>
+          </div>
+        </div>
         </div>
       </div>
     </div>
@@ -836,18 +893,91 @@
             >{{ t('dashboard.overview.viewFullReport') }}</UButton
           >
         </div>
-        <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ root: 'bg-transparent!', body: 'p-0 bg-transparent!' }">
-          <TableEntities
-            :data="atrTableData"
-            :columns="tableColumns"
-            :loading="atrStore.summaryLoading"
-            :empty-state="{
-              icon: 'i-heroicons-circle-stack-20-solid',
-              label: t('actionTakenReport.dashboard.empty'),
-            }"
-            class="w-full"
-          />
-        </UCard>
+        <!-- Desktop View (>= md): Full Table Entities -->
+        <div class="hidden md:block">
+          <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ root: 'bg-transparent!', body: 'p-0 bg-transparent!' }">
+            <TableEntities
+              :data="atrTableData"
+              :columns="tableColumns"
+              :loading="atrStore.summaryLoading"
+              :empty-state="{
+                icon: 'i-heroicons-circle-stack-20-solid',
+                label: t('actionTakenReport.dashboard.empty'),
+              }"
+              class="w-full"
+            />
+          </UCard>
+        </div>
+
+        <!-- Mobile & Tablet View (< md): Stacked Cards List -->
+        <div class="block md:hidden">
+          <!-- Loading State Skeleton -->
+          <div v-if="atrStore.summaryLoading" class="space-y-3">
+            <div v-for="i in 3" :key="i" class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] animate-pulse space-y-2.5">
+              <div class="flex justify-between items-center">
+                <div class="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div class="h-5 w-20 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+              </div>
+              <div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              <div class="flex gap-4 pt-1">
+                <div class="h-3 w-28 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div class="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div
+            v-else-if="!atrTableData.length"
+            class="py-8 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+          >
+            <UIcon name="i-heroicons-circle-stack-20-solid" class="size-8 mx-auto text-gray-400 mb-2" />
+            <p class="text-xs text-[var(--text-muted)]">{{ t('actionTakenReport.dashboard.empty') }}</p>
+          </div>
+
+          <!-- Cards List -->
+          <div v-else class="space-y-3">
+            <NuxtLink
+              v-for="item in atrTableData"
+              :key="item.id + item.name"
+              to="/action-taken-report"
+              class="block p-3.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs"
+            >
+              <!-- Card Header: ID and Status Badge -->
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/40 px-2 py-0.5 rounded-md border border-primary-200/50 dark:border-primary-800/40">
+                  <UIcon name="i-lucide-file-text" class="size-3" />
+                  {{ item.id }}
+                </span>
+                <UBadge
+                  :color="item.isOverdue ? 'error' : atrStatusBadgeColor(item.rawStatus)"
+                  variant="subtle"
+                  size="sm"
+                  class="font-semibold"
+                >
+                  {{ item.status }}
+                </UBadge>
+              </div>
+
+              <!-- Card Body: Finding / Action Title -->
+              <h4 class="text-sm font-bold text-gray-900 dark:text-white line-clamp-2 leading-snug mb-3">
+                {{ item.name }}
+              </h4>
+
+              <!-- Card Footer: Metadata (PIC & Due Date) -->
+              <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-2 border-t border-gray-100 dark:border-gray-800/80 text-xs text-[var(--text-muted)]">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <UIcon name="i-lucide-user" class="size-3.5 shrink-0 text-gray-400" />
+                  <span class="truncate font-medium text-gray-700 dark:text-gray-300">{{ item.owner }}</span>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <UIcon name="i-lucide-calendar" class="size-3.5 shrink-0 text-gray-400" />
+                  <span :class="item.isOverdue ? 'text-red-500 font-semibold' : ''">{{ item.date }}</span>
+                </div>
+              </div>
+            </NuxtLink>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -860,15 +990,77 @@
             {{ t("dashboard.recentFindings.title") }}
           </h2>
         </div>
-        <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ root: 'bg-transparent!', body: 'p-0 bg-transparent!' }">
-          <TableEntities
-            :data="recentFindingsData"
-            :columns="auditTableColumns"
-            :loading="auditResultStore.recentFindingsLoading"
-            :empty-state="recentFindingsEmptyState"
-            class="w-full"
-          />
-        </UCard>
+        <!-- Desktop View (>= md): Full Table Entities -->
+        <div class="hidden md:block">
+          <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ root: 'bg-transparent!', body: 'p-0 bg-transparent!' }">
+            <TableEntities
+              :data="recentFindingsData"
+              :columns="auditTableColumns"
+              :loading="auditResultStore.recentFindingsLoading"
+              :empty-state="recentFindingsEmptyState"
+              class="w-full"
+            />
+          </UCard>
+        </div>
+
+        <!-- Mobile & Tablet View (< md): Stacked Cards List -->
+        <div class="block md:hidden">
+          <!-- Loading State Skeleton -->
+          <div v-if="auditResultStore.recentFindingsLoading" class="space-y-3">
+            <div v-for="i in 3" :key="i" class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] animate-pulse space-y-2.5">
+              <div class="flex justify-between items-center">
+                <div class="h-4 w-28 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div class="h-5 w-24 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+              </div>
+              <div class="h-4 w-4/5 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div
+            v-else-if="!recentFindingsData.length"
+            class="py-8 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+          >
+            <UIcon
+              :name="recentFindingsEmptyState.icon"
+              class="size-8 mx-auto text-gray-400 mb-2"
+            />
+            <p class="text-xs font-semibold text-[var(--text-main)]">{{ recentFindingsEmptyState.label }}</p>
+            <p v-if="recentFindingsEmptyState.description" class="text-xs text-[var(--text-muted)] mt-1">
+              {{ recentFindingsEmptyState.description }}
+            </p>
+          </div>
+
+          <!-- Cards List -->
+          <div v-else class="space-y-3">
+            <div
+              v-for="(item, idx) in recentFindingsData"
+              :key="idx"
+              class="block p-3.5 sm:p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] shadow-xs transition-all"
+            >
+              <!-- Card Header: Finding Tag & Category Badge -->
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/40 px-2 py-0.5 rounded-md border border-primary-200/50 dark:border-primary-800/40">
+                  <UIcon name="i-lucide-search" class="size-3" />
+                  #{{ idx + 1 }}
+                </span>
+                <UBadge
+                  :color="getFindingCategoryBadge(item.findings_category).color"
+                  variant="subtle"
+                  size="sm"
+                  class="font-semibold"
+                >
+                  {{ getFindingCategoryBadge(item.findings_category).label }}
+                </UBadge>
+              </div>
+
+              <!-- Card Body: Finding Title -->
+              <h4 class="text-sm font-bold text-gray-900 dark:text-white line-clamp-3 leading-snug">
+                {{ item.audit_finding }}
+              </h4>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -965,7 +1157,6 @@
         </div>
       </div>
     </div>
-    </div>
   </div>
 </template>
 
@@ -1020,7 +1211,7 @@ import { useAuditResultReportStore } from "~/stores/audit-result-report";
 import { useAuthStore } from "~/stores/auth";
 import { useRCMStore, controlCriteria, getEffectivenessKey } from "~/stores/rcm";
 import { RiskLevel } from "~/types/risk";
-import { ATR_SLICE_HEX, atrStatusI18nKey, formatAtrDate, type AtrSliceKey } from "~/utils/actionTakenReport";
+import { ATR_SLICE_HEX, atrStatusBadgeColor, atrStatusI18nKey, formatAtrDate, type AtrSliceKey } from "~/utils/actionTakenReport";
 import { UBadge } from "#components";
 import OverflowTooltip from "~/components/shared/OverflowTooltip.vue";
 
@@ -1467,6 +1658,8 @@ const atrTableData = computed(() => {
       ]
         .filter(Boolean)
         .join(" · "),
+      rawStatus: r.status,
+      isOverdue: !!r.is_overdue,
     }))
     .slice(0, 5);
 });
@@ -1641,4 +1834,18 @@ const getHeatMapCellColor = (x: number, y: number): string => {
 };
 
 const getRiskLevel = (x: number, y: number) => riskProfileStore.getRiskLevel(y, x);
+
+const getRiskDisplayLevel = (risk: any) => {
+  const level = riskProfileStore.getRiskLevel(risk.likelihood, risk.impact);
+  const label = t(`riskProfile.riskLevelLabels.${level}`) || riskLevelConfig[level]?.label || level;
+  const colorClass = getRiskLevelColorClass(level);
+  return { level, label, colorClass };
+};
+
+const getFindingCategoryBadge = (category: string): { label: string; color: 'error' | 'warning' | 'success' } => {
+  const categoryKey = findingCategoryKeys[category];
+  const label = categoryKey ? t(`dashboard.recentFindings.categories.${categoryKey}`) : category;
+  const color: 'error' | 'warning' | 'success' = category === "Very Significant" || category === "Significant" ? "error" : category === "Quite Significant" ? "warning" : "success";
+  return { label, color };
+};
 </script>

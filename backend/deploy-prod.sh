@@ -291,6 +291,9 @@ deploy_one() {
     local svc="$1"
     log "=== Deploying $svc-service ($(container_of "$svc")) ==="
     tar -xzf "$PAYLOAD" --no-same-owner -C "$BACKEND" "$svc-service" || { log "  extract failed"; return 1; }
+    # Archives built on Windows (NTFS) carry no exec bit; without this the
+    # container exits with "./<svc>: Permission denied" and crash-loops.
+    chmod 755 "$BACKEND/$svc-service/$svc" || { log "  chmod of binary failed"; return 1; }
     if [ "$svc" = audit ]; then backup_uploads || { log "  uploads copy-out failed; not recreating audit"; rollback_service "$svc"; return 1; }; fi
     if ! compose up -d --no-deps --build "$svc-service"; then
         log "  compose up failed"; rollback_service "$svc"; return 1

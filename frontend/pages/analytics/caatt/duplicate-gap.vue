@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useCaattAnalytics } from '~/composables/useCaattAnalytics'
 import { useI18n } from '~/composables/useI18n'
 import CaattHeader from '~/components/analytics/CaattHeader.vue'
@@ -9,6 +9,14 @@ const { loading, dupGapState, formatIDR, fetchCaattAnalytics } = useCaattAnalyti
 
 onMounted(() => {
   fetchCaattAnalytics()
+})
+
+const mobilePage = ref(1)
+const mobilePageSize = ref(10)
+
+const paginatedRecords = computed<any[]>(() => {
+  const start = (mobilePage.value - 1) * mobilePageSize.value
+  return (dupGapState.value?.records || []).slice(start, start + mobilePageSize.value)
 })
 </script>
 
@@ -122,7 +130,8 @@ onMounted(() => {
             </div>
           </div>
         </template>
-        <div class="overflow-x-auto">
+        <!-- Desktop View (>= md): Full Table -->
+        <div class="hidden md:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
               <tr class="bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
@@ -159,6 +168,106 @@ onMounted(() => {
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Mobile & Tablet View (< md): Stacked Cards List -->
+        <div class="block md:hidden">
+          <!-- Empty State -->
+          <div
+            v-if="!dupGapState.records.length"
+            class="py-8 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+          >
+            <UIcon name="i-heroicons-table-cells" class="size-8 mx-auto text-gray-400 mb-2" />
+            <p class="text-xs text-[var(--text-muted)]">{{ t('analytics.caattUi.duplicateGap.empty') || 'Tidak ada data temuan duplikasi/gap' }}</p>
+          </div>
+
+          <!-- Cards List -->
+          <div v-else class="space-y-3">
+            <div
+              v-for="(r, index) in paginatedRecords"
+              :key="r.id || index"
+              class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3"
+            >
+              <!-- Card Header: ID, Result Type & Status Badge -->
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-200/80 dark:border-slate-700">
+                    <UIcon name="i-lucide-hash" class="size-3 text-primary-500" />
+                    {{ r.id }}
+                  </span>
+                  <UBadge :color="r.resultType === 'DUPLICATE' ? 'error' : 'warning'" variant="solid" size="sm">
+                    {{ r.resultType }}
+                  </UBadge>
+                </div>
+                <UBadge :color="r.status === 'OPEN' ? 'error' : r.status === 'INVESTIGATING' ? 'warning' : 'success'" variant="subtle" size="sm">
+                  {{ r.status }}
+                </UBadge>
+              </div>
+
+              <!-- Card Body: Branch, Reference & Account -->
+              <div class="space-y-1">
+                <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                  <UIcon name="i-lucide-building-2" class="size-3.5 text-slate-400 shrink-0" />
+                  <span class="font-bold text-gray-900 dark:text-white text-sm truncate">{{ r.branchName }}</span>
+                </div>
+                <div class="flex items-center justify-between text-xs font-mono text-gray-500 flex-wrap gap-1 pt-0.5">
+                  <span class="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[11px] font-bold text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700">
+                    Ref: {{ r.referenceNo }}
+                  </span>
+                  <span class="text-[11px] text-slate-400">Acc: {{ r.accountId }}</span>
+                </div>
+              </div>
+
+              <!-- Stat Grid: Amount vs Frequency -->
+              <div class="grid grid-cols-2 gap-2 pt-1">
+                <div class="dashboard-subcard p-2.5 space-y-0.5 min-w-0 overflow-hidden">
+                  <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block truncate">{{ t('analytics.caattUi.duplicateGap.amount') }}</span>
+                  <div class="font-mono font-bold text-xs sm:text-sm text-gray-900 dark:text-white break-words leading-tight">
+                    {{ r.amount > 0 ? formatIDR(r.amount) : '-' }}
+                  </div>
+                </div>
+                <div class="dashboard-subcard p-2.5 space-y-0.5 min-w-0 overflow-hidden">
+                  <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block truncate">{{ t('analytics.caattUi.duplicateGap.frequency') }}</span>
+                  <div class="font-mono font-bold text-xs sm:text-sm text-warning-600 dark:text-warning-400 break-words leading-tight">
+                    {{ r.occurrences }}x
+                  </div>
+                </div>
+              </div>
+
+              <!-- Description -->
+              <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed dashboard-subcard p-2.5">
+                {{ r.description }}
+              </p>
+
+              <!-- Card Footer: Index & Result Type -->
+              <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800/80 text-xs text-slate-500 dark:text-slate-400">
+                <span class="text-xs text-slate-400 font-mono">
+                  #{{ (mobilePage - 1) * mobilePageSize + Number(index) + 1 }}
+                </span>
+                <span class="text-[11px] text-gray-400">{{ r.resultType }}</span>
+              </div>
+            </div>
+
+            <!-- Mobile Pagination Controls -->
+            <div
+              v-if="dupGapState.records.length > mobilePageSize"
+              class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800"
+            >
+              <span class="text-xs text-slate-500 dark:text-slate-400">
+                {{ (mobilePage - 1) * mobilePageSize + 1 }}-{{ Math.min(mobilePage * mobilePageSize, dupGapState.records.length) }} of {{ dupGapState.records.length }}
+              </span>
+              <UPagination
+                v-model:page="mobilePage"
+                :items-per-page="mobilePageSize"
+                :total="dupGapState.records.length"
+                size="md"
+                active-color="primary"
+                color="neutral"
+                variant="outline"
+                class="max-w-full overflow-x-auto"
+              />
+            </div>
+          </div>
         </div>
       </UCard>
     </div>

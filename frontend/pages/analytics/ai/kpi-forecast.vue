@@ -57,9 +57,9 @@ interface AuditorKpiItem {
 interface AuditeeKpiItem {
   code: string
   kpiName: string
-  unit?: string
   entity?: string
   entityType?: string
+  unit?: string
   syncFrequency?: string
   targetHorizon?: string
   currentValue: number
@@ -1217,8 +1217,8 @@ const getStatusBadgeConfig = (status: string) => {
             </div>
           </div>
         </template>
-
-        <div class="overflow-x-auto">
+        <!-- Desktop View (>= md): Full Table -->
+        <div class="hidden md:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
               <tr class="bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
@@ -1340,6 +1340,96 @@ const getStatusBadgeConfig = (status: string) => {
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Mobile & Tablet View (< md): Stacked Cards List (Auditor KPI) -->
+        <div class="block md:hidden">
+          <div
+            v-if="!paginatedAuditorForecasts.length"
+            class="py-8 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+          >
+            <UIcon name="i-heroicons-table-cells" class="size-8 mx-auto text-gray-400 mb-2" />
+            <p class="text-xs text-[var(--text-muted)]">Tidak ada data KPI Auditor yang sesuai dengan filter pencarian.</p>
+          </div>
+          <div v-else class="space-y-3">
+            <div
+              v-for="(kpi, index) in paginatedAuditorForecasts"
+              :key="kpi.code || index"
+              class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3"
+            >
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/40 px-2 py-0.5 rounded-md border border-primary-200/60 dark:border-primary-800/40">
+                    {{ kpi.code }}
+                  </span>
+                  <UBadge
+                    :color="kpi.hibHig === 'HIG' ? 'primary' : 'info'"
+                    variant="subtle"
+                    size="xs"
+                    class="font-mono font-bold"
+                  >
+                    {{ kpi.hibHig }}
+                  </UBadge>
+                </div>
+                <UBadge
+                  :class="getStatusBadgeConfig(kpi.predictedStatus).badgeClass"
+                  variant="solid"
+                  size="xs"
+                  class="font-bold shrink-0"
+                >
+                  {{ kpi.predictedStatus }}
+                </UBadge>
+              </div>
+
+              <div class="space-y-1">
+                <div class="font-bold text-sm text-gray-900 dark:text-white leading-snug">
+                  {{ kpi.kpiName }}
+                </div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">
+                  {{ kpi.category }}
+                </div>
+              </div>
+
+              <div class="grid grid-cols-3 gap-2 pt-1">
+                <div class="p-2 rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800 text-center">
+                  <span class="text-[10px] uppercase font-bold tracking-wider text-gray-400 block truncate">{{ t('analytics.timeseries.colTarget') }}</span>
+                  <div class="font-mono font-bold text-xs text-gray-900 dark:text-white mt-0.5">
+                    {{ kpi.targetValue }}{{ kpi.unit === '%' ? '%' : '' }}
+                  </div>
+                </div>
+                <div class="p-2 rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800 text-center">
+                  <span class="text-[10px] uppercase font-bold tracking-wider text-gray-400 block truncate">{{ t('analytics.timeseries.colCurrent') }}</span>
+                  <div class="font-mono font-bold text-xs text-gray-900 dark:text-white mt-0.5">
+                    {{ formatNum(kpi.currentValue, 1) }}{{ kpi.unit === '%' ? '%' : '' }}
+                  </div>
+                </div>
+                <div class="p-2 rounded-lg bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 text-center">
+                  <span class="text-[10px] uppercase font-bold tracking-wider text-primary-600 dark:text-primary-400 block truncate">{{ t('analytics.timeseries.colForecast') }}</span>
+                  <div class="font-mono font-bold text-xs text-primary-600 dark:text-primary-400 mt-0.5">
+                    {{ formatNum(kpi.forecastedValue, 1) }}{{ kpi.unit === '%' ? '%' : '' }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between px-2.5 py-1.5 bg-gray-50/80 dark:bg-gray-800/40 rounded-md border border-gray-100 dark:border-gray-800 text-xs">
+                <span class="text-[11px] text-gray-500 dark:text-gray-400 font-medium">
+                  Achv:
+                  <strong :class="kpi.forecastedAchievementRate >= 100 ? 'text-emerald-600 dark:text-emerald-400' : (kpi.forecastedAchievementRate >= 70 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400')">
+                    {{ formatNum(kpi.forecastedAchievementRate, 1) }}%
+                  </strong>
+                </span>
+                <div class="flex items-center gap-1 font-bold" :class="trendColor(kpi.trend)">
+                  <UIcon :name="trendIcon(kpi.trend)" class="w-4 h-4 shrink-0" />
+                  <span>{{ kpi.trend }}</span>
+                </div>
+              </div>
+
+              <div v-if="kpi.aiNarrative || kpi.recommendedAction" class="p-2.5 rounded-lg bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/40 text-xs text-amber-900 dark:text-amber-300 leading-relaxed space-y-0.5">
+                <div v-if="kpi.aiNarrative" class="font-semibold text-amber-950 dark:text-amber-200">{{ kpi.aiNarrative }}</div>
+                <div v-if="kpi.recommendedAction">{{ kpi.recommendedAction }}</div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <template #footer>
@@ -1473,7 +1563,8 @@ const getStatusBadgeConfig = (status: string) => {
           </div>
         </template>
 
-        <div class="overflow-x-auto">
+        <!-- Desktop View (>= md): Full Table (Auditee KPI) -->
+        <div class="hidden md:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
               <tr class="bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
@@ -1599,6 +1690,93 @@ const getStatusBadgeConfig = (status: string) => {
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Mobile & Tablet View (< md): Stacked Cards List (Auditee KPI) -->
+        <div class="block md:hidden">
+          <!-- Empty State -->
+          <div
+            v-if="!paginatedAuditeeForecasts.length"
+            class="py-8 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+          >
+            <UIcon name="i-heroicons-table-cells" class="size-8 mx-auto text-gray-400 mb-2" />
+            <p class="text-xs text-[var(--text-muted)]">Tidak ada data Indikator Auditee yang sesuai dengan filter pencarian.</p>
+          </div>
+
+          <!-- Cards List -->
+          <div v-else class="space-y-3">
+            <div
+              v-for="(kpi, index) in paginatedAuditeeForecasts"
+              :key="kpi.code || index"
+              class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3"
+            >
+              <!-- Card Header: Code & Risk Level Badge -->
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded-md border border-indigo-200/80 dark:border-indigo-800/40">
+                    <UIcon name="i-heroicons-chart-bar" class="size-3 text-indigo-500" />
+                    {{ kpi.code }}
+                  </span>
+                  <UBadge :color="kpi.syncFrequency === 'Real-time (CDC)' ? 'primary' : 'neutral'" variant="subtle" size="xs" class="font-mono">
+                    {{ kpi.syncFrequency || 'Real-time (CDC)' }}
+                  </UBadge>
+                  <UBadge color="neutral" variant="subtle" size="xs" class="font-mono font-medium">
+                    {{ kpi.targetHorizon || 'Q3 2026' }}
+                  </UBadge>
+                </div>
+                <UBadge
+                  :class="getRiskConfig(kpi.riskLevel).badgeClass"
+                  variant="solid"
+                  size="xs"
+                  class="font-bold shrink-0"
+                >
+                  {{ getRiskConfig(kpi.riskLevel).label }}
+                </UBadge>
+              </div>
+
+              <!-- Card Body: KPI Name & Entity -->
+              <div class="space-y-1">
+                <div class="font-bold text-sm text-gray-900 dark:text-white leading-snug">
+                  {{ kpi.kpiName }}
+                </div>
+                <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                  <UIcon name="i-lucide-building-2" class="size-3.5 text-slate-400 shrink-0" />
+                  <span>{{ kpi.entity || '-' }} ({{ kpi.entityType || '-' }})</span>
+                </div>
+              </div>
+
+              <!-- Comparison Grid: Current vs Forecast -->
+              <div class="grid grid-cols-2 gap-2 pt-1">
+                <div class="p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800 space-y-1">
+                  <span class="text-[10px] uppercase font-bold tracking-wider text-gray-400 block truncate text-center">{{ t('analytics.timeseries.colCurrent') }}</span>
+                  <div class="font-mono font-bold text-sm text-neutral-900 dark:text-neutral-100 text-center">
+                    {{ formatNum(kpi.currentValue, 1) }}{{ kpi.unit === '%' ? '%' : '' }}
+                  </div>
+                </div>
+                <div class="p-2.5 rounded-lg bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 space-y-1">
+                  <span class="text-[10px] uppercase font-bold tracking-wider text-indigo-600 dark:text-indigo-400 block truncate text-center">{{ t('analytics.timeseries.colForecast') }}</span>
+                  <div class="font-mono font-bold text-sm text-indigo-600 dark:text-indigo-400 text-center">
+                    {{ formatNum(kpi.forecastedValue, 1) }}{{ kpi.unit === '%' ? '%' : '' }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Trend Row -->
+              <div class="flex items-center justify-between px-2.5 py-1.5 bg-gray-50/80 dark:bg-gray-800/40 rounded-md border border-gray-100 dark:border-gray-800 text-xs">
+                <span class="text-[11px] text-gray-500 dark:text-gray-400 font-medium">{{ t('analytics.timeseries.colTrend') }}</span>
+                <div class="flex items-center gap-1.5 font-bold" :class="trendColor(kpi.trend)">
+                  <UIcon :name="trendIcon(kpi.trend)" class="w-4 h-4 shrink-0" />
+                  <span>{{ kpi.trend }}</span>
+                </div>
+              </div>
+
+              <!-- Recommended Action -->
+              <div v-if="kpi.aiNarrative || kpi.recommendedAction" class="p-2.5 rounded-lg bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/40 text-xs text-amber-900 dark:text-amber-300 leading-relaxed space-y-0.5">
+                <div v-if="kpi.aiNarrative" class="font-semibold text-amber-950 dark:text-amber-200">{{ kpi.aiNarrative }}</div>
+                <div v-if="kpi.recommendedAction">{{ kpi.recommendedAction }}</div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <template #footer>

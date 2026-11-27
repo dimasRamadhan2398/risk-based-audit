@@ -184,6 +184,29 @@ watch(selectedAnomalyType, (newType) => {
   }
 })
 
+const mobileAnomalyPage = ref(1)
+const mobileAnomalyPageSize = ref(10)
+
+const paginatedMobileAnomalies = computed<any[]>(() => {
+  const start = (mobileAnomalyPage.value - 1) * mobileAnomalyPageSize.value
+  return filteredTableAnomalies.value.slice(start, start + mobileAnomalyPageSize.value)
+})
+
+watch([tableCategoryFilter, tableSearch], () => {
+  mobileAnomalyPage.value = 1
+})
+
+const anomalyFilterOptions = computed(() => [
+  {
+    label: `${t('analytics.all')} (${isolationState.value.anomalies.length})`,
+    value: 'All'
+  },
+  ...availableAnomalyTypes.value.map((cat: string) => ({
+    label: `${cat} (${isolationState.value.anomalies.filter((a: any) => a.type === cat).length})`,
+    value: cat
+  }))
+])
+
 const getCategoryBadgeColor = (type: string) => {
   switch (type) {
     case 'Funding': return 'info'
@@ -217,6 +240,11 @@ watchEffect(() => {
   }
 })
 
+const selectAnomalyType = (type: string): void => {
+  selectedAnomalyType.value = type
+  tableCategoryFilter.value = type
+}
+
 const formatMetricDisplay = (a: any): string => {
   const type = a.type || selectedAnomalyType.value
   const config = anomalyTypeConfigs.value[type] || getAnomalyTypeConfig(t, type)
@@ -249,6 +277,9 @@ const selectAnomalyFromPlot = (id: string, type?: string) => {
     const idx = filteredList.findIndex((a: any) => a.id === id)
     if (idx >= 0 && pageSize.value < 999999) {
       currentPage.value = Math.floor(idx / pageSize.value) + 1
+    }
+    if (idx >= 0) {
+      mobileAnomalyPage.value = Math.floor(idx / mobileAnomalyPageSize.value) + 1
     }
   }
 
@@ -285,6 +316,9 @@ const scrollToTableRow = (id: string) => {
   const idx = filteredList.findIndex((a: any) => a.id === id)
   if (idx >= 0 && pageSize.value < 999999) {
     currentPage.value = Math.floor(idx / pageSize.value) + 1
+  }
+  if (idx >= 0) {
+    mobileAnomalyPage.value = Math.floor(idx / mobileAnomalyPageSize.value) + 1
   }
   nextTick(() => {
     const el = document.getElementById(`anomaly-row-${id}`)
@@ -551,8 +585,18 @@ const scatterOptions = computed(() => {
               <UIcon name="i-heroicons-chart-bar" class="text-blue-500" />
               <h3 class="font-bold">{{ t('analytics.isolation.chartTitle') }}</h3>
             </div>
-            <!-- Anomaly Type Selector with Search and Scroll -->
-            <div class="flex items-center gap-2 overflow-hidden max-w-full">
+            <!-- Mobile & Tablet View (< md): Dropdown USelect -->
+            <div class="block md:hidden w-full sm:w-auto">
+              <USelect
+                v-model="selectedAnomalyType"
+                :items="filteredAvailableAnomalyTypes"
+                size="md"
+                class="w-full sm:w-56"
+              />
+            </div>
+
+            <!-- Desktop View (>= md): Anomaly Type Selector with Search and Scroll -->
+            <div class="hidden md:flex items-center gap-2 overflow-hidden max-w-full">
               <div class="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full scrollbar-thin">
                 <UButton
                   v-for="at in filteredAvailableAnomalyTypes"
@@ -561,7 +605,7 @@ const scatterOptions = computed(() => {
                   :variant="selectedAnomalyType === at ? 'solid' : 'ghost'"
                   size="xs"
                   class="whitespace-nowrap shrink-0"
-                  @click="() => { selectedAnomalyType = at; tableCategoryFilter = at; }"
+                  @click="selectAnomalyType(at)"
                 >
                   {{ at }}
                 </UButton>
@@ -623,7 +667,7 @@ const scatterOptions = computed(() => {
       <UCard class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 divide-gray-200 dark:divide-gray-800">
         <template #header>
           <div class="flex flex-col gap-3">
-            <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div class="flex items-center gap-2">
                 <UIcon name="i-heroicons-table-cells" class="text-rose-500" />
                 <h3 class="font-bold">{{ t('analytics.isolation.tableTitle') }}</h3>
@@ -639,8 +683,20 @@ const scatterOptions = computed(() => {
                 />
               </div>
             </div>
-            <!-- Filter Kategori Tabel (Scrollable Horizontal Pill Bar) -->
-            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full scrollbar-thin">
+
+            <!-- Mobile & Tablet View (< md): Dropdown USelect -->
+            <div class="block md:hidden w-full sm:w-auto">
+              <USelect
+                v-model="tableCategoryFilter"
+                :items="anomalyFilterOptions"
+                value-key="value"
+                size="md"
+                class="w-full sm:w-56"
+              />
+            </div>
+
+            <!-- Desktop View (>= md): Filter Kategori Tabel (Scrollable Horizontal Pill Bar) -->
+            <div class="hidden md:flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full scrollbar-thin">
               <span class="text-xs text-gray-400 font-medium mr-1 shrink-0">{{ t('analytics.anomalyFilter') }}</span>
               <UButton
                 size="xs"
@@ -665,7 +721,8 @@ const scatterOptions = computed(() => {
             </div>
           </div>
         </template>
-        <div class="overflow-x-auto">
+        <!-- Desktop View (>= md): Full Table -->
+        <div class="hidden md:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
               <tr class="bg-gray-100 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
@@ -755,9 +812,122 @@ const scatterOptions = computed(() => {
             </tbody>
           </table>
         </div>
-        <!-- Table Pagination Footer -->
+        <!-- Mobile & Tablet View (< md): Stacked Cards List -->
+        <div class="block md:hidden">
+          <!-- Empty State -->
+          <div
+            v-if="!paginatedMobileAnomalies.length"
+            class="py-8 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+          >
+            <UIcon name="i-heroicons-table-cells" class="size-8 mx-auto text-gray-400 mb-2" />
+            <p class="text-xs text-[var(--text-muted)]">{{ t('analytics.isolation.noAnomaliesFound') }}</p>
+          </div>
+
+          <!-- Cards List -->
+          <div v-else class="space-y-3">
+            <div
+              v-for="(a, index) in paginatedMobileAnomalies"
+              :key="a.id || index"
+              :class="[
+                'p-4 rounded-xl border bg-[var(--bg-surface)] transition-all shadow-xs space-y-3 cursor-pointer',
+                highlightedAnomalyId === a.id
+                  ? 'border-rose-500 ring-2 ring-rose-500/40 bg-rose-50/40 dark:bg-rose-950/30'
+                  : 'border-gray-200 dark:border-gray-800 hover:border-primary-500/40 dark:hover:border-primary-500/40'
+              ]"
+              @click="focusOnPlot(a)"
+            >
+              <!-- Card Header: ID & Type Badge + Risk Level Badge -->
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-200/80 dark:border-slate-700">
+                    <UIcon name="i-lucide-fingerprint" class="size-3 text-rose-500" />
+                    {{ a.id }}
+                  </span>
+                  <UBadge :color="getCategoryBadgeColor(a.type)" variant="subtle" size="sm">
+                    {{ a.type }}
+                  </UBadge>
+                  <UBadge
+                    v-if="a.id?.startsWith('RULE-') || a.description?.includes('[Rule:') || a.reason?.includes('[Rule:')"
+                    color="primary"
+                    variant="subtle"
+                    size="xs"
+                    class="font-mono text-[10px]"
+                  >
+                    ⚡ Rule Match
+                  </UBadge>
+                </div>
+                <UBadge
+                  :class="getRiskConfig(a.riskLevel).badgeClass"
+                  variant="solid"
+                  size="sm"
+                  class="font-bold"
+                >
+                  {{ getRiskConfig(a.riskLevel).label }}
+                </UBadge>
+              </div>
+
+              <!-- Card Body: Entity & Description -->
+              <div class="space-y-1">
+                <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                  <UIcon name="i-lucide-building-2" class="size-3.5 text-slate-400 shrink-0" />
+                  <span class="font-bold text-gray-900 dark:text-white text-sm truncate">
+                    {{ a.entity || a.accountNumber || a.refNumber || 'Kantor Pusat / GL' }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed pt-1">
+                  {{ a.description || a.reason || a.notes || 'Transaksi Anomali' }}
+                </p>
+              </div>
+
+              <!-- Card Footer: Index, Date & View on Plot -->
+              <div class="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-gray-800/80 text-xs text-slate-500 dark:text-slate-400">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs text-slate-400 font-mono">
+                    #{{ (mobileAnomalyPage - 1) * mobileAnomalyPageSize + Number(index) + 1 }}
+                  </span>
+                  <div class="flex items-center gap-1">
+                    <UIcon name="i-lucide-calendar" class="size-3.5 text-slate-400 shrink-0" />
+                    <span>{{ a.date || (a.timestamp ? a.timestamp.slice(0, 10) : '2026-06-01') }}</span>
+                  </div>
+                </div>
+                <UButton
+                  size="xs"
+                  :color="highlightedAnomalyId === a.id ? 'error' : 'neutral'"
+                  :variant="highlightedAnomalyId === a.id ? 'solid' : 'ghost'"
+                  icon="i-heroicons-arrow-trending-up"
+                  class="whitespace-nowrap"
+                  @click.stop="focusOnPlot(a)"
+                >
+                  {{ t('analytics.isolation.viewOnPlot') }}
+                </UButton>
+              </div>
+            </div>
+
+            <!-- Mobile Pagination Controls -->
+            <div
+              v-if="filteredTableAnomalies.length > mobileAnomalyPageSize"
+              class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800"
+            >
+              <span class="text-xs text-slate-500 dark:text-slate-400">
+                {{ (mobileAnomalyPage - 1) * mobileAnomalyPageSize + 1 }}-{{ Math.min(mobileAnomalyPage * mobileAnomalyPageSize, filteredTableAnomalies.length) }} of {{ filteredTableAnomalies.length }}
+              </span>
+              <UPagination
+                v-model:page="mobileAnomalyPage"
+                :items-per-page="mobileAnomalyPageSize"
+                :total="filteredTableAnomalies.length"
+                size="md"
+                active-color="primary"
+                color="neutral"
+                variant="outline"
+                class="max-w-full overflow-x-auto"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Table Pagination Footer (Desktop >= md) -->
         <template #footer>
-          <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-2 py-1 text-xs text-gray-500">
+          <div class="hidden md:flex flex-col sm:flex-row items-center justify-between gap-3 px-2 py-1 text-xs text-gray-500">
             <div>
               {{ t('analytics.isolation.showingEntries', { from: fromEntry, to: toEntry, total: totalAnomalies }) }}
             </div>

@@ -13,7 +13,7 @@
         variant="outline"
         size="sm"
         class="font-semibold shadow-xs"
-        @click="showExplanationGuide = !showExplanationGuide"
+        @click="() => { showExplanationGuide = !showExplanationGuide }"
       />
     </div>
 
@@ -21,7 +21,7 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 font-sans">
       <!-- 1. CSAT Average Card (Primary Fill Color) -->
       <UCard
-        :ui="{ body: 'p-6 text-white dark:text-white', background: 'bg-transparent' }"
+        :ui="{ body: 'p-6 text-white dark:text-white' }"
         class="relative overflow-hidden bg-primary-600 dark:bg-primary-600 text-white dark:text-white shadow-lg rounded-2xl border-0"
       >
         <div class="relative z-10 flex flex-col justify-between h-full">
@@ -60,7 +60,7 @@
 
       <!-- 2. Total Surveys Card (Secondary Fill Color) -->
       <UCard
-        :ui="{ body: 'p-6 text-white dark:text-white', background: 'bg-transparent' }"
+        :ui="{ body: 'p-6 text-white dark:text-white' }"
         class="relative overflow-hidden bg-secondary-600 dark:bg-secondary-600 text-white dark:text-white shadow-lg rounded-2xl border-0"
       >
         <div class="relative z-10 flex flex-col justify-between h-full">
@@ -101,7 +101,7 @@
 
       <!-- 3. Response Rate Card (Success Fill Color) -->
       <UCard
-        :ui="{ body: 'p-6 text-white dark:text-white', background: 'bg-transparent' }"
+        :ui="{ body: 'p-6 text-white dark:text-white' }"
         class="relative overflow-hidden bg-success-600 dark:bg-success-600 text-white dark:text-white shadow-lg rounded-2xl border-0"
       >
         <div class="relative z-10 flex flex-col justify-between h-full">
@@ -170,7 +170,7 @@
           color="neutral"
           variant="ghost"
           size="xs"
-          @click="showExplanationGuide = false"
+          @click="() => { showExplanationGuide = false }"
         />
       </div>
 
@@ -234,120 +234,233 @@
       </div>
     </UCard>
 
-    <!-- Main Content Tabs / Tables -->
-    <UCard :ui="{ root: 'bg-transparent!' }" class="rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ring-0 divide-gray-200 dark:divide-gray-800 overflow-hidden">
-      <template #header>
-        <div class="flex justify-between items-center py-1">
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <UIcon name="i-heroicons-clipboard-document-list" class="text-primary-600" />
+    <!-- Main Content Table Container (dashboard-card) -->
+    <div class="w-full min-w-0 p-4 sm:p-6 dashboard-card">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+        <div class="flex items-center gap-2">
+          <h2 class="text-base font-bold text-slate-900 tracking-tight dark:text-white flex items-center gap-2">
+            <UIcon name="i-heroicons-clipboard-document-list" class="size-5 text-primary-500" />
             {{ t('satisfactionSurvey.table.title') }}
           </h2>
-          <UButton
-            icon="i-heroicons-arrow-path"
-            color="neutral"
-            variant="ghost"
-            size="sm"
-            @click="refreshAllData"
-            :loading="loadingData"
-          >
-            {{ t('satisfactionSurvey.table.refresh') }}
-          </UButton>
+          <UBadge color="primary" variant="subtle" size="sm" class="font-semibold tabular-nums">
+            {{ publishedReports.length }}
+          </UBadge>
         </div>
-      </template>
+        <UButton
+          icon="i-heroicons-arrow-path"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          class="text-xs font-semibold hover:bg-gray-100 dark:hover:bg-gray-800"
+          @click="refreshAllData"
+          :loading="loadingData"
+        >
+          {{ t('satisfactionSurvey.table.refresh') }}
+        </UButton>
+      </div>
 
-      <!-- Published Reports Table -->
-      <div v-if="publishedReports.length > 0" class="overflow-x-auto">
-        <UTable :data="publishedReports" :columns="columns" :ui="{ th: 'bg-gray-100 dark:bg-gray-800/50' }" class="w-full">
-          <!-- Report Number -->
-          <template #reportNumber-cell="{ row }">
-            <span class="font-mono text-md font-semibold text-primary-600 dark:text-primary-400">
-              {{ normalizeReportNumber(row.original.reportNumber || (row.original as any).report_number) || '-' }}
-            </span>
-          </template>
-
-          <!-- Title -->
-          <template #reportTitle-cell="{ row }">
-            <div class="max-w-md truncate font-medium text-gray-800 dark:text-gray-200" :title="row.original.reportTitle">
-              {{ row.original.reportTitle }}
-            </div>
-          </template>
-
-          <!-- Department -->
-          <template #department-cell="{ row }">
-            <UBadge color="neutral" variant="soft">
-              {{ row.original.department || 'General' }}
-            </UBadge>
-          </template>
-
-          <!-- Report Date -->
-          <template #reportDate-cell="{ row }">
-            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">
-              {{ row.original.reportDate || (row.original as any).report_date?.split('T')[0] || '-' }}
-            </span>
-          </template>
-
-          <!-- Status -->
-          <template #status-cell="{ row }">
-            <UBadge color="success" variant="soft" size="sm">
-              {{ row.original.status }}
-            </UBadge>
-          </template>
-
-          <!-- Survey Status -->
-          <template #surveyStatus-cell="{ row }">
-            <div class="flex items-center gap-2">
-              <span v-if="getReportSurvey(row.original)" class="inline-flex items-center gap-1 text-sm font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-1 rounded-md border border-emerald-100 dark:border-emerald-900/30">
-                <UIcon name="i-heroicons-check-circle" class="size-4" />
-                {{ t('satisfactionSurvey.table.surveyStatus.submitted', { score: getReportSurvey(row.original)!.overall_score?.toFixed(1) }) }}
+      <!-- Desktop View (>= md): Full Table Entities -->
+      <div class="hidden md:block">
+        <UCard class="overflow-hidden border border-gray-200 dark:border-gray-800" :ui="{ root: 'bg-transparent!', body: 'p-0 bg-transparent!' }">
+          <TableEntities
+            :data="publishedReports"
+            :columns="columns"
+            :loading="loadingData"
+            :empty-state="{
+              icon: 'i-heroicons-document-text',
+              label: t('satisfactionSurvey.table.empty.title'),
+              description: t('satisfactionSurvey.table.empty.desc')
+            }"
+            class="w-full"
+          >
+            <!-- Report Number -->
+            <template #reportNumber-cell="{ row }">
+              <span class="font-mono text-xs font-bold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/40 px-2 py-0.5 rounded-md border border-primary-200/50 dark:border-primary-800/40 tabular-nums">
+                {{ normalizeReportNumber(row.original.reportNumber || (row.original as any).report_number) || '-' }}
               </span>
-              <span v-else class="inline-flex items-center gap-1 text-sm font-semibold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-2 py-1 rounded-md border border-amber-100 dark:border-amber-900/30">
-                <UIcon name="i-heroicons-clock" class="size-4" />
+            </template>
+
+            <!-- Title -->
+            <template #reportTitle-cell="{ row }">
+              <div class="py-1 min-w-0">
+                <div class="font-semibold text-gray-900 dark:text-white text-sm line-clamp-1" :title="row.original.reportTitle">
+                  {{ row.original.reportTitle }}
+                </div>
+              </div>
+            </template>
+
+            <!-- Department -->
+            <template #department-cell="{ row }">
+              <UBadge color="neutral" variant="subtle" size="xs" class="font-medium">
+                {{ row.original.department || 'General' }}
+              </UBadge>
+            </template>
+
+            <!-- Report Date -->
+            <template #reportDate-cell="{ row }">
+              <span class="text-xs font-medium text-[var(--text-muted)] tabular-nums">
+                {{ row.original.reportDate || (row.original as any).report_date?.split('T')[0] || '-' }}
+              </span>
+            </template>
+
+            <!-- Status -->
+            <template #status-cell="{ row }">
+              <UBadge color="success" variant="subtle" size="xs" class="font-semibold">
+                {{ row.original.status }}
+              </UBadge>
+            </template>
+
+            <!-- Survey Status -->
+            <template #surveyStatus-cell="{ row }">
+              <div class="flex items-center gap-2">
+                <span v-if="getReportSurvey(row.original)" class="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-md border border-emerald-200/50 dark:border-emerald-800/40 tabular-nums">
+                  <UIcon name="i-heroicons-check-circle" class="size-3.5" />
+                  {{ t('satisfactionSurvey.table.surveyStatus.submitted', { score: getReportSurvey(row.original)?.overall_score?.toFixed(1) ?? '0' }) }}
+                </span>
+                <span v-else class="inline-flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-md border border-amber-200/50 dark:border-amber-800/40 tabular-nums">
+                  <UIcon name="i-heroicons-clock" class="size-3.5" />
+                  {{ t('satisfactionSurvey.table.surveyStatus.pending') }}
+                </span>
+              </div>
+            </template>
+
+            <!-- Actions -->
+            <template #actions-cell="{ row }">
+              <div class="flex items-center gap-1.5">
+                <UButton
+                  v-if="canWrite && (!getReportSurvey(row.original))"
+                  color="primary"
+                  variant="solid"
+                  size="xs"
+                  icon="i-heroicons-pencil-square"
+                  :label="t('satisfactionSurvey.table.actions.fill')"
+                  class="font-semibold shadow-xs"
+                  @click="openSurveyForm(row.original)"
+                />
+                <UButton
+                  v-else-if="getReportSurvey(row.original)"
+                  color="neutral"
+                  variant="ghost"
+                  size="xs"
+                  icon="i-heroicons-eye"
+                  :label="t('satisfactionSurvey.table.actions.view')"
+                  class="font-semibold hover:bg-gray-100 dark:hover:bg-gray-800"
+                  @click="viewSurveyFeedback(getReportSurvey(row.original)!, row.original)"
+                />
+              </div>
+            </template>
+          </TableEntities>
+        </UCard>
+      </div>
+
+      <!-- Mobile & Tablet View (< md): Stacked Cards List -->
+      <div class="block md:hidden">
+        <!-- Loading State Skeleton -->
+        <div v-if="loadingData" class="space-y-3">
+          <div v-for="i in 3" :key="i" class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] animate-pulse space-y-2.5">
+            <div class="flex justify-between items-center">
+              <div class="h-4 w-28 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              <div class="h-5 w-24 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+            </div>
+            <div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div class="h-8 bg-gray-100 dark:bg-gray-800 rounded-lg"></div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div
+          v-else-if="!publishedReports.length"
+          class="py-8 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-[var(--bg-surface)]"
+        >
+          <UIcon name="i-heroicons-document-text" class="size-8 mx-auto text-gray-400 mb-2" />
+          <p class="text-xs font-semibold text-[var(--text-main)]">{{ t('satisfactionSurvey.table.empty.title') }}</p>
+          <p class="text-xs text-[var(--text-muted)] mt-1 max-w-sm mx-auto">{{ t('satisfactionSurvey.table.empty.desc') }}</p>
+        </div>
+
+        <!-- Cards List -->
+        <div v-else class="space-y-3">
+          <div
+            v-for="report in publishedReports"
+            :key="report.id || (report as any).report_number || report.reportNumber"
+            class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-[var(--bg-surface)] hover:border-primary-500/40 dark:hover:border-primary-500/40 transition-all shadow-xs space-y-3"
+          >
+            <!-- Card Header: Report Number Badge & Survey Status Badge -->
+            <div class="flex items-center justify-between gap-2">
+              <span class="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/40 px-2 py-0.5 rounded-md border border-primary-200/50 dark:border-primary-800/40 tabular-nums">
+                <UIcon name="i-heroicons-document-text" class="size-3" />
+                {{ normalizeReportNumber(report.reportNumber || (report as any).report_number) || '-' }}
+              </span>
+              <span
+                v-if="getReportSurvey(report)"
+                class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-md border border-emerald-200/50 dark:border-emerald-800/40 tabular-nums"
+              >
+                <UIcon name="i-heroicons-check-circle" class="size-3" />
+                {{ t('satisfactionSurvey.table.surveyStatus.submitted', { score: getReportSurvey(report)?.overall_score?.toFixed(1) ?? '0' }) }}
+              </span>
+              <span
+                v-else
+                class="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-md border border-amber-200/50 dark:border-amber-800/40 tabular-nums"
+              >
+                <UIcon name="i-heroicons-clock" class="size-3" />
                 {{ t('satisfactionSurvey.table.surveyStatus.pending') }}
               </span>
             </div>
-          </template>
 
-          <!-- Actions -->
-          <template #actions-cell="{ row }">
-            <div class="flex gap-2">
+            <!-- Card Body: Report Title -->
+            <div>
+              <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-snug line-clamp-2">
+                {{ report.reportTitle }}
+              </h4>
+            </div>
+
+            <!-- Card Metadata: Department, Date, Status -->
+            <div class="flex flex-wrap items-center gap-2 pt-1 text-xs text-[var(--text-muted)]">
+              <UBadge color="neutral" variant="subtle" size="xs" class="font-medium">
+                {{ report.department || 'General' }}
+              </UBadge>
+              <span class="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--text-muted)] tabular-nums">
+                <UIcon name="i-lucide-calendar" class="size-3 text-gray-400" />
+                {{ report.reportDate || (report as any).report_date?.split('T')[0] || '-' }}
+              </span>
+              <UBadge color="success" variant="subtle" size="xs" class="font-semibold ml-auto">
+                {{ report.status }}
+              </UBadge>
+            </div>
+
+            <!-- Card Footer: Actions -->
+            <div class="flex items-center justify-end gap-1.5 pt-2 border-t border-gray-100 dark:border-gray-800/80">
               <UButton
-                v-if="canWrite && (!getReportSurvey(row.original))"
+                v-if="canWrite && (!getReportSurvey(report))"
                 color="primary"
-                size="sm"
+                variant="solid"
+                size="xs"
                 icon="i-heroicons-pencil-square"
                 :label="t('satisfactionSurvey.table.actions.fill')"
-                @click="openSurveyForm(row.original)"
+                class="font-semibold shadow-xs"
+                @click="openSurveyForm(report)"
               />
               <UButton
-                v-else-if="getReportSurvey(row.original)"
+                v-else-if="getReportSurvey(report)"
                 color="neutral"
                 variant="outline"
-                size="sm"
+                size="xs"
                 icon="i-heroicons-eye"
                 :label="t('satisfactionSurvey.table.actions.view')"
-                @click="viewSurveyFeedback(getReportSurvey(row.original)!, row.original)"
+                class="font-semibold"
+                @click="viewSurveyFeedback(getReportSurvey(report)!, report)"
               />
             </div>
-          </template>
-        </UTable>
+          </div>
+        </div>
       </div>
-
-      <!-- Empty State -->
-      <div v-else class="text-center py-16 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-dashed border-gray-200 dark:border-gray-800">
-        <UIcon name="i-heroicons-document-text" class="size-16 text-gray-300 mx-auto mb-4" />
-        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-350">{{ t('satisfactionSurvey.table.empty.title') }}</h3>
-        <p class="text-gray-500 dark:text-gray-400 mt-2 max-w-md mx-auto">
-          {{ t('satisfactionSurvey.table.empty.desc') }}
-        </p>
-      </div>
-    </UCard>
+    </div>
 
     <!-- Survey Form Modal -->
     <UModal 
       v-model:open="showFormModal" 
       dismissible 
       :ui="{
-        content: 'sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
+        content: 'w-[calc(100vw-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl overflow-hidden',
         header: 'border-b border-gray-100 dark:border-gray-800 p-5 text-gray-900 dark:text-white font-bold shrink-0',
         body: 'p-6 space-y-5 bg-white dark:bg-gray-900 text-gray-900 dark:text-white overflow-y-auto max-h-[calc(90vh-130px)] flex-1',
         footer: 'border-t border-gray-100 dark:border-gray-800 p-4 shrink-0',
@@ -355,9 +468,9 @@
       }"
     >
       <template #content>
-        <div class="flex flex-col h-full max-h-[95vh]">
+        <div class="flex flex-col h-full max-h-[90vh] min-h-0">
           <!-- Header -->
-          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-gray-900/50">
+          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-gray-900/50 shrink-0">
             <div class="flex items-center gap-3">
               <div class="p-2 bg-primary-100 dark:bg-primary-950/50 rounded-lg">
                 <UIcon name="i-heroicons-chat-bubble-bottom-center-text" class="text-primary-600 size-6" />
@@ -376,7 +489,7 @@
           </div>
 
           <!-- Body -->
-          <div class="p-6 overflow-y-auto flex-1 space-y-6">
+          <div class="p-6 pb-8 overflow-y-auto flex-1 min-h-0 space-y-6">
             <!-- Report Meta Info Banner -->
             <div class="p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-xl space-y-2">
               <div class="grid grid-cols-2 gap-4 text-md">
@@ -515,7 +628,7 @@
 
               <!-- Computed Preview of Overall Score -->
               <UCard
-                :ui="{ body: 'p-4 text-white dark:text-white flex items-center justify-between', background: 'bg-transparent' }"
+                :ui="{ body: 'p-4 text-white dark:text-white flex items-center justify-between' }"
                 class="bg-primary-600 text-white dark:text-white shadow-md rounded-xl border-0"
               >
                 <div>
@@ -541,19 +654,21 @@
               </UFormField>
 
               <!-- Footer Actions -->
-              <div class="flex justify-end gap-3 pt-6 border-t border-gray-100 dark:border-gray-800">
-                <UButton
-                  :label="t('satisfactionSurvey.formModal.cancel')"
-                  color="neutral"
-                  variant="ghost"
-                  @click="() => { showFormModal = false }"
-                />
+              <div class="flex flex-col gap-3 pt-6 pb-6 mb-2 border-t border-gray-100 dark:border-gray-800 w-full">
                 <UButton
                   type="submit"
                   :label="t('satisfactionSurvey.formModal.submit')"
                   color="primary"
                   icon="i-heroicons-check"
                   :loading="submitting"
+                  class="w-full justify-center py-2.5 font-bold cursor-pointer shadow-xs"
+                />
+                <UButton
+                  :label="t('satisfactionSurvey.formModal.cancel')"
+                  color="neutral"
+                  variant="outline"
+                  class="w-full justify-center py-2.5 font-semibold cursor-pointer border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shadow-2xs"
+                  @click="() => { showFormModal = false }"
                 />
               </div>
             </UForm>
@@ -688,6 +803,7 @@ import { useAuditeeSurveyStore, type AuditeeSurvey } from '~/stores/auditee-surv
 import { useToastNotification } from '~/components/shared/ToastNotification.vue'
 import { useI18n } from '~/composables/useI18n'
 import { useAppToast } from '~/composables/useAppToast'
+import TableEntities from '~/components/shared/TableEntities.vue'
 
 const { t } = useI18n()
 const appToast = useAppToast()
@@ -719,13 +835,13 @@ const formState = ref({
 })
 
 const columns = computed(() => [
-  { accessorKey: 'reportNumber', header: t('satisfactionSurvey.table.columns.reportNumber') },
-  { accessorKey: 'reportTitle', header: t('satisfactionSurvey.table.columns.reportTitle') },
-  { accessorKey: 'department', header: t('satisfactionSurvey.table.columns.department') },
-  { accessorKey: 'reportDate', header: t('satisfactionSurvey.table.columns.publishDate') },
-  { accessorKey: 'status', header: t('satisfactionSurvey.table.columns.status') },
-  { accessorKey: 'surveyStatus', header: t('satisfactionSurvey.table.columns.surveyStatus') },
-  { accessorKey: 'actions', header: t('satisfactionSurvey.table.columns.action') }
+  { accessorKey: 'reportNumber', header: t('satisfactionSurvey.table.columns.reportNumber'), class: 'min-w-[130px] w-[14%]' },
+  { accessorKey: 'reportTitle', header: t('satisfactionSurvey.table.columns.reportTitle'), class: 'min-w-[200px] w-[28%]' },
+  { accessorKey: 'department', header: t('satisfactionSurvey.table.columns.department'), class: 'min-w-[120px] w-[14%]' },
+  { accessorKey: 'reportDate', header: t('satisfactionSurvey.table.columns.publishDate'), class: 'min-w-[110px] w-[12%]' },
+  { accessorKey: 'status', header: t('satisfactionSurvey.table.columns.status'), class: 'min-w-[90px] w-[10%]' },
+  { accessorKey: 'surveyStatus', header: t('satisfactionSurvey.table.columns.surveyStatus'), class: 'min-w-[140px] w-[14%]' },
+  { accessorKey: 'actions', header: t('satisfactionSurvey.table.columns.action'), class: 'min-w-[90px] w-[8%]' }
 ])
 
 // Computed list of only published (status Final) reports
