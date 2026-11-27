@@ -423,7 +423,6 @@ describe('Executive summary narrative period', () => {
       expect(indForm).toContain('t(\'executiveSummaryForm.validation.lhaRequired\')')
       expect(indForm).toContain('store.saveForm({ requireLha: true })')
       expect(indPage).toContain('ref="individualFormRef"')
-      expect(indPage).toContain('@click="handleHeaderSaveReport"')
       expect(indPage).not.toContain('@click="store.saveForm"')
     })
 

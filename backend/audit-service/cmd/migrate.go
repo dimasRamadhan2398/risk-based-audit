@@ -165,25 +165,11 @@ Usage: audit migrate backfill-department-ids [--apply]`,
 	rootCmd.AddCommand(migrateCmd)
 }
 
-func runMigrateUp(cmd *cobra.Command, args []string) error {
-	initLogger()
-	defer logger.Sync()
-
-	logger.Info("Starting database migration (UP)")
-
-	// Connect to database
-	db, err := database.NewPostgresConnection(&cfg.Database)
-	if err != nil {
-		logger.Fatal("Failed to connect to database", logger.LogField("error", err))
-		return err
-	}
-
-	// Enable UUID extension
-	if err := enableUUIDExtension(db); err != nil {
-		logger.Warn("UUID extension may already exist or failed to create", logger.LogField("error", err))
-	}
-
-	// Define audit models to migrate
+// allAuditModels returns every GORM model owned by audit-service in dependency order.
+// Shared by "migrate up", "seed", and "serve" so additive schema changes (such as new
+// columns on assignment_letters or strategic_plans) are never skipped on stacks that
+// boot with "audit serve" only.
+func allAuditModels() []interface{} {
 	auditModels := []interface{}{
 		&models.AuditCharter{},
 		&models.AuditGuideline{},
@@ -229,7 +215,29 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 		&models.AuditCompletionSnapshot{},
 	}
 	// COSO 2013 internal control assessment (new tables only)
-	auditModels = append(auditModels, models.ICAssessmentModels()...)
+	return append(auditModels, models.ICAssessmentModels()...)
+}
+
+func runMigrateUp(cmd *cobra.Command, args []string) error {
+	initLogger()
+	defer logger.Sync()
+
+	logger.Info("Starting database migration (UP)")
+
+	// Connect to database
+	db, err := database.NewPostgresConnection(&cfg.Database)
+	if err != nil {
+		logger.Fatal("Failed to connect to database", logger.LogField("error", err))
+		return err
+	}
+
+	// Enable UUID extension
+	if err := enableUUIDExtension(db); err != nil {
+		logger.Warn("UUID extension may already exist or failed to create", logger.LogField("error", err))
+	}
+
+	// Define audit models to migrate
+	auditModels := allAuditModels()
 
 	if migrateDryRun {
 		logger.Info("DRY RUN - Tables that would be created/updated:")
@@ -252,6 +260,9 @@ func runMigrateUp(cmd *cobra.Command, args []string) error {
 
 	// Ensure assignment_letters letter_number unique index is a partial index on active records only
 	db.Exec(`
+		ALTER TABLE assignment_letters DROP CONSTRAINT IF EXISTS uni_assignment_letters_letter_number;
+		ALTER TABLE assignment_letters DROP CONSTRAINT IF EXISTS assignment_letters_letter_number_key;
+		DROP INDEX IF EXISTS uni_assignment_letters_letter_number;
 		DROP INDEX IF EXISTS idx_assignment_letters_letter_number;
 		CREATE UNIQUE INDEX IF NOT EXISTS idx_assignment_letters_letter_number ON assignment_letters (letter_number) WHERE deleted_at IS NULL;
 	`)

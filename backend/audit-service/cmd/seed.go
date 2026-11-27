@@ -244,47 +244,10 @@ func dropTables(db *gorm.DB) error {
 }
 
 func runMigrations(db *gorm.DB) error {
-	if err := db.AutoMigrate(
-		&models.AuditCharter{},
-		&models.AuditGuideline{},
-		&models.AuditSop{},
-		&models.AuditMandate{},
-		&models.AuditAssignment{},
-		&models.AuditAnnual{},
-		&models.ActivityPlan{},
-		&models.AuditActivity{},
-		&models.ActivityCodeSequence{},
-		&models.StrategicPlan{},
-		&models.AssignmentLetter{},
-		&models.AuditExecution{},
-		&models.FieldworkInterview{},
-		&models.FieldworkObservation{},
-		&models.FieldworkDocument{},
-		&models.FieldworkSample{},
-		&models.FieldworkTestControl{},
-		&models.WorkingPaperHeader{},
-		&models.WorkingPaperRisk{},
-		&models.WorkingPaperSample{},
-		&models.WorkingPaperCause{},
-		&models.WorkingPaperPlan{},
-		&models.WorkingPaper{},
-		&models.AuditResultReport{},
-		&models.ExecutiveSummary{},
-		&models.ActionTakenReport{},
-		&models.ActionTakenReportEvidence{},
-		&models.ImportedWorkingPaper{},
-		&models.UploadedPlanDocument{},
-		&models.KPIAchievement{},
-		&models.WorkPlanRealization{},
-		&models.AuditeeSurvey{},
-	); err != nil {
-		return err
-	}
-	// COSO internal control assessment tables (new tables only) and the
-	// settings row (insert-if-missing). No assessment is seeded here; the demo
-	// assessment is "audit seed-ic-demo".
-	if err := db.AutoMigrate(models.ICAssessmentModels()...); err != nil {
-		return err
+	for _, m := range allAuditModels() {
+		if err := db.AutoMigrate(m); err != nil {
+			return err
+		}
 	}
 	if err := migrateICAssessment(db); err != nil {
 		return err

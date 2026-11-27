@@ -604,7 +604,15 @@ const lhaValidationError = computed(() => {
 })
 
 watch(() => store.showModal, (isOpen) => {
-  if (isOpen) submitAttempted.value = false
+  if (isOpen) {
+    submitAttempted.value = false
+    if (!auditReportStore.loading) {
+      auditReportStore.fetchReports()
+    }
+    if (!assignmentLetterStore.loading) {
+      assignmentLetterStore.fetchAssignmentLetters()
+    }
+  }
 })
 
 const saveReportDraft = async () => {
@@ -795,7 +803,10 @@ const lhaDropdownOptions: Ref<Array<{ label: string; value: string; report: any 
   const editingOwnDoc = (store.isEditing || store.isViewing)
     ? (store.currentSummary?.nomorDokumen || store.form.nomorDokumen)
     : undefined
-  return filterAvailableIndividualLhas(auditReportStore.reportList, store.summaryList, editingOwnDoc)
+  const activeLetters = assignmentLetterStore.assignmentLetterList.length > 0
+    ? assignmentLetterStore.assignmentLetterList
+    : undefined
+  return filterAvailableIndividualLhas(auditReportStore.reportList, store.summaryList, editingOwnDoc, activeLetters)
     .map(r => ({
       label: `${r.reportNumber || (r as any).report_number} - ${r.reportTitle}`,
       value: r.reportNumber || (r as any).report_number,

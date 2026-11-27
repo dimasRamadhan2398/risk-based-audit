@@ -3,6 +3,8 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -180,55 +182,179 @@ func FindAssignmentLetter(tx *gorm.DB, ref string) (*AssignmentLetter, bool) {
 	return nil, false
 }
 
-// NextLetterNumber generates the next sequence letter number for the given team and year.
-// Soft-deleted letters are included: the letter_number unique index still covers
-// their rows in databases created before the index was made partial, so a number
-// they hold must not be handed out again.
-func NextLetterNumber(tx *gorm.DB, team, year string) string {
-	year = strings.TrimSpace(year)
-	if len(year) > 4 {
-		year = year[:4]
-	}
-	if year == "" {
-		year = fmt.Sprintf("%d", time.Now().Year())
-	}
-	team = strings.TrimSpace(team)
-	if team == "" {
-		team = "SKAI"
-	}
+var letterYearRe = regexp.MustCompile(`\b((?:19|20|21)\d{2})\b`)
 
-	var letters []AssignmentLetter
-	tx.Unscoped().Model(&AssignmentLetter{}).Select("letter_number").Find(&letters)
+func normalizeLetterYear(year string) string {
+	trimmed := strings.TrimSpace(year)
+	if m := letterYearRe.FindString(trimmed); m != "" {
+		return m
+	}
+	if len(trimmed) >= 4 {
+		candidate := trimmed[:4]
+		if _, err := strconv.Atoi(candidate); err == nil {
+			return candidate
+		}
+	}
+	return fmt.Sprintf("%d", time.Now().Year())
+}
 
-	maxSeq := 0
-	prefix := "ST-"
-	for _, l := range letters {
-		numStr := strings.ToUpper(strings.TrimSpace(l.LetterNumber))
-		if strings.HasPrefix(numStr, prefix) {
-			parts := strings.Split(numStr, "/")
-			if len(parts) > 0 {
-				var seq int
-				numPart := strings.TrimPrefix(parts[0], prefix)
-				if _, err := fmt.Sscanf(numPart, "%d", &seq); err == nil && seq > maxSeq {
-					maxSeq = seq
+func normalizeLetterTeam(team string) string {
+	trimmed := strings.ToUpper(strings.TrimSpace(team))
+	trimmed = strings.ReplaceAll(trimmed, "/", "-")
+	if trimmed == "" {
+		return "SKAI"
+	}
+	return trimmed
+}
+
+// parseLetterSequence extracts the sequence integer from a letter number only
+// when it belongs to the target audit team and year (ST-{seq}/{TEAM}/{YEAR}).
+func parseLetterSequence(letterNumber, targetTeam, targetYear string) (int, bool) {
+	parts := strings.Split(strings.TrimSpace(letterNumber), "/")
+	if len(parts) != 3 {
+		return 0, false
+	}
+	seqPart := strings.ToUpper(strings.TrimSpace(parts[0]))
+	teamPart := strings.ToUpper(strings.TrimSpace(parts[1]))
+	yearPart := strings.TrimSpace(parts[2])
+
+	if !strings.HasPrefix(seqPart, "ST-") || teamPart != targetTeam || yearPart != targetYear {
+		return 0, false
+	}
+	numStr := strings.TrimPrefix(seqPart, "ST-")
+	if numStr == "" {
+		return 0, false
+	}
+	seq, err := strconv.Atoi(numStr)
+	if err != nil || seq <= 0 {
+		return 0, false
+	}
+	return seq, true
+}
+
+// legacyLetterNumberUniqueConstraint reports whether the database still has a
+// non-partial unique index/constraint on assignment_letters.letter_number that
+// covers soft-deleted rows. On migrated databases (partial index WHERE
+// deleted_at IS NULL), it returns false so soft-deleted rows do not hijack or
+// skip sequential numbers.
+func legacyLetterNumberUniqueConstraint(tx *gorm.DB) bool {
+	if tx == nil || tx.Dialector == nil {
+		return false
+	}
+	db := tx.Session(&gorm.Session{NewDB: true})
+	switch db.Dialector.Name() {
+	case "postgres":
+		var count int64
+		err := db.Raw(`
+			SELECT COUNT(*)
+			FROM pg_index ix
+			JOIN pg_class tbl ON tbl.oid = ix.indrelid
+			JOIN pg_namespace ns ON ns.oid = tbl.relnamespace
+			WHERE tbl.relname = 'assignment_letters'
+			  AND ns.nspname = current_schema()
+			  AND ix.indisunique = true
+			  AND ix.indpred IS NULL
+			  AND EXISTS (
+			    SELECT 1 FROM pg_attribute a
+			    WHERE a.attrelid = tbl.oid
+			      AND a.attname = 'letter_number'
+			      AND a.attnum = ANY(ix.indkey)
+			  )
+		`).Scan(&count).Error
+		return err == nil && count > 0
+	case "sqlite":
+		type sqliteIndex struct {
+			Name    string
+			Unique  int
+			Partial int
+		}
+		var indexes []sqliteIndex
+		if err := db.Raw("PRAGMA index_list('assignment_letters')").Scan(&indexes).Error; err != nil {
+			return false
+		}
+		type sqliteIndexCol struct {
+			Name string
+		}
+		for _, idx := range indexes {
+			if idx.Unique == 0 || idx.Partial != 0 {
+				continue
+			}
+			var cols []sqliteIndexCol
+			quoted := `"` + strings.ReplaceAll(idx.Name, `"`, `""`) + `"`
+			if err := db.Raw("PRAGMA index_info(" + quoted + ")").Scan(&cols).Error; err != nil {
+				continue
+			}
+			for _, col := range cols {
+				if strings.EqualFold(col.Name, "letter_number") {
+					return true
 				}
 			}
 		}
+		return false
+	default:
+		return false
 	}
-	return fmt.Sprintf("ST-%03d/%s/%s", maxSeq+1, strings.ToUpper(team), year)
+}
+
+// NextLetterNumber generates the next sequential letter number for the given
+// team and year (ST-{NNN}/{TEAM}/{YEAR}), starting at 001 for each team/year
+// so different audit teams never share sequence counters and sequence outliers
+// never cause jumps.
+func NextLetterNumber(tx *gorm.DB, team, year string) string {
+	includeDeleted := legacyLetterNumberUniqueConstraint(tx)
+	return nextLetterNumberWithScope(tx, team, year, includeDeleted)
+}
+
+func nextLetterNumberWithScope(tx *gorm.DB, team, year string, includeDeleted bool) string {
+	cleanYear := normalizeLetterYear(year)
+	targetTeam := normalizeLetterTeam(team)
+
+	query := tx.Session(&gorm.Session{NewDB: true}).Model(&AssignmentLetter{})
+	if includeDeleted {
+		query = query.Unscoped()
+	}
+
+	var numbers []string
+	query.Pluck("letter_number", &numbers)
+
+	used := make(map[int]bool, len(numbers))
+	for _, numStr := range numbers {
+		if seq, ok := parseLetterSequence(numStr, targetTeam, cleanYear); ok {
+			used[seq] = true
+		}
+	}
+
+	nextSeq := 1
+	for used[nextSeq] {
+		nextSeq++
+	}
+	return fmt.Sprintf("ST-%03d/%s/%s", nextSeq, targetTeam, cleanYear)
 }
 
 func (a *AssignmentLetter) BeforeCreate(tx *gorm.DB) error {
+	targetTeam := normalizeLetterTeam(a.AuditTeam)
+	cleanYear := normalizeLetterYear(a.AuditYear)
+
+	if tx != nil && tx.Dialector != nil && tx.Dialector.Name() == "postgres" {
+		_ = tx.Session(&gorm.Session{NewDB: true}).Exec("SELECT pg_advisory_xact_lock(hashtext(?))", "assignment_letter:"+targetTeam+":"+cleanYear).Error
+	}
+
+	includeDeleted := legacyLetterNumberUniqueConstraint(tx)
+	scopeDB := tx.Session(&gorm.Session{NewDB: true}).Model(&AssignmentLetter{})
+	if includeDeleted {
+		scopeDB = scopeDB.Unscoped()
+	}
+
 	a.LetterNumber = strings.TrimSpace(a.LetterNumber)
 	if a.LetterNumber == "" {
-		a.LetterNumber = NextLetterNumber(tx, a.AuditTeam, a.AuditYear)
+		a.LetterNumber = nextLetterNumberWithScope(tx, targetTeam, cleanYear, includeDeleted)
 		return nil
 	}
 
-	// If a letter number was provided, ensure it doesn't collide with any letter, soft-deleted ones included
+	// Only replace a client-supplied number if it actually collides in the active (or legacy global) scope.
 	var count int64
-	if err := tx.Unscoped().Model(&AssignmentLetter{}).Where("letter_number = ?", a.LetterNumber).Count(&count).Error; err == nil && count > 0 {
-		a.LetterNumber = NextLetterNumber(tx, a.AuditTeam, a.AuditYear)
+	if err := scopeDB.Where("UPPER(TRIM(letter_number)) = ?", strings.ToUpper(a.LetterNumber)).Count(&count).Error; err == nil && count > 0 {
+		a.LetterNumber = nextLetterNumberWithScope(tx, targetTeam, cleanYear, includeDeleted)
 	}
 
 	return nil

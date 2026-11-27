@@ -142,6 +142,27 @@ export interface ExecutiveSummary {
 }
 
 export const ES_PERSISTENCE_KEY = 'risk_based_audit_executive_summaries_persisted_v2'
+export const ES_DELETED_DOCS_KEY = 'risk_based_audit_executive_summaries_deleted_docs_v1'
+
+const loadDeletedDocNumbers = (): string[] => {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = localStorage.getItem(ES_DELETED_DOCS_KEY)
+    const parsed = raw ? JSON.parse(raw) : []
+    return Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === 'string' && v.trim() !== '') : []
+  } catch {
+    return []
+  }
+}
+
+const saveDeletedDocNumbers = (list: readonly string[]) => {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.setItem(ES_DELETED_DOCS_KEY, JSON.stringify(Array.from(new Set(list))))
+  } catch {
+    // ignore storage errors
+  }
+}
 
 export const loadPersistedExecutiveSummaryOverrides = (): Record<string, Partial<ExecutiveSummary>> => {
   if (typeof window === 'undefined') return {}
@@ -734,6 +755,10 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
         [form.nomorDokumen, savedId || currentSummary.value?.id],
         { ...form }
       )
+      if (form.nomorDokumen && deletedDocNumbers.value.includes(form.nomorDokumen)) {
+        deletedDocNumbers.value = deletedDocNumbers.value.filter(d => d !== form.nomorDokumen)
+        saveDeletedDocNumbers(deletedDocNumbers.value)
+      }
 
       showModal.value = false
       await fetchSummaries()
@@ -761,7 +786,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
     }
   }
 
-  const deletedDocNumbers = ref<string[]>([])
+  const deletedDocNumbers = ref<string[]>(loadDeletedDocNumbers())
 
   const deleteSummary = async (id: string, docNum?: string) => {
     if (!await useGlobalModalStore().confirmDelete({ description: 'Apakah Anda yakin ingin menghapus Laporan Eksekutif ini?' })) return
@@ -771,6 +796,7 @@ export const useExecutiveSummaryStore = defineStore('executive-summary', () => {
 
     if (targetDocNum && !deletedDocNumbers.value.includes(targetDocNum)) {
       deletedDocNumbers.value.push(targetDocNum)
+      saveDeletedDocNumbers(deletedDocNumbers.value)
     }
 
     // DELETE /executive-summaries/:id only accepts the UUID of an executive_summaries row,

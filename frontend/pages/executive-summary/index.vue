@@ -320,7 +320,7 @@ import { useAuditResultReportStore } from '~/stores/audit-result-report'
 import { useAssignmentLetterStore } from '~/stores/assignment-letter'
 import ExecutiveSummaryIndividualForm from '~/components/audit-result-report/ExecutiveSummaryIndividualForm.vue'
 import { buildSyncedNarrative, deriveNarrativeSyncData } from '~/utils/executiveSummaryNarrative'
-import { filterIndividualSummaries, isExcludedLegacyDoc, isIndividualSummaryDoc } from '~/utils/executiveSummaryFilter'
+import { filterIndividualSummaries, hasActiveAssignmentLetter, isExcludedLegacyDoc, isIndividualSummaryDoc } from '~/utils/executiveSummaryFilter'
 
 const { t } = useI18n()
 const { canWrite, canExport } = useRbac()
@@ -383,6 +383,9 @@ if (!store.loading) {
 if (!auditReportStore.loading) {
   auditReportStore.fetchReports()
 }
+if (!assignmentLetterStore.loading) {
+  assignmentLetterStore.fetchAssignmentLetters()
+}
 
 // Map month string
 const getMonthName = (mStr: string) => {
@@ -415,9 +418,13 @@ const syncedSummaries = computed(() => {
   })
 
   // Synchronize with LHA items from auditReportStore
+  const activeLetters = assignmentLetterStore.assignmentLetterList.length > 0
+    ? assignmentLetterStore.assignmentLetterList
+    : undefined
   auditReportStore.reportList.forEach(lha => {
     const lhaNum = lha.reportNumber || (lha as any).report_number
     if (!lhaNum || isExcludedLegacyDoc(lhaNum) || !isIndividualSummaryDoc(lhaNum)) return
+    if (!docMap.has(lhaNum) && !hasActiveAssignmentLetter(lha, activeLetters)) return
 
     if (docMap.has(lhaNum)) {
       const existing = docMap.get(lhaNum)!

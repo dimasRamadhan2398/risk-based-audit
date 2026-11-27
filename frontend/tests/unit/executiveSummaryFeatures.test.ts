@@ -614,14 +614,25 @@ describe('Executive Summary Features (Individual & Compilation)', () => {
       const availableForEdit = filterAvailableIndividualLhas(reports, mixedSummaries, 'LHA-001/SKAI/2026')
       expect(availableForEdit.map(r => r.reportNumber)).toEqual(['LHA-001/SKAI/2026', 'LHA-003/SKAI/2026'])
 
+      // Orphaned LHA whose assignment letter was deleted is excluded when active letters are supplied
+      const reportsWithOrphan = [
+        { reportNumber: 'LHA-002/SKAI/2026', assignmentLetterId: 'ST-002/SKAI/2026', reportTitle: 'Orphaned LHA' },
+        { reportNumber: 'LHA-004/SKAI/2026', assignmentLetterId: 'ST-001/SKAI/2026', reportTitle: 'Active LHA' }
+      ]
+      const activeLetters = [{ id: '1', letterNumber: 'ST-001/SKAI/2026' }]
+      const availableWithActiveLetters = filterAvailableIndividualLhas(reportsWithOrphan, [], undefined, activeLetters)
+      expect(availableWithActiveLetters.map(r => r.reportNumber)).toEqual(['LHA-004/SKAI/2026'])
+
       // Pages and form wire the separation and LHA filtering
       const indPage = read('pages/executive-summary/index.vue')
       const compPage = read('pages/executive-summary-compilation/index.vue')
       const indForm = read('components/audit-result-report/ExecutiveSummaryIndividualForm.vue')
       expect(indPage).toContain('filterIndividualSummaries')
+      expect(indPage).toContain('hasActiveAssignmentLetter')
       expect(compPage).toContain('filterCompilationSummaries')
       expect(compPage).toContain('compilationSummaries.length')
       expect(indForm).toContain('filterAvailableIndividualLhas')
+      expect(indForm).toContain('assignmentLetterStore.assignmentLetterList')
     })
   })
 })

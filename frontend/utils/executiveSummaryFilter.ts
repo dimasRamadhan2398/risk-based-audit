@@ -37,17 +37,38 @@ export const filterCompilationSummaries = <T extends { nomorDokumen?: string | n
 ): T[] => list.filter(s => isCompilationSummaryDoc(s.nomorDokumen))
 
 /**
+ * Checks whether an LHA's assignment letter still exists in the active assignment letters list.
+ * When activeAssignmentLetters is omitted or empty (e.g. before letters finish loading or in
+ * minimal test fixtures), returns true so valid LHAs are not hidden prematurely.
+ */
+export const hasActiveAssignmentLetter = (
+  report: { assignmentLetterId?: string | null },
+  activeAssignmentLetters?: ReadonlyArray<{ id?: string | null, letterNumber?: string | null }>
+): boolean => {
+  if (!activeAssignmentLetters || activeAssignmentLetters.length === 0) return true
+  const ref = String(report.assignmentLetterId ?? '').trim()
+  if (!ref) return true
+  return activeAssignmentLetters.some(
+    st => String(st.letterNumber ?? '').trim() === ref || String(st.id ?? '').trim() === ref
+  )
+}
+
+/**
  * Filters LHA reports for the Individual Executive Summary "Select Assignment Letter / LHA"
- * dropdown, excluding LHAs that have already been selected into an Individual Executive Summary
- * (except the currently edited/viewed summary's own LHA so its selection stays visible).
+ * dropdown, excluding:
+ * - legacy/dummy records and Compilation documents
+ * - orphaned LHAs whose Assignment Letter has been deleted
+ * - LHAs that have already been selected into an Individual Executive Summary
+ *   (except the currently edited/viewed summary's own LHA so its selection stays visible).
  */
 export const filterAvailableIndividualLhas = <
-  R extends { reportNumber?: string | null, report_number?: string | null },
+  R extends { reportNumber?: string | null, report_number?: string | null, assignmentLetterId?: string | null },
   S extends { nomorDokumen?: string | null }
 >(
   reports: readonly R[],
   summaries: readonly S[],
-  editingOwnDocNumber?: string | null
+  editingOwnDocNumber?: string | null,
+  activeAssignmentLetters?: ReadonlyArray<{ id?: string | null, letterNumber?: string | null }>
 ): R[] => {
   const ownNorm = editingOwnDocNumber ? normalizeReportNumber(editingOwnDocNumber) : ''
   const usedNorms = new Set<string>()
@@ -65,6 +86,7 @@ export const filterAvailableIndividualLhas = <
     if (!isIndividualSummaryDoc(num)) return false
     const norm = normalizeReportNumber(num)
     if (!norm || usedNorms.has(norm) || seenReportNorms.has(norm)) return false
+    if (norm !== ownNorm && !hasActiveAssignmentLetter(r, activeAssignmentLetters)) return false
     seenReportNorms.add(norm)
     return true
   })

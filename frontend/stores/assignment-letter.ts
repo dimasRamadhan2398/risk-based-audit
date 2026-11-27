@@ -409,7 +409,16 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
         })
         let items: AssignmentLetter[] = []
         if (response && response.data && Array.isArray(response.data.items)) {
-          items = response.data.items
+          items = [...response.data.items]
+          const totalPages = Number(response.data.pagination?.total_pages || 1)
+          for (let page = 2; page <= Math.min(totalPages, 20); page++) {
+            const nextResp: any = await $fetch(`${baseUrl}/assignment-letters?page=${page}&page_size=100`, {
+              method: 'GET'
+            })
+            if (nextResp?.data && Array.isArray(nextResp.data.items)) {
+              items.push(...nextResp.data.items)
+            }
+          }
         } else if (response && Array.isArray(response.items)) {
           items = response.items
         } else if (Array.isArray(response)) {
@@ -435,34 +444,43 @@ export const useAssignmentLetterStore = defineStore('assignment-letter', {
     },
 
     generateNomorSurat(auditTeam?: string, year?: string): string {
-      const rawYear = (year || this.form?.auditYear || '').trim()
+      const rawYear = (year || this.form?.auditYear || '').toString().trim()
       let cleanYear = ''
-      const yearMatch = rawYear.match(/\b(20\d{2})\b/)
+      const yearMatch = rawYear.match(/\b((?:19|20|21)\d{2})\b/)
       if (yearMatch && yearMatch[1]) {
         cleanYear = yearMatch[1]
-      } else if (rawYear.length >= 4) {
-        cleanYear = rawYear.slice(0, 4)
+      } else if (/^\d{4}$/.test(rawYear)) {
+        cleanYear = rawYear
       } else {
         cleanYear = new Date().getFullYear().toString()
       }
 
-      const targetTeam = (auditTeam || this.form?.auditTeam || 'SKAI').trim().toUpperCase()
+      const targetTeam = (auditTeam || this.form?.auditTeam || 'SKAI')
+        .trim()
+        .toUpperCase()
+        .replace(/\//g, '-') || 'SKAI'
 
-      // Dynamically scan existing assignment letters to find the highest sequence number
-      let maxSeq = 0
-      const stRegex = /^ST-(\d+)/i
+      // Scan existing letters strictly within the same audit team and year so each team
+      // counts independently from 1 and outliers or other teams cannot cause sequence jumps.
+      const usedSeqs = new Set<number>()
       for (const item of this.assignmentLetterList) {
-        const numStr = (item.letterNumber || '').trim()
-        const match = numStr.match(stRegex)
-        if (match && match[1]) {
-          const parsed = parseInt(match[1], 10)
-          if (!isNaN(parsed) && parsed > maxSeq) {
-            maxSeq = parsed
+        const parts = (item.letterNumber || '').trim().split('/')
+        if (parts.length !== 3) continue
+        const seqMatch = parts[0]!.trim().match(/^ST-(\d+)$/i)
+        const itemTeam = parts[1]!.trim().toUpperCase()
+        const itemYear = parts[2]!.trim()
+        if (seqMatch && seqMatch[1] && itemTeam === targetTeam && itemYear === cleanYear) {
+          const parsed = parseInt(seqMatch[1], 10)
+          if (!isNaN(parsed) && parsed > 0) {
+            usedSeqs.add(parsed)
           }
         }
       }
 
-      const nextSeq = maxSeq > 0 ? maxSeq + 1 : this.assignmentLetterList.length + 1
+      let nextSeq = 1
+      while (usedSeqs.has(nextSeq)) {
+        nextSeq++
+      }
       const paddedCount = nextSeq.toString().padStart(3, '0')
       return `ST-${paddedCount}/${targetTeam}/${cleanYear}`
     },

@@ -1755,7 +1755,7 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
         }
         try {
           const letterNumber = letterStore.generateNomorSurat(cand.auditTeam, cand.auditYear)
-          await $fetch(`${auditUrl}/assignment-letters`, {
+          const res: any = await $fetch(`${auditUrl}/assignment-letters`, {
             method: 'POST',
             body: {
               ...cand,
@@ -1764,6 +1764,8 @@ const handleExecuteFeatureAction = async (item: MappedRecord) => {
               status: 'Draft',
             },
           })
+          const created = res?.data || { ...cand, letterNumber }
+          letterStore.assignmentLetterList.unshift(created)
           addedCount++
         } catch {
           // ignore

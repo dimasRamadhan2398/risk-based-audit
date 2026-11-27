@@ -11,7 +11,6 @@ import (
 	ctrlCharter "audit-service/controllers/audit_charter"
 	ctrlMandate "audit-service/controllers/audit_mandate"
 	ctrlMedia "audit-service/controllers/media"
-	"audit-service/models"
 	"audit-service/pkg/database"
 	"audit-service/pkg/kafka"
 	"audit-service/pkg/logger"
@@ -82,45 +81,19 @@ func runServe(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// Auto-migrate uploaded document tables and analyzer snapshot on startup
-	if err := db.AutoMigrate(
-		&models.UploadedStrategicPlanDocument{},
-		&models.UploadedPlanDocument{},
-		&models.UploadedAnnualPlan{},
-		&models.UploadedAssignmentLetter{},
-		&models.UploadedAuditResultReport{},
-		&models.UploadedExecutiveSummary{},
-		&models.UploadedExecutiveSummaryReport{},
-		&models.ExecutiveSummary{},
-		&models.UploadedConsultingDocument{},
-		&models.UploadedPerformanceReport{},
-		&models.ImportedWorkingPaper{},
-		&models.AuditCompletionSnapshot{},
-		&models.WorkingPaperHeader{},
-		&models.WorkingPaperRisk{},
-		&models.WorkingPaperSample{},
-		&models.WorkingPaperCause{},
-		&models.WorkingPaperPlan{},
-		&models.FieldworkInterview{},
-		&models.FieldworkObservation{},
-		&models.FieldworkDocument{},
-		// Activity ID counter (pkg/activitycode); created here too so a deploy
-		// that skips migrate/seed does not break creating activities.
-		&models.ActivityCodeSequence{},
-		// Plan code PKAT-{year}-{seq} and its partial unique index (models/audit-annual-plan.go).
-		&models.AuditAnnual{},
-		// Annual plan snapshot refs, RKA headers, and audit activity columns needed
-		// by GET/DELETE /annual-audit-plans (PlanUsage) and annual_plan_sync.
-		&models.AnnualSnapshotRef{},
-		&models.ActivityPlan{},
-		&models.AuditActivity{},
-		&models.AuditResultReport{},
-	); err != nil {
-		logger.Error("Auto-migrate failed; audit tables may be missing columns or indexes", logger.LogField("error", err))
+	// Ensure UUID extension is enabled (no-op if already installed)
+	if err := enableUUIDExtension(db); err != nil {
+		logger.Warn("UUID extension may already exist or failed to create", logger.LogField("error", err))
 	}
 
-	if err := db.AutoMigrate(models.ICAssessmentModels()...); err != nil {
-		logger.Error("IC assessment auto-migrate failed", logger.LogField("error", err))
+	// Auto-migrate every audit-service model on startup because local, dev, and
+	// tenant stacks start with "audit serve" only. Migrating one model at a time
+	// guarantees a failure on one table never blocks later tables (e.g.
+	// assignment_letters, strategic_plans) from getting newly added columns.
+	for _, m := range allAuditModels() {
+		if err := db.AutoMigrate(m); err != nil {
+			logger.Error(fmt.Sprintf("Auto-migrate failed for %T; table may be missing columns or indexes", m), logger.LogField("error", err))
+		}
 	}
 	if err := migrateICAssessment(db); err != nil {
 		logger.Error("IC assessment migration failed", logger.LogField("error", err))
@@ -172,6 +145,9 @@ func runServe(cmd *cobra.Command, args []string) error {
 
 	// Ensure assignment_letters letter_number unique index is a partial index on active records only
 	db.Exec(`
+		ALTER TABLE assignment_letters DROP CONSTRAINT IF EXISTS uni_assignment_letters_letter_number;
+		ALTER TABLE assignment_letters DROP CONSTRAINT IF EXISTS assignment_letters_letter_number_key;
+		DROP INDEX IF EXISTS uni_assignment_letters_letter_number;
 		DROP INDEX IF EXISTS idx_assignment_letters_letter_number;
 		CREATE UNIQUE INDEX IF NOT EXISTS idx_assignment_letters_letter_number ON assignment_letters (letter_number) WHERE deleted_at IS NULL;
 	`)
@@ -256,13 +232,11 @@ func runServe(cmd *cobra.Command, args []string) error {
 	routeRegistry.SetAuditActivityController(auditActivityCtrl)
 	routeRegistry.SetMediaController(mediaCtrl)
 
-
 	// Initialize middleware
 	authMiddleware := middleware.NewAuthMiddleware(cfg.JWT.Secret)
 
 	// Create Gin engine
 	engine := gin.New()
-
 
 	// Apply global middleware
 	engine.Use(gin.Recovery())

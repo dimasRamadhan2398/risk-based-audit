@@ -971,7 +971,7 @@ export function useMappedDataImporter() {
               if (!cand.workingUnitDepartmentId) continue
               try {
                 const letterNumber = letterStore.generateNomorSurat(cand.auditTeam, cand.auditYear)
-                await $fetch(`${auditBaseUrl}/assignment-letters`, {
+                const res: any = await $fetch(`${auditBaseUrl}/assignment-letters`, {
                   method: 'POST',
                   body: {
                     ...cand,
@@ -980,6 +980,8 @@ export function useMappedDataImporter() {
                     status: 'Draft',
                   },
                 })
+                const created = res?.data || { ...cand, letterNumber }
+                letterStore.assignmentLetterList.unshift(created)
                 addedCount++
               } catch {
                 // ignore single letter failure
